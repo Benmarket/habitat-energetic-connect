@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, ArrowLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminSettings = () => {
   const { user, loading: authLoading } = useAuth();
@@ -24,7 +26,38 @@ const AdminSettings = () => {
     contactPhone: "01 23 45 67 89",
     address: "123 Rue de l'Énergie, 75001 Paris",
     metaDescription: "Bénéficiez d'une étude énergétique gratuite et découvrez les travaux subventionnés adaptés à votre logement.",
+    maintenanceMode: false,
+    maintenanceMessage: "Site en maintenance. Nous reviendrons bientôt!",
   });
+
+  useEffect(() => {
+    if (user) {
+      loadMaintenanceSettings();
+    }
+  }, [user]);
+
+  const loadMaintenanceSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "maintenance_mode")
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        const value = data.value as { enabled: boolean; message: string };
+        setSettings(prev => ({
+          ...prev,
+          maintenanceMode: value.enabled,
+          maintenanceMessage: value.message,
+        }));
+      }
+    } catch (error) {
+      console.error("Error loading maintenance settings:", error);
+    }
+  };
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -36,14 +69,34 @@ const AdminSettings = () => {
     e.preventDefault();
     setSaving(true);
 
-    // Simulate saving settings
-    setTimeout(() => {
+    try {
+      // Sauvegarder le mode maintenance
+      const { error } = await supabase
+        .from("site_settings")
+        .update({
+          value: {
+            enabled: settings.maintenanceMode,
+            message: settings.maintenanceMessage,
+          }
+        })
+        .eq("key", "maintenance_mode");
+
+      if (error) throw error;
+
       toast({
         title: "Paramètres sauvegardés",
         description: "Les modifications ont été enregistrées avec succès",
       });
+    } catch (error: any) {
+      console.error("Error saving settings:", error);
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de sauvegarder les paramètres",
+        variant: "destructive",
+      });
+    } finally {
       setSaving(false);
-    }, 1000);
+    }
   };
 
   if (authLoading || !user) {
@@ -164,6 +217,49 @@ const AdminSettings = () => {
                       placeholder="123 Rue de l'Énergie, 75001 Paris"
                       rows={2}
                     />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Mode Maintenance */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Mode maintenance</CardTitle>
+                  <CardDescription>
+                    Activer le mode maintenance pour mettre le site hors ligne temporairement
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="maintenanceMode" className="text-base">
+                        Activer le mode maintenance
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Le site sera inaccessible pour tous les visiteurs (sauf administrateurs)
+                      </p>
+                    </div>
+                    <Switch
+                      id="maintenanceMode"
+                      checked={settings.maintenanceMode}
+                      onCheckedChange={(checked) => 
+                        setSettings({ ...settings, maintenanceMode: checked })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="maintenanceMessage">Message de maintenance</Label>
+                    <Textarea
+                      id="maintenanceMessage"
+                      value={settings.maintenanceMessage}
+                      onChange={(e) => setSettings({ ...settings, maintenanceMessage: e.target.value })}
+                      placeholder="Site en maintenance. Nous reviendrons bientôt!"
+                      rows={3}
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Ce message sera affiché aux visiteurs pendant la maintenance
+                    </p>
                   </div>
                 </CardContent>
               </Card>
