@@ -117,7 +117,15 @@ const Dashboard = () => {
                     <p className="text-sm text-muted-foreground mb-4">
                       Accédez aux fonctionnalités d'administration
                     </p>
-                    {/* Add links to admin pages here */}
+                    <div className="space-y-2">
+                      {(isSuperAdmin || isAdmin) && (
+                        <Link to="/admin/categories">
+                          <Button variant="outline" className="w-full justify-start">
+                            Gérer les catégories
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               )}
