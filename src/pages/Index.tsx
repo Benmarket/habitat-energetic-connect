@@ -1,6 +1,7 @@
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
+import NewsSection from "@/components/NewsSection";
 
 const Index = () => {
   return (
@@ -16,8 +17,7 @@ const Index = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <HeroSection />
-        
-        {/* Additional sections can be added here */}
+        <NewsSection />
       </div>
     </>
   );

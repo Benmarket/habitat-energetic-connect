@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
 import { useAuth } from "@/hooks/useAuth";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, Newspaper, BookOpen, HandCoins, Plus } from "lucide-react";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -72,7 +73,7 @@ const Dashboard = () => {
           <div className="container mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold mb-8">Tableau de bord</h1>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               <Card>
                 <CardHeader>
                   <CardTitle>Profil</CardTitle>
@@ -121,6 +122,80 @@ const Dashboard = () => {
                 </Card>
               )}
             </div>
+
+            {/* Content Creation Cards */}
+            {(isSuperAdmin || isAdmin || isModerator) && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold">Créer du contenu</h2>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <Newspaper className="w-6 h-6 text-primary" />
+                        </div>
+                        <CardTitle>Actualité</CardTitle>
+                      </div>
+                      <CardDescription>
+                        Publier une nouvelle actualité sur les énergies renouvelables
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Link to="/creer-contenu?type=actualite">
+                        <Button className="w-full gap-2">
+                          <Plus className="w-4 h-4" />
+                          Créer une actualité
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <BookOpen className="w-6 h-6 text-primary" />
+                        </div>
+                        <CardTitle>Guide</CardTitle>
+                      </div>
+                      <CardDescription>
+                        Rédiger un guide pratique pour aider les utilisateurs
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Link to="/creer-contenu?type=guide">
+                        <Button className="w-full gap-2">
+                          <Plus className="w-4 h-4" />
+                          Créer un guide
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <HandCoins className="w-6 h-6 text-primary" />
+                        </div>
+                        <CardTitle>Aide & Subvention</CardTitle>
+                      </div>
+                      <CardDescription>
+                        Informer sur les aides et subventions disponibles
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Link to="/creer-contenu?type=aide">
+                        <Button className="w-full gap-2">
+                          <Plus className="w-4 h-4" />
+                          Créer une aide
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            )}
           </div>
         </main>
       </div>
