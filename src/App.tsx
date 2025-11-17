@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Actualites from "./pages/Actualites";
+import ArticleDetail from "./pages/ArticleDetail";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import CreatePost from "./pages/CreatePost";
@@ -24,6 +25,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/actualites" element={<Actualites />} />
+            <Route path="/actualites/:categorySlug/:slug" element={<ArticleDetail />} />
             <Route path="/connexion" element={<Auth />} />
             <Route path="/tableau-de-bord" element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
