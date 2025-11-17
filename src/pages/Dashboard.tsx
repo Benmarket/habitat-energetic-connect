@@ -23,7 +23,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (user) {
       fetchProfile();
-      fetchRoles();
+      fetchRole();
     }
   }, [user]);
 
@@ -38,7 +38,7 @@ const Dashboard = () => {
     if (data) setProfile(data);
   };
 
-  const fetchRoles = async () => {
+  const fetchRole = async () => {
     if (!user) return;
     const { data } = await supabase
       .from("user_roles")
