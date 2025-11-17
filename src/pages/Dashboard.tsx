@@ -12,7 +12,7 @@ const Dashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
-  const [roles, setRoles] = useState<string[]>([]);
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -43,9 +43,10 @@ const Dashboard = () => {
     const { data } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .single();
     
-    if (data) setRoles(data.map(r => r.role));
+    if (data) setRole(data.role);
   };
 
   if (loading || !user) {
@@ -56,9 +57,9 @@ const Dashboard = () => {
     );
   }
 
-  const isSuperAdmin = roles.includes("super_admin");
-  const isAdmin = roles.includes("admin");
-  const isModerator = roles.includes("moderator");
+  const isSuperAdmin = role === "super_admin";
+  const isAdmin = role === "admin";
+  const isModerator = role === "moderator";
 
   return (
     <>
@@ -91,17 +92,13 @@ const Dashboard = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Rôles</CardTitle>
+                  <CardTitle>Rôle</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {roles.length > 0 ? (
-                    <ul className="space-y-1">
-                      {roles.map((role) => (
-                        <li key={role} className="capitalize">
-                          {role.replace("_", " ")}
-                        </li>
-                      ))}
-                    </ul>
+                  {role ? (
+                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary font-medium capitalize">
+                      {role.replace("_", " ")}
+                    </div>
                   ) : (
                     <p className="text-muted-foreground">Aucun rôle assigné</p>
                   )}
