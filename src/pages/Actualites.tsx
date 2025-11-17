@@ -62,6 +62,9 @@ const Actualites = () => {
           ...post,
           category: post.post_categories?.[0]?.categories?.name || "Général",
           categorySlug: post.post_categories?.[0]?.categories?.slug || "general",
+          publishedAt: post.published_at,
+          featuredImage: post.featured_image,
+          contentType: post.content_type,
         }));
         setPosts(transformedData);
       }
