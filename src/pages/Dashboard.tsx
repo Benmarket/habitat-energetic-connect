@@ -115,17 +115,13 @@ const Dashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Accédez aux fonctionnalités d'administration
+                      Accédez à l'espace d'administration
                     </p>
-                    <div className="space-y-2">
-                      {(isSuperAdmin || isAdmin) && (
-                        <Link to="/admin/categories">
-                          <Button variant="outline" className="w-full justify-start">
-                            Gérer les catégories
-                          </Button>
-                        </Link>
-                      )}
-                    </div>
+                    <Link to="/administration">
+                      <Button className="w-full">
+                        Accéder à l'administration
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
               )}
