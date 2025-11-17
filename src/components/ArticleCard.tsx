@@ -31,31 +31,30 @@ const ArticleCard = ({
   const articleUrl = `/${basePath}/${categorySlug}/${slug}`;
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full flex flex-col">
+    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col group border-border/50">
       <Link to={articleUrl} className="block">
-        <div className="aspect-video overflow-hidden">
+        <div className="aspect-video overflow-hidden bg-muted">
           <img
             src={featuredImage}
             alt={title}
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         </div>
       </Link>
       <CardContent className="p-6 flex-1 flex flex-col">
-        <div className="flex items-center gap-4 mb-4">
-          <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20">
+        <div className="flex items-center justify-between mb-4">
+          <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 rounded-full px-4 py-1">
             {category}
           </Badge>
           <div className="flex items-center text-sm text-muted-foreground">
-            <Calendar className="w-4 h-4 mr-1" />
-            {format(new Date(publishedAt), "d MMMM yyyy", { locale: fr })}
+            {format(new Date(publishedAt), "d MMM yyyy", { locale: fr })}
           </div>
         </div>
-        <Link to={articleUrl} className="group flex-1 flex flex-col">
-          <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2">
+        <Link to={articleUrl} className="group/link flex-1 flex flex-col">
+          <h3 className="text-xl font-bold mb-3 group-hover/link:text-primary transition-colors line-clamp-2 leading-tight">
             {title}
           </h3>
-          <p className="text-muted-foreground line-clamp-3">{excerpt}</p>
+          <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed">{excerpt}</p>
         </Link>
       </CardContent>
     </Card>
