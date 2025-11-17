@@ -12,6 +12,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import CreatePost from "./pages/CreatePost";
 import Administration from "./pages/Administration";
+import AdminUsers from "./pages/AdminUsers";
 import AdminCategories from "./pages/AdminCategories";
 import AdminTags from "./pages/AdminTags";
 import AdminSettings from "./pages/AdminSettings";
@@ -36,6 +37,7 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/creer-contenu" element={<CreatePost />} />
               <Route path="/administration" element={<Administration />} />
+              <Route path="/admin/utilisateurs" element={<AdminUsers />} />
               <Route path="/admin/categories" element={<AdminCategories />} />
               <Route path="/admin/etiquettes" element={<AdminTags />} />
               <Route path="/admin/parametres" element={<AdminSettings />} />

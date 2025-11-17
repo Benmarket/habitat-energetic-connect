@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, FolderTree, Tags, Settings, ArrowLeft } from "lucide-react";
+import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft } from "lucide-react";
 
 const Administration = () => {
   const { user, loading } = useAuth();
@@ -50,6 +50,28 @@ const Administration = () => {
             </p>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Gérer les utilisateurs */}
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <Users className="w-6 h-6 text-primary" />
+                    </div>
+                  </div>
+                  <CardTitle>Gérer les utilisateurs</CardTitle>
+                  <CardDescription>
+                    Modifiez les profils et les rôles des utilisateurs
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Link to="/admin/utilisateurs">
+                    <Button className="w-full">
+                      Accéder aux utilisateurs
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
               {/* Gérer les catégories */}
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader>
