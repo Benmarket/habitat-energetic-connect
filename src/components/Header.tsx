@@ -7,6 +7,7 @@ import { MegaMenu } from "@/components/MegaMenu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { AuthModal } from "@/components/AuthModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +18,7 @@ import {
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [profile, setProfile] = useState<{ first_name: string | null; last_name: string | null } | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const { user, signOut } = useAuth();
@@ -175,11 +177,9 @@ const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="outline" asChild>
-                <Link to="/connexion">
-                  <User className="h-5 w-5 mr-2" />
-                  Connexion
-                </Link>
+              <Button variant="outline" onClick={() => setIsAuthModalOpen(true)}>
+                <User className="h-5 w-5 mr-2" />
+                Connexion
               </Button>
             )}
           </div>
@@ -264,11 +264,16 @@ const Header = () => {
                     </Button>
                   </>
                 ) : (
-                  <Button variant="outline" asChild className="w-full">
-                    <Link to="/connexion" onClick={() => setIsMenuOpen(false)}>
-                      <User className="h-5 w-5 mr-2" />
-                      Connexion
-                    </Link>
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setIsAuthModalOpen(true);
+                    }}
+                  >
+                    <User className="h-5 w-5 mr-2" />
+                    Connexion
                   </Button>
                 )}
               </div>
@@ -276,6 +281,8 @@ const Header = () => {
           </nav>
         )}
       </div>
+      
+      <AuthModal open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
     </header>
   );
 };
