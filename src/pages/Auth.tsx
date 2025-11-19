@@ -84,7 +84,7 @@ const Auth = () => {
       });
 
       setIsLoading(true);
-      const { error } = await signUp(data.email, data.password, data.firstName, data.lastName);
+      const { error } = await signUp(data.email, data.password, data.firstName, data.lastName, "", "particulier");
       
       if (error) {
         toast.error("Erreur d'inscription", {

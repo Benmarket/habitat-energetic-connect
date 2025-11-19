@@ -19,7 +19,7 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [profile, setProfile] = useState<{ first_name: string | null; last_name: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ first_name: string | null; last_name: string | null; account_type: string | null } | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ const Header = () => {
       // Fetch profile
       supabase
         .from('profiles')
-        .select('first_name, last_name')
+        .select('first_name, last_name, account_type')
         .eq('id', user.id)
         .single()
         .then(({ data }) => {
@@ -131,7 +131,7 @@ const Header = () => {
                     <div className="flex flex-col">
                       <span className="font-semibold text-foreground">{getFullName()}</span>
                       <Badge variant="outline" className="w-fit text-xs bg-emerald-50 text-emerald-700 border-emerald-200">
-                        particulier
+                        {profile?.account_type || 'particulier'}
                       </Badge>
                     </div>
                   </div>
