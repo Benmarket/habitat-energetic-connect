@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Home, Building2 } from "lucide-react";
 
 const signInSchema = z.object({
@@ -157,13 +156,8 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "signin" | "signup")} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="signin">Connexion</TabsTrigger>
-            <TabsTrigger value="signup">Inscription</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="signin">
+        <div className="pt-4">
+          {activeTab === "signin" ? (
             <form onSubmit={handleSignIn} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="signin-email">Email</Label>
@@ -211,9 +205,8 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                 </button>
               </div>
             </form>
-          </TabsContent>
-
-          <TabsContent value="signup">
+          ) : (
+            <div>
             {/* Account Type Selection */}
             <div className="grid grid-cols-2 gap-3 mb-6">
               <button
@@ -362,8 +355,9 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                 </button>
               </div>
             </form>
-          </TabsContent>
-        </Tabs>
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
