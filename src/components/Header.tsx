@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { MegaMenu } from "@/components/MegaMenu";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,26 +34,7 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8">
-            <Link to="/offres" className="text-foreground hover:text-primary transition-colors">
-              Offres
-            </Link>
-            <Link to="/guides" className="text-foreground hover:text-primary transition-colors">
-              Guides
-            </Link>
-            <Link to="/aides" className="text-foreground hover:text-primary transition-colors">
-              Aides
-            </Link>
-            <Link to="/actualites" className="text-foreground hover:text-primary transition-colors">
-              Actualité
-            </Link>
-            <Link to="/simulateurs" className="text-foreground hover:text-primary transition-colors">
-              Simulateurs
-            </Link>
-            <Link to="/qui-sommes-nous" className="text-foreground hover:text-primary transition-colors">
-              Qui sommes-nous
-            </Link>
-          </nav>
+          <MegaMenu />
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center space-x-4">
