@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ChevronDown, Sun, Droplet, Home, FileText, Calculator, Lightbulb } from "lucide-react";
+import { Sun, Droplet, Home, FileText, Calculator, Lightbulb } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -95,7 +95,6 @@ export const MegaMenu = () => {
         <NavigationMenuItem>
           <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
             Offres
-            <ChevronDown className="ml-1 h-4 w-4 transition duration-200 group-data-[state=open]:rotate-180" />
           </NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="grid grid-cols-3 gap-6 p-6 w-[800px]">
@@ -128,10 +127,9 @@ export const MegaMenu = () => {
         </NavigationMenuItem>
 
         {/* Guides */}
-        <NavigationMenuItem>
+        <NavigationMenuItem className="hidden xl:flex">
           <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
             Guides
-            <ChevronDown className="ml-1 h-4 w-4 transition duration-200 group-data-[state=open]:rotate-180" />
           </NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="grid grid-cols-1 gap-6 p-6 w-[300px]">
@@ -167,7 +165,6 @@ export const MegaMenu = () => {
         <NavigationMenuItem>
           <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
             Aides
-            <ChevronDown className="ml-1 h-4 w-4 transition duration-200 group-data-[state=open]:rotate-180" />
           </NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="grid grid-cols-1 gap-6 p-6 w-[300px]">
@@ -214,10 +211,9 @@ export const MegaMenu = () => {
         </NavigationMenuItem>
 
         {/* Simulateurs */}
-        <NavigationMenuItem>
+        <NavigationMenuItem className="hidden 2xl:flex">
           <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
             Simulateurs
-            <ChevronDown className="ml-1 h-4 w-4 transition duration-200 group-data-[state=open]:rotate-180" />
           </NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="grid grid-cols-1 gap-6 p-6 w-[300px]">
@@ -250,7 +246,7 @@ export const MegaMenu = () => {
         </NavigationMenuItem>
 
         {/* Qui sommes-nous - simple link */}
-        <NavigationMenuItem>
+        <NavigationMenuItem className="hidden 2xl:flex">
           <NavigationMenuLink asChild>
             <Link
               to="/qui-sommes-nous"
