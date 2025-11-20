@@ -8,12 +8,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const contactSchema = z.object({
+const contactSchemaBase = z.object({
   fullName: z.string().trim().min(2, "Le nom doit contenir au moins 2 caractères").max(100),
   email: z.string().trim().email("Email invalide").max(255),
   phone: z.string().trim().min(10, "Numéro de téléphone invalide").max(20),
   subject: z.string().min(1, "Veuillez sélectionner un sujet"),
   message: z.string().trim().min(10, "Le message doit contenir au moins 10 caractères").max(500),
+  companyName: z.string().optional(),
 });
 
 const ContactSection = () => {
@@ -24,6 +25,7 @@ const ContactSection = () => {
     phone: "",
     subject: "",
     message: "",
+    companyName: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -31,8 +33,14 @@ const ContactSection = () => {
     e.preventDefault();
     
     try {
-      // Validate form data
-      contactSchema.parse(formData);
+      // Validate form data with company name required for professionnel
+      const schema = accountType === "professionnel" 
+        ? contactSchemaBase.extend({
+            companyName: z.string().trim().min(2, "Le nom de l'entreprise est requis").max(100),
+          })
+        : contactSchemaBase;
+      
+      schema.parse(formData);
       
       setIsSubmitting(true);
 
@@ -42,7 +50,7 @@ const ContactSection = () => {
       const lastName = nameParts.slice(1).join(" ") || "";
 
       // Insert into leads table
-      const { error } = await supabase.from("leads").insert({
+      const leadData: any = {
         first_name: firstName,
         last_name: lastName,
         email: formData.email,
@@ -51,9 +59,11 @@ const ContactSection = () => {
         city: "N/A", // Required field, but not collected in contact form
         postal_code: "00000", // Required field, but not collected in contact form
         property_type: accountType,
-        notes: `Sujet: ${formData.subject}\n\nMessage: ${formData.message}`,
+        notes: `Sujet: ${formData.subject}\n\n${accountType === "professionnel" && formData.companyName ? `Entreprise: ${formData.companyName}\n\n` : ""}Message: ${formData.message}`,
         status: "new",
-      });
+      };
+
+      const { error } = await supabase.from("leads").insert(leadData);
 
       if (error) throw error;
 
@@ -68,6 +78,7 @@ const ContactSection = () => {
         phone: "",
         subject: "",
         message: "",
+        companyName: "",
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -192,7 +203,7 @@ const ContactSection = () => {
               {/* Full Name and Email */}
               <div className="grid md:grid-cols-2 gap-4">
                 <Input
-                  placeholder="Nom et prénom"
+                  placeholder={accountType === "professionnel" ? "Nom du contact" : "Nom et prénom"}
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                   required
@@ -208,15 +219,26 @@ const ContactSection = () => {
                 />
               </div>
 
-              {/* Phone */}
-              <Input
-                type="tel"
-                placeholder="Téléphone"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required
-                maxLength={20}
-              />
+              {/* Phone and Company Name (for professionnel only) */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <Input
+                  type="tel"
+                  placeholder="Téléphone"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  required
+                  maxLength={20}
+                />
+                {accountType === "professionnel" && (
+                  <Input
+                    placeholder="Nom de l'entreprise"
+                    value={formData.companyName}
+                    onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                    required
+                    maxLength={100}
+                  />
+                )}
+              </div>
 
               {/* Subject Dropdown */}
               <Select value={formData.subject} onValueChange={(value) => setFormData({ ...formData, subject: value })}>
@@ -234,11 +256,11 @@ const ContactSection = () => {
                     </>
                   ) : (
                     <>
-                      <SelectItem value="partenariat">Demande de partenariat</SelectItem>
-                      <SelectItem value="projet-entreprise">Projet d'entreprise</SelectItem>
-                      <SelectItem value="information-commerciale">Information commerciale</SelectItem>
-                      <SelectItem value="devis-professionnel">Devis professionnel</SelectItem>
-                      <SelectItem value="autre-professionnel">Autre demande</SelectItem>
+                      <SelectItem value="demande-partenariat">Demande de partenariat</SelectItem>
+                      <SelectItem value="referencement-installateur">Référencement installateur</SelectItem>
+                      <SelectItem value="formation-equipes">Formation équipes</SelectItem>
+                      <SelectItem value="support-technique">Support technique</SelectItem>
+                      <SelectItem value="autre-demande">Autre demande</SelectItem>
                     </>
                   )}
                 </SelectContent>
