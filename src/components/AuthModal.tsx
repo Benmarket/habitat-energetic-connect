@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -45,6 +45,13 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
   const [accountType, setAccountType] = useState<"particulier" | "professionnel">("particulier");
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
+
+  // Reset to signin tab whenever modal opens
+  useEffect(() => {
+    if (open) {
+      setActiveTab("signin");
+    }
+  }, [open]);
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
