@@ -33,45 +33,37 @@ const HeroSection = () => {
 
             {/* Quick action buttons */}
             <div className="grid sm:grid-cols-2 gap-4 mb-8">
-              <Button variant="secondary" className="h-auto py-4 px-6 justify-start" asChild>
-                <Link to="/offres/panneaux-solaires">
-                  <Sun className="w-5 h-5 mr-3" />
-                  <div className="text-left">
-                    <div className="font-semibold">Panneaux solaires</div>
-                    <div className="text-sm opacity-80">Jusqu'à 80% d'économies</div>
-                  </div>
-                </Link>
-              </Button>
+              <Link 
+                to="/offres/panneaux-solaires"
+                className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/20 transition-all"
+              >
+                <Sun className="w-6 h-6 text-yellow-400 flex-shrink-0" />
+                <span className="text-white font-medium text-lg">Panneaux solaires</span>
+              </Link>
 
-              <Button variant="secondary" className="h-auto py-4 px-6 justify-start" asChild>
-                <Link to="/offres/pompe-a-chaleur">
-                  <Droplets className="w-5 h-5 mr-3" />
-                  <div className="text-left">
-                    <div className="font-semibold">Pompe à chaleur</div>
-                    <div className="text-sm opacity-80">Chauffage écologique</div>
-                  </div>
-                </Link>
-              </Button>
+              <Link 
+                to="/offres/pompe-a-chaleur"
+                className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/20 transition-all"
+              >
+                <Droplets className="w-6 h-6 text-blue-400 flex-shrink-0" />
+                <span className="text-white font-medium text-lg">Pompe à chaleur</span>
+              </Link>
 
-              <Button variant="secondary" className="h-auto py-4 px-6 justify-start" asChild>
-                <Link to="/offres/isolation">
-                  <Home className="w-5 h-5 mr-3" />
-                  <div className="text-left">
-                    <div className="font-semibold">Isolation</div>
-                    <div className="text-sm opacity-80">Confort thermique</div>
-                  </div>
-                </Link>
-              </Button>
+              <Link 
+                to="/offres/isolation"
+                className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/20 transition-all"
+              >
+                <Home className="w-6 h-6 text-green-400 flex-shrink-0" />
+                <span className="text-white font-medium text-lg">Isolation</span>
+              </Link>
 
-              <Button variant="secondary" className="h-auto py-4 px-6 justify-start" asChild>
-                <Link to="/aides">
-                  <HandCoins className="w-5 h-5 mr-3" />
-                  <div className="text-left">
-                    <div className="font-semibold">Aides & Subventions</div>
-                    <div className="text-sm opacity-80">Financez vos travaux</div>
-                  </div>
-                </Link>
-              </Button>
+              <Link 
+                to="/aides"
+                className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/20 transition-all"
+              >
+                <HandCoins className="w-6 h-6 text-cyan-400 flex-shrink-0" />
+                <span className="text-white font-medium text-lg">Aides & Subventions</span>
+              </Link>
             </div>
           </div>
 
