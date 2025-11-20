@@ -159,7 +159,10 @@ const ContactSection = () => {
               <div className="grid grid-cols-2 gap-3 mb-2">
                 <button
                   type="button"
-                  onClick={() => setAccountType("particulier")}
+                  onClick={() => {
+                    setAccountType("particulier");
+                    setFormData({ ...formData, subject: "" }); // Reset subject when changing type
+                  }}
                   className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
                     accountType === "particulier"
                       ? "border-primary bg-primary/5 text-primary"
@@ -171,7 +174,10 @@ const ContactSection = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setAccountType("professionnel")}
+                  onClick={() => {
+                    setAccountType("professionnel");
+                    setFormData({ ...formData, subject: "" }); // Reset subject when changing type
+                  }}
                   className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
                     accountType === "professionnel"
                       ? "border-primary bg-primary/5 text-primary"
@@ -214,16 +220,27 @@ const ContactSection = () => {
 
               {/* Subject Dropdown */}
               <Select value={formData.subject} onValueChange={(value) => setFormData({ ...formData, subject: value })}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-background">
                   <SelectValue placeholder="Sélectionnez un sujet" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="panneaux-solaires">Panneaux solaires</SelectItem>
-                  <SelectItem value="pompe-chaleur">Pompe à chaleur</SelectItem>
-                  <SelectItem value="isolation">Isolation</SelectItem>
-                  <SelectItem value="aides-subventions">Aides et subventions</SelectItem>
-                  <SelectItem value="audit-energetique">Audit énergétique</SelectItem>
-                  <SelectItem value="autre">Autre</SelectItem>
+                <SelectContent className="bg-popover z-50">
+                  {accountType === "particulier" ? (
+                    <>
+                      <SelectItem value="demande-devis">Demande de devis</SelectItem>
+                      <SelectItem value="information-produit">Information produit</SelectItem>
+                      <SelectItem value="questions-aides">Questions sur les aides</SelectItem>
+                      <SelectItem value="suivi-installation">Suivi d'installation</SelectItem>
+                      <SelectItem value="autre-question">Autre question</SelectItem>
+                    </>
+                  ) : (
+                    <>
+                      <SelectItem value="partenariat">Demande de partenariat</SelectItem>
+                      <SelectItem value="projet-entreprise">Projet d'entreprise</SelectItem>
+                      <SelectItem value="information-commerciale">Information commerciale</SelectItem>
+                      <SelectItem value="devis-professionnel">Devis professionnel</SelectItem>
+                      <SelectItem value="autre-professionnel">Autre demande</SelectItem>
+                    </>
+                  )}
                 </SelectContent>
               </Select>
 
