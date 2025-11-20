@@ -6,8 +6,10 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import { useEffect, useState } from "react";
 
 const reviews = [
   {
@@ -68,6 +70,18 @@ const reviews = [
 
 const ReviewsSection = () => {
   const averageRating = 4.7;
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    if (!api) return;
+
+    setCurrent(api.selectedScrollSnap());
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }).map((_, index) => (
@@ -115,6 +129,7 @@ const ReviewsSection = () => {
 
         {/* Reviews Carousel */}
         <Carousel
+          setApi={setApi}
           opts={{
             align: "start",
             loop: true,
@@ -124,7 +139,7 @@ const ReviewsSection = () => {
               delay: 7000,
             }),
           ]}
-          className="w-full mb-8"
+          className="w-full mb-4"
         >
           <CarouselContent>
             {[0, 3].map((startIndex) => (
@@ -168,6 +183,22 @@ const ReviewsSection = () => {
           <CarouselPrevious className="hidden lg:flex -left-12" />
           <CarouselNext className="hidden lg:flex -right-12" />
         </Carousel>
+
+        {/* Pagination Dots */}
+        <div className="flex justify-center gap-2 mb-8">
+          {[0, 1].map((index) => (
+            <button
+              key={index}
+              onClick={() => api?.scrollTo(index)}
+              className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                current === index
+                  ? "bg-primary"
+                  : "bg-muted-foreground/30"
+              }`}
+              aria-label={`Aller à la slide ${index + 1}`}
+            />
+          ))}
+        </div>
 
         {/* CTA Button */}
         <div className="flex justify-center">
