@@ -8,63 +8,70 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Autoplay from "embla-carousel-autoplay";
 import { useEffect, useState } from "react";
+import sophieAvatar from "@/assets/avatars/sophie-l.jpg";
+import marcAvatar from "@/assets/avatars/marc-d.jpg";
+import claireAvatar from "@/assets/avatars/claire-r.jpg";
+import thomasAvatar from "@/assets/avatars/thomas-b.jpg";
+import julieAvatar from "@/assets/avatars/julie-m.jpg";
+import pierreAvatar from "@/assets/avatars/pierre-f.jpg";
 
 const reviews = [
   {
     id: 1,
     name: "Sophie L.",
     initials: "SL",
+    avatar: sophieAvatar,
     date: "mai 2024",
     rating: 5,
     text: "Installation solaire impeccable par un partenaire Prime Énergies. Suivi sérieux et délais respectés. Je recommande !",
-    color: "bg-emerald-500",
   },
   {
     id: 2,
     name: "Marc D.",
     initials: "MD",
+    avatar: marcAvatar,
     date: "févr. 2024",
     rating: 5,
     text: "Service client très réactif, on m'a bien accompagné sur les aides. Les travaux se sont très bien passés.",
-    color: "bg-emerald-600",
   },
   {
     id: 3,
     name: "Claire R.",
     initials: "CR",
+    avatar: claireAvatar,
     date: "janv. 2024",
     rating: 4,
     text: "De bons conseils et un installateur RGE sérieux. Chantier propre, production conforme aux estimations.",
-    color: "bg-emerald-500",
   },
   {
     id: 4,
     name: "Thomas B.",
     initials: "TB",
+    avatar: thomasAvatar,
     date: "mars 2024",
     rating: 5,
     text: "Pompe à chaleur installée rapidement. Économies visibles dès le premier mois. Équipe professionnelle et à l'écoute.",
-    color: "bg-emerald-600",
   },
   {
     id: 5,
     name: "Julie M.",
     initials: "JM",
+    avatar: julieAvatar,
     date: "avril 2024",
     rating: 5,
     text: "Excellent accompagnement du début à la fin. Les démarches administratives ont été simplifiées. Très satisfaite !",
-    color: "bg-emerald-500",
   },
   {
     id: 6,
     name: "Pierre F.",
     initials: "PF",
+    avatar: pierreAvatar,
     date: "déc. 2023",
     rating: 5,
     text: "Installation d'isolation thermique impeccable. Résultat au-delà de mes attentes. Je recommande vivement.",
-    color: "bg-emerald-600",
   },
 ];
 
@@ -153,11 +160,10 @@ const ReviewsSection = () => {
                       {/* User Info */}
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <div
-                            className={`w-12 h-12 ${review.color} rounded-full flex items-center justify-center text-white font-semibold`}
-                          >
-                            {review.initials}
-                          </div>
+                          <Avatar className="w-12 h-12">
+                            <AvatarImage src={review.avatar} alt={review.name} />
+                            <AvatarFallback>{review.initials}</AvatarFallback>
+                          </Avatar>
                           <div>
                             <div className="font-semibold">{review.name}</div>
                             <div className="text-sm text-muted-foreground">{review.date}</div>
