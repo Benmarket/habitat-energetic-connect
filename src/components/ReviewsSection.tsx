@@ -1,5 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Star, MessageSquare } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 const reviews = [
   {
@@ -28,6 +36,33 @@ const reviews = [
     rating: 4,
     text: "De bons conseils et un installateur RGE sérieux. Chantier propre, production conforme aux estimations.",
     color: "bg-emerald-500",
+  },
+  {
+    id: 4,
+    name: "Thomas B.",
+    initials: "TB",
+    date: "mars 2024",
+    rating: 5,
+    text: "Pompe à chaleur installée rapidement. Économies visibles dès le premier mois. Équipe professionnelle et à l'écoute.",
+    color: "bg-emerald-600",
+  },
+  {
+    id: 5,
+    name: "Julie M.",
+    initials: "JM",
+    date: "avril 2024",
+    rating: 5,
+    text: "Excellent accompagnement du début à la fin. Les démarches administratives ont été simplifiées. Très satisfaite !",
+    color: "bg-emerald-500",
+  },
+  {
+    id: 6,
+    name: "Pierre F.",
+    initials: "PF",
+    date: "déc. 2023",
+    rating: 5,
+    text: "Installation d'isolation thermique impeccable. Résultat au-delà de mes attentes. Je recommande vivement.",
+    color: "bg-emerald-600",
   },
 ];
 
@@ -78,40 +113,61 @@ const ReviewsSection = () => {
           </div>
         </div>
 
-        {/* Reviews Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {reviews.map((review) => (
-            <div
-              key={review.id}
-              className="bg-white rounded-xl p-6 shadow-sm border border-border hover:shadow-md transition-shadow"
-            >
-              {/* User Info */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`w-12 h-12 ${review.color} rounded-full flex items-center justify-center text-white font-semibold`}
-                  >
-                    {review.initials}
-                  </div>
-                  <div>
-                    <div className="font-semibold">{review.name}</div>
-                    <div className="text-sm text-muted-foreground">{review.date}</div>
-                  </div>
+        {/* Reviews Carousel */}
+        <Carousel
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+          plugins={[
+            Autoplay({
+              delay: 7000,
+            }),
+          ]}
+          className="w-full mb-8"
+        >
+          <CarouselContent>
+            {[0, 3].map((startIndex) => (
+              <CarouselItem key={startIndex}>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {reviews.slice(startIndex, startIndex + 3).map((review) => (
+                    <div
+                      key={review.id}
+                      className="bg-white rounded-xl p-6 shadow-sm border border-border hover:shadow-md transition-shadow"
+                    >
+                      {/* User Info */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-12 h-12 ${review.color} rounded-full flex items-center justify-center text-white font-semibold`}
+                          >
+                            {review.initials}
+                          </div>
+                          <div>
+                            <div className="font-semibold">{review.name}</div>
+                            <div className="text-sm text-muted-foreground">{review.date}</div>
+                          </div>
+                        </div>
+                        <div className="flex gap-1">{renderStars(review.rating)}</div>
+                      </div>
+
+                      {/* Review Text */}
+                      <p className="text-muted-foreground mb-3 leading-relaxed">{review.text}</p>
+
+                      {/* Verified Badge */}
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <span className="text-blue-600 font-bold">G</span>
+                        <span>Vérifié sur Google</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex gap-1">{renderStars(review.rating)}</div>
-              </div>
-
-              {/* Review Text */}
-              <p className="text-muted-foreground mb-3 leading-relaxed">{review.text}</p>
-
-              {/* Verified Badge */}
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span className="text-blue-600 font-bold">G</span>
-                <span>Vérifié sur Google</span>
-              </div>
-            </div>
-          ))}
-        </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="hidden lg:flex -left-12" />
+          <CarouselNext className="hidden lg:flex -right-12" />
+        </Carousel>
 
         {/* CTA Button */}
         <div className="flex justify-center">
