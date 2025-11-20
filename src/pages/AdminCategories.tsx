@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -348,6 +349,7 @@ const AdminCategories = () => {
             </Card>
           </div>
         </main>
+        <Footer />
       </div>
     </>
   );

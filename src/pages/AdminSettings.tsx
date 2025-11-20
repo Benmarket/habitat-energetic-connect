@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -282,6 +283,7 @@ const AdminSettings = () => {
             </form>
           </div>
         </main>
+        <Footer />
       </div>
     </>
   );

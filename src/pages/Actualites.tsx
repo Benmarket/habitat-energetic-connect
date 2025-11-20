@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -146,6 +147,7 @@ const Actualites = () => {
             </div>
           </section>
         </main>
+        <Footer />
       </div>
     </>
   );
