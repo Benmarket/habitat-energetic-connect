@@ -91,13 +91,13 @@ const Header = () => {
           {/* Desktop Navigation */}
           <MegaMenu />
 
-          {/* Desktop CTA */}
-          <div className="hidden lg:flex items-center space-x-4">
-            <a href="tel:0800123456" className="flex items-center text-foreground hover:text-primary transition-colors">
+          {/* Desktop CTA - Phone and CTA button always visible, shrink-0 to prevent wrapping */}
+          <div className="hidden lg:flex items-center space-x-4 shrink-0">
+            <a href="tel:0800123456" className="flex items-center text-foreground hover:text-primary transition-colors whitespace-nowrap">
               <Phone className="w-4 h-4 mr-2" />
               <span className="font-semibold">0 800 123 456</span>
             </a>
-            <Button asChild>
+            <Button asChild className="whitespace-nowrap">
               <Link to="/#etude">Trouver un installateur</Link>
             </Button>
             {user ? (
