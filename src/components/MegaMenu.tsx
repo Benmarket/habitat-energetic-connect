@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Sun, Droplet, Home, FileText, Calculator, Lightbulb } from "lucide-react";
+import { Sun, Droplet, Home, FileText, Calculator, Lightbulb, Newspaper, Users2 } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -8,7 +8,6 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import { cn } from "@/lib/utils";
 
 const megaMenuData = {
   offres: {
@@ -25,20 +24,20 @@ const megaMenuData = {
       },
       {
         icon: Droplet,
+        title: "CHAUFFAGE",
+        items: [
+          { label: "Pompe à chaleur air/eau", href: "/offres/pac-air-eau" },
+          { label: "Pompe à chaleur air/air", href: "/offres/pac-air-air" },
+          { label: "Chauffe-eau thermodynamique", href: "/offres/chauffe-eau" },
+        ],
+      },
+      {
+        icon: Home,
         title: "ISOLATION",
         items: [
           { label: "Isolation des combles", href: "/offres/isolation-combles" },
           { label: "Isolation extérieure", href: "/offres/isolation-exterieure" },
           { label: "Planchers bas", href: "/offres/planchers-bas" },
-        ],
-      },
-      {
-        icon: Home,
-        title: "OUTILS & AIDES",
-        items: [
-          { label: "Simulateurs", href: "/simulateurs" },
-          { label: "Guides", href: "/guides" },
-          { label: "Aides/Subventions", href: "/aides" },
         ],
       },
     ],
@@ -53,6 +52,7 @@ const megaMenuData = {
           { label: "Guide énergie solaire", href: "/guides/energie-solaire" },
           { label: "Guide isolation", href: "/guides/isolation" },
           { label: "Guide pompe à chaleur", href: "/guides/pompe-chaleur" },
+          { label: "Guide aides financières", href: "/guides/aides" },
         ],
       },
     ],
@@ -67,6 +67,22 @@ const megaMenuData = {
           { label: "MaPrimeRénov'", href: "/aides/maprimorenov" },
           { label: "CEE", href: "/aides/cee" },
           { label: "Éco-PTZ", href: "/aides/eco-ptz" },
+          { label: "TVA réduite", href: "/aides/tva-reduite" },
+        ],
+      },
+    ],
+  },
+  actualite: {
+    title: "Actualité",
+    categories: [
+      {
+        icon: Newspaper,
+        title: "ACTUALITÉS",
+        items: [
+          { label: "Toutes les actualités", href: "/actualites" },
+          { label: "Réglementation", href: "/actualites?filter=reglementation" },
+          { label: "Innovations", href: "/actualites?filter=innovations" },
+          { label: "Conseils", href: "/actualites?filter=conseils" },
         ],
       },
     ],
@@ -80,7 +96,23 @@ const megaMenuData = {
         items: [
           { label: "Simulateur solaire", href: "/simulateurs/solaire" },
           { label: "Simulateur isolation", href: "/simulateurs/isolation" },
+          { label: "Simulateur pompe à chaleur", href: "/simulateurs/pac" },
           { label: "Simulateur aides", href: "/simulateurs/aides" },
+        ],
+      },
+    ],
+  },
+  quiSommesNous: {
+    title: "Qui sommes-nous?",
+    categories: [
+      {
+        icon: Users2,
+        title: "À PROPOS",
+        items: [
+          { label: "Notre mission", href: "/qui-sommes-nous/mission" },
+          { label: "Notre réseau", href: "/qui-sommes-nous/reseau" },
+          { label: "Nos engagements", href: "/qui-sommes-nous/engagements" },
+          { label: "Contact", href: "/qui-sommes-nous/contact" },
         ],
       },
     ],
@@ -91,13 +123,13 @@ export const MegaMenu = () => {
   return (
     <NavigationMenu className="hidden lg:flex">
       <NavigationMenuList className="space-x-1">
-        {/* Offres */}
+        {/* Offres - Always visible */}
         <NavigationMenuItem>
           <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
             Offres
           </NavigationMenuTrigger>
           <NavigationMenuContent>
-            <div className="grid grid-cols-3 gap-6 p-6 w-[800px]">
+            <div className="grid grid-cols-3 gap-6 p-6 w-[700px] bg-background">
               {megaMenuData.offres.categories.map((category, idx) => (
                 <div key={idx}>
                   <div className="flex items-center gap-2 mb-3">
@@ -126,13 +158,13 @@ export const MegaMenu = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Guides */}
+        {/* Guides - Hidden below xl */}
         <NavigationMenuItem className="hidden xl:flex">
           <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
             Guides
           </NavigationMenuTrigger>
           <NavigationMenuContent>
-            <div className="grid grid-cols-1 gap-6 p-6 w-[300px]">
+            <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
               {megaMenuData.guides.categories.map((category, idx) => (
                 <div key={idx}>
                   <div className="flex items-center gap-2 mb-3">
@@ -161,13 +193,13 @@ export const MegaMenu = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Aides */}
-        <NavigationMenuItem>
+        {/* Aides - Hidden below 2xl */}
+        <NavigationMenuItem className="hidden 2xl:flex">
           <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
             Aides
           </NavigationMenuTrigger>
           <NavigationMenuContent>
-            <div className="grid grid-cols-1 gap-6 p-6 w-[300px]">
+            <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
               {megaMenuData.aides.categories.map((category, idx) => (
                 <div key={idx}>
                   <div className="flex items-center gap-2 mb-3">
@@ -196,27 +228,48 @@ export const MegaMenu = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Actualité - simple link */}
+        {/* Actualité - Always visible */}
         <NavigationMenuItem>
-          <NavigationMenuLink asChild>
-            <Link
-              to="/actualites"
-              className={cn(
-                "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-primary focus:bg-accent focus:text-primary focus:outline-none"
-              )}
-            >
-              Actualité
-            </Link>
-          </NavigationMenuLink>
+          <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
+            Actualité
+          </NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
+              {megaMenuData.actualite.categories.map((category, idx) => (
+                <div key={idx}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <category.icon className="w-5 h-5 text-primary" />
+                    <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">
+                      {category.title}
+                    </h3>
+                  </div>
+                  <ul className="space-y-2">
+                    {category.items.map((item, itemIdx) => (
+                      <li key={itemIdx}>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to={item.href}
+                            className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                          >
+                            {item.label}
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Simulateurs */}
-        <NavigationMenuItem className="hidden 2xl:flex">
+        {/* Simulateurs - Hidden below xl */}
+        <NavigationMenuItem className="hidden xl:flex">
           <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
             Simulateurs
           </NavigationMenuTrigger>
           <NavigationMenuContent>
-            <div className="grid grid-cols-1 gap-6 p-6 w-[300px]">
+            <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
               {megaMenuData.simulateurs.categories.map((category, idx) => (
                 <div key={idx}>
                   <div className="flex items-center gap-2 mb-3">
@@ -245,18 +298,39 @@ export const MegaMenu = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Qui sommes-nous - simple link */}
+        {/* Qui sommes-nous - Hidden below 2xl */}
         <NavigationMenuItem className="hidden 2xl:flex">
-          <NavigationMenuLink asChild>
-            <Link
-              to="/qui-sommes-nous"
-              className={cn(
-                "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-primary focus:bg-accent focus:text-primary focus:outline-none"
-              )}
-            >
-              Qui sommes-nous
-            </Link>
-          </NavigationMenuLink>
+          <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
+            Qui sommes-nous?
+          </NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
+              {megaMenuData.quiSommesNous.categories.map((category, idx) => (
+                <div key={idx}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <category.icon className="w-5 h-5 text-primary" />
+                    <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">
+                      {category.title}
+                    </h3>
+                  </div>
+                  <ul className="space-y-2">
+                    {category.items.map((item, itemIdx) => (
+                      <li key={itemIdx}>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to={item.href}
+                            className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                          >
+                            {item.label}
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </NavigationMenuContent>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
