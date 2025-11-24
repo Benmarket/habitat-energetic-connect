@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
+import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
@@ -8,7 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
 const Actualites = () => {
-  const [activeFilter, setActiveFilter] = useState("toutes");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeFilter, setActiveFilter] = useState(searchParams.get("category") || "toutes");
   const [posts, setPosts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -17,6 +19,13 @@ const Actualites = () => {
     fetchCategories();
     fetchPosts();
   }, [activeFilter]);
+
+  useEffect(() => {
+    const category = searchParams.get("category");
+    if (category) {
+      setActiveFilter(category);
+    }
+  }, [searchParams]);
 
   const fetchCategories = async () => {
     const { data } = await supabase
