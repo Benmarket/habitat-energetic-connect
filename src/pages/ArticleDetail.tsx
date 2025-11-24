@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Calendar, ArrowLeft } from "lucide-react";
+import { Loader2, Calendar, ArrowLeft, Tag } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
@@ -164,8 +164,9 @@ const ArticleDetail = () => {
                     <Badge 
                       key={pt.tags.id}
                       variant="secondary"
-                      className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors px-3 py-1"
+                      className="bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 transition-colors px-3 py-1.5 flex items-center gap-1.5"
                     >
+                      <Tag className="w-3.5 h-3.5" />
                       {pt.tags.name}
                     </Badge>
                   ))}
