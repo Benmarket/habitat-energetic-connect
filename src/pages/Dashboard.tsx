@@ -146,7 +146,7 @@ const Dashboard = () => {
                       <Link to="/gerer-actualites">
                         <Button className="w-full gap-2">
                           <Plus className="w-4 h-4" />
-                          Créer une actualité
+                          Voir tous les articles
                         </Button>
                       </Link>
                     </CardContent>
