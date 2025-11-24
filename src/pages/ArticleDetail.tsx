@@ -27,6 +27,13 @@ interface Article {
       slug: string;
     };
   }[];
+  post_tags: {
+    tags: {
+      id: string;
+      name: string;
+      slug: string;
+    };
+  }[];
 }
 
 const ArticleDetail = () => {
@@ -47,6 +54,9 @@ const ArticleDetail = () => {
           *,
           post_categories(
             categories(id, name, slug)
+          ),
+          post_tags(
+            tags(id, name, slug)
           )
         `)
         .eq("slug", slug)
@@ -147,6 +157,21 @@ const ArticleDetail = () => {
           {/* Article Content */}
           <article className="py-12 lg:py-16">
             <div className="container mx-auto px-4 max-w-4xl">
+              {/* Tags Section */}
+              {article.post_tags && article.post_tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-8">
+                  {article.post_tags.map((pt) => (
+                    <Badge 
+                      key={pt.tags.id}
+                      variant="secondary"
+                      className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors px-3 py-1"
+                    >
+                      {pt.tags.name}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              
               {article.excerpt && (
                 <p className="text-xl text-muted-foreground mb-8 leading-relaxed border-l-4 border-primary pl-6">
                   {article.excerpt}

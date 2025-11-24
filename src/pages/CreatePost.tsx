@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft } from "lucide-react";
@@ -129,6 +130,12 @@ const CreatePost = () => {
 
       if (!formData.category_id) {
         toast.error("Veuillez sélectionner une catégorie");
+        setLoading(false);
+        return;
+      }
+
+      if (formData.tag_ids.length === 0) {
+        toast.error("Veuillez sélectionner au moins une étiquette");
         setLoading(false);
         return;
       }
@@ -282,6 +289,43 @@ const CreatePost = () => {
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Étiquettes * (sélectionnez au moins une)</Label>
+                    <div className="border rounded-md p-4 space-y-3 max-h-48 overflow-y-auto bg-background">
+                      {tags.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">Aucune étiquette disponible</p>
+                      ) : (
+                        tags.map((tag) => (
+                          <div key={tag.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`tag-${tag.id}`}
+                              checked={formData.tag_ids.includes(tag.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setFormData({
+                                    ...formData,
+                                    tag_ids: [...formData.tag_ids, tag.id],
+                                  });
+                                } else {
+                                  setFormData({
+                                    ...formData,
+                                    tag_ids: formData.tag_ids.filter((id) => id !== tag.id),
+                                  });
+                                }
+                              }}
+                            />
+                            <Label
+                              htmlFor={`tag-${tag.id}`}
+                              className="text-sm font-normal cursor-pointer"
+                            >
+                              {tag.name}
+                            </Label>
+                          </div>
+                        ))
+                      )}
+                    </div>
                   </div>
 
                   <div className="space-y-2">
