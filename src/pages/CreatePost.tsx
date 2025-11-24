@@ -13,7 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { z } from "zod";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { MediaLibrary } from "@/components/MediaLibrary";
@@ -26,7 +27,7 @@ const postSchema = z.object({
   featured_image: z.string().url("URL d'image invalide").optional().or(z.literal("")),
   meta_title: z.string().trim().max(60, "Le titre SEO ne peut pas dépasser 60 caractères").optional(),
   meta_description: z.string().trim().max(160, "La description SEO ne peut pas dépasser 160 caractères").optional(),
-  focus_keywords: z.string().optional(),
+  focus_keywords: z.array(z.string()).optional(),
 });
 
 interface Category {
@@ -59,12 +60,13 @@ const CreatePost = () => {
     featured_image: "",
     meta_title: "",
     meta_description: "",
-    focus_keywords: "",
+    focus_keywords: [] as string[],
     status: "draft",
     category_id: "",
     tag_ids: [] as string[],
   });
   const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
+  const [keywordInput, setKeywordInput] = useState("");
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -157,13 +159,8 @@ const CreatePost = () => {
       if (validatedData.featured_image) postData.featured_image = validatedData.featured_image;
       if (validatedData.meta_title) postData.meta_title = validatedData.meta_title;
       if (validatedData.meta_description) postData.meta_description = validatedData.meta_description;
-      if (validatedData.focus_keywords) {
-        // Convertir la chaîne en tableau de mots-clés
-        const keywordsArray = validatedData.focus_keywords
-          .split(',')
-          .map(k => k.trim())
-          .filter(k => k.length > 0);
-        postData.focus_keywords = keywordsArray;
+      if (validatedData.focus_keywords && validatedData.focus_keywords.length > 0) {
+        postData.focus_keywords = validatedData.focus_keywords;
       }
       if (status === "published") postData.published_at = new Date().toISOString();
 
@@ -412,15 +409,55 @@ const CreatePost = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="focus_keywords">Mots-clés ciblés (SEO & IA)</Label>
-                    <Input
-                      id="focus_keywords"
-                      value={formData.focus_keywords}
-                      onChange={(e) => setFormData({ ...formData, focus_keywords: e.target.value })}
-                      placeholder="batterie solaire, stockage énergie, autoconsommation (séparer par des virgules)"
-                    />
+                    <Label htmlFor="focus_keywords">Mots-clés ciblés (SEO, IA & GEO)</Label>
+                    <div className="space-y-2">
+                      <Input
+                        id="focus_keywords"
+                        value={keywordInput}
+                        onChange={(e) => setKeywordInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const keyword = keywordInput.trim();
+                            if (keyword && !formData.focus_keywords.includes(keyword)) {
+                              setFormData({
+                                ...formData,
+                                focus_keywords: [...formData.focus_keywords, keyword],
+                              });
+                              setKeywordInput("");
+                            }
+                          }
+                        }}
+                        placeholder="Tapez un mot-clé et appuyez sur Entrée"
+                      />
+                      {formData.focus_keywords.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {formData.focus_keywords.map((keyword, index) => (
+                            <Badge
+                              key={index}
+                              variant="secondary"
+                              className="gap-1 pr-1"
+                            >
+                              {keyword}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setFormData({
+                                    ...formData,
+                                    focus_keywords: formData.focus_keywords.filter((_, i) => i !== index),
+                                  });
+                                }}
+                                className="ml-1 hover:bg-muted rounded-full p-0.5"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      Ces mots-clés aident votre article à mieux ranker sur Google, Bing et les IA comme ChatGPT. Séparez-les par des virgules.
+                      Ces mots-clés aident votre article à mieux ranker sur Google, Bing et les IA comme ChatGPT. Appuyez sur Entrée pour ajouter chaque mot-clé.
                     </p>
                   </div>
 
