@@ -122,7 +122,7 @@ const megaMenuData = {
 export const MegaMenu = () => {
   return (
     <NavigationMenu>
-      <NavigationMenuList className="space-x-1">
+      <NavigationMenuList className="space-x-0">
         {/* Offres - Always visible */}
         <NavigationMenuItem>
           <NavigationMenuTrigger>Offres</NavigationMenuTrigger>
