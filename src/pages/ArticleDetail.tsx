@@ -8,6 +8,7 @@ import { Loader2, Calendar, ArrowLeft, Tag } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface Article {
   id: string;
@@ -20,6 +21,7 @@ interface Article {
   meta_title: string;
   meta_description: string;
   content_type: string;
+  status: string;
   post_categories: {
     categories: {
       id: string;
@@ -48,6 +50,7 @@ const ArticleDetail = () => {
   const fetchArticle = async () => {
     setLoading(true);
     try {
+      // Essayer d'abord de charger l'article sans filtre de statut
       const { data, error } = await supabase
         .from("posts")
         .select(`
@@ -60,8 +63,7 @@ const ArticleDetail = () => {
           )
         `)
         .eq("slug", slug)
-        .eq("status", "published")
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       if (data) setArticle(data);
@@ -90,11 +92,41 @@ const ArticleDetail = () => {
         <div className="min-h-screen bg-background pt-20">
           <div className="container mx-auto px-4 py-12 text-center">
             <h1 className="text-3xl font-bold text-foreground mb-4">Article non trouvé</h1>
-            <Link to="/actualites" className="text-primary hover:underline">
-              Retour aux actualités
+            <Link to="/actualites">
+              <Button variant="outline" className="gap-2">
+                <ArrowLeft className="w-4 h-4" />
+                Retour aux actualités
+              </Button>
             </Link>
           </div>
         </div>
+        <Footer />
+      </>
+    );
+  }
+
+  // Si l'article existe mais n'est pas publié
+  if (article.status !== "published") {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen bg-background pt-20">
+          <div className="container mx-auto px-4 py-12 text-center">
+            <h1 className="text-3xl font-bold text-foreground mb-4">
+              Cet article n'est plus disponible pour le moment
+            </h1>
+            <p className="text-muted-foreground mb-6">
+              L'article que vous recherchez n'est temporairement pas accessible.
+            </p>
+            <Link to="/actualites">
+              <Button variant="default" className="gap-2">
+                <ArrowLeft className="w-4 h-4" />
+                Retour aux actualités
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <Footer />
       </>
     );
   }
