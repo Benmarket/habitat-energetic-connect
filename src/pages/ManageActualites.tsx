@@ -32,7 +32,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Plus, Pencil, Trash2, ArrowUpDown } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -151,6 +151,34 @@ const ManageActualites = () => {
 
   const toggleSortOrder = () => {
     setSortOrder(prev => prev === "desc" ? "asc" : "desc");
+  };
+
+  const handleStatusChange = async (postId: string, newStatus: "published" | "archived") => {
+    try {
+      const updateData: any = { status: newStatus };
+      
+      // Si on publie, on met la date de publication
+      if (newStatus === "published") {
+        updateData.published_at = new Date().toISOString();
+      }
+
+      const { error } = await supabase
+        .from("posts")
+        .update(updateData)
+        .eq("id", postId);
+
+      if (error) throw error;
+
+      toast.success(
+        newStatus === "published" 
+          ? "Article publié avec succès" 
+          : "Article désactivé avec succès"
+      );
+      fetchPosts();
+    } catch (error) {
+      console.error("Error updating post status:", error);
+      toast.error("Erreur lors de la mise à jour du statut");
+    }
   };
 
   // Pagination
@@ -322,6 +350,39 @@ const ManageActualites = () => {
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex gap-2 justify-end">
+                                {post.status === "draft" && (
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-8 w-8 text-green-600 hover:bg-green-50"
+                                    onClick={() => handleStatusChange(post.id, "published")}
+                                    title="Publier"
+                                  >
+                                    <Send className="w-4 h-4" />
+                                  </Button>
+                                )}
+                                {post.status === "published" && (
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-8 w-8 text-orange-600 hover:bg-orange-50"
+                                    onClick={() => handleStatusChange(post.id, "archived")}
+                                    title="Désactiver"
+                                  >
+                                    <EyeOff className="w-4 h-4" />
+                                  </Button>
+                                )}
+                                {post.status === "archived" && (
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-8 w-8 text-blue-600 hover:bg-blue-50"
+                                    onClick={() => handleStatusChange(post.id, "published")}
+                                    title="Réactiver"
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                  </Button>
+                                )}
                                 <Link to={`/creer-contenu?type=actualite&edit=${post.id}`}>
                                   <Button variant="outline" size="icon" className="h-8 w-8">
                                     <Pencil className="w-4 h-4" />
