@@ -94,21 +94,23 @@ const Header = () => {
             <MegaMenu />
           </div>
 
-          {/* Right side actions - Progressive visibility */}
-          <div className="hidden md:flex items-center space-x-2 lg:space-x-4 shrink-0">
-            {/* Phone - visible from md */}
-            <a href="tel:0800123456" className="flex items-center text-foreground hover:text-primary transition-colors whitespace-nowrap text-sm lg:text-base">
-              <Phone className="w-4 h-4 mr-1 lg:mr-2" />
-              <span className="font-semibold">0 800 123 456</span>
-            </a>
-            
-            {/* Installer button - visible from md */}
-            <Button asChild className="whitespace-nowrap text-sm lg:text-base px-3 lg:px-4">
-              <Link to="/#etude">Trouver un installateur</Link>
-            </Button>
-            
-            {/* User menu - visible from md */}
-            {user ? (
+          {/* Right side container */}
+          <div className="flex items-center gap-3 lg:gap-4 ml-auto">
+            {/* Right side actions - Progressive visibility */}
+            <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
+              {/* Phone - visible from md */}
+              <a href="tel:0800123456" className="flex items-center text-foreground hover:text-primary transition-colors whitespace-nowrap text-sm lg:text-base">
+                <Phone className="w-4 h-4 mr-1 lg:mr-2" />
+                <span className="font-semibold">0 800 123 456</span>
+              </a>
+              
+              {/* Installer button - visible from md */}
+              <Button asChild className="whitespace-nowrap text-sm lg:text-base px-3 lg:px-4">
+                <Link to="/#etude">Trouver un installateur</Link>
+              </Button>
+              
+              {/* User menu - visible from md */}
+              {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2 h-auto py-2 px-3">
@@ -190,15 +192,16 @@ const Header = () => {
                 Espace Perso
               </Button>
             )}
-          </div>
+            </div>
 
-          {/* Mobile Menu Button - visible below lg */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="lg:hidden p-2 text-foreground hover:text-primary transition-colors"
-          >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+            {/* Mobile Menu Button - visible below lg */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="lg:hidden p-2 text-foreground hover:text-primary transition-colors"
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation - visible below lg */}
