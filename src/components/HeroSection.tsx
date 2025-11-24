@@ -20,63 +20,63 @@ const HeroSection = () => {
 
       {/* Content */}
       <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col lg:flex-row gap-6 items-start justify-center lg:items-center">
+        <div className="flex flex-col lg:flex-row gap-8 items-start justify-between lg:items-center max-w-[1400px] mx-auto">
           {/* Left: Hero text and buttons */}
-          <div className="text-white w-full lg:w-[480px] flex-shrink-0">
-            <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+          <div className="text-white w-full lg:w-[580px] flex-shrink-0">
+            <h1 className="text-5xl lg:text-6xl font-bold mb-6 leading-tight">
               Réduisez vos factures énergétiques jusqu'à 80% !
             </h1>
-            <p className="text-lg mb-6 text-white/90">
+            <p className="text-xl mb-8 text-white/90">
               Bénéficiez d'une étude énergétique gratuite et découvrez les travaux
               subventionnés adaptés à votre logement
             </p>
 
             {/* Quick action buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
               <Link 
                 to="/offres/panneaux-solaires"
-                className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/20 transition-all"
+                className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
               >
-                <Sun className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-                <span className="text-white font-medium text-base">Panneaux solaires</span>
+                <Sun className="w-6 h-6 text-yellow-400 flex-shrink-0" />
+                <span className="text-white font-semibold text-lg">Panneaux solaires</span>
               </Link>
 
               <Link 
                 to="/offres/pompe-a-chaleur"
-                className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/20 transition-all"
+                className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
               >
-                <Droplets className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                <span className="text-white font-medium text-base">Pompe à chaleur</span>
+                <Droplets className="w-6 h-6 text-blue-400 flex-shrink-0" />
+                <span className="text-white font-semibold text-lg">Pompe à chaleur</span>
               </Link>
 
               <Link 
                 to="/offres/isolation"
-                className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/20 transition-all"
+                className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
               >
-                <Home className="w-5 h-5 text-green-400 flex-shrink-0" />
-                <span className="text-white font-medium text-base">Isolation</span>
+                <Home className="w-6 h-6 text-green-400 flex-shrink-0" />
+                <span className="text-white font-semibold text-lg">Isolation</span>
               </Link>
 
               <Link 
                 to="/aides"
-                className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/20 transition-all"
+                className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
               >
-                <HandCoins className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-                <span className="text-white font-medium text-base">Aides & Subventions</span>
+                <HandCoins className="w-6 h-6 text-cyan-400 flex-shrink-0" />
+                <span className="text-white font-semibold text-lg">Aides & Subventions</span>
               </Link>
             </div>
           </div>
 
           {/* Right: Form placeholder - will be replaced with multi-step form */}
-          <div className="w-full lg:w-[380px] flex-shrink-0">
-            <div className="bg-white rounded-2xl shadow-soft p-6 w-full mx-auto lg:mx-0">
-              <h2 className="text-xl font-bold text-foreground mb-4">
+          <div className="w-full lg:w-[480px] flex-shrink-0">
+            <div className="bg-white rounded-2xl shadow-2xl p-8 w-full mx-auto lg:mx-0">
+              <h2 className="text-2xl font-bold text-foreground mb-2">
                 Étude énergétique gratuite
               </h2>
-              <p className="text-sm text-muted-foreground mb-5">
+              <p className="text-base text-muted-foreground mb-6">
                 Découvrez vos économies potentielles et les aides disponibles en quelques clics
               </p>
-              <Button asChild className="w-full" size="lg">
+              <Button asChild className="w-full h-12 text-base font-semibold" size="lg">
                 <Link to="/etude-energetique">
                   Commencer l'étude gratuite
                 </Link>
