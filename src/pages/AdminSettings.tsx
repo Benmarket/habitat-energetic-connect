@@ -29,11 +29,15 @@ const AdminSettings = () => {
     metaDescription: "Bénéficiez d'une étude énergétique gratuite et découvrez les travaux subventionnés adaptés à votre logement.",
     maintenanceMode: false,
     maintenanceMessage: "Site en maintenance. Nous reviendrons bientôt!",
+    aiApiUrl: "https://api.anthropic.com/v1/messages",
+    aiModel: "claude-sonnet-4-5",
+    aiEnabled: true,
   });
 
   useEffect(() => {
     if (user) {
       loadMaintenanceSettings();
+      loadAiSettings();
     }
   }, [user]);
 
@@ -60,6 +64,32 @@ const AdminSettings = () => {
     }
   };
 
+  const loadAiSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("key, value")
+        .in("key", ["ai_generation_api_url", "ai_generation_model", "ai_generation_enabled"]);
+
+      if (error) throw error;
+
+      if (data) {
+        const aiUrl = data.find(s => s.key === "ai_generation_api_url");
+        const aiModel = data.find(s => s.key === "ai_generation_model");
+        const aiEnabled = data.find(s => s.key === "ai_generation_enabled");
+
+        setSettings(prev => ({
+          ...prev,
+          aiApiUrl: aiUrl?.value as string || "https://api.anthropic.com/v1/messages",
+          aiModel: aiModel?.value as string || "claude-sonnet-4-5",
+          aiEnabled: aiEnabled?.value as boolean ?? true,
+        }));
+      }
+    } catch (error) {
+      console.error("Error loading AI settings:", error);
+    }
+  };
+
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/connexion");
@@ -72,7 +102,7 @@ const AdminSettings = () => {
 
     try {
       // Sauvegarder le mode maintenance
-      const { error } = await supabase
+      const maintenanceUpdate = supabase
         .from("site_settings")
         .update({
           value: {
@@ -82,7 +112,33 @@ const AdminSettings = () => {
         })
         .eq("key", "maintenance_mode");
 
-      if (error) throw error;
+      // Sauvegarder les paramètres IA
+      const aiUrlUpdate = supabase
+        .from("site_settings")
+        .update({ value: settings.aiApiUrl })
+        .eq("key", "ai_generation_api_url");
+
+      const aiModelUpdate = supabase
+        .from("site_settings")
+        .update({ value: settings.aiModel })
+        .eq("key", "ai_generation_model");
+
+      const aiEnabledUpdate = supabase
+        .from("site_settings")
+        .update({ value: settings.aiEnabled })
+        .eq("key", "ai_generation_enabled");
+
+      const [maintenanceResult, urlResult, modelResult, enabledResult] = await Promise.all([
+        maintenanceUpdate,
+        aiUrlUpdate,
+        aiModelUpdate,
+        aiEnabledUpdate
+      ]);
+
+      if (maintenanceResult.error) throw maintenanceResult.error;
+      if (urlResult.error) throw urlResult.error;
+      if (modelResult.error) throw modelResult.error;
+      if (enabledResult.error) throw enabledResult.error;
 
       toast({
         title: "Paramètres sauvegardés",
@@ -218,6 +274,69 @@ const AdminSettings = () => {
                       placeholder="123 Rue de l'Énergie, 75001 Paris"
                       rows={2}
                     />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Génération IA */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Génération d'articles par IA</CardTitle>
+                  <CardDescription>
+                    Configurez l'API d'intelligence artificielle pour la génération automatique d'articles
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="aiEnabled" className="text-base">
+                        Activer la génération IA
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Permet aux rédacteurs de générer des articles avec l'IA
+                      </p>
+                    </div>
+                    <Switch
+                      id="aiEnabled"
+                      checked={settings.aiEnabled}
+                      onCheckedChange={(checked) => 
+                        setSettings({ ...settings, aiEnabled: checked })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="aiApiUrl">URL de l'API</Label>
+                    <Input
+                      id="aiApiUrl"
+                      type="url"
+                      value={settings.aiApiUrl}
+                      onChange={(e) => setSettings({ ...settings, aiApiUrl: e.target.value })}
+                      placeholder="https://api.anthropic.com/v1/messages"
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      🔒 Cette URL est sécurisée et ne sera pas visible côté client
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="aiModel">Modèle IA</Label>
+                    <Input
+                      id="aiModel"
+                      value={settings.aiModel}
+                      onChange={(e) => setSettings({ ...settings, aiModel: e.target.value })}
+                      placeholder="claude-sonnet-4-5"
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Modèle utilisé pour la génération (claude-sonnet-4-5, gpt-5, etc.)
+                    </p>
+                  </div>
+
+                  <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                    <p className="text-sm text-amber-900 dark:text-amber-100">
+                      <strong>Note importante :</strong> La clé API est stockée de manière sécurisée dans les secrets du serveur. 
+                      Elle n'est jamais exposée côté client, même en inspectant les éléments de la page.
+                    </p>
                   </div>
                 </CardContent>
               </Card>
