@@ -81,11 +81,12 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold">
-              <span className="text-primary">Prime</span>
-              <span className="text-foreground">énergies</span>
+          <Link to="/" className="flex flex-col shrink-0">
+            <span className="text-2xl font-bold leading-tight">
+              <span className="text-primary">Prime </span>
+              <span className="text-foreground">energies</span>
             </span>
+            <span className="text-xs text-muted-foreground">prime-energies.fr</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -177,9 +178,9 @@ const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="outline" onClick={() => setIsAuthModalOpen(true)}>
-                <User className="h-5 w-5 mr-2" />
-                Connexion
+              <Button variant="outline" onClick={() => setIsAuthModalOpen(true)} className="gap-2">
+                <User className="h-4 w-4" />
+                Espace Perso
               </Button>
             )}
           </div>

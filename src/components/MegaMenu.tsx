@@ -125,44 +125,38 @@ export const MegaMenu = () => {
       <NavigationMenuList className="space-x-1">
         {/* Offres - Always visible */}
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
-            Offres
-          </NavigationMenuTrigger>
+          <NavigationMenuTrigger>Offres</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <div className="grid grid-cols-3 gap-6 p-6 w-[700px] bg-background">
-              {megaMenuData.offres.categories.map((category, idx) => (
-                <div key={idx}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <category.icon className="w-5 h-5 text-primary" />
-                    <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">
-                      {category.title}
-                    </h3>
-                  </div>
-                  <ul className="space-y-2">
-                    {category.items.map((item, itemIdx) => (
-                      <li key={itemIdx}>
-                        <NavigationMenuLink asChild>
+            <div className="w-[700px] p-6 bg-background">
+              <div className="grid grid-cols-3 gap-6">
+                {megaMenuData.offres.categories.map((category, idx) => (
+                  <div key={idx}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <category.icon className="w-4 h-4 text-primary" />
+                      <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">{category.title}</h3>
+                    </div>
+                    <ul className="space-y-2">
+                      {category.items.map((item) => (
+                        <li key={item.href}>
                           <Link
                             to={item.href}
-                            className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                            className="text-sm text-muted-foreground hover:text-primary transition-colors"
                           >
                             {item.label}
                           </Link>
-                        </NavigationMenuLink>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
             </div>
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Guides - Hidden below xl */}
-        <NavigationMenuItem className="hidden xl:flex">
-          <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
-            Guides
-          </NavigationMenuTrigger>
+        {/* Guides - Always visible */}
+        <NavigationMenuItem>
+          <NavigationMenuTrigger>Guides</NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
               {megaMenuData.guides.categories.map((category, idx) => (
@@ -193,11 +187,9 @@ export const MegaMenu = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Aides - Hidden below 2xl */}
-        <NavigationMenuItem className="hidden 2xl:flex">
-          <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
-            Aides
-          </NavigationMenuTrigger>
+        {/* Aides - Always visible */}
+        <NavigationMenuItem>
+          <NavigationMenuTrigger>Aides</NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
               {megaMenuData.aides.categories.map((category, idx) => (
@@ -263,8 +255,8 @@ export const MegaMenu = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Simulateurs - Hidden below xl */}
-        <NavigationMenuItem className="hidden xl:flex">
+        {/* Simulateurs - Always visible */}
+        <NavigationMenuItem>
           <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
             Simulateurs
           </NavigationMenuTrigger>
@@ -298,8 +290,8 @@ export const MegaMenu = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Qui sommes-nous - Hidden below 2xl */}
-        <NavigationMenuItem className="hidden 2xl:flex">
+        {/* Qui sommes-nous - Always visible */}
+        <NavigationMenuItem>
           <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
             Qui sommes-nous?
           </NavigationMenuTrigger>
