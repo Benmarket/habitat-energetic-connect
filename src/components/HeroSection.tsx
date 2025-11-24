@@ -20,10 +20,10 @@ const HeroSection = () => {
 
       {/* Content */}
       <div className="container mx-auto px-4 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-8 items-center">
+        <div className="flex flex-col lg:flex-row gap-8 items-center justify-center">
           {/* Left: Hero text and buttons */}
-          <div className="text-white">
-            <h1 className="text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+          <div className="text-white w-full lg:w-auto lg:max-w-[600px] flex-shrink-0">
+            <h1 className="text-5xl font-bold mb-6 leading-tight">
               Réduisez vos factures énergétiques jusqu'à 80% !
             </h1>
             <p className="text-xl mb-8 text-white/90">
@@ -32,10 +32,10 @@ const HeroSection = () => {
             </p>
 
             {/* Quick action buttons */}
-            <div className="grid sm:grid-cols-2 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 max-w-[600px]">
               <Link 
                 to="/offres/panneaux-solaires"
-                className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/20 transition-all"
+                className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/20 transition-all w-full"
               >
                 <Sun className="w-6 h-6 text-yellow-400 flex-shrink-0" />
                 <span className="text-white font-medium text-lg">Panneaux solaires</span>
@@ -43,7 +43,7 @@ const HeroSection = () => {
 
               <Link 
                 to="/offres/pompe-a-chaleur"
-                className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/20 transition-all"
+                className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/20 transition-all w-full"
               >
                 <Droplets className="w-6 h-6 text-blue-400 flex-shrink-0" />
                 <span className="text-white font-medium text-lg">Pompe à chaleur</span>
@@ -51,7 +51,7 @@ const HeroSection = () => {
 
               <Link 
                 to="/offres/isolation"
-                className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/20 transition-all"
+                className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/20 transition-all w-full"
               >
                 <Home className="w-6 h-6 text-green-400 flex-shrink-0" />
                 <span className="text-white font-medium text-lg">Isolation</span>
@@ -59,7 +59,7 @@ const HeroSection = () => {
 
               <Link 
                 to="/aides"
-                className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/20 transition-all"
+                className="group flex items-center gap-4 px-6 py-4 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/50 hover:border-white/20 transition-all w-full"
               >
                 <HandCoins className="w-6 h-6 text-cyan-400 flex-shrink-0" />
                 <span className="text-white font-medium text-lg">Aides & Subventions</span>
@@ -68,8 +68,8 @@ const HeroSection = () => {
           </div>
 
           {/* Right: Form placeholder - will be replaced with multi-step form */}
-          <div className="lg:flex justify-end">
-            <div className="bg-white rounded-2xl shadow-soft p-8 max-w-md w-full">
+          <div className="w-full lg:w-auto flex-shrink-0">
+            <div className="bg-white rounded-2xl shadow-soft p-8 w-full max-w-md mx-auto lg:mx-0">
               <h2 className="text-2xl font-bold text-foreground mb-6">
                 Étude énergétique gratuite
               </h2>
