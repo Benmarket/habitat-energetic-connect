@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { z } from "zod";
 import { RichTextEditor } from "@/components/RichTextEditor";
+import { MediaLibrary } from "@/components/MediaLibrary";
 
 const postSchema = z.object({
   title: z.string().trim().min(5, "Le titre doit contenir au moins 5 caractères").max(200, "Le titre ne peut pas dépasser 200 caractères"),
@@ -60,6 +61,7 @@ const CreatePost = () => {
     category_id: "",
     tag_ids: [] as string[],
   });
+  const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -283,13 +285,29 @@ const CreatePost = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="featured_image">Image à la une (URL)</Label>
-                    <Input
-                      id="featured_image"
-                      value={formData.featured_image}
-                      onChange={(e) => setFormData({ ...formData, featured_image: e.target.value })}
-                      placeholder="https://..."
-                    />
+                    <Label htmlFor="featured_image">Image à la une</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="featured_image"
+                        value={formData.featured_image}
+                        onChange={(e) => setFormData({ ...formData, featured_image: e.target.value })}
+                        placeholder="URL de l'image ou sélectionnez depuis la bibliothèque"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setMediaLibraryOpen(true)}
+                      >
+                        Bibliothèque
+                      </Button>
+                    </div>
+                    {formData.featured_image && (
+                      <img 
+                        src={formData.featured_image} 
+                        alt="Aperçu" 
+                        className="w-full h-48 object-cover rounded-md mt-2"
+                      />
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -361,6 +379,15 @@ const CreatePost = () => {
           </div>
         </main>
         <Footer />
+        
+        <MediaLibrary 
+          open={mediaLibraryOpen}
+          onOpenChange={setMediaLibraryOpen}
+          onSelect={(url, alt) => {
+            setFormData({ ...formData, featured_image: url });
+            setMediaLibraryOpen(false);
+          }}
+        />
       </div>
     </>
   );

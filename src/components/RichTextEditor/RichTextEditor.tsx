@@ -5,6 +5,7 @@ import Link from '@tiptap/extension-link';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import { CustomButton } from './CustomButton';
+import { MediaLibrary } from '@/components/MediaLibrary';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -43,8 +44,7 @@ interface RichTextEditorProps {
 }
 
 export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
-  const [imageUrl, setImageUrl] = useState('');
-  const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
   const [buttonDialogOpen, setButtonDialogOpen] = useState(false);
   const [buttonText, setButtonText] = useState('');
   const [buttonUrl, setButtonUrl] = useState('');
@@ -78,11 +78,10 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     return null;
   }
 
-  const addImage = () => {
-    if (imageUrl) {
-      editor.chain().focus().setImage({ src: imageUrl }).run();
-      setImageUrl('');
-      setImageDialogOpen(false);
+  const addImage = (url: string, alt: string) => {
+    if (url && editor) {
+      editor.chain().focus().setImage({ src: url, alt }).run();
+      setMediaLibraryOpen(false);
     }
   };
 
@@ -165,7 +164,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => setImageDialogOpen(true)}
+          onClick={() => setMediaLibraryOpen(true)}
         >
           <ImageIcon className="w-4 h-4" />
         </Button>
@@ -206,33 +205,11 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         className="prose prose-sm max-w-none p-4 min-h-[300px] focus:outline-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground"
       />
 
-      {/* Image Dialog */}
-      <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Ajouter une image</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="image-url">URL de l'image</Label>
-              <Input
-                id="image-url"
-                placeholder="https://..."
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setImageDialogOpen(false)}>
-              Annuler
-            </Button>
-            <Button type="button" onClick={addImage}>
-              Ajouter
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <MediaLibrary
+        open={mediaLibraryOpen}
+        onOpenChange={setMediaLibraryOpen}
+        onSelect={(url, alt) => addImage(url, alt)}
+      />
 
       {/* Button Dialog */}
       <Dialog open={buttonDialogOpen} onOpenChange={setButtonDialogOpen}>

@@ -134,6 +134,48 @@ export type Database = {
         }
         Relationships: []
       }
+      media: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          file_size: number | null
+          filename: string
+          height: number | null
+          id: string
+          mime_type: string | null
+          storage_path: string
+          updated_at: string
+          user_id: string
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          file_size?: number | null
+          filename: string
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          storage_path: string
+          updated_at?: string
+          user_id: string
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          file_size?: number | null
+          filename?: string
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          storage_path?: string
+          updated_at?: string
+          user_id?: string
+          width?: number | null
+        }
+        Relationships: []
+      }
       permissions: {
         Row: {
           code: string
