@@ -10,6 +10,8 @@ import { MediaLibrary } from '@/components/MediaLibrary';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog,
   DialogContent,
@@ -54,6 +56,8 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const [buttonText, setButtonText] = useState('');
   const [buttonUrl, setButtonUrl] = useState('');
   const [buttonColor, setButtonColor] = useState('primary');
+  const [htmlContent, setHtmlContent] = useState(content);
+  const [activeTab, setActiveTab] = useState<string>('visual');
 
   const editor = useEditor({
     extensions: [
@@ -79,7 +83,9 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     ],
     content,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      const html = editor.getHTML();
+      setHtmlContent(html);
+      onChange(html);
     },
   });
 
@@ -108,10 +114,34 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     }
   };
 
+  const handleHtmlChange = (html: string) => {
+    setHtmlContent(html);
+    if (editor && activeTab === 'html') {
+      editor.commands.setContent(html);
+      onChange(html);
+    }
+  };
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    if (value === 'html' && editor) {
+      setHtmlContent(editor.getHTML());
+    }
+  };
+
   return (
     <div className="border rounded-md">
-      {/* Toolbar */}
-      <div className="flex flex-wrap gap-1 p-2 border-b bg-muted/30">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+        <div className="flex items-center justify-between border-b px-2 py-1 bg-muted/30">
+          <TabsList className="h-9">
+            <TabsTrigger value="visual" className="text-xs">Visuel</TabsTrigger>
+            <TabsTrigger value="html" className="text-xs">HTML</TabsTrigger>
+          </TabsList>
+        </div>
+
+        <TabsContent value="visual" className="m-0 border-0">
+          {/* Toolbar */}
+          <div className="flex flex-wrap gap-1 p-2 border-b bg-muted/30">
         <Button
           type="button"
           variant="ghost"
@@ -247,11 +277,26 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         </Button>
       </div>
 
-      {/* Editor Content */}
-      <EditorContent
-        editor={editor}
-        className="prose prose-sm max-w-none p-4 min-h-[300px] focus:outline-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground"
-      />
+          {/* Editor Content */}
+          <EditorContent
+            editor={editor}
+            className="prose prose-sm max-w-none p-4 min-h-[300px] focus:outline-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground"
+          />
+        </TabsContent>
+
+        <TabsContent value="html" className="m-0 border-0">
+          <Textarea
+            value={htmlContent}
+            onChange={(e) => handleHtmlChange(e.target.value)}
+            className="min-h-[300px] font-mono text-xs p-4 border-0 rounded-none resize-none focus-visible:ring-0"
+            placeholder="Code HTML de votre article..."
+            spellCheck={false}
+          />
+          <div className="p-2 border-t bg-muted/30 text-xs text-muted-foreground">
+            <p>💡 Modifiez le HTML directement. Les changements seront synchronisés avec l'éditeur visuel.</p>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       <MediaLibrary
         open={mediaLibraryOpen}

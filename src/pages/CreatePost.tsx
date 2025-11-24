@@ -26,6 +26,7 @@ const postSchema = z.object({
   featured_image: z.string().url("URL d'image invalide").optional().or(z.literal("")),
   meta_title: z.string().trim().max(60, "Le titre SEO ne peut pas dépasser 60 caractères").optional(),
   meta_description: z.string().trim().max(160, "La description SEO ne peut pas dépasser 160 caractères").optional(),
+  focus_keywords: z.string().optional(),
 });
 
 interface Category {
@@ -58,6 +59,7 @@ const CreatePost = () => {
     featured_image: "",
     meta_title: "",
     meta_description: "",
+    focus_keywords: "",
     status: "draft",
     category_id: "",
     tag_ids: [] as string[],
@@ -126,6 +128,7 @@ const CreatePost = () => {
         featured_image: formData.featured_image,
         meta_title: formData.meta_title,
         meta_description: formData.meta_description,
+        focus_keywords: formData.focus_keywords,
       });
 
       if (!formData.category_id) {
@@ -154,6 +157,14 @@ const CreatePost = () => {
       if (validatedData.featured_image) postData.featured_image = validatedData.featured_image;
       if (validatedData.meta_title) postData.meta_title = validatedData.meta_title;
       if (validatedData.meta_description) postData.meta_description = validatedData.meta_description;
+      if (validatedData.focus_keywords) {
+        // Convertir la chaîne en tableau de mots-clés
+        const keywordsArray = validatedData.focus_keywords
+          .split(',')
+          .map(k => k.trim())
+          .filter(k => k.length > 0);
+        postData.focus_keywords = keywordsArray;
+      }
       if (status === "published") postData.published_at = new Date().toISOString();
 
       const { data: post, error: postError } = await supabase
@@ -398,6 +409,19 @@ const CreatePost = () => {
                       rows={2}
                       maxLength={160}
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="focus_keywords">Mots-clés ciblés (SEO & IA)</Label>
+                    <Input
+                      id="focus_keywords"
+                      value={formData.focus_keywords}
+                      onChange={(e) => setFormData({ ...formData, focus_keywords: e.target.value })}
+                      placeholder="batterie solaire, stockage énergie, autoconsommation (séparer par des virgules)"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Ces mots-clés aident votre article à mieux ranker sur Google, Bing et les IA comme ChatGPT. Séparez-les par des virgules.
+                    </p>
                   </div>
 
                   <div className="flex gap-4 pt-4">
