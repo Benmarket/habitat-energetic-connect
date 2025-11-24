@@ -23,7 +23,7 @@ const HeroSection = () => {
         <div className="flex flex-col lg:flex-row gap-8 items-center justify-center lg:items-start max-w-[1200px] mx-auto">
           {/* Left: Hero text and buttons */}
           <div className="text-white w-full lg:w-auto flex-shrink-0">
-            <h1 className="text-4xl lg:text-5xl font-bold mb-5 leading-tight max-w-[550px]">
+            <h1 className="text-4xl lg:text-6xl font-bold mb-5 leading-tight max-w-[700px]">
               Réduisez vos factures énergétiques jusqu'à 80% !
             </h1>
             <p className="text-base lg:text-lg mb-6 text-white/90 max-w-[480px]">
