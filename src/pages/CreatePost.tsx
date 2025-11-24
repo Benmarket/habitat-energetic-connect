@@ -13,8 +13,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, X } from "lucide-react";
+import { Loader2, ArrowLeft, X, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { ArticleVariantsModal } from "@/components/ArticleVariantsModal";
 import { z } from "zod";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { MediaLibrary } from "@/components/MediaLibrary";
@@ -67,6 +68,9 @@ const CreatePost = () => {
   });
   const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
   const [keywordInput, setKeywordInput] = useState("");
+  const [variantsModalOpen, setVariantsModalOpen] = useState(false);
+  const [generatedVariants, setGeneratedVariants] = useState<any>(null);
+  const [generatingArticle, setGeneratingArticle] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -106,6 +110,53 @@ const CreatePost = () => {
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
+  };
+
+  const handleGenerateArticle = async () => {
+    if (formData.focus_keywords.length === 0) {
+      toast.error("Veuillez ajouter au moins un mot-clé avant de générer un article");
+      return;
+    }
+
+    setGeneratingArticle(true);
+    setVariantsModalOpen(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-article', {
+        body: {
+          keywords: formData.focus_keywords,
+          contentType: contentType
+        }
+      });
+
+      if (error) throw error;
+
+      if (!data.success) {
+        throw new Error(data.error || "Erreur lors de la génération");
+      }
+
+      setGeneratedVariants(data.variants);
+    } catch (error: any) {
+      console.error("Error generating article:", error);
+      toast.error(error.message || "Erreur lors de la génération de l'article");
+      setVariantsModalOpen(false);
+    } finally {
+      setGeneratingArticle(false);
+    }
+  };
+
+  const handleSelectVariant = (variant: any) => {
+    setFormData(prev => ({
+      ...prev,
+      title: variant.title,
+      slug: generateSlug(variant.title),
+      content: variant.content,
+      excerpt: variant.excerpt,
+      meta_title: variant.title.slice(0, 60),
+      meta_description: variant.excerpt.slice(0, 160)
+    }));
+
+    toast.success("Article chargé avec succès. Vous pouvez maintenant le modifier et le publier.");
   };
 
   const handleTitleChange = (title: string) => {
@@ -409,7 +460,20 @@ const CreatePost = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="focus_keywords">Mots-clés ciblés (SEO, IA & GEO)</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="focus_keywords">Mots-clés ciblés (SEO, IA & GEO)</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleGenerateArticle}
+                        disabled={generatingArticle || formData.focus_keywords.length === 0}
+                        className="gap-2"
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        Générer l'article
+                      </Button>
+                    </div>
                     <div className="space-y-2">
                       <Input
                         id="focus_keywords"
@@ -492,6 +556,14 @@ const CreatePost = () => {
             setFormData({ ...formData, featured_image: url });
             setMediaLibraryOpen(false);
           }}
+        />
+
+        <ArticleVariantsModal
+          open={variantsModalOpen}
+          onOpenChange={setVariantsModalOpen}
+          variants={generatedVariants}
+          loading={generatingArticle}
+          onSelectVariant={handleSelectVariant}
         />
       </div>
     </>
