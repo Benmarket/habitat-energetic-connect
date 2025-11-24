@@ -49,40 +49,80 @@ serve(async (req) => {
       aide: "article sur les aides et subventions"
     };
 
-    const systemPrompt = `Tu es un expert en rédaction SEO et en énergies renouvelables. Tu dois créer un article optimisé pour le référencement naturel (SEO) et pour les moteurs de recherche d'IA comme ChatGPT.
+    const systemPrompt = `Tu es un expert en rédaction SEO et en énergies renouvelables spécialisé dans la création d'articles VIRAUX.
 
-L'article doit :
-- Être structuré avec un titre H1 accrocheur
-- Contenir des sous-titres H2 et H3 pertinents
-- Inclure naturellement tous les mots-clés fournis
-- Être rédigé en HTML avec les balises appropriées (<h1>, <h2>, <h3>, <p>, <strong>, <em>, <ul>, <ol>, <li>)
-- Avoir entre 800 et 1200 mots
-- Être informatif, précis et engageant
-- Optimisé pour le référencement local (France)
+STRUCTURE DE L'ARTICLE (HTML uniquement) :
+1. UN SEUL H1 accrocheur et viral (max 60 caractères)
+2. Introduction engageante (150-200 mots) avec le problème/bénéfice principal
+3. 3-5 sections avec H2 contenant les mots-clés
+4. Sous-sections H3 si nécessaire
+5. Listes à puces <ul><li> pour faciliter la lecture
+6. Au moins 2 suggestions d'images avec descriptions entre [IMAGE: description détaillée]
+7. 2-3 boutons CTA stratégiquement placés avec cette structure HTML exacte : <div class="my-4"><a href="#contact" class="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 font-medium transition-colors">Texte du bouton</a></div>
+8. Paragraphes courts (3-4 lignes max) pour la lisibilité
+9. Utilise <strong> pour les mots-clés importants
+10. Inclus des statistiques/chiffres si pertinent
 
-IMPORTANT : Ne fournis QUE le contenu HTML de l'article, sans aucune explication ou commentaire supplémentaire.`;
+OPTIMISATION VIRALE :
+- Titre émotionnel et accrocheur
+- Promesse claire dès l'intro
+- Storytelling et exemples concrets
+- Call-to-actions puissants
+- Contenu entre 1000-1500 mots
+- Ton conversationnel mais expert
 
-    const userPrompt = `Rédige un ${contentTypeLabels[contentType as keyof typeof contentTypeLabels] || 'article'} complet et optimisé SEO en utilisant ces mots-clés : ${keywords.join(', ')}.
+IMPORTANT : Retourne UNIQUEMENT le HTML pur sans balises markdown, sans commentaires, sans explications. Le HTML doit être parfaitement formaté et lisible.`;
 
-L'article doit être au format HTML pur (avec les balises <h1>, <h2>, <h3>, <p>, <strong>, etc.) et être prêt à être publié sur un site web professionnel dans le domaine des énergies renouvelables et des économies d'énergie.`;
+    const contentTypeLabel = contentTypeLabels[contentType as keyof typeof contentTypeLabels] || 'article';
+    const keywordsText = keywords.join(', ');
+    
+    const userPrompt = `Crée un ${contentTypeLabel} VIRAL et complet sur : ${keywordsText}.
+
+MOTS-CLÉS À INTÉGRER : ${keywordsText}
+
+Objectifs de cet article :
+- Captiver dès le titre
+- Résoudre un problème concret
+- Inclure des images avec [IMAGE: description détaillée]
+- Avoir 2-3 boutons CTA stratégiques
+- Être optimisé SEO avec mots-clés naturels
+- Format HTML pur prêt à publier
+
+STRUCTURE EXEMPLE :
+<h1>Titre viral</h1>
+<p>Intro percutante...</p>
+[IMAGE: description de image hero]
+<h2>Première section avec mot-clé</h2>
+<p>Contenu...</p>
+<ul><li>Point important</li></ul>
+<div class="my-4"><a href="#contact" class="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 font-medium transition-colors">Texte CTA</a></div>
+
+Retourne UNIQUEMENT le HTML sans balises de code ni commentaires.`;
 
     console.log('Calling OpenAI API with:', { apiUrl, model, keywordsCount: keywords.length });
 
     // Générer 2 variantes
     const variants = await Promise.all([
-      generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt + "\n\nVariante 1: Adopte un ton pédagogique et accessible."),
-      generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt + "\n\nVariante 2: Adopte un ton plus technique et expert.")
+      generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt + "\n\nVARIANTE 1 : Ton pédagogique, accessible au grand public, beaucoup d'exemples concrets et de bénéfices chiffrés."),
+      generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt + "\n\nVARIANTE 2 : Ton plus technique et expert, focus sur l'expertise et la crédibilité, données précises et arguments d'autorité.")
     ]);
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        variants: variants.map((content, index) => ({
-          id: index + 1,
-          title: extractTitle(content),
-          content: content,
-          excerpt: generateExcerpt(content)
-        }))
+        variants: variants.map((content, index) => {
+          const cleanContent = cleanHtml(content);
+          return {
+            id: index + 1,
+            title: extractTitle(cleanContent),
+            content: cleanContent,
+            excerpt: generateExcerpt(cleanContent),
+            metaTitle: extractMetaTitle(cleanContent, keywords),
+            metaDescription: extractMetaDescription(cleanContent),
+            focusKeywords: keywords,
+            featuredImageDescription: extractFirstImageDescription(cleanContent)
+          };
+        })
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -144,6 +184,24 @@ async function generateVariant(
   return data.choices[0].message.content;
 }
 
+function cleanHtml(htmlContent: string): string {
+  // Nettoyer le contenu HTML des balises de code markdown
+  let cleaned = htmlContent
+    .replace(/```html\s*/gi, '')
+    .replace(/```\s*/g, '')
+    .trim();
+  
+  // Nettoyer les entités HTML mal formées
+  cleaned = cleaned
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+  
+  return cleaned;
+}
+
 function extractTitle(htmlContent: string): string {
   const h1Match = htmlContent.match(/<h1[^>]*>(.*?)<\/h1>/i);
   if (h1Match) {
@@ -154,12 +212,50 @@ function extractTitle(htmlContent: string): string {
   return firstLine.replace(/<[^>]*>/g, '').trim().slice(0, 100);
 }
 
+function extractMetaTitle(htmlContent: string, keywords: string[]): string {
+  const title = extractTitle(htmlContent);
+  // Limiter à 60 caractères max pour le SEO
+  if (title.length <= 60) return title;
+  
+  // Essayer d'inclure le premier mot-clé
+  const firstKeyword = keywords[0];
+  const shortTitle = title.slice(0, 60);
+  if (shortTitle.includes(firstKeyword)) {
+    return shortTitle.slice(0, shortTitle.lastIndexOf(' ')) + '...';
+  }
+  
+  return title.slice(0, 57) + '...';
+}
+
+function extractMetaDescription(htmlContent: string): string {
+  // Extraire le premier paragraphe après le H1
+  const textOnly = htmlContent
+    .replace(/<h1[^>]*>.*?<\/h1>/gi, '')
+    .replace(/\[IMAGE:.*?\]/g, '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  
+  // Limiter à 160 caractères pour le SEO
+  if (textOnly.length <= 160) return textOnly;
+  return textOnly.slice(0, 157) + '...';
+}
+
 function generateExcerpt(htmlContent: string): string {
   const textOnly = htmlContent
     .replace(/<h1[^>]*>.*?<\/h1>/gi, '')
+    .replace(/\[IMAGE:.*?\]/g, '')
     .replace(/<[^>]*>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
   
   return textOnly.slice(0, 200) + (textOnly.length > 200 ? '...' : '');
+}
+
+function extractFirstImageDescription(htmlContent: string): string {
+  const imageMatch = htmlContent.match(/\[IMAGE:\s*([^\]]+)\]/i);
+  if (imageMatch) {
+    return imageMatch[1].trim();
+  }
+  return 'Image représentant le sujet de l\'article';
 }

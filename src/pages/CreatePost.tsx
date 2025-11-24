@@ -148,15 +148,23 @@ const CreatePost = () => {
   const handleSelectVariant = (variant: any) => {
     setFormData(prev => ({
       ...prev,
-      title: variant.title,
-      slug: generateSlug(variant.title),
-      content: variant.content,
-      excerpt: variant.excerpt,
-      meta_title: variant.title.slice(0, 60),
-      meta_description: variant.excerpt.slice(0, 160)
+      title: variant.title || '',
+      slug: generateSlug(variant.title || ''),
+      content: variant.content || '',
+      excerpt: variant.excerpt || '',
+      meta_title: variant.metaTitle || variant.title?.slice(0, 60) || '',
+      meta_description: variant.metaDescription || variant.excerpt?.slice(0, 160) || '',
+      focus_keywords: variant.focusKeywords || prev.focus_keywords
     }));
 
-    toast.success("Article chargé avec succès. Vous pouvez maintenant le modifier et le publier.");
+    // Afficher un message informatif sur les images
+    if (variant.content?.includes('[IMAGE:')) {
+      toast.info("L'article contient des suggestions d'images. Remplacez [IMAGE: ...] par vos propres images via l'éditeur.", {
+        duration: 6000
+      });
+    }
+
+    toast.success("Article chargé avec succès ! Tous les champs ont été remplis automatiquement.");
   };
 
   const handleTitleChange = (title: string) => {
