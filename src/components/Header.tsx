@@ -89,18 +89,25 @@ const Header = () => {
             <span className="text-xs text-muted-foreground">prime-energies.fr</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <MegaMenu />
+          {/* Desktop Navigation - Hidden on smaller screens */}
+          <div className="hidden lg:block">
+            <MegaMenu />
+          </div>
 
-          {/* Desktop CTA - Phone and CTA button always visible, shrink-0 to prevent wrapping */}
-          <div className="hidden lg:flex items-center space-x-4 shrink-0">
+          {/* Right side actions - Progressive visibility */}
+          <div className="hidden md:flex items-center space-x-3 lg:space-x-4 shrink-0">
+            {/* Phone - visible from md */}
             <a href="tel:0800123456" className="flex items-center text-foreground hover:text-primary transition-colors whitespace-nowrap">
               <Phone className="w-4 h-4 mr-2" />
               <span className="font-semibold">0 800 123 456</span>
             </a>
+            
+            {/* Installer button - visible from md */}
             <Button asChild className="whitespace-nowrap">
               <Link to="/#etude">Trouver un installateur</Link>
             </Button>
+            
+            {/* User menu - visible from md */}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -185,18 +192,18 @@ const Header = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - visible below md */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="lg:hidden p-2 text-foreground hover:text-primary transition-colors"
+            className="md:hidden p-2 text-foreground hover:text-primary transition-colors"
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation - visible below md */}
         {isMenuOpen && (
-          <nav className="lg:hidden py-4 border-t border-border">
+          <nav className="md:hidden py-4 border-t border-border">
             <div className="flex flex-col space-y-4">
               <Link
                 to="/offres"

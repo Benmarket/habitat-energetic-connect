@@ -121,7 +121,7 @@ const megaMenuData = {
 
 export const MegaMenu = () => {
   return (
-    <NavigationMenu className="hidden lg:flex">
+    <NavigationMenu>
       <NavigationMenuList className="space-x-1">
         {/* Offres - Always visible */}
         <NavigationMenuItem>
@@ -154,8 +154,8 @@ export const MegaMenu = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Guides - Always visible */}
-        <NavigationMenuItem>
+        {/* Guides - Hidden below xl */}
+        <NavigationMenuItem className="hidden xl:flex">
           <NavigationMenuTrigger>Guides</NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
@@ -187,8 +187,8 @@ export const MegaMenu = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Aides - Always visible */}
-        <NavigationMenuItem>
+        {/* Aides - Hidden below xl */}
+        <NavigationMenuItem className="hidden xl:flex">
           <NavigationMenuTrigger>Aides</NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
@@ -255,8 +255,8 @@ export const MegaMenu = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Simulateurs - Always visible */}
-        <NavigationMenuItem>
+        {/* Simulateurs - Hidden below 2xl */}
+        <NavigationMenuItem className="hidden 2xl:flex">
           <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
             Simulateurs
           </NavigationMenuTrigger>
@@ -290,8 +290,8 @@ export const MegaMenu = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Qui sommes-nous - Always visible */}
-        <NavigationMenuItem>
+        {/* Qui sommes-nous - Hidden below 2xl */}
+        <NavigationMenuItem className="hidden 2xl:flex">
           <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
             Qui sommes-nous?
           </NavigationMenuTrigger>
