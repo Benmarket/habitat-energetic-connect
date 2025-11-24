@@ -46,20 +46,38 @@ const ManageActualites = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
   const [periodFilter, setPeriodFilter] = useState<"all" | "month" | "year">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft" | "archived">("all");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/connexion");
-    }
+    const checkAuth = async () => {
+      if (!authLoading && !user) {
+        navigate("/connexion");
+        return;
+      }
+      
+      if (user) {
+        // Vérifier que l'utilisateur a un rôle admin ou super_admin
+        const { data: roles } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id);
+        
+        const hasAdminAccess = roles?.some(r => r.role === "admin" || r.role === "super_admin");
+        if (!hasAdminAccess) {
+          navigate("/");
+        }
+      }
+    };
+    checkAuth();
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
     if (user) {
       fetchPosts();
     }
-  }, [user, sortOrder, periodFilter]);
+  }, [user, sortOrder, periodFilter, statusFilter]);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -72,8 +90,14 @@ const ManageActualites = () => {
             categories(id, name, slug)
           )
         `)
-        .eq("content_type", "actualite")
-        .order("published_at", { ascending: sortOrder === "asc", nullsFirst: false });
+        .eq("content_type", "actualite");
+
+      // Filtrer par statut
+      if (statusFilter !== "all") {
+        query = query.eq("status", statusFilter);
+      }
+      
+      query = query.order("published_at", { ascending: sortOrder === "asc", nullsFirst: false });
 
       // Apply period filter
       if (periodFilter === "month") {
@@ -206,6 +230,21 @@ const ManageActualites = () => {
                   </Select>
                 </div>
 
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">Statut:</span>
+                  <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tous</SelectItem>
+                      <SelectItem value="published">En ligne</SelectItem>
+                      <SelectItem value="archived">Hors ligne</SelectItem>
+                      <SelectItem value="draft">Brouillon</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -242,58 +281,65 @@ const ManageActualites = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {paginatedPosts.map((post) => (
-                        <TableRow key={post.id}>
-                          <TableCell>
-                            {post.featured_image && (
-                              <img
-                                src={post.featured_image}
-                                alt={post.title}
-                                className="w-16 h-12 object-cover rounded"
-                              />
-                            )}
-                          </TableCell>
-                          <TableCell className="font-medium">{post.title}</TableCell>
-                          <TableCell>
-                            {post.post_categories?.[0]?.categories?.name || "-"}
-                          </TableCell>
-                          <TableCell>
-                            <span
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                post.status === "published"
-                                  ? "bg-green-100 text-green-800"
-                                  : post.status === "draft"
-                                  ? "bg-yellow-100 text-yellow-800"
-                                  : "bg-gray-100 text-gray-800"
-                              }`}
-                            >
-                              {post.status === "published" ? "Publié" : post.status === "draft" ? "Brouillon" : "Archivé"}
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            {post.published_at
-                              ? format(new Date(post.published_at), "d MMM yyyy", { locale: fr })
-                              : format(new Date(post.created_at), "d MMM yyyy", { locale: fr })}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex gap-2 justify-end">
-                              <Link to={`/creer-contenu?type=actualite&edit=${post.id}`}>
-                                <Button variant="outline" size="icon" className="h-8 w-8">
-                                  <Pencil className="w-4 h-4" />
-                                </Button>
-                              </Link>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-8 w-8 text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                                onClick={() => confirmDelete(post.id)}
+                      {paginatedPosts.map((post) => {
+                        const rowClass = 
+                          post.status === "draft" ? "bg-gray-100" : 
+                          post.status === "archived" ? "bg-red-50" : 
+                          "bg-white";
+                        
+                        return (
+                          <TableRow key={post.id} className={rowClass}>
+                            <TableCell>
+                              {post.featured_image && (
+                                <img
+                                  src={post.featured_image}
+                                  alt={post.title}
+                                  className="w-16 h-12 object-cover rounded"
+                                />
+                              )}
+                            </TableCell>
+                            <TableCell className="font-medium">{post.title}</TableCell>
+                            <TableCell>
+                              {post.post_categories?.[0]?.categories?.name || "-"}
+                            </TableCell>
+                            <TableCell>
+                              <span
+                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                  post.status === "published"
+                                    ? "bg-green-100 text-green-800"
+                                    : post.status === "draft"
+                                    ? "bg-gray-200 text-gray-800"
+                                    : "bg-red-200 text-red-800"
+                                }`}
                               >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                                {post.status === "published" ? "En ligne" : post.status === "draft" ? "Brouillon" : "Hors ligne"}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              {post.published_at
+                                ? format(new Date(post.published_at), "d MMM yyyy", { locale: fr })
+                                : format(new Date(post.created_at), "d MMM yyyy", { locale: fr })}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex gap-2 justify-end">
+                                <Link to={`/creer-contenu?type=actualite&edit=${post.id}`}>
+                                  <Button variant="outline" size="icon" className="h-8 w-8">
+                                    <Pencil className="w-4 h-4" />
+                                  </Button>
+                                </Link>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-8 w-8 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                  onClick={() => confirmDelete(post.id)}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </Card>
