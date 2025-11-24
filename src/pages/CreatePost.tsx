@@ -14,12 +14,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { z } from "zod";
+import { RichTextEditor } from "@/components/RichTextEditor";
 
 const postSchema = z.object({
   title: z.string().trim().min(5, "Le titre doit contenir au moins 5 caractères").max(200, "Le titre ne peut pas dépasser 200 caractères"),
   slug: z.string().trim().min(3, "Le slug doit contenir au moins 3 caractères").max(200, "Le slug ne peut pas dépasser 200 caractères"),
   excerpt: z.string().trim().max(500, "L'extrait ne peut pas dépasser 500 caractères").optional(),
-  content: z.string().trim().min(50, "Le contenu doit contenir au moins 50 caractères").max(50000, "Le contenu ne peut pas dépasser 50 000 caractères"),
+  content: z.string().trim().min(50, "Le contenu doit contenir au moins 50 caractères"),
   featured_image: z.string().url("URL d'image invalide").optional().or(z.literal("")),
   meta_title: z.string().trim().max(60, "Le titre SEO ne peut pas dépasser 60 caractères").optional(),
   meta_description: z.string().trim().max(160, "La description SEO ne peut pas dépasser 160 caractères").optional(),
@@ -305,14 +306,13 @@ const CreatePost = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="content">Contenu *</Label>
-                    <Textarea
-                      id="content"
-                      value={formData.content}
-                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                      placeholder="Contenu complet de l'article..."
-                      rows={12}
-                      maxLength={50000}
+                    <RichTextEditor
+                      content={formData.content}
+                      onChange={(content) => setFormData({ ...formData, content })}
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Utilisez la barre d'outils pour formater votre texte, ajouter des images et des boutons personnalisés
+                    </p>
                   </div>
 
                   <div className="space-y-2">

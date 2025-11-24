@@ -8,7 +8,6 @@ import { Loader2, Calendar, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
-import ReactMarkdown from "react-markdown";
 
 interface Article {
   id: string;
@@ -154,9 +153,10 @@ const ArticleDetail = () => {
                 </p>
               )}
               
-              <div className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground prose-a:text-primary prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl">
-                <ReactMarkdown>{article.content}</ReactMarkdown>
-              </div>
+              <div 
+                className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground prose-a:text-primary prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl"
+                dangerouslySetInnerHTML={{ __html: article.content }}
+              />
             </div>
           </article>
         </main>
