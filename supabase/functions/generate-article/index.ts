@@ -18,9 +18,9 @@ serve(async (req) => {
       throw new Error('Au moins un mot-clé est requis');
     }
 
-    const CLAUDE_API_KEY = Deno.env.get('CLAUDE_API_KEY');
-    if (!CLAUDE_API_KEY) {
-      throw new Error('CLAUDE_API_KEY is not configured');
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+    if (!OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY is not configured');
     }
 
     // Récupérer la configuration depuis site_settings
@@ -35,8 +35,8 @@ serve(async (req) => {
     });
     
     const settings = await settingsResponse.json();
-    const apiUrl = settings.find((s: any) => s.key === 'ai_generation_api_url')?.value || "https://api.anthropic.com/v1/messages";
-    const model = settings.find((s: any) => s.key === 'ai_generation_model')?.value || "claude-sonnet-4-5";
+    const apiUrl = settings.find((s: any) => s.key === 'ai_generation_api_url')?.value || "https://api.openai.com/v1/chat/completions";
+    const model = settings.find((s: any) => s.key === 'ai_generation_model')?.value || "gpt-4o-mini";
     const enabled = settings.find((s: any) => s.key === 'ai_generation_enabled')?.value ?? true;
 
     if (!enabled) {
@@ -66,12 +66,12 @@ IMPORTANT : Ne fournis QUE le contenu HTML de l'article, sans aucune explication
 
 L'article doit être au format HTML pur (avec les balises <h1>, <h2>, <h3>, <p>, <strong>, etc.) et être prêt à être publié sur un site web professionnel dans le domaine des énergies renouvelables et des économies d'énergie.`;
 
-    console.log('Calling Claude API with:', { apiUrl, model, keywordsCount: keywords.length });
+    console.log('Calling OpenAI API with:', { apiUrl, model, keywordsCount: keywords.length });
 
     // Générer 2 variantes
     const variants = await Promise.all([
-      generateVariant(apiUrl, model, CLAUDE_API_KEY, systemPrompt, userPrompt + "\n\nVariante 1: Adopte un ton pédagogique et accessible."),
-      generateVariant(apiUrl, model, CLAUDE_API_KEY, systemPrompt, userPrompt + "\n\nVariante 2: Adopte un ton plus technique et expert.")
+      generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt + "\n\nVariante 1: Adopte un ton pédagogique et accessible."),
+      generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt + "\n\nVariante 2: Adopte un ton plus technique et expert.")
     ]);
 
     return new Response(
@@ -116,16 +116,19 @@ async function generateVariant(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01'
+      'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
       model: model,
       max_tokens: 4096,
       messages: [
         {
+          role: 'system',
+          content: systemPrompt
+        },
+        {
           role: 'user',
-          content: `${systemPrompt}\n\n${userPrompt}`
+          content: userPrompt
         }
       ]
     })
@@ -133,12 +136,12 @@ async function generateVariant(
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('Claude API error:', response.status, errorText);
-    throw new Error(`Erreur API Claude: ${response.status}`);
+    console.error('OpenAI API error:', response.status, errorText);
+    throw new Error(`Erreur API OpenAI: ${response.status}`);
   }
 
   const data = await response.json();
-  return data.content[0].text;
+  return data.choices[0].message.content;
 }
 
 function extractTitle(htmlContent: string): string {
