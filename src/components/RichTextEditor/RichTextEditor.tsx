@@ -43,7 +43,7 @@ import {
   AlignRight,
   AlignJustify,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface RichTextEditorProps {
   content: string;
@@ -88,6 +88,14 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       onChange(html);
     },
   });
+
+  // Mettre à jour l'éditeur quand le contenu change de l'extérieur
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+      setHtmlContent(content);
+    }
+  }, [content, editor]);
 
   if (!editor) {
     return null;

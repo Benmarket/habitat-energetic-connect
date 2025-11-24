@@ -145,26 +145,67 @@ const CreatePost = () => {
     }
   };
 
-  const handleSelectVariant = (variant: any) => {
+  const handleSelectVariant = async (variant: any) => {
+    // Extraire les descriptions d'images du contenu
+    const imageMatches = variant.content?.match(/\[IMAGE:\s*([^\]]+)\]/g) || [];
+    const imageDescriptions = imageMatches.map((match: string) => 
+      match.replace(/\[IMAGE:\s*/, '').replace(/\]/, '').trim()
+    );
+
+    // Générer les images avec l'IA
+    let featuredImageUrl = '';
+    let contentWithImages = variant.content || '';
+
+    if (imageDescriptions.length > 0 && user) {
+      toast.info("Génération des images en cours...", { duration: 3000 });
+      
+      try {
+        const { data: imagesData, error: imagesError } = await supabase.functions.invoke('generate-images', {
+          body: {
+            imageDescriptions: imageDescriptions,
+            userId: user.id
+          }
+        });
+
+        if (imagesError) throw imagesError;
+
+        if (imagesData?.success && imagesData.images) {
+          // Utiliser la première image comme image à la une
+          const firstSuccessImage = imagesData.images.find((img: any) => img.success);
+          if (firstSuccessImage) {
+            featuredImageUrl = firstSuccessImage.url;
+          }
+
+          // Remplacer les placeholders d'images dans le contenu
+          imagesData.images.forEach((imgData: any, index: number) => {
+            if (imgData.success && imageMatches[index]) {
+              const imgTag = `<img src="${imgData.url}" alt="${imgData.description}" class="rounded-lg max-w-full h-auto my-4" />`;
+              contentWithImages = contentWithImages.replace(imageMatches[index], imgTag);
+            }
+          });
+
+          toast.success(`${imagesData.images.filter((img: any) => img.success).length} image(s) générée(s) avec succès !`);
+        }
+      } catch (error) {
+        console.error('Error generating images:', error);
+        toast.error("Erreur lors de la génération des images. L'article sera chargé sans images.");
+      }
+    }
+
+    // Remplir tous les champs
     setFormData(prev => ({
       ...prev,
       title: variant.title || '',
       slug: generateSlug(variant.title || ''),
-      content: variant.content || '',
+      content: contentWithImages,
       excerpt: variant.excerpt || '',
+      featured_image: featuredImageUrl,
       meta_title: variant.metaTitle || variant.title?.slice(0, 60) || '',
       meta_description: variant.metaDescription || variant.excerpt?.slice(0, 160) || '',
       focus_keywords: variant.focusKeywords || prev.focus_keywords
     }));
 
-    // Afficher un message informatif sur les images
-    if (variant.content?.includes('[IMAGE:')) {
-      toast.info("L'article contient des suggestions d'images. Remplacez [IMAGE: ...] par vos propres images via l'éditeur.", {
-        duration: 6000
-      });
-    }
-
-    toast.success("Article chargé avec succès ! Tous les champs ont été remplis automatiquement.");
+    toast.success("Article complet généré avec succès ! Tous les champs ont été remplis.");
   };
 
   const handleTitleChange = (title: string) => {
