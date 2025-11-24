@@ -90,7 +90,7 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation - Hidden on smaller screens */}
-          <div className="hidden lg:block">
+          <div className="hidden lg:flex flex-1 justify-center">
             <MegaMenu />
           </div>
 
