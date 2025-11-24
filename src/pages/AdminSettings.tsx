@@ -29,8 +29,8 @@ const AdminSettings = () => {
     metaDescription: "Bénéficiez d'une étude énergétique gratuite et découvrez les travaux subventionnés adaptés à votre logement.",
     maintenanceMode: false,
     maintenanceMessage: "Site en maintenance. Nous reviendrons bientôt!",
-    aiApiUrl: "https://api.anthropic.com/v1/messages",
-    aiModel: "claude-sonnet-4-5",
+    aiApiUrl: "https://api.openai.com/v1/chat/completions",
+    aiModel: "gpt-4o-mini",
     aiEnabled: true,
   });
 
@@ -80,8 +80,8 @@ const AdminSettings = () => {
 
         setSettings(prev => ({
           ...prev,
-          aiApiUrl: aiUrl?.value as string || "https://api.anthropic.com/v1/messages",
-          aiModel: aiModel?.value as string || "claude-sonnet-4-5",
+          aiApiUrl: aiUrl?.value as string || "https://api.openai.com/v1/chat/completions",
+          aiModel: aiModel?.value as string || "gpt-4o-mini",
           aiEnabled: aiEnabled?.value as boolean ?? true,
         }));
       }
@@ -312,7 +312,7 @@ const AdminSettings = () => {
                       type="url"
                       value={settings.aiApiUrl}
                       onChange={(e) => setSettings({ ...settings, aiApiUrl: e.target.value })}
-                      placeholder="https://api.anthropic.com/v1/messages"
+                      placeholder="https://api.openai.com/v1/chat/completions"
                     />
                     <p className="text-sm text-muted-foreground mt-1">
                       🔒 Cette URL est sécurisée et ne sera pas visible côté client
@@ -325,10 +325,10 @@ const AdminSettings = () => {
                       id="aiModel"
                       value={settings.aiModel}
                       onChange={(e) => setSettings({ ...settings, aiModel: e.target.value })}
-                      placeholder="claude-sonnet-4-5"
+                      placeholder="gpt-4o-mini"
                     />
                     <p className="text-sm text-muted-foreground mt-1">
-                      Modèle utilisé pour la génération (claude-sonnet-4-5, gpt-5, etc.)
+                      Modèle utilisé pour la génération (gpt-4o-mini, gpt-5, etc.)
                     </p>
                   </div>
 
