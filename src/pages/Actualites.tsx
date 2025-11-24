@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
-import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
@@ -9,9 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
 const Actualites = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const categoryParam = searchParams.get("category");
-  const [activeFilter, setActiveFilter] = useState(categoryParam || "toutes");
+  const [activeFilter, setActiveFilter] = useState("toutes");
   const [posts, setPosts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,13 +17,6 @@ const Actualites = () => {
     fetchCategories();
     fetchPosts();
   }, [activeFilter]);
-
-  useEffect(() => {
-    // Update filter when URL param changes
-    if (categoryParam) {
-      setActiveFilter(categoryParam);
-    }
-  }, [categoryParam]);
 
   const fetchCategories = async () => {
     const { data } = await supabase
@@ -119,10 +109,7 @@ const Actualites = () => {
               <div className="flex flex-wrap gap-3">
                 <Button
                   variant={activeFilter === "toutes" ? "default" : "outline"}
-                  onClick={() => {
-                    setActiveFilter("toutes");
-                    setSearchParams({});
-                  }}
+                  onClick={() => setActiveFilter("toutes")}
                 >
                   Toutes
                 </Button>
@@ -130,10 +117,7 @@ const Actualites = () => {
                   <Button
                     key={category.id}
                     variant={activeFilter === category.slug ? "default" : "outline"}
-                    onClick={() => {
-                      setActiveFilter(category.slug);
-                      setSearchParams({ category: category.slug });
-                    }}
+                    onClick={() => setActiveFilter(category.slug)}
                   >
                     {category.name}
                   </Button>

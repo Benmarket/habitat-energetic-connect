@@ -139,11 +139,9 @@ const ArticleDetail = () => {
                   Retour aux {basePath}
                 </Link>
                 {category && (
-                  <Link to={`/actualites?category=${category.slug}`}>
-                    <Badge variant="secondary" className="bg-primary text-primary-foreground mb-4 mt-2 rounded-full px-4 py-1 cursor-pointer hover:bg-primary/90 transition-colors">
-                      {category.name}
-                    </Badge>
-                  </Link>
+                  <Badge variant="secondary" className="bg-primary text-primary-foreground mb-4 rounded-full px-4 py-1">
+                    {category.name}
+                  </Badge>
                 )}
                 <h1 className="text-3xl lg:text-5xl font-bold text-white mb-4 max-w-4xl">
                   {article.title}
