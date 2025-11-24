@@ -154,8 +154,8 @@ export const MegaMenu = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Guides - Hidden below xl */}
-        <NavigationMenuItem className="hidden xl:flex">
+        {/* Guides - Always visible */}
+        <NavigationMenuItem>
           <NavigationMenuTrigger>Guides</NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
@@ -187,8 +187,8 @@ export const MegaMenu = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Aides - Hidden below xl */}
-        <NavigationMenuItem className="hidden xl:flex">
+        {/* Aides - Always visible */}
+        <NavigationMenuItem>
           <NavigationMenuTrigger>Aides</NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
@@ -255,8 +255,8 @@ export const MegaMenu = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Simulateurs - Hidden below 2xl */}
-        <NavigationMenuItem className="hidden 2xl:flex">
+        {/* Simulateurs - Always visible */}
+        <NavigationMenuItem>
           <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
             Simulateurs
           </NavigationMenuTrigger>
@@ -290,8 +290,8 @@ export const MegaMenu = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
 
-        {/* Qui sommes-nous - Hidden below 2xl */}
-        <NavigationMenuItem className="hidden 2xl:flex">
+        {/* Qui sommes-nous - Always visible */}
+        <NavigationMenuItem>
           <NavigationMenuTrigger className="text-foreground hover:text-primary data-[state=open]:text-primary">
             Qui sommes-nous?
           </NavigationMenuTrigger>
