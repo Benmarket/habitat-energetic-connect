@@ -29,15 +29,23 @@ const HeroSection = () => {
 
   const loadSliderSettings = async () => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("site_settings")
         .select("value")
         .eq("key", "hero_slider")
         .maybeSingle();
 
+      if (error) {
+        console.error("Supabase error loading hero slider:", error);
+        return;
+      }
+
+      console.log("Hero slider data loaded:", data);
+
       if (data?.value) {
         const value = data.value as any;
         if (value && typeof value === 'object') {
+          console.log("Setting slider settings:", value);
           setSliderSettings({
             enabled: value.enabled || false,
             duration: value.duration || 5,
@@ -46,6 +54,8 @@ const HeroSection = () => {
             overlayIntensity: value.overlayIntensity || 50,
           });
         }
+      } else {
+        console.log("No hero slider data found");
       }
     } catch (error) {
       console.error("Error loading hero slider settings:", error);
