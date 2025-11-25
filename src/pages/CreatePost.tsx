@@ -228,8 +228,15 @@ const CreatePost = () => {
       const currentVariant = generatedVariants?.find((v: any) => v.id === variantId);
       if (!currentVariant) {
         toast.error("Variante introuvable");
+        setRegeneratingVariantId(null);
         return;
       }
+
+      console.log('Regenerating variant:', {
+        variantId,
+        hasKeywords: formData.focus_keywords.length > 0,
+        instructions: instructions.substring(0, 100)
+      });
 
       // Sauvegarder la version actuelle avant régénération
       if (!previousVariantVersions.has(variantId)) {
@@ -239,46 +246,70 @@ const CreatePost = () => {
       // Appel à l'edge function pour régénérer avec instructions
       const { data, error } = await supabase.functions.invoke('generate-article', {
         body: { 
-          keywords: formData.focus_keywords,
+          keywords: formData.focus_keywords.length > 0 ? formData.focus_keywords : ['panneau solaire'],
           contentType: contentType,
           baseContent: currentVariant.content,
           additionalInstructions: instructions
         }
       });
 
-      if (error) throw error;
+      console.log('Edge function response:', { data, error });
 
-      if (data && data.variants && data.variants.length > 0) {
-        // Récupérer la première variante régénérée
-        const regeneratedVariant = data.variants[0];
-        
-        // Générer l'image pour la variante régénérée
-        const imageDescription = regeneratedVariant.imageDescription || 
-          `Image pour l'article: ${regeneratedVariant.title}`;
-        
-        const { data: imageData, error: imageError } = await supabase.functions.invoke('generate-images', {
-          body: { 
-            descriptions: [imageDescription]
-          }
-        });
-
-        if (!imageError && imageData?.images?.[0]) {
-          regeneratedVariant.featuredImageUrl = imageData.images[0];
-        }
-
-        // Remplacer la variante dans le tableau
-        setGeneratedVariants((prev: any) => 
-          prev.map((v: any) => v.id === variantId ? {
-            ...regeneratedVariant,
-            id: variantId
-          } : v)
-        );
-
-        toast.success("Variante régénérée avec succès !");
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error.message || "Erreur lors de l'appel à l'edge function");
       }
+
+      if (!data) {
+        throw new Error("Aucune donnée reçue de l'edge function");
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || "La génération a échoué");
+      }
+
+      if (!data.variants || data.variants.length === 0) {
+        throw new Error("Aucune variante générée");
+      }
+
+      // Récupérer la première variante régénérée
+      const regeneratedVariant = data.variants[0];
+      console.log('Regenerated variant received:', {
+        hasTitle: !!regeneratedVariant.title,
+        hasContent: !!regeneratedVariant.content,
+        contentLength: regeneratedVariant.content?.length
+      });
+      
+      // Générer l'image pour la variante régénérée
+      const imageDescription = regeneratedVariant.imageDescription || 
+        `Image pour l'article: ${regeneratedVariant.title}`;
+      
+      console.log('Generating image for regenerated variant...');
+      const { data: imageData, error: imageError } = await supabase.functions.invoke('generate-images', {
+        body: { 
+          descriptions: [imageDescription]
+        }
+      });
+
+      if (imageError) {
+        console.error('Image generation error:', imageError);
+      } else if (imageData?.images?.[0]) {
+        regeneratedVariant.featuredImageUrl = imageData.images[0];
+        console.log('Image generated successfully');
+      }
+
+      // Remplacer la variante dans le tableau
+      setGeneratedVariants((prev: any) => 
+        prev.map((v: any) => v.id === variantId ? {
+          ...regeneratedVariant,
+          id: variantId
+        } : v)
+      );
+
+      toast.success("Variante régénérée avec succès !");
     } catch (error: any) {
       console.error("Error regenerating variant:", error);
-      toast.error("Erreur lors de la régénération de la variante");
+      toast.error(error.message || "Erreur lors de la régénération de la variante");
     } finally {
       setRegeneratingVariantId(null);
     }

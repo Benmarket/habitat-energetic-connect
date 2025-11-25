@@ -14,6 +14,14 @@ serve(async (req) => {
   try {
     const { keywords, contentType, baseContent, additionalInstructions } = await req.json();
     
+    console.log('Request received:', { 
+      keywords, 
+      contentType, 
+      hasBaseContent: !!baseContent,
+      hasAdditionalInstructions: !!additionalInstructions,
+      additionalInstructions: additionalInstructions?.substring(0, 100)
+    });
+    
     if (!keywords || keywords.length === 0) {
       throw new Error('Au moins un mot-clé est requis');
     }
@@ -108,21 +116,30 @@ Retourne UNIQUEMENT le HTML sans balises de code ni commentaires.`;
       }
     }
 
-    console.log('Calling OpenAI API with:', { apiUrl, model, keywordsCount: keywords.length });
+    console.log('Calling OpenAI API with:', { 
+      apiUrl, 
+      model, 
+      keywordsCount: keywords.length,
+      isRegeneration: !!(additionalInstructions && baseContent)
+    });
 
     // Générer les variantes
     let variants;
-    if (additionalInstructions && baseContent) {
+    if (additionalInstructions) {
+      console.log('Regenerating with instructions:', additionalInstructions.substring(0, 200));
       // Régénération d'une seule variante avec instructions
       const regeneratedContent = await generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt);
       variants = [regeneratedContent];
     } else {
+      console.log('Generating 2 initial variants');
       // Génération initiale : 2 variantes différentes
       variants = await Promise.all([
         generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt + "\n\nVARIANTE 1 : Ton pédagogique, accessible au grand public, beaucoup d'exemples concrets et de bénéfices chiffrés."),
         generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt + "\n\nVARIANTE 2 : Ton plus technique et expert, focus sur l'expertise et la crédibilité, données précises et arguments d'autorité.")
       ]);
     }
+    
+    console.log('Variants generated successfully:', variants.length);
 
     return new Response(
       JSON.stringify({ 
