@@ -32,7 +32,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library } from "lucide-react";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Star } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -51,6 +59,9 @@ const ManageAides = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
   const [buttonLibraryOpen, setButtonLibraryOpen] = useState(false);
+  const [featuredDialogOpen, setFeaturedDialogOpen] = useState(false);
+  const [selectedFeatured, setSelectedFeatured] = useState<string[]>([]);
+  const [savingFeatured, setSavingFeatured] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -77,6 +88,7 @@ const ManageAides = () => {
   useEffect(() => {
     if (user) {
       fetchPosts();
+      fetchFeaturedAides();
     }
   }, [user, sortOrder, periodFilter, statusFilter]);
 
@@ -119,6 +131,64 @@ const ManageAides = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchFeaturedAides = async () => {
+    try {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "featured_aides")
+        .maybeSingle();
+
+      if (data?.value) {
+        const aideIds = (data.value as any).aide_ids || [];
+        setSelectedFeatured(aideIds);
+      }
+    } catch (error) {
+      console.error("Error fetching featured aides:", error);
+    }
+  };
+
+  const handleSaveFeaturedAides = async () => {
+    if (selectedFeatured.length !== 3) {
+      toast.error("Veuillez sélectionner exactement 3 aides");
+      return;
+    }
+
+    setSavingFeatured(true);
+    try {
+      const { error } = await supabase
+        .from("site_settings")
+        .upsert({
+          key: "featured_aides",
+          value: { aide_ids: selectedFeatured },
+          updated_by: user?.id,
+        });
+
+      if (error) throw error;
+
+      toast.success("Aides mises en avant sauvegardées");
+      setFeaturedDialogOpen(false);
+    } catch (error) {
+      console.error("Error saving featured aides:", error);
+      toast.error("Erreur lors de la sauvegarde");
+    } finally {
+      setSavingFeatured(false);
+    }
+  };
+
+  const toggleFeaturedAide = (aideId: string) => {
+    setSelectedFeatured(prev => {
+      if (prev.includes(aideId)) {
+        return prev.filter(id => id !== aideId);
+      }
+      if (prev.length >= 3) {
+        toast.error("Vous ne pouvez sélectionner que 3 aides maximum");
+        return prev;
+      }
+      return [...prev, aideId];
+    });
   };
 
   const handleDelete = async () => {
@@ -209,6 +279,14 @@ const ManageAides = () => {
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-3xl font-bold">Gérer les aides & subventions</h1>
               <div className="flex gap-3">
+                <Button
+                  onClick={() => setFeaturedDialogOpen(true)}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Star className="w-4 h-4" />
+                  Aides en avant ({selectedFeatured.length}/3)
+                </Button>
                 <Button
                   onClick={() => setButtonLibraryOpen(true)}
                   className="gap-2"
@@ -474,6 +552,65 @@ const ManageAides = () => {
         open={buttonLibraryOpen}
         onOpenChange={setButtonLibraryOpen}
       />
+
+      <Dialog open={featuredDialogOpen} onOpenChange={setFeaturedDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Sélectionner les aides à mettre en avant</DialogTitle>
+            <DialogDescription>
+              Choisissez exactement 3 aides qui seront affichées sur la page d'accueil
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2 py-4">
+            {posts
+              .filter(post => post.status === "published")
+              .map(post => (
+                <div
+                  key={post.id}
+                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                    selectedFeatured.includes(post.id)
+                      ? "bg-primary/10 border-primary"
+                      : "hover:bg-muted"
+                  }`}
+                  onClick={() => toggleFeaturedAide(post.id)}
+                >
+                  <div className="flex-shrink-0">
+                    {selectedFeatured.includes(post.id) ? (
+                      <Star className="w-5 h-5 text-primary fill-primary" />
+                    ) : (
+                      <Star className="w-5 h-5 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{post.title}</p>
+                    {post.excerpt && (
+                      <p className="text-sm text-muted-foreground truncate">{post.excerpt}</p>
+                    )}
+                  </div>
+                  {selectedFeatured.includes(post.id) && (
+                    <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
+                      #{selectedFeatured.indexOf(post.id) + 1}
+                    </span>
+                  )}
+                </div>
+              ))}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFeaturedDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button 
+              onClick={handleSaveFeaturedAides}
+              disabled={selectedFeatured.length !== 3 || savingFeatured}
+            >
+              {savingFeatured && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Enregistrer ({selectedFeatured.length}/3)
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
