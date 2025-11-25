@@ -93,13 +93,8 @@ const PartnerOffersSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-3 mb-4 bg-primary/10 px-6 py-3 rounded-full backdrop-blur-sm border border-primary/20">
-            <Tag className="w-6 h-6 text-primary" />
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
-              Offres Partenaires Sélectionnées
-            </h2>
-          </div>
-          <p className="text-muted-foreground text-lg max-w-3xl mx-auto mt-6">
+          <h2 className="text-4xl font-bold mb-4">Offres Partenaires Sélectionnées</h2>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Découvrez les meilleures offres de nos partenaires certifiés pour vos projets d'énergies renouvelables
           </p>
         </div>
