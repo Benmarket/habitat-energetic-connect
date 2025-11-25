@@ -449,7 +449,7 @@ const CreatePost = () => {
         title: validatedData.title,
         slug: validatedData.slug,
         content: validatedData.content,
-        content_type: contentType as "actualite" | "guide" | "aide",
+        content_type: contentType as "actualite" | "guide" | "aide" | "annonce",
         status,
       };
 
@@ -548,6 +548,7 @@ const CreatePost = () => {
     actualite: "Actualité",
     guide: "Guide",
     aide: "Aide & Subvention",
+    annonce: "Annonce",
   };
 
   return (

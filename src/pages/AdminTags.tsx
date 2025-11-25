@@ -18,7 +18,7 @@ interface Tag {
   id: string;
   name: string;
   slug: string;
-  content_type: "actualite" | "guide" | "aide";
+  content_type: "actualite" | "guide" | "aide" | "annonce";
   created_at: string;
 }
 
@@ -31,7 +31,7 @@ const AdminTags = () => {
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
-    content_type: "actualite" as "actualite" | "guide" | "aide",
+    content_type: "actualite" as "actualite" | "guide" | "aide" | "annonce",
   });
   const [editingId, setEditingId] = useState<string | null>(null);
 
