@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import logoPrimeEnergies from "@/assets/logo-prime-energies.png";
 
 const signInSchema = z.object({
   email: z.string().email("Email invalide"),
@@ -176,10 +177,13 @@ const Auth = () => {
       <div className="min-h-screen flex items-center justify-center bg-muted p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-bold">
-              <span className="text-primary">Prime</span>
-              <span>énergies</span>
-            </CardTitle>
+            <div className="mb-4 flex justify-center">
+              <img 
+                src={logoPrimeEnergies} 
+                alt="Prime énergies" 
+                className="h-12 w-auto"
+              />
+            </div>
             <CardDescription>
               Accédez à votre espace personnel
             </CardDescription>
