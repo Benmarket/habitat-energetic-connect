@@ -27,34 +27,34 @@ const FAQSection = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background to-muted/30">
+    <section className="py-12 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-3 mb-4 bg-primary/10 px-6 py-3 rounded-full">
-              <HelpCircle className="w-6 h-6 text-primary" />
-              <h2 className="text-4xl font-bold">Questions fréquentes</h2>
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-3 mb-3 bg-primary/10 px-5 py-2 rounded-full">
+              <HelpCircle className="w-5 h-5 text-primary" />
+              <h2 className="text-3xl font-bold">Questions fréquentes</h2>
             </div>
-            <p className="text-xl text-muted-foreground mt-4">
+            <p className="text-lg text-muted-foreground mt-2">
               Trouvez rapidement les réponses à vos questions sur les énergies renouvelables
             </p>
           </div>
 
           {/* FAQ Accordion */}
-          <Accordion type="single" collapsible className="space-y-4">
+          <Accordion type="single" collapsible className="space-y-3">
             {faqs.map((faq, index) => (
               <AccordionItem 
                 key={index} 
                 value={`item-${index}`}
-                className="bg-card border-2 border-border rounded-lg px-6 shadow-sm hover:shadow-md transition-shadow"
+                className="bg-card border-2 border-border rounded-lg px-5 shadow-sm hover:shadow-md transition-shadow"
               >
-                <AccordionTrigger className="text-left hover:no-underline py-6">
-                  <span className="font-semibold text-lg pr-4">
+                <AccordionTrigger className="text-left hover:no-underline py-4">
+                  <span className="font-semibold text-base pr-4">
                     {faq.question}
                   </span>
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground leading-relaxed pb-6 pt-2">
+                <AccordionContent className="text-muted-foreground leading-relaxed pb-4 pt-1 text-sm">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
