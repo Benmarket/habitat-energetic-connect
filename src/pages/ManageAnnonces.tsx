@@ -1,479 +1,637 @@
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library } from "lucide-react";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ButtonPresetsLibrary } from "@/components/ButtonPresetsLibrary";
+import { Plus, Edit, Trash2, Megaphone, Star, Check, X } from "lucide-react";
+import { Helmet } from "react-helmet";
+
+interface Advertisement {
+  id: string;
+  advertiser_id: string;
+  title: string;
+  description: string;
+  image: string | null;
+  price: number;
+  original_price: number | null;
+  features: string[];
+  cta_text: string;
+  cta_url: string;
+  badge_text: string | null;
+  badge_type: string;
+  is_featured: boolean;
+  status: string;
+  created_at: string;
+  advertiser: {
+    id: string;
+    name: string;
+  };
+}
+
+interface Advertiser {
+  id: string;
+  name: string;
+  is_active: boolean;
+}
 
 const ManageAnnonces = () => {
-  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [posts, setPosts] = useState<any[]>([]);
+  const { user, loading: authLoading } = useAuth();
+  const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
+  const [advertisers, setAdvertisers] = useState<Advertiser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
-  const [periodFilter, setPeriodFilter] = useState<"all" | "month" | "year">("all");
-  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft" | "archived">("all");
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [postToDelete, setPostToDelete] = useState<string | null>(null);
-  const [buttonLibraryOpen, setButtonLibraryOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingAd, setEditingAd] = useState<Advertisement | null>(null);
+  const [currentFeature, setCurrentFeature] = useState("");
+  const [formData, setFormData] = useState({
+    advertiser_id: "",
+    title: "",
+    description: "",
+    image: "",
+    price: "",
+    original_price: "",
+    features: [] as string[],
+    cta_text: "Voir l'offre",
+    cta_url: "",
+    badge_text: "",
+    badge_type: "sponsored",
+    is_featured: false,
+    status: "active",
+  });
 
   useEffect(() => {
-    const checkAuth = async () => {
-      if (!authLoading && !user) {
-        navigate("/connexion");
-        return;
-      }
-      
-      if (user) {
-        const { data: roles } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", user.id);
-        
-        const hasAdminAccess = roles?.some(r => r.role === "admin" || r.role === "super_admin");
-        if (!hasAdminAccess) {
-          navigate("/");
-        }
-      }
-    };
-    checkAuth();
+    if (!authLoading && !user) {
+      navigate("/connexion");
+    }
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
     if (user) {
-      fetchPosts();
+      fetchAdvertisements();
+      fetchAdvertisers();
     }
-  }, [user, sortOrder, periodFilter, statusFilter]);
+  }, [user]);
 
-  const fetchPosts = async () => {
-    setLoading(true);
+  const fetchAdvertisements = async () => {
     try {
-      let query = supabase
-        .from("posts")
+      const { data, error } = await supabase
+        .from("advertisements")
         .select(`
           *,
-          post_categories(
-            categories(id, name, slug)
-          )
+          advertiser:advertisers(id, name)
         `)
-        .eq("content_type", "annonce");
+        .order("created_at", { ascending: false });
 
-      if (statusFilter !== "all") {
-        query = query.eq("status", statusFilter);
-      }
-      
-      query = query.order("published_at", { ascending: sortOrder === "asc", nullsFirst: false });
-
-      if (periodFilter === "month") {
-        const now = new Date();
-        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        query = query.gte("published_at", firstDayOfMonth.toISOString());
-      } else if (periodFilter === "year") {
-        const now = new Date();
-        const firstDayOfYear = new Date(now.getFullYear(), 0, 1);
-        query = query.gte("published_at", firstDayOfYear.toISOString());
-      }
-
-      const { data, error } = await query;
-      
       if (error) throw error;
-      if (data) setPosts(data);
+      setAdvertisements(data || []);
     } catch (error) {
-      console.error("Error fetching posts:", error);
+      console.error("Error fetching advertisements:", error);
       toast.error("Erreur lors du chargement des annonces");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async () => {
-    if (!postToDelete) return;
-
+  const fetchAdvertisers = async () => {
     try {
-      const { error } = await supabase
-        .from("posts")
-        .delete()
-        .eq("id", postToDelete);
+      const { data, error } = await supabase
+        .from("advertisers")
+        .select("id, name, is_active")
+        .eq("is_active", true)
+        .order("name");
 
       if (error) throw error;
-
-      toast.success("Annonce supprimée avec succès");
-      fetchPosts();
+      setAdvertisers(data || []);
     } catch (error) {
-      console.error("Error deleting post:", error);
-      toast.error("Erreur lors de la suppression");
-    } finally {
-      setDeleteDialogOpen(false);
-      setPostToDelete(null);
+      console.error("Error fetching advertisers:", error);
     }
   };
 
-  const confirmDelete = (postId: string) => {
-    setPostToDelete(postId);
-    setDeleteDialogOpen(true);
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.advertiser_id) {
+      toast.error("Veuillez sélectionner un annonceur");
+      return;
+    }
 
-  const toggleSortOrder = () => {
-    setSortOrder(prev => prev === "desc" ? "asc" : "desc");
-  };
+    const adData = {
+      advertiser_id: formData.advertiser_id,
+      title: formData.title,
+      description: formData.description,
+      image: formData.image || null,
+      price: parseFloat(formData.price),
+      original_price: formData.original_price ? parseFloat(formData.original_price) : null,
+      features: formData.features,
+      cta_text: formData.cta_text,
+      cta_url: formData.cta_url,
+      badge_text: formData.badge_text || null,
+      badge_type: formData.badge_type,
+      is_featured: formData.is_featured,
+      status: formData.status,
+    };
 
-  const handleStatusChange = async (postId: string, newStatus: "published" | "archived") => {
     try {
-      const updateData: any = { status: newStatus };
-      
-      if (newStatus === "published") {
-        updateData.published_at = new Date().toISOString();
+      if (editingAd) {
+        const { error } = await supabase
+          .from("advertisements")
+          .update(adData)
+          .eq("id", editingAd.id);
+
+        if (error) throw error;
+        toast.success("Annonce mise à jour avec succès");
+      } else {
+        const { error } = await supabase
+          .from("advertisements")
+          .insert([adData]);
+
+        if (error) throw error;
+        toast.success("Annonce créée avec succès");
       }
 
-      const { error } = await supabase
-        .from("posts")
-        .update(updateData)
-        .eq("id", postId);
-
-      if (error) throw error;
-
-      toast.success(
-        newStatus === "published" 
-          ? "Annonce publiée avec succès" 
-          : "Annonce désactivée avec succès"
-      );
-      fetchPosts();
+      setDialogOpen(false);
+      resetForm();
+      fetchAdvertisements();
     } catch (error) {
-      console.error("Error updating post status:", error);
-      toast.error("Erreur lors de la mise à jour du statut");
+      console.error("Error saving advertisement:", error);
+      toast.error("Erreur lors de l'enregistrement");
     }
   };
 
-  const totalPages = itemsPerPage === 999999 
-    ? 1 
-    : Math.ceil(posts.length / itemsPerPage);
-  
-  const paginatedPosts = itemsPerPage === 999999 
-    ? posts 
-    : posts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const handleEdit = (ad: Advertisement) => {
+    setEditingAd(ad);
+    setFormData({
+      advertiser_id: ad.advertiser_id,
+      title: ad.title,
+      description: ad.description,
+      image: ad.image || "",
+      price: ad.price.toString(),
+      original_price: ad.original_price?.toString() || "",
+      features: ad.features,
+      cta_text: ad.cta_text,
+      cta_url: ad.cta_url,
+      badge_text: ad.badge_text || "",
+      badge_type: ad.badge_type,
+      is_featured: ad.is_featured,
+      status: ad.status,
+    });
+    setDialogOpen(true);
+  };
 
-  if (authLoading || !user) {
+  const handleDelete = async (id: string) => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cette annonce ?")) return;
+
+    try {
+      const { error } = await supabase
+        .from("advertisements")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+      toast.success("Annonce supprimée avec succès");
+      fetchAdvertisements();
+    } catch (error) {
+      console.error("Error deleting advertisement:", error);
+      toast.error("Erreur lors de la suppression");
+    }
+  };
+
+  const toggleFeatured = async (id: string, currentStatus: boolean) => {
+    // Check if we already have 3 featured ads
+    const featuredCount = advertisements.filter(ad => ad.is_featured).length;
+    if (!currentStatus && featuredCount >= 3) {
+      toast.error("Vous ne pouvez mettre en avant que 3 annonces maximum");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("advertisements")
+        .update({ is_featured: !currentStatus })
+        .eq("id", id);
+
+      if (error) throw error;
+      toast.success(currentStatus ? "Annonce retirée de la mise en avant" : "Annonce mise en avant");
+      fetchAdvertisements();
+    } catch (error) {
+      console.error("Error toggling featured:", error);
+      toast.error("Erreur lors de la mise à jour");
+    }
+  };
+
+  const addFeature = () => {
+    if (!currentFeature.trim()) return;
+    setFormData({
+      ...formData,
+      features: [...formData.features, currentFeature.trim()]
+    });
+    setCurrentFeature("");
+  };
+
+  const removeFeature = (index: number) => {
+    setFormData({
+      ...formData,
+      features: formData.features.filter((_, i) => i !== index)
+    });
+  };
+
+  const resetForm = () => {
+    setEditingAd(null);
+    setFormData({
+      advertiser_id: "",
+      title: "",
+      description: "",
+      image: "",
+      price: "",
+      original_price: "",
+      features: [],
+      cta_text: "Voir l'offre",
+      cta_url: "",
+      badge_text: "",
+      badge_type: "sponsored",
+      is_featured: false,
+      status: "active",
+    });
+    setCurrentFeature("");
+  };
+
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
+  const featuredCount = advertisements.filter(ad => ad.is_featured).length;
+
   return (
     <>
       <Helmet>
-        <title>Gérer les annonces | Prime Énergies</title>
+        <title>Gérer les Annonces | Prime Énergies</title>
       </Helmet>
 
       <div className="min-h-screen bg-background">
         <Header />
         
-        <main className="pt-20">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-bold">Gérer les annonces</h1>
-              <div className="flex gap-3">
-                <Button
-                  onClick={() => setButtonLibraryOpen(true)}
-                  className="gap-2"
-                  style={{
-                    background: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
-                    color: '#ffffff',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, #ec4899, #8b5cf6)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  <Library className="w-4 h-4" />
-                  Mes boutons
-                </Button>
-                <Link to="/creer-contenu?type=annonce">
-                  <Button className="gap-2">
-                    <Plus className="w-4 h-4" />
-                    Créer une annonce
-                  </Button>
-                </Link>
-              </div>
+        <main className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">Gestion des Annonces</h1>
+              <p className="text-muted-foreground">
+                Gérez vos annonces publicitaires • {featuredCount}/3 en vedette
+              </p>
             </div>
-
-            {/* Filters and controls */}
-            <Card className="p-4 mb-6">
-              <div className="flex flex-wrap gap-4 items-center">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">Afficher:</span>
-                  <Select
-                    value={itemsPerPage.toString()}
-                    onValueChange={(value) => {
-                      setItemsPerPage(Number(value));
-                      setCurrentPage(1);
-                    }}
-                  >
-                    <SelectTrigger className="w-24">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="10">10</SelectItem>
-                      <SelectItem value="30">30</SelectItem>
-                      <SelectItem value="50">50</SelectItem>
-                      <SelectItem value="100">100</SelectItem>
-                      <SelectItem value="999999">Max</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">Période:</span>
-                  <Select value={periodFilter} onValueChange={(value: any) => setPeriodFilter(value)}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Tout</SelectItem>
-                      <SelectItem value="month">Ce mois</SelectItem>
-                      <SelectItem value="year">Cette année</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">Statut:</span>
-                  <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Tous</SelectItem>
-                      <SelectItem value="published">En ligne</SelectItem>
-                      <SelectItem value="archived">Hors ligne</SelectItem>
-                      <SelectItem value="draft">Brouillon</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={toggleSortOrder}
-                  className="gap-2"
-                >
-                  <ArrowUpDown className="w-4 h-4" />
-                  {sortOrder === "desc" ? "Plus récent" : "Plus ancien"}
-                </Button>
-              </div>
-            </Card>
-
-            {/* Table */}
-            {loading ? (
-              <div className="flex justify-center items-center py-20">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              </div>
-            ) : posts.length === 0 ? (
-              <Card className="p-12 text-center">
-                <p className="text-muted-foreground">Aucune annonce trouvée</p>
-              </Card>
-            ) : (
-              <>
-                <Card>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-20">Image</TableHead>
-                        <TableHead>Titre</TableHead>
-                        <TableHead className="w-32">Catégorie</TableHead>
-                        <TableHead className="w-32">Statut</TableHead>
-                        <TableHead className="w-40">Date</TableHead>
-                        <TableHead className="w-24 text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {paginatedPosts.map((post) => {
-                        const rowClass = 
-                          post.status === "draft" ? "bg-gray-100" : 
-                          post.status === "archived" ? "bg-red-50" : 
-                          "bg-white";
-                        
-                        return (
-                          <TableRow key={post.id} className={rowClass}>
-                            <TableCell>
-                              {post.featured_image && (
-                                <img
-                                  src={post.featured_image}
-                                  alt={post.title}
-                                  className="w-16 h-12 object-cover rounded"
-                                />
-                              )}
-                            </TableCell>
-                            <TableCell className="font-medium">{post.title}</TableCell>
-                            <TableCell>
-                              {post.post_categories?.[0]?.categories?.name || "-"}
-                            </TableCell>
-                            <TableCell>
-                              <span
-                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                  post.status === "published"
-                                    ? "bg-green-100 text-green-800"
-                                    : post.status === "draft"
-                                    ? "bg-gray-200 text-gray-800"
-                                    : "bg-red-200 text-red-800"
-                                }`}
-                              >
-                                {post.status === "published" ? "En ligne" : post.status === "draft" ? "Brouillon" : "Hors ligne"}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              {post.published_at
-                                ? format(new Date(post.published_at), "d MMM yyyy", { locale: fr })
-                                : format(new Date(post.created_at), "d MMM yyyy", { locale: fr })}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex gap-2 justify-end">
-                                {post.status === "draft" && (
-                                  <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="h-8 w-8 text-green-600 hover:bg-green-50"
-                                    onClick={() => handleStatusChange(post.id, "published")}
-                                    title="Publier"
-                                  >
-                                    <Send className="w-4 h-4" />
-                                  </Button>
-                                )}
-                                {post.status === "published" && (
-                                  <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="h-8 w-8 text-orange-600 hover:bg-orange-50"
-                                    onClick={() => handleStatusChange(post.id, "archived")}
-                                    title="Désactiver"
-                                  >
-                                    <EyeOff className="w-4 h-4" />
-                                  </Button>
-                                )}
-                                {post.status === "archived" && (
-                                  <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="h-8 w-8 text-blue-600 hover:bg-blue-50"
-                                    onClick={() => handleStatusChange(post.id, "published")}
-                                    title="Réactiver"
-                                  >
-                                    <Eye className="w-4 h-4" />
-                                  </Button>
-                                )}
-                                <Link to={`/creer-contenu?type=annonce&edit=${post.id}`}>
-                                  <Button variant="outline" size="icon" className="h-8 w-8">
-                                    <Pencil className="w-4 h-4" />
-                                  </Button>
-                                </Link>
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-8 w-8 text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                                  onClick={() => confirmDelete(post.id)}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </Card>
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div className="flex justify-center gap-2 mt-6">
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      Précédent
-                    </Button>
-                    <div className="flex items-center gap-2 px-4">
-                      <span className="text-sm text-muted-foreground">
-                        Page {currentPage} sur {totalPages}
-                      </span>
+            
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => navigate("/admin/annonceurs")}
+              >
+                Gérer les annonceurs
+              </Button>
+              <Dialog open={dialogOpen} onOpenChange={(open) => {
+                setDialogOpen(open);
+                if (!open) resetForm();
+              }}>
+                <DialogTrigger asChild>
+                  <Button size="lg" className="gap-2">
+                    <Plus className="w-5 h-5" />
+                    Nouvelle Annonce
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>
+                      {editingAd ? "Modifier l'annonce" : "Créer une annonce"}
+                    </DialogTitle>
+                  </DialogHeader>
+                  
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                      <Label htmlFor="advertiser_id">Annonceur *</Label>
+                      <Select
+                        value={formData.advertiser_id}
+                        onValueChange={(value) => setFormData({ ...formData, advertiser_id: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner un annonceur" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {advertisers.map((advertiser) => (
+                            <SelectItem key={advertiser.id} value={advertiser.id}>
+                              {advertiser.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}
-                    >
-                      Suivant
-                    </Button>
-                  </div>
-                )}
-              </>
-            )}
+
+                    <div>
+                      <Label htmlFor="title">Titre de l'offre *</Label>
+                      <Input
+                        id="title"
+                        value={formData.title}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        required
+                        placeholder="Ex: Kit Solaire Autoconsommation 3kWc"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="description">Description *</Label>
+                      <Textarea
+                        id="description"
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        required
+                        rows={3}
+                        placeholder="Description détaillée de l'offre"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="price">Prix (€) *</Label>
+                        <Input
+                          id="price"
+                          type="number"
+                          step="0.01"
+                          value={formData.price}
+                          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                          required
+                          placeholder="4990"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="original_price">Prix barré (€)</Label>
+                        <Input
+                          id="original_price"
+                          type="number"
+                          step="0.01"
+                          value={formData.original_price}
+                          onChange={(e) => setFormData({ ...formData, original_price: e.target.value })}
+                          placeholder="6500"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="image">URL de l'image</Label>
+                      <Input
+                        id="image"
+                        type="url"
+                        value={formData.image}
+                        onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                        placeholder="https://example.com/image.jpg"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Avantages inclus</Label>
+                      <div className="flex gap-2 mb-2">
+                        <Input
+                          value={currentFeature}
+                          onChange={(e) => setCurrentFeature(e.target.value)}
+                          placeholder="Ex: Installation par professionnel RGE"
+                          onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
+                        />
+                        <Button type="button" onClick={addFeature}>
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        {formData.features.map((feature, index) => (
+                          <div key={index} className="flex items-center gap-2 p-2 bg-muted rounded">
+                            <Check className="w-4 h-4 text-green-600" />
+                            <span className="flex-1">{feature}</span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeFeature(index)}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="cta_text">Texte du bouton *</Label>
+                        <Input
+                          id="cta_text"
+                          value={formData.cta_text}
+                          onChange={(e) => setFormData({ ...formData, cta_text: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="cta_url">URL du bouton *</Label>
+                        <Input
+                          id="cta_url"
+                          type="url"
+                          value={formData.cta_url}
+                          onChange={(e) => setFormData({ ...formData, cta_url: e.target.value })}
+                          required
+                          placeholder="https://..."
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="badge_text">Texte du badge</Label>
+                        <Input
+                          id="badge_text"
+                          value={formData.badge_text}
+                          onChange={(e) => setFormData({ ...formData, badge_text: e.target.value })}
+                          placeholder="Sponsorisé"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="badge_type">Type de badge</Label>
+                        <Select
+                          value={formData.badge_type}
+                          onValueChange={(value) => setFormData({ ...formData, badge_type: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="sponsored">Sponsorisé</SelectItem>
+                            <SelectItem value="new">Nouveau</SelectItem>
+                            <SelectItem value="featured">En vedette</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="status">Statut</Label>
+                      <Select
+                        value={formData.status}
+                        onValueChange={(value) => setFormData({ ...formData, status: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                          <SelectItem value="archived">Archivée</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="is_featured"
+                        checked={formData.is_featured}
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
+                        disabled={!editingAd && featuredCount >= 3}
+                      />
+                      <Label htmlFor="is_featured">
+                        Mettre en avant sur l'accueil {!editingAd && featuredCount >= 3 && "(max atteint)"}
+                      </Label>
+                    </div>
+
+                    <div className="flex gap-3 pt-4">
+                      <Button type="submit" className="flex-1">
+                        {editingAd ? "Mettre à jour" : "Créer"}
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setDialogOpen(false)}
+                        className="flex-1"
+                      >
+                        Annuler
+                      </Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Megaphone className="w-5 h-5" />
+                Liste des Annonces
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Image</TableHead>
+                    <TableHead>Titre</TableHead>
+                    <TableHead>Annonceur</TableHead>
+                    <TableHead>Prix</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead>Vedette</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {advertisements.map((ad) => (
+                    <TableRow key={ad.id}>
+                      <TableCell>
+                        {ad.image ? (
+                          <img 
+                            src={ad.image} 
+                            alt={ad.title}
+                            className="w-16 h-16 object-cover rounded"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 bg-muted rounded flex items-center justify-center">
+                            <Megaphone className="w-6 h-6 text-muted-foreground" />
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{ad.title}</p>
+                          {ad.badge_text && (
+                            <Badge variant="secondary" className="mt-1">
+                              {ad.badge_text}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>{ad.advertiser.name}</TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-bold text-green-600">
+                            {ad.price.toLocaleString('fr-FR')}€
+                          </p>
+                          {ad.original_price && (
+                            <p className="text-sm text-muted-foreground line-through">
+                              {ad.original_price.toLocaleString('fr-FR')}€
+                            </p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={ad.status === 'active' ? 'default' : 'secondary'}>
+                          {ad.status === 'active' ? 'Active' : ad.status === 'inactive' ? 'Inactive' : 'Archivée'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant={ad.is_featured ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => toggleFeatured(ad.id, ad.is_featured)}
+                          disabled={!ad.is_featured && featuredCount >= 3}
+                        >
+                          <Star className={`w-4 h-4 ${ad.is_featured ? 'fill-current' : ''}`} />
+                        </Button>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(ad)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDelete(ad.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         </main>
+
         <Footer />
       </div>
-
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-            <AlertDialogDescription>
-              Êtes-vous sûr de vouloir supprimer cette annonce ? Cette action est irréversible.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Supprimer</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <ButtonPresetsLibrary
-        open={buttonLibraryOpen}
-        onOpenChange={setButtonLibraryOpen}
-      />
     </>
   );
 };
