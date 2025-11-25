@@ -11,7 +11,7 @@ const MaintenanceBanner = () => {
   if (!isVisible) return null;
 
   return (
-    <Alert className="fixed top-0 left-0 right-0 z-50 rounded-none border-x-0 border-t-0 border-b-2 border-orange-500 bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 shadow-lg">
+    <Alert className="rounded-none border-x-0 border-t-0 border-b-2 border-orange-500 bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 shadow-lg">
       <div className="container mx-auto flex items-center justify-between gap-4 px-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/10">
