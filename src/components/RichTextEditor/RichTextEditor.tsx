@@ -6,27 +6,12 @@ import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
 import { CustomButton } from './CustomButton';
+import { ButtonEditorModal } from './ButtonEditorModal';
 import { MediaLibrary } from '@/components/MediaLibrary';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Bold,
   Italic,
@@ -35,7 +20,6 @@ import {
   Heading2,
   Heading3,
   Image as ImageIcon,
-  Link as LinkIcon,
   MousePointerClick,
   Undo,
   Redo,
@@ -54,9 +38,7 @@ interface RichTextEditorProps {
 export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
   const [buttonDialogOpen, setButtonDialogOpen] = useState(false);
-  const [buttonText, setButtonText] = useState('');
-  const [buttonUrl, setButtonUrl] = useState('');
-  const [buttonColor, setButtonColor] = useState('primary');
+  const [editingButton, setEditingButton] = useState<any>(null);
   const [htmlContent, setHtmlContent] = useState(content);
   const [activeTab, setActiveTab] = useState<string>('visual');
 
@@ -98,6 +80,20 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     }
   }, [content, editor]);
 
+  // Écouter les événements de double-clic sur les boutons
+  useEffect(() => {
+    const handleEditButton = (event: any) => {
+      const { attrs, pos } = event.detail;
+      setEditingButton({ attrs, pos });
+      setButtonDialogOpen(true);
+    };
+
+    window.addEventListener('edit-button', handleEditButton);
+    return () => {
+      window.removeEventListener('edit-button', handleEditButton);
+    };
+  }, []);
+
   if (!editor) {
     return null;
   }
@@ -109,18 +105,22 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     }
   };
 
-  const addButton = () => {
-    if (buttonText && buttonUrl) {
-      editor.chain().focus().setCustomButton({
-        text: buttonText,
-        url: buttonUrl,
-        color: buttonColor,
-      }).run();
-      setButtonText('');
-      setButtonUrl('');
-      setButtonColor('primary');
-      setButtonDialogOpen(false);
+  const addButton = (config: any) => {
+    if (editingButton) {
+      // Mise à jour d'un bouton existant
+      editor?.commands.setNodeSelection(editingButton.pos);
+      editor?.commands.updateCustomButton(config);
+      setEditingButton(null);
+    } else {
+      // Ajout d'un nouveau bouton
+      editor?.chain().focus().setCustomButton(config).run();
     }
+    setButtonDialogOpen(false);
+  };
+
+  const handleOpenButtonDialog = () => {
+    setEditingButton(null);
+    setButtonDialogOpen(true);
   };
 
   const handleHtmlChange = (html: string) => {
@@ -264,7 +264,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => setButtonDialogOpen(true)}
+          onClick={handleOpenButtonDialog}
         >
           <MousePointerClick className="w-4 h-4" />
         </Button>
@@ -322,55 +322,17 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         onSelect={(url, alt) => addImage(url, alt)}
       />
 
-      {/* Button Dialog */}
-      <Dialog open={buttonDialogOpen} onOpenChange={setButtonDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Ajouter un bouton personnalisé</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="button-text">Texte du bouton</Label>
-              <Input
-                id="button-text"
-                placeholder="Cliquez ici"
-                value={buttonText}
-                onChange={(e) => setButtonText(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="button-url">Lien du bouton</Label>
-              <Input
-                id="button-url"
-                placeholder="https://..."
-                value={buttonUrl}
-                onChange={(e) => setButtonUrl(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="button-color">Couleur du bouton</Label>
-              <Select value={buttonColor} onValueChange={setButtonColor}>
-                <SelectTrigger id="button-color">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="primary">Primaire</SelectItem>
-                  <SelectItem value="secondary">Secondaire</SelectItem>
-                  <SelectItem value="accent">Accent</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setButtonDialogOpen(false)}>
-              Annuler
-            </Button>
-            <Button type="button" onClick={addButton}>
-              Ajouter
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ButtonEditorModal
+        open={buttonDialogOpen}
+        onOpenChange={(open) => {
+          setButtonDialogOpen(open);
+          if (!open) {
+            setEditingButton(null);
+          }
+        }}
+        onSave={addButton}
+        initialConfig={editingButton?.attrs}
+      />
     </div>
   );
 };
