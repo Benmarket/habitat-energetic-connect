@@ -335,14 +335,35 @@ const AdminSettings = () => {
     setSaving(true);
 
     try {
-      // Sauvegarder le mode maintenance
+      // Sauvegarder le mode maintenance avec timestamp d'activation
+      const { data: currentMaintenanceData } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "maintenance_mode")
+        .maybeSingle();
+      
+      const currentValue = currentMaintenanceData?.value as { enabled: boolean; activatedAt?: string } | null;
+      const wasEnabled = currentValue?.enabled || false;
+      
+      // Si on active le mode maintenance et qu'il n'était pas actif, on ajoute le timestamp
+      const maintenanceValue: { enabled: boolean; message: string; activatedAt?: string } = {
+        enabled: settings.maintenanceMode,
+        message: settings.maintenanceMessage,
+      };
+      
+      if (settings.maintenanceMode && !wasEnabled) {
+        // On active le mode maintenance, on ajoute le timestamp
+        maintenanceValue.activatedAt = new Date().toISOString();
+      } else if (settings.maintenanceMode && wasEnabled && currentValue?.activatedAt) {
+        // Le mode était déjà activé, on garde le timestamp existant
+        maintenanceValue.activatedAt = currentValue.activatedAt;
+      }
+      // Si on désactive, on ne met pas de timestamp (sera ignoré de toute façon)
+
       const maintenanceUpdate = supabase
         .from("site_settings")
         .update({
-          value: {
-            enabled: settings.maintenanceMode,
-            message: settings.maintenanceMessage,
-          }
+          value: maintenanceValue
         })
         .eq("key", "maintenance_mode");
 
