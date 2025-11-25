@@ -44,6 +44,107 @@ export type Database = {
         }
         Relationships: []
       }
+      advertisements: {
+        Row: {
+          advertiser_id: string
+          badge_text: string | null
+          badge_type: string | null
+          created_at: string
+          cta_text: string
+          cta_url: string
+          description: string
+          features: string[] | null
+          id: string
+          image: string | null
+          is_featured: boolean
+          original_price: number | null
+          price: number | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          advertiser_id: string
+          badge_text?: string | null
+          badge_type?: string | null
+          created_at?: string
+          cta_text?: string
+          cta_url: string
+          description: string
+          features?: string[] | null
+          id?: string
+          image?: string | null
+          is_featured?: boolean
+          original_price?: number | null
+          price?: number | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          advertiser_id?: string
+          badge_text?: string | null
+          badge_type?: string | null
+          created_at?: string
+          cta_text?: string
+          cta_url?: string
+          description?: string
+          features?: string[] | null
+          id?: string
+          image?: string | null
+          is_featured?: boolean
+          original_price?: number | null
+          price?: number | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisements_advertiser_id_fkey"
+            columns: ["advertiser_id"]
+            isOneToOne: false
+            referencedRelation: "advertisers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisers: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          logo: string | null
+          name: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          logo?: string | null
+          name: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          logo?: string | null
+          name?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       article_automations: {
         Row: {
           created_at: string | null

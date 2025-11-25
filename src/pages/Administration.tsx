@@ -73,6 +73,50 @@ const Administration = () => {
                 </CardContent>
               </Card>
 
+              {/* Gérer les annonceurs */}
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <Users className="w-6 h-6 text-primary" />
+                    </div>
+                  </div>
+                  <CardTitle>Gérer les annonceurs</CardTitle>
+                  <CardDescription>
+                    Créez et gérez vos partenaires publicitaires
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Link to="/admin/annonceurs">
+                    <Button className="w-full">
+                      Accéder aux annonceurs
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Gérer les annonces */}
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <FolderTree className="w-6 h-6 text-primary" />
+                    </div>
+                  </div>
+                  <CardTitle>Gérer les annonces</CardTitle>
+                  <CardDescription>
+                    Pilotez vos campagnes publicitaires partenaires
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Link to="/gerer-annonces">
+                    <Button className="w-full">
+                      Accéder aux annonces
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
               {/* Gérer les catégories */}
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader>
