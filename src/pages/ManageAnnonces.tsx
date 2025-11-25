@@ -15,7 +15,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Edit, Trash2, Megaphone, Star, Check, X } from "lucide-react";
+import { Plus, Edit, Trash2, Megaphone, Star, Check, X, Eye } from "lucide-react";
+import AdvertisementPreview from "@/components/AdvertisementPreview";
 import { Helmet } from "react-helmet";
 
 interface Advertisement {
@@ -53,7 +54,9 @@ const ManageAnnonces = () => {
   const [advertisers, setAdvertisers] = useState<Advertiser[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [editingAd, setEditingAd] = useState<Advertisement | null>(null);
+  const [previewingAd, setPreviewingAd] = useState<Advertisement | null>(null);
   const [currentFeature, setCurrentFeature] = useState("");
   const [formData, setFormData] = useState({
     advertiser_id: "",
@@ -168,6 +171,11 @@ const ManageAnnonces = () => {
       console.error("Error saving advertisement:", error);
       toast.error("Erreur lors de l'enregistrement");
     }
+  };
+
+  const handlePreview = (ad: Advertisement) => {
+    setPreviewingAd(ad);
+    setPreviewDialogOpen(true);
   };
 
   const handleEdit = (ad: Advertisement) => {
@@ -604,12 +612,21 @@ const ManageAnnonces = () => {
                           <Star className={`w-4 h-4 ${ad.is_featured ? 'fill-current' : ''}`} />
                         </Button>
                       </TableCell>
-                      <TableCell className="text-right">
+                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handlePreview(ad)}
+                            title="Prévisualiser"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleEdit(ad)}
+                            title="Modifier"
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -617,6 +634,7 @@ const ManageAnnonces = () => {
                             variant="destructive"
                             size="sm"
                             onClick={() => handleDelete(ad.id)}
+                            title="Supprimer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -629,6 +647,30 @@ const ManageAnnonces = () => {
             </CardContent>
           </Card>
         </main>
+
+        {/* Preview Dialog */}
+        <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Aperçu de l'annonce</DialogTitle>
+            </DialogHeader>
+            {previewingAd && (
+              <AdvertisementPreview
+                title={previewingAd.title}
+                description={previewingAd.description}
+                image={previewingAd.image}
+                price={previewingAd.price}
+                original_price={previewingAd.original_price}
+                features={previewingAd.features}
+                cta_text={previewingAd.cta_text}
+                cta_url={previewingAd.cta_url}
+                badge_text={previewingAd.badge_text}
+                badge_type={previewingAd.badge_type}
+                advertiser_name={previewingAd.advertiser.name}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
 
         <Footer />
       </div>
