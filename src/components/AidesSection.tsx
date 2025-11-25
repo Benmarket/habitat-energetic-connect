@@ -23,6 +23,7 @@ const iconMap: { [key: number]: any } = {
 const AidesSection = () => {
   const [aides, setAides] = useState<Aide[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalActiveAides, setTotalActiveAides] = useState(0);
 
   useEffect(() => {
     fetchFeaturedAides();
@@ -41,6 +42,15 @@ const AidesSection = () => {
       if (settings?.value) {
         featuredIds = (settings.value as any).aide_ids || [];
       }
+
+      // Compter toutes les aides publiées
+      const { count } = await supabase
+        .from("posts")
+        .select("*", { count: 'exact', head: true })
+        .eq("content_type", "aide")
+        .eq("status", "published");
+
+      setTotalActiveAides(count || 0);
 
       if (featuredIds.length === 0) {
         // Si aucune aide mise en avant, prendre les 3 premières publiées
@@ -111,7 +121,7 @@ const AidesSection = () => {
     return "Montant variable selon conditions";
   };
 
-  if (loading || aides.length === 0) return null;
+  if (loading) return null;
 
   return (
     <section className="py-16 bg-gradient-to-b from-background to-muted/20">
@@ -123,61 +133,80 @@ const AidesSection = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          {aides.map((aide, index) => {
-            const Icon = iconMap[index] || Lightbulb;
-            const conditions = extractConditions(aide.content);
-            const amount = extractAmount(aide.content);
+        {aides.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-lg text-muted-foreground mb-6">
+              Aucune aide n'est disponible actuellement
+            </p>
+            {totalActiveAides > 0 && (
+              <Link to="/aides">
+                <Button size="lg" className="gap-2">
+                  Voir toutes les aides ({totalActiveAides})
+                </Button>
+              </Link>
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              {aides.map((aide, index) => {
+                const Icon = iconMap[index] || Lightbulb;
+                const conditions = extractConditions(aide.content);
+                const amount = extractAmount(aide.content);
 
-            return (
-              <Card key={aide.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="p-3 rounded-lg bg-primary/10">
-                      <Icon className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <CardTitle className="text-xl mb-2">{aide.title}</CardTitle>
-                    </div>
-                  </div>
-                  <CardDescription className="text-base">
-                    {aide.excerpt}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Badge variant="secondary" className="mb-4 text-sm px-4 py-2 bg-primary/10 text-primary border-primary/20">
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                    {amount}
-                  </Badge>
-
-                  <div className="space-y-2 mb-4">
-                    <p className="text-sm font-semibold text-foreground">Conditions :</p>
-                    {conditions.map((condition, idx) => (
-                      <div key={idx} className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                        <span className="text-sm text-muted-foreground">{condition}</span>
+                return (
+                  <Card key={aide.id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="p-3 rounded-lg bg-primary/10">
+                          <Icon className="w-6 h-6 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <CardTitle className="text-xl mb-2">{aide.title}</CardTitle>
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                      <CardDescription className="text-base">
+                        {aide.excerpt}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Badge variant="secondary" className="mb-4 text-sm px-4 py-2 bg-primary/10 text-primary border-primary/20">
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        {amount}
+                      </Badge>
 
-                  <Link to={`/aide/${aide.slug}`}>
-                    <Button variant="outline" className="w-full">
-                      En savoir plus
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                      <div className="space-y-2 mb-4">
+                        <p className="text-sm font-semibold text-foreground">Conditions :</p>
+                        {conditions.map((condition, idx) => (
+                          <div key={idx} className="flex items-start gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                            <span className="text-sm text-muted-foreground">{condition}</span>
+                          </div>
+                        ))}
+                      </div>
 
-        <div className="text-center">
-          <Link to="/aides">
-            <Button size="lg" className="gap-2">
-              Voir toutes les aides
-            </Button>
-          </Link>
-        </div>
+                      <Link to={`/aide/${aide.slug}`}>
+                        <Button variant="outline" className="w-full">
+                          En savoir plus
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {totalActiveAides > 3 && (
+              <div className="text-center">
+                <Link to="/aides">
+                  <Button size="lg" className="gap-2">
+                    Voir toutes les aides
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </section>
   );
