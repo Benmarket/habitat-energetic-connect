@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { 
   Select,
   SelectContent,
@@ -32,11 +33,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Calendar, Bot } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { ButtonPresetsLibrary } from "@/components/ButtonPresetsLibrary";
+import { SchedulePublishModal } from "@/components/SchedulePublishModal";
+import { AIAutomationModal } from "@/components/AIAutomationModal";
 
 const ManageActualites = () => {
   const { user, loading: authLoading } = useAuth();
@@ -51,6 +54,12 @@ const ManageActualites = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
   const [buttonLibraryOpen, setButtonLibraryOpen] = useState(false);
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+  const [selectedPostForSchedule, setSelectedPostForSchedule] = useState<{
+    id: string;
+    scheduledDate: string | null;
+  } | null>(null);
+  const [aiAutomationOpen, setAiAutomationOpen] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -215,6 +224,14 @@ const ManageActualites = () => {
               <h1 className="text-3xl font-bold">Gérer les actualités</h1>
               <div className="flex gap-3">
                 <Button
+                  onClick={() => setAiAutomationOpen(true)}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Bot className="w-4 h-4" />
+                  Programmer la diffusion articles IA
+                </Button>
+                <Button
                   onClick={() => setButtonLibraryOpen(true)}
                   className="gap-2"
                   style={{
@@ -327,6 +344,7 @@ const ManageActualites = () => {
                         <TableHead className="w-20">Image</TableHead>
                         <TableHead>Titre</TableHead>
                         <TableHead className="w-32">Catégorie</TableHead>
+                        <TableHead className="w-24">Source</TableHead>
                         <TableHead className="w-32">Statut</TableHead>
                         <TableHead className="w-40">Date</TableHead>
                         <TableHead className="w-24 text-right">Actions</TableHead>
@@ -355,17 +373,34 @@ const ManageActualites = () => {
                               {post.post_categories?.[0]?.categories?.name || "-"}
                             </TableCell>
                             <TableCell>
-                              <span
-                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                  post.status === "published"
-                                    ? "bg-green-100 text-green-800"
-                                    : post.status === "draft"
-                                    ? "bg-gray-200 text-gray-800"
-                                    : "bg-red-200 text-red-800"
-                                }`}
-                              >
-                                {post.status === "published" ? "En ligne" : post.status === "draft" ? "Brouillon" : "Hors ligne"}
-                              </span>
+                              <Badge variant="outline">
+                                {post.source === "ai_auto" ? "IA Auto" : "Manuel"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="space-y-1">
+                                <span
+                                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                    post.status === "published"
+                                      ? "bg-green-100 text-green-800"
+                                      : post.status === "draft"
+                                      ? "bg-gray-200 text-gray-800"
+                                      : "bg-red-200 text-red-800"
+                                  }`}
+                                >
+                                  {post.status === "published" ? "En ligne" : post.status === "draft" ? "Brouillon" : "Hors ligne"}
+                                </span>
+                                {post.scheduled_publish_at && (
+                                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                    <Calendar className="w-3 h-3" />
+                                    {format(
+                                      new Date(post.scheduled_publish_at),
+                                      "d MMM yyyy HH:mm",
+                                      { locale: fr }
+                                    )}
+                                  </div>
+                                )}
+                              </div>
                             </TableCell>
                             <TableCell>
                               {post.published_at
@@ -375,15 +410,32 @@ const ManageActualites = () => {
                             <TableCell className="text-right">
                               <div className="flex gap-2 justify-end">
                                 {post.status === "draft" && (
-                                  <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="h-8 w-8 text-green-600 hover:bg-green-50"
-                                    onClick={() => handleStatusChange(post.id, "published")}
-                                    title="Publier"
-                                  >
-                                    <Send className="w-4 h-4" />
-                                  </Button>
+                                  <>
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      className="h-8 w-8"
+                                      onClick={() => {
+                                        setSelectedPostForSchedule({
+                                          id: post.id,
+                                          scheduledDate: post.scheduled_publish_at,
+                                        });
+                                        setScheduleModalOpen(true);
+                                      }}
+                                      title="Programmer"
+                                    >
+                                      <Calendar className="w-4 h-4" />
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      className="h-8 w-8 text-green-600 hover:bg-green-50"
+                                      onClick={() => handleStatusChange(post.id, "published")}
+                                      title="Publier"
+                                    >
+                                      <Send className="w-4 h-4" />
+                                    </Button>
+                                  </>
                                 )}
                                 {post.status === "published" && (
                                   <Button
@@ -457,10 +509,11 @@ const ManageActualites = () => {
             )}
           </div>
         </main>
+
         <Footer />
       </div>
 
-      {/* Delete confirmation dialog */}
+      {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -477,10 +530,31 @@ const ManageActualites = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      
+
+      {/* Button Library */}
       <ButtonPresetsLibrary
         open={buttonLibraryOpen}
         onOpenChange={setButtonLibraryOpen}
+      />
+
+      {/* Schedule Publish Modal */}
+      {selectedPostForSchedule && (
+        <SchedulePublishModal
+          open={scheduleModalOpen}
+          onOpenChange={setScheduleModalOpen}
+          postId={selectedPostForSchedule.id}
+          currentScheduledDate={selectedPostForSchedule.scheduledDate}
+          onScheduled={() => {
+            fetchPosts();
+            setSelectedPostForSchedule(null);
+          }}
+        />
+      )}
+
+      {/* AI Automation Modal */}
+      <AIAutomationModal
+        open={aiAutomationOpen}
+        onOpenChange={setAiAutomationOpen}
       />
     </>
   );

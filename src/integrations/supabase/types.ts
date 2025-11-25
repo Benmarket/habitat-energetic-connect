@@ -44,6 +44,45 @@ export type Database = {
         }
         Relationships: []
       }
+      article_automations: {
+        Row: {
+          created_at: string | null
+          frequency_cron: string
+          id: string
+          instructions: string
+          is_active: boolean | null
+          last_run_at: string | null
+          name: string
+          next_run_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          frequency_cron: string
+          id?: string
+          instructions: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          name: string
+          next_run_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          frequency_cron?: string
+          id?: string
+          instructions?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          name?: string
+          next_run_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       button_presets: {
         Row: {
           align: string
@@ -384,7 +423,9 @@ export type Database = {
           meta_description: string | null
           meta_title: string | null
           published_at: string | null
+          scheduled_publish_at: string | null
           slug: string
+          source: string | null
           status: Database["public"]["Enums"]["post_status"]
           title: string
           updated_at: string
@@ -401,7 +442,9 @@ export type Database = {
           meta_description?: string | null
           meta_title?: string | null
           published_at?: string | null
+          scheduled_publish_at?: string | null
           slug: string
+          source?: string | null
           status?: Database["public"]["Enums"]["post_status"]
           title: string
           updated_at?: string
@@ -418,7 +461,9 @@ export type Database = {
           meta_description?: string | null
           meta_title?: string | null
           published_at?: string | null
+          scheduled_publish_at?: string | null
           slug?: string
+          source?: string | null
           status?: Database["public"]["Enums"]["post_status"]
           title?: string
           updated_at?: string
