@@ -32,8 +32,7 @@ import {
 } from "@/components/ui/select";
 
 const profileSchema = z.object({
-  first_name: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
-  last_name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+  full_name: z.string().min(2, "Le nom est requis").max(200),
   phone: z.string().optional(),
   account_type: z.string(),
   company_name: z.string().optional(),
@@ -59,8 +58,7 @@ const Profil = () => {
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      first_name: "",
-      last_name: "",
+      full_name: "",
       phone: "",
       account_type: "particulier",
       company_name: "",
@@ -99,9 +97,9 @@ const Profil = () => {
       if (error) throw error;
 
       if (data) {
+        const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ');
         profileForm.reset({
-          first_name: data.first_name || "",
-          last_name: data.last_name || "",
+          full_name: fullName,
           phone: data.phone || "",
           account_type: data.account_type || "particulier",
           company_name: data.company_name || "",
@@ -118,11 +116,16 @@ const Profil = () => {
 
     setIsLoadingProfile(true);
     try {
+      // Parse full_name into first_name and last_name
+      const nameParts = values.full_name.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
       const { error } = await supabase
         .from("profiles")
         .update({
-          first_name: values.first_name,
-          last_name: values.last_name,
+          first_name: firstName,
+          last_name: lastName,
           phone: values.phone || null,
           account_type: values.account_type,
           company_name: values.company_name || null,
@@ -204,35 +207,28 @@ const Profil = () => {
               <CardContent>
                 <Form {...profileForm}>
                   <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={profileForm.control}
-                        name="first_name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Prénom</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={profileForm.control}
-                        name="last_name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nom</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                    <FormField
+                      control={profileForm.control}
+                      name="full_name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            {profileForm.watch("account_type") === "professionnel" 
+                              ? "Nom du contact" 
+                              : "Nom complet"}
+                          </FormLabel>
+                          <FormControl>
+                            <Input 
+                              {...field} 
+                              placeholder={profileForm.watch("account_type") === "professionnel" 
+                                ? "Jean Dupont" 
+                                : "Prénom Nom"}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                     <FormField
                       control={profileForm.control}
