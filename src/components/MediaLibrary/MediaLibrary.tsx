@@ -243,25 +243,31 @@ export function MediaLibrary({ onSelect, open, onOpenChange }: MediaLibraryProps
                   <div
                     key={item.id}
                     className="group relative border rounded-lg overflow-hidden hover:border-primary transition-colors cursor-pointer"
+                    onClick={() => onSelect(item.storage_path, item.alt_text || item.filename)}
                   >
                     <img
                       src={item.storage_path}
                       alt={item.alt_text || item.filename}
                       className="w-full h-40 object-cover"
-                      onClick={() => onSelect(item.storage_path, item.alt_text || item.filename)}
                     />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                       <Button
                         size="sm"
                         variant="secondary"
-                        onClick={() => openEditDialog(item)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEditDialog(item);
+                        }}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
-                        onClick={() => setDeleteMedia(item)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteMedia(item);
+                        }}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

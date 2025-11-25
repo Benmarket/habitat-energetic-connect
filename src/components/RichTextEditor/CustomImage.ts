@@ -60,12 +60,24 @@ export const CustomImage = Node.create<CustomImageOptions>({
         getAttrs: (dom) => {
           if (typeof dom === 'string') return false;
           const element = dom as HTMLElement;
-          return {
-            src: element.getAttribute('src'),
-            alt: element.getAttribute('alt') || '',
-            width: element.getAttribute('width') ? parseInt(element.getAttribute('width')!) : null,
-            align: 'center',
-          };
+          
+          // Récupérer les attributs de l'image
+          const src = element.getAttribute('src');
+          const alt = element.getAttribute('alt') || '';
+          const widthAttr = element.getAttribute('width');
+          const width = widthAttr ? parseInt(widthAttr) : null;
+          
+          // Si l'image est dans un conteneur avec text-align, récupérer l'alignement
+          let align: 'left' | 'center' | 'right' = 'center';
+          const parent = element.parentElement;
+          if (parent) {
+            const textAlign = window.getComputedStyle(parent).textAlign;
+            if (textAlign === 'left' || textAlign === 'right') {
+              align = textAlign as 'left' | 'right';
+            }
+          }
+          
+          return { src, alt, width, align };
         },
       },
     ];
