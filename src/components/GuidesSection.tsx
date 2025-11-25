@@ -105,11 +105,11 @@ const GuidesSection = () => {
           <div className="inline-flex items-center gap-3 mb-4 bg-primary/10 px-6 py-3 rounded-full backdrop-blur-sm border border-primary/20">
             <BookOpen className="w-6 h-6 text-primary" />
             <h2 className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
-              Tous les guides Prime Énergies 2025
+              Guides par projet
             </h2>
           </div>
           <p className="text-muted-foreground text-lg max-w-3xl mx-auto mt-6">
-            Découvrez notre collection complète de guides experts pour optimiser vos projets énergétiques et bénéficier des aides disponibles
+            Des guides complets pour réussir votre projet d'énergies renouvelables, étape par étape.
           </p>
         </div>
 
