@@ -12,6 +12,8 @@ interface Aide {
   excerpt: string;
   slug: string;
   content: string;
+  categories?: { name: string }[];
+  tags?: { name: string }[];
 }
 
 const iconMap: { [key: number]: any } = {
@@ -56,27 +58,55 @@ const AidesSection = () => {
         // Si aucune aide mise en avant, prendre les 3 premières publiées
         const { data } = await supabase
           .from("posts")
-          .select("id, title, excerpt, slug, content")
+          .select(`
+            id, 
+            title, 
+            excerpt, 
+            slug, 
+            content,
+            post_categories(categories(name)),
+            post_tags(tags(name))
+          `)
           .eq("content_type", "aide")
           .eq("status", "published")
           .order("published_at", { ascending: false })
           .limit(3);
 
-        if (data) setAides(data);
+        if (data) {
+          const formattedData = data.map((aide: any) => ({
+            ...aide,
+            categories: aide.post_categories?.map((pc: any) => pc.categories) || [],
+            tags: aide.post_tags?.map((pt: any) => pt.tags) || [],
+          }));
+          setAides(formattedData);
+        }
       } else {
         // Récupérer les aides mises en avant
         const { data } = await supabase
           .from("posts")
-          .select("id, title, excerpt, slug, content")
+          .select(`
+            id, 
+            title, 
+            excerpt, 
+            slug, 
+            content,
+            post_categories(categories(name)),
+            post_tags(tags(name))
+          `)
           .eq("content_type", "aide")
           .eq("status", "published")
           .in("id", featuredIds)
           .limit(3);
 
         if (data) {
+          const formattedData = data.map((aide: any) => ({
+            ...aide,
+            categories: aide.post_categories?.map((pc: any) => pc.categories) || [],
+            tags: aide.post_tags?.map((pt: any) => pt.tags) || [],
+          }));
           // Trier selon l'ordre des IDs
           const sortedData = featuredIds
-            .map(id => data.find(aide => aide.id === id))
+            .map(id => formattedData.find(aide => aide.id === id))
             .filter(Boolean) as Aide[];
           setAides(sortedData);
         }
@@ -155,14 +185,19 @@ const AidesSection = () => {
                 const amount = extractAmount(aide.content);
 
                 return (
-                  <Card key={aide.id} className="hover:shadow-lg transition-shadow h-full flex flex-col">
+                  <Card key={aide.id} className="hover:shadow-lg transition-shadow h-full flex flex-col border-blue-500/20">
                     <CardHeader className="flex-shrink-0">
                       <div className="flex items-start gap-4 mb-4">
-                        <div className="p-3 rounded-lg bg-primary/10">
-                          <Icon className="w-6 h-6 text-primary" />
+                        <div className="p-3 rounded-lg bg-blue-500/10">
+                          <Icon className="w-6 h-6 text-blue-600" />
                         </div>
                         <div className="flex-1">
                           <CardTitle className="text-xl mb-2 line-clamp-2">{aide.title}</CardTitle>
+                          {aide.categories && aide.categories.length > 0 && (
+                            <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-700 border-blue-500/30">
+                              {aide.categories[0].name}
+                            </Badge>
+                          )}
                         </div>
                       </div>
                       <CardDescription className="text-base line-clamp-3">
@@ -171,16 +206,31 @@ const AidesSection = () => {
                     </CardHeader>
                     <CardContent className="flex-grow flex flex-col justify-between">
                       <div>
-                        <Badge variant="secondary" className="mb-4 text-sm px-4 py-2 bg-primary/10 text-primary border-primary/20">
+                        <Badge variant="secondary" className="mb-3 text-sm px-4 py-2 bg-blue-500/10 text-blue-700 border-blue-500/20">
                           <CheckCircle2 className="w-4 h-4 mr-2" />
                           {amount}
                         </Badge>
+
+                        {aide.tags && aide.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mb-3">
+                            {aide.tags.slice(0, 3).map((tag, idx) => (
+                              <Badge key={idx} variant="secondary" className="text-xs bg-blue-100 text-blue-800 border-blue-200">
+                                {tag.name}
+                              </Badge>
+                            ))}
+                            {aide.tags.length > 3 && (
+                              <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800 border-blue-200">
+                                +{aide.tags.length - 3}
+                              </Badge>
+                            )}
+                          </div>
+                        )}
 
                         <div className="space-y-2 mb-4">
                           <p className="text-sm font-semibold text-foreground">Conditions :</p>
                           {conditions.slice(0, 3).map((condition, idx) => (
                             <div key={idx} className="flex items-start gap-2">
-                              <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                              <CheckCircle2 className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                               <span className="text-sm text-muted-foreground line-clamp-2">{condition}</span>
                             </div>
                           ))}
@@ -188,7 +238,7 @@ const AidesSection = () => {
                       </div>
 
                       <Link to={`/aide/${aide.slug}`} className="mt-auto">
-                        <Button variant="outline" className="w-full">
+                        <Button variant="outline" className="w-full border-blue-500/30 text-blue-700 hover:bg-blue-500/10">
                           En savoir plus
                         </Button>
                       </Link>
