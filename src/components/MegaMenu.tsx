@@ -122,10 +122,10 @@ const megaMenuData = {
 export const MegaMenu = () => {
   return (
     <NavigationMenu>
-      <NavigationMenuList className="space-x-0">
+      <NavigationMenuList className="space-x-1">
         {/* Offres - Always visible */}
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="px-2">Offres</NavigationMenuTrigger>
+          <NavigationMenuTrigger className="px-3">Offres</NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="w-[700px] p-6 bg-background">
               <div className="grid grid-cols-3 gap-6">
@@ -156,7 +156,7 @@ export const MegaMenu = () => {
 
         {/* Guides - Always visible */}
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="px-2">Guides</NavigationMenuTrigger>
+          <NavigationMenuTrigger className="px-3">Guides</NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
               {megaMenuData.guides.categories.map((category, idx) => (
@@ -189,7 +189,7 @@ export const MegaMenu = () => {
 
         {/* Aides - Always visible */}
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="px-2">Aides</NavigationMenuTrigger>
+          <NavigationMenuTrigger className="px-3">Aides</NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
               {megaMenuData.aides.categories.map((category, idx) => (
@@ -222,7 +222,7 @@ export const MegaMenu = () => {
 
         {/* Actualité - Always visible */}
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="px-2 text-foreground hover:text-primary data-[state=open]:text-primary">
+          <NavigationMenuTrigger className="px-3 text-foreground hover:text-primary data-[state=open]:text-primary">
             Actualité
           </NavigationMenuTrigger>
           <NavigationMenuContent>
@@ -257,7 +257,7 @@ export const MegaMenu = () => {
 
         {/* Simulateurs - Always visible */}
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="px-2 text-foreground hover:text-primary data-[state=open]:text-primary">
+          <NavigationMenuTrigger className="px-3 text-foreground hover:text-primary data-[state=open]:text-primary">
             Simulateurs
           </NavigationMenuTrigger>
           <NavigationMenuContent>
@@ -292,7 +292,7 @@ export const MegaMenu = () => {
 
         {/* Qui sommes-nous - Always visible */}
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="px-2 text-foreground hover:text-primary data-[state=open]:text-primary">
+          <NavigationMenuTrigger className="px-3 text-foreground hover:text-primary data-[state=open]:text-primary">
             Qui sommes-nous?
           </NavigationMenuTrigger>
           <NavigationMenuContent>
