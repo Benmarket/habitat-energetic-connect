@@ -1,0 +1,353 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { Loader2, ArrowLeft } from "lucide-react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const profileSchema = z.object({
+  first_name: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
+  last_name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+  phone: z.string().optional(),
+  account_type: z.string(),
+  company_name: z.string().optional(),
+});
+
+const passwordSchema = z.object({
+  newPassword: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
+  confirmPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Les mots de passe ne correspondent pas",
+  path: ["confirmPassword"],
+});
+
+type ProfileFormValues = z.infer<typeof profileSchema>;
+type PasswordFormValues = z.infer<typeof passwordSchema>;
+
+const Profil = () => {
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [isLoadingPassword, setIsLoadingPassword] = useState(false);
+
+  const profileForm = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      phone: "",
+      account_type: "particulier",
+      company_name: "",
+    },
+  });
+
+  const passwordForm = useForm<PasswordFormValues>({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: {
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/connexion");
+      return;
+    }
+
+    if (user) {
+      fetchProfile();
+    }
+  }, [user, authLoading, navigate]);
+
+  const fetchProfile = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        profileForm.reset({
+          first_name: data.first_name || "",
+          last_name: data.last_name || "",
+          phone: data.phone || "",
+          account_type: data.account_type || "particulier",
+          company_name: data.company_name || "",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      toast.error("Erreur lors du chargement du profil");
+    }
+  };
+
+  const onProfileSubmit = async (values: ProfileFormValues) => {
+    if (!user) return;
+
+    setIsLoadingProfile(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          first_name: values.first_name,
+          last_name: values.last_name,
+          phone: values.phone || null,
+          account_type: values.account_type,
+          company_name: values.company_name || null,
+        })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      toast.success("Profil mis à jour avec succès");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Erreur lors de la mise à jour du profil");
+    } finally {
+      setIsLoadingProfile(false);
+    }
+  };
+
+  const onPasswordSubmit = async (values: PasswordFormValues) => {
+    setIsLoadingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: values.newPassword,
+      });
+
+      if (error) throw error;
+
+      toast.success("Mot de passe modifié avec succès");
+      passwordForm.reset();
+    } catch (error) {
+      console.error("Error updating password:", error);
+      toast.error("Erreur lors de la modification du mot de passe");
+    } finally {
+      setIsLoadingPassword(false);
+    }
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Helmet>
+        <title>Mon Compte - Renovation Energie</title>
+      </Helmet>
+
+      <Header />
+
+      <main className="min-h-screen bg-background pt-24 pb-16">
+        <div className="container max-w-4xl mx-auto px-4">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/dashboard")}
+            className="mb-6"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Retour au tableau de bord
+          </Button>
+
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Mon Compte</h1>
+              <p className="text-muted-foreground mt-2">
+                Gérez vos informations personnelles et votre sécurité
+              </p>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Informations personnelles</CardTitle>
+                <CardDescription>
+                  Mettez à jour vos informations de profil
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Form {...profileForm}>
+                  <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={profileForm.control}
+                        name="first_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Prénom</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={profileForm.control}
+                        name="last_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nom</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={profileForm.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Téléphone</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="tel" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={profileForm.control}
+                      name="account_type"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Type de compte</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="particulier">Particulier</SelectItem>
+                              <SelectItem value="professionnel">Professionnel</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {profileForm.watch("account_type") === "professionnel" && (
+                      <FormField
+                        control={profileForm.control}
+                        name="company_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nom de l'entreprise</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
+                    <Button type="submit" disabled={isLoadingProfile}>
+                      {isLoadingProfile && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Enregistrer les modifications
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Changer le mot de passe</CardTitle>
+                <CardDescription>
+                  Assurez-vous que votre compte reste sécurisé
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Form {...passwordForm}>
+                  <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
+                    <FormField
+                      control={passwordForm.control}
+                      name="newPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nouveau mot de passe</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="password" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={passwordForm.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Confirmer le mot de passe</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="password" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <Button type="submit" disabled={isLoadingPassword}>
+                      {isLoadingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Changer le mot de passe
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+    </>
+  );
+};
+
+export default Profil;
