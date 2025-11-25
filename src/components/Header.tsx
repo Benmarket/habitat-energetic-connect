@@ -147,7 +147,7 @@ const Header = () => {
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          onClick={() => navigate("/dashboard")}
+                          onClick={() => navigate("/profil")}
                           className="flex items-center gap-1.5 text-xs h-auto py-1 px-2"
                         >
                           <Settings className="h-3.5 w-3.5 text-muted-foreground" />

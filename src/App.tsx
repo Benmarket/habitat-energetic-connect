@@ -10,6 +10,7 @@ import Actualites from "./pages/Actualites";
 import ArticleDetail from "./pages/ArticleDetail";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import Profil from "./pages/Profil";
 import CreatePost from "./pages/CreatePost";
 import ManageActualites from "./pages/ManageActualites";
 import ManageGuides from "./pages/ManageGuides";
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/connexion" element={<Auth />} />
               <Route path="/tableau-de-bord" element={<Dashboard />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profil" element={<Profil />} />
               <Route path="/creer-contenu" element={<CreatePost />} />
               <Route path="/gerer-actualites" element={<ManageActualites />} />
               <Route path="/gerer-guides" element={<ManageGuides />} />
