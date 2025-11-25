@@ -594,56 +594,57 @@ const ManageAides = () => {
       />
 
       <Dialog open={featuredDialogOpen} onOpenChange={setFeaturedDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>Sélectionner les aides à mettre en avant</DialogTitle>
             <DialogDescription>
-              Choisissez exactement 3 aides qui seront affichées sur la page d'accueil
+              Choisissez exactement 3 aides qui seront affichées sur la page d&apos;accueil
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-2 py-4">
+          <div className="flex-1 overflow-y-auto space-y-3 py-4 pr-2">
             {posts
               .filter(post => post.status === "published")
               .map(post => (
                 <div
                   key={post.id}
-                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                  className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
                     selectedFeatured.includes(post.id)
-                      ? "bg-primary/10 border-primary"
+                      ? "bg-green-50 dark:bg-green-900/20 border-green-500"
                       : "hover:bg-muted"
                   }`}
                   onClick={() => toggleFeaturedAide(post.id)}
                 >
                   <div className="flex-shrink-0">
                     {selectedFeatured.includes(post.id) ? (
-                      <Star className="w-5 h-5 text-primary fill-primary" />
+                      <Star className="w-6 h-6 text-green-600 fill-green-600" />
                     ) : (
-                      <Star className="w-5 h-5 text-muted-foreground" />
+                      <Star className="w-6 h-6 text-muted-foreground" />
                     )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{post.title}</p>
+                  <div className="flex-1 min-w-0 pr-2">
+                    <p className="font-semibold text-base mb-1 truncate">{post.title}</p>
                     {post.excerpt && (
-                      <p className="text-sm text-muted-foreground truncate">{post.excerpt}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
                     )}
                   </div>
                   {selectedFeatured.includes(post.id) && (
-                    <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
+                    <div className="flex-shrink-0 text-sm font-bold bg-green-600 text-white px-3 py-1.5 rounded-md">
                       #{selectedFeatured.indexOf(post.id) + 1}
-                    </span>
+                    </div>
                   )}
                 </div>
               ))}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex-shrink-0 pt-4 border-t">
             <Button variant="outline" onClick={() => setFeaturedDialogOpen(false)}>
               Annuler
             </Button>
             <Button 
               onClick={handleSaveFeaturedAides}
               disabled={selectedFeatured.length !== 3 || savingFeatured}
+              className="bg-green-600 hover:bg-green-700"
             >
               {savingFeatured && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Enregistrer ({selectedFeatured.length}/3)
