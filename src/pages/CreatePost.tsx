@@ -51,8 +51,10 @@ const CreatePost = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const contentType = searchParams.get("type") || "actualite";
+  const editId = searchParams.get("edit"); // ID de l'article à éditer
   
   const [loading, setLoading] = useState(false);
+  const [loadingPost, setLoadingPost] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   
@@ -92,6 +94,53 @@ const CreatePost = () => {
     fetchTags();
     loadAiInstructions();
   }, [contentType]);
+
+  // Charger l'article à éditer
+  useEffect(() => {
+    if (editId && user) {
+      loadPostForEdit(editId);
+    }
+  }, [editId, user]);
+
+  const loadPostForEdit = async (postId: string) => {
+    setLoadingPost(true);
+    try {
+      // Charger l'article
+      const { data: post, error: postError } = await supabase
+        .from("posts")
+        .select(`
+          *,
+          post_categories(category_id),
+          post_tags(tag_id)
+        `)
+        .eq("id", postId)
+        .single();
+
+      if (postError) throw postError;
+
+      if (post) {
+        // Remplir le formulaire avec les données de l'article
+        setFormData({
+          title: post.title || "",
+          slug: post.slug || "",
+          excerpt: post.excerpt || "",
+          content: post.content || "",
+          featured_image: post.featured_image || "",
+          meta_title: post.meta_title || "",
+          meta_description: post.meta_description || "",
+          focus_keywords: post.focus_keywords || [],
+          status: post.status || "draft",
+          category_id: post.post_categories?.[0]?.category_id || "",
+          tag_ids: post.post_tags?.map((pt: any) => pt.tag_id) || [],
+        });
+      }
+    } catch (error: any) {
+      console.error("Error loading post:", error);
+      toast.error("Erreur lors du chargement de l'article");
+    } finally {
+      setLoadingPost(false);
+    }
+  };
 
   const fetchCategories = async () => {
     const { data } = await supabase
@@ -395,12 +444,11 @@ const CreatePost = () => {
         return;
       }
 
-      // Create post
+      // Préparer les données du post
       const postData: any = {
         title: validatedData.title,
         slug: validatedData.slug,
         content: validatedData.content,
-        author_id: user!.id,
         content_type: contentType as "actualite" | "guide" | "aide",
         status,
       };
@@ -412,30 +460,50 @@ const CreatePost = () => {
       if (validatedData.focus_keywords && validatedData.focus_keywords.length > 0) {
         postData.focus_keywords = validatedData.focus_keywords;
       }
-      if (status === "published") postData.published_at = new Date().toISOString();
+      if (status === "published" && !editId) postData.published_at = new Date().toISOString();
 
-      const { data: post, error: postError } = await supabase
-        .from("posts")
-        .insert(postData)
-        .select()
-        .single();
+      let postId = editId;
 
-      if (postError) throw postError;
+      if (editId) {
+        // Mise à jour d'un article existant
+        const { error: updateError } = await supabase
+          .from("posts")
+          .update(postData)
+          .eq("id", editId);
 
-      // Add category
+        if (updateError) throw updateError;
+
+        // Supprimer les anciennes catégories et tags
+        await supabase.from("post_categories").delete().eq("post_id", editId);
+        await supabase.from("post_tags").delete().eq("post_id", editId);
+      } else {
+        // Création d'un nouvel article
+        postData.author_id = user!.id;
+        
+        const { data: post, error: postError } = await supabase
+          .from("posts")
+          .insert(postData)
+          .select()
+          .single();
+
+        if (postError) throw postError;
+        postId = post.id;
+      }
+
+      // Ajouter la catégorie
       const { error: categoryError } = await supabase
         .from("post_categories")
         .insert({
-          post_id: post.id,
+          post_id: postId,
           category_id: formData.category_id,
         });
 
       if (categoryError) throw categoryError;
 
-      // Add tags
+      // Ajouter les tags
       if (formData.tag_ids.length > 0) {
         const tagInserts = formData.tag_ids.map(tag_id => ({
-          post_id: post.id,
+          post_id: postId,
           tag_id,
         }));
 
@@ -447,26 +515,28 @@ const CreatePost = () => {
       }
 
       toast.success(
-        status === "published"
+        editId 
+          ? "Article mis à jour avec succès"
+          : status === "published"
           ? "Article publié avec succès"
           : "Brouillon enregistré avec succès"
       );
-      navigate("/dashboard");
+      navigate("/gerer-actualites");
     } catch (error: any) {
-      console.error("Error creating post:", error);
+      console.error("Error saving post:", error);
       if (error instanceof z.ZodError) {
         error.errors.forEach((err) => {
           toast.error(err.message);
         });
       } else {
-        toast.error("Erreur lors de la création de l'article");
+        toast.error("Erreur lors de la sauvegarde de l'article");
       }
     } finally {
       setLoading(false);
     }
   };
 
-  if (authLoading || !user) {
+  if (authLoading || !user || loadingPost) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -503,7 +573,7 @@ const CreatePost = () => {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>
-                  Créer un {contentTypeLabels[contentType as keyof typeof contentTypeLabels]}
+                  {editId ? "Éditer" : "Créer"} un {contentTypeLabels[contentType as keyof typeof contentTypeLabels]}
                 </CardTitle>
                 <Button
                   type="button"
