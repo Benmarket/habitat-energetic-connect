@@ -23,6 +23,13 @@ export interface ButtonAttributes {
   borderStyle: 'solid' | 'dashed' | 'dotted' | 'none';
   shadowSize: 'none' | 'sm' | 'md' | 'lg';
   hoverEffect: boolean;
+  useGradient: boolean;
+  gradientType: 'linear' | 'radial';
+  gradientDirection: 'to-right' | 'to-left' | 'to-top' | 'to-bottom' | 'to-top-right' | 'to-bottom-right' | 'to-top-left' | 'to-bottom-left';
+  gradientColor1: string;
+  gradientColor2: string;
+  gradientAngle: number;
+  hoverGradientShift: boolean;
 }
 
 declare module '@tiptap/core' {
@@ -95,6 +102,27 @@ export const CustomButton = Node.create<CustomButtonOptions>({
       hoverEffect: {
         default: true,
       },
+      useGradient: {
+        default: false,
+      },
+      gradientType: {
+        default: 'linear',
+      },
+      gradientDirection: {
+        default: 'to-right',
+      },
+      gradientColor1: {
+        default: '#ec4899',
+      },
+      gradientColor2: {
+        default: '#8b5cf6',
+      },
+      gradientAngle: {
+        default: 90,
+      },
+      hoverGradientShift: {
+        default: true,
+      },
     };
   },
 
@@ -123,6 +151,11 @@ export const CustomButton = Node.create<CustomButtonOptions>({
       borderColor,
       borderStyle,
       shadowSize,
+      useGradient,
+      gradientType,
+      gradientColor1,
+      gradientColor2,
+      gradientAngle,
     } = HTMLAttributes;
 
     const sizeMap = {
@@ -145,8 +178,20 @@ export const CustomButton = Node.create<CustomButtonOptions>({
       ? `${borderWidth}px ${borderStyle} ${borderColor}`
       : 'none';
 
+    // Calculer le background (couleur unie ou dégradé)
+    let backgroundStyle: string;
+    if (useGradient) {
+      if (gradientType === 'linear') {
+        backgroundStyle = `background: linear-gradient(${gradientAngle}deg, ${gradientColor1}, ${gradientColor2})`;
+      } else {
+        backgroundStyle = `background: radial-gradient(circle at center, ${gradientColor1}, ${gradientColor2})`;
+      }
+    } else {
+      backgroundStyle = `background-color: ${backgroundColor}`;
+    }
+
     const buttonStyle = [
-      `background-color: ${backgroundColor}`,
+      backgroundStyle,
       `color: ${textColor}`,
       `padding: ${paddingY}px ${paddingX}px`,
       `border-radius: ${borderRadius}px`,
@@ -154,7 +199,7 @@ export const CustomButton = Node.create<CustomButtonOptions>({
       `font-weight: 500`,
       `text-decoration: none`,
       `display: inline-block`,
-      `transition: all 0.2s ease`,
+      `transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)`,
       `border: ${border}`,
       `cursor: pointer`,
       `width: ${widthStyle}`,
