@@ -19,7 +19,7 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [profile, setProfile] = useState<{ first_name: string | null; last_name: string | null; account_type: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ first_name: string | null; last_name: string | null; account_type: string | null; company_name: string | null } | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ const Header = () => {
       // Fetch profile
       supabase
         .from('profiles')
-        .select('first_name, last_name, account_type')
+        .select('first_name, last_name, account_type, company_name')
         .eq('id', user.id)
         .single()
         .then(({ data }) => {
@@ -140,6 +140,9 @@ const Header = () => {
                     </Avatar>
                     <div className="flex flex-col flex-1">
                       <span className="font-semibold text-foreground">{getFullName()}</span>
+                      {profile?.account_type === 'professionnel' && profile?.company_name && (
+                        <span className="text-xs text-muted-foreground mt-0.5">{profile.company_name}</span>
+                      )}
                       <Badge variant="outline" className="w-fit text-xs bg-emerald-50 text-emerald-700 border-emerald-200 mt-1">
                         {profile?.account_type || 'particulier'}
                       </Badge>
