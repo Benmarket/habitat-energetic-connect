@@ -330,8 +330,8 @@ export const ButtonPresetsLibrary = ({ open, onOpenChange }: ButtonPresetsLibrar
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-5xl max-h-[90vh]">
-          <DialogHeader>
+        <DialogContent className="max-w-5xl max-h-[85vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center justify-between">
               <span>Ma bibliothèque de boutons ({presets.length}/50)</span>
               <Button
@@ -348,7 +348,7 @@ export const ButtonPresetsLibrary = ({ open, onOpenChange }: ButtonPresetsLibrar
             </DialogTitle>
           </DialogHeader>
 
-          <ScrollArea className="h-[600px] pr-4">
+          <ScrollArea className="flex-1 pr-4 -mr-4">
             <div className="space-y-4">
               {presets.map((preset) => (
                 <div
