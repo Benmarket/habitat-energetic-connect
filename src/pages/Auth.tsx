@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const signInSchema = z.object({
   email: z.string().email("Email invalide"),
@@ -58,6 +59,42 @@ const Auth = () => {
             : error.message,
         });
       } else {
+        // CRITICAL SECURITY: Vérifier le mode maintenance et le rôle après connexion
+        const { data: maintenanceData } = await supabase
+          .from("site_settings")
+          .select("value")
+          .eq("key", "maintenance_mode")
+          .maybeSingle();
+
+        const isMaintenanceMode = maintenanceData?.value 
+          ? (maintenanceData.value as { enabled: boolean }).enabled 
+          : false;
+
+        if (isMaintenanceMode) {
+          // Vérifier si l'utilisateur est admin/super-admin
+          const { data: { user: currentUser } } = await supabase.auth.getUser();
+          
+          if (currentUser) {
+            const { data: roleData } = await supabase
+              .from("user_roles")
+              .select("role")
+              .eq("user_id", currentUser.id)
+              .single();
+
+            const isAdmin = roleData && (roleData.role === 'super_admin' || roleData.role === 'admin');
+
+            if (!isAdmin) {
+              // Non-admin en mode maintenance : refuser l'accès et rediriger vers accueil
+              await supabase.auth.signOut();
+              toast.error("Accès refusé", {
+                description: "Le site est actuellement en maintenance. Veuillez réessayer plus tard.",
+              });
+              navigate("/");
+              return;
+            }
+          }
+        }
+
         toast.success("Connexion réussie");
         navigate("/dashboard");
       }
@@ -93,6 +130,28 @@ const Auth = () => {
             : error.message,
         });
       } else {
+        // CRITICAL SECURITY: Vérifier le mode maintenance après inscription
+        const { data: maintenanceData } = await supabase
+          .from("site_settings")
+          .select("value")
+          .eq("key", "maintenance_mode")
+          .maybeSingle();
+
+        const isMaintenanceMode = maintenanceData?.value 
+          ? (maintenanceData.value as { enabled: boolean }).enabled 
+          : false;
+
+        if (isMaintenanceMode) {
+          // Les nouveaux comptes créés pendant la maintenance ne sont jamais admin
+          // Déconnecter et refuser l'accès
+          await supabase.auth.signOut();
+          toast.error("Inscription bloquée", {
+            description: "Le site est actuellement en maintenance. Les nouvelles inscriptions sont temporairement désactivées.",
+          });
+          navigate("/");
+          return;
+        }
+
         toast.success("Inscription réussie", {
           description: "Vous pouvez maintenant vous connecter",
         });
