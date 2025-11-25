@@ -4,14 +4,13 @@ import { Helmet } from "react-helmet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import logoPrimeEnergies from "@/assets/logo-prime-energies.png";
 
 const signInSchema = z.object({
   email: z.string().email("Email invalide"),
@@ -177,12 +176,12 @@ const Auth = () => {
       <div className="min-h-screen flex items-center justify-center bg-muted p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <div className="mb-4 flex justify-center">
-              <img 
-                src={logoPrimeEnergies} 
-                alt="Prime énergies" 
-                className="h-12 w-auto"
-              />
+            <div className="mb-4 flex flex-col items-center">
+              <span className="text-2xl font-bold leading-tight">
+                <span className="text-primary">Prime </span>
+                <span className="text-foreground">energies</span>
+              </span>
+              <span className="text-xs text-muted-foreground">prime-energies.fr</span>
             </div>
             <CardDescription>
               Accédez à votre espace personnel
