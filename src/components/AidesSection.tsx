@@ -260,7 +260,7 @@ const AidesSection = () => {
               <div className="text-center">
                 <Button asChild variant="outline" size="lg" className="group">
                   <Link to="/aides" className="flex items-center gap-2">
-                    Voir toutes les actualités
+                    Voir toutes les aides
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
