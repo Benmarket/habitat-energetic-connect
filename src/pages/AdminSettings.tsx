@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft } from "lucide-react";
+import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const AdminSettings = () => {
@@ -35,10 +35,19 @@ const AdminSettings = () => {
     aiCustomInstructions: "",
   });
 
+  const [heroSlider, setHeroSlider] = useState({
+    enabled: false,
+    duration: 5,
+    images: [] as string[],
+  });
+
+  const [uploadingImage, setUploadingImage] = useState(false);
+
   useEffect(() => {
     if (user) {
       loadMaintenanceSettings();
       loadAiSettings();
+      loadHeroSliderSettings();
     }
   }, [user]);
 
@@ -90,6 +99,112 @@ const AdminSettings = () => {
       }
     } catch (error) {
       console.error("Error loading AI settings:", error);
+    }
+  };
+
+  const loadHeroSliderSettings = async () => {
+    try {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "hero_slider")
+        .maybeSingle();
+
+      if (data?.value) {
+        const value = data.value as any;
+        setHeroSlider({
+          enabled: value.enabled || false,
+          duration: value.duration || 5,
+          images: Array.isArray(value.images) ? value.images : [],
+        });
+      }
+    } catch (error) {
+      console.error("Error loading hero slider settings:", error);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez sélectionner une image",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploadingImage(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `hero-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('media')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage
+        .from('media')
+        .getPublicUrl(filePath);
+
+      setHeroSlider(prev => ({
+        ...prev,
+        images: [...prev.images, publicUrlData.publicUrl],
+      }));
+
+      toast({
+        title: "Image ajoutée",
+        description: "L'image a été uploadée avec succès",
+      });
+    } catch (error: any) {
+      console.error("Error uploading image:", error);
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible d'uploader l'image",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingImage(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setHeroSlider(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+  };
+
+  const saveHeroSlider = async () => {
+    try {
+      const { error } = await supabase
+        .from("site_settings")
+        .upsert({
+          key: "hero_slider",
+          value: heroSlider,
+          updated_by: user?.id,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Slider sauvegardé",
+        description: "Les paramètres du slider ont été enregistrés",
+      });
+    } catch (error: any) {
+      console.error("Error saving hero slider:", error);
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de sauvegarder le slider",
+        variant: "destructive",
+      });
     }
   };
 
@@ -203,6 +318,139 @@ const AdminSettings = () => {
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Banner/Hero Slider */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Slider du banner principal</CardTitle>
+                  <CardDescription>
+                    Gérez les images de fond du banner d'accueil avec transitions automatiques
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="sliderEnabled" className="text-base">
+                        Activer le slider automatique
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Les images défileront automatiquement selon la durée définie
+                      </p>
+                    </div>
+                    <Switch
+                      id="sliderEnabled"
+                      checked={heroSlider.enabled}
+                      onCheckedChange={(checked) => 
+                        setHeroSlider({ ...heroSlider, enabled: checked })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="sliderDuration">
+                      Durée d'affichage par image (secondes)
+                    </Label>
+                    <Input
+                      id="sliderDuration"
+                      type="number"
+                      min="2"
+                      max="30"
+                      value={heroSlider.duration}
+                      onChange={(e) => 
+                        setHeroSlider({ ...heroSlider, duration: parseInt(e.target.value) || 5 })
+                      }
+                      className="max-w-xs"
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Recommandé : entre 5 et 10 secondes
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label>Images du slider ({heroSlider.images.length})</Label>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Ajoutez des images de haute qualité (1920x1080 recommandé)
+                    </p>
+
+                    {/* Grid d'images */}
+                    {heroSlider.images.length > 0 && (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                        {heroSlider.images.map((image, index) => (
+                          <div
+                            key={index}
+                            className="relative group aspect-video rounded-lg overflow-hidden border border-border"
+                          >
+                            <img
+                              src={image}
+                              alt={`Hero ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <Button
+                                variant="destructive"
+                                size="icon"
+                                onClick={() => removeImage(index)}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                            <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                              #{index + 1}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Bouton upload */}
+                    <div>
+                      <input
+                        type="file"
+                        id="heroImageUpload"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => document.getElementById('heroImageUpload')?.click()}
+                        disabled={uploadingImage}
+                        className="w-full"
+                      >
+                        {uploadingImage ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Upload en cours...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4 mr-2" />
+                            Ajouter une image
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-4 border-t">
+                    <Button
+                      type="button"
+                      onClick={saveHeroSlider}
+                      variant="default"
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      Enregistrer le slider
+                    </Button>
+                  </div>
+
+                  <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <p className="text-sm text-blue-900 dark:text-blue-100">
+                      <strong>💡 Astuce :</strong> Les transitions entre images sont fluides (fondu enchaîné). Les visiteurs ne peuvent pas contrôler le slider manuellement.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Informations du site */}
               <Card>
                 <CardHeader>
