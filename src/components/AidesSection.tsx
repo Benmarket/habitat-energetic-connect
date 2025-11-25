@@ -155,37 +155,39 @@ const AidesSection = () => {
                 const amount = extractAmount(aide.content);
 
                 return (
-                  <Card key={aide.id} className="hover:shadow-lg transition-shadow">
-                    <CardHeader>
+                  <Card key={aide.id} className="hover:shadow-lg transition-shadow h-full flex flex-col">
+                    <CardHeader className="flex-shrink-0">
                       <div className="flex items-start gap-4 mb-4">
                         <div className="p-3 rounded-lg bg-primary/10">
                           <Icon className="w-6 h-6 text-primary" />
                         </div>
                         <div className="flex-1">
-                          <CardTitle className="text-xl mb-2">{aide.title}</CardTitle>
+                          <CardTitle className="text-xl mb-2 line-clamp-2">{aide.title}</CardTitle>
                         </div>
                       </div>
-                      <CardDescription className="text-base">
+                      <CardDescription className="text-base line-clamp-3">
                         {aide.excerpt}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <Badge variant="secondary" className="mb-4 text-sm px-4 py-2 bg-primary/10 text-primary border-primary/20">
-                        <CheckCircle2 className="w-4 h-4 mr-2" />
-                        {amount}
-                      </Badge>
+                    <CardContent className="flex-grow flex flex-col justify-between">
+                      <div>
+                        <Badge variant="secondary" className="mb-4 text-sm px-4 py-2 bg-primary/10 text-primary border-primary/20">
+                          <CheckCircle2 className="w-4 h-4 mr-2" />
+                          {amount}
+                        </Badge>
 
-                      <div className="space-y-2 mb-4">
-                        <p className="text-sm font-semibold text-foreground">Conditions :</p>
-                        {conditions.map((condition, idx) => (
-                          <div key={idx} className="flex items-start gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                            <span className="text-sm text-muted-foreground">{condition}</span>
-                          </div>
-                        ))}
+                        <div className="space-y-2 mb-4">
+                          <p className="text-sm font-semibold text-foreground">Conditions :</p>
+                          {conditions.slice(0, 3).map((condition, idx) => (
+                            <div key={idx} className="flex items-start gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                              <span className="text-sm text-muted-foreground line-clamp-2">{condition}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
 
-                      <Link to={`/aide/${aide.slug}`}>
+                      <Link to={`/aide/${aide.slug}`} className="mt-auto">
                         <Button variant="outline" className="w-full">
                           En savoir plus
                         </Button>
