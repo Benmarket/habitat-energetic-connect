@@ -7,6 +7,7 @@ import AidesSection from "@/components/AidesSection";
 import GuidesSection from "@/components/GuidesSection";
 import InstallerFinderSection from "@/components/InstallerFinderSection";
 import PartnerOffersSection from "@/components/PartnerOffersSection";
+import CTAPartner from "@/components/CTAPartner";
 import ReviewsSection from "@/components/ReviewsSection";
 import ContactSection from "@/components/ContactSection";
 
@@ -29,6 +30,7 @@ const Index = () => {
         <GuidesSection />
         <InstallerFinderSection />
         <PartnerOffersSection />
+        <CTAPartner />
         <ReviewsSection />
         <ContactSection />
         <Footer />
