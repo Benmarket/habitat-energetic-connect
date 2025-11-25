@@ -55,6 +55,19 @@ export const CustomImage = Node.create<CustomImageOptions>({
       {
         tag: 'div[data-custom-image]',
       },
+      {
+        tag: 'img[src]',
+        getAttrs: (dom) => {
+          if (typeof dom === 'string') return false;
+          const element = dom as HTMLElement;
+          return {
+            src: element.getAttribute('src'),
+            alt: element.getAttribute('alt') || '',
+            width: element.getAttribute('width') ? parseInt(element.getAttribute('width')!) : null,
+            align: 'center',
+          };
+        },
+      },
     ];
   },
 
