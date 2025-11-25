@@ -13,7 +13,7 @@ const Footer = () => {
             <Link to="/" className="inline-block mb-4">
               <h2 className="text-2xl font-bold">
                 <span className="text-primary">Prime</span>
-                <span className="text-white">energies</span>
+                <span className="text-white"> energies</span>
               </h2>
               <p className="text-sm text-white/60">prime-energies.fr</p>
             </Link>
