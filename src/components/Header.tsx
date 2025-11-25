@@ -140,15 +140,15 @@ const Header = () => {
                     </Avatar>
                     <div className="flex flex-col flex-1">
                       <span className="font-semibold text-foreground">{getFullName()}</span>
-                      <div className="flex items-center justify-between w-full mt-1">
-                        <Badge variant="outline" className="w-fit text-xs bg-emerald-50 text-emerald-700 border-emerald-200">
-                          {profile?.account_type || 'particulier'}
-                        </Badge>
+                      <Badge variant="outline" className="w-fit text-xs bg-emerald-50 text-emerald-700 border-emerald-200 mt-1">
+                        {profile?.account_type || 'particulier'}
+                      </Badge>
+                      <div className="flex justify-end mt-1">
                         <Button 
                           variant="ghost" 
                           size="sm" 
                           onClick={() => navigate("/dashboard")}
-                          className="flex items-center gap-1.5 text-xs h-auto py-1 px-2 ml-2"
+                          className="flex items-center gap-1.5 text-xs h-auto py-1 px-2"
                         >
                           <Settings className="h-3.5 w-3.5 text-muted-foreground" />
                           <span className="text-muted-foreground">Mon compte</span>
