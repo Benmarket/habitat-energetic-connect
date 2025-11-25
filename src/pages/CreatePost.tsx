@@ -122,6 +122,7 @@ const CreatePost = () => {
     setVariantsModalOpen(true);
 
     try {
+      // 1. Générer les articles avec l'IA
       const { data, error } = await supabase.functions.invoke('generate-article', {
         body: {
           keywords: formData.focus_keywords,
@@ -135,7 +136,60 @@ const CreatePost = () => {
         throw new Error(data.error || "Erreur lors de la génération");
       }
 
-      setGeneratedVariants(data.variants);
+      // 2. Pour chaque variante, générer les images immédiatement
+      const variantsWithImages = await Promise.all(
+        data.variants.map(async (variant: any) => {
+          // Extraire les descriptions d'images du contenu
+          const imageMatches = variant.content?.match(/\[IMAGE:\s*([^\]]+)\]/g) || [];
+          const imageDescriptions = imageMatches.map((match: string) => 
+            match.replace(/\[IMAGE:\s*/, '').replace(/\]/, '').trim()
+          );
+
+          let contentWithImages = variant.content || '';
+          let featuredImageUrl = '';
+
+          // Générer les images si nécessaire
+          if (imageDescriptions.length > 0 && user) {
+            try {
+              const { data: imagesData, error: imagesError } = await supabase.functions.invoke('generate-images', {
+                body: {
+                  imageDescriptions: imageDescriptions,
+                  userId: user.id
+                }
+              });
+
+              if (imagesError) {
+                console.error('Error generating images for variant:', imagesError);
+              } else if (imagesData?.success && imagesData.images) {
+                // Utiliser la première image comme image à la une
+                const firstSuccessImage = imagesData.images.find((img: any) => img.success);
+                if (firstSuccessImage) {
+                  featuredImageUrl = firstSuccessImage.url;
+                }
+
+                // Remplacer les placeholders d'images dans le contenu
+                imagesData.images.forEach((imgData: any, index: number) => {
+                  if (imgData.success && imageMatches[index]) {
+                    const imgTag = `<img src="${imgData.url}" alt="${imgData.description}" class="rounded-lg max-w-full h-auto my-4" />`;
+                    contentWithImages = contentWithImages.replace(imageMatches[index], imgTag);
+                  }
+                });
+              }
+            } catch (imgError) {
+              console.error('Error in image generation for variant:', imgError);
+            }
+          }
+
+          return {
+            ...variant,
+            content: contentWithImages,
+            featuredImageUrl: featuredImageUrl
+          };
+        })
+      );
+
+      setGeneratedVariants(variantsWithImages);
+      toast.success("Articles générés avec images !");
     } catch (error: any) {
       console.error("Error generating article:", error);
       toast.error(error.message || "Erreur lors de la génération de l'article");
@@ -146,66 +200,21 @@ const CreatePost = () => {
   };
 
   const handleSelectVariant = async (variant: any) => {
-    // Extraire les descriptions d'images du contenu
-    const imageMatches = variant.content?.match(/\[IMAGE:\s*([^\]]+)\]/g) || [];
-    const imageDescriptions = imageMatches.map((match: string) => 
-      match.replace(/\[IMAGE:\s*/, '').replace(/\]/, '').trim()
-    );
-
-    // Générer les images avec l'IA
-    let featuredImageUrl = '';
-    let contentWithImages = variant.content || '';
-
-    if (imageDescriptions.length > 0 && user) {
-      toast.info("Génération des images en cours...", { duration: 3000 });
-      
-      try {
-        const { data: imagesData, error: imagesError } = await supabase.functions.invoke('generate-images', {
-          body: {
-            imageDescriptions: imageDescriptions,
-            userId: user.id
-          }
-        });
-
-        if (imagesError) throw imagesError;
-
-        if (imagesData?.success && imagesData.images) {
-          // Utiliser la première image comme image à la une
-          const firstSuccessImage = imagesData.images.find((img: any) => img.success);
-          if (firstSuccessImage) {
-            featuredImageUrl = firstSuccessImage.url;
-          }
-
-          // Remplacer les placeholders d'images dans le contenu
-          imagesData.images.forEach((imgData: any, index: number) => {
-            if (imgData.success && imageMatches[index]) {
-              const imgTag = `<img src="${imgData.url}" alt="${imgData.description}" class="rounded-lg max-w-full h-auto my-4" />`;
-              contentWithImages = contentWithImages.replace(imageMatches[index], imgTag);
-            }
-          });
-
-          toast.success(`${imagesData.images.filter((img: any) => img.success).length} image(s) générée(s) avec succès !`);
-        }
-      } catch (error) {
-        console.error('Error generating images:', error);
-        toast.error("Erreur lors de la génération des images. L'article sera chargé sans images.");
-      }
-    }
-
-    // Remplir tous les champs
+    // Les images ont déjà été générées dans handleGenerateArticle
+    // Il suffit maintenant de remplir tous les champs du formulaire
     setFormData(prev => ({
       ...prev,
       title: variant.title || '',
       slug: generateSlug(variant.title || ''),
-      content: contentWithImages,
+      content: variant.content || '',
       excerpt: variant.excerpt || '',
-      featured_image: featuredImageUrl,
+      featured_image: variant.featuredImageUrl || '',
       meta_title: variant.metaTitle || variant.title?.slice(0, 60) || '',
       meta_description: variant.metaDescription || variant.excerpt?.slice(0, 160) || '',
       focus_keywords: variant.focusKeywords || prev.focus_keywords
     }));
 
-    toast.success("Article complet généré avec succès ! Tous les champs ont été remplis.");
+    toast.success("Article sélectionné ! Tous les champs ont été remplis.");
   };
 
   const handleTitleChange = (title: string) => {
