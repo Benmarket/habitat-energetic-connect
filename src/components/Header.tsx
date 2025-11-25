@@ -132,26 +132,32 @@ const Header = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-64 p-2">
                   {/* User Header */}
-                  <div className="flex items-center gap-3 px-2 py-3 mb-2">
-                    <Avatar className="h-12 w-12 bg-primary">
-                      <AvatarFallback className="bg-primary text-primary-foreground font-bold text-lg">
-                        {getInitials()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <span className="font-semibold text-foreground">{getFullName()}</span>
-                      <Badge variant="outline" className="w-fit text-xs bg-emerald-50 text-emerald-700 border-emerald-200">
-                        {profile?.account_type || 'particulier'}
-                      </Badge>
+                  <div className="flex items-center justify-between px-2 py-3 mb-2">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-12 w-12 bg-primary">
+                        <AvatarFallback className="bg-primary text-primary-foreground font-bold text-lg">
+                          {getInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-foreground">{getFullName()}</span>
+                        <Badge variant="outline" className="w-fit text-xs bg-emerald-50 text-emerald-700 border-emerald-200">
+                          {profile?.account_type || 'particulier'}
+                        </Badge>
+                      </div>
                     </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => navigate("/dashboard")}
+                      className="flex items-center gap-1.5 text-xs h-auto py-1.5 px-2"
+                    >
+                      <Settings className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-muted-foreground">Mon compte</span>
+                    </Button>
                   </div>
                   
                   <DropdownMenuSeparator />
-                  
-                  <DropdownMenuItem onClick={() => navigate("/dashboard")} className="cursor-pointer py-2.5">
-                    <Settings className="mr-3 h-5 w-5 text-muted-foreground" />
-                    <span>Espace perso</span>
-                  </DropdownMenuItem>
                   
                   <DropdownMenuItem onClick={() => navigate("/mes-maisons")} className="cursor-pointer py-2.5">
                     <Home className="mr-3 h-4 w-4 text-muted-foreground" />
