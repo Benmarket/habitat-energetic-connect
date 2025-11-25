@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Phone, User, Shield, Home, BarChart3, MessageCircle, Users, LogOut, ChevronDown, Settings } from "lucide-react";
+import { Menu, X, Phone, User, Home, BarChart3, MessageCircle, Users, LogOut, ChevronDown, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { MegaMenu } from "@/components/MegaMenu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -113,8 +113,21 @@ const Header = () => {
               {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-9 w-9">
-                    <Settings className="h-5 w-5" />
+                  <Button variant="ghost" className="flex items-center gap-2 h-auto py-2 px-3">
+                    <Avatar className="h-10 w-10 bg-primary">
+                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col items-start">
+                      <span className="text-sm font-medium text-foreground">{getFullName()}</span>
+                      {getRoleDisplay() && (
+                        <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-800 border-yellow-200">
+                          {getRoleDisplay()}
+                        </Badge>
+                      )}
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-64 p-2">
@@ -136,7 +149,7 @@ const Header = () => {
                   <DropdownMenuSeparator />
                   
                   <DropdownMenuItem onClick={() => navigate("/dashboard")} className="cursor-pointer py-2.5">
-                    <Settings className="mr-3 h-4 w-4 text-muted-foreground" />
+                    <Settings className="mr-3 h-5 w-5 text-muted-foreground" />
                     <span>Espace perso</span>
                   </DropdownMenuItem>
                   
