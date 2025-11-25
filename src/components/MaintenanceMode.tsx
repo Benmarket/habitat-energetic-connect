@@ -194,9 +194,7 @@ const MaintenanceMode = ({ children }: MaintenanceModeProps) => {
     return (
       <>
         <MaintenanceBanner />
-        <div className="pt-16">
-          {children}
-        </div>
+        {children}
       </>
     );
   }
