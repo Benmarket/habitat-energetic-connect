@@ -195,6 +195,7 @@ const MaintenanceMode = ({ children }: MaintenanceModeProps) => {
 
   // Si admin connecté en mode maintenance : afficher le site + bandeau
   if (isMaintenanceMode && isAdmin) {
+    console.log("DEBUG: Maintenance mode active for admin", { isMaintenanceMode, isAdmin });
     return (
       <>
         <MaintenanceBanner />
@@ -204,6 +205,7 @@ const MaintenanceMode = ({ children }: MaintenanceModeProps) => {
   }
 
   // Sinon, afficher l'application normalement
+  console.log("DEBUG: Normal mode", { isMaintenanceMode, isAdmin, loading });
   return <>{children}</>;
 };
 
