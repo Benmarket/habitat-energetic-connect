@@ -46,7 +46,7 @@ const MaintenanceMode = ({ children }: MaintenanceModeProps) => {
         .from("site_settings")
         .select("value")
         .eq("key", "maintenance_mode")
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
