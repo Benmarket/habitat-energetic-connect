@@ -286,7 +286,7 @@ const ManageAnnonces = () => {
       <div className="min-h-screen bg-background">
         <Header />
         
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-4 pt-32 pb-8">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-4xl font-bold mb-2">Gestion des Annonces</h1>
