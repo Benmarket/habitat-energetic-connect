@@ -11,8 +11,74 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon } from "lucide-react";
+import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+interface SortableImageItemProps {
+  id: string;
+  image: string;
+  index: number;
+  onRemove: (index: number) => void;
+}
+
+const SortableImageItem = ({ id, image, index, onRemove }: SortableImageItemProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center gap-3 p-3 rounded-lg border border-border bg-background hover:bg-muted/50 transition-colors"
+    >
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing flex-shrink-0"
+      >
+        <GripVertical className="w-5 h-5 text-muted-foreground" />
+      </div>
+      
+      <div className="flex-shrink-0 w-24 h-16 rounded overflow-hidden border border-border">
+        <img
+          src={image}
+          alt={`Hero ${index + 1}`}
+          className="w-full h-full object-cover"
+        />
+      </div>
+      
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium">Image #{index + 1}</p>
+        <p className="text-xs text-muted-foreground truncate">{image}</p>
+      </div>
+      
+      <Button
+        variant="destructive"
+        size="icon"
+        onClick={() => onRemove(index)}
+        className="flex-shrink-0"
+      >
+        <X className="w-4 h-4" />
+      </Button>
+    </div>
+  );
+};
 
 const AdminSettings = () => {
   const { user, loading: authLoading } = useAuth();
@@ -182,15 +248,61 @@ const AdminSettings = () => {
     }));
   };
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setHeroSlider((prev) => {
+        const oldIndex = prev.images.findIndex((_, i) => `image-${i}` === active.id);
+        const newIndex = prev.images.findIndex((_, i) => `image-${i}` === over.id);
+        
+        return {
+          ...prev,
+          images: arrayMove(prev.images, oldIndex, newIndex),
+        };
+      });
+    }
+  };
+
   const saveHeroSlider = async () => {
     try {
-      const { error } = await supabase
+      // Vérifier si l'entrée existe
+      const { data: existing } = await supabase
         .from("site_settings")
-        .upsert({
-          key: "hero_slider",
-          value: heroSlider,
-          updated_by: user?.id,
-        });
+        .select("id")
+        .eq("key", "hero_slider")
+        .maybeSingle();
+
+      let error;
+      if (existing) {
+        // Mettre à jour l'entrée existante
+        const result = await supabase
+          .from("site_settings")
+          .update({
+            value: heroSlider,
+            updated_by: user?.id,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("key", "hero_slider");
+        error = result.error;
+      } else {
+        // Créer une nouvelle entrée
+        const result = await supabase
+          .from("site_settings")
+          .insert({
+            key: "hero_slider",
+            value: heroSlider,
+            updated_by: user?.id,
+          });
+        error = result.error;
+      }
 
       if (error) throw error;
 
@@ -371,34 +483,30 @@ const AdminSettings = () => {
                       Ajoutez des images de haute qualité (1920x1080 recommandé)
                     </p>
 
-                    {/* Grid d'images */}
+                    {/* Liste d'images avec drag and drop */}
                     {heroSlider.images.length > 0 && (
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                        {heroSlider.images.map((image, index) => (
-                          <div
-                            key={index}
-                            className="relative group aspect-video rounded-lg overflow-hidden border border-border"
-                          >
-                            <img
-                              src={image}
-                              alt={`Hero ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <Button
-                                variant="destructive"
-                                size="icon"
-                                onClick={() => removeImage(index)}
-                              >
-                                <X className="w-4 h-4" />
-                              </Button>
-                            </div>
-                            <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                              #{index + 1}
-                            </div>
+                      <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                      >
+                        <SortableContext
+                          items={heroSlider.images.map((_, i) => `image-${i}`)}
+                          strategy={verticalListSortingStrategy}
+                        >
+                          <div className="space-y-3 mb-4">
+                            {heroSlider.images.map((image, index) => (
+                              <SortableImageItem
+                                key={`image-${index}`}
+                                id={`image-${index}`}
+                                image={image}
+                                index={index}
+                                onRemove={removeImage}
+                              />
+                            ))}
                           </div>
-                        ))}
-                      </div>
+                        </SortableContext>
+                      </DndContext>
                     )}
 
                     {/* Bouton upload */}
