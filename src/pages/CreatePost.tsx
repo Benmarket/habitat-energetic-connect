@@ -73,6 +73,8 @@ const CreatePost = () => {
   const [generatedVariants, setGeneratedVariants] = useState<any>(null);
   const [generatingArticle, setGeneratingArticle] = useState(false);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [regeneratingVariantId, setRegeneratingVariantId] = useState<number | null>(null);
+  const [previousVariantVersions, setPreviousVariantVersions] = useState<Map<number, any>>(new Map());
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -217,6 +219,87 @@ const CreatePost = () => {
     }));
 
     toast.success("Article sélectionné ! Tous les champs ont été remplis.");
+  };
+
+  const handleRegenerateVariant = async (variantId: number, instructions: string) => {
+    setRegeneratingVariantId(variantId);
+    
+    try {
+      const currentVariant = generatedVariants?.find((v: any) => v.id === variantId);
+      if (!currentVariant) {
+        toast.error("Variante introuvable");
+        return;
+      }
+
+      // Sauvegarder la version actuelle avant régénération
+      if (!previousVariantVersions.has(variantId)) {
+        setPreviousVariantVersions(prev => new Map(prev).set(variantId, { ...currentVariant }));
+      }
+
+      // Appel à l'edge function pour régénérer avec instructions
+      const { data, error } = await supabase.functions.invoke('generate-article', {
+        body: { 
+          keywords: formData.focus_keywords,
+          contentType: contentType,
+          baseContent: currentVariant.content,
+          additionalInstructions: instructions
+        }
+      });
+
+      if (error) throw error;
+
+      if (data && data.variants && data.variants.length > 0) {
+        // Récupérer la première variante régénérée
+        const regeneratedVariant = data.variants[0];
+        
+        // Générer l'image pour la variante régénérée
+        const imageDescription = regeneratedVariant.imageDescription || 
+          `Image pour l'article: ${regeneratedVariant.title}`;
+        
+        const { data: imageData, error: imageError } = await supabase.functions.invoke('generate-images', {
+          body: { 
+            descriptions: [imageDescription]
+          }
+        });
+
+        if (!imageError && imageData?.images?.[0]) {
+          regeneratedVariant.featuredImageUrl = imageData.images[0];
+        }
+
+        // Remplacer la variante dans le tableau
+        setGeneratedVariants((prev: any) => 
+          prev.map((v: any) => v.id === variantId ? {
+            ...regeneratedVariant,
+            id: variantId
+          } : v)
+        );
+
+        toast.success("Variante régénérée avec succès !");
+      }
+    } catch (error: any) {
+      console.error("Error regenerating variant:", error);
+      toast.error("Erreur lors de la régénération de la variante");
+    } finally {
+      setRegeneratingVariantId(null);
+    }
+  };
+
+  const handleRestorePreviousVersion = (variantId: number) => {
+    const previousVersion = previousVariantVersions.get(variantId);
+    if (previousVersion) {
+      setGeneratedVariants((prev: any) => 
+        prev.map((v: any) => v.id === variantId ? previousVersion : v)
+      );
+      
+      // Supprimer la version sauvegardée
+      setPreviousVariantVersions(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(variantId);
+        return newMap;
+      });
+      
+      toast.success("Version précédente restaurée");
+    }
   };
 
   const handleTitleChange = (title: string) => {
@@ -635,6 +718,10 @@ const CreatePost = () => {
           variants={generatedVariants}
           loading={generatingArticle}
           onSelectVariant={handleSelectVariant}
+          onRegenerateVariant={handleRegenerateVariant}
+          regeneratingVariantId={regeneratingVariantId}
+          previousVersions={previousVariantVersions}
+          onRestorePreviousVersion={handleRestorePreviousVersion}
         />
 
         <ArticlePreviewModal
