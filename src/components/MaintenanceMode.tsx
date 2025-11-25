@@ -20,7 +20,20 @@ const MaintenanceMode = ({ children }: MaintenanceModeProps) => {
     checkMaintenanceMode();
     checkAdminStatus();
     
-    // S'abonner aux changements en temps réel
+    // CRITICAL: Écouter les changements d'authentification en temps réel
+    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          // Re-vérifier le statut admin après connexion
+          await checkAdminStatus();
+        } else if (event === 'SIGNED_OUT') {
+          setIsAuthenticated(false);
+          setIsAdmin(false);
+        }
+      }
+    );
+    
+    // S'abonner aux changements en temps réel du mode maintenance
     const channel = supabase
       .channel('site-settings-changes')
       .on(
@@ -40,6 +53,7 @@ const MaintenanceMode = ({ children }: MaintenanceModeProps) => {
       .subscribe();
 
     return () => {
+      authSubscription.unsubscribe();
       supabase.removeChannel(channel);
     };
   }, []);
