@@ -105,6 +105,8 @@ const AdminSettings = () => {
     enabled: false,
     duration: 5,
     images: [] as string[],
+    overlayColor: '#000000',
+    overlayIntensity: 50,
   });
 
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -182,6 +184,8 @@ const AdminSettings = () => {
           enabled: value.enabled || false,
           duration: value.duration || 5,
           images: Array.isArray(value.images) ? value.images : [],
+          overlayColor: value.overlayColor || '#000000',
+          overlayIntensity: value.overlayIntensity || 50,
         });
       }
     } catch (error) {
@@ -459,7 +463,7 @@ const AdminSettings = () => {
 
                   <div>
                     <Label htmlFor="sliderDuration">
-                      Durée d'affichage par image (secondes)
+                      Durée d&apos;affichage par image (secondes)
                     </Label>
                     <Input
                       id="sliderDuration"
@@ -475,6 +479,83 @@ const AdminSettings = () => {
                     <p className="text-sm text-muted-foreground mt-1">
                       Recommandé : entre 5 et 10 secondes
                     </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="overlayColor">
+                        Couleur de superposition
+                      </Label>
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          id="overlayColor"
+                          type="color"
+                          value={heroSlider.overlayColor}
+                          onChange={(e) => 
+                            setHeroSlider({ ...heroSlider, overlayColor: e.target.value })
+                          }
+                          className="w-20 h-10 cursor-pointer"
+                        />
+                        <Input
+                          type="text"
+                          value={heroSlider.overlayColor}
+                          onChange={(e) => 
+                            setHeroSlider({ ...heroSlider, overlayColor: e.target.value })
+                          }
+                          className="flex-1"
+                          placeholder="#000000"
+                        />
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Choisissez la couleur du filtre appliqué sur les images
+                      </p>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="overlayIntensity">
+                        Intensité : {heroSlider.overlayIntensity}%
+                      </Label>
+                      <Input
+                        id="overlayIntensity"
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={heroSlider.overlayIntensity}
+                        onChange={(e) => 
+                          setHeroSlider({ ...heroSlider, overlayIntensity: parseInt(e.target.value) })
+                        }
+                        className="w-full h-10"
+                      />
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Réglez l&apos;opacité du filtre (0% = transparent, 100% = opaque)
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Prévisualisation de la superposition */}
+                  <div className="bg-muted/30 rounded-lg p-4 border border-border">
+                    <Label className="mb-2 block">Aperçu de la superposition</Label>
+                    <div 
+                      className="w-full h-24 rounded-lg relative overflow-hidden"
+                      style={{
+                        backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)',
+                        backgroundSize: '20px 20px',
+                        backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+                      }}
+                    >
+                      <div 
+                        className="absolute inset-0"
+                        style={{
+                          backgroundColor: heroSlider.overlayColor,
+                          opacity: heroSlider.overlayIntensity / 100
+                        }}
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <p className="text-white font-bold text-lg drop-shadow-lg">
+                          Texte sur l&apos;image
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   <div>

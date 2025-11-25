@@ -8,6 +8,8 @@ interface HeroSliderSettings {
   enabled: boolean;
   duration: number; // en secondes
   images: string[];
+  overlayColor: string;
+  overlayIntensity: number;
 }
 
 const HeroSection = () => {
@@ -15,6 +17,8 @@ const HeroSection = () => {
     enabled: false,
     duration: 5,
     images: [],
+    overlayColor: '#000000',
+    overlayIntensity: 50,
   });
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -38,6 +42,8 @@ const HeroSection = () => {
             enabled: value.enabled || false,
             duration: value.duration || 5,
             images: Array.isArray(value.images) ? value.images : [],
+            overlayColor: value.overlayColor || '#000000',
+            overlayIntensity: value.overlayIntensity || 50,
           });
         }
       }
@@ -86,7 +92,14 @@ const HeroSection = () => {
         ) : (
           <div className="absolute inset-0 bg-gradient-to-b from-primary/20 to-primary/40" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-r from-dark-bg-opacity to-dark-bg-opacity/70 z-10" />
+        {/* Superposition de couleur personnalisée */}
+        <div 
+          className="absolute inset-0 z-10"
+          style={{
+            backgroundColor: sliderSettings.overlayColor,
+            opacity: sliderSettings.overlayIntensity / 100,
+          }}
+        />
       </div>
 
       {/* Content */}
