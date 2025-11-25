@@ -44,6 +44,105 @@ export type Database = {
         }
         Relationships: []
       }
+      button_presets: {
+        Row: {
+          align: string
+          background_color: string
+          border_color: string
+          border_radius: number
+          border_style: string
+          border_width: number
+          created_at: string
+          custom_width: number
+          description: string | null
+          favorite_order: number | null
+          gradient_angle: number
+          gradient_color1: string
+          gradient_color2: string
+          gradient_type: string
+          hover_effect: boolean
+          hover_gradient_shift: boolean
+          id: string
+          is_favorite: boolean
+          name: string
+          padding_x: number
+          padding_y: number
+          shadow_size: string
+          size: string
+          text: string
+          text_color: string
+          updated_at: string
+          url: string
+          use_gradient: boolean
+          user_id: string
+          width: string
+        }
+        Insert: {
+          align?: string
+          background_color?: string
+          border_color?: string
+          border_radius?: number
+          border_style?: string
+          border_width?: number
+          created_at?: string
+          custom_width?: number
+          description?: string | null
+          favorite_order?: number | null
+          gradient_angle?: number
+          gradient_color1?: string
+          gradient_color2?: string
+          gradient_type?: string
+          hover_effect?: boolean
+          hover_gradient_shift?: boolean
+          id?: string
+          is_favorite?: boolean
+          name: string
+          padding_x?: number
+          padding_y?: number
+          shadow_size?: string
+          size?: string
+          text?: string
+          text_color?: string
+          updated_at?: string
+          url?: string
+          use_gradient?: boolean
+          user_id: string
+          width?: string
+        }
+        Update: {
+          align?: string
+          background_color?: string
+          border_color?: string
+          border_radius?: number
+          border_style?: string
+          border_width?: number
+          created_at?: string
+          custom_width?: number
+          description?: string | null
+          favorite_order?: number | null
+          gradient_angle?: number
+          gradient_color1?: string
+          gradient_color2?: string
+          gradient_type?: string
+          hover_effect?: boolean
+          hover_gradient_shift?: boolean
+          id?: string
+          is_favorite?: boolean
+          name?: string
+          padding_x?: number
+          padding_y?: number
+          shadow_size?: string
+          size?: string
+          text?: string
+          text_color?: string
+          updated_at?: string
+          url?: string
+          use_gradient?: boolean
+          user_id?: string
+          width?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           content_type: Database["public"]["Enums"]["content_type"]

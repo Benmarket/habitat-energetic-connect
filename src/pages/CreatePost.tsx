@@ -21,6 +21,7 @@ import { AIInstructionsModal } from "@/components/AIInstructionsModal";
 import { z } from "zod";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { MediaLibrary } from "@/components/MediaLibrary";
+import { FavoriteButtonsBar } from "@/components/FavoriteButtonsBar";
 
 const postSchema = z.object({
   title: z.string().trim().min(5, "Le titre doit contenir au moins 5 caractères").max(200, "Le titre ne peut pas dépasser 200 caractères"),
