@@ -1,12 +1,13 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
 import { CustomButton } from './CustomButton';
+import { CustomImage } from './CustomImage';
 import { ButtonEditorModal } from './ButtonEditorModal';
+import { ImageEditorModal } from './ImageEditorModal';
 import { FavoriteButtonsBar } from '@/components/FavoriteButtonsBar';
 import { MediaLibrary } from '@/components/MediaLibrary';
 import { Button } from '@/components/ui/button';
@@ -39,18 +40,15 @@ interface RichTextEditorProps {
 export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
   const [buttonDialogOpen, setButtonDialogOpen] = useState(false);
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [editingButton, setEditingButton] = useState<any>(null);
+  const [editingImage, setEditingImage] = useState<any>(null);
   const [htmlContent, setHtmlContent] = useState(content);
   const [activeTab, setActiveTab] = useState<string>('visual');
 
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Image.configure({
-        HTMLAttributes: {
-          class: 'rounded-lg max-w-full h-auto my-4',
-        },
-      }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -58,12 +56,13 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         },
       }),
       TextAlign.configure({
-        types: ['heading', 'paragraph', 'image'],
+        types: ['heading', 'paragraph'],
         alignments: ['left', 'center', 'right', 'justify'],
       }),
       TextStyle,
       Color,
       CustomButton,
+      CustomImage,
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -81,7 +80,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     }
   }, [content, editor]);
 
-  // Écouter les événements de double-clic sur les boutons
+  // Écouter les événements de double-clic sur les boutons et images
   useEffect(() => {
     const handleEditButton = (event: any) => {
       const { attrs, pos } = event.detail;
@@ -89,9 +88,17 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       setButtonDialogOpen(true);
     };
 
+    const handleEditImage = (event: any) => {
+      const { attrs } = event.detail;
+      setEditingImage(attrs);
+      setImageDialogOpen(true);
+    };
+
     window.addEventListener('edit-button', handleEditButton);
+    window.addEventListener('edit-image', handleEditImage);
     return () => {
       window.removeEventListener('edit-button', handleEditButton);
+      window.removeEventListener('edit-image', handleEditImage);
     };
   }, []);
 
@@ -101,9 +108,31 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
 
   const addImage = (url: string, alt: string) => {
     if (url && editor) {
-      editor.chain().focus().setImage({ src: url, alt }).run();
+      editor.chain().focus().setCustomImage({ src: url, alt, width: null, align: 'center' }).run();
       setMediaLibraryOpen(false);
     }
+  };
+
+  const updateImage = (attrs: any) => {
+    if (editor && editingImage) {
+      // Trouver et mettre à jour l'image
+      const { state } = editor;
+      let imagePos: number | null = null;
+      
+      state.doc.descendants((node, pos) => {
+        if (node.type.name === 'customImage' && node.attrs.src === editingImage.src) {
+          imagePos = pos;
+          return false;
+        }
+      });
+
+      if (imagePos !== null) {
+        editor.commands.setNodeSelection(imagePos);
+        editor.commands.updateCustomImage(attrs);
+      }
+    }
+    setEditingImage(null);
+    setImageDialogOpen(false);
   };
 
   const addButton = (config: any) => {
@@ -340,6 +369,18 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         }}
         onSave={addButton}
         initialConfig={editingButton?.attrs}
+      />
+
+      <ImageEditorModal
+        open={imageDialogOpen}
+        onOpenChange={(open) => {
+          setImageDialogOpen(open);
+          if (!open) {
+            setEditingImage(null);
+          }
+        }}
+        onSave={updateImage}
+        initialAttrs={editingImage}
       />
     </div>
   );
