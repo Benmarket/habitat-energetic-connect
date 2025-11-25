@@ -18,6 +18,11 @@ export interface ButtonAttributes {
   borderRadius: number;
   paddingX: number;
   paddingY: number;
+  borderWidth: number;
+  borderColor: string;
+  borderStyle: 'solid' | 'dashed' | 'dotted' | 'none';
+  shadowSize: 'none' | 'sm' | 'md' | 'lg';
+  hoverEffect: boolean;
 }
 
 declare module '@tiptap/core' {
@@ -75,6 +80,21 @@ export const CustomButton = Node.create<CustomButtonOptions>({
       paddingY: {
         default: 12,
       },
+      borderWidth: {
+        default: 0,
+      },
+      borderColor: {
+        default: '#000000',
+      },
+      borderStyle: {
+        default: 'solid',
+      },
+      shadowSize: {
+        default: 'md',
+      },
+      hoverEffect: {
+        default: true,
+      },
     };
   },
 
@@ -99,6 +119,10 @@ export const CustomButton = Node.create<CustomButtonOptions>({
       borderRadius,
       paddingX,
       paddingY,
+      borderWidth,
+      borderColor,
+      borderStyle,
+      shadowSize,
     } = HTMLAttributes;
 
     const sizeMap = {
@@ -107,8 +131,19 @@ export const CustomButton = Node.create<CustomButtonOptions>({
       large: '18px',
     };
 
+    const shadowMap = {
+      none: 'none',
+      sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+      md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+    };
+
     const widthStyle =
       width === 'full' ? '100%' : width === 'custom' ? `${customWidth}px` : 'auto';
+
+    const border = borderWidth > 0 
+      ? `${borderWidth}px ${borderStyle} ${borderColor}`
+      : 'none';
 
     const buttonStyle = [
       `background-color: ${backgroundColor}`,
@@ -119,11 +154,12 @@ export const CustomButton = Node.create<CustomButtonOptions>({
       `font-weight: 500`,
       `text-decoration: none`,
       `display: inline-block`,
-      `transition: all 0.2s`,
-      `border: none`,
+      `transition: all 0.2s ease`,
+      `border: ${border}`,
       `cursor: pointer`,
       `width: ${widthStyle}`,
       `text-align: center`,
+      `box-shadow: ${shadowMap[shadowSize as keyof typeof shadowMap]}`,
     ].join('; ');
 
     return [

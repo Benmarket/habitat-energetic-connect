@@ -11,8 +11,19 @@ export const ButtonNodeView = ({ node, selected, editor, getPos }: NodeViewProps
     large: '18px',
   };
 
+  const shadowMap = {
+    none: 'none',
+    sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+    md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+    lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+  };
+
   const widthStyle =
     attrs.width === 'full' ? '100%' : attrs.width === 'custom' ? `${attrs.customWidth}px` : 'auto';
+
+  const border = attrs.borderWidth > 0 
+    ? `${attrs.borderWidth}px ${attrs.borderStyle} ${attrs.borderColor}`
+    : 'none';
 
   const buttonStyle: React.CSSProperties = {
     backgroundColor: attrs.backgroundColor,
@@ -23,12 +34,12 @@ export const ButtonNodeView = ({ node, selected, editor, getPos }: NodeViewProps
     fontWeight: 500,
     textDecoration: 'none',
     display: 'inline-block',
-    transition: 'all 0.2s',
-    border: 'none',
+    transition: 'all 0.2s ease',
+    border,
     cursor: 'pointer',
     width: widthStyle,
     textAlign: 'center',
-    boxShadow: selected ? '0 0 0 2px #3b82f6' : 'none',
+    boxShadow: selected ? '0 0 0 3px rgba(59, 130, 246, 0.5)' : shadowMap[attrs.shadowSize],
   };
 
   const handleDoubleClick = () => {
@@ -36,7 +47,6 @@ export const ButtonNodeView = ({ node, selected, editor, getPos }: NodeViewProps
       const pos = getPos();
       editor.commands.setNodeSelection(pos);
       
-      // Émettre un événement personnalisé pour ouvrir la modale d'édition
       const event = new CustomEvent('edit-button', {
         detail: { attrs, pos },
       });
@@ -55,6 +65,20 @@ export const ButtonNodeView = ({ node, selected, editor, getPos }: NodeViewProps
         style={buttonStyle}
         onClick={(e) => e.preventDefault()}
         onDoubleClick={handleDoubleClick}
+        onMouseEnter={(e) => {
+          if (attrs.hoverEffect) {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 10px 20px -5px rgba(0, 0, 0, 0.2)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (attrs.hoverEffect) {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = selected 
+              ? '0 0 0 3px rgba(59, 130, 246, 0.5)' 
+              : shadowMap[attrs.shadowSize];
+          }
+        }}
         title="Double-cliquez pour modifier"
       >
         {attrs.text}
