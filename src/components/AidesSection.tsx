@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Lightbulb, Calculator, Zap, ArrowRight } from "lucide-react";
+import { CheckCircle2, Lightbulb, Calculator, Zap, ArrowRight, Users } from "lucide-react";
 
 interface Aide {
   id: string;
@@ -266,6 +266,21 @@ const AidesSection = () => {
                 </Button>
               </div>
             )}
+
+            <div className="mt-12 bg-blue-50 dark:bg-blue-950/20 rounded-2xl p-8 md:p-12 text-center">
+              <h3 className="text-2xl md:text-3xl font-bold mb-4">
+                Besoin d'aide pour constituer votre dossier ?
+              </h3>
+              <p className="text-muted-foreground text-lg mb-6 max-w-3xl mx-auto">
+                Nos installateurs partenaires vous accompagnent dans toutes vos démarches administratives
+              </p>
+              <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Link to="/contact" className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Trouver un professionnel
+                </Link>
+              </Button>
+            </div>
           </>
         )}
       </div>
