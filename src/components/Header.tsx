@@ -159,9 +159,9 @@ const Header = () => {
                   
                   <DropdownMenuSeparator />
                   
-                  <DropdownMenuItem onClick={() => navigate("/mes-maisons")} className="cursor-pointer py-2.5">
+                  <DropdownMenuItem onClick={() => navigate("/dashboard")} className="cursor-pointer py-2.5">
                     <Home className="mr-3 h-4 w-4 text-muted-foreground" />
-                    <span>Mes maisons</span>
+                    <span>Tableau de bord</span>
                   </DropdownMenuItem>
                   
                   <DropdownMenuItem onClick={() => navigate("/economies")} className="cursor-pointer py-2.5">
@@ -270,16 +270,9 @@ const Header = () => {
                   </Link>
                 </Button>
                 {user ? (
-                  <>
-                    <Button variant="outline" asChild className="w-full">
-                      <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
-                        Tableau de bord
-                      </Link>
-                    </Button>
-                    <Button variant="outline" onClick={handleSignOut} className="w-full">
-                      Déconnexion
-                    </Button>
-                  </>
+                  <Button variant="outline" onClick={handleSignOut} className="w-full">
+                    Déconnexion
+                  </Button>
                 ) : (
                   <Button 
                     variant="outline" 
