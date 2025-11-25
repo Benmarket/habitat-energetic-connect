@@ -27,11 +27,18 @@ interface AIAutomationModalProps {
 }
 
 const frequencyOptions = [
+  { label: "Dans 15 minutes", value: "*/15 * * * *", description: "Test rapide" },
+  { label: "Dans 30 minutes", value: "*/30 * * * *", description: "Test rapide" },
+  { label: "Dans 1 heure", value: "0 * * * *", description: "Toutes les heures" },
+  { label: "Toutes les 2 heures", value: "0 */2 * * *", description: "Fréquence modérée" },
+  { label: "Toutes les 4 heures", value: "0 */4 * * *", description: "Plusieurs fois par jour" },
+  { label: "Tous les jours à 8h", value: "0 8 * * *", description: "Quotidien matin" },
+  { label: "Tous les jours à 14h", value: "0 14 * * *", description: "Quotidien après-midi" },
+  { label: "Tous les jours à 20h", value: "0 20 * * *", description: "Quotidien soir" },
   { label: "Tous les lundis à 8h", value: "0 8 * * 1", description: "Chaque lundi matin" },
-  { label: "Tous les jours à 8h", value: "0 8 * * *", description: "Quotidien" },
   { label: "Tous les mercredis à 14h", value: "0 14 * * 3", description: "Milieu de semaine" },
   { label: "Tous les vendredis à 18h", value: "0 18 * * 5", description: "Fin de semaine" },
-  { label: "Toutes les heures", value: "0 * * * *", description: "Très fréquent" },
+  { label: "Tous les 1er du mois à 9h", value: "0 9 1 * *", description: "Mensuel" },
 ];
 
 export function AIAutomationModal({ open, onOpenChange }: AIAutomationModalProps) {
