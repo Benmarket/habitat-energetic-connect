@@ -57,19 +57,32 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected }: 
     right: 'text-right',
   }[align];
 
+  // Debug: vérifier si l'image a une source
+  if (!src) {
+    return (
+      <NodeViewWrapper className="my-4 text-center">
+        <div className="text-muted-foreground italic">Image sans source</div>
+      </NodeViewWrapper>
+    );
+  }
+
   return (
-    <NodeViewWrapper className={`custom-image-wrapper my-4 ${alignmentClass}`}>
+    <NodeViewWrapper 
+      className={`custom-image-wrapper my-4 ${alignmentClass}`}
+      style={{ display: 'block' }}
+    >
       <div className={`relative inline-block ${selected ? 'ring-2 ring-primary ring-offset-2' : ''}`}>
         <img
           ref={imgRef}
           src={src}
-          alt={alt}
+          alt={alt || ''}
           style={{
             width: width ? `${width}px` : 'auto',
             maxWidth: '100%',
             height: 'auto',
             borderRadius: '8px',
             cursor: 'pointer',
+            display: 'block',
           }}
           onDoubleClick={handleDoubleClick}
           draggable={false}
