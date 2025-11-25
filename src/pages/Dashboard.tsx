@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Newspaper, BookOpen, HandCoins, Plus } from "lucide-react";
+import { Loader2, Newspaper, BookOpen, HandCoins, Plus, Megaphone } from "lucide-react";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -129,7 +129,7 @@ const Dashboard = () => {
             {(isSuperAdmin || isAdmin || isModerator) && (
               <div className="space-y-6">
                 <h2 className="text-2xl font-bold">Créer du contenu</h2>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <Card className="hover:shadow-lg transition-shadow">
                     <CardHeader>
                       <div className="flex items-center gap-3 mb-2">
@@ -189,6 +189,27 @@ const Dashboard = () => {
                       <Link to="/gerer-aides">
                         <Button className="w-full gap-2">
                           Voir toutes les aides & subventions
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <Megaphone className="w-6 h-6 text-primary" />
+                        </div>
+                        <CardTitle>Annonceurs</CardTitle>
+                      </div>
+                      <CardDescription>
+                        Gérer les annonces et communications publicitaires
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Link to="/gerer-annonces">
+                        <Button className="w-full gap-2">
+                          Voir toutes les annonces
                         </Button>
                       </Link>
                     </CardContent>

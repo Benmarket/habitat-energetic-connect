@@ -13,7 +13,7 @@ interface ArticleCardProps {
   category: string;
   categorySlug: string;
   publishedAt: string;
-  contentType: "actualite" | "guide" | "aide";
+  contentType: "actualite" | "guide" | "aide" | "annonce";
   slug: string;
 }
 

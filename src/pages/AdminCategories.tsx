@@ -37,7 +37,7 @@ const AdminCategories = () => {
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
-    content_type: "actualite" as "actualite" | "guide" | "aide",
+    content_type: "actualite" as "actualite" | "guide" | "aide" | "annonce",
     description: "",
   });
 
@@ -157,7 +157,7 @@ const AdminCategories = () => {
     setFormData({
       name: category.name,
       slug: category.slug,
-      content_type: category.content_type as "actualite" | "guide" | "aide",
+      content_type: category.content_type as "actualite" | "guide" | "aide" | "annonce",
       description: category.description || "",
     });
     setIsDialogOpen(true);

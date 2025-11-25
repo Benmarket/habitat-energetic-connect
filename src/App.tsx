@@ -14,6 +14,7 @@ import CreatePost from "./pages/CreatePost";
 import ManageActualites from "./pages/ManageActualites";
 import ManageGuides from "./pages/ManageGuides";
 import ManageAides from "./pages/ManageAides";
+import ManageAnnonces from "./pages/ManageAnnonces";
 import Administration from "./pages/Administration";
 import AdminUsers from "./pages/AdminUsers";
 import AdminCategories from "./pages/AdminCategories";
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="/gerer-actualites" element={<ManageActualites />} />
               <Route path="/gerer-guides" element={<ManageGuides />} />
               <Route path="/gerer-aides" element={<ManageAides />} />
+              <Route path="/gerer-annonces" element={<ManageAnnonces />} />
               <Route path="/administration" element={<Administration />} />
               <Route path="/admin/utilisateurs" element={<AdminUsers />} />
               <Route path="/admin/categories" element={<AdminCategories />} />

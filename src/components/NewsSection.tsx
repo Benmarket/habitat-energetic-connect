@@ -12,7 +12,7 @@ interface Post {
   excerpt: string;
   featured_image: string | null;
   published_at: string;
-  content_type: "actualite" | "guide" | "aide";
+  content_type: "actualite" | "guide" | "aide" | "annonce";
 }
 
 interface Category {
