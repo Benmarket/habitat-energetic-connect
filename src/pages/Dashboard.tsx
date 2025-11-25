@@ -165,10 +165,9 @@ const Dashboard = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <Link to="/creer-contenu?type=guide">
+                      <Link to="/gerer-guides">
                         <Button className="w-full gap-2">
-                          <Plus className="w-4 h-4" />
-                          Créer un guide
+                          Voir tous les guides
                         </Button>
                       </Link>
                     </CardContent>
@@ -187,10 +186,9 @@ const Dashboard = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <Link to="/creer-contenu?type=aide">
+                      <Link to="/gerer-aides">
                         <Button className="w-full gap-2">
-                          <Plus className="w-4 h-4" />
-                          Créer une aide
+                          Voir toutes les aides & subventions
                         </Button>
                       </Link>
                     </CardContent>
