@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useState, useEffect } from "react";
-import { AlignLeft, AlignCenter, AlignRight, Sparkles } from "lucide-react";
+import { AlignLeft, AlignCenter, AlignRight, Sparkles, Palette } from "lucide-react";
 
 interface ButtonConfig {
   text: string;
@@ -26,6 +26,13 @@ interface ButtonConfig {
   borderStyle: 'solid' | 'dashed' | 'dotted' | 'none';
   shadowSize: 'none' | 'sm' | 'md' | 'lg';
   hoverEffect: boolean;
+  useGradient: boolean;
+  gradientType: 'linear' | 'radial';
+  gradientDirection: 'to-right' | 'to-left' | 'to-top' | 'to-bottom' | 'to-top-right' | 'to-bottom-right' | 'to-top-left' | 'to-bottom-left';
+  gradientColor1: string;
+  gradientColor2: string;
+  gradientAngle: number;
+  hoverGradientShift: boolean;
 }
 
 interface ButtonEditorModalProps {
@@ -52,12 +59,20 @@ const defaultConfig: ButtonConfig = {
   borderStyle: 'solid',
   shadowSize: 'md',
   hoverEffect: true,
+  useGradient: false,
+  gradientType: 'linear',
+  gradientDirection: 'to-right',
+  gradientColor1: '#ec4899',
+  gradientColor2: '#8b5cf6',
+  gradientAngle: 90,
+  hoverGradientShift: true,
 };
 
 const presetStyles = [
   {
     name: 'Primaire (Vert)',
     config: {
+      useGradient: false,
       backgroundColor: '#10b981',
       textColor: '#ffffff',
       borderRadius: 6,
@@ -66,32 +81,40 @@ const presetStyles = [
     }
   },
   {
-    name: 'Secondaire (Bleu)',
+    name: 'Dégradé Rose-Violet',
     config: {
-      backgroundColor: '#3b82f6',
+      useGradient: true,
+      gradientColor1: '#ec4899',
+      gradientColor2: '#8b5cf6',
+      gradientAngle: 90,
       textColor: '#ffffff',
-      borderRadius: 6,
+      borderRadius: 25,
       borderWidth: 0,
-      shadowSize: 'md' as const,
+      shadowSize: 'lg' as const,
     }
   },
   {
-    name: 'Contour (Outline)',
+    name: 'Dégradé Bleu-Cyan',
     config: {
-      backgroundColor: 'transparent',
-      textColor: '#10b981',
-      borderRadius: 6,
-      borderWidth: 2,
-      borderColor: '#10b981',
-      shadowSize: 'none' as const,
-    }
-  },
-  {
-    name: 'Moderne (Gradient)',
-    config: {
-      backgroundColor: '#8b5cf6',
+      useGradient: true,
+      gradientColor1: '#3b82f6',
+      gradientColor2: '#06b6d4',
+      gradientAngle: 135,
       textColor: '#ffffff',
-      borderRadius: 50,
+      borderRadius: 25,
+      borderWidth: 0,
+      shadowSize: 'lg' as const,
+    }
+  },
+  {
+    name: 'Dégradé Sunset',
+    config: {
+      useGradient: true,
+      gradientColor1: '#f97316',
+      gradientColor2: '#ec4899',
+      gradientAngle: 45,
+      textColor: '#ffffff',
+      borderRadius: 25,
       borderWidth: 0,
       shadowSize: 'lg' as const,
     }
@@ -99,14 +122,14 @@ const presetStyles = [
 ];
 
 const colorPresets = [
-  { name: 'Vert', value: '#10b981' },
-  { name: 'Bleu', value: '#3b82f6' },
-  { name: 'Rouge', value: '#ef4444' },
-  { name: 'Orange', value: '#f97316' },
-  { name: 'Violet', value: '#8b5cf6' },
   { name: 'Rose', value: '#ec4899' },
-  { name: 'Gris foncé', value: '#1f2937' },
-  { name: 'Noir', value: '#000000' },
+  { name: 'Violet', value: '#8b5cf6' },
+  { name: 'Bleu', value: '#3b82f6' },
+  { name: 'Cyan', value: '#06b6d4' },
+  { name: 'Vert', value: '#10b981' },
+  { name: 'Orange', value: '#f97316' },
+  { name: 'Rouge', value: '#ef4444' },
+  { name: 'Jaune', value: '#eab308' },
 ];
 
 export const ButtonEditorModal = ({ 
@@ -141,6 +164,22 @@ export const ButtonEditorModal = ({
     }));
   };
 
+  const getButtonBackground = () => {
+    if (!config.useGradient) {
+      return config.backgroundColor;
+    }
+
+    const angle = config.gradientAngle;
+    const color1 = config.gradientColor1;
+    const color2 = config.gradientColor2;
+
+    if (config.gradientType === 'linear') {
+      return `linear-gradient(${angle}deg, ${color1}, ${color2})`;
+    } else {
+      return `radial-gradient(circle at center, ${color1}, ${color2})`;
+    }
+  };
+
   const getButtonStyle = (): React.CSSProperties => {
     const sizeMap = {
       small: '14px',
@@ -160,7 +199,7 @@ export const ButtonEditorModal = ({
       : 'none';
 
     return {
-      backgroundColor: config.backgroundColor,
+      background: getButtonBackground(),
       color: config.textColor,
       paddingLeft: `${config.paddingX}px`,
       paddingRight: `${config.paddingX}px`,
@@ -173,7 +212,7 @@ export const ButtonEditorModal = ({
       border,
       display: 'inline-block',
       textDecoration: 'none',
-      transition: 'all 0.2s ease',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       width: config.width === 'full' ? '100%' : config.width === 'custom' ? `${config.customWidth}px` : 'auto',
       textAlign: 'center',
       boxShadow: shadowMap[config.shadowSize],
@@ -201,7 +240,7 @@ export const ButtonEditorModal = ({
                 variant="outline"
                 size="sm"
                 onClick={() => applyPreset(preset)}
-                className="h-auto py-2"
+                className="h-auto py-2 text-xs"
               >
                 {preset.name}
               </Button>
@@ -210,9 +249,13 @@ export const ButtonEditorModal = ({
         </div>
 
         <Tabs defaultValue="content" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="content">Contenu</TabsTrigger>
             <TabsTrigger value="style">Couleurs</TabsTrigger>
+            <TabsTrigger value="gradient">
+              <Palette className="w-3 h-3 mr-1" />
+              Dégradé
+            </TabsTrigger>
             <TabsTrigger value="size">Tailles</TabsTrigger>
             <TabsTrigger value="effects">Effets</TabsTrigger>
           </TabsList>
@@ -278,39 +321,41 @@ export const ButtonEditorModal = ({
 
           {/* Onglet Couleurs */}
           <TabsContent value="style" className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label>Couleur de fond</Label>
-              <div className="grid grid-cols-4 gap-2 mb-2">
-                {colorPresets.map((preset) => (
-                  <button
-                    key={preset.value}
-                    type="button"
-                    onClick={() => setConfig(prev => ({ ...prev, backgroundColor: preset.value }))}
-                    className="h-10 rounded-md border-2 hover:scale-105 transition-transform"
-                    style={{ 
-                      backgroundColor: preset.value,
-                      borderColor: config.backgroundColor === preset.value ? '#3b82f6' : 'transparent'
-                    }}
-                    title={preset.name}
+            {!config.useGradient && (
+              <div className="space-y-2">
+                <Label>Couleur de fond</Label>
+                <div className="grid grid-cols-4 gap-2 mb-2">
+                  {colorPresets.map((preset) => (
+                    <button
+                      key={preset.value}
+                      type="button"
+                      onClick={() => setConfig(prev => ({ ...prev, backgroundColor: preset.value }))}
+                      className="h-10 rounded-md border-2 hover:scale-105 transition-transform"
+                      style={{ 
+                        backgroundColor: preset.value,
+                        borderColor: config.backgroundColor === preset.value ? '#3b82f6' : 'transparent'
+                      }}
+                      title={preset.name}
+                    />
+                  ))}
+                </div>
+                <div className="flex gap-2 items-center">
+                  <Input
+                    type="color"
+                    value={config.backgroundColor}
+                    onChange={(e) => setConfig(prev => ({ ...prev, backgroundColor: e.target.value }))}
+                    className="w-20 h-10 cursor-pointer"
                   />
-                ))}
+                  <Input
+                    type="text"
+                    value={config.backgroundColor}
+                    onChange={(e) => setConfig(prev => ({ ...prev, backgroundColor: e.target.value }))}
+                    placeholder="#000000"
+                    className="font-mono"
+                  />
+                </div>
               </div>
-              <div className="flex gap-2 items-center">
-                <Input
-                  type="color"
-                  value={config.backgroundColor}
-                  onChange={(e) => setConfig(prev => ({ ...prev, backgroundColor: e.target.value }))}
-                  className="w-20 h-10 cursor-pointer"
-                />
-                <Input
-                  type="text"
-                  value={config.backgroundColor}
-                  onChange={(e) => setConfig(prev => ({ ...prev, backgroundColor: e.target.value }))}
-                  placeholder="#000000"
-                  className="font-mono"
-                />
-              </div>
-            </div>
+            )}
 
             <div className="space-y-2">
               <Label>Couleur du texte</Label>
@@ -384,6 +429,173 @@ export const ButtonEditorModal = ({
                 )}
               </div>
             </div>
+          </TabsContent>
+
+          {/* Onglet Dégradé */}
+          <TabsContent value="gradient" className="space-y-4 mt-4">
+            <div className="flex items-center justify-between p-4 border rounded-lg bg-gradient-to-r from-pink-500 to-violet-600 text-white">
+              <div className="space-y-0.5">
+                <Label className="text-base text-white">Utiliser un dégradé</Label>
+                <p className="text-sm text-white/90">
+                  Créez des boutons avec des dégradés modernes
+                </p>
+              </div>
+              <Switch
+                checked={config.useGradient}
+                onCheckedChange={(checked) => setConfig(prev => ({ ...prev, useGradient: checked }))}
+              />
+            </div>
+
+            {config.useGradient && (
+              <>
+                <div className="space-y-2">
+                  <Label>Type de dégradé</Label>
+                  <Select 
+                    value={config.gradientType} 
+                    onValueChange={(value: 'linear' | 'radial') => 
+                      setConfig(prev => ({ ...prev, gradientType: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="linear">Linéaire</SelectItem>
+                      <SelectItem value="radial">Radial</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Couleur de départ</Label>
+                  <div className="grid grid-cols-4 gap-2 mb-2">
+                    {colorPresets.map((preset) => (
+                      <button
+                        key={`grad1-${preset.value}`}
+                        type="button"
+                        onClick={() => setConfig(prev => ({ ...prev, gradientColor1: preset.value }))}
+                        className="h-10 rounded-md border-2 hover:scale-105 transition-transform"
+                        style={{ 
+                          backgroundColor: preset.value,
+                          borderColor: config.gradientColor1 === preset.value ? '#3b82f6' : 'transparent'
+                        }}
+                        title={preset.name}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      type="color"
+                      value={config.gradientColor1}
+                      onChange={(e) => setConfig(prev => ({ ...prev, gradientColor1: e.target.value }))}
+                      className="w-20 h-10 cursor-pointer"
+                    />
+                    <Input
+                      type="text"
+                      value={config.gradientColor1}
+                      onChange={(e) => setConfig(prev => ({ ...prev, gradientColor1: e.target.value }))}
+                      placeholder="#ec4899"
+                      className="font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Couleur de fin</Label>
+                  <div className="grid grid-cols-4 gap-2 mb-2">
+                    {colorPresets.map((preset) => (
+                      <button
+                        key={`grad2-${preset.value}`}
+                        type="button"
+                        onClick={() => setConfig(prev => ({ ...prev, gradientColor2: preset.value }))}
+                        className="h-10 rounded-md border-2 hover:scale-105 transition-transform"
+                        style={{ 
+                          backgroundColor: preset.value,
+                          borderColor: config.gradientColor2 === preset.value ? '#3b82f6' : 'transparent'
+                        }}
+                        title={preset.name}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      type="color"
+                      value={config.gradientColor2}
+                      onChange={(e) => setConfig(prev => ({ ...prev, gradientColor2: e.target.value }))}
+                      className="w-20 h-10 cursor-pointer"
+                    />
+                    <Input
+                      type="text"
+                      value={config.gradientColor2}
+                      onChange={(e) => setConfig(prev => ({ ...prev, gradientColor2: e.target.value }))}
+                      placeholder="#8b5cf6"
+                      className="font-mono"
+                    />
+                  </div>
+                </div>
+
+                {config.gradientType === 'linear' && (
+                  <div className="space-y-2">
+                    <Label>Angle du dégradé: {config.gradientAngle}°</Label>
+                    <Slider
+                      value={[config.gradientAngle]}
+                      onValueChange={([value]) => setConfig(prev => ({ ...prev, gradientAngle: value }))}
+                      min={0}
+                      max={360}
+                      step={15}
+                      className="w-full"
+                    />
+                    <div className="grid grid-cols-4 gap-2 mt-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setConfig(prev => ({ ...prev, gradientAngle: 0 }))}
+                      >
+                        0° (→)
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setConfig(prev => ({ ...prev, gradientAngle: 90 }))}
+                      >
+                        90° (↓)
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setConfig(prev => ({ ...prev, gradientAngle: 180 }))}
+                      >
+                        180° (←)
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setConfig(prev => ({ ...prev, gradientAngle: 270 }))}
+                      >
+                        270° (↑)
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="space-y-0.5">
+                    <Label className="text-base">Animation au survol</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Le dégradé pivote de 45° au survol
+                    </p>
+                  </div>
+                  <Switch
+                    checked={config.hoverGradientShift}
+                    onCheckedChange={(checked) => setConfig(prev => ({ ...prev, hoverGradientShift: checked }))}
+                  />
+                </div>
+              </>
+            )}
           </TabsContent>
 
           {/* Onglet Tailles */}
@@ -498,7 +710,7 @@ export const ButtonEditorModal = ({
               <div className="space-y-0.5">
                 <Label className="text-base">Effet au survol</Label>
                 <p className="text-sm text-muted-foreground">
-                  Le bouton se soulève légèrement au survol de la souris
+                  Le bouton se soulève avec une ombre plus grande
                 </p>
               </div>
               <Switch
@@ -511,16 +723,17 @@ export const ButtonEditorModal = ({
               <p className="text-sm text-muted-foreground mb-2">💡 Conseils d'accessibilité :</p>
               <ul className="text-xs text-muted-foreground space-y-1">
                 <li>• Assurez-vous d'un bon contraste entre le texte et le fond</li>
-                <li>• Utilisez une ombre pour améliorer la visibilité</li>
+                <li>• Les dégradés fonctionnent mieux avec des couleurs adjacentes</li>
                 <li>• Gardez une taille de bouton suffisante pour le mobile</li>
+                <li>• Les animations subtiles améliorent l'expérience</li>
               </ul>
             </div>
           </TabsContent>
         </Tabs>
 
-        {/* Aperçu du bouton */}
+        {/* Aperçu du bouton avec hover */}
         <div className="mt-6 p-6 bg-gradient-to-br from-muted/30 to-muted/10 rounded-lg border">
-          <p className="text-sm font-medium mb-3 text-muted-foreground">Aperçu en temps réel :</p>
+          <p className="text-sm font-medium mb-3 text-muted-foreground">Aperçu en temps réel (survolez pour voir l'animation) :</p>
           <div style={{ textAlign: config.align }}>
             <a
               href={config.url}
@@ -528,13 +741,21 @@ export const ButtonEditorModal = ({
               onClick={(e) => e.preventDefault()}
               onMouseEnter={(e) => {
                 if (config.hoverEffect) {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 10px 20px -5px rgba(0, 0, 0, 0.2)';
+                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                  e.currentTarget.style.boxShadow = '0 12px 24px -6px rgba(0, 0, 0, 0.25)';
+                }
+                if (config.useGradient && config.hoverGradientShift) {
+                  const shiftedAngle = (config.gradientAngle + 45) % 360;
+                  if (config.gradientType === 'linear') {
+                    e.currentTarget.style.background = `linear-gradient(${shiftedAngle}deg, ${config.gradientColor1}, ${config.gradientColor2})`;
+                  } else {
+                    e.currentTarget.style.background = `radial-gradient(circle at 30% 30%, ${config.gradientColor1}, ${config.gradientColor2})`;
+                  }
                 }
               }}
               onMouseLeave={(e) => {
                 if (config.hoverEffect) {
-                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
                   const shadowMap = {
                     none: 'none',
                     sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
@@ -543,6 +764,7 @@ export const ButtonEditorModal = ({
                   };
                   e.currentTarget.style.boxShadow = shadowMap[config.shadowSize];
                 }
+                e.currentTarget.style.background = getButtonBackground();
               }}
             >
               {config.text || 'Texte du bouton'}
