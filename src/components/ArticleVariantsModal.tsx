@@ -1,10 +1,12 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Sparkles, Tag } from "lucide-react";
+import { Loader2, Sparkles, Tag, Wand2, Undo2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { AIEditModal } from "./AIEditModal";
+import { useState } from "react";
 
 interface ArticleVariant {
   id: number;
@@ -23,6 +25,10 @@ interface ArticleVariantsModalProps {
   variants: ArticleVariant[] | null;
   loading: boolean;
   onSelectVariant: (variant: ArticleVariant) => void;
+  onRegenerateVariant?: (variantId: number, instructions: string) => void;
+  regeneratingVariantId?: number | null;
+  previousVersions?: Map<number, ArticleVariant>;
+  onRestorePreviousVersion?: (variantId: number) => void;
 }
 
 export const ArticleVariantsModal = ({
@@ -31,7 +37,27 @@ export const ArticleVariantsModal = ({
   variants,
   loading,
   onSelectVariant,
+  onRegenerateVariant,
+  regeneratingVariantId,
+  previousVersions,
+  onRestorePreviousVersion,
 }: ArticleVariantsModalProps) => {
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedVariantForEdit, setSelectedVariantForEdit] = useState<number | null>(null);
+
+  const handleOpenEditModal = (variantId: number) => {
+    setSelectedVariantForEdit(variantId);
+    setEditModalOpen(true);
+  };
+
+  const handleSubmitEdit = (instructions: string) => {
+    if (selectedVariantForEdit && onRegenerateVariant) {
+      onRegenerateVariant(selectedVariantForEdit, instructions);
+      setEditModalOpen(false);
+    }
+  };
+
+  const currentVariant = variants?.find(v => v.id === selectedVariantForEdit);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-7xl max-h-[90vh] p-0">
@@ -60,20 +86,53 @@ export const ArticleVariantsModal = ({
                   className="overflow-hidden hover:shadow-lg transition-all border-2 hover:border-primary"
                 >
                   <CardContent className="p-0">
-                    {/* Header avec bouton */}
-                    <div className="p-4 bg-muted/50 flex items-center justify-between border-b sticky top-0 z-10 backdrop-blur-sm">
+                    {/* Header avec boutons */}
+                    <div className="p-4 bg-muted/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b sticky top-0 z-10 backdrop-blur-sm">
                       <h3 className="font-bold text-lg">Variante {variant.id}</h3>
-                      <Button 
-                        size="sm" 
-                        onClick={() => {
-                          onSelectVariant(variant);
-                          onOpenChange(false);
-                        }}
-                        className="gap-2"
-                      >
-                        <Sparkles className="w-4 h-4" />
-                        Choisir cette version
-                      </Button>
+                      <div className="flex gap-2 flex-wrap">
+                        {previousVersions?.has(variant.id) && onRestorePreviousVersion && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => onRestorePreviousVersion(variant.id)}
+                            className="gap-2"
+                            disabled={regeneratingVariantId === variant.id}
+                          >
+                            <Undo2 className="w-4 h-4" />
+                            Version précédente
+                          </Button>
+                        )}
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleOpenEditModal(variant.id)}
+                          className="gap-2"
+                          disabled={regeneratingVariantId === variant.id}
+                        >
+                          {regeneratingVariantId === variant.id ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Régénération...
+                            </>
+                          ) : (
+                            <>
+                              <Wand2 className="w-4 h-4" />
+                              IA Rédaction
+                            </>
+                          )}
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          onClick={() => {
+                            onSelectVariant(variant);
+                            onOpenChange(false);
+                          }}
+                          className="gap-2"
+                        >
+                          <Sparkles className="w-4 h-4" />
+                          Choisir cette version
+                        </Button>
+                      </div>
                     </div>
 
                     {/* Preview de l'article */}
@@ -175,6 +234,14 @@ export const ArticleVariantsModal = ({
             Aucune variante générée
           </div>
         )}
+
+        <AIEditModal
+          open={editModalOpen}
+          onOpenChange={setEditModalOpen}
+          onSubmit={handleSubmitEdit}
+          loading={regeneratingVariantId === selectedVariantForEdit}
+          variantId={selectedVariantForEdit || 1}
+        />
       </DialogContent>
     </Dialog>
   );

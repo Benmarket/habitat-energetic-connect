@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { keywords, contentType } = await req.json();
+    const { keywords, contentType, baseContent, additionalInstructions } = await req.json();
     
     if (!keywords || keywords.length === 0) {
       throw new Error('Au moins un mot-clé est requis');
@@ -76,7 +76,7 @@ IMPORTANT : Retourne UNIQUEMENT le HTML pur sans balises markdown, sans commenta
     const contentTypeLabel = contentTypeLabels[contentType as keyof typeof contentTypeLabels] || 'article';
     const keywordsText = keywords.join(', ');
     
-    const userPrompt = `Crée un ${contentTypeLabel} VIRAL et complet sur : ${keywordsText}.
+    let userPrompt = `Crée un ${contentTypeLabel} VIRAL et complet sur : ${keywordsText}.
 
 MOTS-CLÉS À INTÉGRER : ${keywordsText}
 
@@ -99,13 +99,30 @@ STRUCTURE EXEMPLE :
 
 Retourne UNIQUEMENT le HTML sans balises de code ni commentaires.`;
 
+    // Si on a des instructions additionnelles pour régénérer une variante
+    if (additionalInstructions) {
+      userPrompt += `\n\nINSTRUCTIONS ADDITIONNELLES IMPORTANTES À SUIVRE :\n${additionalInstructions}`;
+      
+      if (baseContent) {
+        userPrompt += `\n\nCONTENU DE BASE À AMÉLIORER :\n${baseContent.substring(0, 2000)}...\n\nAMÉLIORE ce contenu en suivant les instructions ci-dessus.`;
+      }
+    }
+
     console.log('Calling OpenAI API with:', { apiUrl, model, keywordsCount: keywords.length });
 
-    // Générer 2 variantes
-    const variants = await Promise.all([
-      generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt + "\n\nVARIANTE 1 : Ton pédagogique, accessible au grand public, beaucoup d'exemples concrets et de bénéfices chiffrés."),
-      generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt + "\n\nVARIANTE 2 : Ton plus technique et expert, focus sur l'expertise et la crédibilité, données précises et arguments d'autorité.")
-    ]);
+    // Générer les variantes
+    let variants;
+    if (additionalInstructions && baseContent) {
+      // Régénération d'une seule variante avec instructions
+      const regeneratedContent = await generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt);
+      variants = [regeneratedContent];
+    } else {
+      // Génération initiale : 2 variantes différentes
+      variants = await Promise.all([
+        generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt + "\n\nVARIANTE 1 : Ton pédagogique, accessible au grand public, beaucoup d'exemples concrets et de bénéfices chiffrés."),
+        generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt + "\n\nVARIANTE 2 : Ton plus technique et expert, focus sur l'expertise et la crédibilité, données précises et arguments d'autorité.")
+      ]);
+    }
 
     return new Response(
       JSON.stringify({ 
