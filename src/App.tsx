@@ -8,6 +8,7 @@ import MaintenanceMode from "@/components/MaintenanceMode";
 import Index from "./pages/Index";
 import Actualites from "./pages/Actualites";
 import Aides from "./pages/Aides";
+import Guides from "./pages/Guides";
 import ArticleDetail from "./pages/ArticleDetail";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -40,6 +41,8 @@ const App = () => (
               <Route path="/actualites/:categorySlug/:slug" element={<ArticleDetail />} />
               <Route path="/aides" element={<Aides />} />
               <Route path="/aide/:slug" element={<ArticleDetail />} />
+              <Route path="/guides" element={<Guides />} />
+              <Route path="/guide/:slug" element={<ArticleDetail />} />
               <Route path="/connexion" element={<Auth />} />
               <Route path="/tableau-de-bord" element={<Dashboard />} />
               <Route path="/dashboard" element={<Dashboard />} />
