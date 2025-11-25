@@ -7,6 +7,7 @@ import { Color } from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
 import { CustomButton } from './CustomButton';
 import { ButtonEditorModal } from './ButtonEditorModal';
+import { FavoriteButtonsBar } from '@/components/FavoriteButtonsBar';
 import { MediaLibrary } from '@/components/MediaLibrary';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -118,6 +119,11 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     setButtonDialogOpen(false);
   };
 
+  const handleFavoriteButtonSelect = (config: any) => {
+    // Insérer le bouton favori dans l'éditeur
+    editor?.chain().focus().setCustomButton(config).run();
+  };
+
   const handleOpenButtonDialog = () => {
     setEditingButton(null);
     setButtonDialogOpen(true);
@@ -142,6 +148,8 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
 
   return (
     <div className="border rounded-md">
+      <FavoriteButtonsBar onSelectButton={handleFavoriteButtonSelect} />
+      
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <div className="flex items-center justify-between border-b px-2 py-1 bg-muted/30">
           <TabsList className="h-9">

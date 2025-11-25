@@ -32,10 +32,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
+import { ButtonPresetsLibrary } from "@/components/ButtonPresetsLibrary";
 
 const ManageActualites = () => {
   const { user, loading: authLoading } = useAuth();
@@ -49,6 +50,7 @@ const ManageActualites = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft" | "archived">("all");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
+  const [buttonLibraryOpen, setButtonLibraryOpen] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -211,12 +213,34 @@ const ManageActualites = () => {
           <div className="container mx-auto px-4 py-8">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-3xl font-bold">Gérer les actualités</h1>
-              <Link to="/creer-contenu?type=actualite">
-                <Button className="gap-2">
-                  <Plus className="w-4 h-4" />
-                  Créer une actualité
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setButtonLibraryOpen(true)}
+                  className="gap-2"
+                  style={{
+                    background: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
+                    color: '#ffffff',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #ec4899, #8b5cf6)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <Library className="w-4 h-4" />
+                  Mes boutons
                 </Button>
-              </Link>
+                <Link to="/creer-contenu?type=actualite">
+                  <Button className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    Créer une actualité
+                  </Button>
+                </Link>
+              </div>
             </div>
 
             {/* Filters and controls */}
@@ -453,6 +477,11 @@ const ManageActualites = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      <ButtonPresetsLibrary
+        open={buttonLibraryOpen}
+        onOpenChange={setButtonLibraryOpen}
+      />
     </>
   );
 };
