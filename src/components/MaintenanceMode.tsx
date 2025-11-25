@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Wrench, Shield, AlertTriangle } from "lucide-react";
 import { useLocation } from "react-router-dom";
@@ -16,16 +16,80 @@ const MaintenanceMode = ({ children }: MaintenanceModeProps) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  const checkMaintenanceMode = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "maintenance_mode")
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        const value = data.value as { enabled: boolean; message: string };
+        setIsMaintenanceMode(value.enabled);
+        setMaintenanceMessage(value.message);
+      }
+    } catch (error) {
+      console.error("Error checking maintenance mode:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const checkAdminStatus = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        setIsAuthenticated(true);
+        
+        // CRITICAL SECURITY: Vérification côté base de données via RLS
+        const { data, error } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .single();
+
+        if (error) {
+          console.error("Error checking admin status:", error);
+          setIsAdmin(false);
+          setLoading(false);
+          return;
+        }
+
+        if (data) {
+          // Seuls les super_admin et admin peuvent bypasser la maintenance
+          const isAdminUser = data.role === 'super_admin' || data.role === 'admin';
+          setIsAdmin(isAdminUser);
+        } else {
+          setIsAdmin(false);
+        }
+        setLoading(false);
+      } else {
+        setIsAuthenticated(false);
+        setIsAdmin(false);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error checking admin status:", error);
+      setIsAdmin(false);
+      setIsAuthenticated(false);
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     checkMaintenanceMode();
     checkAdminStatus();
     
     // CRITICAL: Écouter les changements d'authentification en temps réel
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           // Re-vérifier le statut admin après connexion
-          await checkAdminStatus();
+          checkAdminStatus();
         } else if (event === 'SIGNED_OUT') {
           setIsAuthenticated(false);
           setIsAdmin(false);
@@ -56,67 +120,7 @@ const MaintenanceMode = ({ children }: MaintenanceModeProps) => {
       authSubscription.unsubscribe();
       supabase.removeChannel(channel);
     };
-  }, []);
-
-  const checkMaintenanceMode = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("site_settings")
-        .select("value")
-        .eq("key", "maintenance_mode")
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (data) {
-        const value = data.value as { enabled: boolean; message: string };
-        setIsMaintenanceMode(value.enabled);
-        setMaintenanceMessage(value.message);
-      }
-    } catch (error) {
-      console.error("Error checking maintenance mode:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const checkAdminStatus = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        setIsAuthenticated(true);
-        
-        // CRITICAL SECURITY: Vérification côté base de données via RLS
-        const { data, error } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", user.id)
-          .single();
-
-        if (error) {
-          console.error("Error checking admin status:", error);
-          setIsAdmin(false);
-          return;
-        }
-
-        if (data) {
-          // Seuls les super_admin et admin peuvent bypasser la maintenance
-          const isAdminUser = data.role === 'super_admin' || data.role === 'admin';
-          setIsAdmin(isAdminUser);
-        } else {
-          setIsAdmin(false);
-        }
-      } else {
-        setIsAuthenticated(false);
-        setIsAdmin(false);
-      }
-    } catch (error) {
-      console.error("Error checking admin status:", error);
-      setIsAdmin(false);
-      setIsAuthenticated(false);
-    }
-  };
+  }, [checkMaintenanceMode, checkAdminStatus]);
 
   if (loading) {
     return (
