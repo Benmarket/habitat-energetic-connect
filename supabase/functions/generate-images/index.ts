@@ -88,13 +88,13 @@ serve(async (req) => {
             .from('media')
             .getPublicUrl(storagePath);
 
-          // Enregistrer dans la table media
+          // Enregistrer dans la table media avec l'URL publique
           const { data: mediaData, error: mediaError } = await supabase
             .from('media')
             .insert({
               user_id: userId,
               filename: filename,
-              storage_path: storagePath,
+              storage_path: publicUrl,
               alt_text: description,
               mime_type: 'image/png'
             })
@@ -103,6 +103,7 @@ serve(async (req) => {
 
           if (mediaError) {
             console.error('Media insert error:', mediaError);
+            throw new Error(`Erreur enregistrement media ${index + 1}`);
           }
 
           return {
