@@ -96,3 +96,21 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Amélioration de la visibilité du curseur dans l'éditeur */
+.ProseMirror {
+  caret-color: hsl(var(--primary));
+  outline: none;
+}
+
+.ProseMirror:focus {
+  caret-color: hsl(var(--primary));
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: hsl(var(--muted-foreground));
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
