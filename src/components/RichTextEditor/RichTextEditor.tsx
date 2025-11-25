@@ -138,6 +138,8 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     }
   };
 
+  const wordCount = editor?.state.doc.textContent.split(/\s+/).filter(word => word.length > 0).length || 0;
+
   return (
     <div className="border rounded-md">
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
@@ -146,6 +148,9 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
             <TabsTrigger value="visual" className="text-xs">Visuel</TabsTrigger>
             <TabsTrigger value="html" className="text-xs">HTML</TabsTrigger>
           </TabsList>
+          <div className="text-xs text-muted-foreground px-3">
+            {wordCount} {wordCount === 1 ? 'mot' : 'mots'}
+          </div>
         </div>
 
         <TabsContent value="visual" className="m-0 border-0">

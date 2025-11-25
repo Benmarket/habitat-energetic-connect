@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Loader2, ArrowLeft, X, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ArticleVariantsModal } from "@/components/ArticleVariantsModal";
+import { ArticlePreviewModal } from "@/components/ArticlePreviewModal";
 import { z } from "zod";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { MediaLibrary } from "@/components/MediaLibrary";
@@ -71,6 +72,7 @@ const CreatePost = () => {
   const [variantsModalOpen, setVariantsModalOpen] = useState(false);
   const [generatedVariants, setGeneratedVariants] = useState<any>(null);
   const [generatingArticle, setGeneratingArticle] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -520,17 +522,28 @@ const CreatePost = () => {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="focus_keywords">Mots-clés ciblés (SEO, IA & GEO)</Label>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleGenerateArticle}
-                        disabled={generatingArticle || formData.focus_keywords.length === 0}
-                        className="gap-2"
-                      >
-                        <Sparkles className="w-4 h-4" />
-                        Générer l'article
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleGenerateArticle}
+                          disabled={generatingArticle || formData.focus_keywords.length === 0}
+                          className="gap-2"
+                        >
+                          <Sparkles className="w-4 h-4" />
+                          Générer l'article
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPreviewModalOpen(true)}
+                          disabled={!formData.title || !formData.content}
+                        >
+                          Prévisualisation live
+                        </Button>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Input
@@ -622,6 +635,18 @@ const CreatePost = () => {
           variants={generatedVariants}
           loading={generatingArticle}
           onSelectVariant={handleSelectVariant}
+        />
+
+        <ArticlePreviewModal
+          open={previewModalOpen}
+          onOpenChange={setPreviewModalOpen}
+          title={formData.title}
+          content={formData.content}
+          featuredImage={formData.featured_image}
+          excerpt={formData.excerpt}
+          focusKeywords={formData.focus_keywords}
+          metaTitle={formData.meta_title}
+          metaDescription={formData.meta_description}
         />
       </div>
     </>
