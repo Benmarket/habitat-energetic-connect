@@ -476,10 +476,20 @@ const CreatePost = () => {
             </Button>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>
                   Créer un {contentTypeLabels[contentType as keyof typeof contentTypeLabels]}
                 </CardTitle>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPreviewModalOpen(true)}
+                  disabled={!formData.title || !formData.content}
+                  className="gap-2"
+                >
+                  Prévisualisation live
+                </Button>
               </CardHeader>
               <CardContent>
                 <form className="space-y-6">
@@ -636,28 +646,17 @@ const CreatePost = () => {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="focus_keywords">Mots-clés ciblés (SEO, IA & GEO)</Label>
-                      <div className="flex gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={handleGenerateArticle}
-                          disabled={generatingArticle || formData.focus_keywords.length === 0}
-                          className="gap-2"
-                        >
-                          <Sparkles className="w-4 h-4" />
-                          Générer l'article
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setPreviewModalOpen(true)}
-                          disabled={!formData.title || !formData.content}
-                        >
-                          Prévisualisation live
-                        </Button>
-                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleGenerateArticle}
+                        disabled={generatingArticle || formData.focus_keywords.length === 0}
+                        className="gap-2"
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        Générer l'article
+                      </Button>
                     </div>
                     <div className="space-y-2">
                       <Input
