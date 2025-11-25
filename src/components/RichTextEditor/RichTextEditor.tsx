@@ -332,7 +332,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           <ScrollArea className="h-[500px]">
             <EditorContent
               editor={editor}
-              className="prose prose-sm max-w-none p-4 min-h-[300px] focus:outline-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground"
+              className="prose prose-sm max-w-none p-4 min-h-[300px] focus:outline-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground [&_.ProseMirror]:caret-foreground [&_.ProseMirror]:focus:caret-primary"
             />
           </ScrollArea>
         </TabsContent>
