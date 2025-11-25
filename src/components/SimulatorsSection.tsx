@@ -1,12 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  Calculator, 
+  Gauge, 
   Sun, 
-  Thermometer, 
-  Home, 
+  Flame, 
+  ShieldCheck, 
   Wind, 
-  Sparkles,
+  TrendingUp,
   ArrowRight,
   Zap
 } from "lucide-react";
@@ -34,7 +34,7 @@ const SimulatorsSection = () => {
       id: "classe-energetique",
       title: "Classe énergétique",
       description: "Estimez la classe énergétique de votre logement pour connaître vos aides éligibles.",
-      icon: Calculator,
+      icon: Gauge,
       gradient: "from-blue-500 to-cyan-500",
       iconBg: "bg-blue-50",
       ctaText: "Simuler ma classe"
@@ -52,16 +52,16 @@ const SimulatorsSection = () => {
       id: "pompe-chaleur",
       title: "Chauffage pompe à chaleur",
       description: "Comparez vos coûts actuels et potentiels avec une PAC adaptée.",
-      icon: Thermometer,
-      gradient: "from-green-500 to-emerald-500",
-      iconBg: "bg-green-50",
+      icon: Flame,
+      gradient: "from-red-500 to-orange-500",
+      iconBg: "bg-red-50",
       ctaText: "Simuler la PAC"
     },
     {
       id: "isolation",
       title: "Isolation thermique",
       description: "Évaluez le gain énergétique et les économies via une meilleure isolation.",
-      icon: Home,
+      icon: ShieldCheck,
       gradient: "from-purple-500 to-pink-500",
       iconBg: "bg-purple-50",
       ctaText: "Simuler l'isolation"
@@ -79,7 +79,7 @@ const SimulatorsSection = () => {
       id: "global",
       title: "Simulateur global",
       description: "Obtenez une vision globale de vos économies multi-solutions.",
-      icon: Sparkles,
+      icon: TrendingUp,
       gradient: "from-indigo-500 to-purple-600",
       iconBg: "bg-indigo-50",
       ctaText: "Lancer le simulateur"
