@@ -330,8 +330,8 @@ export const ButtonPresetsLibrary = ({ open, onOpenChange }: ButtonPresetsLibrar
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-5xl max-h-[85vh] flex flex-col overflow-hidden">
-          <DialogHeader className="flex-shrink-0">
+        <DialogContent className="max-w-5xl h-[85vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0 pb-4">
             <DialogTitle className="flex items-center justify-between">
               <span>Ma bibliothèque de boutons ({presets.length}/50)</span>
               <Button
@@ -348,8 +348,9 @@ export const ButtonPresetsLibrary = ({ open, onOpenChange }: ButtonPresetsLibrar
             </DialogTitle>
           </DialogHeader>
 
-          <ScrollArea className="flex-1 min-h-0 pr-4">
-            <div className="space-y-4">
+          <div className="flex-1 overflow-hidden">
+            <ScrollArea className="h-full pr-4">
+              <div className="space-y-4 pb-4">
               {presets.map((preset) => (
                 <div
                   key={preset.id}
@@ -496,8 +497,9 @@ export const ButtonPresetsLibrary = ({ open, onOpenChange }: ButtonPresetsLibrar
                   <p className="text-sm mt-2">Créez votre premier bouton personnalisé !</p>
                 </div>
               )}
-            </div>
-          </ScrollArea>
+              </div>
+            </ScrollArea>
+          </div>
         </DialogContent>
       </Dialog>
 
