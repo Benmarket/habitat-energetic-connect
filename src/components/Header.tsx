@@ -120,7 +120,7 @@ const Header = () => {
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col items-start">
-                      <span className="text-sm font-medium text-foreground">{getFullName()}</span>
+                      <span className="text-sm font-medium text-foreground">{user?.email}</span>
                       {getRoleDisplay() && (
                         <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-800 border-yellow-200">
                           {getRoleDisplay()}
