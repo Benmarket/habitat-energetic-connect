@@ -26,7 +26,7 @@ const reviews = [
     avatar: sophieAvatar,
     date: "mai 2024",
     rating: 5,
-    text: "Installation solaire impeccable par un partenaire Prime Énergies. Suivi sérieux et délais respectés. Je recommande !",
+    text: "J'ai apprécié la clarté des informations et la rapidité de la prise de contact. Mon projet avance bien et je suis ravie de mon choix de pompe à chaleur pour ma maison de 120m².",
   },
   {
     id: 2,
@@ -35,7 +35,7 @@ const reviews = [
     avatar: marcAvatar,
     date: "févr. 2024",
     rating: 5,
-    text: "Service client très réactif, on m'a bien accompagné sur les aides. Les travaux se sont très bien passés.",
+    text: "Rapide et efficace. J'ai rempli le formulaire un mardi soir, j'étais contacté le mercredi matin. L'accompagnement est vraiment au top pour le choix et l'installation de ma pompe à chaleur air/eau.",
   },
   {
     id: 3,
@@ -43,8 +43,8 @@ const reviews = [
     initials: "CR",
     avatar: claireAvatar,
     date: "janv. 2024",
-    rating: 4,
-    text: "De bons conseils et un installateur RGE sérieux. Chantier propre, production conforme aux estimations.",
+    rating: 5,
+    text: "Tout est bien expliqué, pas de jargon compliqué. Le suivi après ma demande a été impeccable. Je recommande vivement leur service pour l'installation de ma pompe à chaleur réversible.",
   },
   {
     id: 4,
@@ -53,7 +53,7 @@ const reviews = [
     avatar: thomasAvatar,
     date: "mars 2024",
     rating: 5,
-    text: "Pompe à chaleur installée rapidement. Économies visibles dès le premier mois. Équipe professionnelle et à l'écoute.",
+    text: "Formulaire très simple à remplir, j'ai été rappelé en moins de 24h comme promis. L'installation de ma pompe à chaleur haute performance s'est parfaitement déroulée.",
   },
   {
     id: 5,
@@ -62,7 +62,7 @@ const reviews = [
     avatar: julieAvatar,
     date: "avril 2024",
     rating: 5,
-    text: "Excellent accompagnement du début à la fin. Les démarches administratives ont été simplifiées. Très satisfaite !",
+    text: "Excellent accompagnement du début à la fin. Les démarches administratives ont été simplifiées. Très satisfaite de mon installation photovoltaïque !",
   },
   {
     id: 6,
@@ -71,7 +71,25 @@ const reviews = [
     avatar: pierreAvatar,
     date: "déc. 2023",
     rating: 5,
-    text: "Installation d'isolation thermique impeccable. Résultat au-delà de mes attentes. Je recommande vivement.",
+    text: "Installation d'isolation thermique impeccable. Résultat au-delà de mes attentes. Je recommande vivement Prime Énergies.",
+  },
+  {
+    id: 7,
+    name: "Marie D.",
+    initials: "MD",
+    avatar: claireAvatar,
+    date: "juin 2024",
+    rating: 5,
+    text: "Service professionnel et conseils avisés. Mon installation solaire fonctionne parfaitement depuis 3 mois. Très bon retour sur investissement !",
+  },
+  {
+    id: 8,
+    name: "Nicolas L.",
+    initials: "NL",
+    avatar: marcAvatar,
+    date: "juil. 2024",
+    rating: 5,
+    text: "Prime Énergies m'a mis en relation avec un installateur RGE compétent. Chantier propre et rapide. Je réalise déjà des économies sur mes factures.",
   },
 ];
 
@@ -149,10 +167,10 @@ const ReviewsSection = () => {
           className="w-full mb-4"
         >
           <CarouselContent>
-            {[0, 3].map((startIndex) => (
+            {[0, 4].map((startIndex) => (
               <CarouselItem key={startIndex}>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {reviews.slice(startIndex, startIndex + 3).map((review) => (
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {reviews.slice(startIndex, startIndex + 4).map((review) => (
                     <div
                       key={review.id}
                       className="bg-white rounded-xl p-6 shadow-sm border border-border hover:shadow-md transition-shadow"
@@ -169,11 +187,13 @@ const ReviewsSection = () => {
                             <div className="text-sm text-muted-foreground">{review.date}</div>
                           </div>
                         </div>
-                        <div className="flex gap-1">{renderStars(review.rating)}</div>
                       </div>
 
+                      {/* Stars */}
+                      <div className="flex gap-1 mb-3">{renderStars(review.rating)}</div>
+
                       {/* Review Text */}
-                      <p className="text-muted-foreground mb-3 leading-relaxed">{review.text}</p>
+                      <p className="text-muted-foreground mb-3 leading-relaxed text-sm">{review.text}</p>
 
                       {/* Verified Badge */}
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
