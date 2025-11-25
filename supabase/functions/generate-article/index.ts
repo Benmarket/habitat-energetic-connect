@@ -66,8 +66,8 @@ STRUCTURE DE L'ARTICLE (HTML uniquement) :
 3. 3-5 sections avec H2 contenant les mots-clés
 4. Sous-sections H3 si nécessaire
 5. Listes à puces <ul><li> pour faciliter la lecture
-6. Au moins 2 suggestions d'images avec descriptions entre [IMAGE: description détaillée]
-7. 2-3 boutons CTA stratégiquement placés avec cette structure HTML exacte : <div class="my-4"><a href="#contact" class="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 font-medium transition-colors">Texte du bouton</a></div>
+6. Au moins 2 suggestions d'images CENTRÉES avec descriptions entre [IMAGE: description détaillée]
+7. 2-3 boutons CTA stratégiquement placés avec cette structure simple : [BUTTON:Texte du bouton|#contact]
 8. Paragraphes courts (3-4 lignes max) pour la lisibilité
 9. Utilise <strong> pour les mots-clés importants
 10. Inclus des statistiques/chiffres si pertinent
@@ -80,7 +80,11 @@ OPTIMISATION VIRALE :
 - Contenu entre 1000-1500 mots
 - Ton conversationnel mais expert
 
-IMPORTANT : Retourne UNIQUEMENT le HTML pur sans balises markdown, sans commentaires, sans explications. Le HTML doit être parfaitement formaté et lisible.`;
+IMPORTANT : 
+- Retourne UNIQUEMENT le HTML pur sans balises markdown, sans commentaires, sans explications
+- TOUS les boutons doivent être au format [BUTTON:Texte|URL]
+- TOUTES les images et boutons seront automatiquement CENTRÉS
+- Le HTML doit être parfaitement formaté et lisible`;
 
     // Ajouter les instructions personnalisées au system prompt si elles existent
     let finalSystemPrompt = systemPrompt;
@@ -98,8 +102,8 @@ MOTS-CLÉS À INTÉGRER : ${keywordsText}
 Objectifs de cet article :
 - Captiver dès le titre
 - Résoudre un problème concret
-- Inclure des images avec [IMAGE: description détaillée]
-- Avoir 2-3 boutons CTA stratégiques
+- Inclure des images CENTRÉES avec [IMAGE: description détaillée]
+- Avoir 2-3 boutons CTA CENTRÉS stratégiques
 - Être optimisé SEO avec mots-clés naturels
 - Format HTML pur prêt à publier
 
@@ -110,8 +114,12 @@ STRUCTURE EXEMPLE :
 <h2>Première section avec mot-clé</h2>
 <p>Contenu...</p>
 <ul><li>Point important</li></ul>
-<div class="my-4"><a href="#contact" class="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 font-medium transition-colors">Texte CTA</a></div>
+[BUTTON:Demander un devis gratuit|#contact]
+<h2>Deuxième section</h2>
+<p>Contenu...</p>
+[BUTTON:En savoir plus|#info]
 
+IMPORTANT : Utilise UNIQUEMENT le format [BUTTON:Texte|URL] pour les boutons.
 Retourne UNIQUEMENT le HTML sans balises de code ni commentaires.`;
 
     // Si on a des instructions additionnelles pour régénérer une variante
@@ -241,7 +249,51 @@ function cleanHtml(htmlContent: string): string {
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'");
   
+  // Convertir les boutons au format [BUTTON:Text|URL] en structure TipTap
+  cleaned = convertButtonsToCustomFormat(cleaned);
+  
+  // Centrer toutes les images
+  cleaned = centerImages(cleaned);
+  
   return cleaned;
+}
+
+function convertButtonsToCustomFormat(htmlContent: string): string {
+  // Convertir les balises [BUTTON:Text|URL] en structure TipTap professionnelle
+  const buttonRegex = /\[BUTTON:([^\|]+)\|([^\]]+)\]/g;
+  
+  return htmlContent.replace(buttonRegex, (match, text, url) => {
+    const buttonStyle = [
+      'background-color: #10b981',
+      'color: #ffffff',
+      'padding: 12px 24px',
+      'border-radius: 6px',
+      'font-size: 16px',
+      'font-weight: 500',
+      'text-decoration: none',
+      'display: inline-block',
+      'transition: all 0.2s ease',
+      'border: none',
+      'cursor: pointer',
+      'width: auto',
+      'text-align: center',
+      'box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+    ].join('; ');
+    
+    return `<div data-custom-button class="custom-button-wrapper my-4" style="text-align: center">
+  <a href="${url.trim()}" style="${buttonStyle}" target="_blank" rel="noopener noreferrer" data-button-text="${text.trim()}" data-button-color="#10b981">
+    ${text.trim()}
+  </a>
+</div>`;
+  });
+}
+
+function centerImages(htmlContent: string): string {
+  // Centrer toutes les balises <img> en les enveloppant dans un div centré
+  return htmlContent.replace(
+    /<img([^>]*)>/g,
+    '<div style="text-align: center; margin: 1.5rem 0;"><img$1 style="max-width: 100%; height: auto; border-radius: 8px;"></div>'
+  );
 }
 
 function extractTitle(htmlContent: string): string {
