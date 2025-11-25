@@ -91,13 +91,21 @@ const ArticleDetail = () => {
         <Header />
         <div className="min-h-screen bg-background pt-20">
           <div className="container mx-auto px-4 py-12 text-center">
-            <h1 className="text-3xl font-bold text-foreground mb-4">Article non trouvé</h1>
-            <Link to="/actualites">
-              <Button variant="outline" className="gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Retour aux actualités
-              </Button>
-            </Link>
+            <h1 className="text-3xl font-bold text-foreground mb-4">Contenu non trouvé</h1>
+            <div className="flex gap-4 justify-center">
+              <Link to="/actualites">
+                <Button variant="outline" className="gap-2">
+                  <ArrowLeft className="w-4 h-4" />
+                  Actualités
+                </Button>
+              </Link>
+              <Link to="/aides">
+                <Button variant="outline" className="gap-2">
+                  <ArrowLeft className="w-4 h-4" />
+                  Aides
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
         <Footer />
@@ -107,21 +115,24 @@ const ArticleDetail = () => {
 
   // Si l'article existe mais n'est pas publié
   if (article.status !== "published") {
+    const backLink = article.content_type === "aide" ? "/aides" : "/actualites";
+    const backText = article.content_type === "aide" ? "aides" : "actualités";
+    
     return (
       <>
         <Header />
         <div className="min-h-screen bg-background pt-20">
           <div className="container mx-auto px-4 py-12 text-center">
             <h1 className="text-3xl font-bold text-foreground mb-4">
-              Cet article n'est plus disponible pour le moment
+              Ce contenu n'est plus disponible pour le moment
             </h1>
             <p className="text-muted-foreground mb-6">
-              L'article que vous recherchez n'est temporairement pas accessible.
+              Le contenu que vous recherchez n'est temporairement pas accessible.
             </p>
-            <Link to="/actualites">
+            <Link to={backLink}>
               <Button variant="default" className="gap-2">
                 <ArrowLeft className="w-4 h-4" />
-                Retour aux actualités
+                Retour aux {backText}
               </Button>
             </Link>
           </div>
@@ -153,40 +164,70 @@ const ArticleDetail = () => {
         <Header />
         
         <main className="pt-20">
-          {/* Hero Section with Featured Image */}
-          <section className="relative h-[400px] lg:h-[500px] overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 z-10" />
-            <img
-              src={article.featured_image}
-              alt={article.title}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 z-20 flex items-end">
-              <div className="container mx-auto px-4 pb-12">
+          {/* Hero Section */}
+          {article.featured_image ? (
+            // Hero avec image (pour actualités)
+            <section className="relative h-[400px] lg:h-[500px] overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 z-10" />
+              <img
+                src={article.featured_image}
+                alt={article.title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 z-20 flex items-end">
+                <div className="container mx-auto px-4 pb-12">
+                  <Link 
+                    to={`/${basePath}`}
+                    className="inline-flex items-center gap-2 text-white/90 hover:text-white mb-6 transition-colors"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    Retour aux {basePath}
+                  </Link>
+                  {category && (
+                    <Link to={`/${basePath}?category=${category.slug}`} className="inline-block mb-4 mt-2">
+                      <Badge variant="secondary" className="bg-primary text-primary-foreground rounded-full px-4 py-1 cursor-pointer hover:bg-primary/90 transition-colors">
+                        {category.name}
+                      </Badge>
+                    </Link>
+                  )}
+                  <h1 className="text-3xl lg:text-5xl font-bold text-white mb-4 max-w-4xl">
+                    {article.title}
+                  </h1>
+                  <div className="flex items-center text-white/90 text-sm">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    {format(new Date(article.published_at), "d MMMM yyyy", { locale: fr })}
+                  </div>
+                </div>
+              </div>
+            </section>
+          ) : (
+            // Hero simple (pour aides sans image)
+            <section className="bg-muted py-16">
+              <div className="container mx-auto px-4">
                 <Link 
                   to={`/${basePath}`}
-                  className="inline-flex items-center gap-2 text-white/90 hover:text-white mb-6 transition-colors"
+                  className="inline-flex items-center gap-2 text-foreground hover:text-primary mb-6 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Retour aux {basePath}
                 </Link>
                 {category && (
-                  <Link to={`/actualites?category=${category.slug}`} className="inline-block mb-4 mt-2">
+                  <Link to={`/${basePath}?category=${category.slug}`} className="inline-block mb-4">
                     <Badge variant="secondary" className="bg-primary text-primary-foreground rounded-full px-4 py-1 cursor-pointer hover:bg-primary/90 transition-colors">
                       {category.name}
                     </Badge>
                   </Link>
                 )}
-                <h1 className="text-3xl lg:text-5xl font-bold text-white mb-4 max-w-4xl">
+                <h1 className="text-3xl lg:text-5xl font-bold text-foreground mb-4 max-w-4xl">
                   {article.title}
                 </h1>
-                <div className="flex items-center text-white/90 text-sm">
+                <div className="flex items-center text-muted-foreground text-sm">
                   <Calendar className="w-4 h-4 mr-2" />
                   {format(new Date(article.published_at), "d MMMM yyyy", { locale: fr })}
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* Article Content */}
           <article className="py-12 lg:py-16">
