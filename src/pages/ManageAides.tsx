@@ -158,18 +158,42 @@ const ManageAides = () => {
 
     setSavingFeatured(true);
     try {
-      const { error } = await supabase
+      // Vérifier si l'entrée existe déjà
+      const { data: existing } = await supabase
         .from("site_settings")
-        .upsert({
-          key: "featured_aides",
-          value: { aide_ids: selectedFeatured },
-          updated_by: user?.id,
-        });
+        .select("id")
+        .eq("key", "featured_aides")
+        .maybeSingle();
+
+      let error;
+      if (existing) {
+        // Mettre à jour l'entrée existante
+        const result = await supabase
+          .from("site_settings")
+          .update({
+            value: { aide_ids: selectedFeatured },
+            updated_by: user?.id,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("key", "featured_aides");
+        error = result.error;
+      } else {
+        // Créer une nouvelle entrée
+        const result = await supabase
+          .from("site_settings")
+          .insert({
+            key: "featured_aides",
+            value: { aide_ids: selectedFeatured },
+            updated_by: user?.id,
+          });
+        error = result.error;
+      }
 
       if (error) throw error;
 
       toast.success("Aides mises en avant sauvegardées");
       setFeaturedDialogOpen(false);
+      fetchPosts(); // Rafraîchir la liste pour mettre à jour les highlights
     } catch (error) {
       console.error("Error saving featured aides:", error);
       toast.error("Erreur lors de la sauvegarde");
@@ -407,23 +431,39 @@ const ManageAides = () => {
                     </TableHeader>
                     <TableBody>
                       {paginatedPosts.map((post) => {
+                        const isFeatured = selectedFeatured.includes(post.id);
+                        const featuredPosition = isFeatured ? selectedFeatured.indexOf(post.id) + 1 : null;
+                        
                         const rowClass = 
-                          post.status === "draft" ? "bg-gray-100" : 
-                          post.status === "archived" ? "bg-red-50" : 
-                          "bg-white";
+                          isFeatured ? "bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500" :
+                          post.status === "draft" ? "bg-gray-100 dark:bg-gray-800" : 
+                          post.status === "archived" ? "bg-red-50 dark:bg-red-900/20" : 
+                          "bg-white dark:bg-background";
                         
                         return (
                           <TableRow key={post.id} className={rowClass}>
                             <TableCell>
-                              {post.featured_image && (
-                                <img
-                                  src={post.featured_image}
-                                  alt={post.title}
-                                  className="w-16 h-12 object-cover rounded"
-                                />
-                              )}
+                              <div className="relative">
+                                {post.featured_image && (
+                                  <img
+                                    src={post.featured_image}
+                                    alt={post.title}
+                                    className="w-16 h-12 object-cover rounded"
+                                  />
+                                )}
+                                {isFeatured && (
+                                  <div className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                    {featuredPosition}
+                                  </div>
+                                )}
+                              </div>
                             </TableCell>
-                            <TableCell className="font-medium">{post.title}</TableCell>
+                            <TableCell className="font-medium">
+                              <div className="flex items-center gap-2">
+                                {isFeatured && <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />}
+                                {post.title}
+                              </div>
+                            </TableCell>
                             <TableCell>
                               {post.post_categories?.[0]?.categories?.name || "-"}
                             </TableCell>
