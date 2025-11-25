@@ -5,8 +5,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { useState, useEffect } from "react";
-import { AlignLeft, AlignCenter, AlignRight } from "lucide-react";
+import { AlignLeft, AlignCenter, AlignRight, Sparkles } from "lucide-react";
 
 interface ButtonConfig {
   text: string;
@@ -20,6 +21,11 @@ interface ButtonConfig {
   borderRadius: number;
   paddingX: number;
   paddingY: number;
+  borderWidth: number;
+  borderColor: string;
+  borderStyle: 'solid' | 'dashed' | 'dotted' | 'none';
+  shadowSize: 'none' | 'sm' | 'md' | 'lg';
+  hoverEffect: boolean;
 }
 
 interface ButtonEditorModalProps {
@@ -41,20 +47,64 @@ const defaultConfig: ButtonConfig = {
   borderRadius: 6,
   paddingX: 24,
   paddingY: 12,
+  borderWidth: 0,
+  borderColor: '#000000',
+  borderStyle: 'solid',
+  shadowSize: 'md',
+  hoverEffect: true,
 };
 
-const sizePresets = {
-  small: { paddingX: 16, paddingY: 8, fontSize: '14px' },
-  medium: { paddingX: 24, paddingY: 12, fontSize: '16px' },
-  large: { paddingX: 32, paddingY: 16, fontSize: '18px' },
-};
+const presetStyles = [
+  {
+    name: 'Primaire (Vert)',
+    config: {
+      backgroundColor: '#10b981',
+      textColor: '#ffffff',
+      borderRadius: 6,
+      borderWidth: 0,
+      shadowSize: 'md' as const,
+    }
+  },
+  {
+    name: 'Secondaire (Bleu)',
+    config: {
+      backgroundColor: '#3b82f6',
+      textColor: '#ffffff',
+      borderRadius: 6,
+      borderWidth: 0,
+      shadowSize: 'md' as const,
+    }
+  },
+  {
+    name: 'Contour (Outline)',
+    config: {
+      backgroundColor: 'transparent',
+      textColor: '#10b981',
+      borderRadius: 6,
+      borderWidth: 2,
+      borderColor: '#10b981',
+      shadowSize: 'none' as const,
+    }
+  },
+  {
+    name: 'Moderne (Gradient)',
+    config: {
+      backgroundColor: '#8b5cf6',
+      textColor: '#ffffff',
+      borderRadius: 50,
+      borderWidth: 0,
+      shadowSize: 'lg' as const,
+    }
+  },
+];
 
 const colorPresets = [
-  { name: 'Vert (Primaire)', value: '#10b981' },
+  { name: 'Vert', value: '#10b981' },
   { name: 'Bleu', value: '#3b82f6' },
   { name: 'Rouge', value: '#ef4444' },
   { name: 'Orange', value: '#f97316' },
   { name: 'Violet', value: '#8b5cf6' },
+  { name: 'Rose', value: '#ec4899' },
   { name: 'Gris foncé', value: '#1f2937' },
   { name: 'Noir', value: '#000000' },
 ];
@@ -84,18 +134,31 @@ export const ButtonEditorModal = ({
     onOpenChange(false);
   };
 
-  const applySize = (size: 'small' | 'medium' | 'large') => {
-    const preset = sizePresets[size];
+  const applyPreset = (preset: typeof presetStyles[0]) => {
     setConfig(prev => ({
       ...prev,
-      size,
-      paddingX: preset.paddingX,
-      paddingY: preset.paddingY,
+      ...preset.config,
     }));
   };
 
   const getButtonStyle = (): React.CSSProperties => {
-    const preset = sizePresets[config.size];
+    const sizeMap = {
+      small: '14px',
+      medium: '16px',
+      large: '18px',
+    };
+
+    const shadowMap = {
+      none: 'none',
+      sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+      md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+    };
+
+    const border = config.borderWidth > 0 
+      ? `${config.borderWidth}px ${config.borderStyle} ${config.borderColor}`
+      : 'none';
+
     return {
       backgroundColor: config.backgroundColor,
       color: config.textColor,
@@ -104,32 +167,57 @@ export const ButtonEditorModal = ({
       paddingTop: `${config.paddingY}px`,
       paddingBottom: `${config.paddingY}px`,
       borderRadius: `${config.borderRadius}px`,
-      fontSize: preset.fontSize,
+      fontSize: sizeMap[config.size],
       fontWeight: 500,
       cursor: 'pointer',
-      border: 'none',
+      border,
       display: 'inline-block',
       textDecoration: 'none',
-      transition: 'all 0.2s',
+      transition: 'all 0.2s ease',
       width: config.width === 'full' ? '100%' : config.width === 'custom' ? `${config.customWidth}px` : 'auto',
       textAlign: 'center',
+      boxShadow: shadowMap[config.shadowSize],
     };
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Personnaliser le bouton</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-primary" />
+            Personnaliser le bouton
+          </DialogTitle>
         </DialogHeader>
 
+        {/* Presets rapides */}
+        <div className="space-y-2 pb-4 border-b">
+          <Label className="text-sm font-medium">Styles prédéfinis</Label>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            {presetStyles.map((preset) => (
+              <Button
+                key={preset.name}
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => applyPreset(preset)}
+                className="h-auto py-2"
+              >
+                {preset.name}
+              </Button>
+            ))}
+          </div>
+        </div>
+
         <Tabs defaultValue="content" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="content">Contenu</TabsTrigger>
-            <TabsTrigger value="style">Style</TabsTrigger>
-            <TabsTrigger value="layout">Disposition</TabsTrigger>
+            <TabsTrigger value="style">Couleurs</TabsTrigger>
+            <TabsTrigger value="size">Tailles</TabsTrigger>
+            <TabsTrigger value="effects">Effets</TabsTrigger>
           </TabsList>
 
+          {/* Onglet Contenu */}
           <TabsContent value="content" className="space-y-4 mt-4">
             <div className="space-y-2">
               <Label htmlFor="text">Texte du bouton *</Label>
@@ -153,150 +241,9 @@ export const ButtonEditorModal = ({
                 Utilisez #contact, #section, etc. pour ancrer sur la page, ou une URL complète
               </p>
             </div>
-          </TabsContent>
-
-          <TabsContent value="style" className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label>Taille du bouton</Label>
-              <div className="grid grid-cols-3 gap-2">
-                {(['small', 'medium', 'large'] as const).map((size) => (
-                  <Button
-                    key={size}
-                    type="button"
-                    variant={config.size === size ? 'default' : 'outline'}
-                    onClick={() => applySize(size)}
-                    className="capitalize"
-                  >
-                    {size === 'small' ? 'Petit' : size === 'medium' ? 'Moyen' : 'Grand'}
-                  </Button>
-                ))}
-              </div>
-            </div>
 
             <div className="space-y-2">
-              <Label>Couleur de fond</Label>
-              <div className="grid grid-cols-4 gap-2 mb-2">
-                {colorPresets.map((preset) => (
-                  <button
-                    key={preset.value}
-                    type="button"
-                    onClick={() => setConfig(prev => ({ ...prev, backgroundColor: preset.value }))}
-                    className="h-10 rounded border-2 hover:scale-105 transition-transform"
-                    style={{ 
-                      backgroundColor: preset.value,
-                      borderColor: config.backgroundColor === preset.value ? '#000' : 'transparent'
-                    }}
-                    title={preset.name}
-                  />
-                ))}
-              </div>
-              <div className="flex gap-2 items-center">
-                <Input
-                  type="color"
-                  value={config.backgroundColor}
-                  onChange={(e) => setConfig(prev => ({ ...prev, backgroundColor: e.target.value }))}
-                  className="w-20 h-10"
-                />
-                <Input
-                  type="text"
-                  value={config.backgroundColor}
-                  onChange={(e) => setConfig(prev => ({ ...prev, backgroundColor: e.target.value }))}
-                  placeholder="#000000"
-                  className="font-mono"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Couleur du texte</Label>
-              <div className="flex gap-2 items-center">
-                <Input
-                  type="color"
-                  value={config.textColor}
-                  onChange={(e) => setConfig(prev => ({ ...prev, textColor: e.target.value }))}
-                  className="w-20 h-10"
-                />
-                <Input
-                  type="text"
-                  value={config.textColor}
-                  onChange={(e) => setConfig(prev => ({ ...prev, textColor: e.target.value }))}
-                  placeholder="#ffffff"
-                  className="font-mono"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Arrondi des coins: {config.borderRadius}px</Label>
-              <Slider
-                value={[config.borderRadius]}
-                onValueChange={([value]) => setConfig(prev => ({ ...prev, borderRadius: value }))}
-                min={0}
-                max={50}
-                step={1}
-                className="w-full"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Espacement horizontal: {config.paddingX}px</Label>
-                <Slider
-                  value={[config.paddingX]}
-                  onValueChange={([value]) => setConfig(prev => ({ ...prev, paddingX: value }))}
-                  min={8}
-                  max={80}
-                  step={4}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Espacement vertical: {config.paddingY}px</Label>
-                <Slider
-                  value={[config.paddingY]}
-                  onValueChange={([value]) => setConfig(prev => ({ ...prev, paddingY: value }))}
-                  min={4}
-                  max={40}
-                  step={2}
-                />
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="layout" className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label>Largeur du bouton</Label>
-              <Select 
-                value={config.width} 
-                onValueChange={(value: 'auto' | 'full' | 'custom') => 
-                  setConfig(prev => ({ ...prev, width: value }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="auto">Automatique (adapté au texte)</SelectItem>
-                  <SelectItem value="custom">Personnalisée</SelectItem>
-                  <SelectItem value="full">Pleine largeur</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {config.width === 'custom' && (
-              <div className="space-y-2">
-                <Label>Largeur personnalisée: {config.customWidth}px</Label>
-                <Slider
-                  value={[config.customWidth]}
-                  onValueChange={([value]) => setConfig(prev => ({ ...prev, customWidth: value }))}
-                  min={100}
-                  max={600}
-                  step={10}
-                />
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label>Alignement</Label>
+              <Label>Alignement du bouton</Label>
               <div className="grid grid-cols-3 gap-2">
                 <Button
                   type="button"
@@ -328,16 +275,275 @@ export const ButtonEditorModal = ({
               </div>
             </div>
           </TabsContent>
+
+          {/* Onglet Couleurs */}
+          <TabsContent value="style" className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label>Couleur de fond</Label>
+              <div className="grid grid-cols-4 gap-2 mb-2">
+                {colorPresets.map((preset) => (
+                  <button
+                    key={preset.value}
+                    type="button"
+                    onClick={() => setConfig(prev => ({ ...prev, backgroundColor: preset.value }))}
+                    className="h-10 rounded-md border-2 hover:scale-105 transition-transform"
+                    style={{ 
+                      backgroundColor: preset.value,
+                      borderColor: config.backgroundColor === preset.value ? '#3b82f6' : 'transparent'
+                    }}
+                    title={preset.name}
+                  />
+                ))}
+              </div>
+              <div className="flex gap-2 items-center">
+                <Input
+                  type="color"
+                  value={config.backgroundColor}
+                  onChange={(e) => setConfig(prev => ({ ...prev, backgroundColor: e.target.value }))}
+                  className="w-20 h-10 cursor-pointer"
+                />
+                <Input
+                  type="text"
+                  value={config.backgroundColor}
+                  onChange={(e) => setConfig(prev => ({ ...prev, backgroundColor: e.target.value }))}
+                  placeholder="#000000"
+                  className="font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Couleur du texte</Label>
+              <div className="flex gap-2 items-center">
+                <Input
+                  type="color"
+                  value={config.textColor}
+                  onChange={(e) => setConfig(prev => ({ ...prev, textColor: e.target.value }))}
+                  className="w-20 h-10 cursor-pointer"
+                />
+                <Input
+                  type="text"
+                  value={config.textColor}
+                  onChange={(e) => setConfig(prev => ({ ...prev, textColor: e.target.value }))}
+                  placeholder="#ffffff"
+                  className="font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-4 border-t">
+              <div className="space-y-2">
+                <Label>Bordure</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Épaisseur: {config.borderWidth}px</Label>
+                    <Slider
+                      value={[config.borderWidth]}
+                      onValueChange={([value]) => setConfig(prev => ({ ...prev, borderWidth: value }))}
+                      min={0}
+                      max={8}
+                      step={1}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Style</Label>
+                    <Select 
+                      value={config.borderStyle} 
+                      onValueChange={(value: 'solid' | 'dashed' | 'dotted' | 'none') => 
+                        setConfig(prev => ({ ...prev, borderStyle: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="solid">Pleine</SelectItem>
+                        <SelectItem value="dashed">Tirets</SelectItem>
+                        <SelectItem value="dotted">Points</SelectItem>
+                        <SelectItem value="none">Aucune</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                {config.borderWidth > 0 && (
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      type="color"
+                      value={config.borderColor}
+                      onChange={(e) => setConfig(prev => ({ ...prev, borderColor: e.target.value }))}
+                      className="w-20 h-10 cursor-pointer"
+                    />
+                    <Input
+                      type="text"
+                      value={config.borderColor}
+                      onChange={(e) => setConfig(prev => ({ ...prev, borderColor: e.target.value }))}
+                      placeholder="#000000"
+                      className="font-mono"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Onglet Tailles */}
+          <TabsContent value="size" className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label>Taille prédéfinie</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {(['small', 'medium', 'large'] as const).map((size) => (
+                  <Button
+                    key={size}
+                    type="button"
+                    variant={config.size === size ? 'default' : 'outline'}
+                    onClick={() => setConfig(prev => ({ ...prev, size }))}
+                    className="capitalize"
+                  >
+                    {size === 'small' ? 'Petit' : size === 'medium' ? 'Moyen' : 'Grand'}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Espacement horizontal: {config.paddingX}px</Label>
+                <Slider
+                  value={[config.paddingX]}
+                  onValueChange={([value]) => setConfig(prev => ({ ...prev, paddingX: value }))}
+                  min={8}
+                  max={80}
+                  step={4}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Espacement vertical: {config.paddingY}px</Label>
+                <Slider
+                  value={[config.paddingY]}
+                  onValueChange={([value]) => setConfig(prev => ({ ...prev, paddingY: value }))}
+                  min={4}
+                  max={40}
+                  step={2}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Arrondi des coins: {config.borderRadius}px</Label>
+              <Slider
+                value={[config.borderRadius]}
+                onValueChange={([value]) => setConfig(prev => ({ ...prev, borderRadius: value }))}
+                min={0}
+                max={50}
+                step={1}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Largeur du bouton</Label>
+              <Select 
+                value={config.width} 
+                onValueChange={(value: 'auto' | 'full' | 'custom') => 
+                  setConfig(prev => ({ ...prev, width: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Automatique (adapté au texte)</SelectItem>
+                  <SelectItem value="custom">Personnalisée</SelectItem>
+                  <SelectItem value="full">Pleine largeur</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {config.width === 'custom' && (
+              <div className="space-y-2">
+                <Label>Largeur personnalisée: {config.customWidth}px</Label>
+                <Slider
+                  value={[config.customWidth]}
+                  onValueChange={([value]) => setConfig(prev => ({ ...prev, customWidth: value }))}
+                  min={100}
+                  max={600}
+                  step={10}
+                />
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Onglet Effets */}
+          <TabsContent value="effects" className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label>Ombre portée</Label>
+              <Select 
+                value={config.shadowSize} 
+                onValueChange={(value: 'none' | 'sm' | 'md' | 'lg') => 
+                  setConfig(prev => ({ ...prev, shadowSize: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Aucune</SelectItem>
+                  <SelectItem value="sm">Petite</SelectItem>
+                  <SelectItem value="md">Moyenne</SelectItem>
+                  <SelectItem value="lg">Grande</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="space-y-0.5">
+                <Label className="text-base">Effet au survol</Label>
+                <p className="text-sm text-muted-foreground">
+                  Le bouton se soulève légèrement au survol de la souris
+                </p>
+              </div>
+              <Switch
+                checked={config.hoverEffect}
+                onCheckedChange={(checked) => setConfig(prev => ({ ...prev, hoverEffect: checked }))}
+              />
+            </div>
+
+            <div className="p-4 bg-muted/30 rounded-lg">
+              <p className="text-sm text-muted-foreground mb-2">💡 Conseils d'accessibilité :</p>
+              <ul className="text-xs text-muted-foreground space-y-1">
+                <li>• Assurez-vous d'un bon contraste entre le texte et le fond</li>
+                <li>• Utilisez une ombre pour améliorer la visibilité</li>
+                <li>• Gardez une taille de bouton suffisante pour le mobile</li>
+              </ul>
+            </div>
+          </TabsContent>
         </Tabs>
 
-        {/* Aperçu */}
-        <div className="mt-6 p-6 bg-muted/30 rounded-lg border">
-          <p className="text-sm font-medium mb-3 text-muted-foreground">Aperçu du bouton :</p>
+        {/* Aperçu du bouton */}
+        <div className="mt-6 p-6 bg-gradient-to-br from-muted/30 to-muted/10 rounded-lg border">
+          <p className="text-sm font-medium mb-3 text-muted-foreground">Aperçu en temps réel :</p>
           <div style={{ textAlign: config.align }}>
             <a
               href={config.url}
               style={getButtonStyle()}
               onClick={(e) => e.preventDefault()}
+              onMouseEnter={(e) => {
+                if (config.hoverEffect) {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 10px 20px -5px rgba(0, 0, 0, 0.2)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (config.hoverEffect) {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  const shadowMap = {
+                    none: 'none',
+                    sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                    md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                    lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                  };
+                  e.currentTarget.style.boxShadow = shadowMap[config.shadowSize];
+                }
+              }}
             >
               {config.text || 'Texte du bouton'}
             </a>
@@ -353,7 +559,7 @@ export const ButtonEditorModal = ({
             onClick={handleSave}
             disabled={!config.text.trim() || !config.url.trim()}
           >
-            {initialConfig ? 'Mettre à jour' : 'Insérer le bouton'}
+            {initialConfig ? 'Mettre à jour le bouton' : 'Insérer le bouton'}
           </Button>
         </DialogFooter>
       </DialogContent>
