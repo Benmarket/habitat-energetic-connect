@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Lightbulb, Calculator, Zap } from "lucide-react";
+import { CheckCircle2, Lightbulb, Calculator, Zap, ArrowRight } from "lucide-react";
 
 interface Aide {
   id: string;
@@ -194,9 +194,32 @@ const AidesSection = () => {
                         <div className="flex-1">
                           <CardTitle className="text-xl mb-2 line-clamp-2">{aide.title}</CardTitle>
                           {aide.categories && aide.categories.length > 0 && (
-                            <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-700 border-blue-500/30">
-                              {aide.categories[0].name}
-                            </Badge>
+                            <div className="mb-2">
+                              <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-700 border-blue-500/30">
+                                {aide.categories[0].name}
+                              </Badge>
+                            </div>
+                          )}
+                          {aide.tags && aide.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                              {aide.tags.slice(0, 3).map((tag, idx) => (
+                                <Badge 
+                                  key={idx} 
+                                  variant="outline" 
+                                  className="text-xs rounded-full bg-background/50 border-muted-foreground/30 text-muted-foreground px-2 py-0.5"
+                                >
+                                  {tag.name}
+                                </Badge>
+                              ))}
+                              {aide.tags.length > 3 && (
+                                <Badge 
+                                  variant="outline" 
+                                  className="text-xs rounded-full bg-background/50 border-muted-foreground/30 text-muted-foreground px-2 py-0.5"
+                                >
+                                  +{aide.tags.length - 3}
+                                </Badge>
+                              )}
+                            </div>
                           )}
                         </div>
                       </div>
@@ -210,21 +233,6 @@ const AidesSection = () => {
                           <CheckCircle2 className="w-4 h-4 mr-2" />
                           {amount}
                         </Badge>
-
-                        {aide.tags && aide.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mb-3">
-                            {aide.tags.slice(0, 3).map((tag, idx) => (
-                              <Badge key={idx} variant="secondary" className="text-xs bg-blue-100 text-blue-800 border-blue-200">
-                                {tag.name}
-                              </Badge>
-                            ))}
-                            {aide.tags.length > 3 && (
-                              <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800 border-blue-200">
-                                +{aide.tags.length - 3}
-                              </Badge>
-                            )}
-                          </div>
-                        )}
 
                         <div className="space-y-2 mb-4">
                           <p className="text-sm font-semibold text-foreground">Conditions :</p>
@@ -250,11 +258,12 @@ const AidesSection = () => {
 
             {totalActiveAides > 3 && (
               <div className="text-center">
-                <Link to="/aides">
-                  <Button size="lg" className="gap-2">
-                    Voir toutes les aides
-                  </Button>
-                </Link>
+                <Button asChild variant="outline" size="lg" className="group">
+                  <Link to="/aides" className="flex items-center gap-2">
+                    Voir toutes les actualités
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </Button>
               </div>
             )}
           </>
