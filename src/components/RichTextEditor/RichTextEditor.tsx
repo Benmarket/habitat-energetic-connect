@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
@@ -286,20 +287,24 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       </div>
 
           {/* Editor Content */}
-          <EditorContent
-            editor={editor}
-            className="prose prose-sm max-w-none p-4 min-h-[300px] focus:outline-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground"
-          />
+          <ScrollArea className="h-[500px]">
+            <EditorContent
+              editor={editor}
+              className="prose prose-sm max-w-none p-4 min-h-[300px] focus:outline-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground"
+            />
+          </ScrollArea>
         </TabsContent>
 
         <TabsContent value="html" className="m-0 border-0">
-          <Textarea
-            value={htmlContent}
-            onChange={(e) => handleHtmlChange(e.target.value)}
-            className="min-h-[300px] font-mono text-xs p-4 border-0 rounded-none resize-none focus-visible:ring-0"
-            placeholder="Code HTML de votre article..."
-            spellCheck={false}
-          />
+          <ScrollArea className="h-[500px]">
+            <Textarea
+              value={htmlContent}
+              onChange={(e) => handleHtmlChange(e.target.value)}
+              className="min-h-[500px] font-mono text-xs p-4 border-0 rounded-none resize-none focus-visible:ring-0"
+              placeholder="Code HTML de votre article..."
+              spellCheck={false}
+            />
+          </ScrollArea>
           <div className="p-2 border-t bg-muted/30 text-xs text-muted-foreground">
             <p>💡 Modifiez le HTML directement. Les changements seront synchronisés avec l'éditeur visuel.</p>
           </div>
