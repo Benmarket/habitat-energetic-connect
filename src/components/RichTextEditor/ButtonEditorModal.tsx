@@ -7,7 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useState, useEffect } from "react";
-import { AlignLeft, AlignCenter, AlignRight, Sparkles, Palette } from "lucide-react";
+import { AlignLeft, AlignCenter, AlignRight, Sparkles, Palette, Star } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ButtonConfig {
   text: string;
@@ -132,6 +133,33 @@ const colorPresets = [
   { name: 'Jaune', value: '#eab308' },
 ];
 
+interface FavoriteButton {
+  id: string;
+  name: string;
+  text: string;
+  url: string;
+  background_color: string;
+  text_color: string;
+  use_gradient: boolean;
+  gradient_type: string;
+  gradient_color1: string;
+  gradient_color2: string;
+  gradient_angle: number;
+  border_radius: number;
+  padding_x: number;
+  padding_y: number;
+  border_width: number;
+  border_color: string;
+  border_style: string;
+  shadow_size: string;
+  hover_effect: boolean;
+  hover_gradient_shift: boolean;
+  size: string;
+  width: string;
+  custom_width: number;
+  align: string;
+}
+
 export const ButtonEditorModal = ({ 
   open, 
   onOpenChange, 
@@ -142,6 +170,7 @@ export const ButtonEditorModal = ({
     ...defaultConfig,
     ...initialConfig,
   });
+  const [favoriteButtons, setFavoriteButtons] = useState<FavoriteButton[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -149,8 +178,29 @@ export const ButtonEditorModal = ({
         ...defaultConfig,
         ...initialConfig,
       });
+      loadFavoriteButtons();
     }
   }, [open, initialConfig]);
+
+  const loadFavoriteButtons = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('button_presets')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_favorite', true)
+        .order('favorite_order', { ascending: true })
+        .limit(5);
+
+      if (error) throw error;
+      if (data) setFavoriteButtons(data);
+    } catch (error) {
+      console.error('Error loading favorite buttons:', error);
+    }
+  };
 
   const handleSave = () => {
     onSave(config);
@@ -162,6 +212,42 @@ export const ButtonEditorModal = ({
       ...prev,
       ...preset.config,
     }));
+  };
+
+  const applyFavoriteButton = (favorite: FavoriteButton) => {
+    setConfig(prev => ({
+      ...prev,
+      text: favorite.text,
+      url: favorite.url,
+      backgroundColor: favorite.background_color,
+      textColor: favorite.text_color,
+      useGradient: favorite.use_gradient,
+      gradientType: favorite.gradient_type as 'linear' | 'radial',
+      gradientColor1: favorite.gradient_color1,
+      gradientColor2: favorite.gradient_color2,
+      gradientAngle: favorite.gradient_angle,
+      borderRadius: favorite.border_radius,
+      paddingX: favorite.padding_x,
+      paddingY: favorite.padding_y,
+      borderWidth: favorite.border_width,
+      borderColor: favorite.border_color,
+      borderStyle: favorite.border_style as 'solid' | 'dashed' | 'dotted' | 'none',
+      shadowSize: favorite.shadow_size as 'none' | 'sm' | 'md' | 'lg',
+      hoverEffect: favorite.hover_effect,
+      hoverGradientShift: favorite.hover_gradient_shift,
+      size: favorite.size as 'small' | 'medium' | 'large',
+      width: favorite.width as 'auto' | 'full' | 'custom',
+      customWidth: favorite.custom_width,
+      align: favorite.align as 'left' | 'center' | 'right',
+    }));
+  };
+
+  const getFavoriteButtonBackground = (favorite: FavoriteButton) => {
+    if (!favorite.use_gradient) return favorite.background_color;
+    if (favorite.gradient_type === 'linear') {
+      return `linear-gradient(${favorite.gradient_angle}deg, ${favorite.gradient_color1}, ${favorite.gradient_color2})`;
+    }
+    return `radial-gradient(circle at center, ${favorite.gradient_color1}, ${favorite.gradient_color2})`;
   };
 
   const getButtonBackground = () => {
@@ -228,6 +314,48 @@ export const ButtonEditorModal = ({
             Personnaliser le bouton
           </DialogTitle>
         </DialogHeader>
+
+        {/* Boutons favoris */}
+        {favoriteButtons.length > 0 && (
+          <div className="space-y-2 pb-4 border-b">
+            <Label className="text-sm font-medium flex items-center gap-2">
+              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+              Mes boutons favoris
+            </Label>
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {favoriteButtons.map((favorite) => (
+                <button
+                  key={favorite.id}
+                  type="button"
+                  onClick={() => applyFavoriteButton(favorite)}
+                  className="flex-shrink-0 group relative"
+                  title={favorite.name}
+                >
+                  <div
+                    className="px-4 py-2 rounded text-xs font-medium transition-transform hover:scale-105 cursor-pointer"
+                    style={{
+                      background: getFavoriteButtonBackground(favorite),
+                      color: favorite.text_color,
+                      borderRadius: `${favorite.border_radius}px`,
+                      border: favorite.border_width > 0 ? `${favorite.border_width}px ${favorite.border_style} ${favorite.border_color}` : 'none',
+                      boxShadow: {
+                        none: 'none',
+                        sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                        md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                        lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                      }[favorite.shadow_size]
+                    }}
+                  >
+                    {favorite.text}
+                  </div>
+                  <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                    {favorite.name}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Presets rapides */}
         <div className="space-y-2 pb-4 border-b">
