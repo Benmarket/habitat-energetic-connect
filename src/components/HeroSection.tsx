@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sun, Droplets, Home, HandCoins } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import heroImage from "@/assets/hero-bg.jpg";
 
 interface HeroSliderSettings {
   enabled: boolean;
@@ -66,16 +65,11 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, [sliderSettings]);
 
-  // Image actuelle à afficher
-  const currentImage = sliderSettings.enabled && sliderSettings.images.length > 0
-    ? sliderSettings.images[currentImageIndex]
-    : heroImage;
-
   return (
     <section className="relative min-h-[90vh] flex items-center pt-20 overflow-hidden">
       {/* Background images with crossfade */}
       <div className="absolute inset-0 z-0">
-        {sliderSettings.enabled && sliderSettings.images.length > 0 ? (
+        {sliderSettings.images.length > 0 ? (
           sliderSettings.images.map((image, index) => (
             <div
               key={index}
@@ -90,14 +84,7 @@ const HeroSection = () => {
             />
           ))
         ) : (
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `url(${heroImage})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/20 to-primary/40" />
         )}
         <div className="absolute inset-0 bg-gradient-to-r from-dark-bg-opacity to-dark-bg-opacity/70 z-10" />
       </div>
