@@ -12,13 +12,14 @@ serve(async (req) => {
   }
 
   try {
-    const { keywords, contentType, baseContent, additionalInstructions } = await req.json();
+    const { keywords, contentType, baseContent, additionalInstructions, customInstructions } = await req.json();
     
     console.log('Request received:', { 
       keywords, 
       contentType, 
       hasBaseContent: !!baseContent,
       hasAdditionalInstructions: !!additionalInstructions,
+      hasCustomInstructions: !!customInstructions,
       additionalInstructions: additionalInstructions?.substring(0, 100)
     });
     
@@ -81,6 +82,12 @@ OPTIMISATION VIRALE :
 
 IMPORTANT : Retourne UNIQUEMENT le HTML pur sans balises markdown, sans commentaires, sans explications. Le HTML doit être parfaitement formaté et lisible.`;
 
+    // Ajouter les instructions personnalisées au system prompt si elles existent
+    let finalSystemPrompt = systemPrompt;
+    if (customInstructions && customInstructions.trim()) {
+      finalSystemPrompt += `\n\nINSTRUCTIONS PERSONNALISÉES SUPPLÉMENTAIRES :\n${customInstructions}`;
+    }
+
     const contentTypeLabel = contentTypeLabels[contentType as keyof typeof contentTypeLabels] || 'article';
     const keywordsText = keywords.join(', ');
     
@@ -120,7 +127,8 @@ Retourne UNIQUEMENT le HTML sans balises de code ni commentaires.`;
       apiUrl, 
       model, 
       keywordsCount: keywords.length,
-      isRegeneration: !!(additionalInstructions && baseContent)
+      isRegeneration: !!(additionalInstructions && baseContent),
+      hasCustomInstructions: !!customInstructions
     });
 
     // Générer les variantes
@@ -128,14 +136,14 @@ Retourne UNIQUEMENT le HTML sans balises de code ni commentaires.`;
     if (additionalInstructions) {
       console.log('Regenerating with instructions:', additionalInstructions.substring(0, 200));
       // Régénération d'une seule variante avec instructions
-      const regeneratedContent = await generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt);
+      const regeneratedContent = await generateVariant(apiUrl, model, OPENAI_API_KEY, finalSystemPrompt, userPrompt);
       variants = [regeneratedContent];
     } else {
       console.log('Generating 2 initial variants');
       // Génération initiale : 2 variantes différentes
       variants = await Promise.all([
-        generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt + "\n\nVARIANTE 1 : Ton pédagogique, accessible au grand public, beaucoup d'exemples concrets et de bénéfices chiffrés."),
-        generateVariant(apiUrl, model, OPENAI_API_KEY, systemPrompt, userPrompt + "\n\nVARIANTE 2 : Ton plus technique et expert, focus sur l'expertise et la crédibilité, données précises et arguments d'autorité.")
+        generateVariant(apiUrl, model, OPENAI_API_KEY, finalSystemPrompt, userPrompt + "\n\nVARIANTE 1 : Ton pédagogique, accessible au grand public, beaucoup d'exemples concrets et de bénéfices chiffrés."),
+        generateVariant(apiUrl, model, OPENAI_API_KEY, finalSystemPrompt, userPrompt + "\n\nVARIANTE 2 : Ton plus technique et expert, focus sur l'expertise et la crédibilité, données précises et arguments d'autorité.")
       ]);
     }
     

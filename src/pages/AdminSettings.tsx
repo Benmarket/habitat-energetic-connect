@@ -32,6 +32,7 @@ const AdminSettings = () => {
     aiApiUrl: "https://api.openai.com/v1/chat/completions",
     aiModel: "gpt-4o-mini",
     aiEnabled: true,
+    aiCustomInstructions: "",
   });
 
   useEffect(() => {
@@ -69,7 +70,7 @@ const AdminSettings = () => {
       const { data, error } = await supabase
         .from("site_settings")
         .select("key, value")
-        .in("key", ["ai_generation_api_url", "ai_generation_model", "ai_generation_enabled"]);
+        .in("key", ["ai_generation_api_url", "ai_generation_model", "ai_generation_enabled", "ai_custom_instructions"]);
 
       if (error) throw error;
 
@@ -77,12 +78,14 @@ const AdminSettings = () => {
         const aiUrl = data.find(s => s.key === "ai_generation_api_url");
         const aiModel = data.find(s => s.key === "ai_generation_model");
         const aiEnabled = data.find(s => s.key === "ai_generation_enabled");
+        const aiInstructions = data.find(s => s.key === "ai_custom_instructions");
 
         setSettings(prev => ({
           ...prev,
           aiApiUrl: aiUrl?.value as string || "https://api.openai.com/v1/chat/completions",
           aiModel: aiModel?.value as string || "gpt-4o-mini",
           aiEnabled: aiEnabled?.value as boolean ?? true,
+          aiCustomInstructions: aiInstructions?.value as string || "",
         }));
       }
     } catch (error) {
@@ -128,17 +131,28 @@ const AdminSettings = () => {
         .update({ value: settings.aiEnabled })
         .eq("key", "ai_generation_enabled");
 
-      const [maintenanceResult, urlResult, modelResult, enabledResult] = await Promise.all([
+      const aiInstructionsUpdate = supabase
+        .from("site_settings")
+        .upsert({
+          key: "ai_custom_instructions",
+          value: settings.aiCustomInstructions
+        }, {
+          onConflict: "key"
+        });
+
+      const [maintenanceResult, urlResult, modelResult, enabledResult, instructionsResult] = await Promise.all([
         maintenanceUpdate,
         aiUrlUpdate,
         aiModelUpdate,
-        aiEnabledUpdate
+        aiEnabledUpdate,
+        aiInstructionsUpdate
       ]);
 
       if (maintenanceResult.error) throw maintenanceResult.error;
       if (urlResult.error) throw urlResult.error;
       if (modelResult.error) throw modelResult.error;
       if (enabledResult.error) throw enabledResult.error;
+      if (instructionsResult.error) throw instructionsResult.error;
 
       toast({
         title: "Paramètres sauvegardés",
@@ -329,6 +343,21 @@ const AdminSettings = () => {
                     />
                     <p className="text-sm text-muted-foreground mt-1">
                       Modèle utilisé pour la génération (gpt-4o-mini, gpt-5, etc.)
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="aiCustomInstructions">Instructions personnalisées</Label>
+                    <Textarea
+                      id="aiCustomInstructions"
+                      value={settings.aiCustomInstructions}
+                      onChange={(e) => setSettings({ ...settings, aiCustomInstructions: e.target.value })}
+                      placeholder="Préférences supplémentaires en matière de comportement, de style et de ton&#10;&#10;Exemple:&#10;- Adopte un ton professionnel et technique&#10;- Utilise des exemples concrets et chiffrés&#10;- Structure l'article avec des sous-titres clairs"
+                      rows={6}
+                      className="font-mono text-sm"
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Ces instructions seront ajoutées à tous les prompts de génération d'articles. Elles peuvent être modifiées temporairement lors de la création d'un article.
                     </p>
                   </div>
 

@@ -13,10 +13,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, X, Sparkles } from "lucide-react";
+import { Loader2, ArrowLeft, X, Sparkles, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ArticleVariantsModal } from "@/components/ArticleVariantsModal";
 import { ArticlePreviewModal } from "@/components/ArticlePreviewModal";
+import { AIInstructionsModal } from "@/components/AIInstructionsModal";
 import { z } from "zod";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { MediaLibrary } from "@/components/MediaLibrary";
@@ -75,6 +76,9 @@ const CreatePost = () => {
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [regeneratingVariantId, setRegeneratingVariantId] = useState<number | null>(null);
   const [previousVariantVersions, setPreviousVariantVersions] = useState<Map<number, any>>(new Map());
+  const [aiInstructionsModalOpen, setAiInstructionsModalOpen] = useState(false);
+  const [defaultAiInstructions, setDefaultAiInstructions] = useState("");
+  const [currentAiInstructions, setCurrentAiInstructions] = useState("");
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -85,6 +89,7 @@ const CreatePost = () => {
   useEffect(() => {
     fetchCategories();
     fetchTags();
+    loadAiInstructions();
   }, [contentType]);
 
   const fetchCategories = async () => {
@@ -105,6 +110,24 @@ const CreatePost = () => {
       .order("name");
     
     if (data) setTags(data);
+  };
+
+  const loadAiInstructions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "ai_custom_instructions")
+        .single();
+
+      if (!error && data) {
+        const instructions = data.value as string || "";
+        setDefaultAiInstructions(instructions);
+        setCurrentAiInstructions(instructions);
+      }
+    } catch (error) {
+      console.error("Error loading AI instructions:", error);
+    }
   };
 
   const generateSlug = (title: string) => {
@@ -130,7 +153,8 @@ const CreatePost = () => {
       const { data, error } = await supabase.functions.invoke('generate-article', {
         body: {
           keywords: formData.focus_keywords,
-          contentType: contentType
+          contentType: contentType,
+          customInstructions: currentAiInstructions
         }
       });
 
@@ -644,19 +668,31 @@ const CreatePost = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
                       <Label htmlFor="focus_keywords">Mots-clés ciblés (SEO, IA & GEO)</Label>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleGenerateArticle}
-                        disabled={generatingArticle || formData.focus_keywords.length === 0}
-                        className="gap-2"
-                      >
-                        <Sparkles className="w-4 h-4" />
-                        Générer l'article
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setAiInstructionsModalOpen(true)}
+                          className="gap-2"
+                        >
+                          <FileText className="w-4 h-4" />
+                          Instruction article IA
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleGenerateArticle}
+                          disabled={generatingArticle || formData.focus_keywords.length === 0}
+                          className="gap-2"
+                        >
+                          <Sparkles className="w-4 h-4" />
+                          Générer l'article
+                        </Button>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Input
@@ -764,6 +800,14 @@ const CreatePost = () => {
           focusKeywords={formData.focus_keywords}
           metaTitle={formData.meta_title}
           metaDescription={formData.meta_description}
+        />
+
+        <AIInstructionsModal
+          open={aiInstructionsModalOpen}
+          onOpenChange={setAiInstructionsModalOpen}
+          defaultInstructions={defaultAiInstructions}
+          currentInstructions={currentAiInstructions}
+          onSave={(instructions) => setCurrentAiInstructions(instructions)}
         />
       </div>
     </>
