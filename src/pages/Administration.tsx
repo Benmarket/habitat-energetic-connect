@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft } from "lucide-react";
+import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle } from "lucide-react";
 import TrafficDashboard from "@/components/TrafficDashboard";
 
 const Administration = () => {
@@ -116,6 +116,28 @@ const Administration = () => {
                   <Link to="/gerer-annonces">
                     <Button className="w-full">
                       Accéder aux annonces
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Support Chat */}
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-3 bg-emerald-500/10 rounded-lg">
+                      <MessageCircle className="w-6 h-6 text-emerald-600" />
+                    </div>
+                  </div>
+                  <CardTitle>Support Chat</CardTitle>
+                  <CardDescription>
+                    Gérez les conversations et assistez les utilisateurs en direct
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Link to="/chat-support">
+                    <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+                      Accéder au support
                     </Button>
                   </Link>
                 </CardContent>

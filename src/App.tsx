@@ -20,6 +20,7 @@ import ManageGuides from "./pages/ManageGuides";
 import ManageAides from "./pages/ManageAides";
 import ManageAnnonces from "./pages/ManageAnnonces";
 import ManageAdvertisers from "./pages/ManageAdvertisers";
+import ChatSupport from "./pages/ChatSupport";
 import Administration from "./pages/Administration";
 import AdminUsers from "./pages/AdminUsers";
 import AdminCategories from "./pages/AdminCategories";
@@ -58,6 +59,7 @@ const App = () => (
               <Route path="/gerer-aides" element={<ManageAides />} />
               <Route path="/gerer-annonces" element={<ManageAnnonces />} />
               <Route path="/admin/annonceurs" element={<ManageAdvertisers />} />
+              <Route path="/chat-support" element={<ChatSupport />} />
               <Route path="/administration" element={<Administration />} />
               <Route path="/admin/utilisateurs" element={<AdminUsers />} />
               <Route path="/admin/categories" element={<AdminCategories />} />

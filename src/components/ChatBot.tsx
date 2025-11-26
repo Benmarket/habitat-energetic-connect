@@ -1,19 +1,73 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { MessageCircle, X, Send, UserCog, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
-type Message = { role: "user" | "assistant"; content: string };
+type Message = { 
+  role: "user" | "assistant" | "agent"; 
+  content: string;
+  senderName?: string;
+  isVerified?: boolean;
+};
 
 export const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [hasRequestedAgent, setHasRequestedAgent] = useState(false);
+  const [agentConnected, setAgentConnected] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  // Initialize conversation on open
+  useEffect(() => {
+    if (isOpen && !conversationId) {
+      initConversation();
+    }
+  }, [isOpen]);
+
+  // Listen for new messages from agents
+  useEffect(() => {
+    if (!conversationId) return;
+
+    const channel = supabase
+      .channel(`chat:${conversationId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          const newMessage = payload.new as any;
+          if (newMessage.sender_type === 'agent') {
+            setMessages(prev => [...prev, { 
+              role: 'agent', 
+              content: newMessage.content,
+              senderName: newMessage.sender_name,
+              isVerified: true
+            }]);
+            setAgentConnected(true);
+            setIsLoading(false);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [conversationId]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -21,11 +75,96 @@ export const ChatBot = () => {
     }
   }, [messages]);
 
+  const initConversation = async () => {
+    try {
+      const visitorId = localStorage.getItem('visitor_id') || `visitor_${Date.now()}`;
+      localStorage.setItem('visitor_id', visitorId);
+
+      const { data, error } = await supabase
+        .from('chat_conversations')
+        .insert({
+          user_id: user?.id || null,
+          visitor_id: user ? null : visitorId,
+          status: 'active'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      setConversationId(data.id);
+    } catch (error) {
+      console.error('Error initializing conversation:', error);
+    }
+  };
+
+  const saveMessage = async (content: string, senderType: 'user' | 'bot' | 'agent') => {
+    if (!conversationId) return;
+
+    try {
+      await supabase
+        .from('chat_messages')
+        .insert({
+          conversation_id: conversationId,
+          sender_type: senderType,
+          content: content,
+        });
+    } catch (error) {
+      console.error('Error saving message:', error);
+    }
+  };
+
+  const requestHumanAgent = async () => {
+    if (!conversationId || hasRequestedAgent) return;
+
+    try {
+      // Update conversation status
+      await supabase
+        .from('chat_conversations')
+        .update({ status: 'awaiting_agent' })
+        .eq('id', conversationId);
+
+      // Create agent request
+      await supabase
+        .from('chat_agent_requests')
+        .insert({
+          conversation_id: conversationId,
+          status: 'pending'
+        });
+
+      setHasRequestedAgent(true);
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: 'Votre demande a été transmise à un agent humain. Vous serez contacté dans quelques instants.'
+      }]);
+
+      toast({
+        title: "Demande envoyée",
+        description: "Un agent va bientôt rejoindre la conversation.",
+      });
+    } catch (error) {
+      console.error('Error requesting agent:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de contacter un agent pour le moment.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const streamChat = async (userMessage: string) => {
+    if (agentConnected) {
+      // If agent is connected, just save the user message
+      await saveMessage(userMessage, 'user');
+      return;
+    }
+
     const newMessages = [...messages, { role: "user" as const, content: userMessage }];
     setMessages(newMessages);
     setInput("");
     setIsLoading(true);
+
+    // Save user message
+    await saveMessage(userMessage, 'user');
 
     let assistantContent = "";
     
@@ -84,6 +223,11 @@ export const ChatBot = () => {
           }
         }
       }
+
+      // Save bot response
+      if (assistantContent) {
+        await saveMessage(assistantContent, 'bot');
+      }
     } catch (error) {
       console.error("Chat error:", error);
       toast({
@@ -99,6 +243,7 @@ export const ChatBot = () => {
   const handleSend = () => {
     if (!input.trim() || isLoading) return;
     streamChat(input);
+    setInput("");
   };
 
   return (
@@ -125,7 +270,9 @@ export const ChatBot = () => {
               </div>
               <div>
                 <h3 className="font-semibold">Assistant Prime Énergies</h3>
-                <p className="text-xs opacity-90">En ligne</p>
+                <p className="text-xs opacity-90">
+                  {agentConnected ? 'Agent connecté' : 'En ligne'}
+                </p>
               </div>
             </div>
             <Button
@@ -156,9 +303,20 @@ export const ChatBot = () => {
                     className={`max-w-[80%] rounded-lg px-4 py-2 ${
                       msg.role === "user"
                         ? "bg-primary text-primary-foreground"
+                        : msg.role === "agent"
+                        ? "bg-emerald-100 text-emerald-900 dark:bg-emerald-900 dark:text-emerald-100"
                         : "bg-muted text-foreground"
                     }`}
                   >
+                    {msg.role === "agent" && msg.senderName && (
+                      <div className="flex items-center gap-1 mb-1 text-xs font-semibold">
+                        <span>{msg.senderName}</span>
+                        {msg.isVerified && (
+                          <CheckCircle className="h-3 w-3 text-emerald-600 fill-emerald-600" />
+                        )}
+                        <Badge variant="secondary" className="ml-1 text-[10px] h-4">Agent</Badge>
+                      </div>
+                    )}
                     <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                   </div>
                 </div>
@@ -176,6 +334,21 @@ export const ChatBot = () => {
               )}
             </div>
           </ScrollArea>
+
+          {/* Agent request button */}
+          {!agentConnected && !hasRequestedAgent && messages.length > 0 && (
+            <div className="px-4 pb-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={requestHumanAgent}
+                className="w-full gap-2 text-xs"
+              >
+                <UserCog className="h-3 w-3" />
+                Parler à un agent humain
+              </Button>
+            </div>
+          )}
 
           {/* Input */}
           <div className="p-4 border-t border-border">
