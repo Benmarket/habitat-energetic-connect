@@ -266,13 +266,18 @@ export const ChatBot = () => {
     <>
       {/* Chatbot button */}
       {!isOpen && (
-        <Button
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:scale-110 transition-transform z-50"
-          aria-label="Ouvrir le chatbot"
-        >
-          <MessageCircle className="h-6 w-6" />
-        </Button>
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
+          <div className="bg-blue-900 text-white px-4 py-2 rounded-full shadow-lg text-sm font-medium whitespace-nowrap">
+            Assistance en ligne
+          </div>
+          <Button
+            onClick={() => setIsOpen(true)}
+            className="h-14 w-14 rounded-full shadow-lg hover:scale-110 transition-transform bg-blue-900 hover:bg-blue-800"
+            aria-label="Ouvrir le chatbot"
+          >
+            <MessageCircle className="h-6 w-6" />
+          </Button>
+        </div>
       )}
 
       {/* Chatbot window */}
