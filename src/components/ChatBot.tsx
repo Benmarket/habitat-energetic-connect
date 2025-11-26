@@ -315,7 +315,29 @@ export const ChatBot = () => {
             {messages.length === 0 && (
               <div className="text-center text-muted-foreground py-8">
                 <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p className="text-sm">Bonjour ! Comment puis-je vous aider aujourd'hui ?</p>
+                <p className="text-sm mb-4">Bonjour ! Comment puis-je vous aider aujourd'hui ?</p>
+                
+                {/* Quick replies */}
+                <div className="flex flex-col gap-2 mt-6">
+                  <button
+                    onClick={() => streamChat("Quelles aides pour l'isolation ?")}
+                    className="px-4 py-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 text-blue-900 dark:text-blue-100 rounded-lg text-sm transition-colors border border-blue-200 dark:border-blue-800"
+                  >
+                    Quelles aides pour l'isolation ?
+                  </button>
+                  <button
+                    onClick={() => streamChat("Comment fonctionne la prime énergie ?")}
+                    className="px-4 py-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 text-blue-900 dark:text-blue-100 rounded-lg text-sm transition-colors border border-blue-200 dark:border-blue-800"
+                  >
+                    Comment fonctionne la prime énergie ?
+                  </button>
+                  <button
+                    onClick={() => streamChat("Simuler mes économies d'énergie")}
+                    className="px-4 py-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 text-blue-900 dark:text-blue-100 rounded-lg text-sm transition-colors border border-blue-200 dark:border-blue-800"
+                  >
+                    Simuler mes économies d'énergie
+                  </button>
+                </div>
               </div>
             )}
             <div className="space-y-4">
