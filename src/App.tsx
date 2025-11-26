@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import MaintenanceMode from "@/components/MaintenanceMode";
+import { ChatBot } from "@/components/ChatBot";
 import Index from "./pages/Index";
 import Actualites from "./pages/Actualites";
 import Aides from "./pages/Aides";
@@ -38,6 +39,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <MaintenanceMode>
+            <ChatBot />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/actualites" element={<Actualites />} />
