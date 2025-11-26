@@ -23,7 +23,7 @@ import pompeChaleurImg from "@/assets/simulators/pompe-chaleur.png";
 import isolationImg from "@/assets/simulators/isolation.png";
 import eolienneImg from "@/assets/simulators/eolienne.png";
 import simulateurSubventionsImg from "@/assets/simulators/simulateur-subventions.png";
-import logoPrimeEnergies from "@/assets/logo-prime-energies.png";
+import logoPrimeEnergies from "@/assets/logo-prime-energies-text.png";
 
 interface Simulator {
   id: string;
