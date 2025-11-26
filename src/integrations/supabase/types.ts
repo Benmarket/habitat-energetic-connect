@@ -382,6 +382,7 @@ export type Database = {
           created_at: string | null
           id: string
           sender_id: string | null
+          sender_name: string | null
           sender_type: string
         }
         Insert: {
@@ -390,6 +391,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           sender_id?: string | null
+          sender_name?: string | null
           sender_type: string
         }
         Update: {
@@ -398,6 +400,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           sender_id?: string | null
+          sender_name?: string | null
           sender_type?: string
         }
         Relationships: [
