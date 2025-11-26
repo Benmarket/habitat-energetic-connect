@@ -257,13 +257,6 @@ const Header = () => {
               >
                 Simulateurs
               </Link>
-              <Link
-                to="/qui-sommes-nous"
-                className="text-foreground hover:text-primary transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Qui sommes-nous
-              </Link>
               <a
                 href="tel:0800123456"
                 className="flex items-center text-foreground hover:text-primary transition-colors"
