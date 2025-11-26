@@ -20,6 +20,7 @@ import {
 import classeEnergetiqueImg from "@/assets/simulators/classe-energetique.png";
 import maisonSolaireImg from "@/assets/simulators/maison-solaire.png";
 import pompeChaleurImg from "@/assets/simulators/pompe-chaleur.png";
+import isolationImg from "@/assets/simulators/isolation.png";
 
 interface Simulator {
   id: string;
@@ -65,7 +66,7 @@ const SimulatorsSection = () => {
       id: "isolation",
       title: "Isolation thermique",
       description: "Évaluez le gain énergétique et les économies via une meilleure isolation.",
-      icon: ShieldCheck,
+      image: isolationImg,
       gradient: "from-purple-500 to-pink-500",
       iconBg: "bg-purple-50",
       ctaText: "Simuler l'isolation"
