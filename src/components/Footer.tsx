@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { Facebook, Twitter, Linkedin, Youtube } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { NewsletterForm } from "@/components/NewsletterForm";
 
 const Footer = () => {
   return (
@@ -89,16 +88,7 @@ const Footer = () => {
             <p className="text-white/70 mb-4 text-sm">
               Recevez les dernières actualités et offres en énergies renouvelables.
             </p>
-            <form className="flex flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
-              <Input
-                type="email"
-                placeholder="Votre email"
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-primary"
-              />
-              <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium">
-                S'inscrire
-              </Button>
-            </form>
+            <NewsletterForm />
           </div>
         </div>
 
