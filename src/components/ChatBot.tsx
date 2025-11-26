@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, UserCog, CheckCircle } from "lucide-react";
+import { MessageCircle, X, Send, UserCog, CheckCircle, Bot, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -344,8 +345,19 @@ export const ChatBot = () => {
               {messages.map((msg, idx) => (
                 <div
                   key={idx}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
+                  {msg.role !== "user" && (
+                    <Avatar className="h-8 w-8 flex-shrink-0">
+                      <AvatarFallback className="bg-blue-100 dark:bg-blue-900">
+                        {msg.role === "agent" ? (
+                          <User className="h-4 w-4 text-blue-900 dark:text-blue-100" />
+                        ) : (
+                          <Bot className="h-4 w-4 text-blue-900 dark:text-blue-100" />
+                        )}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
                   <div
                     className={`max-w-[80%] rounded-lg px-4 py-2 ${
                       msg.role === "user"
@@ -366,10 +378,22 @@ export const ChatBot = () => {
                     )}
                     <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                   </div>
+                  {msg.role === "user" && (
+                    <Avatar className="h-8 w-8 flex-shrink-0">
+                      <AvatarFallback className="bg-blue-900">
+                        <User className="h-4 w-4 text-white" />
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
                 </div>
               ))}
               {isLoading && (
-                <div className="flex justify-start">
+                <div className="flex gap-2 justify-start">
+                  <Avatar className="h-8 w-8 flex-shrink-0">
+                    <AvatarFallback className="bg-blue-100 dark:bg-blue-900">
+                      <Bot className="h-4 w-4 text-blue-900 dark:text-blue-100" />
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="bg-muted text-foreground rounded-lg px-4 py-3">
                     <div className="flex gap-1">
                       <div className="w-2 h-2 rounded-full bg-foreground/60 animate-bounce [animation-delay:-0.3s]"></div>
