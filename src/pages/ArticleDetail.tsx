@@ -181,6 +181,61 @@ const ArticleDetail = () => {
     },
   ];
 
+  // Prepare schemas as strings to avoid react-helmet issues with fragments
+  const breadcrumbSchema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbItems.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url
+    }))
+  });
+
+  const organizationSchema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Prime Énergies",
+    url: "https://prime-energies.fr",
+    logo: "https://prime-energies.fr/logo.png",
+    description: "Bénéficiez d'une étude énergétique gratuite et découvrez les travaux subventionnés adaptés à votre logement. Panneaux solaires, pompe à chaleur, isolation.",
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "Service client",
+      availableLanguage: ["French"]
+    }
+  });
+
+  const articleSchema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.meta_title || article.title,
+    description: article.meta_description || article.excerpt || "",
+    image: article.featured_image ? [article.featured_image] : [],
+    datePublished: article.published_at,
+    dateModified: article.updated_at || article.published_at,
+    author: {
+      "@type": "Organization",
+      name: "Prime Énergies",
+      url: "https://prime-energies.fr"
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Prime Énergies",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://prime-energies.fr/logo.png"
+      }
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": currentUrl
+    },
+    articleSection: article.post_categories?.[0]?.categories.name || "Énergies renouvelables",
+    keywords: article.post_categories?.map(pc => pc.categories.name).join(", ") || ""
+  });
+
   return (
     <>
       <Helmet>
@@ -191,7 +246,6 @@ const ArticleDetail = () => {
         />
         <link rel="canonical" href={currentUrl} />
         
-        {/* Open Graph / Facebook */}
         <meta property="og:type" content="article" />
         <meta property="og:url" content={currentUrl} />
         <meta property="og:title" content={article.meta_title || article.title} />
@@ -201,27 +255,16 @@ const ArticleDetail = () => {
         />
         <meta property="og:site_name" content="Prime Énergies" />
         <meta property="og:locale" content="fr_FR" />
-        {article.featured_image && (
-          <>
-            <meta property="og:image" content={article.featured_image} />
-            <meta property="og:image:width" content="1200" />
-            <meta property="og:image:height" content="630" />
-          </>
-        )}
-        {article.published_at && (
-          <meta property="article:published_time" content={article.published_at} />
-        )}
-        {article.updated_at && (
-          <meta property="article:modified_time" content={article.updated_at} />
-        )}
-        {category && (
-          <meta property="article:section" content={category.name} />
-        )}
+        {article.featured_image && <meta property="og:image" content={article.featured_image} />}
+        {article.featured_image && <meta property="og:image:width" content="1200" />}
+        {article.featured_image && <meta property="og:image:height" content="630" />}
+        {article.published_at && <meta property="article:published_time" content={article.published_at} />}
+        {article.updated_at && <meta property="article:modified_time" content={article.updated_at} />}
+        {category && <meta property="article:section" content={category.name} />}
         {article.post_tags?.map((pt) => (
           <meta key={pt.tags.id} property="article:tag" content={pt.tags.name} />
         ))}
         
-        {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content={currentUrl} />
         <meta name="twitter:title" content={article.meta_title || article.title} />
@@ -229,70 +272,21 @@ const ArticleDetail = () => {
           name="twitter:description"
           content={article.meta_description || article.excerpt}
         />
-        {article.featured_image && (
-          <meta name="twitter:image" content={article.featured_image} />
-        )}
-        
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            itemListElement: breadcrumbItems.map((item, index) => ({
-              "@type": "ListItem",
-              position: index + 1,
-              name: item.name,
-              item: item.url
-            }))
-          })}
-        </script>
-        
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            name: "Prime Énergies",
-            url: "https://prime-energies.fr",
-            logo: "https://prime-energies.fr/logo.png",
-            description: "Bénéficiez d'une étude énergétique gratuite et découvrez les travaux subventionnés adaptés à votre logement. Panneaux solaires, pompe à chaleur, isolation.",
-            contactPoint: {
-              "@type": "ContactPoint",
-              contactType: "Service client",
-              availableLanguage: ["French"]
-            }
-          })}
-        </script>
-        
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Article",
-            headline: article.meta_title || article.title,
-            description: article.meta_description || article.excerpt || "",
-            image: article.featured_image ? [article.featured_image] : [],
-            datePublished: article.published_at,
-            dateModified: article.updated_at || article.published_at,
-            author: {
-              "@type": "Organization",
-              name: "Prime Énergies",
-              url: "https://prime-energies.fr"
-            },
-            publisher: {
-              "@type": "Organization",
-              name: "Prime Énergies",
-              logo: {
-                "@type": "ImageObject",
-                url: "https://prime-energies.fr/logo.png"
-              }
-            },
-            mainEntityOfPage: {
-              "@type": "WebPage",
-              "@id": currentUrl
-            },
-            articleSection: article.post_categories?.[0]?.categories.name || "Énergies renouvelables",
-            keywords: article.post_categories?.map(pc => pc.categories.name).join(", ") || ""
-          })}
-        </script>
+        {article.featured_image && <meta name="twitter:image" content={article.featured_image} />}
       </Helmet>
+      
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: breadcrumbSchema }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: organizationSchema }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: articleSchema }}
+      />
 
       <div className="min-h-screen bg-background">
         <Header />
