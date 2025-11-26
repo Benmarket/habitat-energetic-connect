@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { useSearchParams, Link } from "react-router-dom";
 import { CollectionPageSchema } from "@/components/SEO/CollectionPageSchema";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -124,9 +125,11 @@ const Aides = () => {
         <meta property="og:description" content="Découvrez toutes les aides financières disponibles pour votre projet d'énergies renouvelables : CEE, MaPrimeRénov, TVA réduite" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:site_name" content="Prime Énergies" />
+        <meta property="og:image" content="https://prime-energies.fr/og-default.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Aides & Subventions Énergies Renouvelables 2025 | Prime Énergies" />
         <meta name="twitter:description" content="Découvrez toutes les aides financières disponibles pour votre projet d'énergies renouvelables : CEE, MaPrimeRénov, TVA réduite" />
+        <meta name="twitter:image" content="https://prime-energies.fr/og-default.jpg" />
       </Helmet>
       {!loading && posts.length > 0 && (
         <CollectionPageSchema
@@ -143,6 +146,12 @@ const Aides = () => {
 
       <div className="min-h-screen bg-background">
         <Header />
+        <Breadcrumb 
+          items={[
+            { name: "Accueil", url: "/" },
+            { name: "Aides & Subventions", url: "/aides" }
+          ]}
+        />
         
         <main className="pt-20">
           <section className="bg-muted py-16">

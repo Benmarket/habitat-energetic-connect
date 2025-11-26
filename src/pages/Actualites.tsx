@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { useSearchParams } from "react-router-dom";
 import { CollectionPageSchema } from "@/components/SEO/CollectionPageSchema";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
@@ -102,9 +103,11 @@ const Actualites = () => {
         <meta property="og:description" content="Restez informés des dernières innovations, aides publiques et tendances du secteur des énergies renouvelables" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:site_name" content="Prime Énergies" />
+        <meta property="og:image" content="https://prime-energies.fr/og-default.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Actualités Énergies Renouvelables | Prime Énergies" />
         <meta name="twitter:description" content="Restez informés des dernières innovations, aides publiques et tendances du secteur des énergies renouvelables" />
+        <meta name="twitter:image" content="https://prime-energies.fr/og-default.jpg" />
       </Helmet>
       {!loading && posts.length > 0 && (
         <CollectionPageSchema
@@ -122,6 +125,12 @@ const Actualites = () => {
 
       <div className="min-h-screen bg-background">
         <Header />
+        <Breadcrumb 
+          items={[
+            { name: "Accueil", url: "/" },
+            { name: "Actualités", url: "/actualites" }
+          ]}
+        />
         
         <main className="pt-20">
           {/* Hero Section */}

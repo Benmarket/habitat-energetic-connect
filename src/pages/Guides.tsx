@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { supabase } from "@/integrations/supabase/client";
 import { CollectionPageSchema } from "@/components/SEO/CollectionPageSchema";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
@@ -78,9 +79,11 @@ const Guides = () => {
         <meta property="og:description" content="Découvrez tous nos guides complets pour optimiser vos projets de rénovation énergétique et bénéficier des primes et aides disponibles en 2025." />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:site_name" content="Prime Énergies" />
+        <meta property="og:image" content="https://prime-energies.fr/og-default.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Guides Prime Énergies 2025 | Tous nos guides experts" />
         <meta name="twitter:description" content="Découvrez tous nos guides complets pour optimiser vos projets de rénovation énergétique et bénéficier des primes et aides disponibles en 2025." />
+        <meta name="twitter:image" content="https://prime-energies.fr/og-default.jpg" />
       </Helmet>
       {!loading && guides.length > 0 && (
         <CollectionPageSchema
@@ -98,6 +101,12 @@ const Guides = () => {
 
       <div className="min-h-screen bg-background">
         <Header />
+        <Breadcrumb 
+          items={[
+            { name: "Accueil", url: "/" },
+            { name: "Guides", url: "/guides" }
+          ]}
+        />
         
         <main className="container mx-auto px-4 py-16">
           <div className="text-center mb-16 relative">
