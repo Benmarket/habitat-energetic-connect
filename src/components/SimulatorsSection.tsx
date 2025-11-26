@@ -23,7 +23,6 @@ import pompeChaleurImg from "@/assets/simulators/pompe-chaleur.png";
 import isolationImg from "@/assets/simulators/isolation.png";
 import eolienneImg from "@/assets/simulators/eolienne.png";
 import simulateurSubventionsImg from "@/assets/simulators/simulateur-subventions.png";
-import logoPrimeEnergies from "@/assets/logo-prime-energies-text.png";
 
 interface Simulator {
   id: string;
@@ -108,8 +107,10 @@ const SimulatorsSection = () => {
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-3 mb-6 bg-gradient-to-r from-primary/20 to-accent/20 px-8 py-4 rounded-full backdrop-blur-sm border border-primary/20 shadow-lg">
             <Zap className="w-7 h-7 text-primary animate-pulse" />
-            <h2 className="text-5xl font-extrabold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent flex items-center gap-3">
-              Simulateurs <img src={logoPrimeEnergies} alt="Prime Énergies" className="h-12 inline-block" />
+            <h2 className="text-5xl font-extrabold flex items-center gap-2">
+              <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">Simulateurs</span>
+              <span className="text-primary">Prime</span>
+              <span className="text-foreground">énergies</span>
             </h2>
             <Zap className="w-7 h-7 text-primary animate-pulse" />
           </div>
