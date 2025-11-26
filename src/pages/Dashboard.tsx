@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Newspaper, BookOpen, HandCoins, Plus, Megaphone, ShieldCheck, Sparkles, FileText } from "lucide-react";
+import { Loader2, Newspaper, BookOpen, HandCoins, Plus, Megaphone, ShieldCheck, Sparkles, FileText, Mail } from "lucide-react";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -16,6 +16,7 @@ const Dashboard = () => {
   const [role, setRole] = useState<string | null>(null);
   const [hasPermissions, setHasPermissions] = useState(false);
   const [permissions, setPermissions] = useState<any[]>([]);
+  const [newsletterCount, setNewsletterCount] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -28,6 +29,7 @@ const Dashboard = () => {
       fetchProfile();
       fetchRole();
       fetchPermissions();
+      fetchNewsletterCount();
     }
   }, [user]);
 
@@ -73,6 +75,15 @@ const Dashboard = () => {
     }
   };
 
+  const fetchNewsletterCount = async () => {
+    const { count } = await supabase
+      .from("newsletter_subscribers")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "active");
+    
+    setNewsletterCount(count || 0);
+  };
+
   const getPermissionIcon = (code: string) => {
     if (code.includes('actualite')) return Newspaper;
     if (code.includes('guide')) return BookOpen;
@@ -100,6 +111,8 @@ const Dashboard = () => {
   const isSuperAdmin = role === "super_admin";
   const isAdmin = role === "admin";
   const isModerator = role === "moderator";
+  const hasActualitePermission = permissions.some(p => p.code === 'poster_actualite');
+  const canAccessNewsletter = isSuperAdmin || isAdmin || isModerator || hasActualitePermission;
   const shouldShowRoleCard = isSuperAdmin || isAdmin || isModerator || hasPermissions;
 
   return (
@@ -311,6 +324,35 @@ const Dashboard = () => {
                       <Link to="/gerer-annonces">
                         <Button className="w-full gap-2">
                           Voir toutes les annonces
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            )}
+
+            {/* Newsletter Card */}
+            {canAccessNewsletter && (
+              <div className="space-y-6 mt-6">
+                <h2 className="text-2xl font-bold">Communication</h2>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <Mail className="w-6 h-6 text-primary" />
+                        </div>
+                        <CardTitle>Newsletter</CardTitle>
+                      </div>
+                      <CardDescription>
+                        Gérer les abonnés à la newsletter ({newsletterCount} actifs)
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Link to="/admin/newsletter">
+                        <Button className="w-full gap-2">
+                          Voir les abonnés
                         </Button>
                       </Link>
                     </CardContent>

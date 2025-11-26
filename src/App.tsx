@@ -24,6 +24,7 @@ import AdminUsers from "./pages/AdminUsers";
 import AdminCategories from "./pages/AdminCategories";
 import AdminTags from "./pages/AdminTags";
 import AdminSettings from "./pages/AdminSettings";
+import AdminNewsletter from "./pages/AdminNewsletter";
 import NotFound from "./pages/NotFound";
 import Sitemap from "./pages/Sitemap";
 
@@ -60,6 +61,7 @@ const App = () => (
               <Route path="/admin/categories" element={<AdminCategories />} />
               <Route path="/admin/etiquettes" element={<AdminTags />} />
               <Route path="/admin/parametres" element={<AdminSettings />} />
+              <Route path="/admin/newsletter" element={<AdminNewsletter />} />
               <Route path="/sitemap.xml" element={<Sitemap />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
