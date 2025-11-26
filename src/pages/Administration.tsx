@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft } from "lucide-react";
+import TrafficDashboard from "@/components/TrafficDashboard";
 
 const Administration = () => {
   const { user, loading } = useAuth();
@@ -50,7 +51,10 @@ const Administration = () => {
               Gérez les contenus et les paramètres de votre site
             </p>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Traffic Dashboard */}
+            <TrafficDashboard />
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
               {/* Gérer les utilisateurs */}
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader>
