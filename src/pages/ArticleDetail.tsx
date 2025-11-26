@@ -13,8 +13,12 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { ArticleSchema } from "@/components/SEO/ArticleSchema";
 import { OrganizationSchema } from "@/components/SEO/OrganizationSchema";
 import { TableOfContents } from "@/components/TableOfContents";
+import { RelatedArticles } from "@/components/RelatedArticles";
 import { calculateReadingTime, formatReadingTime } from "@/utils/readingTime";
 import { extractTableOfContents, addHeadingIds } from "@/utils/tableOfContents";
+import type { Database } from "@/integrations/supabase/types";
+
+type ContentType = Database["public"]["Enums"]["content_type"];
 
 interface Article {
   id: string;
@@ -363,6 +367,11 @@ const ArticleDetail = () => {
             </div>
           </article>
         </main>
+        <RelatedArticles
+          currentArticleId={article.id}
+          categorySlug={article.post_categories?.[0]?.categories?.slug}
+          contentType={article.content_type as ContentType}
+        />
         <Footer />
       </div>
     </>

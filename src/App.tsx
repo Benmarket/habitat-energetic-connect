@@ -25,6 +25,7 @@ import AdminCategories from "./pages/AdminCategories";
 import AdminTags from "./pages/AdminTags";
 import AdminSettings from "./pages/AdminSettings";
 import NotFound from "./pages/NotFound";
+import Sitemap from "./pages/Sitemap";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="/admin/categories" element={<AdminCategories />} />
               <Route path="/admin/etiquettes" element={<AdminTags />} />
               <Route path="/admin/parametres" element={<AdminSettings />} />
+              <Route path="/sitemap.xml" element={<Sitemap />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

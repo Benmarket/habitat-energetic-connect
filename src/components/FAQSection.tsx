@@ -5,6 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { HelpCircle } from "lucide-react";
+import { FAQSchema } from "@/components/SEO/FAQSchema";
 
 const FAQSection = () => {
   const faqs = [
@@ -28,6 +29,7 @@ const FAQSection = () => {
 
   return (
     <section className="py-12 bg-gradient-to-b from-background to-muted/30">
+      <FAQSchema faqs={faqs} />
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
