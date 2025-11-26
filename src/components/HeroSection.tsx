@@ -118,7 +118,7 @@ const HeroSection = () => {
           {/* Left cell: Hero text and buttons - centered content */}
           <div className="flex flex-col items-center lg:items-start justify-center text-white pt-8 lg:pt-0">
             <div className="w-full max-w-[550px]">
-              <h1 className="text-3xl lg:text-5xl font-bold mb-5 leading-tight text-center lg:text-left whitespace-nowrap lg:whitespace-normal">
+              <h1 className="text-3xl lg:text-5xl font-bold mb-5 leading-tight text-center lg:text-left">
                 Réduisez vos factures énergétiques jusqu'à 80% !
               </h1>
               <p className="text-base lg:text-lg mb-6 text-white/90 text-center lg:text-left">
