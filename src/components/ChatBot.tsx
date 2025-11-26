@@ -286,11 +286,11 @@ export const ChatBot = () => {
 
       {/* Chatbot window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-96 h-[600px] bg-background border border-border rounded-lg shadow-2xl flex flex-col z-50 animate-scale-in">
+        <div className="fixed bottom-6 right-6 w-96 h-[500px] bg-background border border-border rounded-lg shadow-2xl flex flex-col z-50 animate-scale-in">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border bg-primary text-primary-foreground rounded-t-lg">
+          <div className="flex items-center justify-between p-4 border-b border-border bg-blue-900 text-white rounded-t-lg">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                 <MessageCircle className="h-5 w-5" />
               </div>
               <div>
@@ -304,7 +304,7 @@ export const ChatBot = () => {
               variant="ghost"
               size="sm"
               onClick={() => setIsOpen(false)}
-              className="hover:bg-primary-foreground/20 text-primary-foreground"
+              className="hover:bg-white/20 text-white"
             >
               <X className="h-5 w-5" />
             </Button>
@@ -327,9 +327,9 @@ export const ChatBot = () => {
                   <div
                     className={`max-w-[80%] rounded-lg px-4 py-2 ${
                       msg.role === "user"
-                        ? "bg-primary text-primary-foreground"
+                        ? "bg-blue-900 text-white"
                         : msg.role === "agent"
-                        ? "bg-emerald-100 text-emerald-900 dark:bg-emerald-900 dark:text-emerald-100"
+                        ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
                         : "bg-muted text-foreground"
                     }`}
                   >
@@ -337,7 +337,7 @@ export const ChatBot = () => {
                       <div className="flex items-center gap-1 mb-1 text-xs font-semibold">
                         <span>{msg.senderName}</span>
                         {msg.isVerified && (
-                          <CheckCircle className="h-3 w-3 text-emerald-600 fill-emerald-600" />
+                          <CheckCircle className="h-3 w-3 text-blue-600 fill-blue-600" />
                         )}
                         <Badge variant="secondary" className="ml-1 text-[10px] h-4">Agent</Badge>
                       </div>
@@ -391,7 +391,7 @@ export const ChatBot = () => {
                 disabled={isLoading}
                 className="flex-1"
               />
-              <Button type="submit" disabled={isLoading || !input.trim()} size="icon">
+              <Button type="submit" disabled={isLoading || !input.trim()} size="icon" className="bg-blue-900 hover:bg-blue-800">
                 <Send className="h-4 w-4" />
               </Button>
             </form>
