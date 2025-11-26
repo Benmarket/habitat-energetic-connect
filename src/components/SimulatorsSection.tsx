@@ -17,12 +17,15 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import classeEnergetiqueImg from "@/assets/simulators/classe-energetique.png";
+import maisonSolaireImg from "@/assets/simulators/maison-solaire.png";
 
 interface Simulator {
   id: string;
   title: string;
   description: string;
-  icon: React.ElementType;
+  icon?: React.ElementType;
+  image?: string;
   gradient: string;
   iconBg: string;
   ctaText: string;
@@ -34,7 +37,7 @@ const SimulatorsSection = () => {
       id: "classe-energetique",
       title: "Classe énergétique",
       description: "Estimez la classe énergétique de votre logement pour connaître vos aides éligibles.",
-      icon: Gauge,
+      image: classeEnergetiqueImg,
       gradient: "from-blue-500 to-cyan-500",
       iconBg: "bg-blue-50",
       ctaText: "Simuler ma classe"
@@ -43,7 +46,7 @@ const SimulatorsSection = () => {
       id: "solaire",
       title: "Économies avec le solaire",
       description: "Projetez vos économies potentielles grâce à l'installation photovoltaïque.",
-      icon: Sun,
+      image: maisonSolaireImg,
       gradient: "from-orange-500 to-yellow-500",
       iconBg: "bg-orange-50",
       ctaText: "Simuler le solaire"
@@ -137,10 +140,18 @@ const SimulatorsSection = () => {
                       <div className={`absolute inset-0 bg-gradient-to-br ${simulator.gradient} opacity-0 group-hover:opacity-20 blur-xl transition-all duration-500`}></div>
                       
                       <CardContent className="p-8 relative z-10 flex flex-col h-full">
-                        {/* Icon */}
-                        <div className={`${simulator.iconBg} w-20 h-20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-500 shadow-lg group-hover:shadow-xl relative`}>
+                        {/* Icon or Image */}
+                        <div className={`${simulator.iconBg} w-20 h-20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-500 shadow-lg group-hover:shadow-xl relative overflow-hidden`}>
                           <div className={`absolute inset-0 bg-gradient-to-br ${simulator.gradient} opacity-0 group-hover:opacity-20 rounded-2xl transition-opacity duration-500`}></div>
-                          <IconComponent className={`w-10 h-10 bg-gradient-to-br ${simulator.gradient} bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500`} strokeWidth={2.5} />
+                          {simulator.image ? (
+                            <img 
+                              src={simulator.image} 
+                              alt={simulator.title}
+                              className="w-14 h-14 object-contain group-hover:scale-110 transition-transform duration-500"
+                            />
+                          ) : IconComponent ? (
+                            <IconComponent className={`w-10 h-10 bg-gradient-to-br ${simulator.gradient} bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500`} strokeWidth={2.5} />
+                          ) : null}
                         </div>
 
                         {/* Title */}
