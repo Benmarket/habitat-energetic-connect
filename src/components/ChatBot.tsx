@@ -24,6 +24,7 @@ export const ChatBot = () => {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [hasRequestedAgent, setHasRequestedAgent] = useState(false);
   const [agentConnected, setAgentConnected] = useState(false);
+  const [isButtonVisible, setIsButtonVisible] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -75,6 +76,30 @@ export const ChatBot = () => {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Detect footer visibility to hide/show button
+  useEffect(() => {
+    const footer = document.querySelector('footer');
+    if (!footer) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          // Hide button when footer is visible, show when not visible
+          setIsButtonVisible(!entry.isIntersecting);
+        });
+      },
+      {
+        threshold: 0.1, // Trigger when 10% of footer is visible
+      }
+    );
+
+    observer.observe(footer);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   const initConversation = async () => {
     try {
@@ -266,7 +291,7 @@ export const ChatBot = () => {
   return (
     <>
       {/* Chatbot button */}
-      {!isOpen && (
+      {!isOpen && isButtonVisible && (
         <button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 z-50 flex items-center gap-0 group hover:scale-105 transition-all duration-300 ease-out animate-in fade-in slide-in-from-bottom-4"
