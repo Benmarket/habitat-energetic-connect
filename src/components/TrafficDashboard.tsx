@@ -1,14 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Eye, Users, FileText, UserPlus, Download, Megaphone, Mail, Navigation } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 import PageDetailsModal from "./PageDetailsModal";
+import LiveVisitorsModal from "./LiveVisitorsModal";
 
 const TrafficDashboard = () => {
   const [selectedMonth, setSelectedMonth] = useState("11");
   const [selectedYear, setSelectedYear] = useState("2025");
   const [selectedPage, setSelectedPage] = useState<string | null>(null);
+  const [showLiveVisitors, setShowLiveVisitors] = useState(false);
+  const [liveVisitors, setLiveVisitors] = useState(2);
 
   const months = [
     { value: "1", label: "Jan." },
@@ -27,6 +31,22 @@ const TrafficDashboard = () => {
 
   const years = ["2023", "2024", "2025"];
 
+  useEffect(() => {
+    const channel = supabase.channel('online-users-count');
+
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        const count = Object.keys(state).length;
+        setLiveVisitors(count);
+      })
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, []);
+
   // Données factices pour SEO et Trafic
   const topPages = [
     { url: "/", views: 350, avgTime: "1m32s", bounce: "38%" },
@@ -38,7 +58,6 @@ const TrafficDashboard = () => {
     { url: "/forum", views: 143, avgTime: "2m35s", bounce: "28%" }
   ];
 
-  const liveVisitors = 2;
   const seoScore = 84;
 
   // Données factices pour Statistiques d'inventaire
@@ -123,6 +142,11 @@ const TrafficDashboard = () => {
         pageUrl={selectedPage || ""}
       />
       
+      <LiveVisitorsModal 
+        open={showLiveVisitors}
+        onOpenChange={setShowLiveVisitors}
+      />
+      
       <div className="space-y-6">
       {/* Section 1: SEO et Trafic */}
       <Card className="border-2 shadow-lg">
@@ -159,7 +183,10 @@ const TrafficDashboard = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="text-center">
+              <div 
+                className="text-center cursor-pointer hover:bg-primary/5 p-3 rounded-lg transition-colors"
+                onClick={() => setShowLiveVisitors(true)}
+              >
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                   <Eye className="w-4 h-4" />
                   Visiteurs en direct
