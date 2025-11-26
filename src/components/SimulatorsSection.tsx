@@ -21,6 +21,7 @@ import classeEnergetiqueImg from "@/assets/simulators/classe-energetique.png";
 import maisonSolaireImg from "@/assets/simulators/maison-solaire.png";
 import pompeChaleurImg from "@/assets/simulators/pompe-chaleur.png";
 import isolationImg from "@/assets/simulators/isolation.png";
+import eolienneImg from "@/assets/simulators/eolienne.png";
 
 interface Simulator {
   id: string;
@@ -73,9 +74,9 @@ const SimulatorsSection = () => {
     },
     {
       id: "eolienne",
-      title: "Éolienne domestique",
+      title: "Production Éolienne",
       description: "Calculez la production potentielle et le retour sur investissement.",
-      icon: Wind,
+      image: eolienneImg,
       gradient: "from-teal-500 to-cyan-500",
       iconBg: "bg-teal-50",
       ctaText: "Simuler l'éolien"
