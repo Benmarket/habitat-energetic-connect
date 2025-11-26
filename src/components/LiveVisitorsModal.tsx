@@ -3,67 +3,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Users, Eye, UserCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useOnlinePresence } from "@/hooks/useOnlinePresence";
 
 interface LiveVisitorsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-interface PresenceState {
-  [key: string]: Array<{
-    presence_ref: string;
-    user_id?: string;
-    user_name?: string;
-    account_type?: string;
-    online_at?: string;
-  }>;
-}
-
 const LiveVisitorsModal = ({ open, onOpenChange }: LiveVisitorsModalProps) => {
-  const [presenceState, setPresenceState] = useState<PresenceState>({});
-  const { user } = useAuth();
-
-  useEffect(() => {
-    if (!open) return;
-
-    const channel = supabase.channel('online-users', {
-      config: {
-        presence: {
-          key: user?.id || `anonymous-${Math.random().toString(36).substr(2, 9)}`,
-        },
-      },
-    });
-
-    channel
-      .on('presence', { event: 'sync' }, () => {
-        const state = channel.presenceState();
-        setPresenceState(state);
-      })
-      .subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          const presenceData = user?.id
-            ? {
-                user_id: user.id,
-                user_name: user.user_metadata?.first_name 
-                  ? `${user.user_metadata.first_name} ${user.user_metadata.last_name || ''}`.trim()
-                  : user.email,
-                account_type: user.user_metadata?.account_type || 'particulier',
-                online_at: new Date().toISOString(),
-              }
-            : {
-                online_at: new Date().toISOString(),
-              };
-
-          await channel.track(presenceData);
-        }
-      });
-
-    return () => {
-      channel.unsubscribe();
-    };
-  }, [open, user]);
+  const { presenceState } = useOnlinePresence();
 
   const visitors = Object.values(presenceState).flat();
   const authenticatedUsers = visitors.filter((v) => v.user_id);
