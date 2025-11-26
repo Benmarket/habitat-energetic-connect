@@ -3,16 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { TrendingUp, TrendingDown, Eye, Users, FileText, UserPlus, Download, Megaphone, Mail, Navigation } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
 import PageDetailsModal from "./PageDetailsModal";
 import LiveVisitorsModal from "./LiveVisitorsModal";
+import { useOnlinePresence } from "@/hooks/useOnlinePresence";
 
 const TrafficDashboard = () => {
   const [selectedMonth, setSelectedMonth] = useState("11");
   const [selectedYear, setSelectedYear] = useState("2025");
   const [selectedPage, setSelectedPage] = useState<string | null>(null);
   const [showLiveVisitors, setShowLiveVisitors] = useState(false);
-  const [liveVisitors, setLiveVisitors] = useState(2);
+  const { liveCount } = useOnlinePresence();
 
   const months = [
     { value: "1", label: "Jan." },
@@ -30,22 +30,6 @@ const TrafficDashboard = () => {
   ];
 
   const years = ["2023", "2024", "2025"];
-
-  useEffect(() => {
-    const channel = supabase.channel('online-users-count');
-
-    channel
-      .on('presence', { event: 'sync' }, () => {
-        const state = channel.presenceState();
-        const count = Object.keys(state).length;
-        setLiveVisitors(count);
-      })
-      .subscribe();
-
-    return () => {
-      channel.unsubscribe();
-    };
-  }, []);
 
   // Données factices pour SEO et Trafic
   const topPages = [
@@ -191,7 +175,7 @@ const TrafficDashboard = () => {
                   <Eye className="w-4 h-4" />
                   Visiteurs en direct
                 </div>
-                <div className="text-4xl font-bold text-primary">{liveVisitors}</div>
+                <div className="text-4xl font-bold text-primary">{liveCount}</div>
               </div>
             </div>
           </div>
