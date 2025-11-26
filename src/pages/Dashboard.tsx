@@ -81,11 +81,35 @@ const Dashboard = () => {
                   <CardTitle>Profil</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p><strong>Email:</strong> {user.email}</p>
+                  <p className="mb-3"><strong>Email:</strong> {user.email}</p>
                   {profile && (
                     <>
-                      <p><strong>Prénom:</strong> {profile.first_name}</p>
-                      <p><strong>Nom:</strong> {profile.last_name}</p>
+                      <div className="mb-3">
+                        <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium mb-2"
+                             style={{
+                               backgroundColor: profile.account_type === 'professionnel' ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--secondary) / 0.1)',
+                               color: profile.account_type === 'professionnel' ? 'hsl(var(--primary))' : 'hsl(var(--secondary-foreground))'
+                             }}>
+                          {profile.account_type === 'professionnel' ? 'Professionnel' : 'Particulier'}
+                        </div>
+                      </div>
+                      
+                      {profile.account_type === 'professionnel' ? (
+                        <>
+                          {profile.company_name && (
+                            <p className="mb-2"><strong>Société:</strong> {profile.company_name}</p>
+                          )}
+                          {(profile.first_name || profile.last_name) && (
+                            <p><strong>Nom du contact:</strong> {[profile.first_name, profile.last_name].filter(Boolean).join(' ')}</p>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          {(profile.first_name || profile.last_name) && (
+                            <p><strong>Nom complet:</strong> {[profile.first_name, profile.last_name].filter(Boolean).join(' ')}</p>
+                          )}
+                        </>
+                      )}
                     </>
                   )}
                 </CardContent>
