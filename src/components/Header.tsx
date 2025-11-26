@@ -95,9 +95,9 @@ const Header = () => {
           </div>
 
           {/* Right side container */}
-          <div className="flex items-center gap-6 lg:gap-8 ml-auto">
+          <div className="flex items-center gap-3 lg:gap-4 ml-auto">
             {/* Right side actions - Progressive visibility */}
-            <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
+            <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
               {/* Phone - visible from md */}
               <a 
                 href="tel:0800123456" 
