@@ -31,7 +31,9 @@ const TrafficDashboard = () => {
     { url: "/actualites", views: 287, avgTime: "1m48s", bounce: "35%" },
     { url: "/guides", views: 215, avgTime: "2m10s", bounce: "34%" },
     { url: "/aides", views: 202, avgTime: "1m05s", bounce: "41%" },
-    { url: "/offres", views: 154, avgTime: "0m54s", bounce: "47%" }
+    { url: "/annonces", views: 178, avgTime: "1m15s", bounce: "39%" },
+    { url: "/offres", views: 154, avgTime: "0m54s", bounce: "47%" },
+    { url: "/forum", views: 143, avgTime: "2m35s", bounce: "28%" }
   ];
 
   const liveVisitors = 2;
