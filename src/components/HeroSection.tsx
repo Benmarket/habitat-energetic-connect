@@ -118,7 +118,7 @@ const HeroSection = () => {
           {/* Left cell: Hero text and buttons - centered content */}
           <div className="flex flex-col items-center lg:items-start justify-center text-white pt-8 lg:pt-0">
             <div className="w-full max-w-[550px]">
-              <h1 className="text-3xl lg:text-5xl font-bold mb-5 leading-tight text-center lg:text-left">
+              <h1 className="text-3xl lg:text-5xl font-bold mb-4 leading-tight text-center lg:text-left">
                 Réduisez vos factures énergétiques jusqu'à 80% !
               </h1>
               <p className="text-base lg:text-lg mb-6 text-white/90 text-center lg:text-left">
@@ -164,7 +164,7 @@ const HeroSection = () => {
           </div>
 
           {/* Right cell: Form - centered content */}
-          <div className="flex items-center justify-center pb-8 lg:pb-0">
+          <div className="flex items-center justify-center pb-3 lg:pb-0">
             <div className="bg-white rounded-xl shadow-2xl p-7 w-full max-w-[480px]">
               <h2 className="text-2xl font-bold text-foreground mb-2">
                 Étude énergétique gratuite
