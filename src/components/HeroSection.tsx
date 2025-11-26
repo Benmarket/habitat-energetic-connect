@@ -127,7 +127,7 @@ const HeroSection = () => {
               </p>
 
               {/* Quick action buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8 w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3 lg:mb-8 w-full">
                 <Link 
                   to="/offres/panneaux-solaires"
                   className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
