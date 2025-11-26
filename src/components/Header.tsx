@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Phone, User, Home, BarChart3, MessageCircle, Users, LogOut, ChevronDown, Settings } from "lucide-react";
+import { Menu, X, Phone, User, Home, BarChart3, MessageCircle, Users, LogOut, ChevronDown, Settings, MessageCircleMore } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { MegaMenu } from "@/components/MegaMenu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -98,6 +98,15 @@ const Header = () => {
           <div className="flex items-center gap-3 lg:gap-4 ml-auto">
             {/* Right side actions - Progressive visibility */}
             <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
+              {/* WhatsApp - visible from md */}
+              <a 
+                href="#whatsapp" 
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-[#25D366] hover:bg-[#20BD5A] transition-all duration-300 hover:shadow-md"
+                aria-label="Contacter via WhatsApp"
+              >
+                <MessageCircleMore className="w-5 h-5 text-white" />
+              </a>
+              
               {/* Phone - visible from md */}
               <a 
                 href="tel:0800123456" 
@@ -257,6 +266,13 @@ const Header = () => {
               >
                 Simulateurs
               </Link>
+              <a
+                href="#whatsapp"
+                className="flex items-center text-foreground hover:text-primary transition-colors"
+              >
+                <MessageCircleMore className="w-4 h-4 mr-2" />
+                <span className="font-semibold">WhatsApp</span>
+              </a>
               <a
                 href="tel:0800123456"
                 className="flex items-center text-foreground hover:text-primary transition-colors"
