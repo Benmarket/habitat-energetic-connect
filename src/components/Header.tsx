@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthModal } from "@/components/AuthModal";
+import { LiveChatNotifications } from "@/components/LiveChatNotifications";
 import whatsappIcon from "@/assets/whatsapp-icon.png";
 import {
   DropdownMenu,
@@ -123,6 +124,9 @@ const Header = () => {
               <Button asChild className="whitespace-nowrap text-sm lg:text-base px-3 lg:px-4">
                 <Link to="/#etude">Trouver un installateur</Link>
               </Button>
+              
+              {/* Live chat notifications - visible for admins */}
+              {isAdminOrAbove && <LiveChatNotifications />}
               
               {/* User menu - visible from md */}
               {user ? (
