@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/carousel";
 import classeEnergetiqueImg from "@/assets/simulators/classe-energetique.png";
 import maisonSolaireImg from "@/assets/simulators/maison-solaire.png";
+import pompeChaleurImg from "@/assets/simulators/pompe-chaleur.png";
 
 interface Simulator {
   id: string;
@@ -55,7 +56,7 @@ const SimulatorsSection = () => {
       id: "pompe-chaleur",
       title: "Chauffage pompe à chaleur",
       description: "Comparez vos coûts actuels et potentiels avec une PAC adaptée.",
-      icon: Flame,
+      image: pompeChaleurImg,
       gradient: "from-red-500 to-orange-500",
       iconBg: "bg-red-50",
       ctaText: "Simuler la PAC"
