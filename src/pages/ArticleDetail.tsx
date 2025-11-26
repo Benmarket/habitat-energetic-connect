@@ -10,8 +10,6 @@ import { fr } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { ArticleSchema } from "@/components/SEO/ArticleSchema";
-import { OrganizationSchema } from "@/components/SEO/OrganizationSchema";
 import { TableOfContents } from "@/components/TableOfContents";
 import { RelatedArticles } from "@/components/RelatedArticles";
 import { calculateReadingTime, formatReadingTime } from "@/utils/readingTime";
@@ -181,16 +179,6 @@ const ArticleDetail = () => {
 
   return (
     <>
-      <OrganizationSchema />
-      <ArticleSchema
-        title={article.meta_title || article.title}
-        description={article.meta_description || article.excerpt || ""}
-        imageUrl={article.featured_image}
-        publishedDate={article.published_at || undefined}
-        modifiedDate={article.updated_at}
-        categories={article.post_categories?.map((pc) => pc.categories.name) || []}
-        url={currentUrl}
-      />
       <Helmet>
         <title>{article.meta_title || article.title}</title>
         <meta
@@ -240,6 +228,66 @@ const ArticleDetail = () => {
         {article.featured_image && (
           <meta name="twitter:image" content={article.featured_image} />
         )}
+        
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: breadcrumbItems.map((item, index) => ({
+              "@type": "ListItem",
+              position: index + 1,
+              name: item.name,
+              item: item.url
+            }))
+          })}
+        </script>
+        
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "Prime Énergies",
+            url: "https://prime-energies.fr",
+            logo: "https://prime-energies.fr/logo.png",
+            description: "Bénéficiez d'une étude énergétique gratuite et découvrez les travaux subventionnés adaptés à votre logement. Panneaux solaires, pompe à chaleur, isolation.",
+            contactPoint: {
+              "@type": "ContactPoint",
+              contactType: "Service client",
+              availableLanguage: ["French"]
+            }
+          })}
+        </script>
+        
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: article.meta_title || article.title,
+            description: article.meta_description || article.excerpt || "",
+            image: article.featured_image ? [article.featured_image] : [],
+            datePublished: article.published_at,
+            dateModified: article.updated_at || article.published_at,
+            author: {
+              "@type": "Organization",
+              name: "Prime Énergies",
+              url: "https://prime-energies.fr"
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "Prime Énergies",
+              logo: {
+                "@type": "ImageObject",
+                url: "https://prime-energies.fr/logo.png"
+              }
+            },
+            mainEntityOfPage: {
+              "@type": "WebPage",
+              "@id": currentUrl
+            },
+            articleSection: article.post_categories?.[0]?.categories.name || "Énergies renouvelables",
+            keywords: article.post_categories?.map(pc => pc.categories.name).join(", ") || ""
+          })}
+        </script>
       </Helmet>
 
       <div className="min-h-screen bg-background">
