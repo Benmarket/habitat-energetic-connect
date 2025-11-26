@@ -22,6 +22,7 @@ import maisonSolaireImg from "@/assets/simulators/maison-solaire.png";
 import pompeChaleurImg from "@/assets/simulators/pompe-chaleur.png";
 import isolationImg from "@/assets/simulators/isolation.png";
 import eolienneImg from "@/assets/simulators/eolienne.png";
+import simulateurSubventionsImg from "@/assets/simulators/simulateur-subventions.png";
 
 interface Simulator {
   id: string;
@@ -83,9 +84,9 @@ const SimulatorsSection = () => {
     },
     {
       id: "global",
-      title: "Simulateur global",
+      title: "Simulateur Subventions",
       description: "Obtenez une vision globale de vos économies multi-solutions.",
-      icon: TrendingUp,
+      image: simulateurSubventionsImg,
       gradient: "from-indigo-500 to-purple-600",
       iconBg: "bg-indigo-50",
       ctaText: "Lancer le simulateur"
