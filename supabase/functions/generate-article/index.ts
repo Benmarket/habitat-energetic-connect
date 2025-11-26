@@ -82,7 +82,7 @@ FORMAT DU BLOC RÉSUMÉ (au tout début après le titre):
   </ul>
 </div>
 
-FORMAT DE LA SECTION FAQ:
+FORMAT DE LA SECTION FAQ (à la fin de l'article, AVANT les sources):
 <h2>Questions fréquentes</h2>
 <div class="faq-item">
   <h3>Question 1 ?</h3>
@@ -90,7 +90,7 @@ FORMAT DE LA SECTION FAQ:
 </div>
 [Répéter pour 3-5 questions]
 
-FORMAT DES SOURCES:
+FORMAT DES SOURCES (tout à la fin):
 <h2>Sources et références</h2>
 <ul class="sources-list">
   <li><strong>ADEME</strong> - Chiffres clés des énergies renouvelables, 2024</li>
@@ -131,7 +131,8 @@ IMPORTANT :
 - Retourne UNIQUEMENT le HTML pur sans balises markdown, sans commentaires, sans explications
 - TOUS les boutons doivent être au format [BUTTON:Texte|URL]
 - TOUTES les images et boutons seront automatiquement CENTRÉS
-- Le HTML doit être parfaitement formaté et lisible`;
+- Le HTML doit être parfaitement formaté et lisible
+- Le bloc TL;DR et la section FAQ sont OBLIGATOIRES`;
 
     // Ajouter les instructions personnalisées au system prompt si elles existent
     let finalSystemPrompt = systemPrompt;
@@ -209,6 +210,9 @@ Retourne UNIQUEMENT le HTML sans balises de code ni commentaires.`;
         success: true,
         variants: variants.map((content, index) => {
           const cleanContent = cleanHtml(content);
+          const extractedFaq = extractFaq(cleanContent);
+          const extractedTldr = extractTldr(cleanContent);
+          
           return {
             id: index + 1,
             title: extractTitle(cleanContent),
@@ -217,6 +221,8 @@ Retourne UNIQUEMENT le HTML sans balises de code ni commentaires.`;
             metaTitle: extractMetaTitle(cleanContent, keywords),
             metaDescription: extractMetaDescription(cleanContent),
             focusKeywords: keywords,
+            tldr: extractedTldr,
+            faq: extractedFaq,
             featuredImageDescription: extractFirstImageDescription(cleanContent)
           };
         })
@@ -399,4 +405,48 @@ function extractFirstImageDescription(htmlContent: string): string {
     return imageMatch[1].trim();
   }
   return 'Image représentant le sujet de l\'article';
+}
+
+function extractTldr(htmlContent: string): string {
+  // Extraire le contenu de la div summary-box
+  const summaryBoxMatch = htmlContent.match(/<div class="summary-box"[^>]*>(.*?)<\/div>/is);
+  if (!summaryBoxMatch) return '';
+  
+  const summaryContent = summaryBoxMatch[1];
+  // Extraire le texte des éléments <li>
+  const listItems = summaryContent.match(/<li[^>]*>(.*?)<\/li>/gis);
+  if (!listItems) return '';
+  
+  return listItems
+    .map(item => item.replace(/<[^>]*>/g, '').trim())
+    .join('\n')
+    .trim();
+}
+
+function extractFaq(htmlContent: string): Array<{ question: string; answer: string }> {
+  const faq: Array<{ question: string; answer: string }> = [];
+  
+  // Chercher la section FAQ
+  const faqSectionMatch = htmlContent.match(/<h2[^>]*>Questions fréquentes<\/h2>(.*?)(?=<h2|$)/is);
+  if (!faqSectionMatch) return faq;
+  
+  const faqSection = faqSectionMatch[1];
+  
+  // Extraire chaque paire question-réponse
+  const faqItems = faqSection.match(/<div class="faq-item"[^>]*>(.*?)<\/div>/gis);
+  if (!faqItems) return faq;
+  
+  faqItems.forEach(item => {
+    const questionMatch = item.match(/<h3[^>]*>(.*?)<\/h3>/is);
+    const answerMatch = item.match(/<p[^>]*>(.*?)<\/p>/is);
+    
+    if (questionMatch && answerMatch) {
+      faq.push({
+        question: questionMatch[1].replace(/<[^>]*>/g, '').trim(),
+        answer: answerMatch[1].replace(/<[^>]*>/g, '').trim()
+      });
+    }
+  });
+  
+  return faq;
 }

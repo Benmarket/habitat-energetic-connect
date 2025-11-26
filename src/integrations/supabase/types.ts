@@ -518,6 +518,7 @@ export type Database = {
           content_type: Database["public"]["Enums"]["content_type"]
           created_at: string
           excerpt: string | null
+          faq: Json | null
           featured_image: string | null
           focus_keywords: string[] | null
           id: string
@@ -529,6 +530,7 @@ export type Database = {
           source: string | null
           status: Database["public"]["Enums"]["post_status"]
           title: string
+          tldr: string | null
           updated_at: string
         }
         Insert: {
@@ -537,6 +539,7 @@ export type Database = {
           content_type: Database["public"]["Enums"]["content_type"]
           created_at?: string
           excerpt?: string | null
+          faq?: Json | null
           featured_image?: string | null
           focus_keywords?: string[] | null
           id?: string
@@ -548,6 +551,7 @@ export type Database = {
           source?: string | null
           status?: Database["public"]["Enums"]["post_status"]
           title: string
+          tldr?: string | null
           updated_at?: string
         }
         Update: {
@@ -556,6 +560,7 @@ export type Database = {
           content_type?: Database["public"]["Enums"]["content_type"]
           created_at?: string
           excerpt?: string | null
+          faq?: Json | null
           featured_image?: string | null
           focus_keywords?: string[] | null
           id?: string
@@ -567,6 +572,7 @@ export type Database = {
           source?: string | null
           status?: Database["public"]["Enums"]["post_status"]
           title?: string
+          tldr?: string | null
           updated_at?: string
         }
         Relationships: []

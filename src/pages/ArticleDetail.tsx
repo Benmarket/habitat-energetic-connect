@@ -31,6 +31,8 @@ interface Article {
   meta_description: string;
   content_type: string;
   status: string;
+  tldr: string | null;
+  faq: Array<{ question: string; answer: string }> | null;
   post_categories: {
     categories: {
       id: string;
@@ -78,7 +80,10 @@ const ArticleDetail = () => {
 
       if (error) throw error;
       if (data) {
-        setArticle(data);
+        setArticle({
+          ...data,
+          faq: (Array.isArray(data.faq) ? data.faq : []) as Array<{ question: string; answer: string }>
+        });
         
         // Calculate reading time and extract TOC
         if (data.content) {
@@ -236,6 +241,20 @@ const ArticleDetail = () => {
     keywords: article.post_categories?.map(pc => pc.categories.name).join(", ") || ""
   });
 
+  // Schema FAQ si des questions FAQ existent
+  const faqSchema = article.faq && article.faq.length > 0 ? JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: article.faq.map(item => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer
+      }
+    }))
+  }) : null;
+
   return (
     <>
       <Helmet>
@@ -287,6 +306,12 @@ const ArticleDetail = () => {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: articleSchema }}
       />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: faqSchema }}
+        />
+      )}
 
       <div className="min-h-screen bg-background">
         <Header />
@@ -403,6 +428,18 @@ const ArticleDetail = () => {
                 </p>
               )}
 
+              {/* TL;DR Section */}
+              {article.tldr && (
+                <div className="bg-blue-50 dark:bg-blue-950/30 border-l-4 border-blue-500 p-6 mb-8 rounded-r-lg">
+                  <h2 className="text-xl font-semibold text-blue-700 dark:text-blue-400 mb-3 flex items-center gap-2">
+                    📌 En résumé
+                  </h2>
+                  <div className="text-base text-muted-foreground space-y-2 whitespace-pre-line">
+                    {article.tldr}
+                  </div>
+                </div>
+              )}
+
               {/* Table of contents */}
               {toc.length > 0 && <TableOfContents items={toc} />}
               
@@ -410,6 +447,21 @@ const ArticleDetail = () => {
                 className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground prose-a:text-primary prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl"
                 dangerouslySetInnerHTML={{ __html: contentWithIds }}
               />
+
+              {/* FAQ Section */}
+              {article.faq && article.faq.length > 0 && (
+                <div className="mt-12 pt-8 border-t border-border">
+                  <h2 className="text-3xl font-bold mb-8">Questions fréquentes</h2>
+                  <div className="space-y-6">
+                    {article.faq.map((item, index) => (
+                      <div key={index} className="bg-muted/30 p-6 rounded-lg">
+                        <h3 className="text-xl font-semibold mb-3 text-foreground">{item.question}</h3>
+                        <p className="text-muted-foreground leading-relaxed">{item.answer}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </article>
         </main>

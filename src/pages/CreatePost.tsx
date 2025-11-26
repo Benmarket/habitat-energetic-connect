@@ -32,6 +32,11 @@ const postSchema = z.object({
   meta_title: z.string().trim().max(60, "Le titre SEO ne peut pas dépasser 60 caractères").optional(),
   meta_description: z.string().trim().max(160, "La description SEO ne peut pas dépasser 160 caractères").optional(),
   focus_keywords: z.array(z.string()).optional(),
+  tldr: z.string().trim().max(500, "Le résumé TL;DR ne peut pas dépasser 500 caractères").optional(),
+  faq: z.array(z.object({
+    question: z.string().trim().min(5, "La question doit contenir au moins 5 caractères"),
+    answer: z.string().trim().min(10, "La réponse doit contenir au moins 10 caractères")
+  })).optional(),
 });
 
 interface Category {
@@ -67,6 +72,8 @@ const CreatePost = () => {
     meta_title: "",
     meta_description: "",
     focus_keywords: [] as string[],
+    tldr: "",
+    faq: [] as Array<{ question: string; answer: string }>,
     status: "draft",
     category_id: "",
     tag_ids: [] as string[],
@@ -129,6 +136,8 @@ const CreatePost = () => {
           meta_title: post.meta_title || "",
           meta_description: post.meta_description || "",
           focus_keywords: post.focus_keywords || [],
+          tldr: post.tldr || "",
+          faq: (Array.isArray(post.faq) ? post.faq : []) as Array<{ question: string; answer: string }>,
           status: post.status || "draft",
           category_id: post.post_categories?.[0]?.category_id || "",
           tag_ids: post.post_tags?.map((pt: any) => pt.tag_id) || [],
@@ -289,7 +298,9 @@ const CreatePost = () => {
       featured_image: variant.featuredImageUrl || '',
       meta_title: variant.metaTitle || variant.title?.slice(0, 60) || '',
       meta_description: variant.metaDescription || variant.excerpt?.slice(0, 160) || '',
-      focus_keywords: variant.focusKeywords || prev.focus_keywords
+      focus_keywords: variant.focusKeywords || prev.focus_keywords,
+      tldr: variant.tldr || '',
+      faq: variant.faq || []
     }));
 
     toast.success("Article sélectionné ! Tous les champs ont été remplis.");
@@ -430,6 +441,8 @@ const CreatePost = () => {
         meta_title: formData.meta_title,
         meta_description: formData.meta_description,
         focus_keywords: formData.focus_keywords,
+        tldr: formData.tldr,
+        faq: formData.faq,
       });
 
       if (!formData.category_id) {
@@ -459,6 +472,10 @@ const CreatePost = () => {
       if (validatedData.meta_description) postData.meta_description = validatedData.meta_description;
       if (validatedData.focus_keywords && validatedData.focus_keywords.length > 0) {
         postData.focus_keywords = validatedData.focus_keywords;
+      }
+      if (validatedData.tldr) postData.tldr = validatedData.tldr;
+      if (validatedData.faq && validatedData.faq.length > 0) {
+        postData.faq = validatedData.faq;
       }
       if (status === "published" && !editId) postData.published_at = new Date().toISOString();
 
@@ -703,6 +720,83 @@ const CreatePost = () => {
                       rows={3}
                       maxLength={500}
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="tldr">En résumé (TL;DR) - Optimisation GEO</Label>
+                    <Textarea
+                      id="tldr"
+                      value={formData.tldr}
+                      onChange={(e) => setFormData({ ...formData, tldr: e.target.value })}
+                      placeholder="Résumé court en 3-4 points clés - améliore le référencement IA (ChatGPT, Gemini)"
+                      rows={4}
+                      maxLength={500}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Ce résumé sera affiché au début de l'article. Il aide les IA (ChatGPT, Gemini) à mieux comprendre votre contenu.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Questions FAQ (Facultatif) - Optimisation SEO & GEO</Label>
+                    <div className="space-y-4 border rounded-md p-4 bg-muted/30">
+                      {formData.faq.map((item, index) => (
+                        <div key={index} className="space-y-2 p-3 border rounded-md bg-background">
+                          <div className="flex justify-between items-center">
+                            <Label className="text-sm font-semibold">Question {index + 1}</Label>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setFormData({
+                                  ...formData,
+                                  faq: formData.faq.filter((_, i) => i !== index)
+                                });
+                              }}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <Input
+                            placeholder="Question"
+                            value={item.question}
+                            onChange={(e) => {
+                              const newFaq = [...formData.faq];
+                              newFaq[index].question = e.target.value;
+                              setFormData({ ...formData, faq: newFaq });
+                            }}
+                          />
+                          <Textarea
+                            placeholder="Réponse"
+                            value={item.answer}
+                            rows={3}
+                            onChange={(e) => {
+                              const newFaq = [...formData.faq];
+                              newFaq[index].answer = e.target.value;
+                              setFormData({ ...formData, faq: newFaq });
+                            }}
+                          />
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            faq: [...formData.faq, { question: '', answer: '' }]
+                          });
+                        }}
+                        className="w-full"
+                      >
+                        + Ajouter une question FAQ
+                      </Button>
+                      <p className="text-xs text-muted-foreground">
+                        Les FAQ améliorent votre SEO et aident les IA à mieux référencer votre article. 3-5 questions recommandées.
+                      </p>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
