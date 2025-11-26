@@ -96,19 +96,17 @@ const Dashboard = () => {
                       
                       {profile.account_type === 'professionnel' ? (
                         <>
-                          {profile.company_name && (
-                            <p className="mb-2"><strong>Société:</strong> {profile.company_name}</p>
-                          )}
-                          {(profile.first_name || profile.last_name) && (
-                            <p><strong>Nom du contact:</strong> {[profile.first_name, profile.last_name].filter(Boolean).join(' ')}</p>
-                          )}
+                          <p className="mb-2">
+                            <strong>Société:</strong> {profile.company_name || 'Non renseignée'}
+                          </p>
+                          <p>
+                            <strong>Nom du contact:</strong> {[profile.first_name, profile.last_name].filter(Boolean).join(' ') || 'Non renseigné'}
+                          </p>
                         </>
                       ) : (
-                        <>
-                          {(profile.first_name || profile.last_name) && (
-                            <p><strong>Nom complet:</strong> {[profile.first_name, profile.last_name].filter(Boolean).join(' ')}</p>
-                          )}
-                        </>
+                        <p>
+                          <strong>Nom complet:</strong> {[profile.first_name, profile.last_name].filter(Boolean).join(' ') || 'Non renseigné'}
+                        </p>
                       )}
                     </>
                   )}
