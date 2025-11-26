@@ -24,7 +24,7 @@ const NotFound = () => {
       <div className="min-h-screen bg-background flex flex-col">
         <Header />
         
-        <main className="flex-1 flex items-center justify-center px-4 py-16">
+        <main className="flex-1 flex items-start justify-center px-4 pt-32 pb-16">
           <div className="text-center max-w-2xl mx-auto">
             <div className="mb-8">
               <FileQuestion className="w-24 h-24 mx-auto text-primary opacity-50" />
@@ -51,21 +51,6 @@ const NotFound = () => {
                   Voir les actualités
                 </Button>
               </Link>
-            </div>
-
-            <div className="mt-12 pt-8 border-t border-border">
-              <p className="text-sm text-muted-foreground mb-4">Liens utiles :</p>
-              <div className="flex flex-wrap gap-4 justify-center text-sm">
-                <Link to="/guides" className="text-primary hover:underline">
-                  Nos guides
-                </Link>
-                <Link to="/aides" className="text-primary hover:underline">
-                  Aides & Subventions
-                </Link>
-                <Link to="/connexion" className="text-primary hover:underline">
-                  Se connecter
-                </Link>
-              </div>
             </div>
           </div>
         </main>
