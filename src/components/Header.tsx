@@ -101,12 +101,12 @@ const Header = () => {
               {/* Phone - visible from md */}
               <a 
                 href="tel:0800123456" 
-                className="flex items-center gap-2 px-4 py-1.5 bg-muted/50 hover:bg-muted/70 rounded-full transition-all duration-300 hover:shadow-md border border-border/50"
+                className="flex items-center gap-1.5 px-3 py-1 bg-muted/50 hover:bg-muted/70 rounded-full transition-all duration-300 hover:shadow-md border border-border/50"
               >
-                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10">
-                  <Phone className="w-4 h-4 text-primary" />
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10">
+                  <Phone className="w-3.5 h-3.5 text-primary" />
                 </div>
-                <span className="font-bold text-foreground text-base tracking-wide">0 800 123 456</span>
+                <span className="font-bold text-foreground text-sm tracking-wide">0 800 123 456</span>
               </a>
               
               {/* Installer button - visible from md */}
