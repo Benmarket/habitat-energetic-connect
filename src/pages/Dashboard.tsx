@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Newspaper, BookOpen, HandCoins, Plus, Megaphone, ShieldCheck, Sparkles } from "lucide-react";
+import { Loader2, Newspaper, BookOpen, HandCoins, Plus, Megaphone, ShieldCheck, Sparkles, FileText } from "lucide-react";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -15,6 +15,7 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
   const [role, setRole] = useState<string | null>(null);
   const [hasPermissions, setHasPermissions] = useState(false);
+  const [permissions, setPermissions] = useState<any[]>([]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -56,10 +57,36 @@ const Dashboard = () => {
     if (!user) return;
     const { data } = await supabase
       .from("user_permissions")
-      .select("permission_id")
+      .select(`
+        permission_id,
+        permissions (
+          code,
+          name,
+          description
+        )
+      `)
       .eq("user_id", user.id);
     
-    setHasPermissions(data && data.length > 0);
+    if (data && data.length > 0) {
+      setHasPermissions(true);
+      setPermissions(data.map(p => p.permissions).filter(Boolean));
+    }
+  };
+
+  const getPermissionIcon = (code: string) => {
+    if (code.includes('actualite')) return Newspaper;
+    if (code.includes('guide')) return BookOpen;
+    if (code.includes('aide')) return HandCoins;
+    if (code.includes('annonce')) return Megaphone;
+    return FileText;
+  };
+
+  const getPermissionLabel = (code: string) => {
+    if (code === 'poster_actualite') return 'Actualités';
+    if (code === 'poster_guide') return 'Guides';
+    if (code === 'poster_aide') return 'Aides';
+    if (code === 'poster_annonce') return 'Annonces';
+    return code;
   };
 
   if (loading || !user) {
@@ -129,18 +156,40 @@ const Dashboard = () => {
               {shouldShowRoleCard && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Rôle</CardTitle>
+                    <CardTitle>Rôle & Permissions</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    {role ? (
-                      <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary font-medium capitalize">
-                        {role.replace("_", " ")}
+                  <CardContent className="space-y-4">
+                    {role && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Rôle</p>
+                        <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary font-medium capitalize">
+                          {role.replace("_", " ")}
+                        </div>
                       </div>
-                    ) : hasPermissions ? (
-                      <div className="inline-flex items-center px-3 py-1 rounded-full bg-secondary/10 text-secondary-foreground font-medium">
-                        Contributeur
+                    )}
+                    
+                    {permissions.length > 0 && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Permissions</p>
+                        <div className="flex flex-wrap gap-2">
+                          {permissions.map((permission) => {
+                            const Icon = getPermissionIcon(permission.code);
+                            return (
+                              <div
+                                key={permission.code}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-secondary-foreground text-sm font-medium border border-secondary/20 hover:bg-secondary/70 transition-colors"
+                                title={permission.description || permission.name}
+                              >
+                                <Icon className="w-3.5 h-3.5" />
+                                <span>{getPermissionLabel(permission.code)}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
-                    ) : (
+                    )}
+                    
+                    {!role && permissions.length === 0 && (
                       <p className="text-muted-foreground">Aucun rôle assigné</p>
                     )}
                   </CardContent>
