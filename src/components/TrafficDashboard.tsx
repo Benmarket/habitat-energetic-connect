@@ -3,10 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { TrendingUp, TrendingDown, Eye, Users, FileText, UserPlus, Download, Megaphone, Mail, Navigation } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import PageDetailsModal from "./PageDetailsModal";
 
 const TrafficDashboard = () => {
   const [selectedMonth, setSelectedMonth] = useState("11");
   const [selectedYear, setSelectedYear] = useState("2025");
+  const [selectedPage, setSelectedPage] = useState<string | null>(null);
 
   const months = [
     { value: "1", label: "Jan." },
@@ -114,7 +116,14 @@ const TrafficDashboard = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <>
+      <PageDetailsModal 
+        open={selectedPage !== null} 
+        onOpenChange={(open) => !open && setSelectedPage(null)}
+        pageUrl={selectedPage || ""}
+      />
+      
+      <div className="space-y-6">
       {/* Section 1: SEO et Trafic */}
       <Card className="border-2 shadow-lg">
         <CardHeader>
@@ -169,7 +178,8 @@ const TrafficDashboard = () => {
                 {topPages.map((page, index) => (
                   <div 
                     key={index} 
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                    className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+                    onClick={() => setSelectedPage(page.url)}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-sm truncate">{page.url}</div>
@@ -292,7 +302,8 @@ const TrafficDashboard = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </>
   );
 };
 
