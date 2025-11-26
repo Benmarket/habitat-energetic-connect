@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Newspaper, BookOpen, HandCoins, Plus, Megaphone } from "lucide-react";
+import { Loader2, Newspaper, BookOpen, HandCoins, Plus, Megaphone, ShieldCheck, Sparkles } from "lucide-react";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -107,16 +107,27 @@ const Dashboard = () => {
               </Card>
 
               {(isSuperAdmin || isAdmin || isModerator) && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Administration</CardTitle>
+                <Card className="relative overflow-hidden border-purple-500/50 bg-gradient-to-br from-purple-500/10 via-purple-600/5 to-background shadow-lg hover:shadow-purple-500/20 transition-all duration-300 hover:scale-[1.02]">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl" />
+                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-purple-600/10 rounded-full blur-2xl" />
+                  
+                  <CardHeader className="relative">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg shadow-purple-500/30">
+                        <ShieldCheck className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-purple-600 dark:text-purple-400">Administration</CardTitle>
+                        <Sparkles className="w-4 h-4 text-purple-500 animate-pulse" />
+                      </div>
+                    </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="relative">
                     <p className="text-sm text-muted-foreground mb-4">
-                      Accédez à l'espace d'administration
+                      Accédez à l'espace d'administration et gérez votre plateforme
                     </p>
                     <Link to="/administration">
-                      <Button className="w-full">
+                      <Button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300">
                         Accéder à l'administration
                       </Button>
                     </Link>
