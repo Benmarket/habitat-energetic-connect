@@ -1,15 +1,37 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Eye, Users, FileText, UserPlus, Download, Megaphone, Mail, Navigation } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const TrafficDashboard = () => {
+  const [selectedMonth, setSelectedMonth] = useState("11");
+  const [selectedYear, setSelectedYear] = useState("2025");
+
+  const months = [
+    { value: "1", label: "Jan." },
+    { value: "2", label: "Fév." },
+    { value: "3", label: "Mar." },
+    { value: "4", label: "Avr." },
+    { value: "5", label: "Mai" },
+    { value: "6", label: "Juin" },
+    { value: "7", label: "Juil." },
+    { value: "8", label: "Août" },
+    { value: "9", label: "Sep." },
+    { value: "10", label: "Oct." },
+    { value: "11", label: "Nov." },
+    { value: "12", label: "Déc." }
+  ];
+
+  const years = ["2023", "2024", "2025"];
+
   // Données factices pour SEO et Trafic
   const topPages = [
     { url: "/", views: 350, avgTime: "1m32s", bounce: "38%" },
+    { url: "/actualites", views: 287, avgTime: "1m48s", bounce: "35%" },
     { url: "/guides", views: 215, avgTime: "2m10s", bounce: "34%" },
     { url: "/aides", views: 202, avgTime: "1m05s", bounce: "41%" },
-    { url: "/offres", views: 154, avgTime: "0m54s", bounce: "47%" },
-    { url: "/simulateur", views: 129, avgTime: "1m21s", bounce: "30%" }
+    { url: "/offres", views: 154, avgTime: "0m54s", bounce: "47%" }
   ];
 
   const liveVisitors = 2;
@@ -100,6 +122,32 @@ const TrafficDashboard = () => {
               <CardDescription>Aperçu en direct, pages les plus visitées et santé SEO</CardDescription>
             </div>
             <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                  <SelectTrigger className="w-[120px] rounded-full border-2 border-primary">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {months.map((month) => (
+                      <SelectItem key={month.value} value={month.value}>
+                        {month.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <SelectTrigger className="w-[110px] rounded-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {years.map((year) => (
+                      <SelectItem key={year} value={year}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="text-center">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                   <Eye className="w-4 h-4" />
@@ -189,8 +237,12 @@ const TrafficDashboard = () => {
       {/* Section 2: Statistiques d'inventaire */}
       <Card className="border-2 shadow-lg">
         <CardHeader>
-          <CardTitle className="text-2xl">Vue d'ensemble</CardTitle>
-          <CardDescription>Statistiques synthétiques (données fictives)</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-2xl">Vue d'ensemble</CardTitle>
+              <CardDescription>Statistiques synthétiques pour {months.find(m => m.value === selectedMonth)?.label} {selectedYear}</CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
