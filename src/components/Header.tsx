@@ -102,10 +102,10 @@ const Header = () => {
               {/* WhatsApp - visible from md */}
               <a 
                 href="#whatsapp" 
-                className="flex items-center justify-center w-9 h-9 rounded-full hover:scale-110 transition-all duration-300 hover:shadow-lg"
+                className="flex items-center justify-center w-8 h-8 rounded-full hover:scale-110 transition-all duration-300 hover:shadow-lg"
                 aria-label="Contacter via WhatsApp"
               >
-                <img src={whatsappIcon} alt="WhatsApp" className="w-9 h-9" />
+                <img src={whatsappIcon} alt="WhatsApp" className="w-8 h-8" />
               </a>
               
               {/* Phone - visible from md */}
@@ -271,7 +271,7 @@ const Header = () => {
                 href="#whatsapp"
                 className="flex items-center text-foreground hover:text-primary transition-colors"
               >
-                <img src={whatsappIcon} alt="WhatsApp" className="w-5 h-5 mr-2" />
+                <img src={whatsappIcon} alt="WhatsApp" className="w-[18px] h-[18px] mr-2" />
                 <span className="font-semibold">WhatsApp</span>
               </a>
               <a
