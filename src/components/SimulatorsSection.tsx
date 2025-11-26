@@ -151,7 +151,7 @@ const SimulatorsSection = () => {
                             <img 
                               src={simulator.image} 
                               alt={simulator.title}
-                              className="w-14 h-14 object-contain group-hover:scale-110 transition-transform duration-500"
+                              className={`${simulator.id === 'classe-energetique' ? 'w-10 h-10' : 'w-14 h-14'} object-contain group-hover:scale-110 transition-transform duration-500`}
                             />
                           ) : IconComponent ? (
                             <IconComponent className={`w-10 h-10 bg-gradient-to-br ${simulator.gradient} bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500`} strokeWidth={2.5} />
