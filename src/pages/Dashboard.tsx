@@ -14,6 +14,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [role, setRole] = useState<string | null>(null);
+  const [hasPermissions, setHasPermissions] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -25,6 +26,7 @@ const Dashboard = () => {
     if (user) {
       fetchProfile();
       fetchRole();
+      fetchPermissions();
     }
   }, [user]);
 
@@ -50,6 +52,16 @@ const Dashboard = () => {
     if (data) setRole(data.role);
   };
 
+  const fetchPermissions = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("user_permissions")
+      .select("permission_id")
+      .eq("user_id", user.id);
+    
+    setHasPermissions(data && data.length > 0);
+  };
+
   if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -61,6 +73,7 @@ const Dashboard = () => {
   const isSuperAdmin = role === "super_admin";
   const isAdmin = role === "admin";
   const isModerator = role === "moderator";
+  const shouldShowRoleCard = isSuperAdmin || isAdmin || isModerator || hasPermissions;
 
   return (
     <>
@@ -113,20 +126,26 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Rôle</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {role ? (
-                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary font-medium capitalize">
-                      {role.replace("_", " ")}
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground">Aucun rôle assigné</p>
-                  )}
-                </CardContent>
-              </Card>
+              {shouldShowRoleCard && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Rôle</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {role ? (
+                      <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary font-medium capitalize">
+                        {role.replace("_", " ")}
+                      </div>
+                    ) : hasPermissions ? (
+                      <div className="inline-flex items-center px-3 py-1 rounded-full bg-secondary/10 text-secondary-foreground font-medium">
+                        Contributeur
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground">Aucun rôle assigné</p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
               {(isSuperAdmin || isAdmin || isModerator) && (
                 <Card className="relative overflow-hidden border-purple-500/50 bg-gradient-to-br from-purple-500/10 via-purple-600/5 to-background shadow-lg hover:shadow-purple-500/20 transition-all duration-300 hover:scale-[1.02]">
