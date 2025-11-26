@@ -4,11 +4,17 @@ import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Calendar, ArrowLeft, Tag } from "lucide-react";
+import { Loader2, Calendar, ArrowLeft, Tag, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { ArticleSchema } from "@/components/SEO/ArticleSchema";
+import { OrganizationSchema } from "@/components/SEO/OrganizationSchema";
+import { TableOfContents } from "@/components/TableOfContents";
+import { calculateReadingTime, formatReadingTime } from "@/utils/readingTime";
+import { extractTableOfContents, addHeadingIds } from "@/utils/tableOfContents";
 
 interface Article {
   id: string;
@@ -18,6 +24,7 @@ interface Article {
   content: string;
   featured_image: string;
   published_at: string;
+  updated_at: string;
   meta_title: string;
   meta_description: string;
   content_type: string;
@@ -42,6 +49,9 @@ const ArticleDetail = () => {
   const { categorySlug, slug } = useParams();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
+  const [contentWithIds, setContentWithIds] = useState("");
+  const [toc, setToc] = useState<Array<{ id: string; text: string; level: number }>>([]);
+  const [readingTime, setReadingTime] = useState(0);
 
   useEffect(() => {
     fetchArticle();
@@ -50,7 +60,6 @@ const ArticleDetail = () => {
   const fetchArticle = async () => {
     setLoading(true);
     try {
-      // Essayer d'abord de charger l'article sans filtre de statut
       const { data, error } = await supabase
         .from("posts")
         .select(`
@@ -66,7 +75,17 @@ const ArticleDetail = () => {
         .maybeSingle();
 
       if (error) throw error;
-      if (data) setArticle(data);
+      if (data) {
+        setArticle(data);
+        
+        // Calculate reading time and extract TOC
+        if (data.content) {
+          setReadingTime(calculateReadingTime(data.content));
+          const contentWithHeadingIds = addHeadingIds(data.content);
+          setContentWithIds(contentWithHeadingIds);
+          setToc(extractTableOfContents(contentWithHeadingIds));
+        }
+      }
     } catch (error) {
       console.error("Error fetching article:", error);
     } finally {
@@ -113,7 +132,6 @@ const ArticleDetail = () => {
     );
   }
 
-  // Si l'article existe mais n'est pas publié
   if (article.status !== "published") {
     const backLink = article.content_type === "aide" ? "/aides" : "/actualites";
     const backText = article.content_type === "aide" ? "aides" : "actualités";
@@ -144,29 +162,89 @@ const ArticleDetail = () => {
 
   const category = article.post_categories?.[0]?.categories;
   const basePath = article.content_type === "actualite" ? "actualites" : article.content_type === "guide" ? "guides" : "aides";
+  const currentUrl = `https://prime-energies.fr/${basePath}/${article.slug}`;
+  
+  const breadcrumbItems = [
+    {
+      name: article.content_type === "aide" ? "Aides" : article.content_type === "guide" ? "Guides" : "Actualités",
+      url: `/${basePath}`,
+    },
+    {
+      name: article.title,
+      url: currentUrl,
+    },
+  ];
 
   return (
     <>
+      <OrganizationSchema />
+      <ArticleSchema
+        title={article.meta_title || article.title}
+        description={article.meta_description || article.excerpt || ""}
+        imageUrl={article.featured_image}
+        publishedDate={article.published_at || undefined}
+        modifiedDate={article.updated_at}
+        categories={article.post_categories?.map((pc) => pc.categories.name) || []}
+        url={currentUrl}
+      />
       <Helmet>
         <title>{article.meta_title || article.title}</title>
-        <meta 
-          name="description" 
-          content={article.meta_description || article.excerpt} 
+        <meta
+          name="description"
+          content={article.meta_description || article.excerpt}
         />
-        <meta property="og:title" content={article.meta_title || article.title} />
-        <meta property="og:description" content={article.meta_description || article.excerpt} />
-        <meta property="og:image" content={article.featured_image} />
+        <link rel="canonical" href={currentUrl} />
+        
+        {/* Open Graph / Facebook */}
         <meta property="og:type" content="article" />
-        <meta property="article:published_time" content={article.published_at} />
+        <meta property="og:url" content={currentUrl} />
+        <meta property="og:title" content={article.meta_title || article.title} />
+        <meta
+          property="og:description"
+          content={article.meta_description || article.excerpt}
+        />
+        <meta property="og:site_name" content="Prime Énergies" />
+        <meta property="og:locale" content="fr_FR" />
+        {article.featured_image && (
+          <>
+            <meta property="og:image" content={article.featured_image} />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+          </>
+        )}
+        {article.published_at && (
+          <meta property="article:published_time" content={article.published_at} />
+        )}
+        {article.updated_at && (
+          <meta property="article:modified_time" content={article.updated_at} />
+        )}
+        {category && (
+          <meta property="article:section" content={category.name} />
+        )}
+        {article.post_tags?.map((pt) => (
+          <meta key={pt.tags.id} property="article:tag" content={pt.tags.name} />
+        ))}
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content={currentUrl} />
+        <meta name="twitter:title" content={article.meta_title || article.title} />
+        <meta
+          name="twitter:description"
+          content={article.meta_description || article.excerpt}
+        />
+        {article.featured_image && (
+          <meta name="twitter:image" content={article.featured_image} />
+        )}
       </Helmet>
 
       <div className="min-h-screen bg-background">
         <Header />
+        <Breadcrumb items={breadcrumbItems} />
         
         <main className="pt-20">
           {/* Hero Section */}
           {article.featured_image ? (
-            // Hero avec image (pour actualités)
             <section className="relative h-[400px] lg:h-[500px] overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 z-10" />
               <img
@@ -193,15 +271,22 @@ const ArticleDetail = () => {
                   <h1 className="text-3xl lg:text-5xl font-bold text-white mb-4 max-w-4xl">
                     {article.title}
                   </h1>
-                  <div className="flex items-center text-white/90 text-sm">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    {format(new Date(article.published_at), "d MMMM yyyy", { locale: fr })}
+                  <div className="flex flex-wrap items-center gap-4 text-white/90 text-sm">
+                    {article.published_at && (
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4" />
+                        {format(new Date(article.published_at), "d MMMM yyyy", { locale: fr })}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      {formatReadingTime(readingTime)}
+                    </div>
                   </div>
                 </div>
               </div>
             </section>
           ) : (
-            // Hero simple (pour aides sans image)
             <section className="bg-muted py-16">
               <div className="container mx-auto px-4">
                 <Link 
@@ -221,9 +306,23 @@ const ArticleDetail = () => {
                 <h1 className="text-3xl lg:text-5xl font-bold text-foreground mb-4 max-w-4xl">
                   {article.title}
                 </h1>
-                <div className="flex items-center text-muted-foreground text-sm">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  {format(new Date(article.published_at), "d MMMM yyyy", { locale: fr })}
+                <div className="flex flex-wrap items-center gap-4 text-muted-foreground text-sm">
+                  {article.published_at && (
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      {format(new Date(article.published_at), "d MMMM yyyy", { locale: fr })}
+                    </div>
+                  )}
+                  {article.updated_at && article.updated_at !== article.published_at && (
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      Mis à jour le {format(new Date(article.updated_at), "d MMMM yyyy", { locale: fr })}
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    {formatReadingTime(readingTime)}
+                  </div>
                 </div>
               </div>
             </section>
@@ -253,10 +352,13 @@ const ArticleDetail = () => {
                   {article.excerpt}
                 </p>
               )}
+
+              {/* Table of contents */}
+              {toc.length > 0 && <TableOfContents items={toc} />}
               
               <div 
                 className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground prose-a:text-primary prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl"
-                dangerouslySetInnerHTML={{ __html: article.content }}
+                dangerouslySetInnerHTML={{ __html: contentWithIds }}
               />
             </div>
           </article>

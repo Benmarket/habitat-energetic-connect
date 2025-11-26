@@ -1,0 +1,97 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Fetch all published posts
+    const { data: posts, error } = await supabase
+      .from("posts")
+      .select("slug, content_type, updated_at, published_at")
+      .eq("status", "published")
+      .order("updated_at", { ascending: false });
+
+    if (error) throw error;
+
+    const baseUrl = "https://prime-energies.fr";
+    const currentDate = new Date().toISOString();
+
+    // Build sitemap XML
+    let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+
+    // Homepage
+    sitemap += `  <url>
+    <loc>${baseUrl}/</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>\n`;
+
+    // Static pages
+    const staticPages = [
+      { url: "/actualites", priority: "0.9", changefreq: "daily" },
+      { url: "/guides", priority: "0.9", changefreq: "weekly" },
+      { url: "/aides", priority: "0.9", changefreq: "weekly" },
+    ];
+
+    staticPages.forEach((page) => {
+      sitemap += `  <url>
+    <loc>${baseUrl}${page.url}</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>${page.changefreq}</changefreq>
+    <priority>${page.priority}</priority>
+  </url>\n`;
+    });
+
+    // Dynamic content
+    posts?.forEach((post) => {
+      const contentPath =
+        post.content_type === "actualite"
+          ? "actualites"
+          : post.content_type === "guide"
+          ? "guides"
+          : "aides";
+      const priority = post.content_type === "actualite" ? "0.8" : "0.7";
+      const changefreq =
+        post.content_type === "actualite" ? "weekly" : "monthly";
+
+      sitemap += `  <url>
+    <loc>${baseUrl}/${contentPath}/${post.slug}</loc>
+    <lastmod>${post.updated_at || post.published_at}</lastmod>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
+  </url>\n`;
+    });
+
+    sitemap += "</urlset>";
+
+    return new Response(sitemap, {
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/xml",
+        "Cache-Control": "public, max-age=3600",
+      },
+    });
+  } catch (error) {
+    console.error("Error generating sitemap:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
