@@ -273,10 +273,8 @@ export const ChatBot = () => {
           aria-label="Ouvrir le chatbot"
         >
           {/* Circle with icon */}
-          <div className="relative h-14 w-14 rounded-full bg-blue-900 flex items-center justify-center shadow-[0_8px_30px_rgb(30,64,175,0.3)] z-10 group-hover:bg-blue-800 group-hover:shadow-[0_12px_40px_rgb(30,64,175,0.4)] transition-all duration-300">
+          <div className="h-14 w-14 rounded-full bg-blue-900 flex items-center justify-center shadow-[0_8px_30px_rgb(30,64,175,0.3)] z-10 group-hover:bg-blue-800 group-hover:shadow-[0_12px_40px_rgb(30,64,175,0.4)] transition-all duration-300">
             <MessageCircle className="h-6 w-6 text-white" />
-            {/* Subtle pulse animation */}
-            <div className="absolute inset-0 rounded-full bg-blue-900 animate-ping opacity-20"></div>
           </div>
           {/* Text rectangle */}
           <div className="bg-white border-2 border-blue-900 rounded-full pl-8 pr-5 py-3 -ml-6 shadow-[0_4px_20px_rgba(0,0,0,0.08)] group-hover:shadow-[0_6px_25px_rgba(0,0,0,0.12)] transition-all duration-300">
