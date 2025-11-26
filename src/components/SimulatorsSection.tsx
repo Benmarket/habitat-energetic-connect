@@ -108,7 +108,7 @@ const SimulatorsSection = () => {
           <div className="inline-flex items-center gap-3 mb-6 bg-gradient-to-r from-primary/20 to-accent/20 px-8 py-4 rounded-full backdrop-blur-sm border border-primary/20 shadow-lg">
             <Zap className="w-7 h-7 text-primary animate-pulse" />
             <h2 className="text-5xl flex items-center gap-2">
-              <span className="text-blue-800 font-poppins font-semibold">Simulateurs</span>
+              <span className="text-blue-800 font-condensed font-semibold uppercase tracking-tight">Simulateurs</span>
               <span className="text-primary font-extrabold">Prime</span>
               <span className="text-foreground font-extrabold">énergies</span>
             </h2>
