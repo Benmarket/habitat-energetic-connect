@@ -168,6 +168,10 @@ const ArticleDetail = () => {
   
   const breadcrumbItems = [
     {
+      name: "Accueil",
+      url: "https://prime-energies.fr",
+    },
+    {
       name: article.content_type === "aide" ? "Aides" : article.content_type === "guide" ? "Guides" : "Actualités",
       url: `/${basePath}`,
     },
