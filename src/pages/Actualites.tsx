@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { useSearchParams } from "react-router-dom";
+import { CollectionPageSchema } from "@/components/SEO/CollectionPageSchema";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
@@ -94,7 +95,28 @@ const Actualites = () => {
           name="description" 
           content="Restez informés des dernières innovations, aides publiques et tendances du secteur des énergies renouvelables" 
         />
+        <link rel="canonical" href="https://prime-energies.fr/actualites" />
+        <meta property="og:url" content="https://prime-energies.fr/actualites" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Actualités Énergies Renouvelables | Prime Énergies" />
+        <meta property="og:description" content="Restez informés des dernières innovations, aides publiques et tendances du secteur des énergies renouvelables" />
+        <meta property="og:locale" content="fr_FR" />
+        <meta property="og:site_name" content="Prime Énergies" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Actualités Énergies Renouvelables | Prime Énergies" />
+        <meta name="twitter:description" content="Restez informés des dernières innovations, aides publiques et tendances du secteur des énergies renouvelables" />
       </Helmet>
+      <CollectionPageSchema
+        name="Actualités Énergies Renouvelables"
+        description="Restez informés des dernières innovations, aides publiques et tendances du secteur des énergies renouvelables"
+        url="https://prime-energies.fr/actualites"
+        items={posts.map((post) => ({
+          title: post.title,
+          url: `https://prime-energies.fr/actualites/${post.categorySlug}/${post.slug}`,
+          description: post.excerpt || "",
+          imageUrl: post.featuredImage || undefined,
+        }))}
+      />
 
       <div className="min-h-screen bg-background">
         <Header />

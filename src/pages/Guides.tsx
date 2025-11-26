@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { supabase } from "@/integrations/supabase/client";
+import { CollectionPageSchema } from "@/components/SEO/CollectionPageSchema";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
@@ -70,7 +71,28 @@ const Guides = () => {
           name="description" 
           content="Découvrez tous nos guides complets pour optimiser vos projets de rénovation énergétique et bénéficier des primes et aides disponibles en 2025." 
         />
+        <link rel="canonical" href="https://prime-energies.fr/guides" />
+        <meta property="og:url" content="https://prime-energies.fr/guides" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Guides Prime Énergies 2025 | Tous nos guides experts" />
+        <meta property="og:description" content="Découvrez tous nos guides complets pour optimiser vos projets de rénovation énergétique et bénéficier des primes et aides disponibles en 2025." />
+        <meta property="og:locale" content="fr_FR" />
+        <meta property="og:site_name" content="Prime Énergies" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Guides Prime Énergies 2025 | Tous nos guides experts" />
+        <meta name="twitter:description" content="Découvrez tous nos guides complets pour optimiser vos projets de rénovation énergétique et bénéficier des primes et aides disponibles en 2025." />
       </Helmet>
+      <CollectionPageSchema
+        name="Guides Prime Énergies 2025"
+        description="Découvrez tous nos guides complets pour optimiser vos projets de rénovation énergétique et bénéficier des primes et aides disponibles en 2025."
+        url="https://prime-energies.fr/guides"
+        items={guides.map((guide) => ({
+          title: guide.title,
+          url: `https://prime-energies.fr/guide/${guide.slug}`,
+          description: guide.excerpt || "",
+          imageUrl: guide.featured_image || undefined,
+        }))}
+      />
 
       <div className="min-h-screen bg-background">
         <Header />

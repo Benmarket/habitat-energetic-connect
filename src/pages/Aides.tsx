@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { useSearchParams, Link } from "react-router-dom";
+import { CollectionPageSchema } from "@/components/SEO/CollectionPageSchema";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -111,12 +112,32 @@ const Aides = () => {
   return (
     <>
       <Helmet>
-        <title>Aides & Subventions Énergies Renouvelables | Prime Énergies</title>
+        <title>Aides & Subventions Énergies Renouvelables 2025 | Prime Énergies</title>
         <meta 
           name="description" 
           content="Découvrez toutes les aides financières disponibles pour votre projet d'énergies renouvelables : CEE, MaPrimeRénov, TVA réduite" 
         />
+        <link rel="canonical" href="https://prime-energies.fr/aides" />
+        <meta property="og:url" content="https://prime-energies.fr/aides" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Aides & Subventions Énergies Renouvelables 2025 | Prime Énergies" />
+        <meta property="og:description" content="Découvrez toutes les aides financières disponibles pour votre projet d'énergies renouvelables : CEE, MaPrimeRénov, TVA réduite" />
+        <meta property="og:locale" content="fr_FR" />
+        <meta property="og:site_name" content="Prime Énergies" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Aides & Subventions Énergies Renouvelables 2025 | Prime Énergies" />
+        <meta name="twitter:description" content="Découvrez toutes les aides financières disponibles pour votre projet d'énergies renouvelables : CEE, MaPrimeRénov, TVA réduite" />
       </Helmet>
+      <CollectionPageSchema
+        name="Aides & Subventions Énergies Renouvelables 2025"
+        description="Découvrez toutes les aides financières disponibles pour votre projet d'énergies renouvelables : CEE, MaPrimeRénov, TVA réduite"
+        url="https://prime-energies.fr/aides"
+        items={posts.map((post) => ({
+          title: post.title,
+          url: `https://prime-energies.fr/aide/${post.slug}`,
+          description: post.excerpt || "",
+        }))}
+      />
 
       <div className="min-h-screen bg-background">
         <Header />
@@ -125,7 +146,7 @@ const Aides = () => {
           <section className="bg-muted py-16">
             <div className="container mx-auto px-4">
               <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-4">
-                Aides & Subventions 2024
+                Aides & Subventions 2025
               </h1>
               <p className="text-xl text-muted-foreground max-w-3xl">
                 Toutes les aides financières disponibles pour financer vos travaux de rénovation énergétique
