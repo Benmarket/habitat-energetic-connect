@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, Twitter, Linkedin, Youtube } from "lucide-react";
+import { Facebook, Twitter, Linkedin, Youtube, MessageCircle } from "lucide-react";
 import { NewsletterForm } from "@/components/NewsletterForm";
 
 const Footer = () => {
@@ -31,6 +31,9 @@ const Footer = () => {
               </a>
               <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="YouTube">
                 <Youtube className="w-5 h-5" />
+              </a>
+              <a href="#whatsapp" className="text-white/60 hover:text-white transition-colors" aria-label="WhatsApp">
+                <MessageCircle className="w-5 h-5" />
               </a>
             </div>
           </div>
