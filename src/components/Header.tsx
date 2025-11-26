@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Phone, User, Home, BarChart3, MessageCircle, Users, LogOut, ChevronDown, Settings, MessageCircleMore } from "lucide-react";
+import { Menu, X, Phone, User, Home, BarChart3, MessageCircle, Users, LogOut, ChevronDown, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { MegaMenu } from "@/components/MegaMenu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthModal } from "@/components/AuthModal";
+import whatsappIcon from "@/assets/whatsapp-icon.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -101,10 +102,10 @@ const Header = () => {
               {/* WhatsApp - visible from md */}
               <a 
                 href="#whatsapp" 
-                className="flex items-center justify-center w-9 h-9 rounded-full bg-[#25D366] hover:bg-[#20BD5A] transition-all duration-300 hover:shadow-md"
+                className="flex items-center justify-center w-9 h-9 rounded-full hover:scale-110 transition-all duration-300 hover:shadow-lg"
                 aria-label="Contacter via WhatsApp"
               >
-                <MessageCircleMore className="w-5 h-5 text-white" />
+                <img src={whatsappIcon} alt="WhatsApp" className="w-9 h-9" />
               </a>
               
               {/* Phone - visible from md */}
@@ -270,7 +271,7 @@ const Header = () => {
                 href="#whatsapp"
                 className="flex items-center text-foreground hover:text-primary transition-colors"
               >
-                <MessageCircleMore className="w-4 h-4 mr-2" />
+                <img src={whatsappIcon} alt="WhatsApp" className="w-5 h-5 mr-2" />
                 <span className="font-semibold">WhatsApp</span>
               </a>
               <a
