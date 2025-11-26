@@ -117,6 +117,22 @@ export const ChatBot = () => {
     if (!conversationId || hasRequestedAgent) return;
 
     try {
+      // Check if there's already a pending request
+      const { data: existing } = await supabase
+        .from('chat_agent_requests')
+        .select('id')
+        .eq('conversation_id', conversationId)
+        .eq('status', 'pending')
+        .single();
+
+      if (existing) {
+        toast({
+          title: "Demande déjà envoyée",
+          description: "Un agent va vous répondre dans quelques instants.",
+        });
+        return;
+      }
+
       // Update conversation status
       await supabase
         .from('chat_conversations')

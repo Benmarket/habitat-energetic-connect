@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,6 +41,7 @@ export default function ChatSupport() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     if (!user) {
@@ -83,22 +84,25 @@ export default function ChatSupport() {
 
     loadPendingRequests();
 
+    // Check if there's a conversation parameter in URL
+    const conversationParam = searchParams.get('conversation');
+    if (conversationParam) {
+      setSelectedConversation(conversationParam);
+    }
+
     // Subscribe to new agent requests
     const channel = supabase
       .channel('agent-requests')
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*',
           schema: 'public',
           table: 'chat_agent_requests',
+          filter: 'status=eq.pending',
         },
         () => {
           loadPendingRequests();
-          toast({
-            title: "Nouvelle demande",
-            description: "Un utilisateur demande à parler à un agent.",
-          });
         }
       )
       .subscribe();
@@ -106,7 +110,7 @@ export default function ChatSupport() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userRole]);
+  }, [userRole, searchParams]);
 
   useEffect(() => {
     if (selectedConversation) {
@@ -194,7 +198,7 @@ export default function ChatSupport() {
     if (!user) return;
 
     // Update request status
-    await supabase
+    const { error } = await supabase
       .from('chat_agent_requests')
       .update({
         status: 'accepted',
@@ -202,6 +206,16 @@ export default function ChatSupport() {
         accepted_at: new Date().toISOString(),
       })
       .eq('id', requestId);
+
+    if (error) {
+      console.error('Error accepting request:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'accepter la demande.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     // Update conversation status
     await supabase
