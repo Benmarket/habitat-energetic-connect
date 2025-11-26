@@ -114,56 +114,58 @@ const HeroSection = () => {
 
       {/* Content */}
       <div className="container mx-auto px-4 relative z-20">
-        <div className="flex flex-col lg:flex-row gap-8 items-center justify-center lg:items-start max-w-[1200px] mx-auto">
-          {/* Left: Hero text and buttons */}
-          <div className="text-white w-full lg:w-auto flex-shrink-0">
-            <h1 className="text-4xl lg:text-5xl font-bold mb-5 leading-tight max-w-[550px]">
-              Réduisez vos factures énergétiques jusqu'à 80% !
-            </h1>
-            <p className="text-base lg:text-lg mb-6 text-white/90 max-w-[480px]">
-              Bénéficiez d'une étude énergétique gratuite et découvrez les travaux
-              subventionnés adaptés à votre logement
-            </p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-[1200px] mx-auto">
+          {/* Left cell: Hero text and buttons - centered content */}
+          <div className="flex flex-col items-center lg:items-start justify-center text-white">
+            <div className="w-full max-w-[550px]">
+              <h1 className="text-4xl lg:text-5xl font-bold mb-5 leading-tight text-center lg:text-left">
+                Réduisez vos factures énergétiques jusqu'à 80% !
+              </h1>
+              <p className="text-base lg:text-lg mb-6 text-white/90 text-center lg:text-left">
+                Bénéficiez d'une étude énergétique gratuite et découvrez les travaux
+                subventionnés adaptés à votre logement
+              </p>
 
-            {/* Quick action buttons - tailles fixes */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8 w-full sm:w-auto">
-              <Link 
-                to="/offres/panneaux-solaires"
-                className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg w-full sm:w-[280px]"
-              >
-                <Sun className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-                <span className="text-white font-semibold text-sm">Panneaux solaires</span>
-              </Link>
+              {/* Quick action buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8 w-full">
+                <Link 
+                  to="/offres/panneaux-solaires"
+                  className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                >
+                  <Sun className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm">Panneaux solaires</span>
+                </Link>
 
-              <Link 
-                to="/offres/pompe-a-chaleur"
-                className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg w-full sm:w-[280px]"
-              >
-                <Droplets className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                <span className="text-white font-semibold text-sm">Pompe à chaleur</span>
-              </Link>
+                <Link 
+                  to="/offres/pompe-a-chaleur"
+                  className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                >
+                  <Droplets className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm">Pompe à chaleur</span>
+                </Link>
 
-              <Link 
-                to="/offres/isolation"
-                className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg w-full sm:w-[280px]"
-              >
-                <Home className="w-5 h-5 text-green-400 flex-shrink-0" />
-                <span className="text-white font-semibold text-sm">Isolation</span>
-              </Link>
+                <Link 
+                  to="/offres/isolation"
+                  className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                >
+                  <Home className="w-5 h-5 text-green-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm">Isolation</span>
+                </Link>
 
-              <Link 
-                to="/aides"
-                className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg w-full sm:w-[280px]"
-              >
-                <HandCoins className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-                <span className="text-white font-semibold text-sm">Aides & Subventions</span>
-              </Link>
+                <Link 
+                  to="/aides"
+                  className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                >
+                  <HandCoins className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm">Aides & Subventions</span>
+                </Link>
+              </div>
             </div>
           </div>
 
-          {/* Right: Form placeholder */}
-          <div className="w-full lg:w-[480px] flex-shrink-0">
-            <div className="bg-white rounded-xl shadow-2xl p-7 w-full mx-auto lg:mx-0">
+          {/* Right cell: Form - centered content */}
+          <div className="flex items-center justify-center">
+            <div className="bg-white rounded-xl shadow-2xl p-7 w-full max-w-[480px]">
               <h2 className="text-2xl font-bold text-foreground mb-2">
                 Étude énergétique gratuite
               </h2>
