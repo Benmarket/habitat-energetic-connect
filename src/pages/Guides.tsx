@@ -82,17 +82,19 @@ const Guides = () => {
         <meta name="twitter:title" content="Guides Prime Énergies 2025 | Tous nos guides experts" />
         <meta name="twitter:description" content="Découvrez tous nos guides complets pour optimiser vos projets de rénovation énergétique et bénéficier des primes et aides disponibles en 2025." />
       </Helmet>
-      <CollectionPageSchema
-        name="Guides Prime Énergies 2025"
-        description="Découvrez tous nos guides complets pour optimiser vos projets de rénovation énergétique et bénéficier des primes et aides disponibles en 2025."
-        url="https://prime-energies.fr/guides"
-        items={guides.map((guide) => ({
-          title: guide.title,
-          url: `https://prime-energies.fr/guide/${guide.slug}`,
-          description: guide.excerpt || "",
-          imageUrl: guide.featured_image || undefined,
-        }))}
-      />
+      {!loading && guides.length > 0 && (
+        <CollectionPageSchema
+          name="Guides Prime Énergies 2025"
+          description="Découvrez tous nos guides complets pour optimiser vos projets de rénovation énergétique et bénéficier des primes et aides disponibles en 2025."
+          url="https://prime-energies.fr/guides"
+          items={guides.map((guide) => ({
+            title: guide.title,
+            url: `https://prime-energies.fr/guide/${guide.slug}`,
+            description: guide.excerpt || "",
+            imageUrl: guide.featured_image || undefined,
+          }))}
+        />
+      )}
 
       <div className="min-h-screen bg-background">
         <Header />

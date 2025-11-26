@@ -128,16 +128,18 @@ const Aides = () => {
         <meta name="twitter:title" content="Aides & Subventions Énergies Renouvelables 2025 | Prime Énergies" />
         <meta name="twitter:description" content="Découvrez toutes les aides financières disponibles pour votre projet d'énergies renouvelables : CEE, MaPrimeRénov, TVA réduite" />
       </Helmet>
-      <CollectionPageSchema
-        name="Aides & Subventions Énergies Renouvelables 2025"
-        description="Découvrez toutes les aides financières disponibles pour votre projet d'énergies renouvelables : CEE, MaPrimeRénov, TVA réduite"
-        url="https://prime-energies.fr/aides"
-        items={posts.map((post) => ({
-          title: post.title,
-          url: `https://prime-energies.fr/aide/${post.slug}`,
-          description: post.excerpt || "",
-        }))}
-      />
+      {!loading && posts.length > 0 && (
+        <CollectionPageSchema
+          name="Aides & Subventions Énergies Renouvelables 2025"
+          description="Découvrez toutes les aides financières disponibles pour votre projet d'énergies renouvelables : CEE, MaPrimeRénov, TVA réduite"
+          url="https://prime-energies.fr/aides"
+          items={posts.map((post) => ({
+            title: post.title,
+            url: `https://prime-energies.fr/aide/${post.slug}`,
+            description: post.excerpt || "",
+          }))}
+        />
+      )}
 
       <div className="min-h-screen bg-background">
         <Header />

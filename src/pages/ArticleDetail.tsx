@@ -367,11 +367,13 @@ const ArticleDetail = () => {
             </div>
           </article>
         </main>
-        <RelatedArticles
-          currentArticleId={article.id}
-          categorySlug={article.post_categories?.[0]?.categories?.slug}
-          contentType={article.content_type as ContentType}
-        />
+        {article && (
+          <RelatedArticles
+            currentArticleId={article.id}
+            categorySlug={article.post_categories?.[0]?.categories?.slug}
+            contentType={article.content_type as ContentType}
+          />
+        )}
         <Footer />
       </div>
     </>

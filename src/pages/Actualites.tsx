@@ -106,17 +106,19 @@ const Actualites = () => {
         <meta name="twitter:title" content="Actualités Énergies Renouvelables | Prime Énergies" />
         <meta name="twitter:description" content="Restez informés des dernières innovations, aides publiques et tendances du secteur des énergies renouvelables" />
       </Helmet>
-      <CollectionPageSchema
-        name="Actualités Énergies Renouvelables"
-        description="Restez informés des dernières innovations, aides publiques et tendances du secteur des énergies renouvelables"
-        url="https://prime-energies.fr/actualites"
-        items={posts.map((post) => ({
-          title: post.title,
-          url: `https://prime-energies.fr/actualites/${post.categorySlug}/${post.slug}`,
-          description: post.excerpt || "",
-          imageUrl: post.featuredImage || undefined,
-        }))}
-      />
+      {!loading && posts.length > 0 && (
+        <CollectionPageSchema
+          name="Actualités Énergies Renouvelables"
+          description="Restez informés des dernières innovations, aides publiques et tendances du secteur des énergies renouvelables"
+          url="https://prime-energies.fr/actualites"
+          items={posts.map((post) => ({
+            title: post.title,
+            url: `https://prime-energies.fr/actualites/${post.categorySlug}/${post.slug}`,
+            description: post.excerpt || "",
+            imageUrl: post.featuredImage || undefined,
+          }))}
+        />
+      )}
 
       <div className="min-h-screen bg-background">
         <Header />
