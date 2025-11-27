@@ -34,8 +34,8 @@ const CookieBanner = () => {
     buttonColor: '#16a34a',
     buttonTextColor: '#ffffff',
     refuseButtonText: 'Je refuse',
-    refuseButtonBgColor: 'transparent',
-    refuseButtonTextColor: '#ffffff',
+    refuseButtonBgColor: '#ffffff',
+    refuseButtonTextColor: '#000000',
     refuseButtonBorderColor: '#ffffff',
     refuseBanner: {
       enabled: true,
