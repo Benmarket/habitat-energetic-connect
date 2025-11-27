@@ -29,6 +29,9 @@ import AdminSettings from "./pages/AdminSettings";
 import AdminNewsletter from "./pages/AdminNewsletter";
 import NotFound from "./pages/NotFound";
 import Sitemap from "./pages/Sitemap";
+import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
+import ConditionsUtilisation from "./pages/ConditionsUtilisation";
+import MentionsLegales from "./pages/MentionsLegales";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +70,9 @@ const App = () => (
               <Route path="/admin/parametres" element={<AdminSettings />} />
               <Route path="/admin/newsletter" element={<AdminNewsletter />} />
               <Route path="/sitemap.xml" element={<Sitemap />} />
+              <Route path="/mentions-legales" element={<MentionsLegales />} />
+              <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+              <Route path="/conditions-utilisation" element={<ConditionsUtilisation />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

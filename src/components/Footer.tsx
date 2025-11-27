@@ -119,9 +119,6 @@ const Footer = () => {
             <Link to="/conditions-utilisation" className="hover:text-white transition-colors">
               Conditions d'utilisation
             </Link>
-            <Link to="/rgpd" className="hover:text-white transition-colors">
-              RGPD
-            </Link>
             <Link to="/plan-du-site" className="hover:text-white transition-colors">
               Plan du site
             </Link>
