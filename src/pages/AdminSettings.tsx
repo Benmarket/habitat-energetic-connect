@@ -116,6 +116,14 @@ const AdminSettings = () => {
     textColor: '#ffffff',
     buttonColor: '#16a34a',
     buttonTextColor: '#ffffff',
+    refuseBanner: {
+      enabled: true,
+      text: "Nous respectons votre choix, mais sans cookies, certaines fonctionnalités du site seront limitées. Vous ne pourrez pas bénéficier d'une expérience personnalisée ni accéder à tous nos services.",
+      backgroundColor: '#ef4444',
+      textColor: '#ffffff',
+      buttonColor: '#dc2626',
+      buttonTextColor: '#ffffff',
+    },
   });
 
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -220,6 +228,14 @@ const AdminSettings = () => {
           textColor: value.textColor || '#ffffff',
           buttonColor: value.buttonColor || '#16a34a',
           buttonTextColor: value.buttonTextColor || '#ffffff',
+          refuseBanner: {
+            enabled: value.refuseBanner?.enabled ?? true,
+            text: value.refuseBanner?.text || "Nous respectons votre choix, mais sans cookies, certaines fonctionnalités du site seront limitées. Vous ne pourrez pas bénéficier d'une expérience personnalisée ni accéder à tous nos services.",
+            backgroundColor: value.refuseBanner?.backgroundColor || '#ef4444',
+            textColor: value.refuseBanner?.textColor || '#ffffff',
+            buttonColor: value.refuseBanner?.buttonColor || '#dc2626',
+            buttonTextColor: value.refuseBanner?.buttonTextColor || '#ffffff',
+          },
         });
       }
     } catch (error) {
@@ -1005,14 +1021,200 @@ const AdminSettings = () => {
                     }}
                   >
                     <p className="text-sm mb-3">{cookieBanner.text}</p>
+                    <div className="flex gap-2">
+                      <button
+                        className="px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90"
+                        style={{
+                          backgroundColor: cookieBanner.buttonColor,
+                          color: cookieBanner.buttonTextColor
+                        }}
+                      >
+                        J'accepte
+                      </button>
+                      <button
+                        className="px-4 py-2 rounded-lg text-sm font-medium border-2 transition-opacity hover:opacity-90"
+                        style={{
+                          backgroundColor: 'transparent',
+                          color: cookieBanner.textColor,
+                          borderColor: cookieBanner.textColor
+                        }}
+                      >
+                        Je refuse
+                      </button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Bannière de refus des cookies */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Bannière de refus des cookies</CardTitle>
+                  <CardDescription>
+                    Configurez la bannière affichée quand l'utilisateur refuse les cookies
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="refuseBannerEnabled" className="text-base">
+                        Activer la bannière de refus
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Afficher une bannière explicative quand l'utilisateur refuse les cookies
+                      </p>
+                    </div>
+                    <Switch
+                      id="refuseBannerEnabled"
+                      checked={cookieBanner.refuseBanner.enabled}
+                      onCheckedChange={(checked) => 
+                        setCookieBanner({ 
+                          ...cookieBanner, 
+                          refuseBanner: { ...cookieBanner.refuseBanner, enabled: checked }
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="refuseBannerText">Texte de la bannière de refus</Label>
+                    <Textarea
+                      id="refuseBannerText"
+                      value={cookieBanner.refuseBanner.text}
+                      onChange={(e) => setCookieBanner({ 
+                        ...cookieBanner, 
+                        refuseBanner: { ...cookieBanner.refuseBanner, text: e.target.value }
+                      })}
+                      placeholder="Nous respectons votre choix, mais sans cookies..."
+                      rows={3}
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Message expliquant les limitations sans cookies
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="refuseBgColor">Couleur de fond</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="refuseBgColor"
+                          type="color"
+                          value={cookieBanner.refuseBanner.backgroundColor}
+                          onChange={(e) => setCookieBanner({ 
+                            ...cookieBanner, 
+                            refuseBanner: { ...cookieBanner.refuseBanner, backgroundColor: e.target.value }
+                          })}
+                          className="w-20 h-10"
+                        />
+                        <Input
+                          type="text"
+                          value={cookieBanner.refuseBanner.backgroundColor}
+                          onChange={(e) => setCookieBanner({ 
+                            ...cookieBanner, 
+                            refuseBanner: { ...cookieBanner.refuseBanner, backgroundColor: e.target.value }
+                          })}
+                          placeholder="#ef4444"
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="refuseTextColor">Couleur du texte</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="refuseTextColor"
+                          type="color"
+                          value={cookieBanner.refuseBanner.textColor}
+                          onChange={(e) => setCookieBanner({ 
+                            ...cookieBanner, 
+                            refuseBanner: { ...cookieBanner.refuseBanner, textColor: e.target.value }
+                          })}
+                          className="w-20 h-10"
+                        />
+                        <Input
+                          type="text"
+                          value={cookieBanner.refuseBanner.textColor}
+                          onChange={(e) => setCookieBanner({ 
+                            ...cookieBanner, 
+                            refuseBanner: { ...cookieBanner.refuseBanner, textColor: e.target.value }
+                          })}
+                          placeholder="#ffffff"
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="refuseButtonColor">Couleur du bouton</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="refuseButtonColor"
+                          type="color"
+                          value={cookieBanner.refuseBanner.buttonColor}
+                          onChange={(e) => setCookieBanner({ 
+                            ...cookieBanner, 
+                            refuseBanner: { ...cookieBanner.refuseBanner, buttonColor: e.target.value }
+                          })}
+                          className="w-20 h-10"
+                        />
+                        <Input
+                          type="text"
+                          value={cookieBanner.refuseBanner.buttonColor}
+                          onChange={(e) => setCookieBanner({ 
+                            ...cookieBanner, 
+                            refuseBanner: { ...cookieBanner.refuseBanner, buttonColor: e.target.value }
+                          })}
+                          placeholder="#dc2626"
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="refuseButtonTextColor">Couleur texte bouton</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="refuseButtonTextColor"
+                          type="color"
+                          value={cookieBanner.refuseBanner.buttonTextColor}
+                          onChange={(e) => setCookieBanner({ 
+                            ...cookieBanner, 
+                            refuseBanner: { ...cookieBanner.refuseBanner, buttonTextColor: e.target.value }
+                          })}
+                          className="w-20 h-10"
+                        />
+                        <Input
+                          type="text"
+                          value={cookieBanner.refuseBanner.buttonTextColor}
+                          onChange={(e) => setCookieBanner({ 
+                            ...cookieBanner, 
+                            refuseBanner: { ...cookieBanner.refuseBanner, buttonTextColor: e.target.value }
+                          })}
+                          placeholder="#ffffff"
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div 
+                    className="mt-6 p-6 rounded-lg shadow-lg border text-center"
+                    style={{ 
+                      backgroundColor: cookieBanner.refuseBanner.backgroundColor,
+                      color: cookieBanner.refuseBanner.textColor 
+                    }}
+                  >
+                    <p className="text-base font-medium mb-4">{cookieBanner.refuseBanner.text}</p>
                     <button
-                      className="px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90"
+                      className="px-6 py-2 rounded-lg text-base font-semibold transition-opacity hover:opacity-90"
                       style={{
-                        backgroundColor: cookieBanner.buttonColor,
-                        color: cookieBanner.buttonTextColor
+                        backgroundColor: cookieBanner.refuseBanner.buttonColor,
+                        color: cookieBanner.refuseBanner.buttonTextColor
                       }}
                     >
-                      J'accepte
+                      J'accepte finalement
                     </button>
                   </div>
                 </CardContent>
