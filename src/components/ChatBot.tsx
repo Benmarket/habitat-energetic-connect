@@ -77,20 +77,32 @@ export const ChatBot = () => {
     }
   }, [messages]);
 
-  // Detect footer visibility to hide/show button
+  // Detect footer visibility to hide/show button (only when chat is closed)
   useEffect(() => {
+    if (isOpen) {
+      // Don't hide if chat is open
+      return;
+    }
+
     const footer = document.querySelector('footer');
     if (!footer) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          // Hide button when footer is visible, show when not visible
-          setIsButtonVisible(!entry.isIntersecting);
+          // Hide button when footer is visible (any part of it)
+          // Show button when footer is not visible
+          if (entry.isIntersecting) {
+            setIsButtonVisible(false);
+          } else {
+            setIsButtonVisible(true);
+          }
         });
       },
       {
-        threshold: 0.1, // Trigger when 10% of footer is visible
+        // Trigger as soon as any part of the footer becomes visible
+        threshold: 0,
+        rootMargin: '0px 0px 0px 0px'
       }
     );
 
@@ -99,7 +111,7 @@ export const ChatBot = () => {
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [isOpen]);
 
   const initConversation = async () => {
     try {
