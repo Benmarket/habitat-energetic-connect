@@ -117,8 +117,8 @@ const AdminSettings = () => {
     buttonColor: '#16a34a',
     buttonTextColor: '#ffffff',
     refuseButtonText: 'Je refuse',
-    refuseButtonBgColor: 'transparent',
-    refuseButtonTextColor: '#ffffff',
+    refuseButtonBgColor: '#ffffff',
+    refuseButtonTextColor: '#000000',
     refuseButtonBorderColor: '#ffffff',
     refuseBanner: {
       enabled: true,
@@ -233,8 +233,8 @@ const AdminSettings = () => {
           buttonColor: value.buttonColor || '#16a34a',
           buttonTextColor: value.buttonTextColor || '#ffffff',
           refuseButtonText: value.refuseButtonText || 'Je refuse',
-          refuseButtonBgColor: value.refuseButtonBgColor || 'transparent',
-          refuseButtonTextColor: value.refuseButtonTextColor || '#ffffff',
+          refuseButtonBgColor: value.refuseButtonBgColor || '#ffffff',
+          refuseButtonTextColor: value.refuseButtonTextColor || '#000000',
           refuseButtonBorderColor: value.refuseButtonBorderColor || '#ffffff',
           refuseBanner: {
             enabled: value.refuseBanner?.enabled ?? true,
