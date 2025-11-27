@@ -116,6 +116,10 @@ const AdminSettings = () => {
     textColor: '#ffffff',
     buttonColor: '#16a34a',
     buttonTextColor: '#ffffff',
+    refuseButtonText: 'Je refuse',
+    refuseButtonBgColor: 'transparent',
+    refuseButtonTextColor: '#ffffff',
+    refuseButtonBorderColor: '#ffffff',
     refuseBanner: {
       enabled: true,
       text: "Nous respectons votre choix, mais sans cookies, certaines fonctionnalités du site seront limitées. Vous ne pourrez pas bénéficier d'une expérience personnalisée ni accéder à tous nos services.",
@@ -228,6 +232,10 @@ const AdminSettings = () => {
           textColor: value.textColor || '#ffffff',
           buttonColor: value.buttonColor || '#16a34a',
           buttonTextColor: value.buttonTextColor || '#ffffff',
+          refuseButtonText: value.refuseButtonText || 'Je refuse',
+          refuseButtonBgColor: value.refuseButtonBgColor || 'transparent',
+          refuseButtonTextColor: value.refuseButtonTextColor || '#ffffff',
+          refuseButtonBorderColor: value.refuseButtonBorderColor || '#ffffff',
           refuseBanner: {
             enabled: value.refuseBanner?.enabled ?? true,
             text: value.refuseBanner?.text || "Nous respectons votre choix, mais sans cookies, certaines fonctionnalités du site seront limitées. Vous ne pourrez pas bénéficier d'une expérience personnalisée ni accéder à tous nos services.",
@@ -1013,7 +1021,83 @@ const AdminSettings = () => {
                     </div>
                   </div>
 
-                  <div 
+                  <div className="space-y-4 pt-4 border-t">
+                    <h4 className="font-medium">Bouton "Je refuse"</h4>
+                    
+                    <div>
+                      <Label htmlFor="refuseButtonText">Texte du bouton refus</Label>
+                      <Input
+                        id="refuseButtonText"
+                        value={cookieBanner.refuseButtonText}
+                        onChange={(e) => setCookieBanner({ ...cookieBanner, refuseButtonText: e.target.value })}
+                        placeholder="Je refuse"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <Label htmlFor="refuseButtonBgColor">Couleur de fond</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="refuseButtonBgColor"
+                            type="color"
+                            value={cookieBanner.refuseButtonBgColor === 'transparent' ? '#ffffff' : cookieBanner.refuseButtonBgColor}
+                            onChange={(e) => setCookieBanner({ ...cookieBanner, refuseButtonBgColor: e.target.value })}
+                            className="w-20 h-10"
+                          />
+                          <Input
+                            type="text"
+                            value={cookieBanner.refuseButtonBgColor}
+                            onChange={(e) => setCookieBanner({ ...cookieBanner, refuseButtonBgColor: e.target.value })}
+                            placeholder="transparent"
+                            className="flex-1"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="refuseButtonTextColor">Couleur du texte</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="refuseButtonTextColor"
+                            type="color"
+                            value={cookieBanner.refuseButtonTextColor}
+                            onChange={(e) => setCookieBanner({ ...cookieBanner, refuseButtonTextColor: e.target.value })}
+                            className="w-20 h-10"
+                          />
+                          <Input
+                            type="text"
+                            value={cookieBanner.refuseButtonTextColor}
+                            onChange={(e) => setCookieBanner({ ...cookieBanner, refuseButtonTextColor: e.target.value })}
+                            placeholder="#ffffff"
+                            className="flex-1"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="refuseButtonBorderColor">Couleur bordure</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="refuseButtonBorderColor"
+                            type="color"
+                            value={cookieBanner.refuseButtonBorderColor}
+                            onChange={(e) => setCookieBanner({ ...cookieBanner, refuseButtonBorderColor: e.target.value })}
+                            className="w-20 h-10"
+                          />
+                          <Input
+                            type="text"
+                            value={cookieBanner.refuseButtonBorderColor}
+                            onChange={(e) => setCookieBanner({ ...cookieBanner, refuseButtonBorderColor: e.target.value })}
+                            placeholder="#ffffff"
+                            className="flex-1"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
                     className="mt-6 p-4 rounded-lg shadow-lg border"
                     style={{ 
                       backgroundColor: cookieBanner.backgroundColor,
@@ -1034,12 +1118,12 @@ const AdminSettings = () => {
                       <button
                         className="px-4 py-2 rounded-lg text-sm font-medium border-2 transition-opacity hover:opacity-90"
                         style={{
-                          backgroundColor: 'transparent',
-                          color: cookieBanner.textColor,
-                          borderColor: cookieBanner.textColor
+                          backgroundColor: cookieBanner.refuseButtonBgColor,
+                          color: cookieBanner.refuseButtonTextColor,
+                          borderColor: cookieBanner.refuseButtonBorderColor
                         }}
                       >
-                        Je refuse
+                        {cookieBanner.refuseButtonText}
                       </button>
                     </div>
                   </div>

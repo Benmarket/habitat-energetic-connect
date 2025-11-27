@@ -9,6 +9,10 @@ interface CookieBannerSettings {
   textColor: string;
   buttonColor: string;
   buttonTextColor: string;
+  refuseButtonText: string;
+  refuseButtonBgColor: string;
+  refuseButtonTextColor: string;
+  refuseButtonBorderColor: string;
   refuseBanner: {
     enabled: boolean;
     text: string;
@@ -29,6 +33,10 @@ const CookieBanner = () => {
     textColor: '#ffffff',
     buttonColor: '#16a34a',
     buttonTextColor: '#ffffff',
+    refuseButtonText: 'Je refuse',
+    refuseButtonBgColor: 'transparent',
+    refuseButtonTextColor: '#ffffff',
+    refuseButtonBorderColor: '#ffffff',
     refuseBanner: {
       enabled: true,
       text: "Nous respectons votre choix, mais sans cookies, certaines fonctionnalités du site seront limitées. Vous ne pourrez pas bénéficier d'une expérience personnalisée ni accéder à tous nos services.",
@@ -57,6 +65,10 @@ const CookieBanner = () => {
             textColor: value.textColor || settings.textColor,
             buttonColor: value.buttonColor || settings.buttonColor,
             buttonTextColor: value.buttonTextColor || settings.buttonTextColor,
+            refuseButtonText: value.refuseButtonText || settings.refuseButtonText,
+            refuseButtonBgColor: value.refuseButtonBgColor || settings.refuseButtonBgColor,
+            refuseButtonTextColor: value.refuseButtonTextColor || settings.refuseButtonTextColor,
+            refuseButtonBorderColor: value.refuseButtonBorderColor || settings.refuseButtonBorderColor,
             refuseBanner: {
               enabled: value.refuseBanner?.enabled ?? true,
               text: value.refuseBanner?.text || settings.refuseBanner.text,
@@ -172,12 +184,12 @@ const CookieBanner = () => {
               onClick={handleRefuse}
               className="px-6 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-90 hover:scale-105 active:scale-95 shadow-md border-2"
               style={{
-                backgroundColor: 'transparent',
-                color: settings.textColor,
-                borderColor: settings.textColor,
+                backgroundColor: settings.refuseButtonBgColor,
+                color: settings.refuseButtonTextColor,
+                borderColor: settings.refuseButtonBorderColor,
               }}
             >
-              Je refuse
+              {settings.refuseButtonText}
             </button>
             
             <button
