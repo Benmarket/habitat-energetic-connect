@@ -109,6 +109,15 @@ const AdminSettings = () => {
     overlayIntensity: 50,
   });
 
+  const [cookieBanner, setCookieBanner] = useState({
+    enabled: true,
+    text: "Nous utilisons des cookies pour améliorer votre expérience et analyser le trafic de notre site. En continuant à naviguer, vous acceptez notre utilisation des cookies.",
+    backgroundColor: '#22c55e',
+    textColor: '#ffffff',
+    buttonColor: '#16a34a',
+    buttonTextColor: '#ffffff',
+  });
+
   const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
@@ -116,6 +125,7 @@ const AdminSettings = () => {
       loadMaintenanceSettings();
       loadAiSettings();
       loadHeroSliderSettings();
+      loadCookieBannerSettings();
     }
   }, [user]);
 
@@ -190,6 +200,30 @@ const AdminSettings = () => {
       }
     } catch (error) {
       console.error("Error loading hero slider settings:", error);
+    }
+  };
+
+  const loadCookieBannerSettings = async () => {
+    try {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "cookie_banner")
+        .maybeSingle();
+
+      if (data?.value) {
+        const value = data.value as any;
+        setCookieBanner({
+          enabled: value.enabled ?? true,
+          text: value.text || "Nous utilisons des cookies pour améliorer votre expérience et analyser le trafic de notre site. En continuant à naviguer, vous acceptez notre utilisation des cookies.",
+          backgroundColor: value.backgroundColor || '#22c55e',
+          textColor: value.textColor || '#ffffff',
+          buttonColor: value.buttonColor || '#16a34a',
+          buttonTextColor: value.buttonTextColor || '#ffffff',
+        });
+      }
+    } catch (error) {
+      console.error("Error loading cookie banner settings:", error);
     }
   };
 
@@ -392,12 +426,23 @@ const AdminSettings = () => {
           onConflict: "key"
         });
 
-      const [maintenanceResult, urlResult, modelResult, enabledResult, instructionsResult] = await Promise.all([
+      const cookieBannerUpdate = supabase
+        .from("site_settings")
+        .upsert({
+          key: "cookie_banner",
+          value: cookieBanner,
+          updated_by: user.id,
+        }, {
+          onConflict: "key"
+        });
+
+      const [maintenanceResult, urlResult, modelResult, enabledResult, instructionsResult, cookieBannerResult] = await Promise.all([
         maintenanceUpdate,
         aiUrlUpdate,
         aiModelUpdate,
         aiEnabledUpdate,
-        aiInstructionsUpdate
+        aiInstructionsUpdate,
+        cookieBannerUpdate
       ]);
 
       if (maintenanceResult.error) throw maintenanceResult.error;
@@ -405,6 +450,7 @@ const AdminSettings = () => {
       if (modelResult.error) throw modelResult.error;
       if (enabledResult.error) throw enabledResult.error;
       if (instructionsResult.error) throw instructionsResult.error;
+      if (cookieBannerResult.error) throw cookieBannerResult.error;
 
       toast({
         title: "Paramètres sauvegardés",
@@ -824,6 +870,150 @@ const AdminSettings = () => {
                       <strong>Note importante :</strong> La clé API est stockée de manière sécurisée dans les secrets du serveur. 
                       Elle n'est jamais exposée côté client, même en inspectant les éléments de la page.
                     </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Bannière cookies */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Bannière de cookies (Consent Mode)</CardTitle>
+                  <CardDescription>
+                    Configurez la bannière de consentement des cookies conforme RGPD
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="cookieBannerEnabled" className="text-base">
+                        Activer la bannière de cookies
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Afficher la bannière de consentement aux visiteurs
+                      </p>
+                    </div>
+                    <Switch
+                      id="cookieBannerEnabled"
+                      checked={cookieBanner.enabled}
+                      onCheckedChange={(checked) => 
+                        setCookieBanner({ ...cookieBanner, enabled: checked })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="cookieBannerText">Texte de la bannière</Label>
+                    <Textarea
+                      id="cookieBannerText"
+                      value={cookieBanner.text}
+                      onChange={(e) => setCookieBanner({ ...cookieBanner, text: e.target.value })}
+                      placeholder="Nous utilisons des cookies pour améliorer votre expérience..."
+                      rows={3}
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Message affiché aux visiteurs concernant l'utilisation des cookies
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="cookieBgColor">Couleur de fond</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="cookieBgColor"
+                          type="color"
+                          value={cookieBanner.backgroundColor}
+                          onChange={(e) => setCookieBanner({ ...cookieBanner, backgroundColor: e.target.value })}
+                          className="w-20 h-10"
+                        />
+                        <Input
+                          type="text"
+                          value={cookieBanner.backgroundColor}
+                          onChange={(e) => setCookieBanner({ ...cookieBanner, backgroundColor: e.target.value })}
+                          placeholder="#22c55e"
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="cookieTextColor">Couleur du texte</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="cookieTextColor"
+                          type="color"
+                          value={cookieBanner.textColor}
+                          onChange={(e) => setCookieBanner({ ...cookieBanner, textColor: e.target.value })}
+                          className="w-20 h-10"
+                        />
+                        <Input
+                          type="text"
+                          value={cookieBanner.textColor}
+                          onChange={(e) => setCookieBanner({ ...cookieBanner, textColor: e.target.value })}
+                          placeholder="#ffffff"
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="cookieButtonColor">Couleur du bouton</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="cookieButtonColor"
+                          type="color"
+                          value={cookieBanner.buttonColor}
+                          onChange={(e) => setCookieBanner({ ...cookieBanner, buttonColor: e.target.value })}
+                          className="w-20 h-10"
+                        />
+                        <Input
+                          type="text"
+                          value={cookieBanner.buttonColor}
+                          onChange={(e) => setCookieBanner({ ...cookieBanner, buttonColor: e.target.value })}
+                          placeholder="#16a34a"
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="cookieButtonTextColor">Couleur texte bouton</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="cookieButtonTextColor"
+                          type="color"
+                          value={cookieBanner.buttonTextColor}
+                          onChange={(e) => setCookieBanner({ ...cookieBanner, buttonTextColor: e.target.value })}
+                          className="w-20 h-10"
+                        />
+                        <Input
+                          type="text"
+                          value={cookieBanner.buttonTextColor}
+                          onChange={(e) => setCookieBanner({ ...cookieBanner, buttonTextColor: e.target.value })}
+                          placeholder="#ffffff"
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div 
+                    className="mt-6 p-4 rounded-lg shadow-lg border"
+                    style={{ 
+                      backgroundColor: cookieBanner.backgroundColor,
+                      color: cookieBanner.textColor 
+                    }}
+                  >
+                    <p className="text-sm mb-3">{cookieBanner.text}</p>
+                    <button
+                      className="px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90"
+                      style={{
+                        backgroundColor: cookieBanner.buttonColor,
+                        color: cookieBanner.buttonTextColor
+                      }}
+                    >
+                      J'accepte
+                    </button>
                   </div>
                 </CardContent>
               </Card>
