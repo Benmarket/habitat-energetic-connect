@@ -45,8 +45,7 @@ const WhySolarSection = () => {
                   src={benefit.image} 
                   alt={benefit.title}
                   className={`w-full h-full ${
-                    index === 1 ? 'object-contain p-2' : 
-                    index === 3 ? 'object-cover scale-150' : 
+                    index === 1 ? 'object-cover scale-[2.5]' : 
                     'object-cover'
                   }`}
                 />
