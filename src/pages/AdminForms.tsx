@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, Edit, Trash2, Download, ExternalLink, Eye, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, Download, ExternalLink, Eye, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 type FormConfig = {
@@ -52,19 +52,29 @@ export default function AdminForms() {
     webhook_url: "",
     webhook_enabled: false,
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const formsPerPage = 10;
 
-  // Fetch forms
-  const { data: forms, isLoading: loadingForms } = useQuery({
-    queryKey: ["form-configurations"],
+  // Fetch forms with pagination
+  const { data: formsData, isLoading: loadingForms } = useQuery({
+    queryKey: ["form-configurations", currentPage],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const from = (currentPage - 1) * formsPerPage;
+      const to = from + formsPerPage - 1;
+
+      const { data, error, count } = await supabase
         .from("form_configurations")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(from, to);
+      
       if (error) throw error;
-      return data as FormConfig[];
+      return { forms: data as FormConfig[], totalCount: count || 0 };
     },
   });
+
+  const forms = formsData?.forms || [];
+  const totalPages = Math.ceil((formsData?.totalCount || 0) / formsPerPage);
 
   // Fetch submissions for selected form
   const { data: submissions, isLoading: loadingSubmissions } = useQuery({
@@ -410,6 +420,34 @@ export default function AdminForms() {
                 </CardHeader>
               </Card>
             ))}
+            
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-4 px-2">
+                <div className="text-sm text-muted-foreground">
+                  Page {currentPage} sur {totalPages} ({formsData?.totalCount} formulaire{(formsData?.totalCount || 0) > 1 ? 's' : ''})
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    Précédent
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Suivant
+                    <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <Card>
