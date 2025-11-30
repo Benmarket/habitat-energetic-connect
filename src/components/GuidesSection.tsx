@@ -113,11 +113,11 @@ const GuidesSection = () => {
             <div className="p-2 bg-gradient-to-br from-orange-600 to-orange-700 rounded-lg shadow-lg">
               <BookOpen className="w-6 h-6 text-white" />
             </div>
-            <h2 className="text-4xl font-extrabold bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 bg-clip-text text-transparent">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 bg-clip-text text-transparent whitespace-nowrap">
               Guides par projet
             </h2>
           </div>
-          <p className="text-muted-foreground text-lg max-w-3xl mx-auto mt-6 leading-relaxed">
+          <p className="text-muted-foreground text-sm md:text-base max-w-3xl mx-auto mt-6 leading-snug">
             Des guides complets pour réussir votre projet d'énergies renouvelables, étape par étape.
           </p>
           <div className="flex items-center justify-center gap-2 mt-4">
