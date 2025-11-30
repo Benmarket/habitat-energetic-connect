@@ -40,6 +40,10 @@ import LandingSolaire from "./pages/landing/LandingSolaire";
 import LandingIsolation from "./pages/landing/LandingIsolation";
 import LandingPompeAChaleur from "./pages/landing/LandingPompeAChaleur";
 import LandingRenovationGlobale from "./pages/landing/LandingRenovationGlobale";
+import Forum from "./pages/forum/Forum";
+import ForumCategory from "./pages/forum/ForumCategory";
+import ForumTopic from "./pages/forum/ForumTopic";
+import NewTopic from "./pages/forum/NewTopic";
 
 const queryClient = new QueryClient();
 
@@ -85,6 +89,11 @@ const App = () => (
               <Route path="/landing/isolation" element={<LandingIsolation />} />
               <Route path="/landing/pompe-a-chaleur" element={<LandingPompeAChaleur />} />
               <Route path="/landing/renovation-globale" element={<LandingRenovationGlobale />} />
+              <Route path="/forum" element={<Forum />} />
+              <Route path="/forum/categorie/:slug" element={<ForumCategory />} />
+              <Route path="/forum/categorie/:slug/nouveau" element={<NewTopic />} />
+              <Route path="/forum/sujet/:slug" element={<ForumTopic />} />
+              <Route path="/forum/nouveau-sujet" element={<NewTopic />} />
               <Route path="/sitemap.xml" element={<Sitemap />} />
               <Route path="/mentions-legales" element={<MentionsLegales />} />
               <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />

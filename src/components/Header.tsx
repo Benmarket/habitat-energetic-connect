@@ -191,7 +191,7 @@ const Header = () => {
                     <span>Économies réalisées</span>
                   </DropdownMenuItem>
                   
-                  <DropdownMenuItem onClick={() => navigate("/forums")} className="cursor-pointer py-2.5">
+                  <DropdownMenuItem onClick={() => navigate("/forum")} className="cursor-pointer py-2.5">
                     <MessageCircle className="mr-3 h-4 w-4 text-muted-foreground" />
                     <span>Forums de discussion</span>
                   </DropdownMenuItem>
