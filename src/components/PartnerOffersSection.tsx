@@ -9,6 +9,8 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
@@ -115,207 +117,110 @@ const PartnerOffersSection = () => {
           </div>
         </div>
 
-        {/* Offers - Mobile Carousel, Desktop Grid */}
-        <div className="mb-8 md:mb-12 animate-fade-in mt-6" style={{ animationDelay: '0.1s' }}>
-          {/* Mobile Carousel */}
-          <div className="block md:hidden">
-            <Carousel
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              plugins={[
-                Autoplay({
-                  delay: 5000,
-                }),
-              ]}
-              className="w-full"
-            >
-              <CarouselContent>
-                {offers.map((offer) => (
-                  <CarouselItem key={offer.id}>
-                    <Card 
-                      className="group relative overflow-hidden hover:shadow-2xl hover:shadow-amber-500/20 transition-all duration-500 border-2 border-amber-500/20 hover:border-amber-500/50 bg-card/80 backdrop-blur-sm mx-2"
+        {/* Offers Carousel */}
+        <Carousel
+          opts={{
+            align: "start",
+            loop: true,
+            slidesToScroll: 1,
+          }}
+          className="w-full mt-6 mb-8 md:mb-12"
+        >
+          <CarouselContent className="-ml-4">
+            {offers.map((offer) => (
+              <CarouselItem key={offer.id} className="pl-4 basis-full md:basis-1/2 lg:basis-1/3">
+                <Card 
+                  className="group relative overflow-hidden hover:shadow-2xl hover:shadow-amber-500/20 transition-all duration-500 border-2 border-amber-500/20 hover:border-amber-500/50 hover:-translate-y-2 bg-card/80 backdrop-blur-sm h-full"
+                >
+                  {/* Badge */}
+                  {offer.badge_text && (
+                    <Badge 
+                      variant={getBadgeVariant(offer.badge_type)}
+                      className={`absolute top-4 left-4 z-10 font-semibold shadow-lg ${
+                        offer.badge_type === 'sponsored' 
+                          ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-amber-400/30 hover:from-amber-600 hover:to-yellow-600' 
+                          : ''
+                      }`}
                     >
-                      {/* Badge */}
-                      {offer.badge_text && (
-                        <Badge 
-                          variant={getBadgeVariant(offer.badge_type)}
-                          className={`absolute top-4 left-4 z-10 font-semibold shadow-lg ${
-                            offer.badge_type === 'sponsored' 
-                              ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-amber-400/30 hover:from-amber-600 hover:to-yellow-600' 
-                              : ''
-                          }`}
-                        >
-                          {offer.badge_text}
-                        </Badge>
-                      )}
-
-                      {/* Image */}
-                      {offer.image && (
-                        <div className="relative h-64 overflow-hidden">
-                          <img 
-                            src={offer.image} 
-                            alt={offer.title}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
-                        </div>
-                      )}
-
-                      <CardContent className="p-6 space-y-4">
-                        {/* Title & Advertiser */}
-                        <div>
-                          <h3 className="text-2xl font-bold mb-2 group-hover:text-amber-600 transition-colors">
-                            {offer.title}
-                          </h3>
-                          <p className="text-sm text-muted-foreground font-medium">
-                            {offer.advertiser.name}
-                          </p>
-                        </div>
-
-                        {/* Price */}
-                        <div className="flex items-baseline gap-3">
-                          <span className="text-4xl font-bold text-amber-600">
-                            {offer.price.toLocaleString('fr-FR')}€
-                          </span>
-                          {offer.original_price && (
-                            <span className="text-xl text-muted-foreground line-through">
-                              {offer.original_price.toLocaleString('fr-FR')}€
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Description */}
-                        <p className="text-muted-foreground leading-relaxed">
-                          {offer.description}
-                        </p>
-
-                        {/* Features */}
-                        {offer.features && offer.features.length > 0 && (
-                          <div className="space-y-2 pt-4 border-t">
-                            <p className="font-semibold text-sm">Avantages inclus :</p>
-                            <ul className="space-y-2">
-                              {offer.features.map((feature, index) => (
-                                <li key={index} className="flex items-start gap-2 text-sm">
-                                  <Check className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                                  <span>{feature}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {/* CTA Button */}
-                        <Button 
-                          asChild
-                          className="w-full mt-6 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-bold py-6 text-lg shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 transition-all duration-300 hover:scale-105 border border-amber-400/30"
-                        >
-                          <a href={offer.cta_url} target="_blank" rel="noopener noreferrer">
-                            {offer.cta_text}
-                          </a>
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-            </Carousel>
-          </div>
-
-          {/* Desktop Grid */}
-          <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-8">
-          {offers.map((offer) => (
-            <Card 
-              key={offer.id} 
-              className="group relative overflow-hidden hover:shadow-2xl hover:shadow-amber-500/20 transition-all duration-500 border-2 border-amber-500/20 hover:border-amber-500/50 hover:-translate-y-2 bg-card/80 backdrop-blur-sm"
-            >
-              {/* Badge */}
-              {offer.badge_text && (
-                <Badge 
-                  variant={getBadgeVariant(offer.badge_type)}
-                  className={`absolute top-4 left-4 z-10 font-semibold shadow-lg ${
-                    offer.badge_type === 'sponsored' 
-                      ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-amber-400/30 hover:from-amber-600 hover:to-yellow-600' 
-                      : ''
-                  }`}
-                >
-                  {offer.badge_text}
-                </Badge>
-              )}
-
-              {/* Image */}
-              {offer.image && (
-                <div className="relative h-64 overflow-hidden">
-                  <img 
-                    src={offer.image} 
-                    alt={offer.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
-                </div>
-              )}
-
-              <CardContent className="p-6 space-y-4">
-                {/* Title & Advertiser */}
-                <div>
-                  <h3 className="text-2xl font-bold mb-2 group-hover:text-amber-600 transition-colors">
-                    {offer.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground font-medium">
-                    {offer.advertiser.name}
-                  </p>
-                </div>
-
-                {/* Price */}
-                <div className="flex items-baseline gap-3">
-                  <span className="text-4xl font-bold text-amber-600">
-                    {offer.price.toLocaleString('fr-FR')}€
-                  </span>
-                  {offer.original_price && (
-                    <span className="text-xl text-muted-foreground line-through">
-                      {offer.original_price.toLocaleString('fr-FR')}€
-                    </span>
+                      {offer.badge_text}
+                    </Badge>
                   )}
-                </div>
 
-                {/* Description */}
-                <p className="text-muted-foreground leading-relaxed">
-                  {offer.description}
-                </p>
+                  {/* Image */}
+                  {offer.image && (
+                    <div className="relative h-64 overflow-hidden">
+                      <img 
+                        src={offer.image} 
+                        alt={offer.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
+                    </div>
+                  )}
 
-                {/* Features */}
-                {offer.features && offer.features.length > 0 && (
-                  <div className="space-y-2 pt-4 border-t">
-                    <p className="font-semibold text-sm">Avantages inclus :</p>
-                    <ul className="space-y-2">
-                      {offer.features.map((feature, index) => (
-                        <li key={index} className="flex items-start gap-2 text-sm">
-                          <Check className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                  <CardContent className="p-6 space-y-4">
+                    {/* Title & Advertiser */}
+                    <div>
+                      <h3 className="text-2xl font-bold mb-2 group-hover:text-amber-600 transition-colors">
+                        {offer.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground font-medium">
+                        {offer.advertiser.name}
+                      </p>
+                    </div>
 
-                {/* CTA Button */}
-                <Button 
-                  asChild
-                  className="w-full mt-6 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-bold py-6 text-lg shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 transition-all duration-300 hover:scale-105 border border-amber-400/30"
-                >
-                  <a href={offer.cta_url} target="_blank" rel="noopener noreferrer">
-                    {offer.cta_text}
-                  </a>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-          </div>
-        </div>
+                    {/* Price */}
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-4xl font-bold text-amber-600">
+                        {offer.price.toLocaleString('fr-FR')}€
+                      </span>
+                      {offer.original_price && (
+                        <span className="text-xl text-muted-foreground line-through">
+                          {offer.original_price.toLocaleString('fr-FR')}€
+                        </span>
+                      )}
+                    </div>
 
-        {/* View All Button */}
-        <div className="text-center animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                    {/* Description */}
+                    <p className="text-muted-foreground leading-relaxed">
+                      {offer.description}
+                    </p>
+
+                    {/* Features */}
+                    {offer.features && offer.features.length > 0 && (
+                      <div className="space-y-2 pt-4 border-t">
+                        <p className="font-semibold text-sm">Avantages inclus :</p>
+                        <ul className="space-y-2">
+                          {offer.features.map((feature, index) => (
+                            <li key={index} className="flex items-start gap-2 text-sm">
+                              <Check className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* CTA Button */}
+                    <Button 
+                      asChild
+                      className="w-full mt-6 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-bold py-6 text-lg shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 transition-all duration-300 hover:scale-105 border border-amber-400/30"
+                    >
+                      <a href={offer.cta_url} target="_blank" rel="noopener noreferrer">
+                        {offer.cta_text}
+                      </a>
+                    </Button>
+                  </CardContent>
+                </Card>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="hidden md:flex -left-12 border-2 border-amber-500/30 hover:border-amber-600 hover:bg-amber-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-amber-500/30 transition-all duration-300" />
+          <CarouselNext className="hidden md:flex -right-12 border-2 border-amber-500/30 hover:border-amber-600 hover:bg-amber-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-amber-500/30 transition-all duration-300" />
+        </Carousel>
+
+        {/* View All Button - Centered on mobile, right-aligned on desktop */}
+        <div className="text-center md:text-right animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <Button 
             asChild
             size="lg"
