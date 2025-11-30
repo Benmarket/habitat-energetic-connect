@@ -203,165 +203,179 @@ const HeroSection = () => {
 
       {/* Content */}
       <div className="container mx-auto px-4 relative z-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-[1200px] mx-auto">
-          {/* Left cell: Hero text and buttons - centered content */}
-          <div className="flex flex-col items-center lg:items-start justify-center text-white pt-8 lg:pt-0">
-            <div className="w-full max-w-[550px]">
-              <h1 className="text-2xl lg:text-5xl font-bold mb-4 leading-tight text-center lg:text-left">
+        <div className="flex flex-col gap-8 max-w-[1400px] mx-auto">
+          {/* Top: Hero text and buttons - centered content */}
+          <div className="flex flex-col items-center justify-center text-white pt-8">
+            <div className="w-full max-w-[800px] text-center">
+              <h1 className="text-3xl lg:text-5xl font-bold mb-4 leading-tight">
                 Réduisez vos factures énergétiques jusqu'à 80% !
               </h1>
-              <p className="text-sm lg:text-lg mb-6 text-white/90 text-center lg:text-left leading-snug">
+              <p className="text-base lg:text-lg mb-6 text-white/90 leading-snug">
                 Bénéficiez d'une étude énergétique gratuite et découvrez les travaux
                 subventionnés adaptés à votre logement
               </p>
 
               {/* Quick action buttons */}
-              <div className="grid grid-cols-2 gap-2.5 mb-3 lg:mb-8 w-full">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 max-w-[700px] mx-auto">
                 <Link 
                   to="/offres/panneaux-solaires"
-                  className="group flex items-center gap-2 px-2.5 py-2 h-[48px] rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                  className="group flex items-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
-                  <Sun className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-[11px] leading-tight">Panneaux solaires</span>
+                  <Sun className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm">Panneaux solaires</span>
                 </Link>
 
                 <Link 
                   to="/offres/pompe-a-chaleur"
-                  className="group flex items-center gap-2 px-2.5 py-2 h-[48px] rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                  className="group flex items-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
-                  <Droplets className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-[11px] leading-tight">Pompe à chaleur</span>
+                  <Droplets className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm">Pompe à chaleur</span>
                 </Link>
 
                 <Link 
                   to="/offres/isolation"
-                  className="group flex items-center gap-2 px-2.5 py-2 h-[48px] rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                  className="group flex items-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
-                  <Home className="w-4 h-4 text-green-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-[11px] leading-tight">Isolation</span>
+                  <Home className="w-5 h-5 text-green-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm">Isolation</span>
                 </Link>
 
                 <Link 
                   to="/aides"
-                  className="group flex items-center gap-2 px-2.5 py-2 h-[48px] rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                  className="group flex items-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
-                  <HandCoins className="w-4 h-4 text-cyan-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-[11px] leading-tight">Aides & Subventions</span>
+                  <HandCoins className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm">Aides & Subventions</span>
                 </Link>
               </div>
             </div>
           </div>
 
-          {/* Right cell: Form - centered content */}
-          <div className="flex items-center justify-center pb-3 lg:pb-0">
-            <div className="bg-white rounded-lg shadow-2xl p-4 w-full max-w-[400px]">
-              <h2 className="text-lg font-bold text-foreground mb-0.5">
-                Étude énergétique gratuite
-              </h2>
-              <p className="text-xs text-muted-foreground mb-3">
-                Découvrez vos économies potentielles et les aides disponibles
-              </p>
-              
-              <form onSubmit={handleSubmit} className="space-y-2.5">
-                <div>
-                  <Label htmlFor="fullName" className="text-xs mb-0.5">Nom complet</Label>
-                  <Input
-                    id="fullName"
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    placeholder="Votre nom et prénom"
-                    className="h-9 text-sm"
-                    required
-                  />
+          {/* Bottom: Horizontal form - full width */}
+          <div className="w-full pb-8">
+            <div className="bg-primary rounded-lg shadow-2xl p-6 w-full">
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-4">
+                <h2 className="text-xl font-bold text-white">
+                  Vérifier mon éligibilité à la Prime Gratuitement
+                </h2>
+                <div className="bg-white text-red-600 px-4 py-1.5 rounded text-sm font-bold whitespace-nowrap">
+                  Propriétaires de maison individuelle exclusivement
                 </div>
+              </div>
+              
+              <form onSubmit={handleSubmit}>
+                {/* Horizontal fields */}
+                <div className="flex flex-wrap lg:flex-nowrap gap-3 mb-3">
+                  <div className="flex-1 min-w-[200px]">
+                    <Label htmlFor="fullName" className="text-white text-sm mb-1 block">
+                      Nom complet <span className="text-red-300">*</span>
+                    </Label>
+                    <Input
+                      id="fullName"
+                      value={formData.fullName}
+                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      placeholder="Nom complet"
+                      className="h-11 bg-white"
+                      required
+                    />
+                  </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label htmlFor="phone" className="text-xs mb-0.5">Téléphone</Label>
+                  <div className="flex-1 min-w-[200px]">
+                    <Label htmlFor="phone" className="text-white text-sm mb-1 block">
+                      Téléphone <span className="text-red-300">*</span>
+                    </Label>
                     <Input
                       id="phone"
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="06 12 34 56 78"
-                      className="h-9 text-sm"
+                      placeholder="Téléphone"
+                      className="h-11 bg-white"
                       required
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="email" className="text-xs mb-0.5">Email</Label>
+                  <div className="flex-1 min-w-[200px]">
+                    <Label htmlFor="email" className="text-white text-sm mb-1 block">
+                      E-mail <span className="text-red-300">*</span>
+                    </Label>
                     <Input
                       id="email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="votre@email.com"
-                      className="h-9 text-sm"
+                      placeholder="Ex. email@example.fr"
+                      className="h-11 bg-white"
                       required
                     />
                   </div>
-                </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label htmlFor="postalCode" className="text-xs mb-0.5">Code postal</Label>
+                  <div className="flex-1 min-w-[150px]">
+                    <Label htmlFor="postalCode" className="text-white text-sm mb-1 block">
+                      Code postal <span className="text-red-300">*</span>
+                    </Label>
                     <Input
                       id="postalCode"
                       value={formData.postalCode}
                       onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                      placeholder="75001"
+                      placeholder="Code postal"
                       maxLength={5}
-                      className="h-9 text-sm"
+                      className="h-11 bg-white"
                       required
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="workType" className="text-xs mb-0.5">Type de travaux</Label>
+                  <div className="flex-1 min-w-[200px]">
+                    <Label htmlFor="workType" className="text-white text-sm mb-1 block">
+                      Choisissez une option <span className="text-red-300">*</span>
+                    </Label>
                     <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
-                      <SelectTrigger className="h-9 text-sm">
-                        <SelectValue placeholder="Sélectionnez..." />
+                      <SelectTrigger className="h-11 bg-white">
+                        <SelectValue placeholder="Panneaux photovoltaïques..." />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="isolation">Isolation</SelectItem>
                         <SelectItem value="chauffage">Chauffage</SelectItem>
-                        <SelectItem value="energie-solaire">Énergie solaire</SelectItem>
+                        <SelectItem value="energie-solaire">Panneaux photovoltaïques</SelectItem>
                         <SelectItem value="renovation-globale">Rénovation globale</SelectItem>
                         <SelectItem value="ne-sait-pas">Ne sait pas</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+
+                  <div className="flex items-end">
+                    <Button
+                      type="submit" 
+                      className="h-11 px-8 bg-orange-500 hover:bg-orange-600 text-white font-semibold whitespace-nowrap" 
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Envoi..." : "Envoyer"}
+                    </Button>
+                  </div>
                 </div>
 
-                <div className="flex items-start gap-2 pt-1">
+                {/* Checkbox CGU */}
+                <div className="flex items-start gap-2">
                   <input
                     type="checkbox"
                     id="acceptTerms"
                     checked={formData.acceptTerms}
                     onChange={(e) => setFormData({ ...formData, acceptTerms: e.target.checked })}
-                    className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    className="mt-0.5 h-5 w-5 rounded border-white bg-white text-primary focus:ring-primary flex-shrink-0"
                     required
                   />
-                  <Label htmlFor="acceptTerms" className="text-xs leading-tight cursor-pointer">
-                    J'accepte les{" "}
+                  <Label htmlFor="acceptTerms" className="text-white text-sm leading-tight cursor-pointer">
+                    J'accepte les termes et conditions des CGU de Prime énergies et accepte de recevoir des offres concernant les travaux de rénovation et subventions{" "}
                     <Link 
                       to="/conditions-utilisation" 
                       target="_blank"
-                      className="underline text-primary hover:text-primary/80"
+                      className="underline hover:text-white/80"
                     >
-                      Conditions Générales d'Utilisation
+                      CGU
                     </Link>
                   </Label>
                 </div>
-
-                <Button
-                  type="submit" 
-                  className="w-full h-10 text-sm font-semibold mt-3" 
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Envoi en cours..." : "Commencer l'étude gratuite"}
-                </Button>
               </form>
             </div>
           </div>
