@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, Eye, Users, FileText, UserPlus, Download, Megaphone, Mail, Navigation } from "lucide-react";
+import { TrendingUp, TrendingDown, Eye, Users, FileText, UserPlus, Download, Megaphone, Mail, Navigation, Smartphone } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PageDetailsModal from "./PageDetailsModal";
@@ -108,6 +108,15 @@ const TrafficDashboard = () => {
       icon: Megaphone,
       color: "text-pink-600",
       bgColor: "bg-pink-50"
+    },
+    { 
+      label: "Téléchargement de l'App Prime énergies", 
+      value: 127, 
+      trend: "+18%", 
+      trendUp: true, 
+      icon: Smartphone,
+      color: "text-primary",
+      bgColor: "bg-primary/10"
     }
   ];
 
