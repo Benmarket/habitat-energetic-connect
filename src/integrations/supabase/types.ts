@@ -486,6 +486,7 @@ export type Database = {
           id: string
           ip_address: string | null
           is_read: boolean
+          status: string
           submitted_at: string
           user_agent: string | null
           user_id: string | null
@@ -496,6 +497,7 @@ export type Database = {
           id?: string
           ip_address?: string | null
           is_read?: boolean
+          status?: string
           submitted_at?: string
           user_agent?: string | null
           user_id?: string | null
@@ -506,6 +508,7 @@ export type Database = {
           id?: string
           ip_address?: string | null
           is_read?: boolean
+          status?: string
           submitted_at?: string
           user_agent?: string | null
           user_id?: string | null
