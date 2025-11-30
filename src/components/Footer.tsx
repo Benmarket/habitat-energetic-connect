@@ -94,6 +94,9 @@ const Footer = () => {
               <Link to="/services/audit-energetique" className="text-white/70 hover:text-white transition-colors text-sm">
                 Audit énergétique
               </Link>
+              <Link to="/services/amelioration-habitat" className="text-white/70 hover:text-white transition-colors text-sm">
+                Amélioration de l'habitat
+              </Link>
             </nav>
           </div>
 
