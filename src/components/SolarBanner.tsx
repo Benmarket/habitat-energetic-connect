@@ -58,9 +58,9 @@ const SolarBanner = () => {
               <img
                 src={solarSystemDiagram}
                 alt="Schéma du système photovoltaïque"
-                className="w-full max-w-[450px]"
+                className="w-full max-w-[225px]"
               />
-              <div className="space-y-2 max-w-[450px]">
+              <div className="space-y-2 max-w-[225px]">
                 <div className="flex items-start gap-3">
                   <div className="w-4 h-4 mt-1 rounded bg-orange-500 flex-shrink-0"></div>
                   <p className="text-xs lg:text-sm text-foreground font-medium">
