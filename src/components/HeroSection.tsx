@@ -206,7 +206,7 @@ const HeroSection = () => {
         <div className="flex flex-col gap-8 max-w-[1400px] mx-auto">
           {/* Top: Hero text and buttons - centered content */}
           <div className="flex flex-col items-center justify-center text-white pt-8">
-            <div className="w-full max-w-[800px] text-center">
+            <div className="w-full text-center">
               <h1 className="text-3xl lg:text-5xl font-bold mb-4 leading-tight">
                 Réduisez vos factures énergétiques jusqu'à 80% !
               </h1>
@@ -216,7 +216,7 @@ const HeroSection = () => {
               </p>
 
               {/* Quick action buttons */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 max-w-[1000px] mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <Link 
                   to="/offres/panneaux-solaires"
                   className="group flex items-center gap-3 px-5 py-4 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
@@ -333,8 +333,8 @@ const HeroSection = () => {
                   </div>
 
                   {/* Second row - Type de travaux + Button */}
-                  <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 mb-5">
-                    <div>
+                  <div className="flex flex-col md:flex-row gap-4 mb-5">
+                    <div className="flex-1 max-w-md">
                       <Label htmlFor="workType" className="text-white text-sm mb-2 block font-medium drop-shadow">
                         Type de travaux <span className="text-yellow-300">*</span>
                       </Label>
@@ -384,11 +384,11 @@ const HeroSection = () => {
                       </Link>
                     </Label>
                   </div>
-                </form>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
-        </div>
       </div>
     </section>
   );
