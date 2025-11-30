@@ -15,7 +15,7 @@ const SolarBanner = () => {
             <img
               src={solarHouseBanner}
               alt="Maison avec panneaux solaires photovoltaïques"
-              className="rounded-2xl shadow-2xl w-full object-cover md:max-h-[400px] lg:max-h-none"
+              className="rounded-2xl shadow-2xl w-full object-cover md:max-h-[300px] lg:max-h-none"
             />
             <div className="absolute top-4 left-4 w-20 h-20 lg:w-28 lg:h-28">
               <img
@@ -44,7 +44,7 @@ const SolarBanner = () => {
               </h2>
               
               {/* Grid with text on left, diagram on right */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-start">
                 {/* Left column - Text */}
                 <div>
                   <p className="text-sm lg:text-base text-foreground leading-relaxed">
@@ -63,9 +63,9 @@ const SolarBanner = () => {
                   <img
                     src={solarSystemDiagram}
                     alt="Schéma du système photovoltaïque"
-                    className="w-full max-w-[280px] mx-auto lg:mx-0"
+                    className="w-full max-w-[280px] mx-auto md:mx-0"
                   />
-                  <div className="space-y-2 max-w-[280px] mx-auto lg:mx-0">
+                  <div className="space-y-2 max-w-[280px] mx-auto md:mx-0">
                     <div className="flex items-start gap-3">
                       <div className="w-4 h-4 mt-1 rounded bg-orange-500 flex-shrink-0"></div>
                       <p className="text-xs lg:text-sm text-foreground font-medium">
