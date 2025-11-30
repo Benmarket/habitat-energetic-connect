@@ -110,7 +110,11 @@ const PartnerOffersSection = () => {
               {offer.badge_text && (
                 <Badge 
                   variant={getBadgeVariant(offer.badge_type)}
-                  className="absolute top-4 left-4 z-10 font-semibold shadow-lg"
+                  className={`absolute top-4 left-4 z-10 font-semibold shadow-lg ${
+                    offer.badge_type === 'sponsored' 
+                      ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-amber-400/30 hover:from-amber-600 hover:to-yellow-600' 
+                      : ''
+                  }`}
                 >
                   {offer.badge_text}
                 </Badge>
@@ -141,7 +145,7 @@ const PartnerOffersSection = () => {
 
                 {/* Price */}
                 <div className="flex items-baseline gap-3">
-                  <span className="text-4xl font-bold text-green-600">
+                  <span className="text-4xl font-bold text-amber-600">
                     {offer.price.toLocaleString('fr-FR')}€
                   </span>
                   {offer.original_price && (
@@ -163,7 +167,7 @@ const PartnerOffersSection = () => {
                     <ul className="space-y-2">
                       {offer.features.map((feature, index) => (
                         <li key={index} className="flex items-start gap-2 text-sm">
-                          <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                          <Check className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -174,7 +178,7 @@ const PartnerOffersSection = () => {
                 {/* CTA Button */}
                 <Button 
                   asChild
-                  className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white font-semibold py-6 text-lg shadow-lg hover:shadow-xl transition-all"
+                  className="w-full mt-6 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-bold py-6 text-lg shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 transition-all duration-300 hover:scale-105 border border-amber-400/30"
                 >
                   <a href={offer.cta_url} target="_blank" rel="noopener noreferrer">
                     {offer.cta_text}
