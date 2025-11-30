@@ -171,7 +171,7 @@ const AidesSection = () => {
               Aides et Subventions 2024
             </h2>
           </div>
-          <p className="text-base md:text-xl text-muted-foreground max-w-3xl mx-auto leading-snug md:leading-relaxed">
+          <p className="text-sm md:text-base text-muted-foreground max-w-4xl mx-auto leading-snug">
             Découvrez toutes les aides disponibles pour financer votre projet d'énergies renouvelables
           </p>
           <div className="flex items-center justify-center gap-2 mt-4">
@@ -201,70 +201,70 @@ const AidesSection = () => {
                 const amount = extractAmount(aide.content);
 
                 return (
-                  <Card key={aide.id} className="group hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 hover:scale-105 hover:-translate-y-1 h-full flex flex-col border-2 border-blue-500/20 hover:border-blue-500/40 overflow-hidden bg-card/80 backdrop-blur-sm">
-                    <CardHeader className="flex-shrink-0">
-                      <div className="flex items-start gap-4 mb-4">
-                        <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-600/20 group-hover:scale-110 transition-transform duration-300 shadow-sm">
-                          <Icon className="w-6 h-6 text-blue-600" />
+                  <Card key={aide.id} className="group hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 hover:scale-105 hover:-translate-y-1 h-full flex flex-col border-2 border-blue-500/20 hover:border-blue-500/40 overflow-hidden bg-card/80 backdrop-blur-sm min-h-[420px] max-h-[420px]">
+                    <CardHeader className="flex-shrink-0 pb-3">
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-600/20 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                          <Icon className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div className="flex-1">
-                          <CardTitle className="text-xl mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors font-bold">{aide.title}</CardTitle>
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-base md:text-lg mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors font-bold leading-tight">{aide.title}</CardTitle>
                           {aide.categories && aide.categories.length > 0 && (
-                            <div className="mb-2">
-                              <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-700 border-blue-500/30 font-semibold">
+                            <div className="mb-1.5">
+                              <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-700 border-blue-500/30 font-semibold px-2 py-0.5">
                                 {aide.categories[0].name}
                               </Badge>
                             </div>
                           )}
                           {aide.tags && aide.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1.5">
-                              {aide.tags.slice(0, 3).map((tag, idx) => (
+                            <div className="flex flex-wrap gap-1">
+                              {aide.tags.slice(0, 2).map((tag, idx) => (
                                 <Badge 
                                   key={idx} 
                                   variant="outline" 
-                                  className="text-xs rounded-full bg-background/50 border-muted-foreground/30 text-muted-foreground px-2 py-0.5"
+                                  className="text-[10px] rounded-full bg-background/50 border-muted-foreground/30 text-muted-foreground px-1.5 py-0"
                                 >
                                   {tag.name}
                                 </Badge>
                               ))}
-                              {aide.tags.length > 3 && (
+                              {aide.tags.length > 2 && (
                                 <Badge 
                                   variant="outline" 
-                                  className="text-xs rounded-full bg-background/50 border-muted-foreground/30 text-muted-foreground px-2 py-0.5"
+                                  className="text-[10px] rounded-full bg-background/50 border-muted-foreground/30 text-muted-foreground px-1.5 py-0"
                                 >
-                                  +{aide.tags.length - 3}
+                                  +{aide.tags.length - 2}
                                 </Badge>
                               )}
                             </div>
                           )}
                         </div>
                       </div>
-                      <CardDescription className="text-base line-clamp-3">
+                      <CardDescription className="text-xs md:text-sm line-clamp-2 leading-snug">
                         {aide.excerpt}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="flex-grow flex flex-col justify-between">
+                    <CardContent className="flex-grow flex flex-col justify-between pt-2 pb-4">
                       <div>
-                        <Badge variant="secondary" className="mb-3 text-sm px-4 py-2 bg-blue-500/10 text-blue-700 border-blue-500/20">
-                          <CheckCircle2 className="w-4 h-4 mr-2" />
-                          {amount}
+                        <Badge variant="secondary" className="mb-2 text-xs px-3 py-1 bg-blue-500/10 text-blue-700 border-blue-500/20">
+                          <CheckCircle2 className="w-3 h-3 mr-1.5" />
+                          <span className="line-clamp-1">{amount}</span>
                         </Badge>
 
-                        <div className="space-y-2 mb-4">
-                          <p className="text-sm font-semibold text-foreground">Conditions :</p>
-                          {conditions.slice(0, 3).map((condition, idx) => (
-                            <div key={idx} className="flex items-start gap-2">
-                              <CheckCircle2 className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                              <span className="text-sm text-muted-foreground line-clamp-2">{condition}</span>
+                        <div className="space-y-1.5 mb-3">
+                          <p className="text-xs font-semibold text-foreground">Conditions :</p>
+                          {conditions.slice(0, 2).map((condition, idx) => (
+                            <div key={idx} className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3 h-3 text-blue-600 mt-0.5 flex-shrink-0" />
+                              <span className="text-xs text-muted-foreground line-clamp-1 leading-tight">{condition}</span>
                             </div>
                           ))}
                         </div>
                       </div>
 
                       <Link to={`/aide/${aide.slug}`} className="mt-auto">
-                        <Button variant="outline" className="w-full border-blue-500/30 text-blue-700 hover:bg-blue-600 hover:text-white font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30">
+                        <Button variant="outline" size="sm" className="w-full border-blue-500/30 text-blue-700 hover:bg-blue-600 hover:text-white font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30 text-xs">
                           En savoir plus
-                          <ArrowRight className="w-4 h-4 ml-2 inline group-hover:translate-x-1 transition-transform" />
+                          <ArrowRight className="w-3 h-3 ml-2 inline group-hover:translate-x-1 transition-transform" />
                         </Button>
                       </Link>
                     </CardContent>
