@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle, Bot, FileCheck } from "lucide-react";
+import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle, Bot, FileCheck, FileText, Mail } from "lucide-react";
 import TrafficDashboard from "@/components/TrafficDashboard";
 
 const Administration = () => {
@@ -226,6 +226,50 @@ const Administration = () => {
                   <Link to="/admin/etiquettes">
                     <Button className="w-full">
                       Accéder aux étiquettes
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Newsletter */}
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <Mail className="w-6 h-6 text-primary" />
+                    </div>
+                  </div>
+                  <CardTitle>Newsletter</CardTitle>
+                  <CardDescription>
+                    Gérez les abonnés à la newsletter
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Link to="/admin/newsletter">
+                    <Button className="w-full">
+                      Gérer la newsletter
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Landing Pages */}
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <FileText className="w-6 h-6 text-primary" />
+                    </div>
+                  </div>
+                  <CardTitle>Landing Pages</CardTitle>
+                  <CardDescription>
+                    Gérez les pages de destination
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Link to="/admin/landing-pages">
+                    <Button className="w-full">
+                      Gérer les landing pages
                     </Button>
                   </Link>
                 </CardContent>
