@@ -12,13 +12,11 @@ const RenovationProgramSection = () => {
           <div className="relative">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
               {/* Image */}
-              <div className="w-full aspect-[4/3]">
-                <img
-                  src={renovationImage}
-                  alt="Maison en rénovation énergétique"
-                  className="w-full h-full object-cover"
-                />
-              </div>
+              <img
+                src={renovationImage}
+                alt="Maison en rénovation énergétique"
+                className="w-full object-cover md:max-h-[300px] lg:max-h-none rounded-2xl"
+              />
               
               {/* Green overlay text banner */}
               <div className="absolute top-8 left-0 right-0 px-4">
