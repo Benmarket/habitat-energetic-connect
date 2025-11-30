@@ -221,7 +221,7 @@ const HeroSection = () => {
                   className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
                   <Sun className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm">Panneaux solaires</span>
+                  <span className="text-white font-semibold text-sm text-center">Panneaux solaires</span>
                 </Link>
 
                 <Link 
@@ -229,7 +229,7 @@ const HeroSection = () => {
                   className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
                   <Droplets className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm">Pompe à chaleur</span>
+                  <span className="text-white font-semibold text-sm text-center">Pompe à chaleur</span>
                 </Link>
 
                 <Link 
@@ -237,7 +237,7 @@ const HeroSection = () => {
                   className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
                   <Home className="w-5 h-5 text-green-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm">Isolation</span>
+                  <span className="text-white font-semibold text-sm text-center">Isolation</span>
                 </Link>
 
                 <Link 
@@ -245,7 +245,7 @@ const HeroSection = () => {
                   className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
                   <HandCoins className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm">Aides & Subventions</span>
+                  <span className="text-white font-semibold text-sm text-center">Aides & Subventions</span>
                 </Link>
               </div>
             </div>
