@@ -1,7 +1,7 @@
-import { Gauge } from "lucide-react";
 import ecologiqueImg from "@/assets/why-solar/ecologique.png";
 import factureEdfImg from "@/assets/why-solar/facture-edf-new.png";
 import appliPvImg from "@/assets/why-solar/appli-pv.jpg";
+import smartphoneImg from "@/assets/why-solar/utilise-smartphone.png";
 
 const WhySolarSection = () => {
   const benefits = [
@@ -16,7 +16,7 @@ const WhySolarSection = () => {
       description: "Avec votre installation solaire vous pouvez réaliser jusqu'à 70% d'économies sur votre facture d'énergie. Les panneaux solaires sont actuellement la solution la plus efficace pour faire des économies d'énergies."
     },
     {
-      icon: Gauge,
+      image: smartphoneImg,
       title: "Maîtrise",
       description: "Avec des panneaux solaires, vous maîtrisez votre consommation électrique. En produisant votre propre énergie, vous devenez autonome, réduisez votre dépendance aux fournisseurs et contrôlez votre consommation."
     },
@@ -37,35 +37,28 @@ const WhySolarSection = () => {
 
         {/* Benefits Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6 max-w-7xl mx-auto">
-          {benefits.map((benefit, index) => {
-            const Icon = benefit.icon;
-            return (
-              <div key={index} className="flex flex-col items-center text-center">
-                {/* Image or Icon Circle */}
-                <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-full bg-muted flex items-center justify-center mb-6 overflow-hidden">
-                  {benefit.image ? (
-                    <img 
-                      src={benefit.image} 
-                      alt={benefit.title}
-                      className={`w-full h-full ${index === 1 ? 'object-contain p-2' : 'object-cover'}`}
-                    />
-                  ) : Icon ? (
-                    <Icon className="w-16 h-16 lg:w-20 lg:h-20 text-primary" strokeWidth={1.5} />
-                  ) : null}
-                </div>
-                
-                {/* Title */}
-                <h3 className="text-xl lg:text-2xl font-bold text-primary mb-4">
-                  {benefit.title}
-                </h3>
-                
-                {/* Description */}
-                <p className="text-sm lg:text-base text-foreground leading-relaxed">
-                  {benefit.description}
-                </p>
+          {benefits.map((benefit, index) => (
+            <div key={index} className="flex flex-col items-center text-center">
+              {/* Image Circle */}
+              <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-full bg-muted flex items-center justify-center mb-6 overflow-hidden">
+                <img 
+                  src={benefit.image} 
+                  alt={benefit.title}
+                  className={`w-full h-full ${index === 1 ? 'object-contain p-2' : 'object-cover'}`}
+                />
               </div>
-            );
-          })}
+              
+              {/* Title */}
+              <h3 className="text-xl lg:text-2xl font-bold text-primary mb-4">
+                {benefit.title}
+              </h3>
+              
+              {/* Description */}
+              <p className="text-sm lg:text-base text-foreground leading-relaxed">
+                {benefit.description}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
 
