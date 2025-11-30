@@ -108,11 +108,11 @@ const ReviewsSection = () => {
     });
   }, [api]);
 
-  const renderStars = (rating: number) => {
+  const renderStars = (rating: number, isMobile: boolean = false) => {
     return Array.from({ length: 5 }).map((_, index) => (
       <Star
         key={index}
-        className={`w-5 h-5 ${
+        className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} ${
           index < rating
             ? "fill-yellow-400 text-yellow-400"
             : "fill-gray-300 text-gray-300"
@@ -167,35 +167,56 @@ const ReviewsSection = () => {
           className="w-full mb-4"
         >
           <CarouselContent>
-            {/* Create slides based on screen size: 2 reviews for mobile/tablet, 4 for desktop */}
+            {/* Mobile: 1 review per slide, Tablet: 2 reviews, Desktop: 4 reviews */}
+            {reviews.map((review, index) => (
+              <CarouselItem key={`mobile-single-${index}`} className="md:hidden">
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-border hover:shadow-md transition-shadow">
+                  {/* User Info */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <Avatar className="w-10 h-10">
+                      <AvatarImage src={review.avatar} alt={review.name} />
+                      <AvatarFallback>{review.initials}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="font-semibold text-sm">{review.name}</div>
+                      <div className="text-xs text-muted-foreground">{review.date}</div>
+                    </div>
+                  </div>
+                  <div className="flex gap-1 mb-2">{renderStars(review.rating, true)}</div>
+                  <p className="text-muted-foreground mb-2 leading-snug text-xs line-clamp-3">{review.text}</p>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="text-blue-600 font-bold">G</span>
+                    <span>Vérifié sur Google</span>
+                  </div>
+                </div>
+              </CarouselItem>
+            ))}
+            
+            {/* Tablet: 2 reviews per slide */}
             {reviews.reduce((slides: any[], review, index) => {
-              // For every 2 reviews, create a slide (mobile/tablet view)
               if (index % 2 === 0) {
                 const slideReviews = reviews.slice(index, index + 2);
                 slides.push(
-                  <CarouselItem key={`mobile-${index}`} className="lg:hidden">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <CarouselItem key={`tablet-${index}`} className="hidden md:block lg:hidden">
+                    <div className="grid grid-cols-2 gap-4">
                       {slideReviews.map((rev) => (
                         <div
                           key={rev.id}
-                          className="bg-white rounded-xl p-6 shadow-sm border border-border hover:shadow-md transition-shadow"
+                          className="bg-white rounded-xl p-5 shadow-sm border border-border hover:shadow-md transition-shadow"
                         >
-                          {/* User Info */}
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <Avatar className="w-12 h-12">
-                                <AvatarImage src={rev.avatar} alt={rev.name} />
-                                <AvatarFallback>{rev.initials}</AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <div className="font-semibold">{rev.name}</div>
-                                <div className="text-sm text-muted-foreground">{rev.date}</div>
-                              </div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <Avatar className="w-10 h-10">
+                              <AvatarImage src={rev.avatar} alt={rev.name} />
+                              <AvatarFallback>{rev.initials}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <div className="font-semibold text-sm">{rev.name}</div>
+                              <div className="text-xs text-muted-foreground">{rev.date}</div>
                             </div>
                           </div>
-                          <div className="flex gap-1 mb-3">{renderStars(rev.rating)}</div>
-                          <p className="text-muted-foreground mb-3 leading-relaxed text-sm">{rev.text}</p>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <div className="flex gap-1 mb-2">{renderStars(rev.rating)}</div>
+                          <p className="text-muted-foreground mb-2 leading-relaxed text-sm">{rev.text}</p>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <span className="text-blue-600 font-bold">G</span>
                             <span>Vérifié sur Google</span>
                           </div>
@@ -205,8 +226,11 @@ const ReviewsSection = () => {
                   </CarouselItem>
                 );
               }
-              
-              // For every 4 reviews, create a slide (desktop view)
+              return slides;
+            }, [])}
+            
+            {/* Desktop: 4 reviews per slide */}
+            {reviews.reduce((slides: any[], review, index) => {
               if (index % 4 === 0) {
                 const slideReviews = reviews.slice(index, index + 4);
                 slides.push(
@@ -217,7 +241,6 @@ const ReviewsSection = () => {
                           key={rev.id}
                           className="bg-white rounded-xl p-6 shadow-sm border border-border hover:shadow-md transition-shadow"
                         >
-                          {/* User Info */}
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-3">
                               <Avatar className="w-12 h-12">
