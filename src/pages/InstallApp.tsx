@@ -119,26 +119,30 @@ const InstallApp = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {deferredPrompt ? (
+                {deferredPrompt && (
                   <Button 
                     onClick={handleInstallClick}
-                    className="w-full bg-primary hover:bg-primary/90"
+                    className="w-full bg-primary hover:bg-primary/90 mb-4"
                     size="lg"
                   >
                     <Download className="w-5 h-5 mr-2" />
-                    Installer l'application
+                    Installer l'application maintenant
                   </Button>
-                ) : (
-                  <div className="space-y-3 text-sm">
-                    <p className="font-semibold">Instructions d'installation :</p>
-                    <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
-                      <li>Ouvrez le menu Chrome (⋮) en haut à droite</li>
-                      <li>Sélectionnez "Ajouter à l'écran d'accueil"</li>
-                      <li>Confirmez en appuyant sur "Ajouter"</li>
-                      <li>L'application apparaîtra sur votre écran d'accueil</li>
-                    </ol>
-                  </div>
                 )}
+                <div className="space-y-3 text-sm">
+                  <p className="font-semibold">Comment installer :</p>
+                  <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
+                    <li>Ouvrez le menu Chrome (⋮) en haut à droite</li>
+                    <li>Sélectionnez "Ajouter à l'écran d'accueil" ou "Installer l'application"</li>
+                    <li>Confirmez en appuyant sur "Ajouter" ou "Installer"</li>
+                    <li>L'application apparaîtra sur votre écran d'accueil</li>
+                  </ol>
+                  {!deferredPrompt && (
+                    <p className="text-xs text-muted-foreground italic mt-4">
+                      💡 Si l'option d'installation n'apparaît pas dans le menu, rechargez la page ou vérifiez que vous utilisez Chrome.
+                    </p>
+                  )}
+                </div>
               </CardContent>
             </Card>
           )}
@@ -183,26 +187,30 @@ const InstallApp = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {deferredPrompt ? (
+                {deferredPrompt && (
                   <Button 
                     onClick={handleInstallClick}
-                    className="w-full bg-primary hover:bg-primary/90"
+                    className="w-full bg-primary hover:bg-primary/90 mb-4"
                     size="lg"
                   >
                     <Download className="w-5 h-5 mr-2" />
-                    Installer l'application
+                    Installer l'application maintenant
                   </Button>
-                ) : (
-                  <div className="space-y-3 text-sm">
-                    <p className="font-semibold">Instructions d'installation :</p>
-                    <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
-                      <li>Recherchez l'icône d'installation dans la barre d'adresse (à droite)</li>
-                      <li>Ou ouvrez le menu Chrome et sélectionnez "Installer Prime Énergies"</li>
-                      <li>Confirmez l'installation</li>
-                      <li>L'application s'ouvrira dans une fenêtre dédiée</li>
-                    </ol>
-                  </div>
                 )}
+                <div className="space-y-3 text-sm">
+                  <p className="font-semibold">Comment installer :</p>
+                  <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
+                    <li>Recherchez l'icône d'installation (⊕) dans la barre d'adresse</li>
+                    <li>Ou ouvrez le menu Chrome (⋮) et sélectionnez "Installer Prime Énergies"</li>
+                    <li>Confirmez l'installation dans la popup</li>
+                    <li>L'application s'ouvrira dans une fenêtre indépendante</li>
+                  </ol>
+                  {!deferredPrompt && (
+                    <p className="text-xs text-muted-foreground italic mt-4">
+                      💡 Astuce : L'icône d'installation apparaît généralement dans la barre d'adresse après quelques secondes.
+                    </p>
+                  )}
+                </div>
               </CardContent>
             </Card>
           )}
