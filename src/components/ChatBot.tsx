@@ -153,26 +153,34 @@ export const ChatBot = () => {
   };
 
   const handleFlowAnswer = async (answer: string, nextNode?: string) => {
-    setMessages(prev => [...prev, { 
-      role: 'user', 
-      content: answer 
-    }]);
-
-    await saveMessage(answer, 'user');
+    // Don't add to messages yet - let the flow runner handle the navigation
+    // We'll save all the conversation when the flow completes
+    console.log("Flow answer:", answer, "Next node:", nextNode);
   };
 
-  const handleFlowComplete = (isQualified: boolean) => {
+  const handleFlowComplete = async (isQualified: boolean, flowHistory: Array<{ question: string; answer: string }>) => {
     setFlowCompleted(true);
     setShowFlowRunner(false);
+    
+    // Save flow history as messages
+    const flowMessages: Message[] = [];
+    flowHistory.forEach(({ question, answer }) => {
+      flowMessages.push({ role: 'assistant', content: question });
+      flowMessages.push({ role: 'user', content: answer });
+    });
     
     const completionMessage = isQualified 
       ? "Merci pour vos réponses ! Un conseiller va prendre contact avec vous prochainement."
       : "Merci de votre intérêt. N'hésitez pas à consulter nos guides pour plus d'informations.";
     
-    setMessages(prev => [...prev, {
-      role: 'assistant',
-      content: completionMessage
-    }]);
+    flowMessages.push({ role: 'assistant', content: completionMessage });
+    
+    setMessages(flowMessages);
+    
+    // Save to database
+    for (const msg of flowMessages) {
+      await saveMessage(msg.content, msg.role === 'user' ? 'user' : 'bot');
+    }
   };
 
   const handleFlowRequestAgent = () => {
@@ -409,7 +417,7 @@ export const ChatBot = () => {
           {/* Messages */}
           <ScrollArea className="flex-1 p-4" ref={scrollRef}>
             {/* Show flow runner if active and not completed */}
-            {messages.length === 0 && activeFlow && showFlowRunner && !flowCompleted && (
+            {activeFlow && showFlowRunner && !flowCompleted && (
               <div>
                 <div className="text-center text-muted-foreground py-4 mb-4">
                   <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
@@ -424,8 +432,8 @@ export const ChatBot = () => {
               </div>
             )}
 
-            {/* Show messages if any OR if flow not available */}
-            {(messages.length > 0 || !activeFlow || flowCompleted) && (
+            {/* Show messages only when flow is completed or not available */}
+            {(!showFlowRunner || flowCompleted || !activeFlow) && (
               <>
                 {messages.length === 0 && (
                   <div className="text-center text-muted-foreground py-8">

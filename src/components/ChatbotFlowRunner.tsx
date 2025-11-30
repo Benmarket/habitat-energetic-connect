@@ -21,7 +21,7 @@ type ChatbotFlowRunnerProps = {
   flowStructure: FlowStructure;
   onAnswer: (answer: string, nextNode?: string) => void;
   onRequestAgent?: () => void;
-  onComplete?: (isQualified: boolean) => void;
+  onComplete?: (isQualified: boolean, conversationHistory: Array<{ question: string; answer: string }>) => void;
 };
 
 export const ChatbotFlowRunner = ({
@@ -97,7 +97,7 @@ export const ChatbotFlowRunner = ({
 
   const handleEnd = () => {
     if (onComplete && currentNode.type === "end") {
-      onComplete(currentNode.is_qualified ?? false);
+      onComplete(currentNode.is_qualified ?? false, conversationHistory);
     }
   };
 
