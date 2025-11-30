@@ -27,12 +27,20 @@ const AdminApp = () => {
         .eq("key", "app_download_links")
         .single();
 
-      if (error && error.code !== "PGRST116") throw error;
-
-      if (data?.value) {
+      if (error && error.code !== "PGRST116") {
+        // Pas encore de données, pré-remplir avec l'URL du site
+        const siteUrl = window.location.origin;
+        setAndroidLink(siteUrl);
+        setIosLink(siteUrl);
+      } else if (data?.value) {
         const settings = data.value as { android?: string; ios?: string };
-        setAndroidLink(settings.android || "");
-        setIosLink(settings.ios || "");
+        setAndroidLink(settings.android || window.location.origin);
+        setIosLink(settings.ios || window.location.origin);
+      } else {
+        // Pré-remplir avec l'URL du site
+        const siteUrl = window.location.origin;
+        setAndroidLink(siteUrl);
+        setIosLink(siteUrl);
       }
     } catch (error) {
       console.error("Erreur lors du chargement:", error);
@@ -179,12 +187,17 @@ const AdminApp = () => {
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground space-y-2">
               <p>
-                L'application Prime énergies est une version mobile de votre site web avec connexion directe.
+                L'application Prime énergies est une Progressive Web App (PWA) installable directement depuis le navigateur.
               </p>
               <p>
-                Les liens configurés ici seront utilisés dans la section "Téléchargez l'app Prime Énergies" 
-                de la page d'accueil pour permettre aux utilisateurs de télécharger l'application depuis 
-                Google Play Store (Android) ou App Store (iOS).
+                Les liens sont automatiquement pré-remplis avec l'URL de votre site. Lorsque les utilisateurs cliquent 
+                sur les boutons de téléchargement, l'application s'installe directement sur leur appareil (Android ou iOS) 
+                sans passer par les stores.
+              </p>
+              <p className="font-semibold text-foreground">
+                ✓ Installation automatique selon l'OS de l'utilisateur<br />
+                ✓ Fonctionne comme une application native<br />
+                ✓ Pas besoin de stores (Play Store / App Store)
               </p>
             </CardContent>
           </Card>
