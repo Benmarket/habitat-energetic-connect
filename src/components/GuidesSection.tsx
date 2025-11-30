@@ -83,11 +83,6 @@ const GuidesSection = () => {
 
   if (guides.length === 0) return null;
 
-  const slides = [];
-  for (let i = 0; i < guides.length; i += 3) {
-    slides.push(guides.slice(i, i + 3));
-  }
-
   return (
     <section className="py-12 md:py-16 lg:py-20 px-4 relative overflow-hidden bg-gradient-to-b from-background via-orange-50/30 to-background">
       {/* Decorative background elements */}
@@ -129,61 +124,58 @@ const GuidesSection = () => {
           opts={{
             align: "start",
             loop: true,
+            slidesToScroll: 1,
           }}
           className="w-full mt-6"
         >
-          <CarouselContent>
-            {slides.map((slideGuides, slideIndex) => (
-              <CarouselItem key={slideIndex}>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-2">
-                   {slideGuides.map((guide) => (
-                    <Link key={guide.id} to={`/guide/${guide.slug}`} className="group">
-                      <Card className="h-full transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 hover:scale-105 hover:-translate-y-2 bg-card/80 backdrop-blur-sm border-2 border-orange-500/20 hover:border-orange-500 overflow-hidden">
-                        {guide.featured_image && (
-                          <div className="relative h-56 overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-orange-950/20 to-transparent z-10" />
-                            <img
-                              src={guide.featured_image}
-                              alt={guide.title}
-                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                            />
-                            <div className="absolute top-4 right-4 z-20">
-                              <div className="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg shadow-orange-500/30 backdrop-blur-sm border border-orange-400/20">
-                                Guide 2025
-                              </div>
-                            </div>
+          <CarouselContent className="-ml-4">
+            {guides.map((guide) => (
+              <CarouselItem key={guide.id} className="pl-4 basis-full md:basis-1/3">
+                <Link to={`/guide/${guide.slug}`} className="group block h-full">
+                  <Card className="h-full transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 hover:scale-105 hover:-translate-y-2 bg-card/80 backdrop-blur-sm border-2 border-orange-500/20 hover:border-orange-500 overflow-hidden">
+                    {guide.featured_image && (
+                      <div className="relative h-56 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-orange-950/20 to-transparent z-10" />
+                        <img
+                          src={guide.featured_image}
+                          alt={guide.title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                        <div className="absolute top-4 right-4 z-20">
+                          <div className="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg shadow-orange-500/30 backdrop-blur-sm border border-orange-400/20">
+                            Guide 2025
                           </div>
-                        )}
-                        <CardHeader className="space-y-3">
-                          {guide.categories && guide.categories.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
-                              {guide.categories.slice(0, 2).map((cat) => (
-                                <span
-                                  key={cat.slug}
-                                  className="text-xs px-3 py-1.5 rounded-full bg-orange-600/10 text-orange-700 border border-orange-500/30 font-semibold hover:bg-orange-600/20 transition-colors"
-                                >
-                                  {cat.name}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                          <CardTitle className="text-xl group-hover:text-orange-600 transition-colors duration-300 line-clamp-2 font-bold">
-                            {guide.title}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <CardDescription className="line-clamp-3 text-base leading-relaxed">
-                            {guide.excerpt || "Découvrez ce guide complet pour optimiser votre projet énergétique..."}
-                          </CardDescription>
-                          <div className="mt-6 flex items-center gap-2 text-orange-600 font-bold group-hover:gap-4 transition-all duration-300">
-                            <span>Lire le guide</span>
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
+                        </div>
+                      </div>
+                    )}
+                    <CardHeader className="space-y-3">
+                      {guide.categories && guide.categories.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {guide.categories.slice(0, 2).map((cat) => (
+                            <span
+                              key={cat.slug}
+                              className="text-xs px-3 py-1.5 rounded-full bg-orange-600/10 text-orange-700 border border-orange-500/30 font-semibold hover:bg-orange-600/20 transition-colors"
+                            >
+                              {cat.name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <CardTitle className="text-xl group-hover:text-orange-600 transition-colors duration-300 line-clamp-2 font-bold">
+                        {guide.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription className="line-clamp-3 text-base leading-relaxed">
+                        {guide.excerpt || "Découvrez ce guide complet pour optimiser votre projet énergétique..."}
+                      </CardDescription>
+                      <div className="mt-6 flex items-center gap-2 text-orange-600 font-bold group-hover:gap-4 transition-all duration-300">
+                        <span>Lire le guide</span>
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               </CarouselItem>
             ))}
           </CarouselContent>
