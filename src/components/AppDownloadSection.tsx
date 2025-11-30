@@ -13,9 +13,9 @@ const AppDownloadSection = () => {
       <div className="absolute bottom-10 -left-20 w-80 h-80 bg-accent/10 rounded-full blur-3xl" />
       
       <div className="container mx-auto px-4 lg:px-6 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-10 items-center max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 lg:gap-10 items-center max-w-7xl mx-auto">
           {/* Left: Content */}
-          <div className="space-y-3 md:space-y-4 animate-fade-in order-2 lg:order-1">
+          <div className="space-y-3 md:space-y-4 animate-fade-in order-2 md:order-1">
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs md:text-sm font-semibold">
               <Smartphone className="w-3 h-3 md:w-4 md:h-4" />
               Nouveau
@@ -69,7 +69,7 @@ const AppDownloadSection = () => {
           </div>
 
           {/* Right: App Mockup */}
-          <div className="relative animate-fade-in order-1 lg:order-2 flex justify-center lg:justify-end" style={{ animationDelay: "0.2s" }}>
+          <div className="relative animate-fade-in order-1 md:order-2 flex justify-center md:justify-end" style={{ animationDelay: "0.2s" }}>
             <div className="relative w-[280px] sm:w-[320px] md:w-[340px] lg:w-[360px]">
               {/* Phone mockup with dashboard */}
               <div className="relative z-20 bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] md:rounded-[2.5rem] p-2.5 md:p-3 shadow-2xl border-4 md:border-[6px] border-slate-900">
