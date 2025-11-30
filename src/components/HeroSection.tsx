@@ -272,7 +272,7 @@ const HeroSection = () => {
                 <form onSubmit={handleSubmit}>
                   {/* All fields in single row */}
                   <div className="flex flex-wrap gap-3 mb-4">
-                    <div className="min-w-[150px] max-w-[200px]">
+                    <div className="flex-[1.2] min-w-[160px]">
                       <Label htmlFor="fullName" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         Nom complet <span className="text-yellow-300">*</span>
                       </Label>
@@ -286,7 +286,7 @@ const HeroSection = () => {
                       />
                     </div>
 
-                    <div className="min-w-[130px] max-w-[160px]">
+                    <div className="flex-1 min-w-[140px]">
                       <Label htmlFor="phone" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         Téléphone <span className="text-yellow-300">*</span>
                       </Label>
@@ -301,7 +301,7 @@ const HeroSection = () => {
                       />
                     </div>
 
-                    <div className="min-w-[180px] max-w-[220px]">
+                    <div className="flex-[1.3] min-w-[180px]">
                       <Label htmlFor="email" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         E-mail <span className="text-yellow-300">*</span>
                       </Label>
@@ -316,7 +316,7 @@ const HeroSection = () => {
                       />
                     </div>
 
-                    <div className="min-w-[100px] max-w-[130px]">
+                    <div className="flex-[0.8] min-w-[110px]">
                       <Label htmlFor="postalCode" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         Code postal <span className="text-yellow-300">*</span>
                       </Label>
@@ -331,7 +331,7 @@ const HeroSection = () => {
                       />
                     </div>
 
-                    <div className="min-w-[150px] max-w-[200px]">
+                    <div className="flex-[1.2] min-w-[160px]">
                       <Label htmlFor="workType" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         Type de travaux <span className="text-yellow-300">*</span>
                       </Label>
@@ -349,10 +349,10 @@ const HeroSection = () => {
                       </Select>
                     </div>
 
-                    <div className="flex items-end">
+                    <div className="flex items-end flex-[0.7] min-w-[120px]">
                       <Button
                         type="submit" 
-                        className="h-11 px-8 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold whitespace-nowrap shadow-lg text-sm transition-all hover:scale-105 hover:shadow-xl" 
+                        className="h-11 px-8 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold whitespace-nowrap shadow-lg text-sm transition-all hover:scale-105 hover:shadow-xl w-full" 
                         disabled={isSubmitting}
                       >
                         {isSubmitting ? "Envoi..." : "Envoyer"}
