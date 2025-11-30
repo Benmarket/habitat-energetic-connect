@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, UserCog, CheckCircle, Bot, User } from "lucide-react";
+import { MessageCircle, X, Send, UserCog, Bot, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { ChatbotFlowRunner } from "./ChatbotFlowRunner";
 
 type Message = { 
   role: "user" | "assistant" | "agent"; 
@@ -25,9 +25,30 @@ export const ChatBot = () => {
   const [hasRequestedAgent, setHasRequestedAgent] = useState(false);
   const [agentConnected, setAgentConnected] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(true);
+  const [activeFlow, setActiveFlow] = useState<any>(null);
+  const [showFlowRunner, setShowFlowRunner] = useState(true);
+  const [flowCompleted, setFlowCompleted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+
+  // Load active flow on mount
+  useEffect(() => {
+    const loadActiveFlow = async () => {
+      const { data, error } = await supabase
+        .from('chatbot_flows')
+        .select('*')
+        .eq('is_active', true)
+        .limit(1)
+        .single();
+
+      if (data && !error) {
+        setActiveFlow(data);
+      }
+    };
+
+    loadActiveFlow();
+  }, []);
 
   // Initialize conversation on open
   useEffect(() => {
@@ -80,7 +101,6 @@ export const ChatBot = () => {
   // Detect footer visibility to hide/show button (only when chat is closed)
   useEffect(() => {
     if (isOpen) {
-      // Don't hide if chat is open
       return;
     }
 
@@ -90,8 +110,6 @@ export const ChatBot = () => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          // Hide button when footer is visible (any part of it)
-          // Show button when footer is not visible
           if (entry.isIntersecting) {
             setIsButtonVisible(false);
           } else {
@@ -100,7 +118,6 @@ export const ChatBot = () => {
         });
       },
       {
-        // Trigger as soon as any part of the footer becomes visible
         threshold: 0,
         rootMargin: '0px 0px 0px 0px'
       }
@@ -135,6 +152,34 @@ export const ChatBot = () => {
     }
   };
 
+  const handleFlowAnswer = async (answer: string, nextNode?: string) => {
+    setMessages(prev => [...prev, { 
+      role: 'user', 
+      content: answer 
+    }]);
+
+    await saveMessage(answer, 'user');
+  };
+
+  const handleFlowComplete = (isQualified: boolean) => {
+    setFlowCompleted(true);
+    setShowFlowRunner(false);
+    
+    const completionMessage = isQualified 
+      ? "Merci pour vos réponses ! Un conseiller va prendre contact avec vous prochainement."
+      : "Merci de votre intérêt. N'hésitez pas à consulter nos guides pour plus d'informations.";
+    
+    setMessages(prev => [...prev, {
+      role: 'assistant',
+      content: completionMessage
+    }]);
+  };
+
+  const handleFlowRequestAgent = () => {
+    setShowFlowRunner(false);
+    requestHumanAgent();
+  };
+
   const saveMessage = async (content: string, senderType: 'user' | 'bot' | 'agent') => {
     if (!conversationId) return;
 
@@ -155,7 +200,6 @@ export const ChatBot = () => {
     if (!conversationId || hasRequestedAgent) return;
 
     try {
-      // Check if there's already a pending request
       const { data: existing } = await supabase
         .from('chat_agent_requests')
         .select('id')
@@ -171,13 +215,11 @@ export const ChatBot = () => {
         return;
       }
 
-      // Update conversation status
       await supabase
         .from('chat_conversations')
         .update({ status: 'awaiting_agent' })
         .eq('id', conversationId);
 
-      // Create agent request
       await supabase
         .from('chat_agent_requests')
         .insert({
@@ -207,7 +249,6 @@ export const ChatBot = () => {
 
   const streamChat = async (userMessage: string) => {
     if (agentConnected) {
-      // If agent is connected, just save the user message
       await saveMessage(userMessage, 'user');
       return;
     }
@@ -217,7 +258,6 @@ export const ChatBot = () => {
     setInput("");
     setIsLoading(true);
 
-    // Save user message
     await saveMessage(userMessage, 'user');
 
     let assistantContent = "";
@@ -266,10 +306,18 @@ export const ChatBot = () => {
 
           try {
             const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content;
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
               assistantContent += content;
-              setMessages([...newMessages, { role: "assistant", content: assistantContent }]);
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                if (last?.role === "assistant") {
+                  return prev.map((m, i) => 
+                    i === prev.length - 1 ? { ...m, content: assistantContent } : m
+                  );
+                }
+                return [...prev, { role: "assistant", content: assistantContent }];
+              });
             }
           } catch {
             textBuffer = line + "\n" + textBuffer;
@@ -278,17 +326,29 @@ export const ChatBot = () => {
         }
       }
 
-      // Save bot response
-      if (assistantContent) {
-        await saveMessage(assistantContent, 'bot');
+      if (textBuffer.trim()) {
+        for (let raw of textBuffer.split("\n")) {
+          if (!raw) continue;
+          if (raw.endsWith("\r")) raw = raw.slice(0, -1);
+          if (raw.startsWith(":") || raw.trim() === "") continue;
+          if (!raw.startsWith("data: ")) continue;
+          const jsonStr = raw.slice(6).trim();
+          if (jsonStr === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) assistantContent += content;
+          } catch { /* ignore */ }
+        }
       }
+
+      await saveMessage(assistantContent, 'bot');
     } catch (error) {
-      console.error("Chat error:", error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de communiquer avec le chatbot. Veuillez réessayer.",
-        variant: "destructive",
-      });
+      console.error(error);
+      setMessages(prev => [...prev, { 
+        role: "assistant", 
+        content: "Désolé, une erreur s'est produite. Veuillez réessayer." 
+      }]);
     } finally {
       setIsLoading(false);
     }
@@ -309,11 +369,9 @@ export const ChatBot = () => {
           className="fixed bottom-6 right-6 z-50 flex items-center gap-0 group hover:scale-105 transition-all duration-300 ease-out animate-in fade-in slide-in-from-bottom-4"
           aria-label="Ouvrir le chatbot"
         >
-          {/* Circle with icon */}
           <div className="h-14 w-14 rounded-full bg-blue-900 flex items-center justify-center shadow-[0_8px_30px_rgb(30,64,175,0.3)] z-10 group-hover:bg-blue-800 group-hover:shadow-[0_12px_40px_rgb(30,64,175,0.4)] transition-all duration-300">
             <MessageCircle className="h-6 w-6 text-white" />
           </div>
-          {/* Text rectangle */}
           <div className="bg-white border-2 border-blue-900 rounded-full pl-8 pr-5 py-3 -ml-6 shadow-[0_4px_20px_rgba(0,0,0,0.08)] group-hover:shadow-[0_6px_25px_rgba(0,0,0,0.12)] transition-all duration-300">
             <span className="text-blue-900 font-semibold text-sm whitespace-nowrap tracking-wide">
               Assistance en ligne
@@ -350,113 +408,99 @@ export const ChatBot = () => {
 
           {/* Messages */}
           <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-            {messages.length === 0 && (
-              <div className="text-center text-muted-foreground py-8">
-                <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p className="text-sm mb-4">Bonjour ! Comment puis-je vous aider aujourd'hui ?</p>
-                
-                {/* Quick replies */}
-                <div className="flex flex-col gap-2 mt-6">
-                  <button
-                    onClick={() => streamChat("Quelles aides pour l'isolation ?")}
-                    className="px-4 py-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 text-blue-900 dark:text-blue-100 rounded-lg text-sm transition-colors border border-blue-200 dark:border-blue-800"
-                  >
-                    Quelles aides pour l'isolation ?
-                  </button>
-                  <button
-                    onClick={() => streamChat("Comment fonctionne la prime énergie ?")}
-                    className="px-4 py-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 text-blue-900 dark:text-blue-100 rounded-lg text-sm transition-colors border border-blue-200 dark:border-blue-800"
-                  >
-                    Comment fonctionne la prime énergie ?
-                  </button>
-                  <button
-                    onClick={() => streamChat("Simuler mes économies d'énergie")}
-                    className="px-4 py-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 text-blue-900 dark:text-blue-100 rounded-lg text-sm transition-colors border border-blue-200 dark:border-blue-800"
-                  >
-                    Simuler mes économies d'énergie
-                  </button>
+            {/* Show flow runner if active and not completed */}
+            {messages.length === 0 && activeFlow && showFlowRunner && !flowCompleted && (
+              <div>
+                <div className="text-center text-muted-foreground py-4 mb-4">
+                  <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p className="text-sm font-medium">Bonjour ! Comment puis-je vous aider aujourd'hui ?</p>
+                </div>
+                <ChatbotFlowRunner
+                  flowStructure={activeFlow.tree_structure}
+                  onAnswer={handleFlowAnswer}
+                  onRequestAgent={handleFlowRequestAgent}
+                  onComplete={handleFlowComplete}
+                />
+              </div>
+            )}
+
+            {/* Show messages if any OR if flow not available */}
+            {(messages.length > 0 || !activeFlow || flowCompleted) && (
+              <>
+                {messages.length === 0 && (
+                  <div className="text-center text-muted-foreground py-8">
+                    <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <p className="text-sm">Bonjour ! Comment puis-je vous aider aujourd'hui ?</p>
+                  </div>
+                )}
+                <div className="space-y-4">
+                  {messages.map((msg, idx) => (
+                    <div
+                      key={idx}
+                      className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                    >
+                      {msg.role !== "user" && (
+                        <Avatar className="h-8 w-8 flex-shrink-0">
+                          <AvatarFallback className="bg-blue-100 dark:bg-blue-900">
+                            {msg.role === "agent" ? (
+                              <User className="h-4 w-4 text-blue-900 dark:text-blue-100" />
+                            ) : (
+                              <Bot className="h-4 w-4 text-blue-900 dark:text-blue-100" />
+                            )}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                      <div
+                        className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                          msg.role === "user"
+                            ? "bg-blue-900 text-white ml-auto"
+                            : "bg-muted text-foreground"
+                        }`}
+                      >
+                        {msg.role === "agent" && msg.senderName && (
+                          <div className="text-xs font-semibold mb-1 flex items-center gap-1">
+                            {msg.senderName}
+                          </div>
+                        )}
+                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {isLoading && (
+              <div className="flex gap-2 justify-start mt-4">
+                <Avatar className="h-8 w-8 flex-shrink-0">
+                  <AvatarFallback className="bg-blue-100 dark:bg-blue-900">
+                    <Bot className="h-4 w-4 text-blue-900 dark:text-blue-100" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="bg-muted rounded-lg px-4 py-2">
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 bg-blue-900 dark:bg-blue-100 rounded-full animate-bounce" />
+                    <span className="w-2 h-2 bg-blue-900 dark:bg-blue-100 rounded-full animate-bounce delay-100" />
+                    <span className="w-2 h-2 bg-blue-900 dark:bg-blue-100 rounded-full animate-bounce delay-200" />
+                  </div>
                 </div>
               </div>
             )}
-            <div className="space-y-4">
-              {messages.map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  {msg.role !== "user" && (
-                    <Avatar className="h-8 w-8 flex-shrink-0">
-                      <AvatarFallback className="bg-blue-100 dark:bg-blue-900">
-                        {msg.role === "agent" ? (
-                          <User className="h-4 w-4 text-blue-900 dark:text-blue-100" />
-                        ) : (
-                          <Bot className="h-4 w-4 text-blue-900 dark:text-blue-100" />
-                        )}
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                  <div
-                    className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                      msg.role === "user"
-                        ? "bg-blue-900 text-white"
-                        : msg.role === "agent"
-                        ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
-                        : "bg-muted text-foreground"
-                    }`}
-                  >
-                    {msg.role === "agent" && msg.senderName && (
-                      <div className="flex items-center gap-1 mb-1 text-xs font-semibold">
-                        <span>{msg.senderName}</span>
-                        {msg.isVerified && (
-                          <CheckCircle className="h-3 w-3 text-blue-600 fill-blue-600" />
-                        )}
-                        <Badge variant="secondary" className="ml-1 text-[10px] h-4">Agent</Badge>
-                      </div>
-                    )}
-                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                  </div>
-                  {msg.role === "user" && (
-                    <Avatar className="h-8 w-8 flex-shrink-0">
-                      <AvatarFallback className="bg-blue-900">
-                        <User className="h-4 w-4 text-white" />
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex gap-2 justify-start">
-                  <Avatar className="h-8 w-8 flex-shrink-0">
-                    <AvatarFallback className="bg-blue-100 dark:bg-blue-900">
-                      <Bot className="h-4 w-4 text-blue-900 dark:text-blue-100" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="bg-muted text-foreground rounded-lg px-4 py-3">
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 rounded-full bg-foreground/60 animate-bounce [animation-delay:-0.3s]"></div>
-                      <div className="w-2 h-2 rounded-full bg-foreground/60 animate-bounce [animation-delay:-0.15s]"></div>
-                      <div className="w-2 h-2 rounded-full bg-foreground/60 animate-bounce"></div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </ScrollArea>
 
-          {/* Agent request button */}
-          {!agentConnected && !hasRequestedAgent && messages.length > 0 && (
-            <div className="px-4 pb-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={requestHumanAgent}
-                className="w-full gap-2 text-xs"
-              >
-                <UserCog className="h-3 w-3" />
-                Parler à un agent humain
-              </Button>
-            </div>
-          )}
+            {!agentConnected && !hasRequestedAgent && messages.length > 0 && (
+              <div className="mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={requestHumanAgent}
+                  className="w-full gap-2 text-xs"
+                >
+                  <UserCog className="h-3 w-3" />
+                  Parler à un agent humain
+                </Button>
+              </div>
+            )}
+          </ScrollArea>
 
           {/* Input */}
           <div className="p-4 border-t border-border">
