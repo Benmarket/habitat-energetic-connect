@@ -125,29 +125,27 @@ const ReviewsSection = () => {
     <section className="bg-muted py-16">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                <span className="text-2xl font-bold text-blue-600">G</span>
-              </div>
-              <h2 className="text-3xl font-bold">Avis clients Google</h2>
+        <div className="flex flex-col items-center gap-4 mb-12">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+              <span className="text-2xl font-bold text-blue-600">G</span>
             </div>
-            <p className="text-muted-foreground">
-              Clients installés par nos partenaires certifiés ou accompagnés par Prime Énergies.
-            </p>
+            <h2 className="text-3xl font-bold">Avis clients Google</h2>
           </div>
+          <p className="text-muted-foreground text-center max-w-2xl">
+            Clients installés par nos partenaires certifiés ou accompagnés par Prime Énergies.
+          </p>
 
-          {/* Average Rating */}
-          <div className="bg-white rounded-xl p-6 md:p-4 shadow-sm border border-border md:w-48 md:flex-shrink-0">
-            <div className="flex items-center gap-2 mb-2 justify-center md:justify-start">
+          {/* Average Rating - Compact and Centered */}
+          <div className="bg-white rounded-lg p-3 shadow-sm border border-border">
+            <div className="flex items-center gap-1 mb-1">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="w-6 h-6 md:w-5 md:h-5 fill-yellow-400 text-yellow-400" />
+                <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
               ))}
             </div>
-            <div className="text-center md:text-left">
-              <div className="text-4xl md:text-3xl font-bold">{averageRating}</div>
-              <div className="text-sm text-muted-foreground">Note moyenne</div>
+            <div className="text-center">
+              <div className="text-2xl font-bold">{averageRating}</div>
+              <div className="text-xs text-muted-foreground">Note moyenne</div>
             </div>
           </div>
         </div>
