@@ -6,34 +6,36 @@ const Footer = () => {
   return (
     <footer className="bg-[#1a2332] text-white">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-          {/* Column 1: Logo and description */}
-          <div>
-            <Link to="/" className="inline-block mb-4">
-              <h2 className="text-2xl font-bold">
-                <span className="text-primary">Prime</span>
-                <span className="text-white"> energies</span>
-              </h2>
-              <p className="text-sm text-white/60">prime-energies.fr</p>
-            </Link>
-            <p className="text-white/70 mb-6 text-sm leading-relaxed">
-              Votre portail de confiance pour les énergies renouvelables. Nous connectons les particuliers avec les meilleurs installateurs certifiés de France.
-            </p>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        {/* Column 1: Logo and description */}
+        <div>
+          <Link to="/" className="inline-block mb-4">
+            <h2 className="text-2xl font-bold">
+              <span className="text-primary">Prime</span>
+              <span className="text-white"> energies</span>
+            </h2>
+            <p className="text-sm text-white/60">prime-energies.fr</p>
+          </Link>
+          <p className="text-white/70 mb-6 text-sm leading-relaxed">
+            Votre portail de confiance pour les énergies renouvelables. Nous connectons les particuliers avec les meilleurs installateurs certifiés de France.
+          </p>
+        </div>
 
-          {/* Column 2: Newsletter */}
-          <div className="lg:order-4">
-            <h3 className="text-lg font-semibold mb-4">Newsletter</h3>
-            <p className="text-white/70 mb-4 text-sm">
-              Recevez les dernières actualités et offres en énergies renouvelables.
-            </p>
-            <NewsletterForm />
-          </div>
+        {/* Column 2: Newsletter */}
+        <div className="lg:order-4">
+          <h3 className="text-lg font-semibold mb-4">Newsletter</h3>
+          <p className="text-white/70 mb-4 text-sm">
+            Recevez les dernières actualités et offres en énergies renouvelables.
+          </p>
+          <NewsletterForm />
+        </div>
 
+        {/* Columns 3 & 4: Navigation and Services - Side by side on mobile */}
+        <div className="col-span-1 md:col-span-2 lg:col-span-2 grid grid-cols-2 gap-6 lg:gap-8 lg:order-2">
           {/* Column 3: Navigation */}
-          <div className="lg:order-2">
-            <h3 className="text-lg font-semibold mb-4">Navigation</h3>
-            <nav className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-2">
+          <div>
+            <h3 className="text-base lg:text-lg font-semibold mb-4">Navigation</h3>
+            <nav className="grid grid-cols-1 gap-2">
               <Link to="/actualites" className="text-white/70 hover:text-white transition-colors text-sm">
                 Actualités
               </Link>
@@ -56,9 +58,9 @@ const Footer = () => {
           </div>
 
           {/* Column 4: Services */}
-          <div className="lg:order-3">
-            <h3 className="text-lg font-semibold mb-4">Services</h3>
-            <nav className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-2">
+          <div>
+            <h3 className="text-base lg:text-lg font-semibold mb-4">Services</h3>
+            <nav className="grid grid-cols-1 gap-2">
               <Link to="/services/installation-solaire" className="text-white/70 hover:text-white transition-colors text-sm">
                 Installation solaire
               </Link>
@@ -80,6 +82,7 @@ const Footer = () => {
             </nav>
           </div>
         </div>
+      </div>
 
         {/* Phone number and social icons - centered below all columns */}
         <div className="flex flex-nowrap items-center justify-center gap-3 mb-8">
