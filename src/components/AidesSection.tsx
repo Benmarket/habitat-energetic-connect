@@ -154,7 +154,7 @@ const AidesSection = () => {
   if (loading) return null;
 
   return (
-    <section className="py-20 bg-gradient-to-b from-blue-50/50 via-background to-background dark:from-blue-950/20 dark:via-background dark:to-background relative overflow-hidden">
+    <section className="py-8 md:py-12 lg:py-20 bg-gradient-to-b from-blue-50/50 via-background to-background dark:from-blue-950/20 dark:via-background dark:to-background relative overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 right-10 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl" />
@@ -162,12 +162,12 @@ const AidesSection = () => {
       </div>
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-14 animate-fade-in">
-          <div className="inline-flex items-center gap-3 mb-4 bg-gradient-to-r from-blue-600/10 to-blue-500/10 px-6 py-3 rounded-full backdrop-blur-sm border border-blue-500/20 shadow-lg shadow-blue-500/10">
-            <div className="p-2 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg shadow-md">
-              <CheckCircle2 className="w-5 h-5 text-white" />
+        <div className="text-center mb-10 md:mb-14 animate-fade-in">
+          <div className="inline-flex items-center gap-2 md:gap-3 mb-4 bg-gradient-to-r from-blue-600/10 to-blue-500/10 px-4 md:px-6 py-2 md:py-3 rounded-full backdrop-blur-sm border border-blue-500/20 shadow-lg shadow-blue-500/10">
+            <div className="p-1.5 md:p-2 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg shadow-md">
+              <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 text-white" />
             </div>
-            <h2 className="text-2xl md:text-4xl font-extrabold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 bg-clip-text text-transparent">
+            <h2 className="text-lg md:text-2xl lg:text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 bg-clip-text text-transparent whitespace-nowrap">
               Aides et Subventions 2024
             </h2>
           </div>
