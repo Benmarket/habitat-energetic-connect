@@ -249,70 +249,70 @@ const HeroSection = () => {
 
           {/* Right cell: Form - centered content */}
           <div className="flex items-center justify-center pb-3 lg:pb-0">
-            <div className="bg-white rounded-xl shadow-2xl p-5 w-full max-w-[480px]">
-              <h2 className="text-xl font-bold text-foreground mb-1">
+            <div className="bg-white rounded-lg shadow-2xl p-4 w-full max-w-[400px]">
+              <h2 className="text-lg font-bold text-foreground mb-0.5">
                 Étude énergétique gratuite
               </h2>
-              <p className="text-sm text-muted-foreground mb-4">
-                Découvrez vos économies potentielles et les aides disponibles en quelques clics
+              <p className="text-xs text-muted-foreground mb-3">
+                Découvrez vos économies potentielles et les aides disponibles
               </p>
               
-              <form onSubmit={handleSubmit} className="space-y-3">
+              <form onSubmit={handleSubmit} className="space-y-2.5">
                 <div>
-                  <Label htmlFor="fullName" className="text-sm mb-1">Nom complet</Label>
+                  <Label htmlFor="fullName" className="text-xs mb-0.5">Nom complet</Label>
                   <Input
                     id="fullName"
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                     placeholder="Votre nom et prénom"
-                    className="h-10"
+                    className="h-9 text-sm"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="phone" className="text-sm mb-1">Téléphone</Label>
+                  <Label htmlFor="phone" className="text-xs mb-0.5">Téléphone</Label>
                   <Input
                     id="phone"
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="06 12 34 56 78"
-                    className="h-10"
+                    className="h-9 text-sm"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="email" className="text-sm mb-1">Email</Label>
+                  <Label htmlFor="email" className="text-xs mb-0.5">Email</Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="votre@email.com"
-                    className="h-10"
+                    className="h-9 text-sm"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="postalCode" className="text-sm mb-1">Code postal</Label>
+                  <Label htmlFor="postalCode" className="text-xs mb-0.5">Code postal</Label>
                   <Input
                     id="postalCode"
                     value={formData.postalCode}
                     onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
                     placeholder="75001"
                     maxLength={5}
-                    className="h-10"
+                    className="h-9 text-sm"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="workType" className="text-sm mb-1">Type de travaux</Label>
+                  <Label htmlFor="workType" className="text-xs mb-0.5">Type de travaux</Label>
                   <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
-                    <SelectTrigger className="h-10">
+                    <SelectTrigger className="h-9 text-sm">
                       <SelectValue placeholder="Sélectionnez..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -327,7 +327,7 @@ const HeroSection = () => {
 
                 <Button 
                   type="submit" 
-                  className="w-full h-11 text-base font-semibold mt-4" 
+                  className="w-full h-10 text-sm font-semibold mt-3" 
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Envoi en cours..." : "Commencer l'étude gratuite"}
