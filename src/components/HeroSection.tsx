@@ -287,7 +287,7 @@ const HeroSection = () => {
                     </div>
 
                     {/* Téléphone et Email - Side by side on mobile, separate on desktop */}
-                    <div className="grid grid-cols-2 gap-3 md:col-span-2 md:grid-cols-2 lg:contents">
+                    <div className="grid grid-cols-2 gap-3 md:col-span-2 md:grid-cols-2 lg:contents mb-2 md:mb-0">
                       <div className="lg:flex-1 lg:min-w-[140px]">
                         <Label htmlFor="phone" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                           Téléphone <span className="text-yellow-300">*</span>
