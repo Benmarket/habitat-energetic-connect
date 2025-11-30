@@ -269,11 +269,11 @@ const HeroSection = () => {
                   </div>
                 </div>
                 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className="max-w-5xl">
                   {/* Horizontal fields - First row */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                    <div>
-                      <Label htmlFor="fullName" className="text-white text-sm mb-2 block font-medium drop-shadow">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+                    <div className="md:max-w-[220px]">
+                      <Label htmlFor="fullName" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         Nom complet <span className="text-yellow-300">*</span>
                       </Label>
                       <Input
@@ -281,13 +281,13 @@ const HeroSection = () => {
                         value={formData.fullName}
                         onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                         placeholder="Nom complet"
-                        className="h-12 bg-white/95 backdrop-blur border-0 shadow-md text-base focus:ring-2 focus:ring-white/50 transition-all hover:bg-white"
+                        className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white"
                         required
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="phone" className="text-white text-sm mb-2 block font-medium drop-shadow">
+                    <div className="md:max-w-[200px]">
+                      <Label htmlFor="phone" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         Téléphone <span className="text-yellow-300">*</span>
                       </Label>
                       <Input
@@ -296,13 +296,13 @@ const HeroSection = () => {
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="Téléphone"
-                        className="h-12 bg-white/95 backdrop-blur border-0 shadow-md text-base focus:ring-2 focus:ring-white/50 transition-all hover:bg-white"
+                        className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white"
                         required
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="email" className="text-white text-sm mb-2 block font-medium drop-shadow">
+                    <div className="md:max-w-[240px]">
+                      <Label htmlFor="email" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         E-mail <span className="text-yellow-300">*</span>
                       </Label>
                       <Input
@@ -311,13 +311,13 @@ const HeroSection = () => {
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="Ex. email@example.fr"
-                        className="h-12 bg-white/95 backdrop-blur border-0 shadow-md text-base focus:ring-2 focus:ring-white/50 transition-all hover:bg-white"
+                        className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white"
                         required
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="postalCode" className="text-white text-sm mb-2 block font-medium drop-shadow">
+                    <div className="md:max-w-[160px]">
+                      <Label htmlFor="postalCode" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         Code postal <span className="text-yellow-300">*</span>
                       </Label>
                       <Input
@@ -326,20 +326,20 @@ const HeroSection = () => {
                         onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
                         placeholder="Code postal"
                         maxLength={5}
-                        className="h-12 bg-white/95 backdrop-blur border-0 shadow-md text-base focus:ring-2 focus:ring-white/50 transition-all hover:bg-white"
+                        className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white"
                         required
                       />
                     </div>
                   </div>
 
                   {/* Second row - Type de travaux + Button */}
-                  <div className="flex flex-col md:flex-row gap-4 mb-5">
-                    <div className="flex-1 max-w-md">
-                      <Label htmlFor="workType" className="text-white text-sm mb-2 block font-medium drop-shadow">
+                  <div className="flex flex-col md:flex-row gap-3 mb-4">
+                    <div className="md:max-w-[320px]">
+                      <Label htmlFor="workType" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         Type de travaux <span className="text-yellow-300">*</span>
                       </Label>
                       <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
-                        <SelectTrigger className="h-12 bg-white/95 backdrop-blur border-0 shadow-md text-base focus:ring-2 focus:ring-white/50 transition-all hover:bg-white">
+                        <SelectTrigger className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white">
                           <SelectValue placeholder="Panneaux..." />
                         </SelectTrigger>
                         <SelectContent className="bg-white z-50 shadow-xl">
@@ -355,7 +355,7 @@ const HeroSection = () => {
                     <div className="flex items-end">
                       <Button
                         type="submit" 
-                        className="h-12 w-full md:w-auto px-10 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold whitespace-nowrap shadow-lg text-base transition-all hover:scale-105 hover:shadow-xl" 
+                        className="h-11 w-full md:w-auto px-8 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold whitespace-nowrap shadow-lg text-sm transition-all hover:scale-105 hover:shadow-xl" 
                         disabled={isSubmitting}
                       >
                         {isSubmitting ? "Envoi..." : "Envoyer"}
