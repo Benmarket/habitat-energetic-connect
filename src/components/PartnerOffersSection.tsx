@@ -204,7 +204,7 @@ const PartnerOffersSection = () => {
           <Button 
             asChild
             size="lg"
-            className="bg-gradient-to-r from-amber-500/10 to-yellow-500/10 hover:from-amber-600 hover:to-yellow-600 hover:text-white text-amber-700 border-2 border-amber-500/30 hover:border-amber-600 font-bold px-10 py-6 text-lg shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/40 transition-all duration-300 hover:scale-105"
+            className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white border border-amber-400/30 font-bold px-10 py-6 text-lg shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 transition-all duration-300 hover:scale-105"
           >
             <Link to="/offres-partenaires">
               Voir toutes les offres partenaires
