@@ -270,9 +270,9 @@ const HeroSection = () => {
                 </div>
                 
                 <form onSubmit={handleSubmit}>
-                  {/* Horizontal fields - First row */}
-                  <div className="flex flex-wrap gap-3 mb-3">
-                    <div className="flex-1 min-w-[180px] max-w-[220px]">
+                  {/* All fields in single row */}
+                  <div className="flex flex-wrap gap-3 mb-4">
+                    <div className="min-w-[150px] max-w-[200px]">
                       <Label htmlFor="fullName" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         Nom complet <span className="text-yellow-300">*</span>
                       </Label>
@@ -286,7 +286,7 @@ const HeroSection = () => {
                       />
                     </div>
 
-                    <div className="flex-1 min-w-[160px] max-w-[190px]">
+                    <div className="min-w-[130px] max-w-[160px]">
                       <Label htmlFor="phone" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         Téléphone <span className="text-yellow-300">*</span>
                       </Label>
@@ -301,7 +301,7 @@ const HeroSection = () => {
                       />
                     </div>
 
-                    <div className="flex-1 min-w-[200px] max-w-[240px]">
+                    <div className="min-w-[180px] max-w-[220px]">
                       <Label htmlFor="email" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         E-mail <span className="text-yellow-300">*</span>
                       </Label>
@@ -316,7 +316,7 @@ const HeroSection = () => {
                       />
                     </div>
 
-                    <div className="flex-1 min-w-[140px] max-w-[160px]">
+                    <div className="min-w-[100px] max-w-[130px]">
                       <Label htmlFor="postalCode" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         Code postal <span className="text-yellow-300">*</span>
                       </Label>
@@ -330,11 +330,8 @@ const HeroSection = () => {
                         required
                       />
                     </div>
-                  </div>
 
-                  {/* Second row - Type de travaux + Button */}
-                  <div className="flex flex-wrap gap-3 mb-4">
-                    <div className="flex-1 min-w-[200px] max-w-[280px]">
+                    <div className="min-w-[150px] max-w-[200px]">
                       <Label htmlFor="workType" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         Type de travaux <span className="text-yellow-300">*</span>
                       </Label>
