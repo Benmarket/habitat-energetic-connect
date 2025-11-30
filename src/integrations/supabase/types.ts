@@ -443,6 +443,80 @@ export type Database = {
         }
         Relationships: []
       }
+      form_configurations: {
+        Row: {
+          created_at: string
+          description: string | null
+          fields_schema: Json
+          form_identifier: string
+          id: string
+          name: string
+          updated_at: string
+          webhook_enabled: boolean
+          webhook_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          fields_schema?: Json
+          form_identifier: string
+          id?: string
+          name: string
+          updated_at?: string
+          webhook_enabled?: boolean
+          webhook_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          fields_schema?: Json
+          form_identifier?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          webhook_enabled?: boolean
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
+      form_submissions: {
+        Row: {
+          data: Json
+          form_id: string
+          id: string
+          ip_address: string | null
+          submitted_at: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          data: Json
+          form_id: string
+          id?: string
+          ip_address?: string | null
+          submitted_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          data?: Json
+          form_id?: string
+          id?: string
+          ip_address?: string | null
+          submitted_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_submissions_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "form_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           address: string

@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle, Bot } from "lucide-react";
+import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle, Bot, FileCheck } from "lucide-react";
 import TrafficDashboard from "@/components/TrafficDashboard";
 
 const Administration = () => {
@@ -159,7 +159,29 @@ const Administration = () => {
                 <CardContent>
                   <Link to="/chat-support">
                     <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
-                      Accéder au support
+                      Ouvrir le support
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Gestion des Formulaires */}
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-3 bg-blue-500/10 rounded-lg">
+                      <FileCheck className="w-6 h-6 text-blue-600" />
+                    </div>
+                  </div>
+                  <CardTitle>Gestion des Formulaires</CardTitle>
+                  <CardDescription>
+                    Collectez, exportez et connectez vos formulaires à vos outils (CRM, Sheets...)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Link to="/admin/formulaires">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                      Gérer les formulaires
                     </Button>
                   </Link>
                 </CardContent>
