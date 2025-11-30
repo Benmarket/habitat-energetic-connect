@@ -130,12 +130,13 @@ const MaintenanceMode = ({ children }: MaintenanceModeProps) => {
     );
   }
 
-  // CRITICAL: Toujours autoriser l'accès à la page de connexion en mode maintenance
+  // CRITICAL: Toujours autoriser l'accès à la page de connexion et d'installation app en mode maintenance
   const isAuthPage = location.pathname === '/connexion';
+  const isInstallPage = location.pathname === '/installer-app';
 
   // Si le mode maintenance est activé et que l'utilisateur n'est pas admin
-  // MAIS autoriser la page de connexion
-  if (isMaintenanceMode && !isAdmin && !isAuthPage) {
+  // MAIS autoriser la page de connexion et d'installation
+  if (isMaintenanceMode && !isAdmin && !isAuthPage && !isInstallPage) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50 flex items-center justify-center p-4 relative overflow-hidden">
         {/* Animated background elements */}
