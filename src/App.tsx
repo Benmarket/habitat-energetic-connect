@@ -30,6 +30,7 @@ import AdminSettings from "./pages/AdminSettings";
 import AdminNewsletter from "./pages/AdminNewsletter";
 import AdminChatbot from "./pages/AdminChatbot";
 import AdminForms from "./pages/AdminForms";
+import AdminApp from "./pages/AdminApp";
 import NotFound from "./pages/NotFound";
 import Sitemap from "./pages/Sitemap";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
@@ -85,6 +86,7 @@ const App = () => (
               <Route path="/admin/chatbot" element={<AdminChatbot />} />
               <Route path="/admin/formulaires" element={<AdminForms />} />
               <Route path="/admin/landing-pages" element={<AdminLandingPages />} />
+              <Route path="/admin/app" element={<AdminApp />} />
               <Route path="/landing/solaire" element={<LandingSolaire />} />
               <Route path="/landing/isolation" element={<LandingIsolation />} />
               <Route path="/landing/pompe-a-chaleur" element={<LandingPompeAChaleur />} />
