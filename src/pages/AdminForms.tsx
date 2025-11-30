@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, Edit, Trash2, Download, ExternalLink, Eye, Loader2, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Search, Filter } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, Download, ExternalLink, Eye, Loader2, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Search, Filter, FileText, TrendingUp, Clock, CheckCircle2, AlertCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 
@@ -628,74 +628,201 @@ export default function AdminForms() {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : forms && forms.length > 0 ? (
-          <div className="grid gap-4">
-            {forms.map((form) => (
-              <Card key={form.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        {form.name}
-                        {form.webhook_enabled && (
-                          <Badge variant="secondary" className="ml-2">
-                            <ExternalLink className="h-3 w-3 mr-1" />
-                            Webhook actif
-                          </Badge>
+          <div className="grid gap-6">
+            {forms.map((form, index) => {
+              const isLandingPageForm = form.form_identifier.startsWith('lp-');
+              const isHomeForm = form.form_identifier.includes('accueil');
+              const unreadCount = unreadCounts?.[form.id] || 0;
+              
+              // Styles selon le type de formulaire
+              const getFormStyles = () => {
+                if (isLandingPageForm) {
+                  if (form.form_identifier.includes('solaire')) {
+                    return {
+                      gradient: 'bg-gradient-to-r from-orange-500 to-orange-600',
+                      iconBg: 'bg-orange-100',
+                      iconColor: 'text-orange-600'
+                    };
+                  }
+                  if (form.form_identifier.includes('isolation')) {
+                    return {
+                      gradient: 'bg-gradient-to-r from-blue-500 to-blue-600',
+                      iconBg: 'bg-blue-100',
+                      iconColor: 'text-blue-600'
+                    };
+                  }
+                  if (form.form_identifier.includes('pac')) {
+                    return {
+                      gradient: 'bg-gradient-to-r from-green-500 to-green-600',
+                      iconBg: 'bg-green-100',
+                      iconColor: 'text-green-600'
+                    };
+                  }
+                  if (form.form_identifier.includes('reno')) {
+                    return {
+                      gradient: 'bg-gradient-to-r from-purple-500 to-purple-600',
+                      iconBg: 'bg-purple-100',
+                      iconColor: 'text-purple-600'
+                    };
+                  }
+                }
+                if (isHomeForm) {
+                  return {
+                    gradient: 'bg-gradient-to-r from-emerald-500 to-emerald-600',
+                    iconBg: 'bg-emerald-100',
+                    iconColor: 'text-emerald-600'
+                  };
+                }
+                return {
+                  gradient: 'bg-gradient-to-r from-slate-500 to-slate-600',
+                  iconBg: 'bg-slate-100',
+                  iconColor: 'text-slate-600'
+                };
+              };
+              
+              const styles = getFormStyles();
+              
+              return (
+                <Card 
+                  key={form.id} 
+                  className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-2 hover:border-primary/30 animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <div className={`h-2 ${styles.gradient}`} />
+                  
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className={`w-12 h-12 rounded-xl ${styles.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                            <FileText className={`w-6 h-6 ${styles.iconColor}`} />
+                          </div>
+                          <div>
+                            <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                              {form.name}
+                            </CardTitle>
+                            <CardDescription className="flex items-center gap-2 mt-1 flex-wrap">
+                              <code className="text-xs bg-muted px-2 py-0.5 rounded">
+                                {form.form_identifier}
+                              </code>
+                              {form.webhook_enabled && (
+                                <Badge variant="secondary" className="gap-1">
+                                  <ExternalLink className="h-3 w-3" />
+                                  Webhook
+                                </Badge>
+                              )}
+                              {form.form_identifier.includes('multistep') && (
+                                <Badge variant="outline" className="gap-1 bg-blue-50 text-blue-700 border-blue-200">
+                                  Multi-étapes
+                                </Badge>
+                              )}
+                              {form.form_identifier.includes('onestep') && (
+                                <Badge variant="outline" className="gap-1 bg-green-50 text-green-700 border-green-200">
+                                  Rapide
+                                </Badge>
+                              )}
+                            </CardDescription>
+                          </div>
+                        </div>
+                        
+                        {form.description && (
+                          <p className="text-sm text-muted-foreground mt-3 pl-15">
+                            {form.description}
+                          </p>
                         )}
-                      </CardTitle>
-                      <CardDescription>
-                        Identifiant: <code className="text-xs">{form.form_identifier}</code>
-                      </CardDescription>
-                      {form.description && (
-                        <p className="text-sm text-muted-foreground mt-2">{form.description}</p>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleViewSubmissions(form)}
-                        className="relative"
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        Soumissions
-                        {unreadCounts && unreadCounts[form.id] > 0 && (
-                          <Badge 
-                            variant="destructive" 
-                            className="ml-2 h-5 min-w-5 rounded-full px-1.5 text-xs font-bold"
+                      </div>
+                      
+                      <div className="flex flex-col gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleViewSubmissions(form)}
+                          className="relative gap-2 hover:bg-primary/10 hover:border-primary transition-colors min-w-[140px]"
+                        >
+                          <Eye className="h-4 w-4" />
+                          Soumissions
+                          {unreadCount > 0 && (
+                            <Badge 
+                              variant="destructive" 
+                              className="h-5 min-w-5 rounded-full px-1.5 text-xs font-bold animate-pulse"
+                            >
+                              {unreadCount}
+                            </Badge>
+                          )}
+                        </Button>
+                        
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleEdit(form)}
+                            className="hover:bg-blue-50 hover:text-blue-600 transition-colors"
                           >
-                            {unreadCounts[form.id]}
-                          </Badge>
-                        )}
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(form)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          if (
-                            window.confirm(
-                              "Êtes-vous sûr de vouloir supprimer ce formulaire et toutes ses soumissions ?"
-                            )
-                          ) {
-                            deleteFormMutation.mutate(form.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              if (
+                                window.confirm(
+                                  "Êtes-vous sûr de vouloir supprimer ce formulaire et toutes ses soumissions ?"
+                                )
+                              ) {
+                                deleteFormMutation.mutate(form.id);
+                              }
+                            }}
+                            className="hover:bg-red-50 hover:text-red-600 transition-colors"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </CardHeader>
-              </Card>
-            ))}
+                  </CardHeader>
+                  
+                  {/* Stats Section */}
+                  <CardContent className="pt-0">
+                    <div className="grid grid-cols-3 gap-3 pt-4 border-t">
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <TrendingUp className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Total</p>
+                          <p className="text-lg font-bold">--</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                          <Clock className="w-5 h-5 text-orange-600" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">En attente</p>
+                          <p className="text-lg font-bold">{unreadCount}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                          <CheckCircle2 className="w-5 h-5 text-green-600" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Traités</p>
+                          <p className="text-lg font-bold">--</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
             
             {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-4 px-2">
-                <div className="text-sm text-muted-foreground">
-                  Page {currentPage} sur {totalPages} ({formsData?.totalCount} formulaire{(formsData?.totalCount || 0) > 1 ? 's' : ''})
+              <div className="flex items-center justify-between mt-6 px-2">
+                <div className="text-sm text-muted-foreground font-medium">
+                  Page {currentPage} sur {totalPages} • {formsData?.totalCount} formulaire{(formsData?.totalCount || 0) > 1 ? 's' : ''} au total
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -703,8 +830,9 @@ export default function AdminForms() {
                     size="sm"
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
+                    className="gap-1"
                   >
-                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    <ChevronLeft className="h-4 w-4" />
                     Précédent
                   </Button>
                   <Button
@@ -712,21 +840,28 @@ export default function AdminForms() {
                     size="sm"
                     onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
+                    className="gap-1"
                   >
                     Suivant
-                    <ChevronRight className="h-4 w-4 ml-1" />
+                    <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
             )}
           </div>
         ) : (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground mb-4">Aucun formulaire configuré</p>
-              <Button onClick={() => setIsCreateOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Créer votre premier formulaire
+          <Card className="border-2 border-dashed">
+            <CardContent className="py-16 text-center">
+              <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FileText className="w-10 h-10 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Aucun formulaire configuré</h3>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Créez votre premier formulaire pour commencer à collecter des données de vos visiteurs
+              </p>
+              <Button onClick={() => setIsCreateOpen(true)} size="lg" className="gap-2">
+                <Plus className="h-5 w-5" />
+                Créer mon premier formulaire
               </Button>
             </CardContent>
           </Card>
