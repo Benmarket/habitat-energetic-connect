@@ -263,8 +263,9 @@ const HeroSection = () => {
                   <h2 className="text-2xl lg:text-3xl font-bold text-white drop-shadow-md">
                     Vérifier mon éligibilité à la Prime Gratuitement
                   </h2>
-                  <div className="bg-white text-red-600 px-6 py-2.5 rounded-lg text-sm font-bold whitespace-nowrap shadow-lg">
-                    Propriétaires de maison individuelle exclusivement
+                  <div className="flex items-center gap-3 bg-white text-red-600 px-6 py-3 rounded-xl text-sm font-bold whitespace-nowrap shadow-lg border-2 border-red-100">
+                    <Home className="w-5 h-5 flex-shrink-0" strokeWidth={2.5} />
+                    <span>Propriétaires de maison individuelle exclusivement</span>
                   </div>
                 </div>
                 
