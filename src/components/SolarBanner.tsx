@@ -36,31 +36,34 @@ const SolarBanner = () => {
           </div>
 
           {/* Right side - Content */}
-          <div className="space-y-6">
-            <div>
-              <div className="inline-block w-16 h-1 bg-primary mb-4"></div>
-              <h2 className="text-2xl lg:text-4xl font-extrabold text-foreground mb-4 leading-tight">
-                Générer de l'électricité avec des panneaux solaires photovoltaïques
-              </h2>
-              <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">
-                Le photovoltaïque permet de produire votre propre électricité grâce à l'énergie solaire, 
-                une ressource gratuite et inépuisable. En plus de réduire vos factures, c'est un 
-                investissement rentable grâce aux aides de l'État qui peuvent couvrir une partie de 
-                l'installation. De plus, avec le contrat EDF OA (Obligation d'Achat), vous avez la 
-                possibilité de revendre le surplus d'électricité produit, assurant ainsi un 
-                revenu complémentaire. En choisissant le photovoltaïque, vous contribuez à la 
-                transition énergétique tout en réalisant d'importantes économies.
-              </p>
+          <div className="grid lg:grid-cols-[1fr,auto] gap-6 items-start">
+            {/* Text content */}
+            <div className="space-y-6">
+              <div>
+                <div className="inline-block w-16 h-1 bg-primary mb-4"></div>
+                <h2 className="text-2xl lg:text-4xl font-extrabold text-foreground mb-4 leading-tight">
+                  Générer de l'électricité avec des panneaux solaires photovoltaïques
+                </h2>
+                <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">
+                  Le photovoltaïque permet de produire votre propre électricité grâce à l'énergie solaire, 
+                  une ressource gratuite et inépuisable. En plus de réduire vos factures, c'est un 
+                  investissement rentable grâce aux aides de l'État qui peuvent couvrir une partie de 
+                  l'installation. De plus, avec le contrat EDF OA (Obligation d'Achat), vous avez la 
+                  possibilité de revendre le surplus d'électricité produit, assurant ainsi un 
+                  revenu complémentaire. En choisissant le photovoltaïque, vous contribuez à la 
+                  transition énergétique tout en réalisant d'importantes économies.
+                </p>
+              </div>
             </div>
 
-            {/* Diagram */}
-            <div className="bg-white rounded-xl p-4 lg:p-6 shadow-lg max-w-[280px]">
+            {/* Diagram on the right */}
+            <div className="flex flex-col items-end">
               <img
                 src={solarSystemDiagram}
                 alt="Schéma du système photovoltaïque"
-                className="w-full"
+                className="w-full max-w-[350px] lg:max-w-[400px]"
               />
-              <div className="mt-4 space-y-2">
+              <div className="mt-4 space-y-2 max-w-[350px] lg:max-w-[400px]">
                 <div className="flex items-start gap-3">
                   <div className="w-4 h-4 mt-1 rounded bg-orange-500 flex-shrink-0"></div>
                   <p className="text-xs lg:text-sm text-foreground font-medium">
