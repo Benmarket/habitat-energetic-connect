@@ -203,7 +203,7 @@ const HeroSection = () => {
 
       {/* Content */}
       <div className="container mx-auto px-4 relative z-20">
-        <div className="flex flex-col gap-8 max-w-[1400px] mx-auto">
+        <div className="flex flex-col gap-4 md:gap-8 max-w-[1400px] mx-auto">
           {/* Top: Hero text and buttons - centered content */}
           <div className="flex flex-col items-center justify-center text-white pt-8">
             <div className="w-full text-center">
@@ -215,7 +215,7 @@ const HeroSection = () => {
               </p>
 
               {/* Quick action buttons */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 md:mb-8">
                 <Link 
                   to="/offres/panneaux-solaires"
                   className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
