@@ -270,10 +270,10 @@ const HeroSection = () => {
                 
                 <form onSubmit={handleSubmit}>
                   {/* Responsive grid layout */}
-                  <div className="space-y-1 md:space-y-0 md:grid md:grid-cols-4 lg:flex lg:flex-wrap md:gap-3 mb-4">
+                  <div className="space-y-2 md:space-y-0 md:grid md:grid-cols-4 lg:flex lg:flex-wrap md:gap-3 mb-3 md:mb-4">
                     {/* Nom complet - Full width on mobile, flex item on desktop */}
                     <div className="lg:flex-[1.2] lg:min-w-[160px] md:col-span-1">
-                      <Label htmlFor="fullName" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
+                      <Label htmlFor="fullName" className="text-white text-sm mb-1 block font-medium drop-shadow">
                         Nom complet <span className="text-yellow-300">*</span>
                       </Label>
                       <Input
@@ -287,9 +287,9 @@ const HeroSection = () => {
                     </div>
 
                     {/* Téléphone et Email - Side by side on mobile, separate on desktop */}
-                    <div className="grid grid-cols-2 gap-3 md:col-span-2 md:grid-cols-2 lg:contents mb-2 md:mb-0">
+                    <div className="grid grid-cols-2 gap-3 md:col-span-2 md:grid-cols-2 lg:contents">
                       <div className="lg:flex-1 lg:min-w-[140px]">
-                        <Label htmlFor="phone" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
+                        <Label htmlFor="phone" className="text-white text-sm mb-1 block font-medium drop-shadow">
                           Téléphone <span className="text-yellow-300">*</span>
                         </Label>
                         <Input
@@ -304,7 +304,7 @@ const HeroSection = () => {
                       </div>
 
                       <div className="lg:flex-[1.3] lg:min-w-[180px]">
-                        <Label htmlFor="email" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
+                        <Label htmlFor="email" className="text-white text-sm mb-1 block font-medium drop-shadow">
                           E-mail <span className="text-yellow-300">*</span>
                         </Label>
                         <Input
@@ -321,7 +321,7 @@ const HeroSection = () => {
 
                     {/* Code postal - Visible on tablet, part of main flex on desktop */}
                     <div className="md:col-span-1 hidden md:block lg:flex-[0.8] lg:min-w-[110px]">
-                      <Label htmlFor="postalCode" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
+                      <Label htmlFor="postalCode" className="text-white text-sm mb-1 block font-medium drop-shadow">
                         Code postal <span className="text-yellow-300">*</span>
                       </Label>
                       <Input
@@ -338,7 +338,7 @@ const HeroSection = () => {
                     {/* Type de travaux + Button group - On desktop, inline with other fields */}
                     <div className="hidden lg:flex lg:flex-wrap lg:gap-3 lg:flex-1 lg:min-w-[320px]">
                       <div className="lg:flex-[1.2] lg:min-w-[160px]">
-                        <Label htmlFor="workType" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
+                        <Label htmlFor="workType" className="text-white text-sm mb-1 block font-medium drop-shadow">
                           Type de travaux <span className="text-yellow-300">*</span>
                         </Label>
                         <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
@@ -368,7 +368,7 @@ const HeroSection = () => {
                   </div>
 
                   {/* Code postal + Type de travaux + Button - Only visible on mobile and tablet */}
-                  <div className="grid grid-cols-2 gap-2 md:grid-cols-2 mb-4 lg:hidden">
+                  <div className="grid grid-cols-2 gap-2 md:grid-cols-2 mb-3 md:mb-4 lg:hidden">
                     {/* Code postal - Visible only on mobile */}
                     <div className="md:hidden">
                       <Label htmlFor="postalCode-mobile" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
