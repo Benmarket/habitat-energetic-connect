@@ -35,6 +35,11 @@ import Sitemap from "./pages/Sitemap";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
 import ConditionsUtilisation from "./pages/ConditionsUtilisation";
 import MentionsLegales from "./pages/MentionsLegales";
+import AdminLandingPages from "./pages/AdminLandingPages";
+import LandingSolaire from "./pages/landing/LandingSolaire";
+import LandingIsolation from "./pages/landing/LandingIsolation";
+import LandingPompeAChaleur from "./pages/landing/LandingPompeAChaleur";
+import LandingRenovationGlobale from "./pages/landing/LandingRenovationGlobale";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +80,11 @@ const App = () => (
               <Route path="/admin/newsletter" element={<AdminNewsletter />} />
               <Route path="/admin/chatbot" element={<AdminChatbot />} />
               <Route path="/admin/formulaires" element={<AdminForms />} />
+              <Route path="/admin/landing-pages" element={<AdminLandingPages />} />
+              <Route path="/landing/solaire" element={<LandingSolaire />} />
+              <Route path="/landing/isolation" element={<LandingIsolation />} />
+              <Route path="/landing/pompe-a-chaleur" element={<LandingPompeAChaleur />} />
+              <Route path="/landing/renovation-globale" element={<LandingRenovationGlobale />} />
               <Route path="/sitemap.xml" element={<Sitemap />} />
               <Route path="/mentions-legales" element={<MentionsLegales />} />
               <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
