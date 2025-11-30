@@ -38,7 +38,7 @@ const WhySolarSection = () => {
         </h2>
 
         {/* Mobile & Tablet Carousel */}
-        <div className="lg:hidden pb-20 md:pb-24">
+        <div className="lg:hidden pb-12 md:pb-16">
           <Carousel
             opts={{
               align: "start",
@@ -80,9 +80,9 @@ const WhySolarSection = () => {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            {/* Invisible navigation arrows */}
-            <CarouselPrevious className="opacity-0 hover:opacity-0" />
-            <CarouselNext className="opacity-0 hover:opacity-0" />
+            {/* Slightly visible navigation arrows with hover effect */}
+            <CarouselPrevious className="opacity-30 hover:opacity-100 transition-opacity bg-white/80 hover:bg-white" />
+            <CarouselNext className="opacity-30 hover:opacity-100 transition-opacity bg-white/80 hover:bg-white" />
           </Carousel>
         </div>
 
