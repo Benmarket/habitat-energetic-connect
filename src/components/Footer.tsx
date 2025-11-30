@@ -20,33 +20,35 @@ const Footer = () => {
               Votre portail de confiance pour les énergies renouvelables. Nous connectons les particuliers avec les meilleurs installateurs certifiés de France.
             </p>
             
-            {/* Phone number */}
-            <a 
-              href="tel:0800123456" 
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-full transition-all duration-300 hover:shadow-lg border border-white/20 mb-6"
-            >
-              <div className="flex items-center justify-center w-7 h-7 rounded-full bg-white/20">
-                <Phone className="w-4 h-4 text-white" />
+            {/* Phone number and social icons */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
+              <a 
+                href="tel:0800123456" 
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-full transition-all duration-300 hover:shadow-lg border border-white/20"
+              >
+                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-white/20">
+                  <Phone className="w-4 h-4 text-white" />
+                </div>
+                <span className="font-bold text-white text-sm tracking-wide">0 800 123 456</span>
+              </a>
+              
+              <div className="flex gap-4">
+                <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="Facebook">
+                  <Facebook className="w-5 h-5" />
+                </a>
+                <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="Twitter">
+                  <Twitter className="w-5 h-5" />
+                </a>
+                <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="LinkedIn">
+                  <Linkedin className="w-5 h-5" />
+                </a>
+                <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="YouTube">
+                  <Youtube className="w-5 h-5" />
+                </a>
+                <a href="#whatsapp" className="text-white/60 hover:text-white transition-colors" aria-label="WhatsApp">
+                  <MessageCircle className="w-5 h-5" />
+                </a>
               </div>
-              <span className="font-bold text-white text-sm tracking-wide">0 800 123 456</span>
-            </a>
-            
-            <div className="flex gap-4">
-              <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="Facebook">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="Twitter">
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="LinkedIn">
-                <Linkedin className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="YouTube">
-                <Youtube className="w-5 h-5" />
-              </a>
-              <a href="#whatsapp" className="text-white/60 hover:text-white transition-colors" aria-label="WhatsApp">
-                <MessageCircle className="w-5 h-5" />
-              </a>
             </div>
           </div>
 
