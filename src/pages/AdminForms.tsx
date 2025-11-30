@@ -13,7 +13,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, Edit, Trash2, Download, ExternalLink, Eye, Loader2, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Search } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, Download, ExternalLink, Eye, Loader2, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Search, Filter } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 
 type FormConfig = {
@@ -36,6 +37,7 @@ type FormSubmission = {
   ip_address: string | null;
   user_agent: string | null;
   is_read: boolean;
+  status: "new" | "in_progress" | "processed" | "converted";
 };
 
 export default function AdminForms() {
@@ -61,6 +63,7 @@ export default function AdminForms() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSubmissions, setSelectedSubmissions] = useState<Set<string>>(new Set());
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   // Fetch forms with pagination
   const { data: formsData, isLoading: loadingForms } = useQuery({
@@ -207,6 +210,28 @@ export default function AdminForms() {
     },
   });
 
+  // Update submission status mutation
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase
+        .from("form_submissions")
+        .update({ status })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["form-submissions"] });
+      toast({ title: "Statut mis à jour" });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const resetForm = () => {
     setFormData({
       name: "",
@@ -237,6 +262,7 @@ export default function AdminForms() {
     setSortDirection("desc");
     setSearchTerm(""); // Reset search
     setSelectedSubmissions(new Set()); // Reset selection
+    setStatusFilter("all"); // Reset status filter
     
     // Marquer toutes les soumissions de ce formulaire comme lues
     const { error } = await supabase
@@ -370,15 +396,37 @@ export default function AdminForms() {
     });
   };
 
-  // Filter submissions based on search term
+  // Get status badge variant and label
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "new":
+        return { variant: "default" as const, label: "Nouveau", color: "bg-blue-500" };
+      case "in_progress":
+        return { variant: "secondary" as const, label: "En cours", color: "bg-orange-500" };
+      case "processed":
+        return { variant: "outline" as const, label: "Traité", color: "bg-green-500" };
+      case "converted":
+        return { variant: "outline" as const, label: "Converti", color: "bg-violet-500" };
+      default:
+        return { variant: "default" as const, label: status, color: "bg-gray-500" };
+    }
+  };
+
+  // Filter submissions based on search term and status
   const filteredSubmissions = submissions ? submissions.filter((submission) => {
-    if (!searchTerm) return true;
+    // Search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      const dataString = JSON.stringify(submission.data).toLowerCase();
+      if (!dataString.includes(searchLower)) return false;
+    }
     
-    const searchLower = searchTerm.toLowerCase();
-    const dataString = JSON.stringify(submission.data).toLowerCase();
+    // Status filter
+    if (statusFilter !== "all" && submission.status !== statusFilter) {
+      return false;
+    }
     
-    // Search in all data fields
-    return dataString.includes(searchLower);
+    return true;
   }) : [];
 
   const sortedSubmissions = filteredSubmissions.length > 0 ? [...filteredSubmissions].sort((a, b) => {
@@ -784,18 +832,36 @@ export default function AdminForms() {
                 {selectedSubmissions.size > 0 && ` • ${selectedSubmissions.size} sélectionnée(s)`}
               </DialogDescription>
               
-              {/* Search field */}
-              <div className="relative mt-4">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Rechercher par email, nom, téléphone..."
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setSubmissionsPage(1);
-                  }}
-                  className="pl-9"
-                />
+              {/* Search and filters */}
+              <div className="flex gap-2 mt-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Rechercher par email, nom, téléphone..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setSubmissionsPage(1);
+                    }}
+                    className="pl-9"
+                  />
+                </div>
+                <Select value={statusFilter} onValueChange={(value) => {
+                  setStatusFilter(value);
+                  setSubmissionsPage(1);
+                }}>
+                  <SelectTrigger className="w-[180px]">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Tous les statuts" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les statuts</SelectItem>
+                    <SelectItem value="new">Nouveau</SelectItem>
+                    <SelectItem value="in_progress">En cours</SelectItem>
+                    <SelectItem value="processed">Traité</SelectItem>
+                    <SelectItem value="converted">Converti</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </DialogHeader>
             
@@ -845,6 +911,7 @@ export default function AdminForms() {
                           </div>
                         </TableHead>
                       ))}
+                      <TableHead className="w-[150px]">Statut</TableHead>
                       <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -869,6 +936,36 @@ export default function AdminForms() {
                               : String(submission.data[field] || "-")}
                           </TableCell>
                         ))}
+                        <TableCell>
+                          <Select 
+                            value={submission.status} 
+                            onValueChange={(value) => 
+                              updateStatusMutation.mutate({ id: submission.id, status: value })
+                            }
+                          >
+                            <SelectTrigger className="w-[140px] h-8">
+                              <SelectValue>
+                                <Badge className={getStatusBadge(submission.status).color}>
+                                  {getStatusBadge(submission.status).label}
+                                </Badge>
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="new">
+                                <Badge className="bg-blue-500">Nouveau</Badge>
+                              </SelectItem>
+                              <SelectItem value="in_progress">
+                                <Badge className="bg-orange-500">En cours</Badge>
+                              </SelectItem>
+                              <SelectItem value="processed">
+                                <Badge className="bg-green-500">Traité</Badge>
+                              </SelectItem>
+                              <SelectItem value="converted">
+                                <Badge className="bg-violet-500">Converti</Badge>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
                         <TableCell>
                           <Button
                             variant="ghost"
