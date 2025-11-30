@@ -106,7 +106,7 @@ const ContactSection = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
           {/* Left Column - Contact Info */}
           <div>
             <h3 className="text-2xl font-bold mb-8">Restons en contact</h3>
