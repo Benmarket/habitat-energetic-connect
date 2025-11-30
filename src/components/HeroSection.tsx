@@ -270,59 +270,63 @@ const HeroSection = () => {
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="phone" className="text-xs mb-0.5">Téléphone</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="06 12 34 56 78"
-                    className="h-9 text-sm"
-                    required
-                  />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label htmlFor="phone" className="text-xs mb-0.5">Téléphone</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      placeholder="06 12 34 56 78"
+                      className="h-9 text-sm"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="email" className="text-xs mb-0.5">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="votre@email.com"
+                      className="h-9 text-sm"
+                      required
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="email" className="text-xs mb-0.5">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="votre@email.com"
-                    className="h-9 text-sm"
-                    required
-                  />
-                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label htmlFor="postalCode" className="text-xs mb-0.5">Code postal</Label>
+                    <Input
+                      id="postalCode"
+                      value={formData.postalCode}
+                      onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                      placeholder="75001"
+                      maxLength={5}
+                      className="h-9 text-sm"
+                      required
+                    />
+                  </div>
 
-                <div>
-                  <Label htmlFor="postalCode" className="text-xs mb-0.5">Code postal</Label>
-                  <Input
-                    id="postalCode"
-                    value={formData.postalCode}
-                    onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                    placeholder="75001"
-                    maxLength={5}
-                    className="h-9 text-sm"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="workType" className="text-xs mb-0.5">Type de travaux</Label>
-                  <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
-                    <SelectTrigger className="h-9 text-sm">
-                      <SelectValue placeholder="Sélectionnez..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="isolation">Isolation</SelectItem>
-                      <SelectItem value="chauffage">Chauffage</SelectItem>
-                      <SelectItem value="energie-solaire">Énergie solaire</SelectItem>
-                      <SelectItem value="renovation-globale">Rénovation globale</SelectItem>
-                      <SelectItem value="ne-sait-pas">Ne sait pas</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div>
+                    <Label htmlFor="workType" className="text-xs mb-0.5">Type de travaux</Label>
+                    <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
+                      <SelectTrigger className="h-9 text-sm">
+                        <SelectValue placeholder="Sélectionnez..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="isolation">Isolation</SelectItem>
+                        <SelectItem value="chauffage">Chauffage</SelectItem>
+                        <SelectItem value="energie-solaire">Énergie solaire</SelectItem>
+                        <SelectItem value="renovation-globale">Rénovation globale</SelectItem>
+                        <SelectItem value="ne-sait-pas">Ne sait pas</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <Button 
