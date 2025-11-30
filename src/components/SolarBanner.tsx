@@ -37,7 +37,7 @@ const SolarBanner = () => {
               {/* Grid with text on left, diagram on right */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-start">
                 {/* Left column - Text */}
-                <div>
+                <div className="flex flex-col items-center md:items-start">
                   <p className="text-sm lg:text-base text-foreground leading-relaxed mb-6">
                     Le photovoltaïque permet de produire votre propre électricité grâce à l'énergie solaire, 
                     une ressource gratuite et inépuisable. En plus de réduire vos factures, c'est un 
