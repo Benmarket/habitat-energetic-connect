@@ -83,28 +83,38 @@ const PartnerOffersSection = () => {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden">
+    <section className="py-20 bg-gradient-to-b from-background via-amber-50/30 to-background relative overflow-hidden">
       {/* Decorative background elements */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-amber-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-yellow-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4">Offres Partenaires Sélectionnées</h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+        <div className="text-center mb-16 animate-fade-in">
+          <div className="inline-flex items-center gap-3 mb-4 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 px-8 py-4 rounded-full backdrop-blur-sm border-2 border-amber-500/30 shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300 hover:scale-105">
+            <div className="p-2 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-lg shadow-lg">
+              <Tag className="w-6 h-6 text-white" />
+            </div>
+            <h2 className="text-4xl font-extrabold bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 bg-clip-text text-transparent">
+              Offres Partenaires Sélectionnées
+            </h2>
+          </div>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Découvrez les meilleures offres de nos partenaires certifiés pour vos projets d'énergies renouvelables
           </p>
+          <div className="flex items-center justify-center gap-2 mt-4">
+            <div className="h-1 w-12 bg-gradient-to-r from-transparent via-amber-500 to-transparent rounded-full"></div>
+          </div>
         </div>
 
         {/* Offers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12 animate-fade-in" style={{ animationDelay: '0.1s' }}>
           {offers.map((offer) => (
             <Card 
               key={offer.id} 
-              className="group relative overflow-hidden hover:shadow-2xl transition-all duration-500 border-2 hover:border-primary/50 hover:-translate-y-2"
+              className="group relative overflow-hidden hover:shadow-2xl hover:shadow-amber-500/20 transition-all duration-500 border-2 border-amber-500/20 hover:border-amber-500/50 hover:-translate-y-2 bg-card/80 backdrop-blur-sm"
             >
               {/* Badge */}
               {offer.badge_text && (
@@ -135,10 +145,10 @@ const PartnerOffersSection = () => {
               <CardContent className="p-6 space-y-4">
                 {/* Title & Advertiser */}
                 <div>
-                  <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
+                  <h3 className="text-2xl font-bold mb-2 group-hover:text-amber-600 transition-colors">
                     {offer.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground font-medium">
                     {offer.advertiser.name}
                   </p>
                 </div>
@@ -190,11 +200,11 @@ const PartnerOffersSection = () => {
         </div>
 
         {/* View All Button */}
-        <div className="text-center">
+        <div className="text-center animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <Button 
             asChild
             size="lg"
-            className="bg-primary/10 hover:bg-primary/20 text-primary border-2 border-primary/30 hover:border-primary/50 font-semibold px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all"
+            className="bg-gradient-to-r from-amber-500/10 to-yellow-500/10 hover:from-amber-600 hover:to-yellow-600 hover:text-white text-amber-700 border-2 border-amber-500/30 hover:border-amber-600 font-bold px-10 py-6 text-lg shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/40 transition-all duration-300 hover:scale-105"
           >
             <Link to="/offres-partenaires">
               Voir toutes les offres partenaires
