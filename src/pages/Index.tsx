@@ -3,6 +3,7 @@ import { OrganizationSchema } from "@/components/SEO/OrganizationSchema";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
+import SolarBanner from "@/components/SolarBanner";
 import EligibilityFormSection from "@/components/EligibilityFormSection";
 import NewsSection from "@/components/NewsSection";
 import AidesSection from "@/components/AidesSection";
@@ -41,6 +42,7 @@ const Index = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <HeroSection />
+        <SolarBanner />
         <NewsSection />
         <AidesSection />
         <GuidesSection />
