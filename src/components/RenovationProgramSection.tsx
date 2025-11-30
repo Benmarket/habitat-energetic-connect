@@ -20,8 +20,8 @@ const RenovationProgramSection = () => {
               
               {/* Green overlay text banner */}
               <div className="absolute top-8 left-0 right-0 px-4">
-                <div className="bg-primary text-white px-6 py-3 rounded-lg shadow-lg inline-block max-w-[90%]">
-                  <p className="text-base lg:text-lg font-bold">
+                <div className="bg-primary text-white px-4 py-2 md:px-6 md:py-3 rounded-lg shadow-lg inline-block max-w-[90%]">
+                  <p className="text-sm md:text-base lg:text-lg font-bold leading-tight">
                     Jusqu'à 63 000€ de subvention pour vos travaux de rénovation énergétique
                   </p>
                 </div>
@@ -29,14 +29,14 @@ const RenovationProgramSection = () => {
 
               {/* Energy class badge - smaller and cuter */}
               <div className="absolute bottom-8 left-8">
-                <div className="bg-primary text-white rounded-lg p-2 shadow-xl flex items-center justify-center">
-                  <span className="text-2xl font-extrabold">A</span>
+                <div className="bg-primary text-white rounded-md p-1.5 shadow-lg flex items-center justify-center">
+                  <span className="text-base font-extrabold">A</span>
                 </div>
-                <div className="mt-1 flex gap-1">
-                  <div className="w-5 h-4 bg-green-600 rounded"></div>
-                  <div className="w-5 h-4 bg-yellow-400 rounded"></div>
-                  <div className="w-5 h-4 bg-orange-500 rounded"></div>
-                  <div className="w-5 h-4 bg-red-600 rounded"></div>
+                <div className="mt-1 flex gap-0.5">
+                  <div className="w-3 h-2.5 bg-green-600 rounded-sm"></div>
+                  <div className="w-3 h-2.5 bg-yellow-400 rounded-sm"></div>
+                  <div className="w-3 h-2.5 bg-orange-500 rounded-sm"></div>
+                  <div className="w-3 h-2.5 bg-red-600 rounded-sm"></div>
                 </div>
               </div>
             </div>
