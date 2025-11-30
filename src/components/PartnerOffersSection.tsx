@@ -5,6 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Check, Tag } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 interface Advertisement {
   id: string;
@@ -83,7 +89,7 @@ const PartnerOffersSection = () => {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background via-amber-50/30 to-background relative overflow-hidden">
+    <section className="py-12 md:py-16 pb-8 md:pb-12 bg-gradient-to-b from-background via-amber-50/30 to-background relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute inset-0 opacity-20 pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-amber-500/20 rounded-full blur-3xl animate-pulse"></div>
@@ -92,25 +98,133 @@ const PartnerOffersSection = () => {
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-16 animate-fade-in">
-          <div className="inline-flex items-center gap-3 mb-4 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 px-8 py-4 rounded-full backdrop-blur-sm border-2 border-amber-500/30 shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300 hover:scale-105">
-            <div className="p-2 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-lg shadow-lg">
-              <Tag className="w-6 h-6 text-white" />
+        <div className="text-center mb-10 md:mb-12 animate-fade-in">
+          <div className="inline-flex items-center gap-2 md:gap-3 mb-4 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 px-4 md:px-8 py-2 md:py-4 rounded-full backdrop-blur-sm border-2 border-amber-500/30 shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300 hover:scale-105">
+            <div className="p-1.5 md:p-2 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-lg shadow-lg">
+              <Tag className="w-4 h-4 md:w-6 md:h-6 text-white" />
             </div>
-            <h2 className="text-4xl font-extrabold bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 bg-clip-text text-transparent">
-              Offres Partenaires Sélectionnées
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 bg-clip-text text-transparent whitespace-nowrap">
+              Offres Partenaires
             </h2>
           </div>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="text-sm md:text-base lg:text-lg text-muted-foreground max-w-3xl mx-auto leading-snug px-4">
             Découvrez les meilleures offres de nos partenaires certifiés pour vos projets d'énergies renouvelables
           </p>
-          <div className="flex items-center justify-center gap-2 mt-4">
+          <div className="flex items-center justify-center gap-2 mt-3">
             <div className="h-1 w-12 bg-gradient-to-r from-transparent via-amber-500 to-transparent rounded-full"></div>
           </div>
         </div>
 
-        {/* Offers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+        {/* Offers - Mobile Carousel, Desktop Grid */}
+        <div className="mb-8 md:mb-12 animate-fade-in mt-6" style={{ animationDelay: '0.1s' }}>
+          {/* Mobile Carousel */}
+          <div className="block md:hidden">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              plugins={[
+                Autoplay({
+                  delay: 5000,
+                }),
+              ]}
+              className="w-full"
+            >
+              <CarouselContent>
+                {offers.map((offer) => (
+                  <CarouselItem key={offer.id}>
+                    <Card 
+                      className="group relative overflow-hidden hover:shadow-2xl hover:shadow-amber-500/20 transition-all duration-500 border-2 border-amber-500/20 hover:border-amber-500/50 bg-card/80 backdrop-blur-sm mx-2"
+                    >
+                      {/* Badge */}
+                      {offer.badge_text && (
+                        <Badge 
+                          variant={getBadgeVariant(offer.badge_type)}
+                          className={`absolute top-4 left-4 z-10 font-semibold shadow-lg ${
+                            offer.badge_type === 'sponsored' 
+                              ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-amber-400/30 hover:from-amber-600 hover:to-yellow-600' 
+                              : ''
+                          }`}
+                        >
+                          {offer.badge_text}
+                        </Badge>
+                      )}
+
+                      {/* Image */}
+                      {offer.image && (
+                        <div className="relative h-64 overflow-hidden">
+                          <img 
+                            src={offer.image} 
+                            alt={offer.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
+                        </div>
+                      )}
+
+                      <CardContent className="p-6 space-y-4">
+                        {/* Title & Advertiser */}
+                        <div>
+                          <h3 className="text-2xl font-bold mb-2 group-hover:text-amber-600 transition-colors">
+                            {offer.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground font-medium">
+                            {offer.advertiser.name}
+                          </p>
+                        </div>
+
+                        {/* Price */}
+                        <div className="flex items-baseline gap-3">
+                          <span className="text-4xl font-bold text-amber-600">
+                            {offer.price.toLocaleString('fr-FR')}€
+                          </span>
+                          {offer.original_price && (
+                            <span className="text-xl text-muted-foreground line-through">
+                              {offer.original_price.toLocaleString('fr-FR')}€
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Description */}
+                        <p className="text-muted-foreground leading-relaxed">
+                          {offer.description}
+                        </p>
+
+                        {/* Features */}
+                        {offer.features && offer.features.length > 0 && (
+                          <div className="space-y-2 pt-4 border-t">
+                            <p className="font-semibold text-sm">Avantages inclus :</p>
+                            <ul className="space-y-2">
+                              {offer.features.map((feature, index) => (
+                                <li key={index} className="flex items-start gap-2 text-sm">
+                                  <Check className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                  <span>{feature}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* CTA Button */}
+                        <Button 
+                          asChild
+                          className="w-full mt-6 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-bold py-6 text-lg shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 transition-all duration-300 hover:scale-105 border border-amber-400/30"
+                        >
+                          <a href={offer.cta_url} target="_blank" rel="noopener noreferrer">
+                            {offer.cta_text}
+                          </a>
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+          </div>
+
+          {/* Desktop Grid */}
+          <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-8">
           {offers.map((offer) => (
             <Card 
               key={offer.id} 
@@ -197,6 +311,7 @@ const PartnerOffersSection = () => {
               </CardContent>
             </Card>
           ))}
+          </div>
         </div>
 
         {/* View All Button */}
