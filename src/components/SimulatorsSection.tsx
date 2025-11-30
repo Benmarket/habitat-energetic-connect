@@ -94,7 +94,7 @@ const SimulatorsSection = () => {
   ];
 
   return (
-    <section className="py-12 md:py-16 lg:py-20 bg-gradient-to-br from-background via-primary/5 to-accent/10 relative overflow-hidden">
+    <section className="pt-6 pb-12 md:py-16 lg:py-20 bg-gradient-to-br from-background via-primary/5 to-accent/10 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-10 left-10 w-72 h-72 bg-primary rounded-full blur-3xl animate-pulse"></div>
