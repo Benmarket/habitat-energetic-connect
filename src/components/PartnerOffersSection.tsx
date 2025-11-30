@@ -226,8 +226,8 @@ const PartnerOffersSection = () => {
           </Carousel>
         </div>
 
-        {/* View All Button - Right aligned */}
-        <div className="text-center md:text-right animate-fade-in" style={{ animationDelay: '0.2s' }}>
+        {/* View All Button - Centered */}
+        <div className="text-center animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <Button 
             asChild
             size="lg"
