@@ -28,10 +28,10 @@ const WhySolarSection = () => {
   ];
 
   return (
-    <section className="relative py-16 lg:py-20 bg-background overflow-hidden">
+    <section className="relative py-8 md:py-12 lg:py-20 bg-background overflow-hidden">
       <div className="container mx-auto px-4">
         {/* Title */}
-        <h2 className="text-3xl lg:text-4xl font-extrabold text-center mb-12 lg:mb-16">
+        <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-center mb-8 md:mb-12 lg:mb-16">
           Pourquoi <span className="text-primary">l'énergie solaire ?</span>
         </h2>
 
