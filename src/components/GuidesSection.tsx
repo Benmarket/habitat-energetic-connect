@@ -191,7 +191,15 @@ const GuidesSection = () => {
           <CarouselNext className="hidden md:flex -right-12 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300" />
         </Carousel>
 
-        <div className="text-center mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+        {/* Navigation and View All Button */}
+        <div className="flex flex-col md:flex-row items-center justify-between mt-8 md:mt-12 gap-4 md:gap-0 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          {/* Navigation buttons - Tablet & Desktop */}
+          <div className="hidden md:flex gap-3">
+            <CarouselPrevious className="relative inset-0 translate-y-0 h-12 w-12 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300" />
+            <CarouselNext className="relative inset-0 translate-y-0 h-12 w-12 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300" />
+          </div>
+          
+          {/* View All Button */}
           <Button
             asChild
             size="lg"
