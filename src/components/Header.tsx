@@ -292,20 +292,105 @@ const Header = () => {
                   </Link>
                 </Button>
                 {user ? (
-                  <>
-                    <Button 
-                      asChild 
-                      className="w-full"
+                  <div className="w-full border border-border rounded-lg p-4 space-y-3">
+                    {/* User Header */}
+                    <div className="flex items-start gap-3 pb-3 border-b border-border">
+                      <Avatar className="h-12 w-12 bg-primary">
+                        <AvatarFallback className="bg-primary text-primary-foreground font-bold text-lg">
+                          {getInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col flex-1">
+                        <span className="font-semibold text-foreground">{getFullName()}</span>
+                        {profile?.account_type === 'professionnel' && profile?.company_name && (
+                          <span className="text-xs text-muted-foreground mt-0.5">{profile.company_name}</span>
+                        )}
+                        <Badge variant="outline" className="w-fit text-xs bg-emerald-50 text-emerald-700 border-emerald-200 mt-1">
+                          {profile?.account_type || 'particulier'}
+                        </Badge>
+                        {getRoleDisplay() && (
+                          <Badge variant="secondary" className="w-fit text-xs bg-yellow-100 text-yellow-800 border-yellow-200 mt-1">
+                            {getRoleDisplay()}
+                          </Badge>
+                        )}
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            navigate("/profil");
+                          }}
+                          className="flex items-center gap-1.5 text-xs h-auto py-1 px-2 mt-2 w-fit"
+                        >
+                          <Settings className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-muted-foreground">Mon compte</span>
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    {/* Menu Items */}
+                    <button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        navigate("/dashboard");
+                      }}
+                      className="flex items-center w-full py-2.5 px-2 rounded-md hover:bg-accent transition-colors text-left"
                     >
-                      <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
-                        <User className="h-5 w-5 mr-2" />
-                        Espace Perso
-                      </Link>
-                    </Button>
-                    <Button variant="outline" onClick={handleSignOut} className="w-full">
-                      Déconnexion
-                    </Button>
-                  </>
+                      <Home className="mr-3 h-4 w-4 text-muted-foreground" />
+                      <span>Tableau de bord</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        navigate("/economies");
+                      }}
+                      className="flex items-center w-full py-2.5 px-2 rounded-md hover:bg-accent transition-colors text-left"
+                    >
+                      <BarChart3 className="mr-3 h-4 w-4 text-muted-foreground" />
+                      <span>Économies réalisées</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        navigate("/forum");
+                      }}
+                      className="flex items-center w-full py-2.5 px-2 rounded-md hover:bg-accent transition-colors text-left"
+                    >
+                      <MessageCircle className="mr-3 h-4 w-4 text-muted-foreground" />
+                      <span>Forums de discussion</span>
+                    </button>
+                    
+                    {isAdminOrAbove && (
+                      <>
+                        <div className="border-t border-border my-2" />
+                        <button
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            navigate("/administration");
+                          }}
+                          className="flex items-center w-full py-2.5 px-2 rounded-md hover:bg-accent transition-colors text-left"
+                        >
+                          <Users className="mr-3 h-4 w-4 text-purple-600" />
+                          <span className="text-purple-600 font-medium">Administration</span>
+                        </button>
+                      </>
+                    )}
+                    
+                    <div className="border-t border-border my-2" />
+                    
+                    <button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handleSignOut();
+                      }}
+                      className="flex items-center w-full py-2.5 px-2 rounded-md hover:bg-accent transition-colors text-left text-red-600"
+                    >
+                      <LogOut className="mr-3 h-4 w-4" />
+                      <span>Se déconnecter</span>
+                    </button>
+                  </div>
                 ) : (
                   <Button 
                     variant="outline" 
