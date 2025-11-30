@@ -152,71 +152,71 @@ const PartnerOffersSection = () => {
                       </Badge>
                     )}
 
-                    {/* Image */}
-                    {offer.image && (
-                      <div className="relative h-64 overflow-hidden">
-                        <img 
-                          src={offer.image} 
-                          alt={offer.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
+                  {/* Image */}
+                  {offer.image && (
+                    <div className="relative h-48 md:h-64 overflow-hidden">
+                      <img 
+                        src={offer.image} 
+                        alt={offer.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
+                    </div>
+                  )}
+
+                  <CardContent className="p-4 md:p-6 space-y-3 md:space-y-4">
+                    {/* Title & Advertiser */}
+                    <div>
+                      <h3 className="text-xl md:text-2xl font-bold mb-2 group-hover:text-amber-600 transition-colors">
+                        {offer.title}
+                      </h3>
+                      <p className="text-xs md:text-sm text-muted-foreground font-medium">
+                        {offer.advertiser.name}
+                      </p>
+                    </div>
+
+                    {/* Price */}
+                    <div className="flex items-baseline gap-2 md:gap-3">
+                      <span className="text-3xl md:text-4xl font-bold text-amber-600">
+                        {offer.price.toLocaleString('fr-FR')}€
+                      </span>
+                      {offer.original_price && (
+                        <span className="text-lg md:text-xl text-muted-foreground line-through">
+                          {offer.original_price.toLocaleString('fr-FR')}€
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-sm md:text-base text-muted-foreground leading-relaxed line-clamp-3">
+                      {offer.description}
+                    </p>
+
+                    {/* Features */}
+                    {offer.features && offer.features.length > 0 && (
+                      <div className="space-y-2 pt-3 md:pt-4 border-t">
+                        <p className="font-semibold text-xs md:text-sm">Avantages inclus :</p>
+                        <ul className="space-y-1.5 md:space-y-2">
+                          {offer.features.slice(0, 4).map((feature, index) => (
+                            <li key={index} className="flex items-start gap-2 text-xs md:text-sm">
+                              <Check className="w-3 h-3 md:w-4 md:h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
                     )}
 
-                    <CardContent className="p-6 space-y-4">
-                      {/* Title & Advertiser */}
-                      <div>
-                        <h3 className="text-2xl font-bold mb-2 group-hover:text-amber-600 transition-colors">
-                          {offer.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground font-medium">
-                          {offer.advertiser.name}
-                        </p>
-                      </div>
-
-                      {/* Price */}
-                      <div className="flex items-baseline gap-3">
-                        <span className="text-4xl font-bold text-amber-600">
-                          {offer.price.toLocaleString('fr-FR')}€
-                        </span>
-                        {offer.original_price && (
-                          <span className="text-xl text-muted-foreground line-through">
-                            {offer.original_price.toLocaleString('fr-FR')}€
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Description */}
-                      <p className="text-muted-foreground leading-relaxed">
-                        {offer.description}
-                      </p>
-
-                      {/* Features */}
-                      {offer.features && offer.features.length > 0 && (
-                        <div className="space-y-2 pt-4 border-t">
-                          <p className="font-semibold text-sm">Avantages inclus :</p>
-                          <ul className="space-y-2">
-                            {offer.features.map((feature, index) => (
-                              <li key={index} className="flex items-start gap-2 text-sm">
-                                <Check className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                                <span>{feature}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      {/* CTA Button */}
-                      <Button 
-                        asChild
-                        className="w-full mt-6 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-bold py-6 text-lg shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 transition-all duration-300 hover:scale-105 border border-amber-400/30"
-                      >
-                        <a href={offer.cta_url} target="_blank" rel="noopener noreferrer">
-                          {offer.cta_text}
-                        </a>
-                      </Button>
-                    </CardContent>
+                    {/* CTA Button */}
+                    <Button 
+                      asChild
+                      className="w-full mt-4 md:mt-6 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-bold py-5 md:py-6 text-base md:text-lg shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 transition-all duration-300 hover:scale-105 border border-amber-400/30"
+                    >
+                      <a href={offer.cta_url} target="_blank" rel="noopener noreferrer">
+                        {offer.cta_text}
+                      </a>
+                    </Button>
+                  </CardContent>
                   </Card>
                 </CarouselItem>
               ))}
