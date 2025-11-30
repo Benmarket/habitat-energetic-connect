@@ -76,6 +76,29 @@ export default function AdminForms() {
   const forms = formsData?.forms || [];
   const totalPages = Math.ceil((formsData?.totalCount || 0) / formsPerPage);
 
+  // Fetch unread submissions count for all forms
+  const { data: unreadCounts } = useQuery({
+    queryKey: ["unread-submissions-count"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("form_submissions")
+        .select("form_id, is_read");
+      
+      if (error) throw error;
+      
+      // Count unread submissions per form
+      const counts: Record<string, number> = {};
+      data.forEach((submission: any) => {
+        if (!submission.is_read) {
+          counts[submission.form_id] = (counts[submission.form_id] || 0) + 1;
+        }
+      });
+      
+      return counts;
+    },
+    refetchInterval: 5000, // Refresh every 5 seconds
+  });
+
   // Fetch submissions for selected form
   const { data: submissions, isLoading: loadingSubmissions } = useQuery({
     queryKey: ["form-submissions", selectedForm?.id],
@@ -199,9 +222,23 @@ export default function AdminForms() {
     setIsEditOpen(true);
   };
 
-  const handleViewSubmissions = (form: FormConfig) => {
+  const handleViewSubmissions = async (form: FormConfig) => {
     setSelectedForm(form);
     setIsSubmissionsOpen(true);
+    
+    // Marquer toutes les soumissions de ce formulaire comme lues
+    const { error } = await supabase
+      .from("form_submissions")
+      .update({ is_read: true })
+      .eq("form_id", form.id)
+      .eq("is_read", false);
+    
+    if (error) {
+      console.error("Erreur lors du marquage des soumissions comme lues:", error);
+    } else {
+      // Rafraîchir les compteurs
+      queryClient.invalidateQueries({ queryKey: ["unread-submissions-count"] });
+    }
   };
 
   const handleExportCSV = () => {
@@ -393,9 +430,22 @@ export default function AdminForms() {
                       )}
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => handleViewSubmissions(form)}>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleViewSubmissions(form)}
+                        className="relative"
+                      >
                         <Eye className="h-4 w-4 mr-2" />
                         Soumissions
+                        {unreadCounts && unreadCounts[form.id] > 0 && (
+                          <Badge 
+                            variant="destructive" 
+                            className="ml-2 h-5 min-w-5 rounded-full px-1.5 text-xs font-bold"
+                          >
+                            {unreadCounts[form.id]}
+                          </Badge>
+                        )}
                       </Button>
                       <Button variant="outline" size="sm" onClick={() => handleEdit(form)}>
                         <Edit className="h-4 w-4" />
