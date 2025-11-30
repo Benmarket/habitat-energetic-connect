@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, Edit, Trash2, Download, ExternalLink, Eye, Loader2, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, Download, ExternalLink, Eye, Loader2, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 type FormConfig = {
@@ -59,6 +59,7 @@ export default function AdminForms() {
   const submissionsPerPage = 50;
   const [sortColumn, setSortColumn] = useState<string>("submitted_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch forms with pagination
   const { data: formsData, isLoading: loadingForms } = useQuery({
@@ -233,6 +234,7 @@ export default function AdminForms() {
     setSubmissionsPage(1); // Reset to first page
     setSortColumn("submitted_at"); // Reset sort
     setSortDirection("desc");
+    setSearchTerm(""); // Reset search
     
     // Marquer toutes les soumissions de ce formulaire comme lues
     const { error } = await supabase
@@ -258,7 +260,18 @@ export default function AdminForms() {
     }
   };
 
-  const sortedSubmissions = submissions ? [...submissions].sort((a, b) => {
+  // Filter submissions based on search term
+  const filteredSubmissions = submissions ? submissions.filter((submission) => {
+    if (!searchTerm) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    const dataString = JSON.stringify(submission.data).toLowerCase();
+    
+    // Search in all data fields
+    return dataString.includes(searchLower);
+  }) : [];
+
+  const sortedSubmissions = filteredSubmissions.length > 0 ? [...filteredSubmissions].sort((a, b) => {
     let aValue = sortColumn === "submitted_at" ? a.submitted_at : a.data[sortColumn];
     let bValue = sortColumn === "submitted_at" ? b.submitted_at : b.data[sortColumn];
     
@@ -643,15 +656,29 @@ export default function AdminForms() {
                 </Button>
               </div>
               <DialogDescription className="text-left">
-                {submissions?.length || 0} soumission(s) enregistrée(s)
+                {sortedSubmissions.length} soumission(s) {searchTerm && `trouvée(s) sur ${submissions?.length || 0}`}
               </DialogDescription>
+              
+              {/* Search field */}
+              <div className="relative mt-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Rechercher par email, nom, téléphone..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setSubmissionsPage(1); // Reset to first page on search
+                  }}
+                  className="pl-9"
+                />
+              </div>
             </DialogHeader>
             
             {loadingSubmissions ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
-            ) : submissions && submissions.length > 0 ? (
+            ) : sortedSubmissions.length > 0 ? (
               <div className="flex-1 overflow-auto">
                 <Table>
                   <TableHeader>
@@ -753,7 +780,7 @@ export default function AdminForms() {
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                Aucune soumission pour ce formulaire
+                {searchTerm ? "Aucun résultat pour cette recherche" : "Aucune soumission pour ce formulaire"}
               </div>
             )}
           </DialogContent>
