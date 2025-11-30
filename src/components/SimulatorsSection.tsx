@@ -105,16 +105,16 @@ const SimulatorsSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-3 mb-6 bg-gradient-to-r from-primary/20 to-accent/20 px-8 py-4 rounded-full backdrop-blur-sm border border-primary/20 shadow-lg">
-            <Zap className="w-7 h-7 text-primary animate-pulse" />
-            <h2 className="text-5xl flex items-center gap-2">
+          <div className="inline-flex items-center gap-2 md:gap-3 mb-6 bg-gradient-to-r from-primary/20 to-accent/20 px-4 md:px-8 py-3 md:py-4 rounded-full backdrop-blur-sm border border-primary/20 shadow-lg">
+            <Zap className="w-5 h-5 md:w-7 md:h-7 text-primary animate-pulse" />
+            <h2 className="text-2xl md:text-3xl lg:text-5xl flex items-center gap-1 md:gap-2">
               <span className="text-blue-800 font-condensed font-semibold uppercase tracking-tight">Simulateurs</span>
               <span className="text-primary font-extrabold">Prime</span>
               <span className="text-foreground font-extrabold">énergies</span>
             </h2>
-            <Zap className="w-7 h-7 text-primary animate-pulse" />
+            <Zap className="w-5 h-5 md:w-7 md:h-7 text-primary animate-pulse" />
           </div>
-          <p className="text-2xl text-muted-foreground font-medium max-w-3xl mx-auto mt-4">
+          <p className="text-base md:text-lg lg:text-2xl text-muted-foreground font-medium max-w-3xl mx-auto mt-4">
             Choisissez un simulateur pour estimer vos gains et aides en quelques clics
           </p>
           <div className="mt-6 flex justify-center gap-2">
