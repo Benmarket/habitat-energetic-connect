@@ -215,19 +215,12 @@ const PartnerOffersSection = () => {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden md:flex -left-12 border-2 border-amber-500/30 hover:border-amber-600 hover:bg-amber-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-amber-500/30 transition-all duration-300" />
-          <CarouselNext className="hidden md:flex -right-12 border-2 border-amber-500/30 hover:border-amber-600 hover:bg-amber-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-amber-500/30 transition-all duration-300" />
+          <CarouselPrevious className="hidden lg:flex -left-12 border-2 border-amber-500/30 hover:border-amber-600 hover:bg-amber-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-amber-500/30 transition-all duration-300" />
+          <CarouselNext className="hidden lg:flex -right-12 border-2 border-amber-500/30 hover:border-amber-600 hover:bg-amber-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-amber-500/30 transition-all duration-300" />
         </Carousel>
 
-        {/* Navigation and View All Button */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          {/* Navigation buttons - Mobile & Tablet & Desktop */}
-          <div className="flex gap-3">
-            <CarouselPrevious className="relative inset-0 translate-y-0 h-12 w-12 border-2 border-amber-500/30 hover:border-amber-600 hover:bg-amber-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-amber-500/30 transition-all duration-300" />
-            <CarouselNext className="relative inset-0 translate-y-0 h-12 w-12 border-2 border-amber-500/30 hover:border-amber-600 hover:bg-amber-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-amber-500/30 transition-all duration-300" />
-          </div>
-          
-          {/* View All Button */}
+        {/* View All Button - Right aligned */}
+        <div className="text-center md:text-right animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <Button 
             asChild
             size="lg"
