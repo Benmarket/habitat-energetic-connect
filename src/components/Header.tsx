@@ -292,9 +292,20 @@ const Header = () => {
                   </Link>
                 </Button>
                 {user ? (
-                  <Button variant="outline" onClick={handleSignOut} className="w-full">
-                    Déconnexion
-                  </Button>
+                  <>
+                    <Button 
+                      asChild 
+                      className="w-full"
+                    >
+                      <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                        <User className="h-5 w-5 mr-2" />
+                        Espace Perso
+                      </Link>
+                    </Button>
+                    <Button variant="outline" onClick={handleSignOut} className="w-full">
+                      Déconnexion
+                    </Button>
+                  </>
                 ) : (
                   <Button 
                     variant="outline" 
