@@ -21,6 +21,7 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isUserMenuExpanded, setIsUserMenuExpanded] = useState(false);
   const [profile, setProfile] = useState<{ first_name: string | null; last_name: string | null; account_type: string | null; company_name: string | null } | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const { user, signOut } = useAuth();
@@ -236,6 +237,122 @@ const Header = () => {
         {isMenuOpen && (
           <nav className="lg:hidden py-4 border-t border-border">
             <div className="flex flex-col space-y-4">
+              {/* User menu button - at the top */}
+              {user && (
+                <div className="pb-4 border-b border-border">
+                  <button
+                    onClick={() => setIsUserMenuExpanded(!isUserMenuExpanded)}
+                    className="w-full flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10 bg-primary">
+                        <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                          {getInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col items-start">
+                        <span className="text-sm font-medium text-foreground">{getFullName()}</span>
+                        {getRoleDisplay() && (
+                          <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-800 border-yellow-200 mt-1">
+                            {getRoleDisplay()}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${isUserMenuExpanded ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Expanded user menu */}
+                  {isUserMenuExpanded && (
+                    <div className="mt-3 p-3 rounded-lg bg-background border border-border space-y-2">
+                      {profile?.account_type === 'professionnel' && profile?.company_name && (
+                        <div className="text-xs text-muted-foreground pb-2 border-b border-border">
+                          {profile.company_name}
+                        </div>
+                      )}
+                      
+                      <button
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          setIsUserMenuExpanded(false);
+                          navigate("/profil");
+                        }}
+                        className="flex items-center w-full py-2 px-2 rounded-md hover:bg-accent transition-colors text-left text-sm"
+                      >
+                        <Settings className="mr-3 h-4 w-4 text-muted-foreground" />
+                        <span>Mon compte</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          setIsUserMenuExpanded(false);
+                          navigate("/dashboard");
+                        }}
+                        className="flex items-center w-full py-2 px-2 rounded-md hover:bg-accent transition-colors text-left text-sm"
+                      >
+                        <Home className="mr-3 h-4 w-4 text-muted-foreground" />
+                        <span>Tableau de bord</span>
+                      </button>
+                      
+                      <button
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          setIsUserMenuExpanded(false);
+                          navigate("/economies");
+                        }}
+                        className="flex items-center w-full py-2 px-2 rounded-md hover:bg-accent transition-colors text-left text-sm"
+                      >
+                        <BarChart3 className="mr-3 h-4 w-4 text-muted-foreground" />
+                        <span>Économies réalisées</span>
+                      </button>
+                      
+                      <button
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          setIsUserMenuExpanded(false);
+                          navigate("/forum");
+                        }}
+                        className="flex items-center w-full py-2 px-2 rounded-md hover:bg-accent transition-colors text-left text-sm"
+                      >
+                        <MessageCircle className="mr-3 h-4 w-4 text-muted-foreground" />
+                        <span>Forums de discussion</span>
+                      </button>
+                      
+                      {isAdminOrAbove && (
+                        <>
+                          <div className="border-t border-border my-2" />
+                          <button
+                            onClick={() => {
+                              setIsMenuOpen(false);
+                              setIsUserMenuExpanded(false);
+                              navigate("/administration");
+                            }}
+                            className="flex items-center w-full py-2 px-2 rounded-md hover:bg-accent transition-colors text-left text-sm"
+                          >
+                            <Users className="mr-3 h-4 w-4 text-purple-600" />
+                            <span className="text-purple-600 font-medium">Administration</span>
+                          </button>
+                        </>
+                      )}
+                      
+                      <div className="border-t border-border my-2" />
+                      
+                      <button
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          setIsUserMenuExpanded(false);
+                          handleSignOut();
+                        }}
+                        className="flex items-center w-full py-2 px-2 rounded-md hover:bg-accent transition-colors text-left text-sm text-red-600"
+                      >
+                        <LogOut className="mr-3 h-4 w-4" />
+                        <span>Se déconnecter</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
               <Link
                 to="/offres"
                 className="text-foreground hover:text-primary transition-colors"
@@ -291,107 +408,7 @@ const Header = () => {
                     Trouver un installateur
                   </Link>
                 </Button>
-                {user ? (
-                  <div className="w-full border border-border rounded-lg p-4 space-y-3">
-                    {/* User Header */}
-                    <div className="flex items-start gap-3 pb-3 border-b border-border">
-                      <Avatar className="h-12 w-12 bg-primary">
-                        <AvatarFallback className="bg-primary text-primary-foreground font-bold text-lg">
-                          {getInitials()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col flex-1">
-                        <span className="font-semibold text-foreground">{getFullName()}</span>
-                        {profile?.account_type === 'professionnel' && profile?.company_name && (
-                          <span className="text-xs text-muted-foreground mt-0.5">{profile.company_name}</span>
-                        )}
-                        <Badge variant="outline" className="w-fit text-xs bg-emerald-50 text-emerald-700 border-emerald-200 mt-1">
-                          {profile?.account_type || 'particulier'}
-                        </Badge>
-                        {getRoleDisplay() && (
-                          <Badge variant="secondary" className="w-fit text-xs bg-yellow-100 text-yellow-800 border-yellow-200 mt-1">
-                            {getRoleDisplay()}
-                          </Badge>
-                        )}
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => {
-                            setIsMenuOpen(false);
-                            navigate("/profil");
-                          }}
-                          className="flex items-center gap-1.5 text-xs h-auto py-1 px-2 mt-2 w-fit"
-                        >
-                          <Settings className="h-3.5 w-3.5 text-muted-foreground" />
-                          <span className="text-muted-foreground">Mon compte</span>
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    {/* Menu Items */}
-                    <button
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        navigate("/dashboard");
-                      }}
-                      className="flex items-center w-full py-2.5 px-2 rounded-md hover:bg-accent transition-colors text-left"
-                    >
-                      <Home className="mr-3 h-4 w-4 text-muted-foreground" />
-                      <span>Tableau de bord</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        navigate("/economies");
-                      }}
-                      className="flex items-center w-full py-2.5 px-2 rounded-md hover:bg-accent transition-colors text-left"
-                    >
-                      <BarChart3 className="mr-3 h-4 w-4 text-muted-foreground" />
-                      <span>Économies réalisées</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        navigate("/forum");
-                      }}
-                      className="flex items-center w-full py-2.5 px-2 rounded-md hover:bg-accent transition-colors text-left"
-                    >
-                      <MessageCircle className="mr-3 h-4 w-4 text-muted-foreground" />
-                      <span>Forums de discussion</span>
-                    </button>
-                    
-                    {isAdminOrAbove && (
-                      <>
-                        <div className="border-t border-border my-2" />
-                        <button
-                          onClick={() => {
-                            setIsMenuOpen(false);
-                            navigate("/administration");
-                          }}
-                          className="flex items-center w-full py-2.5 px-2 rounded-md hover:bg-accent transition-colors text-left"
-                        >
-                          <Users className="mr-3 h-4 w-4 text-purple-600" />
-                          <span className="text-purple-600 font-medium">Administration</span>
-                        </button>
-                      </>
-                    )}
-                    
-                    <div className="border-t border-border my-2" />
-                    
-                    <button
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        handleSignOut();
-                      }}
-                      className="flex items-center w-full py-2.5 px-2 rounded-md hover:bg-accent transition-colors text-left text-red-600"
-                    >
-                      <LogOut className="mr-3 h-4 w-4" />
-                      <span>Se déconnecter</span>
-                    </button>
-                  </div>
-                ) : (
+                {!user && (
                   <Button 
                     variant="outline" 
                     className="w-full"
