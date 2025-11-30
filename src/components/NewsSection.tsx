@@ -109,24 +109,24 @@ const NewsSection = () => {
   }
 
   return (
-    <section className="py-20 bg-background">
+    <section className="py-8 md:py-12 lg:py-20 bg-background">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-foreground mb-4">
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Actualités Énergies Renouvelables
           </h2>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-sm md:text-base text-muted-foreground max-w-3xl mx-auto">
             Restez informés des dernières innovations, aides publiques et tendances du secteur
           </p>
         </div>
 
         {/* Category Filters */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
+        <div className="flex flex-wrap justify-center gap-2 mb-8 md:mb-12">
           <Button
             variant={selectedCategory === null ? "default" : "outline"}
             onClick={() => setSelectedCategory(null)}
-            className="rounded-full"
+            className="rounded-full text-xs md:text-sm px-3 md:px-4 py-1.5 md:py-2 h-auto"
           >
             Toutes
           </Button>
@@ -135,7 +135,7 @@ const NewsSection = () => {
               key={category.id}
               variant={selectedCategory === category.slug ? "default" : "outline"}
               onClick={() => setSelectedCategory(category.slug)}
-              className="rounded-full"
+              className="rounded-full text-xs md:text-sm px-3 md:px-4 py-1.5 md:py-2 h-auto"
             >
               {category.name}
             </Button>
