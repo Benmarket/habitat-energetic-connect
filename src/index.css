@@ -114,3 +114,23 @@ All colors MUST be HSL.
   height: 0;
   pointer-events: none;
 }
+
+/* App Download Section Animations */
+.bg-grid-pattern {
+  background-image: linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px),
+                    linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}

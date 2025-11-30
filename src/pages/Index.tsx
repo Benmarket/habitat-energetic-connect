@@ -14,6 +14,7 @@ import CTAPartner from "@/components/CTAPartner";
 import FAQSection from "@/components/FAQSection";
 import ReviewsSection from "@/components/ReviewsSection";
 import ContactSection from "@/components/ContactSection";
+import AppDownloadSection from "@/components/AppDownloadSection";
 
 const Index = () => {
   return (
@@ -51,6 +52,7 @@ const Index = () => {
         <FAQSection />
         <ReviewsSection />
         <ContactSection />
+        <AppDownloadSection />
         <Footer />
       </div>
     </>
