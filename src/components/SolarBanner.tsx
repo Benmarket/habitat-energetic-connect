@@ -69,15 +69,17 @@ const SolarBanner = () => {
               </p>
               
               {/* Button */}
-              <Link to="/offres/panneaux-solaires">
-                <Button 
-                  size="lg"
-                  className="bg-primary hover:bg-primary/90 text-white shadow-xl font-semibold gap-2"
-                >
-                  Ça m'intéresse
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
+              <div className="flex justify-center">
+                <Link to="/offres/panneaux-solaires">
+                  <Button 
+                    size="lg"
+                    className="bg-primary hover:bg-primary/90 text-white shadow-xl font-semibold gap-2"
+                  >
+                    Ça m'intéresse
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
