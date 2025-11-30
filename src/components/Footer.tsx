@@ -108,8 +108,8 @@ const Footer = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <nav className="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-white/60">
+        <div className="border-t border-white/10 pt-6 flex flex-col items-center gap-4">
+          <nav className="flex flex-wrap justify-center gap-4 text-sm text-white/60">
             <Link to="/mentions-legales" className="hover:text-white transition-colors">
               Mentions légales
             </Link>
@@ -123,7 +123,7 @@ const Footer = () => {
               Plan du site
             </Link>
           </nav>
-          <p className="text-sm text-white/60">
+          <p className="text-sm text-white/60 text-center">
             © 2024 Prime Énergies. Tous droits réservés.
           </p>
         </div>
