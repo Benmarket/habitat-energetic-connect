@@ -154,8 +154,9 @@ const ReviewsSection = () => {
         <Carousel
           setApi={setApi}
           opts={{
-            align: "center",
+            align: "start",
             loop: true,
+            containScroll: "trimSnaps",
           }}
           plugins={[
             Autoplay({
@@ -164,11 +165,11 @@ const ReviewsSection = () => {
           ]}
           className="w-full mb-4"
         >
-          <CarouselContent className="-ml-2 md:-ml-4">
+          <CarouselContent className="md:-ml-4">
             {/* Mobile: 1 review per slide, Tablet: 2 reviews, Desktop: 4 reviews */}
             {reviews.map((review, index) => (
-              <CarouselItem key={`mobile-single-${index}`} className="md:hidden pl-2">
-                <div className="bg-white rounded-xl p-4 shadow-sm border border-border hover:shadow-md transition-shadow mx-2">
+              <CarouselItem key={`mobile-single-${index}`} className="md:hidden basis-full pl-4">
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-border hover:shadow-md transition-shadow">
                   {/* User Info */}
                   <div className="flex items-center gap-2 mb-3">
                     <Avatar className="w-10 h-10">
@@ -195,7 +196,7 @@ const ReviewsSection = () => {
               if (index % 2 === 0) {
                 const slideReviews = reviews.slice(index, index + 2);
                 slides.push(
-                  <CarouselItem key={`tablet-${index}`} className="hidden md:block lg:hidden">
+                  <CarouselItem key={`tablet-${index}`} className="hidden md:block lg:hidden basis-full pl-4">
                     <div className="grid grid-cols-2 gap-4">
                       {slideReviews.map((rev) => (
                         <div
@@ -232,7 +233,7 @@ const ReviewsSection = () => {
               if (index % 4 === 0) {
                 const slideReviews = reviews.slice(index, index + 4);
                 slides.push(
-                  <CarouselItem key={`desktop-${index}`} className="hidden lg:block">
+                  <CarouselItem key={`desktop-${index}`} className="hidden lg:block basis-full pl-4">
                     <div className="grid grid-cols-4 gap-6">
                       {slideReviews.map((rev) => (
                         <div
