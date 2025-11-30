@@ -117,7 +117,7 @@ const GuidesSection = () => {
               Guides par projet
             </h2>
           </div>
-          <p className="text-muted-foreground text-xs md:text-sm max-w-2xl mx-auto mt-6 leading-snug">
+          <p className="text-muted-foreground text-xs md:text-sm max-w-2xl mx-auto mt-3 md:mt-4 leading-snug">
             Des guides complets pour réussir votre projet d'énergies renouvelables, étape par étape.
           </p>
           <div className="flex items-center justify-center gap-2 mt-3">
