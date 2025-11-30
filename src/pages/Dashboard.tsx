@@ -284,44 +284,44 @@ const Dashboard = () => {
                 </div>
                 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {/* Actualité Card - Orange */}
-                  <Card className="group hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 border-l-4 border-l-orange-500 hover:scale-[1.02] hover:-translate-y-1">
+                  {/* Actualité Card - Vert */}
+                  <Card className="group hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-300 border-l-4 border-l-green-500 hover:scale-[1.02] hover:-translate-y-1">
                     <CardHeader>
                       <div className="flex items-center gap-3 mb-2">
-                        <div className="p-3 bg-gradient-to-br from-orange-500/10 to-orange-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                          <Newspaper className="w-6 h-6 text-orange-600" />
+                        <div className="p-3 bg-gradient-to-br from-green-500/10 to-green-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                          <Newspaper className="w-6 h-6 text-green-600" />
                         </div>
                       </div>
-                      <CardTitle className="group-hover:text-orange-600 transition-colors">Actualité</CardTitle>
+                      <CardTitle className="group-hover:text-green-600 transition-colors">Actualité</CardTitle>
                       <CardDescription>
                         Publier une nouvelle actualité sur les énergies renouvelables
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <Link to="/gerer-actualites">
-                        <Button className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 shadow-lg shadow-orange-500/30">
+                        <Button className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg shadow-green-500/30">
                           Voir les articles
                         </Button>
                       </Link>
                     </CardContent>
                   </Card>
 
-                  {/* Guide Card - Vert */}
-                  <Card className="group hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-300 border-l-4 border-l-green-500 hover:scale-[1.02] hover:-translate-y-1">
+                  {/* Guide Card - Orange */}
+                  <Card className="group hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 border-l-4 border-l-orange-500 hover:scale-[1.02] hover:-translate-y-1">
                     <CardHeader>
                       <div className="flex items-center gap-3 mb-2">
-                        <div className="p-3 bg-gradient-to-br from-green-500/10 to-green-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                          <BookOpen className="w-6 h-6 text-green-600" />
+                        <div className="p-3 bg-gradient-to-br from-orange-500/10 to-orange-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                          <BookOpen className="w-6 h-6 text-orange-600" />
                         </div>
                       </div>
-                      <CardTitle className="group-hover:text-green-600 transition-colors">Guide</CardTitle>
+                      <CardTitle className="group-hover:text-orange-600 transition-colors">Guide</CardTitle>
                       <CardDescription>
                         Rédiger un guide pratique pour aider les utilisateurs
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <Link to="/gerer-guides">
-                        <Button className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg shadow-green-500/30">
+                        <Button className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 shadow-lg shadow-orange-500/30">
                           Voir les guides
                         </Button>
                       </Link>
