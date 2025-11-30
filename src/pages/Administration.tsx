@@ -55,15 +55,15 @@ const Administration = () => {
             {/* Traffic Dashboard */}
             <TrafficDashboard />
 
-            {/* 1. Gestion des Utilisateurs */}
+            {/* 1. Gestion des Utilisateurs - ROUGE */}
             <div className="mt-12">
               <h2 className="text-2xl font-bold mb-4">Gestion des Utilisateurs</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-primary/10 rounded-lg">
-                        <Users className="w-6 h-6 text-primary" />
+                      <div className="p-3 bg-red-500/10 rounded-lg">
+                        <Users className="w-6 h-6 text-red-600" />
                       </div>
                     </div>
                     <CardTitle>Utilisateurs</CardTitle>
@@ -73,7 +73,7 @@ const Administration = () => {
                   </CardHeader>
                   <CardContent>
                     <Link to="/admin/utilisateurs">
-                      <Button className="w-full">
+                      <Button className="w-full bg-red-600 hover:bg-red-700">
                         Accéder
                       </Button>
                     </Link>
@@ -82,15 +82,15 @@ const Administration = () => {
               </div>
             </div>
 
-            {/* 2. Gestion des Contenus */}
+            {/* 2. Gestion des Contenus - BLEU CLAIR */}
             <div className="mt-12">
               <h2 className="text-2xl font-bold mb-4">Gestion des Contenus</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-amber-500/10 rounded-lg">
-                        <Newspaper className="w-6 h-6 text-amber-600" />
+                      <div className="p-3 bg-sky-500/10 rounded-lg">
+                        <Newspaper className="w-6 h-6 text-sky-600" />
                       </div>
                     </div>
                     <CardTitle>Articles</CardTitle>
@@ -100,7 +100,7 @@ const Administration = () => {
                   </CardHeader>
                   <CardContent>
                     <Link to="/gerer-actualites">
-                      <Button className="w-full">
+                      <Button className="w-full bg-sky-600 hover:bg-sky-700">
                         Accéder
                       </Button>
                     </Link>
@@ -110,8 +110,8 @@ const Administration = () => {
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-green-500/10 rounded-lg">
-                        <BookOpen className="w-6 h-6 text-green-600" />
+                      <div className="p-3 bg-sky-500/10 rounded-lg">
+                        <BookOpen className="w-6 h-6 text-sky-600" />
                       </div>
                     </div>
                     <CardTitle>Guides</CardTitle>
@@ -121,7 +121,7 @@ const Administration = () => {
                   </CardHeader>
                   <CardContent>
                     <Link to="/gerer-guides">
-                      <Button className="w-full">
+                      <Button className="w-full bg-sky-600 hover:bg-sky-700">
                         Accéder
                       </Button>
                     </Link>
@@ -131,8 +131,8 @@ const Administration = () => {
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-blue-500/10 rounded-lg">
-                        <HandCoins className="w-6 h-6 text-blue-600" />
+                      <div className="p-3 bg-sky-500/10 rounded-lg">
+                        <HandCoins className="w-6 h-6 text-sky-600" />
                       </div>
                     </div>
                     <CardTitle>Aides</CardTitle>
@@ -142,7 +142,7 @@ const Administration = () => {
                   </CardHeader>
                   <CardContent>
                     <Link to="/gerer-aides">
-                      <Button className="w-full">
+                      <Button className="w-full bg-sky-600 hover:bg-sky-700">
                         Accéder
                       </Button>
                     </Link>
@@ -152,8 +152,8 @@ const Administration = () => {
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-primary/10 rounded-lg">
-                        <FolderTree className="w-6 h-6 text-primary" />
+                      <div className="p-3 bg-sky-500/10 rounded-lg">
+                        <FolderTree className="w-6 h-6 text-sky-600" />
                       </div>
                     </div>
                     <CardTitle>Catégories</CardTitle>
@@ -163,7 +163,7 @@ const Administration = () => {
                   </CardHeader>
                   <CardContent>
                     <Link to="/admin/categories">
-                      <Button className="w-full">
+                      <Button className="w-full bg-sky-600 hover:bg-sky-700">
                         Accéder
                       </Button>
                     </Link>
@@ -173,8 +173,8 @@ const Administration = () => {
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-primary/10 rounded-lg">
-                        <Tags className="w-6 h-6 text-primary" />
+                      <div className="p-3 bg-sky-500/10 rounded-lg">
+                        <Tags className="w-6 h-6 text-sky-600" />
                       </div>
                     </div>
                     <CardTitle>Étiquettes</CardTitle>
@@ -184,7 +184,7 @@ const Administration = () => {
                   </CardHeader>
                   <CardContent>
                     <Link to="/admin/etiquettes">
-                      <Button className="w-full">
+                      <Button className="w-full bg-sky-600 hover:bg-sky-700">
                         Accéder
                       </Button>
                     </Link>
@@ -193,15 +193,15 @@ const Administration = () => {
               </div>
             </div>
 
-            {/* 3. Leads & Parcours */}
+            {/* 3. Leads & Parcours - ORANGE */}
             <div className="mt-12">
               <h2 className="text-2xl font-bold mb-4">Leads & Parcours</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-violet-500/10 rounded-lg">
-                        <Bot className="w-6 h-6 text-violet-600" />
+                      <div className="p-3 bg-orange-500/10 rounded-lg">
+                        <Bot className="w-6 h-6 text-orange-600" />
                       </div>
                     </div>
                     <CardTitle>Chatbot / Parcours</CardTitle>
@@ -211,7 +211,7 @@ const Administration = () => {
                   </CardHeader>
                   <CardContent>
                     <Link to="/admin/chatbot">
-                      <Button className="w-full bg-violet-600 hover:bg-violet-700">
+                      <Button className="w-full bg-orange-600 hover:bg-orange-700">
                         Accéder
                       </Button>
                     </Link>
@@ -221,8 +221,8 @@ const Administration = () => {
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-blue-500/10 rounded-lg">
-                        <FileCheck className="w-6 h-6 text-blue-600" />
+                      <div className="p-3 bg-orange-500/10 rounded-lg">
+                        <FileCheck className="w-6 h-6 text-orange-600" />
                       </div>
                     </div>
                     <CardTitle>Formulaires</CardTitle>
@@ -232,7 +232,7 @@ const Administration = () => {
                   </CardHeader>
                   <CardContent>
                     <Link to="/admin/formulaires">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                      <Button className="w-full bg-orange-600 hover:bg-orange-700">
                         Accéder
                       </Button>
                     </Link>
@@ -242,8 +242,8 @@ const Administration = () => {
                 <Card className="hover:shadow-lg transition-shadow opacity-60">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-teal-500/10 rounded-lg">
-                        <Calculator className="w-6 h-6 text-teal-600" />
+                      <div className="p-3 bg-orange-500/10 rounded-lg">
+                        <Calculator className="w-6 h-6 text-orange-600" />
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -263,15 +263,15 @@ const Administration = () => {
               </div>
             </div>
 
-            {/* 4. Support */}
+            {/* 4. Support - VERT */}
             <div className="mt-12">
               <h2 className="text-2xl font-bold mb-4">Support</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-emerald-500/10 rounded-lg">
-                        <MessageCircle className="w-6 h-6 text-emerald-600" />
+                      <div className="p-3 bg-green-500/10 rounded-lg">
+                        <MessageCircle className="w-6 h-6 text-green-600" />
                       </div>
                     </div>
                     <CardTitle>Chat Support (Live)</CardTitle>
@@ -281,7 +281,7 @@ const Administration = () => {
                   </CardHeader>
                   <CardContent>
                     <Link to="/chat-support">
-                      <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+                      <Button className="w-full bg-green-600 hover:bg-green-700">
                         Accéder
                       </Button>
                     </Link>
@@ -290,15 +290,15 @@ const Administration = () => {
               </div>
             </div>
 
-            {/* 5. Communication */}
+            {/* 5. Communication - VIOLET */}
             <div className="mt-12">
               <h2 className="text-2xl font-bold mb-4">Communication</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-primary/10 rounded-lg">
-                        <Mail className="w-6 h-6 text-primary" />
+                      <div className="p-3 bg-purple-500/10 rounded-lg">
+                        <Mail className="w-6 h-6 text-purple-600" />
                       </div>
                     </div>
                     <CardTitle>Newsletter</CardTitle>
@@ -308,7 +308,7 @@ const Administration = () => {
                   </CardHeader>
                   <CardContent>
                     <Link to="/admin/newsletter">
-                      <Button className="w-full">
+                      <Button className="w-full bg-purple-600 hover:bg-purple-700">
                         Accéder
                       </Button>
                     </Link>
@@ -318,8 +318,8 @@ const Administration = () => {
                 <Card className="hover:shadow-lg transition-shadow opacity-60">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-indigo-500/10 rounded-lg">
-                        <Send className="w-6 h-6 text-indigo-600" />
+                      <div className="p-3 bg-purple-500/10 rounded-lg">
+                        <Send className="w-6 h-6 text-purple-600" />
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -340,8 +340,8 @@ const Administration = () => {
                 <Card className="hover:shadow-lg transition-shadow opacity-60">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-pink-500/10 rounded-lg">
-                        <MessageSquare className="w-6 h-6 text-pink-600" />
+                      <div className="p-3 bg-purple-500/10 rounded-lg">
+                        <MessageSquare className="w-6 h-6 text-purple-600" />
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -361,15 +361,15 @@ const Administration = () => {
               </div>
             </div>
 
-            {/* 6. Gestion des Annonceurs */}
+            {/* 6. Gestion des Annonceurs - JAUNE */}
             <div className="mt-12">
               <h2 className="text-2xl font-bold mb-4">Gestion des Annonceurs</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-primary/10 rounded-lg">
-                        <Users className="w-6 h-6 text-primary" />
+                      <div className="p-3 bg-yellow-500/10 rounded-lg">
+                        <Users className="w-6 h-6 text-yellow-600" />
                       </div>
                     </div>
                     <CardTitle>Annonceurs</CardTitle>
@@ -379,7 +379,7 @@ const Administration = () => {
                   </CardHeader>
                   <CardContent>
                     <Link to="/admin/annonceurs">
-                      <Button className="w-full">
+                      <Button className="w-full bg-yellow-600 hover:bg-yellow-700">
                         Accéder
                       </Button>
                     </Link>
@@ -389,8 +389,8 @@ const Administration = () => {
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-primary/10 rounded-lg">
-                        <Megaphone className="w-6 h-6 text-primary" />
+                      <div className="p-3 bg-yellow-500/10 rounded-lg">
+                        <Megaphone className="w-6 h-6 text-yellow-600" />
                       </div>
                     </div>
                     <CardTitle>Annonces</CardTitle>
@@ -400,7 +400,7 @@ const Administration = () => {
                   </CardHeader>
                   <CardContent>
                     <Link to="/gerer-annonces">
-                      <Button className="w-full">
+                      <Button className="w-full bg-yellow-600 hover:bg-yellow-700">
                         Accéder
                       </Button>
                     </Link>
@@ -409,15 +409,15 @@ const Administration = () => {
               </div>
             </div>
 
-            {/* 7. Gestion des Landing Pages */}
+            {/* 7. Gestion des Landing Pages - TURQUOISE */}
             <div className="mt-12">
               <h2 className="text-2xl font-bold mb-4">Gestion des Landing Pages</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-primary/10 rounded-lg">
-                        <FileText className="w-6 h-6 text-primary" />
+                      <div className="p-3 bg-cyan-500/10 rounded-lg">
+                        <FileText className="w-6 h-6 text-cyan-600" />
                       </div>
                     </div>
                     <CardTitle>Landing Pages</CardTitle>
@@ -427,7 +427,7 @@ const Administration = () => {
                   </CardHeader>
                   <CardContent>
                     <Link to="/admin/landing-pages">
-                      <Button className="w-full">
+                      <Button className="w-full bg-cyan-600 hover:bg-cyan-700">
                         Accéder
                       </Button>
                     </Link>
@@ -436,15 +436,15 @@ const Administration = () => {
               </div>
             </div>
 
-            {/* 8. Paramètres généraux */}
+            {/* 8. Paramètres généraux - GRIS FONCÉ */}
             <div className="mt-12">
               <h2 className="text-2xl font-bold mb-4">Paramètres généraux</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-primary/10 rounded-lg">
-                        <Settings className="w-6 h-6 text-primary" />
+                      <div className="p-3 bg-slate-700/10 rounded-lg">
+                        <Settings className="w-6 h-6 text-slate-700" />
                       </div>
                     </div>
                     <CardTitle>Paramètres généraux</CardTitle>
@@ -454,7 +454,7 @@ const Administration = () => {
                   </CardHeader>
                   <CardContent>
                     <Link to="/admin/parametres">
-                      <Button className="w-full">
+                      <Button className="w-full bg-slate-700 hover:bg-slate-800">
                         Accéder
                       </Button>
                     </Link>
