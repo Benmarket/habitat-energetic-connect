@@ -23,6 +23,9 @@ const formSchema = z.object({
   email: z.string().trim().email("Email invalide"),
   postalCode: z.string().trim().min(5, "Code postal invalide"),
   workType: z.string().min(1, "Veuillez sélectionner un type de travaux"),
+  acceptTerms: z.boolean().refine((val) => val === true, {
+    message: "Vous devez accepter les conditions générales d'utilisation",
+  }),
 });
 
 const HeroSection = () => {
@@ -42,6 +45,7 @@ const HeroSection = () => {
     email: "",
     postalCode: "",
     workType: "",
+    acceptTerms: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -145,6 +149,7 @@ const HeroSection = () => {
         email: "",
         postalCode: "",
         workType: "",
+        acceptTerms: false,
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -329,7 +334,28 @@ const HeroSection = () => {
                   </div>
                 </div>
 
-                <Button 
+                <div className="flex items-start gap-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="acceptTerms"
+                    checked={formData.acceptTerms}
+                    onChange={(e) => setFormData({ ...formData, acceptTerms: e.target.checked })}
+                    className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    required
+                  />
+                  <Label htmlFor="acceptTerms" className="text-xs leading-tight cursor-pointer">
+                    J'accepte les{" "}
+                    <Link 
+                      to="/conditions-utilisation" 
+                      target="_blank"
+                      className="underline text-primary hover:text-primary/80"
+                    >
+                      Conditions Générales d'Utilisation
+                    </Link>
+                  </Label>
+                </div>
+
+                <Button
                   type="submit" 
                   className="w-full h-10 text-sm font-semibold mt-3" 
                   disabled={isSubmitting}
