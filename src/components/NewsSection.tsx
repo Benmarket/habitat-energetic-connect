@@ -4,6 +4,13 @@ import ArticleCard from "./ArticleCard";
 import { Button } from "./ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 interface Post {
   id: string;
@@ -152,25 +159,68 @@ const NewsSection = () => {
             Aucune actualité disponible pour cette catégorie
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post) => {
-              const category = (post as any).post_categories?.[0]?.categories;
-              return (
-                <ArticleCard
-                  key={post.id}
-                  id={post.id}
-                  title={post.title}
-                  excerpt={post.excerpt || ""}
-                  featuredImage={post.featured_image || "/placeholder.svg"}
-                  category={category?.name || "Actualité"}
-                  categorySlug={category?.slug || "general"}
-                  publishedAt={post.published_at}
-                  contentType={post.content_type}
-                  slug={post.slug}
-                />
-              );
-            })}
-          </div>
+          <>
+            {/* Mobile & Tablet Carousel */}
+            <div className="block lg:hidden">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                className="w-full"
+              >
+                <CarouselContent>
+                  {posts.map((post) => {
+                    const category = (post as any).post_categories?.[0]?.categories;
+                    return (
+                      <CarouselItem key={post.id} className="md:basis-1/2">
+                        <div className="px-2">
+                          <ArticleCard
+                            id={post.id}
+                            title={post.title}
+                            excerpt={post.excerpt || ""}
+                            featuredImage={post.featured_image || "/placeholder.svg"}
+                            category={category?.name || "Actualité"}
+                            categorySlug={category?.slug || "general"}
+                            publishedAt={post.published_at}
+                            contentType={post.content_type}
+                            slug={post.slug}
+                          />
+                        </div>
+                      </CarouselItem>
+                    );
+                  })}
+                </CarouselContent>
+                
+                {/* Navigation Buttons - Styled like Simulators */}
+                <div className="flex justify-center gap-4 mt-8">
+                  <CarouselPrevious className="relative inset-0 translate-y-0 h-12 w-12 bg-white hover:bg-gray-100 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300 hover:scale-110 shadow-lg" />
+                  <CarouselNext className="relative inset-0 translate-y-0 h-12 w-12 bg-white hover:bg-gray-100 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300 hover:scale-110 shadow-lg" />
+                </div>
+              </Carousel>
+            </div>
+
+            {/* Desktop Grid */}
+            <div className="hidden lg:grid grid-cols-3 gap-8">
+              {posts.map((post) => {
+                const category = (post as any).post_categories?.[0]?.categories;
+                return (
+                  <ArticleCard
+                    key={post.id}
+                    id={post.id}
+                    title={post.title}
+                    excerpt={post.excerpt || ""}
+                    featuredImage={post.featured_image || "/placeholder.svg"}
+                    category={category?.name || "Actualité"}
+                    categorySlug={category?.slug || "general"}
+                    publishedAt={post.published_at}
+                    contentType={post.content_type}
+                    slug={post.slug}
+                  />
+                );
+              })}
+            </div>
+          </>
         )}
 
         {/* View All Button */}
