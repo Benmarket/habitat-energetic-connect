@@ -222,7 +222,7 @@ const AidesSection = () => {
                                 <Badge 
                                   key={idx} 
                                   variant="outline" 
-                                  className="text-[10px] rounded-full bg-background/50 border-muted-foreground/30 text-muted-foreground px-1.5 py-0"
+                                  className="text-[10px] rounded-full bg-muted/80 border-border text-foreground/80 px-1.5 py-0"
                                 >
                                   {tag.name}
                                 </Badge>
@@ -230,7 +230,7 @@ const AidesSection = () => {
                               {aide.tags.length > 2 && (
                                 <Badge 
                                   variant="outline" 
-                                  className="text-[10px] rounded-full bg-background/50 border-muted-foreground/30 text-muted-foreground px-1.5 py-0"
+                                  className="text-[10px] rounded-full bg-muted/80 border-border text-foreground/80 px-1.5 py-0"
                                 >
                                   +{aide.tags.length - 2}
                                 </Badge>
