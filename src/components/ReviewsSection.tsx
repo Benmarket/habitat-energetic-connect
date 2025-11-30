@@ -125,8 +125,8 @@ const ReviewsSection = () => {
     <section className="bg-muted py-16">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-12">
-          <div>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+          <div className="flex-1">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
                 <span className="text-2xl font-bold text-blue-600">G</span>
@@ -139,14 +139,14 @@ const ReviewsSection = () => {
           </div>
 
           {/* Average Rating */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-border">
-            <div className="flex items-center gap-2 mb-2">
+          <div className="bg-white rounded-xl p-6 md:p-4 shadow-sm border border-border md:w-48 md:flex-shrink-0">
+            <div className="flex items-center gap-2 mb-2 justify-center md:justify-start">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />
+                <Star key={i} className="w-6 h-6 md:w-5 md:h-5 fill-yellow-400 text-yellow-400" />
               ))}
             </div>
-            <div className="text-right">
-              <div className="text-4xl font-bold">{averageRating}</div>
+            <div className="text-center md:text-left">
+              <div className="text-4xl md:text-3xl font-bold">{averageRating}</div>
               <div className="text-sm text-muted-foreground">Note moyenne</div>
             </div>
           </div>
