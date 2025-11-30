@@ -21,7 +21,7 @@ const Footer = () => {
             </p>
             
             {/* Phone number and social icons */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
+            <div className="flex flex-wrap items-center justify-center gap-4 mb-6">
               <a 
                 href="tel:0800123456" 
                 className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-full transition-all duration-300 hover:shadow-lg border border-white/20"
@@ -29,7 +29,7 @@ const Footer = () => {
                 <div className="flex items-center justify-center w-7 h-7 rounded-full bg-white/20">
                   <Phone className="w-4 h-4 text-white" />
                 </div>
-                <span className="font-bold text-white text-sm tracking-wide">0 800 123 456</span>
+                <span className="font-bold text-white text-sm tracking-wide whitespace-nowrap">0 800 123 456</span>
               </a>
               
               <div className="flex gap-4">
