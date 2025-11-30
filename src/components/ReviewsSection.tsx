@@ -154,7 +154,7 @@ const ReviewsSection = () => {
         <Carousel
           setApi={setApi}
           opts={{
-            align: "start",
+            align: "center",
             loop: true,
           }}
           plugins={[
@@ -164,11 +164,11 @@ const ReviewsSection = () => {
           ]}
           className="w-full mb-4"
         >
-          <CarouselContent>
+          <CarouselContent className="-ml-2 md:-ml-4">
             {/* Mobile: 1 review per slide, Tablet: 2 reviews, Desktop: 4 reviews */}
             {reviews.map((review, index) => (
-              <CarouselItem key={`mobile-single-${index}`} className="md:hidden">
-                <div className="bg-white rounded-xl p-4 shadow-sm border border-border hover:shadow-md transition-shadow">
+              <CarouselItem key={`mobile-single-${index}`} className="md:hidden pl-2">
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-border hover:shadow-md transition-shadow mx-2">
                   {/* User Info */}
                   <div className="flex items-center gap-2 mb-3">
                     <Avatar className="w-10 h-10">
