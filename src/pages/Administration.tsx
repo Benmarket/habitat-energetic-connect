@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle, Bot, FileCheck, FileText, Mail, Newspaper, BookOpen, HandCoins, Megaphone, Send, MessageSquare, Shield, Calculator } from "lucide-react";
+import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle, Bot, FileCheck, FileText, Mail, Newspaper, BookOpen, HandCoins, Megaphone, Send, MessageSquare, Shield, Calculator, Smartphone } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import TrafficDashboard from "@/components/TrafficDashboard";
 
@@ -464,7 +464,39 @@ const Administration = () => {
               </div>
             </div>
 
-            {/* 8. Paramètres généraux - GRIS FONCÉ */}
+            {/* 8. Gestion de l'App Prime énergies - VERT PRIME */}
+            <div className="mt-12 animate-fade-in" style={{ animationDelay: '0.65s' }}>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-1 w-12 bg-gradient-to-r from-primary to-primary/80 rounded-full"></div>
+                <h2 className="text-2xl font-bold">Gestion de l'App Prime énergies</h2>
+              </div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="group relative overflow-hidden border-l-4 border-l-primary/30 hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10"></div>
+                  <CardHeader className="relative">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-primary/10 rounded-xl">
+                        <Smartphone className="w-6 h-6 text-primary/60" />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-primary/60">App Prime énergies</CardTitle>
+                      <Badge className="text-xs bg-primary/10 text-primary hover:bg-primary/10">Bientôt</Badge>
+                    </div>
+                    <CardDescription className="text-muted-foreground/70">
+                      Gérez les paramètres, notifications et contenus de l'application mobile
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="relative">
+                    <Button className="w-full bg-primary/20 text-primary cursor-not-allowed" disabled>
+                      Prochainement
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* 9. Paramètres généraux - GRIS FONCÉ */}
             <div className="mt-12 animate-fade-in" style={{ animationDelay: '0.7s' }}>
               <div className="flex items-center gap-3 mb-6">
                 <div className="h-1 w-12 bg-gradient-to-r from-slate-700 to-slate-800 rounded-full"></div>
@@ -494,8 +526,8 @@ const Administration = () => {
               </div>
             </div>
 
-            {/* 9. Gestion des Logs */}
-            <div className="mt-12 mb-12 animate-fade-in" style={{ animationDelay: '0.8s' }}>
+            {/* 10. Gestion des Logs */}
+            <div className="mt-12 mb-12 animate-fade-in" style={{ animationDelay: '0.85s' }}>
               <div className="flex items-center gap-3 mb-6">
                 <div className="h-1 w-12 bg-gradient-to-r from-slate-500 to-slate-600 rounded-full"></div>
                 <h2 className="text-2xl font-bold">Gestion des Logs</h2>
