@@ -216,37 +216,37 @@ const HeroSection = () => {
               </p>
 
               {/* Quick action buttons */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 max-w-[700px] mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 max-w-[900px] mx-auto">
                 <Link 
                   to="/offres/panneaux-solaires"
-                  className="group flex items-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                  className="group flex flex-col items-center justify-center gap-3 px-4 py-5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
-                  <Sun className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm">Panneaux solaires</span>
+                  <Sun className="w-7 h-7 text-yellow-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm text-center">Panneaux<br/>solaires</span>
                 </Link>
 
                 <Link 
                   to="/offres/pompe-a-chaleur"
-                  className="group flex items-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                  className="group flex flex-col items-center justify-center gap-3 px-4 py-5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
-                  <Droplets className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm">Pompe à chaleur</span>
+                  <Droplets className="w-7 h-7 text-blue-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm text-center">Pompe à<br/>chaleur</span>
                 </Link>
 
                 <Link 
                   to="/offres/isolation"
-                  className="group flex items-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                  className="group flex flex-col items-center justify-center gap-3 px-4 py-5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
-                  <Home className="w-5 h-5 text-green-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm">Isolation</span>
+                  <Home className="w-7 h-7 text-green-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm text-center">Isolation</span>
                 </Link>
 
                 <Link 
                   to="/aides"
-                  className="group flex items-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                  className="group flex flex-col items-center justify-center gap-3 px-4 py-5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
-                  <HandCoins className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm">Aides & Subventions</span>
+                  <HandCoins className="w-7 h-7 text-cyan-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm text-center">Aides &<br/>Subventions</span>
                 </Link>
               </div>
             </div>
@@ -254,21 +254,21 @@ const HeroSection = () => {
 
           {/* Bottom: Horizontal form - full width */}
           <div className="w-full pb-8">
-            <div className="bg-primary rounded-lg shadow-2xl p-6 w-full">
-              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-4">
-                <h2 className="text-xl font-bold text-white">
+            <div className="bg-primary rounded-xl shadow-2xl p-8 w-full">
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+                <h2 className="text-2xl font-bold text-white">
                   Vérifier mon éligibilité à la Prime Gratuitement
                 </h2>
-                <div className="bg-white text-red-600 px-4 py-1.5 rounded text-sm font-bold whitespace-nowrap">
+                <div className="bg-white text-red-600 px-5 py-2 rounded-md text-sm font-bold whitespace-nowrap shadow-md">
                   Propriétaires de maison individuelle exclusivement
                 </div>
               </div>
               
               <form onSubmit={handleSubmit}>
                 {/* Horizontal fields */}
-                <div className="flex flex-wrap lg:flex-nowrap gap-3 mb-3">
+                <div className="flex flex-wrap lg:flex-nowrap gap-4 mb-4">
                   <div className="flex-1 min-w-[200px]">
-                    <Label htmlFor="fullName" className="text-white text-sm mb-1 block">
+                    <Label htmlFor="fullName" className="text-white text-sm mb-2 block font-medium">
                       Nom complet <span className="text-red-300">*</span>
                     </Label>
                     <Input
@@ -276,13 +276,13 @@ const HeroSection = () => {
                       value={formData.fullName}
                       onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                       placeholder="Nom complet"
-                      className="h-11 bg-white"
+                      className="h-12 bg-white border-0 shadow-sm text-base"
                       required
                     />
                   </div>
 
                   <div className="flex-1 min-w-[200px]">
-                    <Label htmlFor="phone" className="text-white text-sm mb-1 block">
+                    <Label htmlFor="phone" className="text-white text-sm mb-2 block font-medium">
                       Téléphone <span className="text-red-300">*</span>
                     </Label>
                     <Input
@@ -291,13 +291,13 @@ const HeroSection = () => {
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       placeholder="Téléphone"
-                      className="h-11 bg-white"
+                      className="h-12 bg-white border-0 shadow-sm text-base"
                       required
                     />
                   </div>
 
                   <div className="flex-1 min-w-[200px]">
-                    <Label htmlFor="email" className="text-white text-sm mb-1 block">
+                    <Label htmlFor="email" className="text-white text-sm mb-2 block font-medium">
                       E-mail <span className="text-red-300">*</span>
                     </Label>
                     <Input
@@ -306,13 +306,13 @@ const HeroSection = () => {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="Ex. email@example.fr"
-                      className="h-11 bg-white"
+                      className="h-12 bg-white border-0 shadow-sm text-base"
                       required
                     />
                   </div>
 
                   <div className="flex-1 min-w-[150px]">
-                    <Label htmlFor="postalCode" className="text-white text-sm mb-1 block">
+                    <Label htmlFor="postalCode" className="text-white text-sm mb-2 block font-medium">
                       Code postal <span className="text-red-300">*</span>
                     </Label>
                     <Input
@@ -321,20 +321,20 @@ const HeroSection = () => {
                       onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
                       placeholder="Code postal"
                       maxLength={5}
-                      className="h-11 bg-white"
+                      className="h-12 bg-white border-0 shadow-sm text-base"
                       required
                     />
                   </div>
 
                   <div className="flex-1 min-w-[200px]">
-                    <Label htmlFor="workType" className="text-white text-sm mb-1 block">
-                      Choisissez une option <span className="text-red-300">*</span>
+                    <Label htmlFor="workType" className="text-white text-sm mb-2 block font-medium">
+                      Type de travaux <span className="text-red-300">*</span>
                     </Label>
                     <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
-                      <SelectTrigger className="h-11 bg-white">
+                      <SelectTrigger className="h-12 bg-white border-0 shadow-sm text-base">
                         <SelectValue placeholder="Panneaux photovoltaïques..." />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white">
                         <SelectItem value="isolation">Isolation</SelectItem>
                         <SelectItem value="chauffage">Chauffage</SelectItem>
                         <SelectItem value="energie-solaire">Panneaux photovoltaïques</SelectItem>
@@ -347,7 +347,7 @@ const HeroSection = () => {
                   <div className="flex items-end">
                     <Button
                       type="submit" 
-                      className="h-11 px-8 bg-orange-500 hover:bg-orange-600 text-white font-semibold whitespace-nowrap" 
+                      className="h-12 px-10 bg-orange-500 hover:bg-orange-600 text-white font-bold whitespace-nowrap shadow-lg text-base" 
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? "Envoi..." : "Envoyer"}
@@ -356,21 +356,21 @@ const HeroSection = () => {
                 </div>
 
                 {/* Checkbox CGU */}
-                <div className="flex items-start gap-2">
+                <div className="flex items-start gap-3 mt-4">
                   <input
                     type="checkbox"
                     id="acceptTerms"
                     checked={formData.acceptTerms}
                     onChange={(e) => setFormData({ ...formData, acceptTerms: e.target.checked })}
-                    className="mt-0.5 h-5 w-5 rounded border-white bg-white text-primary focus:ring-primary flex-shrink-0"
+                    className="mt-1 h-5 w-5 rounded border-white bg-white text-primary focus:ring-primary focus:ring-2 flex-shrink-0 cursor-pointer"
                     required
                   />
-                  <Label htmlFor="acceptTerms" className="text-white text-sm leading-tight cursor-pointer">
+                  <Label htmlFor="acceptTerms" className="text-white text-sm leading-relaxed cursor-pointer">
                     J'accepte les termes et conditions des CGU de Prime énergies et accepte de recevoir des offres concernant les travaux de rénovation et subventions{" "}
                     <Link 
                       to="/conditions-utilisation" 
                       target="_blank"
-                      className="underline hover:text-white/80"
+                      className="underline hover:text-white/80 font-medium"
                     >
                       CGU
                     </Link>
