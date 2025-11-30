@@ -251,18 +251,19 @@ export default function AdminForms() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm" onClick={() => navigate("/administration")}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Retour à l'administration
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold">Gestion des Formulaires</h1>
-              <p className="text-muted-foreground">
-                Configurez vos formulaires, exportez les données et connectez-les à vos outils
-              </p>
-            </div>
+        <div className="mb-4">
+          <Button variant="outline" size="sm" onClick={() => navigate("/administration")}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Retour à l'administration
+          </Button>
+        </div>
+        
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold">Gestion des Formulaires</h1>
+            <p className="text-muted-foreground">
+              Configurez vos formulaires, exportez les données et connectez-les à vos outils
+            </p>
           </div>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
