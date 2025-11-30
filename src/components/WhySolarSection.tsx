@@ -47,7 +47,7 @@ const WhySolarSection = () => {
                     <img 
                       src={benefit.image} 
                       alt={benefit.title}
-                      className="w-full h-full object-cover"
+                      className={`w-full h-full ${index === 1 ? 'object-contain p-2' : 'object-cover'}`}
                     />
                   ) : Icon ? (
                     <Icon className="w-16 h-16 lg:w-20 lg:h-20 text-primary" strokeWidth={1.5} />
