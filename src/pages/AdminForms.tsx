@@ -1,0 +1,566 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Plus, Edit, Trash2, Download, ExternalLink, Eye, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+type FormConfig = {
+  id: string;
+  name: string;
+  form_identifier: string;
+  description: string | null;
+  webhook_url: string | null;
+  webhook_enabled: boolean;
+  fields_schema: any;
+  created_at: string;
+  updated_at: string;
+};
+
+type FormSubmission = {
+  id: string;
+  form_id: string;
+  data: any;
+  submitted_at: string;
+  ip_address: string | null;
+  user_agent: string | null;
+};
+
+export default function AdminForms() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedForm, setSelectedForm] = useState<FormConfig | null>(null);
+  const [isSubmissionsOpen, setIsSubmissionsOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    form_identifier: "",
+    description: "",
+    webhook_url: "",
+    webhook_enabled: false,
+  });
+
+  // Fetch forms
+  const { data: forms, isLoading: loadingForms } = useQuery({
+    queryKey: ["form-configurations"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("form_configurations")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as FormConfig[];
+    },
+  });
+
+  // Fetch submissions for selected form
+  const { data: submissions, isLoading: loadingSubmissions } = useQuery({
+    queryKey: ["form-submissions", selectedForm?.id],
+    queryFn: async () => {
+      if (!selectedForm) return [];
+      const { data, error } = await supabase
+        .from("form_submissions")
+        .select("*")
+        .eq("form_id", selectedForm.id)
+        .order("submitted_at", { ascending: false });
+      if (error) throw error;
+      return data as FormSubmission[];
+    },
+    enabled: !!selectedForm,
+  });
+
+  // Create form mutation
+  const createFormMutation = useMutation({
+    mutationFn: async (data: typeof formData) => {
+      const { error } = await supabase.from("form_configurations").insert([data]);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["form-configurations"] });
+      toast({ title: "Formulaire créé avec succès" });
+      setIsCreateOpen(false);
+      resetForm();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update form mutation
+  const updateFormMutation = useMutation({
+    mutationFn: async (data: typeof formData & { id: string }) => {
+      const { id, ...updateData } = data;
+      const { error } = await supabase
+        .from("form_configurations")
+        .update(updateData)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["form-configurations"] });
+      toast({ title: "Formulaire mis à jour avec succès" });
+      setIsEditOpen(false);
+      setSelectedForm(null);
+      resetForm();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete form mutation
+  const deleteFormMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("form_configurations").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["form-configurations"] });
+      toast({ title: "Formulaire supprimé avec succès" });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete submission mutation
+  const deleteSubmissionMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("form_submissions").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["form-submissions"] });
+      toast({ title: "Soumission supprimée avec succès" });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      form_identifier: "",
+      description: "",
+      webhook_url: "",
+      webhook_enabled: false,
+    });
+  };
+
+  const handleEdit = (form: FormConfig) => {
+    setSelectedForm(form);
+    setFormData({
+      name: form.name,
+      form_identifier: form.form_identifier,
+      description: form.description || "",
+      webhook_url: form.webhook_url || "",
+      webhook_enabled: form.webhook_enabled,
+    });
+    setIsEditOpen(true);
+  };
+
+  const handleViewSubmissions = (form: FormConfig) => {
+    setSelectedForm(form);
+    setIsSubmissionsOpen(true);
+  };
+
+  const handleExportCSV = () => {
+    if (!submissions || submissions.length === 0) {
+      toast({
+        title: "Aucune donnée",
+        description: "Aucune soumission à exporter",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Get all unique field names
+    const allFields = new Set<string>();
+    submissions.forEach((sub) => {
+      Object.keys(sub.data).forEach((key) => allFields.add(key));
+    });
+
+    // Create CSV header
+    const headers = ["Date de soumission", "ID", ...Array.from(allFields)];
+    const csvContent = [
+      headers.join(","),
+      ...submissions.map((sub) => {
+        const row = [
+          new Date(sub.submitted_at).toLocaleString("fr-FR"),
+          sub.id,
+          ...Array.from(allFields).map((field) => {
+            const value = sub.data[field] || "";
+            // Escape commas and quotes in values
+            return typeof value === "string" && (value.includes(",") || value.includes('"'))
+              ? `"${value.replace(/"/g, '""')}"`
+              : value;
+          }),
+        ];
+        return row.join(",");
+      }),
+    ].join("\n");
+
+    // Download CSV
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `${selectedForm?.form_identifier}_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({ title: "Export réussi", description: "Les données ont été exportées en CSV" });
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-1 container mx-auto px-4 py-8">
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="sm" onClick={() => navigate("/administration")}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Retour à l'administration
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold">Gestion des Formulaires</h1>
+              <p className="text-muted-foreground">
+                Configurez vos formulaires, exportez les données et connectez-les à vos outils
+              </p>
+            </div>
+          </div>
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Nouveau formulaire
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Créer un nouveau formulaire</DialogTitle>
+                <DialogDescription>
+                  Configurez un nouveau formulaire pour collecter des données
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Nom du formulaire</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Contact, Inscription, Demande de devis..."
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="identifier">Identifiant unique</Label>
+                  <Input
+                    id="identifier"
+                    value={formData.form_identifier}
+                    onChange={(e) =>
+                      setFormData({ ...formData, form_identifier: e.target.value })
+                    }
+                    placeholder="contact-form, signup-form..."
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Utilisez cet identifiant dans votre code pour connecter le formulaire
+                  </p>
+                </div>
+                <div>
+                  <Label htmlFor="description">Description (optionnel)</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Décrivez l'usage de ce formulaire..."
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="webhook">URL Webhook (optionnel)</Label>
+                  <Input
+                    id="webhook"
+                    value={formData.webhook_url}
+                    onChange={(e) => setFormData({ ...formData, webhook_url: e.target.value })}
+                    placeholder="https://hooks.zapier.com/..."
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Zapier, Make, Google Sheets, CRM... Recevez les données en temps réel
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="webhook-enabled"
+                    checked={formData.webhook_enabled}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, webhook_enabled: checked })
+                    }
+                  />
+                  <Label htmlFor="webhook-enabled">Activer le webhook</Label>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
+                    Annuler
+                  </Button>
+                  <Button
+                    onClick={() => createFormMutation.mutate(formData)}
+                    disabled={
+                      !formData.name || !formData.form_identifier || createFormMutation.isPending
+                    }
+                  >
+                    {createFormMutation.isPending && (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    )}
+                    Créer
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {loadingForms ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : forms && forms.length > 0 ? (
+          <div className="grid gap-4">
+            {forms.map((form) => (
+              <Card key={form.id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        {form.name}
+                        {form.webhook_enabled && (
+                          <Badge variant="secondary" className="ml-2">
+                            <ExternalLink className="h-3 w-3 mr-1" />
+                            Webhook actif
+                          </Badge>
+                        )}
+                      </CardTitle>
+                      <CardDescription>
+                        Identifiant: <code className="text-xs">{form.form_identifier}</code>
+                      </CardDescription>
+                      {form.description && (
+                        <p className="text-sm text-muted-foreground mt-2">{form.description}</p>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handleViewSubmissions(form)}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        Soumissions
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(form)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              "Êtes-vous sûr de vouloir supprimer ce formulaire et toutes ses soumissions ?"
+                            )
+                          ) {
+                            deleteFormMutation.mutate(form.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <p className="text-muted-foreground mb-4">Aucun formulaire configuré</p>
+              <Button onClick={() => setIsCreateOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Créer votre premier formulaire
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Edit Dialog */}
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Modifier le formulaire</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="edit-name">Nom du formulaire</Label>
+                <Input
+                  id="edit-name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-identifier">Identifiant unique</Label>
+                <Input
+                  id="edit-identifier"
+                  value={formData.form_identifier}
+                  onChange={(e) => setFormData({ ...formData, form_identifier: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea
+                  id="edit-description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-webhook">URL Webhook</Label>
+                <Input
+                  id="edit-webhook"
+                  value={formData.webhook_url}
+                  onChange={(e) => setFormData({ ...formData, webhook_url: e.target.value })}
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="edit-webhook-enabled"
+                  checked={formData.webhook_enabled}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, webhook_enabled: checked })
+                  }
+                />
+                <Label htmlFor="edit-webhook-enabled">Activer le webhook</Label>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setIsEditOpen(false)}>
+                  Annuler
+                </Button>
+                <Button
+                  onClick={() =>
+                    selectedForm &&
+                    updateFormMutation.mutate({ ...formData, id: selectedForm.id })
+                  }
+                  disabled={updateFormMutation.isPending}
+                >
+                  {updateFormMutation.isPending && (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  )}
+                  Enregistrer
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Submissions Dialog */}
+        <Dialog open={isSubmissionsOpen} onOpenChange={setIsSubmissionsOpen}>
+          <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                Soumissions - {selectedForm?.name}
+                <Button variant="outline" size="sm" onClick={handleExportCSV} className="ml-4">
+                  <Download className="h-4 w-4 mr-2" />
+                  Exporter CSV
+                </Button>
+              </DialogTitle>
+              <DialogDescription>
+                {submissions?.length || 0} soumission(s) enregistrée(s)
+              </DialogDescription>
+            </DialogHeader>
+            {loadingSubmissions ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : submissions && submissions.length > 0 ? (
+              <div className="space-y-4">
+                {submissions.map((submission) => (
+                  <Card key={submission.id}>
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <CardDescription>
+                          {new Date(submission.submitted_at).toLocaleString("fr-FR")}
+                        </CardDescription>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                "Êtes-vous sûr de vouloir supprimer cette soumission ?"
+                              )
+                            ) {
+                              deleteSubmissionMutation.mutate(submission.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 gap-4">
+                        {Object.entries(submission.data).map(([key, value]) => (
+                          <div key={key}>
+                            <Label className="text-xs text-muted-foreground">{key}</Label>
+                            <p className="text-sm font-medium">
+                              {typeof value === "object" ? JSON.stringify(value) : String(value)}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                Aucune soumission pour ce formulaire
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      </main>
+      <Footer />
+    </div>
+  );
+}
