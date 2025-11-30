@@ -53,7 +53,7 @@ const Footer = () => {
           {/* Column 2: Navigation */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Navigation</h3>
-            <nav className="flex flex-col gap-2">
+            <nav className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-2">
               <Link to="/actualites" className="text-white/70 hover:text-white transition-colors text-sm">
                 Actualités
               </Link>
@@ -78,7 +78,7 @@ const Footer = () => {
           {/* Column 3: Services */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Services</h3>
-            <nav className="flex flex-col gap-2">
+            <nav className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-2">
               <Link to="/services/installation-solaire" className="text-white/70 hover:text-white transition-colors text-sm">
                 Installation solaire
               </Link>
