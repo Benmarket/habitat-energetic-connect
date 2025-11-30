@@ -108,7 +108,7 @@ const GuidesSection = () => {
       </div>
 
       <div className="container mx-auto max-w-7xl relative z-10">
-        <div className="text-center mb-8 md:mb-12 animate-fade-in">
+        <div className="text-center mb-8 md:mb-12 animate-fade-in flex flex-col items-center">
           <div className="inline-flex items-center gap-3 mb-4 bg-gradient-to-r from-orange-600/10 to-orange-500/10 px-8 py-4 rounded-full backdrop-blur-sm border-2 border-orange-500/30 shadow-lg shadow-orange-500/20 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300 hover:scale-105">
             <div className="p-2 bg-gradient-to-br from-orange-600 to-orange-700 rounded-lg shadow-lg">
               <BookOpen className="w-6 h-6 text-white" />

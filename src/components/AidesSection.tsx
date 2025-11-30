@@ -154,7 +154,7 @@ const AidesSection = () => {
   if (loading) return null;
 
   return (
-    <section className="py-8 md:py-12 lg:py-20 bg-gradient-to-b from-blue-50/50 via-background to-background dark:from-blue-950/20 dark:via-background dark:to-background relative overflow-hidden">
+    <section className="py-8 pb-4 md:py-12 md:pb-6 lg:py-20 lg:pb-10 bg-gradient-to-b from-blue-50/50 via-background to-background dark:from-blue-950/20 dark:via-background dark:to-background relative overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 right-10 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl" />
