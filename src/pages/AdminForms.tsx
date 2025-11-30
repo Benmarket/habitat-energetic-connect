@@ -60,6 +60,7 @@ export default function AdminForms() {
   const [sortColumn, setSortColumn] = useState<string>("submitted_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSubmissions, setSelectedSubmissions] = useState<Set<string>>(new Set());
 
   // Fetch forms with pagination
   const { data: formsData, isLoading: loadingForms } = useQuery({
@@ -235,6 +236,7 @@ export default function AdminForms() {
     setSortColumn("submitted_at"); // Reset sort
     setSortDirection("desc");
     setSearchTerm(""); // Reset search
+    setSelectedSubmissions(new Set()); // Reset selection
     
     // Marquer toutes les soumissions de ce formulaire comme lues
     const { error } = await supabase
@@ -258,6 +260,114 @@ export default function AdminForms() {
       setSortColumn(column);
       setSortDirection("asc");
     }
+  };
+
+  const toggleSubmissionSelection = (submissionId: string) => {
+    const newSelected = new Set(selectedSubmissions);
+    if (newSelected.has(submissionId)) {
+      newSelected.delete(submissionId);
+    } else {
+      newSelected.add(submissionId);
+    }
+    setSelectedSubmissions(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedSubmissions.size === paginatedSubmissions.length) {
+      setSelectedSubmissions(new Set());
+    } else {
+      const allIds = new Set(paginatedSubmissions.map(sub => sub.id));
+      setSelectedSubmissions(allIds);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedSubmissions.size === 0) return;
+    
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer ${selectedSubmissions.size} soumission(s) ?`)) {
+      return;
+    }
+
+    try {
+      const deletePromises = Array.from(selectedSubmissions).map(id =>
+        supabase.from("form_submissions").delete().eq("id", id)
+      );
+      
+      await Promise.all(deletePromises);
+      
+      queryClient.invalidateQueries({ queryKey: ["form-submissions"] });
+      setSelectedSubmissions(new Set());
+      
+      toast({
+        title: "Succès",
+        description: `${selectedSubmissions.size} soumission(s) supprimée(s)`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de la suppression",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBulkExport = () => {
+    if (selectedSubmissions.size === 0) return;
+
+    const selectedData = sortedSubmissions.filter(sub => selectedSubmissions.has(sub.id));
+    
+    if (selectedData.length === 0) {
+      toast({
+        title: "Aucune donnée",
+        description: "Aucune soumission sélectionnée à exporter",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Get all unique field names
+    const allFields = new Set<string>();
+    selectedData.forEach((sub) => {
+      Object.keys(sub.data).forEach((key) => allFields.add(key));
+    });
+
+    // Create CSV header
+    const headers = ["Date de soumission", "ID", ...Array.from(allFields)];
+    const csvContent = [
+      headers.join(","),
+      ...selectedData.map((sub) => {
+        const row = [
+          new Date(sub.submitted_at).toLocaleString("fr-FR"),
+          sub.id,
+          ...Array.from(allFields).map((field) => {
+            const value = sub.data[field] || "";
+            return typeof value === "string" && (value.includes(",") || value.includes('"'))
+              ? `"${value.replace(/"/g, '""')}"`
+              : value;
+          }),
+        ];
+        return row.join(",");
+      }),
+    ].join("\n");
+
+    // Download CSV
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `${selectedForm?.form_identifier}_selection_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({ 
+      title: "Export réussi", 
+      description: `${selectedData.length} soumission(s) exportée(s) en CSV` 
+    });
   };
 
   // Filter submissions based on search term
@@ -650,13 +760,28 @@ export default function AdminForms() {
             <DialogHeader className="flex-shrink-0">
               <div className="flex items-center justify-between">
                 <DialogTitle>Soumissions - {selectedForm?.name}</DialogTitle>
-                <Button variant="outline" size="sm" onClick={handleExportCSV}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Exporter CSV
-                </Button>
+                <div className="flex gap-2">
+                  {selectedSubmissions.size > 0 && (
+                    <>
+                      <Button variant="outline" size="sm" onClick={handleBulkExport}>
+                        <Download className="h-4 w-4 mr-2" />
+                        Exporter ({selectedSubmissions.size})
+                      </Button>
+                      <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Supprimer ({selectedSubmissions.size})
+                      </Button>
+                    </>
+                  )}
+                  <Button variant="outline" size="sm" onClick={handleExportCSV}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Exporter tout
+                  </Button>
+                </div>
               </div>
               <DialogDescription className="text-left">
                 {sortedSubmissions.length} soumission(s) {searchTerm && `trouvée(s) sur ${submissions?.length || 0}`}
+                {selectedSubmissions.size > 0 && ` • ${selectedSubmissions.size} sélectionnée(s)`}
               </DialogDescription>
               
               {/* Search field */}
@@ -667,7 +792,7 @@ export default function AdminForms() {
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
-                    setSubmissionsPage(1); // Reset to first page on search
+                    setSubmissionsPage(1);
                   }}
                   className="pl-9"
                 />
@@ -683,6 +808,14 @@ export default function AdminForms() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-[50px]">
+                        <input
+                          type="checkbox"
+                          checked={selectedSubmissions.size === paginatedSubmissions.length && paginatedSubmissions.length > 0}
+                          onChange={toggleSelectAll}
+                          className="cursor-pointer h-4 w-4"
+                        />
+                      </TableHead>
                       <TableHead 
                         className="cursor-pointer hover:bg-muted/50 whitespace-nowrap"
                         onClick={() => handleSort("submitted_at")}
@@ -718,6 +851,14 @@ export default function AdminForms() {
                   <TableBody>
                     {paginatedSubmissions.map((submission) => (
                       <TableRow key={submission.id} className="hover:bg-muted/30">
+                        <TableCell>
+                          <input
+                            type="checkbox"
+                            checked={selectedSubmissions.has(submission.id)}
+                            onChange={() => toggleSubmissionSelection(submission.id)}
+                            className="cursor-pointer h-4 w-4"
+                          />
+                        </TableCell>
                         <TableCell className="font-mono text-xs whitespace-nowrap">
                           {new Date(submission.submitted_at).toLocaleString("fr-FR")}
                         </TableCell>
