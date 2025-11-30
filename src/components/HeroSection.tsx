@@ -259,13 +259,13 @@ const HeroSection = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none"></div>
               
               <div className="relative z-10">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-6">
-                  <h2 className="text-2xl lg:text-3xl font-bold text-white drop-shadow-md">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
+                  <h2 className="text-2xl md:text-2xl lg:text-3xl font-bold text-white drop-shadow-md flex-shrink">
                     Vérifier mon éligibilité à la Prime Gratuitement
                   </h2>
-                  <div className="flex items-center gap-2 bg-white text-red-600 px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap shadow-lg border-2 border-red-100 flex-shrink-0">
-                    <Home className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={2.5} />
-                    <span>Propriétaires de maison individuelle exclusivement</span>
+                  <div className="flex items-center gap-1.5 bg-white text-red-600 px-2.5 py-1 rounded-lg text-[10px] md:text-xs font-bold whitespace-nowrap shadow-lg border-2 border-red-100 flex-shrink-0">
+                    <Home className="w-3 h-3 flex-shrink-0" strokeWidth={2.5} />
+                    <span>Propriétaires maison individuelle</span>
                   </div>
                 </div>
                 
