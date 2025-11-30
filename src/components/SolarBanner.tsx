@@ -54,7 +54,7 @@ const SolarBanner = () => {
             </div>
 
             {/* Diagram */}
-            <div className="bg-white rounded-xl p-4 lg:p-6 shadow-lg">
+            <div className="bg-white rounded-xl p-4 lg:p-6 shadow-lg max-w-md">
               <img
                 src={solarSystemDiagram}
                 alt="Schéma du système photovoltaïque"
