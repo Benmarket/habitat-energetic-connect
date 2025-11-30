@@ -14,7 +14,7 @@ const AppDownloadSection = () => {
           .from("site_settings")
           .select("value")
           .eq("key", "app_download_links")
-          .single();
+          .maybeSingle();
 
         if (error && error.code !== "PGRST116") throw error;
 
