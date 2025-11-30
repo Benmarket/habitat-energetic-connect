@@ -192,10 +192,19 @@ const NewsSection = () => {
                   })}
                 </CarouselContent>
                 
-                {/* Navigation Buttons - Styled like Simulators */}
-                <div className="flex justify-center gap-4 mt-8">
-                  <CarouselPrevious className="relative inset-0 translate-y-0 h-12 w-12 bg-white hover:bg-gray-100 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300 hover:scale-110 shadow-lg" />
-                  <CarouselNext className="relative inset-0 translate-y-0 h-12 w-12 bg-white hover:bg-gray-100 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300 hover:scale-110 shadow-lg" />
+                {/* Navigation and View All Button - Side by side */}
+                <div className="flex items-center justify-between mt-8 px-4">
+                  <div className="flex gap-3">
+                    <CarouselPrevious className="relative inset-0 translate-y-0 h-12 w-12 bg-white hover:bg-gray-100 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300 hover:scale-110 shadow-lg" />
+                    <CarouselNext className="relative inset-0 translate-y-0 h-12 w-12 bg-white hover:bg-gray-100 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300 hover:scale-110 shadow-lg" />
+                  </div>
+                  
+                  <Link to="/actualites">
+                    <Button variant="outline" size="lg" className="gap-2 whitespace-nowrap">
+                      Voir toutes les actualités
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
                 </div>
               </Carousel>
             </div>
@@ -223,8 +232,8 @@ const NewsSection = () => {
           </>
         )}
 
-        {/* View All Button */}
-        <div className="text-center mt-12">
+        {/* View All Button - Desktop only */}
+        <div className="hidden lg:block text-center mt-12">
           <Link to="/actualites">
             <Button variant="outline" size="lg" className="gap-2">
               Voir toutes les actualités
