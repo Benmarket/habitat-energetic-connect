@@ -518,8 +518,8 @@ export default function AdminForms() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="mb-4">
+      <main className="flex-1 container mx-auto px-4 pt-24 pb-8">
+        <div className="mb-6">
           <Button variant="outline" size="sm" onClick={() => navigate("/administration")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour à l'administration
