@@ -82,32 +82,32 @@ const Footer = () => {
         </div>
 
         {/* Phone number and social icons - centered below all columns */}
-        <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
+        <div className="flex flex-nowrap items-center justify-center gap-3 mb-8">
           <a 
             href="tel:0800123456" 
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-full transition-all duration-300 hover:shadow-lg border border-white/20"
+            className="inline-flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-full transition-all duration-300 hover:shadow-lg border border-white/20"
           >
-            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-white/20">
-              <Phone className="w-4 h-4 text-white" />
+            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20">
+              <Phone className="w-3 h-3 text-white" />
             </div>
-            <span className="font-bold text-white text-sm tracking-wide whitespace-nowrap">0 800 123 456</span>
+            <span className="font-bold text-white text-xs tracking-wide whitespace-nowrap">0 800 123 456</span>
           </a>
           
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="Facebook">
-              <Facebook className="w-5 h-5" />
+              <Facebook className="w-4 h-4" />
             </a>
             <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="Twitter">
-              <Twitter className="w-5 h-5" />
+              <Twitter className="w-4 h-4" />
             </a>
             <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="LinkedIn">
-              <Linkedin className="w-5 h-5" />
+              <Linkedin className="w-4 h-4" />
             </a>
             <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="YouTube">
-              <Youtube className="w-5 h-5" />
+              <Youtube className="w-4 h-4" />
             </a>
             <a href="#whatsapp" className="text-white/60 hover:text-white transition-colors" aria-label="WhatsApp">
-              <MessageCircle className="w-5 h-5" />
+              <MessageCircle className="w-4 h-4" />
             </a>
           </div>
         </div>
