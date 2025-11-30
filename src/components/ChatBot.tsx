@@ -377,10 +377,10 @@ export const ChatBot = () => {
           className="fixed bottom-6 right-6 z-50 flex items-center gap-0 group hover:scale-105 transition-all duration-300 ease-out animate-in fade-in slide-in-from-bottom-4"
           aria-label="Ouvrir le chatbot"
         >
-          <div className="h-14 w-14 rounded-full bg-blue-900 flex items-center justify-center shadow-[0_8px_30px_rgb(30,64,175,0.3)] z-10 group-hover:bg-blue-800 group-hover:shadow-[0_12px_40px_rgb(30,64,175,0.4)] transition-all duration-300">
-            <MessageCircle className="h-6 w-6 text-white" />
+          <div className="h-12 w-12 rounded-full bg-blue-900 flex items-center justify-center shadow-[0_8px_30px_rgb(30,64,175,0.3)] z-10 group-hover:bg-blue-800 group-hover:shadow-[0_12px_40px_rgb(30,64,175,0.4)] transition-all duration-300">
+            <MessageCircle className="h-5 w-5 text-white" />
           </div>
-          <div className="bg-white border-2 border-blue-900 rounded-full pl-8 pr-5 py-3 -ml-6 shadow-[0_4px_20px_rgba(0,0,0,0.08)] group-hover:shadow-[0_6px_25px_rgba(0,0,0,0.12)] transition-all duration-300">
+          <div className="bg-white border-2 border-blue-900 rounded-full pl-7 pr-4 py-2.5 -ml-5 shadow-[0_4px_20px_rgba(0,0,0,0.08)] group-hover:shadow-[0_6px_25px_rgba(0,0,0,0.12)] transition-all duration-300">
             <span className="text-blue-900 font-semibold text-sm whitespace-nowrap tracking-wide">
               Assistance en ligne
             </span>
