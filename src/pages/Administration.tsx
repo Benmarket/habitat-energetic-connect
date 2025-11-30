@@ -6,7 +6,8 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle, Bot, FileCheck, FileText, Mail } from "lucide-react";
+import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle, Bot, FileCheck, FileText, Mail, Newspaper, BookOpen, HandCoins, Megaphone, Clock, Send, MessageSquare, BarChart3, Shield } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import TrafficDashboard from "@/components/TrafficDashboard";
 
 const Administration = () => {
@@ -54,248 +55,418 @@ const Administration = () => {
             {/* Traffic Dashboard */}
             <TrafficDashboard />
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-              {/* Gérer les utilisateurs */}
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-3 bg-primary/10 rounded-lg">
-                      <Users className="w-6 h-6 text-primary" />
+            {/* 1. Gestion des Utilisateurs */}
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-4">Gestion des Utilisateurs</h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-primary/10 rounded-lg">
+                        <Users className="w-6 h-6 text-primary" />
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle>Gérer les utilisateurs</CardTitle>
-                  <CardDescription>
-                    Modifiez les profils et les rôles des utilisateurs
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link to="/admin/utilisateurs">
-                    <Button className="w-full">
-                      Accéder aux utilisateurs
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                    <CardTitle>Utilisateurs</CardTitle>
+                    <CardDescription>
+                      Modifiez les profils et les rôles des utilisateurs
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/admin/utilisateurs">
+                      <Button className="w-full">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
 
-              {/* Gérer les annonceurs */}
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-3 bg-primary/10 rounded-lg">
-                      <Users className="w-6 h-6 text-primary" />
+            {/* 2. Gestion des Contenus */}
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-4">Gestion des Contenus</h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-amber-500/10 rounded-lg">
+                        <Newspaper className="w-6 h-6 text-amber-600" />
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle>Gérer les annonceurs</CardTitle>
-                  <CardDescription>
-                    Créez et gérez vos partenaires publicitaires
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link to="/admin/annonceurs">
-                    <Button className="w-full">
-                      Accéder aux annonceurs
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                    <CardTitle>Articles</CardTitle>
+                    <CardDescription>
+                      Gérez les actualités et articles du site
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/gerer-actualites">
+                      <Button className="w-full">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
 
-              {/* Gérer les annonces */}
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-3 bg-primary/10 rounded-lg">
-                      <FolderTree className="w-6 h-6 text-primary" />
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-green-500/10 rounded-lg">
+                        <BookOpen className="w-6 h-6 text-green-600" />
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle>Gérer les annonces</CardTitle>
-                  <CardDescription>
-                    Pilotez vos campagnes publicitaires partenaires
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link to="/gerer-annonces">
-                    <Button className="w-full">
-                      Accéder aux annonces
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                    <CardTitle>Guides</CardTitle>
+                    <CardDescription>
+                      Gérez les guides pratiques et tutoriels
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/gerer-guides">
+                      <Button className="w-full">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
 
-              {/* Chatbot */}
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-3 bg-violet-500/10 rounded-lg">
-                      <Bot className="w-6 h-6 text-violet-600" />
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-blue-500/10 rounded-lg">
+                        <HandCoins className="w-6 h-6 text-blue-600" />
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle>Gestion du Chatbot</CardTitle>
-                  <CardDescription>
-                    Créez et gérez les parcours de questions automatiques
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link to="/admin/chatbot">
-                    <Button className="w-full bg-violet-600 hover:bg-violet-700">
-                      Configurer le chatbot
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                    <CardTitle>Aides</CardTitle>
+                    <CardDescription>
+                      Gérez les aides et subventions disponibles
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/gerer-aides">
+                      <Button className="w-full">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
 
-              {/* Support Chat */}
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-3 bg-emerald-500/10 rounded-lg">
-                      <MessageCircle className="w-6 h-6 text-emerald-600" />
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-primary/10 rounded-lg">
+                        <FolderTree className="w-6 h-6 text-primary" />
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle>Support Chat</CardTitle>
-                  <CardDescription>
-                    Gérez les conversations et assistez les utilisateurs en direct
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link to="/chat-support">
-                    <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
-                      Ouvrir le support
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                    <CardTitle>Catégories</CardTitle>
+                    <CardDescription>
+                      Créez et organisez les catégories pour vos contenus
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/admin/categories">
+                      <Button className="w-full">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
 
-              {/* Gestion des Formulaires */}
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-3 bg-blue-500/10 rounded-lg">
-                      <FileCheck className="w-6 h-6 text-blue-600" />
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-primary/10 rounded-lg">
+                        <Tags className="w-6 h-6 text-primary" />
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle>Gestion des Formulaires</CardTitle>
-                  <CardDescription>
-                    Collectez, exportez et connectez vos formulaires à vos outils (CRM, Sheets...)
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link to="/admin/formulaires">
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                      Gérer les formulaires
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                    <CardTitle>Étiquettes</CardTitle>
+                    <CardDescription>
+                      Créez et gérez les tags pour organiser vos articles
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/admin/etiquettes">
+                      <Button className="w-full">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
 
-              {/* Gérer les catégories */}
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-3 bg-primary/10 rounded-lg">
-                      <FolderTree className="w-6 h-6 text-primary" />
+            {/* 3. Leads & Parcours */}
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-4">Leads & Parcours</h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-violet-500/10 rounded-lg">
+                        <Bot className="w-6 h-6 text-violet-600" />
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle>Gérer les catégories</CardTitle>
-                  <CardDescription>
-                    Créez et organisez les catégories pour vos contenus
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link to="/admin/categories">
-                    <Button className="w-full">
-                      Accéder aux catégories
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                    <CardTitle>Chatbot / Parcours</CardTitle>
+                    <CardDescription>
+                      Créez et gérez les parcours de questions automatiques
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/admin/chatbot">
+                      <Button className="w-full bg-violet-600 hover:bg-violet-700">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
 
-              {/* Gérer les étiquettes */}
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-3 bg-primary/10 rounded-lg">
-                      <Tags className="w-6 h-6 text-primary" />
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-blue-500/10 rounded-lg">
+                        <FileCheck className="w-6 h-6 text-blue-600" />
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle>Gérer les étiquettes</CardTitle>
-                  <CardDescription>
-                    Créez et gérez les tags pour organiser vos articles
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link to="/admin/etiquettes">
-                    <Button className="w-full">
-                      Accéder aux étiquettes
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                    <CardTitle>Formulaires</CardTitle>
+                    <CardDescription>
+                      Collectez, exportez et connectez vos formulaires
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/admin/formulaires">
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
 
-              {/* Newsletter */}
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-3 bg-primary/10 rounded-lg">
-                      <Mail className="w-6 h-6 text-primary" />
+            {/* 4. Support */}
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-4">Support</h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-emerald-500/10 rounded-lg">
+                        <MessageCircle className="w-6 h-6 text-emerald-600" />
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle>Newsletter</CardTitle>
-                  <CardDescription>
-                    Gérez les abonnés à la newsletter
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link to="/admin/newsletter">
-                    <Button className="w-full">
-                      Gérer la newsletter
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                    <CardTitle>Chat Support (Live)</CardTitle>
+                    <CardDescription>
+                      Gérez les conversations et assistez les utilisateurs en direct
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/chat-support">
+                      <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
 
-              {/* Landing Pages */}
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-3 bg-primary/10 rounded-lg">
-                      <FileText className="w-6 h-6 text-primary" />
+            {/* 5. Communication */}
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-4">Communication</h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-primary/10 rounded-lg">
+                        <Mail className="w-6 h-6 text-primary" />
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle>Landing Pages</CardTitle>
-                  <CardDescription>
-                    Gérez les pages de destination
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link to="/admin/landing-pages">
-                    <Button className="w-full">
-                      Gérer les landing pages
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                    <CardTitle>Newsletter</CardTitle>
+                    <CardDescription>
+                      Gérez les abonnés à la newsletter
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/admin/newsletter">
+                      <Button className="w-full">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
 
-              {/* Paramètres généraux */}
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-3 bg-primary/10 rounded-lg">
-                      <Settings className="w-6 h-6 text-primary" />
+                <Card className="hover:shadow-lg transition-shadow opacity-60">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-indigo-500/10 rounded-lg">
+                        <Send className="w-6 h-6 text-indigo-600" />
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle>Paramètres généraux</CardTitle>
-                  <CardDescription>
-                    Configurez les paramètres globaux du site
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link to="/admin/parametres">
-                    <Button className="w-full">
-                      Accéder aux paramètres
+                    <div className="flex items-center gap-2">
+                      <CardTitle>Emailing Client</CardTitle>
+                      <Badge variant="secondary" className="text-xs">Bientôt</Badge>
+                    </div>
+                    <CardDescription>
+                      Automatisations et campagnes d'emailing clients
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full" disabled>
+                      Prochainement
                     </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-lg transition-shadow opacity-60">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-pink-500/10 rounded-lg">
+                        <MessageSquare className="w-6 h-6 text-pink-600" />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CardTitle>SMS / MMS</CardTitle>
+                      <Badge variant="secondary" className="text-xs">Bientôt</Badge>
+                    </div>
+                    <CardDescription>
+                      Envoyez des messages SMS et MMS à vos clients
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full" disabled>
+                      Prochainement
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* 6. Gestion des Annonceurs */}
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-4">Gestion des Annonceurs</h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-primary/10 rounded-lg">
+                        <Users className="w-6 h-6 text-primary" />
+                      </div>
+                    </div>
+                    <CardTitle>Annonceurs</CardTitle>
+                    <CardDescription>
+                      Créez et gérez vos partenaires publicitaires
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/admin/annonceurs">
+                      <Button className="w-full">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-primary/10 rounded-lg">
+                        <Megaphone className="w-6 h-6 text-primary" />
+                      </div>
+                    </div>
+                    <CardTitle>Annonces</CardTitle>
+                    <CardDescription>
+                      Pilotez vos campagnes publicitaires partenaires
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/gerer-annonces">
+                      <Button className="w-full">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* 7. Gestion des Landing Pages */}
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-4">Gestion des Landing Pages</h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-primary/10 rounded-lg">
+                        <FileText className="w-6 h-6 text-primary" />
+                      </div>
+                    </div>
+                    <CardTitle>Landing Pages</CardTitle>
+                    <CardDescription>
+                      Gérez les pages de destination et leurs formulaires
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/admin/landing-pages">
+                      <Button className="w-full">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* 8. Paramètres généraux */}
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-4">Paramètres généraux</h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-primary/10 rounded-lg">
+                        <Settings className="w-6 h-6 text-primary" />
+                      </div>
+                    </div>
+                    <CardTitle>Paramètres généraux</CardTitle>
+                    <CardDescription>
+                      Configurez les paramètres globaux du site
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/admin/parametres">
+                      <Button className="w-full">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* 9. Gestion des Logs */}
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-4">Gestion des Logs</h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="hover:shadow-lg transition-shadow opacity-60">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-slate-500/10 rounded-lg">
+                        <Shield className="w-6 h-6 text-slate-600" />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CardTitle>Logs d'activité</CardTitle>
+                      <Badge variant="secondary" className="text-xs">Bientôt</Badge>
+                    </div>
+                    <CardDescription>
+                      Consultez l'historique des actions et événements
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full" disabled>
+                      Prochainement
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
         </main>
