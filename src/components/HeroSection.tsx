@@ -207,10 +207,10 @@ const HeroSection = () => {
           {/* Top: Hero text and buttons - centered content */}
           <div className="flex flex-col items-center justify-center text-white pt-8">
             <div className="w-full text-center">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-2xl lg:text-5xl font-bold mb-4 leading-tight">
                 Réduisez vos factures énergétiques jusqu'à 80% !
               </h1>
-              <p className="text-sm sm:text-base lg:text-lg mb-6 text-white/90 leading-snug max-w-4xl mx-auto">
+              <p className="text-sm sm:text-base md:text-sm lg:text-lg mb-6 text-white/90 leading-snug max-w-4xl mx-auto">
                 Bénéficiez d'une étude énergétique gratuite et découvrez les travaux subventionnés adaptés à votre logement
               </p>
 
