@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import renovationImage from "@/assets/renovation-ampleur.png";
 
 const RenovationProgramSection = () => {
   return (
@@ -10,10 +11,10 @@ const RenovationProgramSection = () => {
           {/* Left side - Image with overlay text */}
           <div className="relative">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-              {/* Image placeholder - to be replaced with actual renovation image */}
-              <div className="w-full aspect-[4/3] bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+              {/* Image */}
+              <div className="w-full aspect-[4/3]">
                 <img
-                  src="/placeholder.svg"
+                  src={renovationImage}
                   alt="Maison en rénovation énergétique"
                   className="w-full h-full object-cover"
                 />
@@ -67,7 +68,7 @@ const RenovationProgramSection = () => {
                 size="lg"
                 className="bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-lg gap-2"
               >
-                En savoir plus
+                Lire le guide
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
