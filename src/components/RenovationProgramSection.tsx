@@ -20,8 +20,8 @@ const RenovationProgramSection = () => {
               
               {/* Green overlay text banner */}
               <div className="absolute top-8 left-0 right-0 px-4">
-                <div className="bg-primary text-white px-4 py-2 md:px-6 md:py-3 rounded-lg shadow-lg inline-block max-w-[90%]">
-                  <p className="text-sm md:text-base lg:text-lg font-bold leading-tight">
+                <div className="bg-primary text-white px-3 py-2 md:px-4 md:py-2.5 rounded-lg shadow-lg inline-block max-w-[90%]">
+                  <p className="text-xs md:text-sm lg:text-base font-bold leading-tight">
                     Jusqu'à 63 000€ de subvention pour vos travaux de rénovation énergétique
                   </p>
                 </div>
