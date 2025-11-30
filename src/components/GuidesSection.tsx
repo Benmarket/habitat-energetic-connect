@@ -183,8 +183,8 @@ const GuidesSection = () => {
           <CarouselNext className="hidden md:flex -right-12 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300" />
         </Carousel>
 
-        {/* View All Button - Centered on mobile, right-aligned on desktop */}
-        <div className="text-center md:text-right mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+        {/* View All Button - Centered */}
+        <div className="text-center mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <Button
             asChild
             size="lg"
