@@ -99,7 +99,7 @@ const ContactSection = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4">Nous Contacter</h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
             Une question sur les énergies renouvelables ? Besoin d'un conseil personnalisé ?
             <br />
             Notre équipe d'experts est là pour vous accompagner.
