@@ -21,8 +21,17 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Column 2: Navigation */}
-          <div>
+          {/* Column 2: Newsletter */}
+          <div className="lg:order-4">
+            <h3 className="text-lg font-semibold mb-4">Newsletter</h3>
+            <p className="text-white/70 mb-4 text-sm">
+              Recevez les dernières actualités et offres en énergies renouvelables.
+            </p>
+            <NewsletterForm />
+          </div>
+
+          {/* Column 3: Navigation */}
+          <div className="lg:order-2">
             <h3 className="text-lg font-semibold mb-4">Navigation</h3>
             <nav className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-2">
               <Link to="/actualites" className="text-white/70 hover:text-white transition-colors text-sm">
@@ -46,8 +55,8 @@ const Footer = () => {
             </nav>
           </div>
 
-          {/* Column 3: Services */}
-          <div>
+          {/* Column 4: Services */}
+          <div className="lg:order-3">
             <h3 className="text-lg font-semibold mb-4">Services</h3>
             <nav className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-2">
               <Link to="/services/installation-solaire" className="text-white/70 hover:text-white transition-colors text-sm">
@@ -69,15 +78,6 @@ const Footer = () => {
                 Amélioration de l'habitat
               </Link>
             </nav>
-          </div>
-
-          {/* Column 4: Newsletter */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Newsletter</h3>
-            <p className="text-white/70 mb-4 text-sm">
-              Recevez les dernières actualités et offres en énergies renouvelables.
-            </p>
-            <NewsletterForm />
           </div>
         </div>
 
