@@ -202,16 +202,16 @@ const HeroSection = () => {
           {/* Left cell: Hero text and buttons - centered content */}
           <div className="flex flex-col items-center lg:items-start justify-center text-white pt-8 lg:pt-0">
             <div className="w-full max-w-[550px]">
-              <h1 className="text-3xl lg:text-5xl font-bold mb-4 leading-tight text-center lg:text-left">
+              <h1 className="text-2xl lg:text-5xl font-bold mb-4 leading-tight text-center lg:text-left">
                 Réduisez vos factures énergétiques jusqu'à 80% !
               </h1>
-              <p className="text-base lg:text-lg mb-6 text-white/90 text-center lg:text-left">
+              <p className="text-sm lg:text-lg mb-6 text-white/90 text-center lg:text-left leading-snug">
                 Bénéficiez d'une étude énergétique gratuite et découvrez les travaux
                 subventionnés adaptés à votre logement
               </p>
 
               {/* Quick action buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3 lg:mb-8 w-full">
+              <div className="grid grid-cols-2 gap-3 mb-3 lg:mb-8 w-full">
                 <Link 
                   to="/offres/panneaux-solaires"
                   className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
