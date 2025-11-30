@@ -98,6 +98,19 @@ const Header = () => {
 
           {/* Right side container */}
           <div className="flex items-center gap-3 lg:gap-4 ml-auto">
+            {/* Mobile "Espace Perso" button - visible only below md */}
+            {!user && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setIsAuthModalOpen(true)} 
+                className="md:hidden gap-1.5 text-xs px-2.5 py-1.5 h-auto"
+              >
+                <User className="h-3.5 w-3.5" />
+                Espace Perso
+              </Button>
+            )}
+            
             {/* Right side actions - Progressive visibility */}
             <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
               {/* WhatsApp - visible from md, fixed size */}
