@@ -245,7 +245,7 @@ const HeroSection = () => {
                   className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
                   <HandCoins className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm text-center">Aides & Subventions</span>
+                  <span className="text-white font-semibold text-sm text-center">Aides</span>
                 </Link>
               </div>
             </div>
