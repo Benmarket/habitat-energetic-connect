@@ -331,32 +331,35 @@ const HeroSection = () => {
                       />
                     </div>
 
-                    <div className="flex-[1.2] min-w-[160px]">
-                      <Label htmlFor="workType" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
-                        Type de travaux <span className="text-yellow-300">*</span>
-                      </Label>
-                      <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
-                        <SelectTrigger className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white">
-                          <SelectValue placeholder="Panneaux..." />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white z-50 shadow-xl">
-                          <SelectItem value="isolation">Isolation</SelectItem>
-                          <SelectItem value="chauffage">Chauffage</SelectItem>
-                          <SelectItem value="energie-solaire">Panneaux photovoltaïques</SelectItem>
-                          <SelectItem value="renovation-globale">Rénovation globale</SelectItem>
-                          <SelectItem value="ne-sait-pas">Ne sait pas</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    {/* Group Type de travaux + Button together */}
+                    <div className="flex flex-wrap gap-3 flex-1 min-w-[320px]">
+                      <div className="flex-[1.2] min-w-[160px]">
+                        <Label htmlFor="workType" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
+                          Type de travaux <span className="text-yellow-300">*</span>
+                        </Label>
+                        <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
+                          <SelectTrigger className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white">
+                            <SelectValue placeholder="Panneaux..." />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white z-50 shadow-xl">
+                            <SelectItem value="isolation">Isolation</SelectItem>
+                            <SelectItem value="chauffage">Chauffage</SelectItem>
+                            <SelectItem value="energie-solaire">Panneaux photovoltaïques</SelectItem>
+                            <SelectItem value="renovation-globale">Rénovation globale</SelectItem>
+                            <SelectItem value="ne-sait-pas">Ne sait pas</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                    <div className="flex items-end flex-[0.7] min-w-[120px]">
-                      <Button
-                        type="submit" 
-                        className="h-11 px-8 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold whitespace-nowrap shadow-lg text-sm transition-all hover:scale-105 hover:shadow-xl w-full" 
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? "Envoi..." : "Envoyer"}
-                      </Button>
+                      <div className="flex items-end flex-[0.7] min-w-[120px]">
+                        <Button
+                          type="submit" 
+                          className="h-11 px-8 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold whitespace-nowrap shadow-lg text-sm transition-all hover:scale-105 hover:shadow-xl w-full" 
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? "Envoi..." : "Envoyer"}
+                        </Button>
+                      </div>
                     </div>
                   </div>
 
