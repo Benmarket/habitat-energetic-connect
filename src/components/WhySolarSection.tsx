@@ -1,6 +1,6 @@
 import { Gauge } from "lucide-react";
 import ecologiqueImg from "@/assets/why-solar/ecologique.png";
-import factureEdfImg from "@/assets/why-solar/facture-edf.jpg";
+import factureEdfImg from "@/assets/why-solar/facture-edf-new.png";
 import appliPvImg from "@/assets/why-solar/appli-pv.jpg";
 
 const WhySolarSection = () => {
