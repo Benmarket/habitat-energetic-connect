@@ -5,7 +5,7 @@ import renovationImage from "@/assets/renovation-ampleur.png";
 
 const RenovationProgramSection = () => {
   return (
-    <section className="py-12 lg:py-16 bg-background">
+    <section className="py-6 md:py-8 lg:py-16 bg-background">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center max-w-7xl mx-auto">
           {/* Left side - Image with overlay text */}
@@ -27,16 +27,16 @@ const RenovationProgramSection = () => {
                 </div>
               </div>
 
-              {/* Energy class badge */}
+              {/* Energy class badge - smaller and cuter */}
               <div className="absolute bottom-8 left-8">
-                <div className="bg-primary text-white rounded-lg p-4 shadow-xl flex items-center justify-center">
-                  <span className="text-5xl font-extrabold">A</span>
+                <div className="bg-primary text-white rounded-lg p-2 shadow-xl flex items-center justify-center">
+                  <span className="text-2xl font-extrabold">A</span>
                 </div>
-                <div className="mt-2 flex gap-1">
-                  <div className="w-8 h-6 bg-green-600 rounded"></div>
-                  <div className="w-8 h-6 bg-yellow-400 rounded"></div>
-                  <div className="w-8 h-6 bg-orange-500 rounded"></div>
-                  <div className="w-8 h-6 bg-red-600 rounded"></div>
+                <div className="mt-1 flex gap-1">
+                  <div className="w-5 h-4 bg-green-600 rounded"></div>
+                  <div className="w-5 h-4 bg-yellow-400 rounded"></div>
+                  <div className="w-5 h-4 bg-orange-500 rounded"></div>
+                  <div className="w-5 h-4 bg-red-600 rounded"></div>
                 </div>
               </div>
             </div>
@@ -46,7 +46,7 @@ const RenovationProgramSection = () => {
           <div className="space-y-6">
             <div>
               <div className="inline-block w-16 h-1 bg-blue-600 mb-4"></div>
-              <h2 className="text-2xl lg:text-4xl font-extrabold text-foreground mb-6 leading-tight">
+              <h2 className="text-2xl lg:text-4xl font-extrabold text-foreground mb-6 leading-tight text-center lg:text-left">
                 Le programme de Rénovation d'ampleur
               </h2>
               <p className="text-sm lg:text-base text-foreground leading-relaxed">
