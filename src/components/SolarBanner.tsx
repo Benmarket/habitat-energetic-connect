@@ -35,10 +35,10 @@ const SolarBanner = () => {
               </h2>
               
               {/* Grid with text on left, diagram on right */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-start">
+              <div className="grid grid-cols-2 gap-3 md:gap-6 lg:gap-8 items-start">
                 {/* Left column - Text */}
-                <div className="flex flex-col items-center md:items-start">
-                  <p className="text-sm lg:text-base text-foreground leading-relaxed mb-6">
+                <div className="flex flex-col items-start">
+                  <p className="text-xs md:text-sm lg:text-base text-foreground leading-relaxed mb-4 md:mb-6">
                     Le photovoltaïque permet de produire votre propre électricité grâce à l'énergie solaire, 
                     une ressource gratuite et inépuisable. En plus de réduire vos factures, c'est un 
                     investissement rentable grâce aux aides de l'État qui peuvent couvrir une partie de 
@@ -48,7 +48,7 @@ const SolarBanner = () => {
                     transition énergétique tout en réalisant d'importantes économies.
                   </p>
                   
-                  <Link to="/offres/panneaux-solaires">
+                  <Link to="/offres/panneaux-solaires" className="hidden md:block">
                     <Button 
                       size="lg"
                       className="bg-primary hover:bg-primary/90 text-white shadow-xl font-semibold gap-2"
@@ -60,28 +60,39 @@ const SolarBanner = () => {
                 </div>
 
                 {/* Right column - Diagram with legend */}
-                <div className="space-y-4">
+                <div className="space-y-2 md:space-y-4">
                   <img
                     src={solarSystemDiagram}
                     alt="Schéma du système photovoltaïque"
-                    className="w-[90%] max-w-[252px] mx-auto md:mx-0"
+                    className="w-full max-w-[200px] md:max-w-[252px] mx-auto md:mx-0"
                   />
-                  <div className="space-y-2 max-w-[280px] mx-auto md:mx-0">
-                    <div className="flex items-start gap-3">
-                      <div className="w-4 h-4 mt-1 rounded bg-orange-500 flex-shrink-0"></div>
-                      <p className="text-xs lg:text-sm text-foreground font-medium">
+                  <div className="space-y-1 md:space-y-2">
+                    <div className="flex items-start gap-2">
+                      <div className="w-3 h-3 md:w-4 md:h-4 mt-0.5 md:mt-1 rounded bg-orange-500 flex-shrink-0"></div>
+                      <p className="text-[10px] md:text-xs lg:text-sm text-foreground font-medium leading-tight">
                         Capter les rayons du soleil et les convertir en kW utilisable
                       </p>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-4 h-4 mt-1 rounded bg-cyan-500 flex-shrink-0"></div>
-                      <p className="text-xs lg:text-sm text-foreground font-medium">
+                    <div className="flex items-start gap-2">
+                      <div className="w-3 h-3 md:w-4 md:h-4 mt-0.5 md:mt-1 rounded bg-cyan-500 flex-shrink-0"></div>
+                      <p className="text-[10px] md:text-xs lg:text-sm text-foreground font-medium leading-tight">
                         Revente du surplus non consommé vers le circuit général
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
+              
+              {/* Button visible only on mobile */}
+              <Link to="/offres/panneaux-solaires" className="block md:hidden mt-6">
+                <Button 
+                  size="lg"
+                  className="bg-primary hover:bg-primary/90 text-white shadow-xl font-semibold gap-2 w-full"
+                >
+                  Ça m'intéresse
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
