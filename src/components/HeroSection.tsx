@@ -258,7 +258,7 @@ const HeroSection = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none"></div>
               
               <div className="relative z-10">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3 md:mb-6">
                   <h2 className="text-base md:text-lg lg:text-xl font-bold text-white drop-shadow-md flex-shrink text-center md:text-left">
                     Vérifier mon éligibilité à la Prime Gratuitement
                   </h2>
