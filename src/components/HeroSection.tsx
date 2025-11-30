@@ -254,16 +254,16 @@ const HeroSection = () => {
 
           {/* Bottom: Modern horizontal form */}
           <div className="w-full pb-8">
-            <div className="bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 rounded-2xl shadow-2xl p-8 w-full relative overflow-hidden">
+            <div className="bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 rounded-2xl shadow-2xl p-4 md:p-8 w-full relative overflow-hidden">
               {/* Decorative gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none"></div>
               
               <div className="relative z-10">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-                  <h2 className="text-lg md:text-lg lg:text-xl font-bold text-white drop-shadow-md flex-shrink">
+                  <h2 className="text-base md:text-lg lg:text-xl font-bold text-white drop-shadow-md flex-shrink text-center md:text-left">
                     Vérifier mon éligibilité à la Prime Gratuitement
                   </h2>
-                  <div className="flex items-center gap-1.5 bg-white text-red-600 px-2.5 py-1 rounded-lg text-[10px] md:text-xs font-bold whitespace-nowrap shadow-lg border-2 border-red-100 flex-shrink-0">
+                  <div className="flex items-center justify-center md:justify-start gap-1.5 bg-white text-red-600 px-2.5 py-1 rounded-lg text-[10px] md:text-xs font-bold whitespace-nowrap shadow-lg border-2 border-red-100 flex-shrink-0">
                     <Home className="w-3 h-3 flex-shrink-0" strokeWidth={2.5} />
                     <span>Propriétaires maison individuelle</span>
                   </div>
@@ -369,7 +369,7 @@ const HeroSection = () => {
                   </div>
 
                   {/* Code postal + Type de travaux + Button - Only visible on mobile and tablet */}
-                  <div className="grid grid-cols-2 gap-3 md:grid-cols-2 mb-4 lg:hidden">
+                  <div className="grid grid-cols-2 gap-2 md:gap-3 md:grid-cols-2 mb-4 lg:hidden">
                     {/* Code postal - Visible only on mobile */}
                     <div className="md:hidden">
                       <Label htmlFor="postalCode-mobile" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
@@ -405,8 +405,8 @@ const HeroSection = () => {
                       </Select>
                     </div>
 
-                    {/* Button - Aligned with workType on tablet, full width on mobile */}
-                    <div className="flex items-end col-span-1">
+                    {/* Button - Full width on mobile */}
+                    <div className="col-span-2 md:col-span-1 md:flex md:items-end">
                       <Button
                         type="submit" 
                         className="h-11 w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold shadow-lg text-sm transition-all hover:scale-105 hover:shadow-xl" 
@@ -418,16 +418,16 @@ const HeroSection = () => {
                   </div>
 
                   {/* Checkbox CGU */}
-                  <div className="flex items-start gap-3 mt-4">
+                  <div className="flex items-start gap-2 mt-3">
                     <input
                       type="checkbox"
                       id="acceptTerms"
                       checked={formData.acceptTerms}
                       onChange={(e) => setFormData({ ...formData, acceptTerms: e.target.checked })}
-                      className="mt-1 h-5 w-5 rounded border-2 border-white bg-white/90 text-emerald-600 focus:ring-2 focus:ring-white/50 flex-shrink-0 cursor-pointer transition-all"
+                      className="mt-0.5 h-4 w-4 md:h-5 md:w-5 rounded border-2 border-white bg-white/90 text-emerald-600 focus:ring-2 focus:ring-white/50 flex-shrink-0 cursor-pointer transition-all"
                       required
                     />
-                    <Label htmlFor="acceptTerms" className="text-white text-sm leading-relaxed cursor-pointer drop-shadow">
+                    <Label htmlFor="acceptTerms" className="text-white text-[10px] md:text-sm leading-snug md:leading-relaxed cursor-pointer drop-shadow">
                       J'accepte les termes et conditions des CGU de Prime énergies et accepte de recevoir des offres concernant les travaux de rénovation et subventions{" "}
                       <Link 
                         to="/conditions-utilisation" 
