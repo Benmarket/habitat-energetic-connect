@@ -2,6 +2,8 @@ import ecologiqueImg from "@/assets/why-solar/ecologique.png";
 import factureEdfImg from "@/assets/why-solar/facture-edf-new.png";
 import appliPvImg from "@/assets/why-solar/appli-pv.jpg";
 import smartphoneImg from "@/assets/why-solar/utilise-smartphone.png";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 const WhySolarSection = () => {
   const benefits = [
@@ -35,12 +37,57 @@ const WhySolarSection = () => {
           Pourquoi <span className="text-primary">l'énergie solaire ?</span>
         </h2>
 
-        {/* Benefits Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6 max-w-7xl mx-auto">
+        {/* Mobile & Tablet Carousel */}
+        <div className="lg:hidden">
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            plugins={[
+              Autoplay({
+                delay: 5000,
+              }),
+            ]}
+          >
+            <CarouselContent>
+              {benefits.map((benefit, index) => (
+                <CarouselItem key={index} className="md:basis-1/2">
+                  <div className="flex flex-col items-center text-center px-4">
+                    {/* Image Circle */}
+                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-muted flex items-center justify-center mb-6 overflow-hidden">
+                      <img 
+                        src={benefit.image} 
+                        alt={benefit.title}
+                        className={`w-full h-full ${
+                          index === 1 ? 'object-cover scale-[2]' : 
+                          'object-cover'
+                        }`}
+                      />
+                    </div>
+                    
+                    {/* Title */}
+                    <h3 className="text-xl md:text-2xl font-bold text-primary mb-4">
+                      {benefit.title}
+                    </h3>
+                    
+                    {/* Description */}
+                    <p className="text-sm md:text-base text-foreground leading-relaxed">
+                      {benefit.description}
+                    </p>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+        </div>
+
+        {/* Desktop Grid - visible only on large screens */}
+        <div className="hidden lg:grid grid-cols-4 gap-6 max-w-7xl mx-auto">
           {benefits.map((benefit, index) => (
             <div key={index} className="flex flex-col items-center text-center">
               {/* Image Circle */}
-              <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-full bg-muted flex items-center justify-center mb-6 overflow-hidden">
+              <div className="w-40 h-40 rounded-full bg-muted flex items-center justify-center mb-6 overflow-hidden">
                 <img 
                   src={benefit.image} 
                   alt={benefit.title}
@@ -52,12 +99,12 @@ const WhySolarSection = () => {
               </div>
               
               {/* Title */}
-              <h3 className="text-xl lg:text-2xl font-bold text-primary mb-4">
+              <h3 className="text-2xl font-bold text-primary mb-4">
                 {benefit.title}
               </h3>
               
               {/* Description */}
-              <p className="text-sm lg:text-base text-foreground leading-relaxed">
+              <p className="text-base text-foreground leading-relaxed">
                 {benefit.description}
               </p>
             </div>
