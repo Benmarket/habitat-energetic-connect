@@ -24,15 +24,6 @@ const SolarBanner = () => {
                 className="w-full h-full"
               />
             </div>
-            <Link to="/offres/panneaux-solaires">
-              <Button 
-                size="lg"
-                className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-primary hover:bg-primary/90 text-white shadow-xl font-semibold gap-2"
-              >
-                Ça m'intéresse
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
           </div>
 
           {/* Right side - Content */}
@@ -47,7 +38,7 @@ const SolarBanner = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-start">
                 {/* Left column - Text */}
                 <div>
-                  <p className="text-sm lg:text-base text-foreground leading-relaxed">
+                  <p className="text-sm lg:text-base text-foreground leading-relaxed mb-6">
                     Le photovoltaïque permet de produire votre propre électricité grâce à l'énergie solaire, 
                     une ressource gratuite et inépuisable. En plus de réduire vos factures, c'est un 
                     investissement rentable grâce aux aides de l'État qui peuvent couvrir une partie de 
@@ -56,6 +47,16 @@ const SolarBanner = () => {
                     revenu complémentaire. En choisissant le photovoltaïque, vous contribuez à la 
                     transition énergétique tout en réalisant d'importantes économies.
                   </p>
+                  
+                  <Link to="/offres/panneaux-solaires">
+                    <Button 
+                      size="lg"
+                      className="bg-primary hover:bg-primary/90 text-white shadow-xl font-semibold gap-2"
+                    >
+                      Ça m'intéresse
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
                 </div>
 
                 {/* Right column - Diagram with legend */}
