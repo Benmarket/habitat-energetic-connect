@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import solarHouseBanner from "@/assets/solar-house-banner.jpg";
-import solarSystemDiagram from "@/assets/solar-system-diagram.png";
+import solarSystemDiagram from "@/assets/solar-system-diagram-new.png";
 import guarantee25Years from "@/assets/guarantee-25-years.png";
 
 const SolarBanner = () => {
