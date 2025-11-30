@@ -144,15 +144,15 @@ const TrafficDashboard = () => {
       {/* Section 1: SEO et Trafic */}
       <Card className="border-2 shadow-lg">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="space-y-4">
             <div>
-              <CardTitle className="text-2xl">Trafic et SEO</CardTitle>
-              <CardDescription>Aperçu en direct, pages les plus visitées et santé SEO</CardDescription>
+              <CardTitle className="text-xl md:text-2xl">Trafic et SEO</CardTitle>
+              <CardDescription className="text-sm">Aperçu en direct, pages les plus visitées et santé SEO</CardDescription>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                  <SelectTrigger className="w-[120px] rounded-full border-2 border-primary">
+                  <SelectTrigger className="w-full sm:w-[120px] rounded-full border-2 border-primary">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -164,7 +164,7 @@ const TrafficDashboard = () => {
                   </SelectContent>
                 </Select>
                 <Select value={selectedYear} onValueChange={setSelectedYear}>
-                  <SelectTrigger className="w-[110px] rounded-full">
+                  <SelectTrigger className="w-full sm:w-[110px] rounded-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -177,43 +177,43 @@ const TrafficDashboard = () => {
                 </Select>
               </div>
               <div 
-                className="text-center cursor-pointer hover:bg-primary/5 p-3 rounded-lg transition-colors"
+                className="text-center cursor-pointer hover:bg-primary/5 p-3 rounded-lg transition-colors w-full sm:w-auto"
                 onClick={() => setShowLiveVisitors(true)}
               >
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-muted-foreground mb-1">
                   <Eye className="w-4 h-4" />
                   Visiteurs en direct
                 </div>
-                <div className="text-4xl font-bold text-primary">{liveCount}</div>
+                <div className="text-3xl sm:text-4xl font-bold text-primary">{liveCount}</div>
               </div>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Pages les plus visitées */}
             <div>
-              <h3 className="font-semibold mb-4 text-lg">Pages les plus visitées</h3>
-              <div className="space-y-3">
+              <h3 className="font-semibold mb-4 text-base md:text-lg">Pages les plus visitées</h3>
+              <div className="space-y-2 md:space-y-3">
                 {topPages.map((page, index) => (
                   <div 
                     key={index} 
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
                     onClick={() => setSelectedPage(page.url)}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-sm truncate">{page.url}</div>
                     </div>
-                    <div className="flex items-center gap-4 text-sm">
-                      <div className="text-right">
+                    <div className="flex items-center gap-3 sm:gap-4 text-sm">
+                      <div className="text-center sm:text-right">
                         <div className="font-bold text-foreground">{page.views}</div>
                         <div className="text-xs text-muted-foreground">vues</div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-center sm:text-right hidden sm:block">
                         <div className="text-muted-foreground">{page.avgTime}</div>
                         <div className="text-xs text-muted-foreground">temps moy.</div>
                       </div>
-                      <div className="text-right min-w-[50px]">
+                      <div className="text-center sm:text-right min-w-[50px]">
                         <div className={`font-semibold ${getBounceColor(page.bounce)}`}>{page.bounce}</div>
                         <div className="text-xs text-muted-foreground">bounce</div>
                       </div>
@@ -225,10 +225,10 @@ const TrafficDashboard = () => {
 
             {/* Rapport SEO */}
             <div>
-              <h3 className="font-semibold mb-4 text-lg">Rapport SEO (synthèse)</h3>
-              <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg p-6 border border-primary/20">
-                <div className="text-center mb-6">
-                  <div className="text-6xl font-bold text-primary mb-2">{seoScore}</div>
+              <h3 className="font-semibold mb-4 text-base md:text-lg">Rapport SEO (synthèse)</h3>
+              <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg p-4 md:p-6 border border-primary/20">
+                <div className="text-center mb-4 md:mb-6">
+                  <div className="text-5xl md:text-6xl font-bold text-primary mb-2">{seoScore}</div>
                   <div className="text-sm text-muted-foreground">/ 100</div>
                 </div>
                 
@@ -269,15 +269,13 @@ const TrafficDashboard = () => {
       {/* Section 2: Statistiques d'inventaire */}
       <Card className="border-2 shadow-lg">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-2xl">Vue d'ensemble</CardTitle>
-              <CardDescription>Statistiques synthétiques pour {months.find(m => m.value === selectedMonth)?.label} {selectedYear}</CardDescription>
-            </div>
+          <div>
+            <CardTitle className="text-xl md:text-2xl">Vue d'ensemble</CardTitle>
+            <CardDescription className="text-sm">Statistiques synthétiques pour {months.find(m => m.value === selectedMonth)?.label} {selectedYear}</CardDescription>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {inventoryStats.map((stat, index) => {
               const Icon = stat.icon;
               return (

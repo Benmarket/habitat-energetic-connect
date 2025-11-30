@@ -38,20 +38,21 @@ const Administration = () => {
         <Header />
         
         <main className="pt-20">
-          <div className="container mx-auto px-4 py-8">
+          <div className="container mx-auto px-4 py-6 md:py-8">
             <Link 
               to="/tableau-de-bord"
-              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
+              className="inline-flex items-center gap-2 text-sm md:text-base text-muted-foreground hover:text-foreground mb-6 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              Retour au tableau de bord
+              <span className="hidden sm:inline">Retour au tableau de bord</span>
+              <span className="sm:hidden">Retour</span>
             </Link>
 
-            <div className="mb-8 animate-fade-in">
-              <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-primary via-purple-600 to-blue-600 bg-clip-text text-transparent">
+            <div className="mb-6 md:mb-8 animate-fade-in">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 md:mb-3 bg-gradient-to-r from-primary via-purple-600 to-blue-600 bg-clip-text text-transparent">
                 Administration
               </h1>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground">
                 Gérez les contenus et les paramètres de votre site
               </p>
             </div>
@@ -60,12 +61,12 @@ const Administration = () => {
             <TrafficDashboard />
 
             {/* 1. Gestion des Utilisateurs - ROUGE */}
-            <div className="mt-12 animate-fade-in">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-1 w-12 bg-gradient-to-r from-red-500 to-red-600 rounded-full"></div>
-                <h2 className="text-2xl font-bold">Gestion des Utilisateurs</h2>
+            <div className="mt-8 md:mt-12 animate-fade-in">
+              <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+                <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-red-500 to-red-600 rounded-full"></div>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Gestion des Utilisateurs</h2>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 <Card className="group hover:shadow-2xl hover:shadow-red-500/10 transition-all duration-300 border-l-4 border-l-red-500 hover:scale-[1.02] hover:-translate-y-1">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
@@ -90,12 +91,12 @@ const Administration = () => {
             </div>
 
             {/* 2. Gestion des Contenus - BLEU CLAIR */}
-            <div className="mt-12 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-1 w-12 bg-gradient-to-r from-sky-500 to-sky-600 rounded-full"></div>
-                <h2 className="text-2xl font-bold">Gestion des Contenus</h2>
+            <div className="mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+              <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+                <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-sky-500 to-sky-600 rounded-full"></div>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Gestion des Contenus</h2>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 <Card className="group hover:shadow-2xl hover:shadow-sky-500/10 transition-all duration-300 border-l-4 border-l-sky-500 hover:scale-[1.02] hover:-translate-y-1">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
@@ -204,12 +205,12 @@ const Administration = () => {
             </div>
 
             {/* 3. Leads & Parcours - ORANGE */}
-            <div className="mt-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-1 w-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full"></div>
-                <h2 className="text-2xl font-bold">Leads & Parcours</h2>
+            <div className="mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+                <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full"></div>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Leads & Parcours</h2>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 <Card className="group hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 border-l-4 border-l-orange-500 hover:scale-[1.02] hover:-translate-y-1">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
@@ -278,12 +279,12 @@ const Administration = () => {
             </div>
 
             {/* 4. Support - VERT */}
-            <div className="mt-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-1 w-12 bg-gradient-to-r from-green-500 to-green-600 rounded-full"></div>
-                <h2 className="text-2xl font-bold">Support</h2>
+            <div className="mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+              <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+                <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-green-500 to-green-600 rounded-full"></div>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Support</h2>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 <Card className="group hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-300 border-l-4 border-l-green-500 hover:scale-[1.02] hover:-translate-y-1">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
@@ -308,12 +309,12 @@ const Administration = () => {
             </div>
 
             {/* 5. Communication - VIOLET */}
-            <div className="mt-12 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-1 w-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full"></div>
-                <h2 className="text-2xl font-bold">Communication</h2>
+            <div className="mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+              <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+                <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full"></div>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Communication</h2>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 <Card className="group hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 border-l-4 border-l-purple-500 hover:scale-[1.02] hover:-translate-y-1">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
@@ -384,12 +385,12 @@ const Administration = () => {
             </div>
 
             {/* 6. Gestion des Annonceurs - JAUNE */}
-            <div className="mt-12 animate-fade-in" style={{ animationDelay: '0.5s' }}>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-1 w-12 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full"></div>
-                <h2 className="text-2xl font-bold">Gestion des Annonceurs</h2>
+            <div className="mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+              <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+                <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full"></div>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Gestion des Annonceurs</h2>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 <Card className="group hover:shadow-2xl hover:shadow-yellow-500/10 transition-all duration-300 border-l-4 border-l-yellow-500 hover:scale-[1.02] hover:-translate-y-1">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
@@ -435,12 +436,12 @@ const Administration = () => {
             </div>
 
             {/* 7. Gestion des Landing Pages - TURQUOISE */}
-            <div className="mt-12 animate-fade-in" style={{ animationDelay: '0.6s' }}>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-1 w-12 bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-full"></div>
-                <h2 className="text-2xl font-bold">Gestion des Landing Pages</h2>
+            <div className="mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+              <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+                <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-full"></div>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Gestion des Landing Pages</h2>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 <Card className="group hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-300 border-l-4 border-l-cyan-500 hover:scale-[1.02] hover:-translate-y-1">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
@@ -465,12 +466,12 @@ const Administration = () => {
             </div>
 
             {/* 8. Gestion de l'App Prime énergies - VERT PRIME */}
-            <div className="mt-12 animate-fade-in" style={{ animationDelay: '0.65s' }}>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-1 w-12 bg-gradient-to-r from-primary to-primary/80 rounded-full"></div>
-                <h2 className="text-2xl font-bold">Gestion de l'App Prime énergies</h2>
+            <div className="mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.65s' }}>
+              <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+                <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-primary to-primary/80 rounded-full"></div>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Gestion de l'App</h2>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 <Card className="group relative overflow-hidden border-l-4 border-l-primary/30 hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10"></div>
                   <CardHeader className="relative">
@@ -500,12 +501,12 @@ const Administration = () => {
             </div>
 
             {/* 9. Paramètres généraux - GRIS FONCÉ */}
-            <div className="mt-12 animate-fade-in" style={{ animationDelay: '0.7s' }}>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-1 w-12 bg-gradient-to-r from-slate-700 to-slate-800 rounded-full"></div>
-                <h2 className="text-2xl font-bold">Paramètres généraux</h2>
+            <div className="mt-8 md:mt-12 mb-8 md:mb-12 animate-fade-in" style={{ animationDelay: '0.7s' }}>
+              <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+                <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-slate-700 to-slate-800 rounded-full"></div>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Paramètres généraux</h2>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 <Card className="group hover:shadow-2xl hover:shadow-slate-500/10 transition-all duration-300 border-l-4 border-l-slate-700 hover:scale-[1.02] hover:-translate-y-1">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
