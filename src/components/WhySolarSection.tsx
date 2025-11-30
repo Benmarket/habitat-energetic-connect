@@ -81,8 +81,8 @@ const WhySolarSection = () => {
               ))}
             </CarouselContent>
             {/* Slightly visible navigation arrows with hover effect */}
-            <CarouselPrevious className="opacity-30 hover:opacity-100 transition-opacity bg-white/80 hover:bg-white" />
-            <CarouselNext className="opacity-30 hover:opacity-100 transition-opacity bg-white/80 hover:bg-white" />
+            <CarouselPrevious className="opacity-60 hover:opacity-100 transition-opacity bg-white/90 hover:bg-white border-2" />
+            <CarouselNext className="opacity-60 hover:opacity-100 transition-opacity bg-white/90 hover:bg-white border-2" />
           </Carousel>
         </div>
 
