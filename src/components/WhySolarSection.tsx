@@ -2,7 +2,7 @@ import ecologiqueImg from "@/assets/why-solar/ecologique.png";
 import factureEdfImg from "@/assets/why-solar/facture-edf-new.png";
 import appliPvImg from "@/assets/why-solar/appli-pv.jpg";
 import smartphoneImg from "@/assets/why-solar/utilise-smartphone.png";
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
 const WhySolarSection = () => {
@@ -38,7 +38,7 @@ const WhySolarSection = () => {
         </h2>
 
         {/* Mobile & Tablet Carousel */}
-        <div className="lg:hidden">
+        <div className="lg:hidden pb-20 md:pb-24">
           <Carousel
             opts={{
               align: "start",
@@ -49,6 +49,7 @@ const WhySolarSection = () => {
                 delay: 5000,
               }),
             ]}
+            className="relative"
           >
             <CarouselContent>
               {benefits.map((benefit, index) => (
@@ -79,6 +80,9 @@ const WhySolarSection = () => {
                 </CarouselItem>
               ))}
             </CarouselContent>
+            {/* Invisible navigation arrows */}
+            <CarouselPrevious className="opacity-0 hover:opacity-0" />
+            <CarouselNext className="opacity-0 hover:opacity-0" />
           </Carousel>
         </div>
 
