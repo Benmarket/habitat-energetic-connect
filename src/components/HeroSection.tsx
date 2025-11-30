@@ -216,37 +216,37 @@ const HeroSection = () => {
               </p>
 
               {/* Quick action buttons */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
                 <Link 
                   to="/offres/panneaux-solaires"
-                  className="group flex items-center gap-3 px-5 py-4 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                  className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
-                  <Sun className="w-6 h-6 text-yellow-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-base">Panneaux solaires</span>
+                  <Sun className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm">Panneaux solaires</span>
                 </Link>
 
                 <Link 
                   to="/offres/pompe-a-chaleur"
-                  className="group flex items-center gap-3 px-5 py-4 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                  className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
-                  <Droplets className="w-6 h-6 text-blue-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-base">Pompe à chaleur</span>
+                  <Droplets className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm">Pompe à chaleur</span>
                 </Link>
 
                 <Link 
                   to="/offres/isolation"
-                  className="group flex items-center gap-3 px-5 py-4 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                  className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
-                  <Home className="w-6 h-6 text-green-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-base">Isolation</span>
+                  <Home className="w-5 h-5 text-green-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm">Isolation</span>
                 </Link>
 
                 <Link 
                   to="/aides"
-                  className="group flex items-center gap-3 px-5 py-4 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                  className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
-                  <HandCoins className="w-6 h-6 text-cyan-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-base">Aides & Subventions</span>
+                  <HandCoins className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm">Aides & Subventions</span>
                 </Link>
               </div>
             </div>
