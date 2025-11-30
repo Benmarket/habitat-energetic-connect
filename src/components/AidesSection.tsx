@@ -174,7 +174,7 @@ const AidesSection = () => {
           <p className="text-sm md:text-base text-muted-foreground max-w-4xl mx-auto leading-snug">
             Découvrez toutes les aides disponibles pour financer votre projet d'énergies renouvelables
           </p>
-          <div className="flex items-center justify-center gap-2 mt-4">
+          <div className="flex items-center justify-center gap-2 mt-3 md:mt-4">
             <div className="h-1 w-12 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full"></div>
           </div>
         </div>
@@ -201,7 +201,7 @@ const AidesSection = () => {
                 const amount = extractAmount(aide.content);
 
                 return (
-                  <Card key={aide.id} className="group hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 hover:scale-105 hover:-translate-y-1 h-full flex flex-col border-2 border-blue-500/20 hover:border-blue-500/40 overflow-hidden bg-card/80 backdrop-blur-sm min-h-[420px] max-h-[420px]">
+                  <Card key={aide.id} className="group hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 hover:scale-105 hover:-translate-y-1 h-full flex flex-col border-2 border-blue-500/20 hover:border-blue-500/40 overflow-hidden bg-card/80 backdrop-blur-sm min-h-[380px] max-h-[380px]">
                     <CardHeader className="flex-shrink-0 pb-3">
                       <div className="flex items-start gap-3 mb-3">
                         <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-600/20 group-hover:scale-110 transition-transform duration-300 shadow-sm">
@@ -250,7 +250,7 @@ const AidesSection = () => {
                           <span className="line-clamp-1">{amount}</span>
                         </Badge>
 
-                        <div className="space-y-1.5 mb-3">
+                        <div className="space-y-1.5 mb-2">
                           <p className="text-xs font-semibold text-foreground">Conditions :</p>
                           {conditions.slice(0, 2).map((condition, idx) => (
                             <div key={idx} className="flex items-start gap-1.5">
