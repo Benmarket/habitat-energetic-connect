@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Power, PowerOff, Eye } from "lucide-react";
+import { Plus, Edit, Trash2, Power, PowerOff } from "lucide-react";
+import { ChatbotFlowEditor } from "@/components/ChatbotFlowEditor";
 import {
   Dialog,
   DialogContent,
@@ -49,20 +50,20 @@ const AdminChatbot = () => {
     name: "",
     description: "",
     is_active: false,
-    tree_structure: JSON.stringify({
-      start_node: "node_1",
-      nodes: {
-        node_1: {
-          type: "question",
-          question: "Votre question ici",
-          answer_type: "buttons",
-          options: [
-            { label: "Option 1", next_node: "node_2" },
-            { label: "Option 2", next_node: "node_3" }
-          ]
-        }
+  });
+  const [flowStructure, setFlowStructure] = useState<any>({
+    start_node: "node_1",
+    nodes: {
+      node_1: {
+        type: "question",
+        question: "Votre question ici",
+        answer_type: "buttons",
+        options: [
+          { label: "Option 1", next_node: "node_2" },
+          { label: "Option 2", next_node: "node_3" }
+        ]
       }
-    }, null, 2)
+    }
   });
 
   // Fetch chatbot flows
@@ -82,7 +83,10 @@ const AdminChatbot = () => {
   // Create flow mutation
   const createFlowMutation = useMutation({
     mutationFn: async (data: any) => {
-      const { error } = await supabase.from("chatbot_flows").insert([data]);
+      const { error } = await supabase.from("chatbot_flows").insert([{
+        ...data,
+        tree_structure: flowStructure
+      }]);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -105,7 +109,10 @@ const AdminChatbot = () => {
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
       const { error } = await supabase
         .from("chatbot_flows")
-        .update(data)
+        .update({
+          ...data,
+          tree_structure: flowStructure
+        })
         .eq("id", id);
       if (error) throw error;
     },
@@ -173,61 +180,57 @@ const AdminChatbot = () => {
       name: "",
       description: "",
       is_active: false,
-      tree_structure: JSON.stringify({
-        start_node: "node_1",
-        nodes: {
-          node_1: {
-            type: "question",
-            question: "Votre question ici",
-            answer_type: "buttons",
-            options: [
-              { label: "Option 1", next_node: "node_2" },
-              { label: "Option 2", next_node: "node_3" }
-            ]
-          }
+    });
+    setFlowStructure({
+      start_node: "node_1",
+      nodes: {
+        node_1: {
+          type: "question",
+          question: "Votre question ici",
+          answer_type: "buttons",
+          options: [
+            { label: "Option 1", next_node: "node_2" },
+            { label: "Option 2", next_node: "node_3" }
+          ]
         }
-      }, null, 2)
+      }
     });
   };
 
   const handleCreate = () => {
-    try {
-      const parsedStructure = JSON.parse(formData.tree_structure);
-      createFlowMutation.mutate({
-        name: formData.name,
-        description: formData.description || null,
-        is_active: formData.is_active,
-        tree_structure: parsedStructure,
-      });
-    } catch (error) {
+    if (!formData.name) {
       toast({
-        title: "JSON invalide",
-        description: "La structure de l'arbre doit être un JSON valide",
+        title: "Nom requis",
+        description: "Veuillez saisir un nom pour le parcours",
         variant: "destructive",
       });
+      return;
     }
+    createFlowMutation.mutate({
+      name: formData.name,
+      description: formData.description || null,
+      is_active: formData.is_active,
+    });
   };
 
   const handleUpdate = () => {
     if (!selectedFlow) return;
-    try {
-      const parsedStructure = JSON.parse(formData.tree_structure);
-      updateFlowMutation.mutate({
-        id: selectedFlow.id,
-        data: {
-          name: formData.name,
-          description: formData.description || null,
-          is_active: formData.is_active,
-          tree_structure: parsedStructure,
-        },
-      });
-    } catch (error) {
+    if (!formData.name) {
       toast({
-        title: "JSON invalide",
-        description: "La structure de l'arbre doit être un JSON valide",
+        title: "Nom requis",
+        description: "Veuillez saisir un nom pour le parcours",
         variant: "destructive",
       });
+      return;
     }
+    updateFlowMutation.mutate({
+      id: selectedFlow.id,
+      data: {
+        name: formData.name,
+        description: formData.description || null,
+        is_active: formData.is_active,
+      },
+    });
   };
 
   const openEditModal = (flow: ChatbotFlow) => {
@@ -236,8 +239,8 @@ const AdminChatbot = () => {
       name: flow.name,
       description: flow.description || "",
       is_active: flow.is_active,
-      tree_structure: JSON.stringify(flow.tree_structure, null, 2),
     });
+    setFlowStructure(flow.tree_structure);
     setIsEditModalOpen(true);
   };
 
@@ -245,6 +248,13 @@ const AdminChatbot = () => {
     setSelectedFlow(flow);
     setIsDeleteDialogOpen(true);
   };
+
+  // Load structure into editor when modal opens
+  useEffect(() => {
+    if (isEditModalOpen && selectedFlow) {
+      setFlowStructure(selectedFlow.tree_structure);
+    }
+  }, [isEditModalOpen, selectedFlow]);
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -371,20 +381,11 @@ const AdminChatbot = () => {
               <Label htmlFor="is_active">Activer ce parcours</Label>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="tree_structure">Structure de l'arbre (JSON)</Label>
-              <Textarea
-                id="tree_structure"
-                value={formData.tree_structure}
-                onChange={(e) =>
-                  setFormData({ ...formData, tree_structure: e.target.value })
-                }
-                placeholder='{"start_node": "node_1", "nodes": {...}}'
-                className="font-mono text-sm min-h-[300px]"
+              <Label>Éditeur visuel du parcours</Label>
+              <ChatbotFlowEditor
+                initialStructure={flowStructure}
+                onSave={setFlowStructure}
               />
-              <p className="text-xs text-muted-foreground">
-                Format JSON avec start_node et nodes. Utilisez answer_type: "buttons" ou
-                "text"
-              </p>
             </div>
           </div>
           <DialogFooter>
@@ -441,14 +442,10 @@ const AdminChatbot = () => {
               <Label htmlFor="edit-is_active">Activer ce parcours</Label>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-tree_structure">Structure de l'arbre (JSON)</Label>
-              <Textarea
-                id="edit-tree_structure"
-                value={formData.tree_structure}
-                onChange={(e) =>
-                  setFormData({ ...formData, tree_structure: e.target.value })
-                }
-                className="font-mono text-sm min-h-[300px]"
+              <Label>Éditeur visuel du parcours</Label>
+              <ChatbotFlowEditor
+                initialStructure={flowStructure}
+                onSave={setFlowStructure}
               />
             </div>
           </div>
