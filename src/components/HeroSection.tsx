@@ -214,34 +214,34 @@ const HeroSection = () => {
               <div className="grid grid-cols-2 gap-3 mb-3 lg:mb-8 w-full">
                 <Link 
                   to="/offres/panneaux-solaires"
-                  className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                  className="group flex items-center gap-2 px-3 py-3 h-[60px] rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
-                  <Sun className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm">Panneaux solaires</span>
+                  <Sun className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-xs leading-tight">Panneaux solaires</span>
                 </Link>
 
                 <Link 
                   to="/offres/pompe-a-chaleur"
-                  className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                  className="group flex items-center gap-2 px-3 py-3 h-[60px] rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
-                  <Droplets className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm">Pompe à chaleur</span>
+                  <Droplets className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-xs leading-tight">Pompe à chaleur</span>
                 </Link>
 
                 <Link 
                   to="/offres/isolation"
-                  className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                  className="group flex items-center gap-2 px-3 py-3 h-[60px] rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
-                  <Home className="w-5 h-5 text-green-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm">Isolation</span>
+                  <Home className="w-4 h-4 text-green-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-xs leading-tight">Isolation</span>
                 </Link>
 
                 <Link 
                   to="/aides"
-                  className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                  className="group flex items-center gap-2 px-3 py-3 h-[60px] rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
                 >
-                  <HandCoins className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm">Aides & Subventions</span>
+                  <HandCoins className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+                  <span className="text-white font-semibold text-xs leading-tight">Aides & Subventions</span>
                 </Link>
               </div>
             </div>
