@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate, Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Power, PowerOff } from "lucide-react";
+import { Plus, Edit, Trash2, Power, PowerOff, ArrowLeft } from "lucide-react";
 import { ChatbotFlowEditor } from "@/components/ChatbotFlowEditor";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +46,7 @@ type ChatbotFlow = {
 const AdminChatbot = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -257,7 +262,23 @@ const AdminChatbot = () => {
   }, [isEditModalOpen, selectedFlow]);
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <>
+      <Helmet>
+        <title>Gestion du Chatbot | Prime Énergies</title>
+      </Helmet>
+
+      <div className="min-h-screen bg-background">
+        <Header />
+        
+        <main className="pt-20">
+          <div className="container mx-auto py-8 px-4">
+            <Link 
+              to="/administration"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Retour à l'administration
+            </Link>
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold">Gestion du Chatbot</h1>
@@ -488,7 +509,11 @@ const AdminChatbot = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    </>
   );
 };
 
