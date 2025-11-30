@@ -260,7 +260,7 @@ const HeroSection = () => {
               
               <div className="relative z-10">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-                  <h2 className="text-xl md:text-xl lg:text-2xl font-bold text-white drop-shadow-md flex-shrink">
+                  <h2 className="text-lg md:text-lg lg:text-xl font-bold text-white drop-shadow-md flex-shrink">
                     Vérifier mon éligibilité à la Prime Gratuitement
                   </h2>
                   <div className="flex items-center gap-1.5 bg-white text-red-600 px-2.5 py-1 rounded-lg text-[10px] md:text-xs font-bold whitespace-nowrap shadow-lg border-2 border-red-100 flex-shrink-0">
