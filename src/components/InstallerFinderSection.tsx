@@ -15,7 +15,7 @@ const InstallerFinderSection = () => {
   };
 
   return (
-    <section className="relative py-32 overflow-hidden">
+    <section className="relative py-16 md:py-20 lg:py-24 pb-12 md:pb-16 overflow-hidden">
       {/* Background Image with Overlay */}
       <div 
         className="absolute inset-0 bg-cover bg-center"
@@ -29,10 +29,10 @@ const InstallerFinderSection = () => {
       {/* Content */}
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-5xl mx-auto text-center mb-12">
-          <h2 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 leading-tight">
             Votre portail de confiance pour les énergies renouvelables
           </h2>
-          <p className="text-xl md:text-2xl text-white/95 font-light">
+          <p className="text-base md:text-lg lg:text-xl text-white/95 font-light">
             Découvrez les meilleures offres et installez vos équipements avec les meilleurs professionnels locaux
           </p>
         </div>
