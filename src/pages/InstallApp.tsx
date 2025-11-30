@@ -3,15 +3,23 @@ import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Smartphone, Download, ArrowRight, Apple, Chrome } from "lucide-react";
+import { Smartphone, Download, ArrowRight, Apple, Chrome, Home } from "lucide-react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const InstallApp = () => {
   const navigate = useNavigate();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
+    // Check if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsInstalled(true);
+    }
+
     // Detect platform
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
@@ -38,28 +46,64 @@ const InstallApp = () => {
     
     if (outcome === 'accepted') {
       setDeferredPrompt(null);
+      setIsInstalled(true);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <Helmet>
-        <title>Installer l'App Prime Énergies</title>
-        <meta name="description" content="Installez l'application Prime Énergies sur votre smartphone" />
-      </Helmet>
+  if (isInstalled) {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 pt-32">
+          <Helmet>
+            <title>Application installée - Prime Énergies</title>
+          </Helmet>
 
-      <div className="container mx-auto px-4 py-16 max-w-4xl">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-2xl mb-6">
-            <Smartphone className="w-10 h-10 text-primary" />
+          <div className="container mx-auto px-4 py-16 max-w-2xl text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-2xl mb-6">
+              <Smartphone className="w-10 h-10 text-primary animate-bounce" />
+            </div>
+            <h1 className="text-4xl font-bold mb-4">
+              Application <span className="text-primary">installée !</span>
+            </h1>
+            <p className="text-lg text-muted-foreground mb-8">
+              Prime Énergies est maintenant accessible depuis votre écran d'accueil
+            </p>
+            <Button 
+              onClick={() => navigate("/")}
+              size="lg"
+            >
+              <Home className="w-5 h-5 mr-2" />
+              Retour à l'accueil
+            </Button>
           </div>
-          <h1 className="text-4xl font-bold mb-4">
-            Installer l'App <span className="text-primary">Prime Énergies</span>
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            Accédez à votre tableau de bord où que vous soyez
-          </p>
         </div>
+        <Footer />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Header />
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 pt-32">
+        <Helmet>
+          <title>Installer l'App Prime Énergies</title>
+          <meta name="description" content="Installez l'application Prime Énergies sur votre smartphone" />
+        </Helmet>
+
+        <div className="container mx-auto px-4 py-16 max-w-4xl">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-2xl mb-6">
+              <Smartphone className="w-10 h-10 text-primary" />
+            </div>
+            <h1 className="text-4xl font-bold mb-4">
+              Installer l'App <span className="text-primary">Prime Énergies</span>
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Installez notre application directement depuis votre navigateur
+            </p>
+          </div>
 
         <div className="space-y-6">
           {/* Android Installation */}
@@ -199,8 +243,10 @@ const InstallApp = () => {
             </Button>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 };
 
