@@ -249,66 +249,70 @@ const HeroSection = () => {
 
           {/* Right cell: Form - centered content */}
           <div className="flex items-center justify-center pb-3 lg:pb-0">
-            <div className="bg-white rounded-xl shadow-2xl p-7 w-full max-w-[480px]">
-              <h2 className="text-2xl font-bold text-foreground mb-2">
+            <div className="bg-white rounded-xl shadow-2xl p-5 w-full max-w-[480px]">
+              <h2 className="text-xl font-bold text-foreground mb-1">
                 Étude énergétique gratuite
               </h2>
-              <p className="text-base text-muted-foreground mb-6">
+              <p className="text-sm text-muted-foreground mb-4">
                 Découvrez vos économies potentielles et les aides disponibles en quelques clics
               </p>
               
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-3">
                 <div>
-                  <Label htmlFor="fullName">Nom complet</Label>
+                  <Label htmlFor="fullName" className="text-sm mb-1">Nom complet</Label>
                   <Input
                     id="fullName"
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                     placeholder="Votre nom et prénom"
+                    className="h-10"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="phone">Téléphone</Label>
+                  <Label htmlFor="phone" className="text-sm mb-1">Téléphone</Label>
                   <Input
                     id="phone"
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="06 12 34 56 78"
+                    className="h-10"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-sm mb-1">Email</Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="votre@email.com"
+                    className="h-10"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="postalCode">Code postal</Label>
+                  <Label htmlFor="postalCode" className="text-sm mb-1">Code postal</Label>
                   <Input
                     id="postalCode"
                     value={formData.postalCode}
                     onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
                     placeholder="75001"
                     maxLength={5}
+                    className="h-10"
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="workType">Type de travaux</Label>
+                  <Label htmlFor="workType" className="text-sm mb-1">Type de travaux</Label>
                   <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-10">
                       <SelectValue placeholder="Sélectionnez..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -323,8 +327,7 @@ const HeroSection = () => {
 
                 <Button 
                   type="submit" 
-                  className="w-full h-12 text-base font-semibold" 
-                  size="lg"
+                  className="w-full h-11 text-base font-semibold mt-4" 
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Envoi en cours..." : "Commencer l'étude gratuite"}
