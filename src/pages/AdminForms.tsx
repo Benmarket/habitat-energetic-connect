@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, Edit, Trash2, Download, ExternalLink, Eye, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, Download, ExternalLink, Eye, Loader2, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 type FormConfig = {
@@ -35,6 +35,7 @@ type FormSubmission = {
   submitted_at: string;
   ip_address: string | null;
   user_agent: string | null;
+  is_read: boolean;
 };
 
 export default function AdminForms() {
@@ -54,6 +55,10 @@ export default function AdminForms() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const formsPerPage = 10;
+  const [submissionsPage, setSubmissionsPage] = useState(1);
+  const submissionsPerPage = 50;
+  const [sortColumn, setSortColumn] = useState<string>("submitted_at");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   // Fetch forms with pagination
   const { data: formsData, isLoading: loadingForms } = useQuery({
@@ -225,6 +230,9 @@ export default function AdminForms() {
   const handleViewSubmissions = async (form: FormConfig) => {
     setSelectedForm(form);
     setIsSubmissionsOpen(true);
+    setSubmissionsPage(1); // Reset to first page
+    setSortColumn("submitted_at"); // Reset sort
+    setSortDirection("desc");
     
     // Marquer toutes les soumissions de ce formulaire comme lues
     const { error } = await supabase
@@ -239,6 +247,48 @@ export default function AdminForms() {
       // Rafraîchir les compteurs
       queryClient.invalidateQueries({ queryKey: ["unread-submissions-count"] });
     }
+  };
+
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedSubmissions = submissions ? [...submissions].sort((a, b) => {
+    let aValue = sortColumn === "submitted_at" ? a.submitted_at : a.data[sortColumn];
+    let bValue = sortColumn === "submitted_at" ? b.submitted_at : b.data[sortColumn];
+    
+    if (sortColumn === "submitted_at") {
+      aValue = new Date(aValue).getTime();
+      bValue = new Date(bValue).getTime();
+    }
+    
+    if (sortDirection === "asc") {
+      return aValue > bValue ? 1 : -1;
+    } else {
+      return aValue < bValue ? 1 : -1;
+    }
+  }) : [];
+
+  const paginatedSubmissions = sortedSubmissions.slice(
+    (submissionsPage - 1) * submissionsPerPage,
+    submissionsPage * submissionsPerPage
+  );
+  
+  const totalSubmissionsPages = Math.ceil(sortedSubmissions.length / submissionsPerPage);
+
+  // Get all field names from submissions
+  const getFieldNames = (): string[] => {
+    if (!submissions || submissions.length === 0) return [];
+    const fields = new Set<string>();
+    submissions.forEach((sub) => {
+      Object.keys(sub.data).forEach((key) => fields.add(key));
+    });
+    return Array.from(fields);
   };
 
   const handleExportCSV = () => {
@@ -583,63 +633,123 @@ export default function AdminForms() {
 
         {/* Submissions Dialog */}
         <Dialog open={isSubmissionsOpen} onOpenChange={setIsSubmissionsOpen}>
-          <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                Soumissions - {selectedForm?.name}
-                <Button variant="outline" size="sm" onClick={handleExportCSV} className="ml-4">
+          <DialogContent className="max-w-[95vw] max-h-[90vh] overflow-hidden flex flex-col">
+            <DialogHeader className="flex-shrink-0">
+              <div className="flex items-center justify-between">
+                <DialogTitle>Soumissions - {selectedForm?.name}</DialogTitle>
+                <Button variant="outline" size="sm" onClick={handleExportCSV}>
                   <Download className="h-4 w-4 mr-2" />
                   Exporter CSV
                 </Button>
-              </DialogTitle>
-              <DialogDescription>
+              </div>
+              <DialogDescription className="text-left">
                 {submissions?.length || 0} soumission(s) enregistrée(s)
               </DialogDescription>
             </DialogHeader>
+            
             {loadingSubmissions ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : submissions && submissions.length > 0 ? (
-              <div className="space-y-4">
-                {submissions.map((submission) => (
-                  <Card key={submission.id}>
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <CardDescription>
-                          {new Date(submission.submitted_at).toLocaleString("fr-FR")}
-                        </CardDescription>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            if (
-                              window.confirm(
-                                "Êtes-vous sûr de vouloir supprimer cette soumission ?"
-                              )
-                            ) {
-                              deleteSubmissionMutation.mutate(submission.id);
-                            }
-                          }}
+              <div className="flex-1 overflow-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead 
+                        className="cursor-pointer hover:bg-muted/50 whitespace-nowrap"
+                        onClick={() => handleSort("submitted_at")}
+                      >
+                        <div className="flex items-center gap-1">
+                          Date
+                          {sortColumn === "submitted_at" ? (
+                            sortDirection === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
+                          ) : (
+                            <ArrowUpDown className="h-3 w-3 opacity-30" />
+                          )}
+                        </div>
+                      </TableHead>
+                      {getFieldNames().map((field) => (
+                        <TableHead 
+                          key={field}
+                          className="cursor-pointer hover:bg-muted/50 whitespace-nowrap"
+                          onClick={() => handleSort(field)}
                         >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 gap-4">
-                        {Object.entries(submission.data).map(([key, value]) => (
-                          <div key={key}>
-                            <Label className="text-xs text-muted-foreground">{key}</Label>
-                            <p className="text-sm font-medium">
-                              {typeof value === "object" ? JSON.stringify(value) : String(value)}
-                            </p>
+                          <div className="flex items-center gap-1">
+                            {field}
+                            {sortColumn === field ? (
+                              sortDirection === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
+                            ) : (
+                              <ArrowUpDown className="h-3 w-3 opacity-30" />
+                            )}
                           </div>
+                        </TableHead>
+                      ))}
+                      <TableHead className="w-[50px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedSubmissions.map((submission) => (
+                      <TableRow key={submission.id} className="hover:bg-muted/30">
+                        <TableCell className="font-mono text-xs whitespace-nowrap">
+                          {new Date(submission.submitted_at).toLocaleString("fr-FR")}
+                        </TableCell>
+                        {getFieldNames().map((field) => (
+                          <TableCell key={field} className="max-w-[200px] truncate">
+                            {typeof submission.data[field] === "object" 
+                              ? JSON.stringify(submission.data[field]) 
+                              : String(submission.data[field] || "-")}
+                          </TableCell>
                         ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              if (
+                                window.confirm(
+                                  "Êtes-vous sûr de vouloir supprimer cette soumission ?"
+                                )
+                              ) {
+                                deleteSubmissionMutation.mutate(submission.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                
+                {totalSubmissionsPages > 1 && (
+                  <div className="flex items-center justify-between px-2 py-4 border-t">
+                    <div className="text-sm text-muted-foreground">
+                      Page {submissionsPage} sur {totalSubmissionsPages}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSubmissionsPage((p) => Math.max(1, p - 1))}
+                        disabled={submissionsPage === 1}
+                      >
+                        <ChevronLeft className="h-4 w-4 mr-1" />
+                        Précédent
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSubmissionsPage((p) => Math.min(totalSubmissionsPages, p + 1))}
+                        disabled={submissionsPage === totalSubmissionsPages}
+                      >
+                        Suivant
+                        <ChevronRight className="h-4 w-4 ml-1" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
