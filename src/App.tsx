@@ -28,6 +28,7 @@ import AdminCategories from "./pages/AdminCategories";
 import AdminTags from "./pages/AdminTags";
 import AdminSettings from "./pages/AdminSettings";
 import AdminNewsletter from "./pages/AdminNewsletter";
+import AdminChatbot from "./pages/AdminChatbot";
 import NotFound from "./pages/NotFound";
 import Sitemap from "./pages/Sitemap";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
@@ -71,6 +72,7 @@ const App = () => (
               <Route path="/admin/etiquettes" element={<AdminTags />} />
               <Route path="/admin/parametres" element={<AdminSettings />} />
               <Route path="/admin/newsletter" element={<AdminNewsletter />} />
+              <Route path="/admin/chatbot" element={<AdminChatbot />} />
               <Route path="/sitemap.xml" element={<Sitemap />} />
               <Route path="/mentions-legales" element={<MentionsLegales />} />
               <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />

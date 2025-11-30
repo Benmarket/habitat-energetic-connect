@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle } from "lucide-react";
+import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle, Bot } from "lucide-react";
 import TrafficDashboard from "@/components/TrafficDashboard";
 
 const Administration = () => {
@@ -116,6 +116,28 @@ const Administration = () => {
                   <Link to="/gerer-annonces">
                     <Button className="w-full">
                       Accéder aux annonces
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Chatbot */}
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-3 bg-violet-500/10 rounded-lg">
+                      <Bot className="w-6 h-6 text-violet-600" />
+                    </div>
+                  </div>
+                  <CardTitle>Gestion du Chatbot</CardTitle>
+                  <CardDescription>
+                    Créez et gérez les parcours de questions automatiques
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Link to="/admin/chatbot">
+                    <Button className="w-full bg-violet-600 hover:bg-violet-700">
+                      Configurer le chatbot
                     </Button>
                   </Link>
                 </CardContent>
