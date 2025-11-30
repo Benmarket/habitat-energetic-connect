@@ -271,8 +271,8 @@ const HeroSection = () => {
                 
                 <form onSubmit={handleSubmit}>
                   {/* Responsive grid layout */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-                    {/* Nom complet - Full width on mobile, 1 column on tablet */}
+                  <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-4 md:gap-3 mb-4">
+                    {/* Nom complet - Full width on mobile */}
                     <div className="md:col-span-1">
                       <Label htmlFor="fullName" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         Nom complet <span className="text-yellow-300">*</span>
@@ -287,40 +287,41 @@ const HeroSection = () => {
                       />
                     </div>
 
-                    {/* Téléphone - Half width on mobile, 1 column on tablet */}
-                    <div className="col-span-1 md:col-span-1">
-                      <Label htmlFor="phone" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
-                        Téléphone <span className="text-yellow-300">*</span>
-                      </Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        placeholder="Téléphone"
-                        className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white"
-                        required
-                      />
+                    {/* Téléphone et Email - Side by side on mobile */}
+                    <div className="grid grid-cols-2 gap-3 md:col-span-2 md:grid-cols-2">
+                      <div>
+                        <Label htmlFor="phone" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
+                          Téléphone <span className="text-yellow-300">*</span>
+                        </Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          placeholder="Téléphone"
+                          className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="email" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
+                          E-mail <span className="text-yellow-300">*</span>
+                        </Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          placeholder="Ex. email@example.fr"
+                          className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white"
+                          required
+                        />
+                      </div>
                     </div>
 
-                    {/* E-mail - Half width on mobile, 1 column on tablet */}
-                    <div className="col-span-1 md:col-span-1">
-                      <Label htmlFor="email" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
-                        E-mail <span className="text-yellow-300">*</span>
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        placeholder="Ex. email@example.fr"
-                        className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white"
-                        required
-                      />
-                    </div>
-
-                    {/* Code postal - Half width on mobile, 1 column on tablet */}
-                    <div className="col-span-1 md:col-span-1">
+                    {/* Code postal - Separate on mobile, with Type de travaux */}
+                    <div className="md:col-span-1 hidden md:block">
                       <Label htmlFor="postalCode" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         Code postal <span className="text-yellow-300">*</span>
                       </Label>
@@ -336,10 +337,26 @@ const HeroSection = () => {
                     </div>
                   </div>
 
-                  {/* Type de travaux + Button - Second row */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                    {/* Type de travaux - Half width on mobile, spans 1 on tablet */}
-                    <div>
+                  {/* Code postal + Type de travaux - Side by side on mobile, Type de travaux + Button on tablet */}
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-2 mb-4">
+                    {/* Code postal - Visible only on mobile */}
+                    <div className="md:hidden">
+                      <Label htmlFor="postalCode-mobile" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
+                        Code postal <span className="text-yellow-300">*</span>
+                      </Label>
+                      <Input
+                        id="postalCode-mobile"
+                        value={formData.postalCode}
+                        onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                        placeholder="Code postal"
+                        maxLength={5}
+                        className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white"
+                        required
+                      />
+                    </div>
+
+                    {/* Type de travaux */}
+                    <div className="col-span-1">
                       <Label htmlFor="workType" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         Type de travaux <span className="text-yellow-300">*</span>
                       </Label>
@@ -357,8 +374,8 @@ const HeroSection = () => {
                       </Select>
                     </div>
 
-                    {/* Button - Full width on mobile, aligned with workType on tablet */}
-                    <div className="flex items-end">
+                    {/* Button - Aligned with workType on tablet */}
+                    <div className="flex items-end col-span-1">
                       <Button
                         type="submit" 
                         className="h-11 w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold shadow-lg text-sm transition-all hover:scale-105 hover:shadow-xl" 
