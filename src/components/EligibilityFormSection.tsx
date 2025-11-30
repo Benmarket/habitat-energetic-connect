@@ -123,30 +123,30 @@ const EligibilityFormSection = () => {
                   <span className="text-primary">logement :</span>
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                <div className="grid grid-cols-2 gap-3 md:gap-6 max-w-2xl mx-auto">
                   {/* Maison Card */}
                   <button
                     onClick={() => handlePropertyTypeSelect("maison")}
-                    className="group relative overflow-hidden rounded-xl border-4 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl bg-white p-8"
+                    className="group relative overflow-hidden rounded-xl border-4 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl bg-white p-4 md:p-8"
                   >
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="w-24 h-24 flex items-center justify-center bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
-                        <Home className="w-14 h-14 text-primary" />
+                    <div className="flex flex-col items-center gap-2 md:gap-4">
+                      <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
+                        <Home className="w-8 h-8 md:w-14 md:h-14 text-primary" />
                       </div>
-                      <span className="text-2xl font-bold text-primary">Maison</span>
+                      <span className="text-lg md:text-2xl font-bold text-primary">Maison</span>
                     </div>
                   </button>
 
                   {/* Appartement Card */}
                   <button
                     onClick={() => handlePropertyTypeSelect("appartement")}
-                    className="group relative overflow-hidden rounded-xl border-4 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl bg-white p-8"
+                    className="group relative overflow-hidden rounded-xl border-4 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl bg-white p-4 md:p-8"
                   >
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="w-24 h-24 flex items-center justify-center bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
-                        <Building2 className="w-14 h-14 text-primary" />
+                    <div className="flex flex-col items-center gap-2 md:gap-4">
+                      <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
+                        <Building2 className="w-8 h-8 md:w-14 md:h-14 text-primary" />
                       </div>
-                      <span className="text-2xl font-bold text-primary">Appartement</span>
+                      <span className="text-lg md:text-2xl font-bold text-primary">Appartement</span>
                     </div>
                   </button>
                 </div>
