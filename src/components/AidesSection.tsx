@@ -284,14 +284,14 @@ const AidesSection = () => {
               </div>
             )}
 
-            <div className="mt-14 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 rounded-3xl p-8 md:p-12 text-center border-2 border-blue-500/20 shadow-xl shadow-blue-500/10 backdrop-blur-sm animate-fade-in" style={{ animationDelay: '0.3s' }}>
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg shadow-blue-500/30 mb-6">
-                <Users className="w-8 h-8 text-white" />
+            <div className="mt-14 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 rounded-3xl p-6 md:p-8 text-center border-2 border-blue-500/20 shadow-xl shadow-blue-500/10 backdrop-blur-sm animate-fade-in" style={{ animationDelay: '0.3s' }}>
+              <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg shadow-blue-500/30 mb-4">
+                <Users className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+              <h3 className="text-xl md:text-2xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
                 Besoin d'aide pour constituer votre dossier ?
               </h3>
-              <p className="text-muted-foreground text-lg mb-8 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-muted-foreground text-sm md:text-base mb-5 max-w-4xl mx-auto leading-snug">
                 Nos installateurs partenaires vous accompagnent dans toutes vos démarches administratives
               </p>
               <Button asChild size="lg" className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105 font-bold px-8">
