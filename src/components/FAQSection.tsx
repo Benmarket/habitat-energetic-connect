@@ -34,9 +34,9 @@ const FAQSection = () => {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-3 mb-3 bg-primary/10 px-5 py-2 rounded-full">
-              <HelpCircle className="w-5 h-5 text-primary" />
-              <h2 className="text-3xl font-bold">Questions fréquentes</h2>
+            <div className="inline-flex items-center gap-2 md:gap-3 mb-3 bg-primary/10 px-4 md:px-5 py-2 rounded-full">
+              <HelpCircle className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+              <h2 className="text-xl md:text-2xl font-bold whitespace-nowrap">Questions fréquentes</h2>
             </div>
             <p className="text-lg text-muted-foreground mt-2">
               Trouvez rapidement les réponses à vos questions sur les énergies renouvelables
@@ -52,7 +52,7 @@ const FAQSection = () => {
                 className="bg-card border-2 border-border rounded-lg px-5 shadow-sm hover:shadow-md transition-shadow"
               >
                 <AccordionTrigger className="text-left hover:no-underline py-4">
-                  <span className="font-semibold text-base pr-4">
+                  <span className="font-semibold text-sm md:text-base pr-4 leading-snug">
                     {faq.question}
                   </span>
                 </AccordionTrigger>
