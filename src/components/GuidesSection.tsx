@@ -117,10 +117,10 @@ const GuidesSection = () => {
               Guides par projet
             </h2>
           </div>
-          <p className="text-muted-foreground text-sm md:text-base max-w-3xl mx-auto mt-6 leading-snug">
+          <p className="text-muted-foreground text-xs md:text-sm max-w-2xl mx-auto mt-6 leading-snug">
             Des guides complets pour réussir votre projet d'énergies renouvelables, étape par étape.
           </p>
-          <div className="flex items-center justify-center gap-2 mt-4">
+          <div className="flex items-center justify-center gap-2 mt-3">
             <div className="h-1 w-12 bg-gradient-to-r from-transparent via-orange-500 to-transparent rounded-full"></div>
           </div>
         </div>
@@ -130,7 +130,7 @@ const GuidesSection = () => {
             align: "start",
             loop: true,
           }}
-          className="w-full"
+          className="w-full mt-6"
         >
           <CarouselContent>
             {slides.map((slideGuides, slideIndex) => (
