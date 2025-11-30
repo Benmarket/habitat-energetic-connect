@@ -270,7 +270,7 @@ const HeroSection = () => {
                 
                 <form onSubmit={handleSubmit}>
                   {/* Responsive grid layout */}
-                  <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-4 lg:flex lg:flex-wrap md:gap-3 mb-4">
+                  <div className="space-y-2 md:space-y-0 md:grid md:grid-cols-4 lg:flex lg:flex-wrap md:gap-3 mb-4">
                     {/* Nom complet - Full width on mobile, flex item on desktop */}
                     <div className="lg:flex-[1.2] lg:min-w-[160px] md:col-span-1">
                       <Label htmlFor="fullName" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
@@ -368,7 +368,7 @@ const HeroSection = () => {
                   </div>
 
                   {/* Code postal + Type de travaux + Button - Only visible on mobile and tablet */}
-                  <div className="grid grid-cols-2 gap-2 md:gap-3 md:grid-cols-2 mb-4 lg:hidden">
+                  <div className="grid grid-cols-2 gap-2 md:grid-cols-2 mb-4 lg:hidden">
                     {/* Code postal - Visible only on mobile */}
                     <div className="md:hidden">
                       <Label htmlFor="postalCode-mobile" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
