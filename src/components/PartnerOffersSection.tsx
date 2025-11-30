@@ -124,6 +124,11 @@ const PartnerOffersSection = () => {
             loop: true,
             slidesToScroll: 1,
           }}
+          plugins={[
+            Autoplay({
+              delay: 5000,
+            }),
+          ]}
           className="w-full mt-6 mb-8 md:mb-12"
         >
           <CarouselContent className="-ml-4">
