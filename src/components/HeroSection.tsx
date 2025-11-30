@@ -270,7 +270,7 @@ const HeroSection = () => {
                 
                 <form onSubmit={handleSubmit}>
                   {/* Responsive grid layout */}
-                  <div className="space-y-2 md:space-y-0 md:grid md:grid-cols-4 lg:flex lg:flex-wrap md:gap-3 mb-4">
+                  <div className="space-y-1 md:space-y-0 md:grid md:grid-cols-4 lg:flex lg:flex-wrap md:gap-3 mb-4">
                     {/* Nom complet - Full width on mobile, flex item on desktop */}
                     <div className="lg:flex-[1.2] lg:min-w-[160px] md:col-span-1">
                       <Label htmlFor="fullName" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
