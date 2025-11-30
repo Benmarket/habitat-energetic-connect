@@ -259,20 +259,20 @@ const HeroSection = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none"></div>
               
               <div className="relative z-10">
-                <div className="flex flex-col lg:flex-row items-start gap-4 mb-6">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 mb-6">
                   <h2 className="text-2xl lg:text-3xl font-bold text-white drop-shadow-md">
                     Vérifier mon éligibilité à la Prime Gratuitement
                   </h2>
-                  <div className="flex items-center gap-2.5 bg-white text-red-600 px-5 py-2 rounded-xl text-sm font-bold whitespace-nowrap shadow-lg border-2 border-red-100">
+                  <div className="flex items-center gap-2 bg-white text-red-600 px-4 py-1.5 rounded-lg text-xs md:text-sm font-bold whitespace-nowrap shadow-lg border-2 border-red-100">
                     <Home className="w-4 h-4 flex-shrink-0" strokeWidth={2.5} />
                     <span>Propriétaires de maison individuelle exclusivement</span>
                   </div>
                 </div>
                 
                 <form onSubmit={handleSubmit}>
-                  {/* Horizontal fields */}
-                  <div className="flex flex-wrap lg:flex-nowrap gap-4 mb-5">
-                    <div className="flex-1 min-w-[200px]">
+                  {/* Horizontal fields - First row */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <div>
                       <Label htmlFor="fullName" className="text-white text-sm mb-2 block font-medium drop-shadow">
                         Nom complet <span className="text-yellow-300">*</span>
                       </Label>
@@ -286,7 +286,7 @@ const HeroSection = () => {
                       />
                     </div>
 
-                    <div className="flex-1 min-w-[200px]">
+                    <div>
                       <Label htmlFor="phone" className="text-white text-sm mb-2 block font-medium drop-shadow">
                         Téléphone <span className="text-yellow-300">*</span>
                       </Label>
@@ -301,7 +301,7 @@ const HeroSection = () => {
                       />
                     </div>
 
-                    <div className="flex-1 min-w-[200px]">
+                    <div>
                       <Label htmlFor="email" className="text-white text-sm mb-2 block font-medium drop-shadow">
                         E-mail <span className="text-yellow-300">*</span>
                       </Label>
@@ -316,7 +316,7 @@ const HeroSection = () => {
                       />
                     </div>
 
-                    <div className="flex-1 min-w-[150px]">
+                    <div>
                       <Label htmlFor="postalCode" className="text-white text-sm mb-2 block font-medium drop-shadow">
                         Code postal <span className="text-yellow-300">*</span>
                       </Label>
@@ -330,8 +330,11 @@ const HeroSection = () => {
                         required
                       />
                     </div>
+                  </div>
 
-                    <div className="flex-1 min-w-[200px]">
+                  {/* Second row - Type de travaux + Button */}
+                  <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 mb-5">
+                    <div>
                       <Label htmlFor="workType" className="text-white text-sm mb-2 block font-medium drop-shadow">
                         Type de travaux <span className="text-yellow-300">*</span>
                       </Label>
@@ -352,7 +355,7 @@ const HeroSection = () => {
                     <div className="flex items-end">
                       <Button
                         type="submit" 
-                        className="h-12 px-10 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold whitespace-nowrap shadow-lg text-base transition-all hover:scale-105 hover:shadow-xl" 
+                        className="h-12 w-full md:w-auto px-10 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold whitespace-nowrap shadow-lg text-base transition-all hover:scale-105 hover:shadow-xl" 
                         disabled={isSubmitting}
                       >
                         {isSubmitting ? "Envoi..." : "Envoyer"}
