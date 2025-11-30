@@ -167,11 +167,11 @@ const AidesSection = () => {
             <div className="p-2 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg shadow-md">
               <CheckCircle2 className="w-5 h-5 text-white" />
             </div>
-            <h2 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 bg-clip-text text-transparent">
+            <h2 className="text-2xl md:text-4xl font-extrabold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 bg-clip-text text-transparent">
               Aides et Subventions 2024
             </h2>
           </div>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base md:text-xl text-muted-foreground max-w-3xl mx-auto leading-snug md:leading-relaxed">
             Découvrez toutes les aides disponibles pour financer votre projet d'énergies renouvelables
           </p>
           <div className="flex items-center justify-center gap-2 mt-4">
