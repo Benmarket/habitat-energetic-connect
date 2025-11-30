@@ -100,28 +100,28 @@ const Header = () => {
           <div className="flex items-center gap-3 lg:gap-4 ml-auto">
             {/* Right side actions - Progressive visibility */}
             <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
-              {/* WhatsApp - visible from md */}
+              {/* WhatsApp - visible from md, fixed size */}
               <a 
                 href="#whatsapp" 
-                className="flex items-center justify-center w-8 h-8 rounded-full hover:scale-110 transition-all duration-300 hover:shadow-lg"
+                className="flex items-center justify-center w-8 h-8 flex-shrink-0 rounded-full hover:scale-110 transition-all duration-300 hover:shadow-lg"
                 aria-label="Contacter via WhatsApp"
               >
-                <img src={whatsappIcon} alt="WhatsApp" className="w-8 h-8" />
+                <img src={whatsappIcon} alt="WhatsApp" className="w-8 h-8 object-contain" />
               </a>
               
-              {/* Phone - visible from md */}
+              {/* Phone - visible from md, strict one-line layout */}
               <a 
                 href="tel:0800123456" 
-                className="flex items-center gap-1.5 px-3 py-1 bg-muted/50 hover:bg-muted/70 rounded-full transition-all duration-300 hover:shadow-md border border-border/50"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/50 hover:bg-muted/70 rounded-full transition-all duration-300 hover:shadow-md border border-border/50 flex-shrink-0"
               >
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10">
-                  <Phone className="w-3.5 h-3.5 text-primary" />
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 flex-shrink-0">
+                  <Phone className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                 </div>
-                <span className="font-bold text-foreground text-sm tracking-wide">0 800 123 456</span>
+                <span className="font-bold text-foreground text-sm tracking-wide whitespace-nowrap">0 800 123 456</span>
               </a>
               
-              {/* Installer button - visible from md */}
-              <Button asChild className="whitespace-nowrap text-sm lg:text-base px-3 lg:px-4">
+              {/* Installer button - visible from lg only */}
+              <Button asChild className="hidden lg:flex whitespace-nowrap text-sm lg:text-base px-3 lg:px-4">
                 <Link to="/#etude">Trouver un installateur</Link>
               </Button>
               
