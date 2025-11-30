@@ -1,7 +1,36 @@
+import { useState, useEffect } from "react";
 import { Smartphone, TrendingUp, BarChart3, Apple } from "lucide-react";
 import { Button } from "./ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 const AppDownloadSection = () => {
+  const [androidLink, setAndroidLink] = useState<string>("");
+  const [iosLink, setIosLink] = useState<string>("");
+
+  useEffect(() => {
+    const loadLinks = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("site_settings")
+          .select("value")
+          .eq("key", "app_download_links")
+          .single();
+
+        if (error && error.code !== "PGRST116") throw error;
+
+        if (data?.value) {
+          const settings = data.value as { android?: string; ios?: string };
+          setAndroidLink(settings.android || "");
+          setIosLink(settings.ios || "");
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des liens:", error);
+      }
+    };
+
+    loadLinks();
+  }, []);
+
   return (
     <section className="py-12 md:py-16 lg:py-12 bg-gradient-to-br from-primary/5 via-background to-primary/10 relative overflow-hidden">
       {/* Decorative elements */}
@@ -56,7 +85,9 @@ const AppDownloadSection = () => {
 
             <div className="flex flex-col sm:flex-row gap-2 md:gap-3 pt-1 md:pt-2">
               <Button 
-                className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-lg hover:shadow-xl transition-all duration-300 group h-10 md:h-11 text-sm md:text-base"
+                className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-lg hover:shadow-xl transition-all duration-300 group h-10 md:h-11 text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!iosLink}
+                onClick={() => iosLink && window.open(iosLink, '_blank')}
               >
                 <Apple className="w-4 h-4 md:w-5 md:h-5 mr-2 group-hover:scale-110 transition-transform" />
                 App Store
@@ -64,7 +95,9 @@ const AppDownloadSection = () => {
               
               <Button 
                 variant="outline"
-                className="border-2 hover:bg-primary/5 transition-all duration-300 group h-10 md:h-11 text-sm md:text-base"
+                className="border-2 hover:bg-primary/5 transition-all duration-300 group h-10 md:h-11 text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!androidLink}
+                onClick={() => androidLink && window.open(androidLink, '_blank')}
               >
                 <svg 
                   className="w-4 h-4 md:w-5 md:h-5 mr-2 group-hover:scale-110 transition-transform" 

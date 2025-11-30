@@ -488,8 +488,11 @@ const Administration = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="relative">
-                    <Button className="w-full bg-primary/20 text-primary cursor-not-allowed" disabled>
-                      Prochainement
+                    <Button 
+                      className="w-full bg-primary/90 text-white hover:bg-primary"
+                      onClick={() => navigate('/admin/app')}
+                    >
+                      Gérer l'App
                     </Button>
                   </CardContent>
                 </Card>
