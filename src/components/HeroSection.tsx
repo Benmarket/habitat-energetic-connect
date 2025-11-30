@@ -1,8 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sun, Droplets, Home, HandCoins } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
 
 interface HeroSliderSettings {
   enabled: boolean;
@@ -12,7 +17,16 @@ interface HeroSliderSettings {
   overlayIntensity: number;
 }
 
+const formSchema = z.object({
+  fullName: z.string().trim().min(1, "Le nom complet est requis"),
+  phone: z.string().trim().min(10, "Téléphone invalide"),
+  email: z.string().trim().email("Email invalide"),
+  postalCode: z.string().trim().min(5, "Code postal invalide"),
+  workType: z.string().min(1, "Veuillez sélectionner un type de travaux"),
+});
+
 const HeroSection = () => {
+  const { toast } = useToast();
   const [sliderSettings, setSliderSettings] = useState<HeroSliderSettings>({
     enabled: false,
     duration: 5,
@@ -22,6 +36,14 @@ const HeroSection = () => {
   });
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    phone: "",
+    email: "",
+    postalCode: "",
+    workType: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     loadSliderSettings();
@@ -75,11 +97,73 @@ const HeroSection = () => {
           (prev + 1) % sliderSettings.images.length
         );
         setIsTransitioning(false);
-      }, 500); // Durée de la transition fade
+      }, 500);
     }, sliderSettings.duration * 1000);
 
     return () => clearInterval(interval);
   }, [sliderSettings]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const validated = formSchema.parse(formData);
+
+      // Récupérer la configuration du formulaire
+      const { data: formConfig } = await supabase
+        .from("form_configurations")
+        .select("id")
+        .eq("form_identifier", "hero-form-accueil")
+        .maybeSingle();
+
+      if (!formConfig) {
+        toast({
+          title: "Erreur",
+          description: "Configuration du formulaire introuvable",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Soumettre les données
+      const { error } = await supabase.from("form_submissions").insert({
+        form_id: formConfig.id,
+        data: validated,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Demande envoyée !",
+        description: "Nous vous contacterons dans les plus brefs délais.",
+      });
+
+      setFormData({
+        fullName: "",
+        phone: "",
+        email: "",
+        postalCode: "",
+        workType: "",
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Erreur de validation",
+          description: error.errors[0].message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erreur",
+          description: "Une erreur est survenue lors de l'envoi",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <section className="relative min-h-[90vh] flex items-center pt-20 overflow-hidden">
@@ -172,11 +256,80 @@ const HeroSection = () => {
               <p className="text-base text-muted-foreground mb-6">
                 Découvrez vos économies potentielles et les aides disponibles en quelques clics
               </p>
-              <Button asChild className="w-full h-12 text-base font-semibold" size="lg">
-                <Link to="/etude-energetique">
-                  Commencer l'étude gratuite
-                </Link>
-              </Button>
+              
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="fullName">Nom complet</Label>
+                  <Input
+                    id="fullName"
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    placeholder="Votre nom et prénom"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="phone">Téléphone</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="06 12 34 56 78"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="votre@email.com"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="postalCode">Code postal</Label>
+                  <Input
+                    id="postalCode"
+                    value={formData.postalCode}
+                    onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                    placeholder="75001"
+                    maxLength={5}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="workType">Type de travaux</Label>
+                  <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionnez..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="isolation">Isolation</SelectItem>
+                      <SelectItem value="chauffage">Chauffage</SelectItem>
+                      <SelectItem value="energie-solaire">Énergie solaire</SelectItem>
+                      <SelectItem value="renovation-globale">Rénovation globale</SelectItem>
+                      <SelectItem value="ne-sait-pas">Ne sait pas</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button 
+                  type="submit" 
+                  className="w-full h-12 text-base font-semibold" 
+                  size="lg"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Envoi en cours..." : "Commencer l'étude gratuite"}
+                </Button>
+              </form>
             </div>
           </div>
         </div>
