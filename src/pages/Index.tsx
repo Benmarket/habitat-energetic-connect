@@ -3,6 +3,7 @@ import { OrganizationSchema } from "@/components/SEO/OrganizationSchema";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
+import EligibilityFormSection from "@/components/EligibilityFormSection";
 import NewsSection from "@/components/NewsSection";
 import AidesSection from "@/components/AidesSection";
 import GuidesSection from "@/components/GuidesSection";
@@ -42,6 +43,7 @@ const Index = () => {
         <NewsSection />
         <AidesSection />
         <GuidesSection />
+        <EligibilityFormSection />
         <SimulatorsSection />
         <InstallerFinderSection />
         <PartnerOffersSection />
