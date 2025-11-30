@@ -61,15 +61,17 @@ const RenovationProgramSection = () => {
               </p>
             </div>
 
-            <Link to="/aides">
-              <Button 
-                size="lg"
-                className="bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-lg gap-2"
-              >
-                Lire le guide
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
+            <div className="flex justify-center">
+              <Link to="/aides">
+                <Button 
+                  size="lg"
+                  className="bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-lg gap-2"
+                >
+                  Lire le guide
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
