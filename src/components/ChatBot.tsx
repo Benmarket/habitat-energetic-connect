@@ -406,6 +406,9 @@ export const ChatBot = () => {
             {/* Show flow runner if active and not completed */}
             {activeFlow && showFlowRunner && !flowCompleted && (
               <div>
+                <div className="text-center text-muted-foreground py-2 mb-2">
+                  <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                </div>
                 <ChatbotFlowRunner
                   flowStructure={activeFlow.tree_structure}
                   onAnswer={handleFlowAnswer}
@@ -420,6 +423,7 @@ export const ChatBot = () => {
               <>
                 {messages.length === 0 && (
                   <div className="text-center text-muted-foreground py-2">
+                    <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">Bonjour ! Comment puis-je vous aider aujourd'hui ?</p>
                   </div>
                 )}
