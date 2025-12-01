@@ -374,7 +374,7 @@ export const ChatBot = () => {
       {!isOpen && isButtonVisible && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-0 group hover:scale-105 transition-all duration-300 ease-out animate-in fade-in slide-in-from-bottom-4"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 lg:left-auto lg:right-6 lg:translate-x-0 z-50 flex items-center gap-0 group hover:scale-105 transition-all duration-300 ease-out animate-in fade-in slide-in-from-bottom-4"
           aria-label="Ouvrir le chatbot"
         >
           <div className="h-12 w-12 rounded-full bg-blue-900 flex items-center justify-center shadow-[0_8px_30px_rgb(30,64,175,0.3)] z-10 group-hover:bg-blue-800 group-hover:shadow-[0_12px_40px_rgb(30,64,175,0.4)] transition-all duration-300">
@@ -390,7 +390,7 @@ export const ChatBot = () => {
 
       {/* Chatbot window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-96 h-[500px] bg-background border border-border rounded-lg shadow-2xl flex flex-col z-50 animate-scale-in">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 lg:left-auto lg:right-6 lg:translate-x-0 w-[calc(100vw-3rem)] max-w-96 h-[500px] bg-background border border-border rounded-lg shadow-2xl flex flex-col z-50 animate-scale-in">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border bg-blue-900 text-white rounded-t-lg">
             <div className="flex items-center gap-3">
