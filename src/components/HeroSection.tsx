@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -216,37 +215,33 @@ const HeroSection = () => {
 
               {/* Quick action buttons */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-2 md:mb-8">
-                <Link 
-                  to="/offres/panneaux-solaires"
-                  className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                <div 
+                  className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg cursor-default"
                 >
                   <Sun className="w-4 h-4 text-yellow-400 flex-shrink-0" />
                   <span className="text-white font-semibold text-sm text-center">Solaire</span>
-                </Link>
+                </div>
 
-                <Link 
-                  to="/offres/pompe-a-chaleur"
-                  className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                <div 
+                  className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg cursor-default"
                 >
                   <Droplets className="w-4 h-4 text-blue-400 flex-shrink-0" />
                   <span className="text-white font-semibold text-sm text-center">PAC</span>
-                </Link>
+                </div>
 
-                <Link 
-                  to="/offres/isolation"
-                  className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                <div 
+                  className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg cursor-default"
                 >
                   <Home className="w-4 h-4 text-green-400 flex-shrink-0" />
                   <span className="text-white font-semibold text-sm text-center">Isolation</span>
-                </Link>
+                </div>
 
-                <Link 
-                  to="/aides"
-                  className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg"
+                <div 
+                  className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg cursor-default"
                 >
                   <HandCoins className="w-4 h-4 text-cyan-400 flex-shrink-0" />
                   <span className="text-white font-semibold text-sm text-center">Aides</span>
-                </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -428,13 +423,13 @@ const HeroSection = () => {
                     />
                     <Label htmlFor="acceptTerms" className="text-white text-[10px] md:text-sm leading-snug md:leading-relaxed cursor-pointer drop-shadow">
                       J'accepte les termes et conditions des CGU de Prime énergies et accepte de recevoir des offres concernant les travaux de rénovation et subventions{" "}
-                      <Link 
-                        to="/conditions-utilisation" 
+                      <a 
+                        href="/conditions-utilisation" 
                         target="_blank"
                         className="underline hover:text-yellow-200 font-semibold transition-colors"
                       >
                         CGU
-                      </Link>
+                      </a>
                     </Label>
                   </div>
                   </form>
