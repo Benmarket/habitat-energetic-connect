@@ -163,38 +163,40 @@ const CookieBanner = () => {
       }}
     >
       <div className="container mx-auto px-4 py-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <p className="text-sm flex-1 leading-relaxed">
+        <div className="flex flex-col items-center justify-center gap-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
+          <p className="text-sm sm:flex-1 leading-relaxed max-w-2xl">
             {settings.text}
           </p>
           
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <button
-              onClick={handleAccept}
-              className="px-6 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-90 hover:scale-105 active:scale-95 shadow-md"
-              style={{
-                backgroundColor: settings.buttonColor,
-                color: settings.buttonTextColor,
-              }}
-            >
-              J'accepte
-            </button>
-            
-            <button
-              onClick={handleRefuse}
-              className="px-6 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-90 hover:scale-105 active:scale-95 shadow-md border-2"
-              style={{
-                backgroundColor: settings.refuseButtonBgColor,
-                color: settings.refuseButtonTextColor,
-                borderColor: settings.refuseButtonBorderColor,
-              }}
-            >
-              {settings.refuseButtonText}
-            </button>
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto sm:flex-shrink-0">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <button
+                onClick={handleAccept}
+                className="flex-1 sm:flex-none px-6 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-90 hover:scale-105 active:scale-95 shadow-md whitespace-nowrap"
+                style={{
+                  backgroundColor: settings.buttonColor,
+                  color: settings.buttonTextColor,
+                }}
+              >
+                J'accepte
+              </button>
+              
+              <button
+                onClick={handleRefuse}
+                className="flex-1 sm:flex-none px-6 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-90 hover:scale-105 active:scale-95 shadow-md border-2 whitespace-nowrap"
+                style={{
+                  backgroundColor: settings.refuseButtonBgColor,
+                  color: settings.refuseButtonTextColor,
+                  borderColor: settings.refuseButtonBorderColor,
+                }}
+              >
+                {settings.refuseButtonText}
+              </button>
+            </div>
             
             <button
               onClick={handleClose}
-              className="p-2 rounded-lg transition-colors hover:bg-black/10"
+              className="p-2 rounded-lg transition-colors hover:bg-black/10 sm:ml-1"
               aria-label="Fermer"
             >
               <X className="w-5 h-5" />
