@@ -191,15 +191,15 @@ const SimulatorsSection = () => {
             </CarouselContent>
             
             {/* Navigation Buttons */}
-            <div className="flex justify-center gap-4 mt-12">
-              <CarouselPrevious className="relative inset-0 translate-y-0 h-14 w-14 bg-primary/10 hover:bg-primary hover:text-white border-2 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-110 shadow-lg" />
-              <CarouselNext className="relative inset-0 translate-y-0 h-14 w-14 bg-primary/10 hover:bg-primary hover:text-white border-2 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-110 shadow-lg" />
+            <div className="flex justify-center gap-4 mt-6">
+              <CarouselPrevious className="relative inset-0 translate-y-0 h-11 w-11 bg-primary/10 hover:bg-primary hover:text-white border-2 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-110 shadow-lg" />
+              <CarouselNext className="relative inset-0 translate-y-0 h-11 w-11 bg-primary/10 hover:bg-primary hover:text-white border-2 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-110 shadow-lg" />
             </div>
           </Carousel>
         </div>
 
         {/* Bottom CTA */}
-        <div className="text-center mt-16">
+        <div className="text-center mt-10">
           <p className="text-lg text-muted-foreground mb-4 font-medium">
             Besoin d'aide pour choisir ? Nos experts sont là pour vous accompagner
           </p>
