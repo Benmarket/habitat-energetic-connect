@@ -150,7 +150,7 @@ const Footer = () => {
               Plan du site
             </Link>
           </nav>
-          <p className="text-sm text-white/60 text-center">© 2020-2025 Prime Énergies. Tous droits réservés.</p>
+          <p className="text-sm text-white/60 text-center">© 2018-2026 Prime Énergies. Tous droits réservés.</p>
         </div>
       </div>
     </footer>
