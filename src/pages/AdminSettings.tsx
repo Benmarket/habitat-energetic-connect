@@ -134,12 +134,45 @@ const AdminSettings = () => {
 
   useEffect(() => {
     if (user) {
+      loadGeneralSettings();
       loadMaintenanceSettings();
       loadAiSettings();
       loadHeroSliderSettings();
       loadCookieBannerSettings();
     }
   }, [user]);
+
+  const loadGeneralSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("key, value")
+        .in("key", ["site_title", "site_description", "meta_description", "contact_email", "contact_phone", "address"]);
+
+      if (error) throw error;
+
+      if (data) {
+        const siteTitle = data.find(s => s.key === "site_title");
+        const siteDescription = data.find(s => s.key === "site_description");
+        const metaDescription = data.find(s => s.key === "meta_description");
+        const contactEmail = data.find(s => s.key === "contact_email");
+        const contactPhone = data.find(s => s.key === "contact_phone");
+        const address = data.find(s => s.key === "address");
+
+        setSettings(prev => ({
+          ...prev,
+          siteName: siteTitle?.value as string || "Prime Énergies",
+          siteDescription: siteDescription?.value as string || "Réduisez vos factures énergétiques jusqu'à 80%",
+          metaDescription: metaDescription?.value as string || "Bénéficiez d'une étude énergétique gratuite et découvrez les travaux subventionnés adaptés à votre logement.",
+          contactEmail: contactEmail?.value as string || "contact@prime-energies.fr",
+          contactPhone: contactPhone?.value as string || "01 23 45 67 89",
+          address: address?.value as string || "123 Rue de l'Énergie, 75001 Paris",
+        }));
+      }
+    } catch (error) {
+      console.error("Error loading general settings:", error);
+    }
+  };
 
   const loadMaintenanceSettings = async () => {
     try {
@@ -460,13 +493,24 @@ const AdminSettings = () => {
           onConflict: "key"
         });
 
-      const [maintenanceResult, urlResult, modelResult, enabledResult, instructionsResult, cookieBannerResult] = await Promise.all([
+      // Sauvegarder les paramètres généraux
+      const generalSettingsUpdates = [
+        supabase.from("site_settings").upsert({ key: "site_title", value: settings.siteName, updated_by: user.id }, { onConflict: "key" }),
+        supabase.from("site_settings").upsert({ key: "site_description", value: settings.siteDescription, updated_by: user.id }, { onConflict: "key" }),
+        supabase.from("site_settings").upsert({ key: "meta_description", value: settings.metaDescription, updated_by: user.id }, { onConflict: "key" }),
+        supabase.from("site_settings").upsert({ key: "contact_email", value: settings.contactEmail, updated_by: user.id }, { onConflict: "key" }),
+        supabase.from("site_settings").upsert({ key: "contact_phone", value: settings.contactPhone, updated_by: user.id }, { onConflict: "key" }),
+        supabase.from("site_settings").upsert({ key: "address", value: settings.address, updated_by: user.id }, { onConflict: "key" }),
+      ];
+
+      const [maintenanceResult, urlResult, modelResult, enabledResult, instructionsResult, cookieBannerResult, ...generalResults] = await Promise.all([
         maintenanceUpdate,
         aiUrlUpdate,
         aiModelUpdate,
         aiEnabledUpdate,
         aiInstructionsUpdate,
-        cookieBannerUpdate
+        cookieBannerUpdate,
+        ...generalSettingsUpdates
       ]);
 
       if (maintenanceResult.error) throw maintenanceResult.error;
@@ -475,6 +519,11 @@ const AdminSettings = () => {
       if (enabledResult.error) throw enabledResult.error;
       if (instructionsResult.error) throw instructionsResult.error;
       if (cookieBannerResult.error) throw cookieBannerResult.error;
+      
+      // Vérifier les erreurs des paramètres généraux
+      generalResults.forEach((result, index) => {
+        if (result.error) throw result.error;
+      });
 
       toast({
         title: "Paramètres sauvegardés",
