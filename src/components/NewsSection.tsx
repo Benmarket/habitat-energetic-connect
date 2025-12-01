@@ -194,15 +194,15 @@ const NewsSection = () => {
                 
                 {/* Navigation and View All Button - Side by side */}
                 <div className="flex items-center justify-between mt-8 px-4">
-                  <div className="flex gap-3">
-                    <CarouselPrevious className="relative inset-0 translate-y-0 h-12 w-12 bg-white hover:bg-gray-100 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300 hover:scale-110 shadow-lg" />
-                    <CarouselNext className="relative inset-0 translate-y-0 h-12 w-12 bg-white hover:bg-gray-100 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300 hover:scale-110 shadow-lg" />
+                  <div className="flex gap-2">
+                    <CarouselPrevious className="relative inset-0 translate-y-0 h-9 w-9 md:h-11 md:w-11 bg-white hover:bg-gray-100 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300 hover:scale-110 shadow-lg" />
+                    <CarouselNext className="relative inset-0 translate-y-0 h-9 w-9 md:h-11 md:w-11 bg-white hover:bg-gray-100 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300 hover:scale-110 shadow-lg" />
                   </div>
                   
                   <Link to="/actualites">
-                    <Button variant="outline" size="lg" className="gap-2 whitespace-nowrap">
+                    <Button variant="outline" className="gap-1.5 md:gap-2 text-xs md:text-sm px-3 md:px-4 py-2 md:py-2.5 h-auto whitespace-nowrap">
                       Voir toutes les actualités
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     </Button>
                   </Link>
                 </div>
