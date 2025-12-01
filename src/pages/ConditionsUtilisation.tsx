@@ -1,5 +1,8 @@
 import { Helmet } from "react-helmet";
-import { FileText, Users, AlertTriangle, Scale, ShieldCheck, Ban } from "lucide-react";
+import { FileText, Users, AlertTriangle, Scale, ShieldCheck, Ban, Home } from "lucide-react";
+import { Link } from "react-router-dom";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const ConditionsUtilisation = () => {
   return (
@@ -10,8 +13,19 @@ const ConditionsUtilisation = () => {
         <meta name="robots" content="index, follow" />
       </Helmet>
 
+      <Header />
+
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-12 max-w-4xl">
+          {/* Back to home link */}
+          <Link 
+            to="/" 
+            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors mb-8 font-medium"
+          >
+            <Home className="w-4 h-4" />
+            Retour à l'accueil
+          </Link>
+
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex justify-center mb-4">
@@ -285,6 +299,8 @@ const ConditionsUtilisation = () => {
           </div>
         </div>
       </div>
+
+      <Footer />
     </>
   );
 };
