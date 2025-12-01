@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import MaintenanceMode from "@/components/MaintenanceMode";
 import { ChatBot } from "@/components/ChatBot";
 import CookieBanner from "@/components/CookieBanner";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import Actualites from "./pages/Actualites";
 import Aides from "./pages/Aides";
@@ -56,6 +57,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <MaintenanceMode>
             <ChatBot />
             <CookieBanner />
