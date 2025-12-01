@@ -9,8 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ChatbotFlowRunner } from "./ChatbotFlowRunner";
 
-type Message = { 
-  role: "user" | "assistant" | "agent"; 
+type Message = {
+  role: "user" | "assistant" | "agent";
   content: string;
   senderName?: string;
   isVerified?: boolean;
@@ -35,12 +35,7 @@ export const ChatBot = () => {
   // Load active flow on mount
   useEffect(() => {
     const loadActiveFlow = async () => {
-      const { data, error } = await supabase
-        .from('chatbot_flows')
-        .select('*')
-        .eq('is_active', true)
-        .limit(1)
-        .single();
+      const { data, error } = await supabase.from("chatbot_flows").select("*").eq("is_active", true).limit(1).single();
 
       if (data && !error) {
         setActiveFlow(data);
@@ -64,26 +59,29 @@ export const ChatBot = () => {
     const channel = supabase
       .channel(`chat:${conversationId}`)
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'chat_messages',
+          event: "INSERT",
+          schema: "public",
+          table: "chat_messages",
           filter: `conversation_id=eq.${conversationId}`,
         },
         (payload) => {
           const newMessage = payload.new as any;
-          if (newMessage.sender_type === 'agent') {
-            setMessages(prev => [...prev, { 
-              role: 'agent', 
-              content: newMessage.content,
-              senderName: newMessage.sender_name,
-              isVerified: true
-            }]);
+          if (newMessage.sender_type === "agent") {
+            setMessages((prev) => [
+              ...prev,
+              {
+                role: "agent",
+                content: newMessage.content,
+                senderName: newMessage.sender_name,
+                isVerified: true,
+              },
+            ]);
             setAgentConnected(true);
             setIsLoading(false);
           }
-        }
+        },
       )
       .subscribe();
 
@@ -104,7 +102,7 @@ export const ChatBot = () => {
       return;
     }
 
-    const footer = document.querySelector('footer');
+    const footer = document.querySelector("footer");
     if (!footer) return;
 
     const observer = new IntersectionObserver(
@@ -119,8 +117,8 @@ export const ChatBot = () => {
       },
       {
         threshold: 0,
-        rootMargin: '0px 0px 0px 0px'
-      }
+        rootMargin: "0px 0px 0px 0px",
+      },
     );
 
     observer.observe(footer);
@@ -132,15 +130,15 @@ export const ChatBot = () => {
 
   const initConversation = async () => {
     try {
-      const visitorId = localStorage.getItem('visitor_id') || `visitor_${Date.now()}`;
-      localStorage.setItem('visitor_id', visitorId);
+      const visitorId = localStorage.getItem("visitor_id") || `visitor_${Date.now()}`;
+      localStorage.setItem("visitor_id", visitorId);
 
       const { data, error } = await supabase
-        .from('chat_conversations')
+        .from("chat_conversations")
         .insert({
           user_id: user?.id || null,
           visitor_id: user ? null : visitorId,
-          status: 'active'
+          status: "active",
         })
         .select()
         .single();
@@ -148,7 +146,7 @@ export const ChatBot = () => {
       if (error) throw error;
       setConversationId(data.id);
     } catch (error) {
-      console.error('Error initializing conversation:', error);
+      console.error("Error initializing conversation:", error);
     }
   };
 
@@ -161,25 +159,25 @@ export const ChatBot = () => {
   const handleFlowComplete = async (isQualified: boolean, flowHistory: Array<{ question: string; answer: string }>) => {
     setFlowCompleted(true);
     setShowFlowRunner(false);
-    
+
     // Save flow history as messages
     const flowMessages: Message[] = [];
     flowHistory.forEach(({ question, answer }) => {
-      flowMessages.push({ role: 'assistant', content: question });
-      flowMessages.push({ role: 'user', content: answer });
+      flowMessages.push({ role: "assistant", content: question });
+      flowMessages.push({ role: "user", content: answer });
     });
-    
-    const completionMessage = isQualified 
+
+    const completionMessage = isQualified
       ? "Merci pour vos réponses ! Un conseiller va prendre contact avec vous prochainement."
       : "Merci de votre intérêt. N'hésitez pas à consulter nos guides pour plus d'informations.";
-    
-    flowMessages.push({ role: 'assistant', content: completionMessage });
-    
+
+    flowMessages.push({ role: "assistant", content: completionMessage });
+
     setMessages(flowMessages);
-    
+
     // Save to database
     for (const msg of flowMessages) {
-      await saveMessage(msg.content, msg.role === 'user' ? 'user' : 'bot');
+      await saveMessage(msg.content, msg.role === "user" ? "user" : "bot");
     }
   };
 
@@ -188,19 +186,17 @@ export const ChatBot = () => {
     requestHumanAgent();
   };
 
-  const saveMessage = async (content: string, senderType: 'user' | 'bot' | 'agent') => {
+  const saveMessage = async (content: string, senderType: "user" | "bot" | "agent") => {
     if (!conversationId) return;
 
     try {
-      await supabase
-        .from('chat_messages')
-        .insert({
-          conversation_id: conversationId,
-          sender_type: senderType,
-          content: content,
-        });
+      await supabase.from("chat_messages").insert({
+        conversation_id: conversationId,
+        sender_type: senderType,
+        content: content,
+      });
     } catch (error) {
-      console.error('Error saving message:', error);
+      console.error("Error saving message:", error);
     }
   };
 
@@ -209,10 +205,10 @@ export const ChatBot = () => {
 
     try {
       const { data: existing } = await supabase
-        .from('chat_agent_requests')
-        .select('id')
-        .eq('conversation_id', conversationId)
-        .eq('status', 'pending')
+        .from("chat_agent_requests")
+        .select("id")
+        .eq("conversation_id", conversationId)
+        .eq("status", "pending")
         .single();
 
       if (existing) {
@@ -223,30 +219,28 @@ export const ChatBot = () => {
         return;
       }
 
-      await supabase
-        .from('chat_conversations')
-        .update({ status: 'awaiting_agent' })
-        .eq('id', conversationId);
+      await supabase.from("chat_conversations").update({ status: "awaiting_agent" }).eq("id", conversationId);
 
-      await supabase
-        .from('chat_agent_requests')
-        .insert({
-          conversation_id: conversationId,
-          status: 'pending'
-        });
+      await supabase.from("chat_agent_requests").insert({
+        conversation_id: conversationId,
+        status: "pending",
+      });
 
       setHasRequestedAgent(true);
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Votre demande a été transmise à un agent humain. Vous serez contacté dans quelques instants.'
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Votre demande a été transmise à un agent humain. Vous serez contacté dans quelques instants.",
+        },
+      ]);
 
       toast({
         title: "Demande envoyée",
         description: "Un agent va bientôt rejoindre la conversation.",
       });
     } catch (error) {
-      console.error('Error requesting agent:', error);
+      console.error("Error requesting agent:", error);
       toast({
         title: "Erreur",
         description: "Impossible de contacter un agent pour le moment.",
@@ -257,7 +251,7 @@ export const ChatBot = () => {
 
   const streamChat = async (userMessage: string) => {
     if (agentConnected) {
-      await saveMessage(userMessage, 'user');
+      await saveMessage(userMessage, "user");
       return;
     }
 
@@ -266,22 +260,19 @@ export const ChatBot = () => {
     setInput("");
     setIsLoading(true);
 
-    await saveMessage(userMessage, 'user');
+    await saveMessage(userMessage, "user");
 
     let assistantContent = "";
-    
+
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-bot`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({ messages: newMessages }),
-        }
-      );
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-bot`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ messages: newMessages }),
+      });
 
       if (!response.ok || !response.body) {
         throw new Error("Erreur lors de la communication avec le chatbot");
@@ -317,12 +308,10 @@ export const ChatBot = () => {
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
               assistantContent += content;
-              setMessages(prev => {
+              setMessages((prev) => {
                 const last = prev[prev.length - 1];
                 if (last?.role === "assistant") {
-                  return prev.map((m, i) => 
-                    i === prev.length - 1 ? { ...m, content: assistantContent } : m
-                  );
+                  return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantContent } : m));
                 }
                 return [...prev, { role: "assistant", content: assistantContent }];
               });
@@ -346,17 +335,22 @@ export const ChatBot = () => {
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) assistantContent += content;
-          } catch { /* ignore */ }
+          } catch {
+            /* ignore */
+          }
         }
       }
 
-      await saveMessage(assistantContent, 'bot');
+      await saveMessage(assistantContent, "bot");
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { 
-        role: "assistant", 
-        content: "Désolé, une erreur s'est produite. Veuillez réessayer." 
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Désolé, une erreur s'est produite. Veuillez réessayer.",
+        },
+      ]);
     } finally {
       setIsLoading(false);
     }
@@ -399,17 +393,10 @@ export const ChatBot = () => {
               </div>
               <div>
                 <h3 className="font-semibold">Assistant Prime Énergies</h3>
-                <p className="text-xs opacity-90">
-                  {agentConnected ? 'Agent connecté' : 'En ligne'}
-                </p>
+                <p className="text-xs opacity-90">{agentConnected ? "Agent connecté" : "En ligne"}</p>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsOpen(false)}
-              className="hover:bg-white/20 text-white"
-            >
+            <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} className="hover:bg-white/20 text-white">
               <X className="h-5 w-5" />
             </Button>
           </div>
@@ -421,7 +408,7 @@ export const ChatBot = () => {
               <div>
                 <div className="text-center text-muted-foreground py-4 mb-4">
                   <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm font-medium">Bonjour ! Comment puis-je vous aider aujourd'hui ?</p>
+                  <p className="text-sm font-medium"></p>
                 </div>
                 <ChatbotFlowRunner
                   flowStructure={activeFlow.tree_structure}
@@ -443,10 +430,7 @@ export const ChatBot = () => {
                 )}
                 <div className="space-y-4">
                   {messages.map((msg, idx) => (
-                    <div
-                      key={idx}
-                      className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                    >
+                    <div key={idx} className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                       {msg.role !== "user" && (
                         <Avatar className="h-8 w-8 flex-shrink-0">
                           <AvatarFallback className="bg-blue-100 dark:bg-blue-900">
@@ -460,15 +444,11 @@ export const ChatBot = () => {
                       )}
                       <div
                         className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                          msg.role === "user"
-                            ? "bg-blue-900 text-white ml-auto"
-                            : "bg-muted text-foreground"
+                          msg.role === "user" ? "bg-blue-900 text-white ml-auto" : "bg-muted text-foreground"
                         }`}
                       >
                         {msg.role === "agent" && msg.senderName && (
-                          <div className="text-xs font-semibold mb-1 flex items-center gap-1">
-                            {msg.senderName}
-                          </div>
+                          <div className="text-xs font-semibold mb-1 flex items-center gap-1">{msg.senderName}</div>
                         )}
                         <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                       </div>
@@ -497,12 +477,7 @@ export const ChatBot = () => {
 
             {!agentConnected && !hasRequestedAgent && messages.length > 0 && (
               <div className="mt-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={requestHumanAgent}
-                  className="w-full gap-2 text-xs"
-                >
+                <Button variant="outline" size="sm" onClick={requestHumanAgent} className="w-full gap-2 text-xs">
                   <UserCog className="h-3 w-3" />
                   Parler à un agent humain
                 </Button>
@@ -526,7 +501,12 @@ export const ChatBot = () => {
                 disabled={isLoading}
                 className="flex-1"
               />
-              <Button type="submit" disabled={isLoading || !input.trim()} size="icon" className="bg-blue-900 hover:bg-blue-800">
+              <Button
+                type="submit"
+                disabled={isLoading || !input.trim()}
+                size="icon"
+                className="bg-blue-900 hover:bg-blue-800"
+              >
                 <Send className="h-4 w-4" />
               </Button>
             </form>
