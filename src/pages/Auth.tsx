@@ -224,8 +224,18 @@ const Auth = () => {
         </Helmet>
 
         <div className="min-h-screen flex items-center justify-center bg-muted p-4">
-          <Card className="w-full max-w-md">
-            <CardHeader className="text-center">
+          <Card className="w-full max-w-md relative">
+            {/* Flèche retour vers /connexion */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4"
+              onClick={() => setShowMemberDisabled(false)}
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            
+            <CardHeader className="text-center pt-12">
               <div className="mb-4 flex flex-col items-center">
                 <span className="text-2xl font-bold leading-tight">
                   <span className="text-primary">Prime </span>
@@ -247,9 +257,6 @@ const Auth = () => {
                     L'accès à l'espace membre est actuellement suspendu. Veuillez réessayer ultérieurement.
                   </p>
                 </div>
-                <Button variant="outline" onClick={() => navigate("/")}>
-                  Retour à l'accueil
-                </Button>
               </div>
             </CardContent>
           </Card>
