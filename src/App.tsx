@@ -31,8 +31,10 @@ import AdminSettings from "./pages/AdminSettings";
 import AdminNewsletter from "./pages/AdminNewsletter";
 import AdminChatbot from "./pages/AdminChatbot";
 import AdminForms from "./pages/AdminForms";
+import AdminPopups from "./pages/AdminPopups";
 import AdminApp from "./pages/AdminApp";
 import NotFound from "./pages/NotFound";
+import SitePopup from "./components/SitePopup";
 import Sitemap from "./pages/Sitemap";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
 import ConditionsUtilisation from "./pages/ConditionsUtilisation";
@@ -61,6 +63,7 @@ const App = () => (
           <MaintenanceMode>
             <ChatBot />
             <CookieBanner />
+            <SitePopup />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/actualites" element={<Actualites />} />
@@ -88,6 +91,7 @@ const App = () => (
               <Route path="/admin/newsletter" element={<AdminNewsletter />} />
               <Route path="/admin/chatbot" element={<AdminChatbot />} />
               <Route path="/admin/formulaires" element={<AdminForms />} />
+              <Route path="/admin/popups" element={<AdminPopups />} />
               <Route path="/admin/landing-pages" element={<AdminLandingPages />} />
               <Route path="/admin/app" element={<AdminApp />} />
               <Route path="/installer-app" element={<InstallApp />} />
