@@ -79,7 +79,8 @@ const ForumTopic = () => {
 
   const fetchTopic = async () => {
     try {
-      const { data: topicData } = await supabase
+      // Fetch topic with category
+      const { data: topicData, error: topicError } = await supabase
         .from("forum_topics")
         .select(`
           id,
@@ -87,12 +88,7 @@ const ForumTopic = () => {
           created_at,
           views,
           is_locked,
-          profiles!forum_topics_author_id_fkey (
-            first_name,
-            last_name,
-            email,
-            account_type
-          ),
+          author_id,
           forum_categories (
             name,
             slug,
@@ -100,11 +96,28 @@ const ForumTopic = () => {
           )
         `)
         .eq("slug", slug)
-        .single();
+        .maybeSingle();
+
+      if (topicError) {
+        console.error("Error fetching topic:", topicError);
+        setLoading(false);
+        return;
+      }
 
       if (!topicData) {
         setLoading(false);
         return;
+      }
+
+      // Fetch author profile separately
+      let authorData = null;
+      if (topicData.author_id) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("first_name, last_name, email, account_type")
+          .eq("id", topicData.author_id)
+          .maybeSingle();
+        authorData = profile;
       }
 
       setTopic({
@@ -112,30 +125,31 @@ const ForumTopic = () => {
         created_at: topicData.created_at,
         views: topicData.views,
         is_locked: topicData.is_locked,
-        author: topicData.profiles as any,
+        author: authorData,
         category: topicData.forum_categories as any,
       });
 
       // Fetch posts
       const { data: postsData } = await supabase
         .from("forum_posts")
-        .select(`
-          *,
-          profiles!forum_posts_author_id_fkey (
-            first_name,
-            last_name,
-            email,
-            account_type
-          )
-        `)
+        .select("*")
         .eq("topic_id", topicData.id)
         .order("created_at", { ascending: true });
 
       if (postsData) {
+        // Fetch all author profiles for posts
+        const authorIds = [...new Set(postsData.map(p => p.author_id))];
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, first_name, last_name, email, account_type")
+          .in("id", authorIds);
+
+        const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
         setPosts(
           postsData.map((post) => ({
             ...post,
-            author: post.profiles as any,
+            author: profilesMap.get(post.author_id) || null,
           }))
         );
       }
