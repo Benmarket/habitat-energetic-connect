@@ -28,11 +28,25 @@ const Header = () => {
     showPhone: false,
     phoneNumber: "0 800 123 456",
     showWhatsapp: false,
+    whatsappLink: "",
     showMemberSpace: true,
   });
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+
+  // Génère le lien WhatsApp à partir du paramètre configuré
+  const getWhatsappUrl = () => {
+    const link = headerFooterSettings.whatsappLink?.trim();
+    if (!link) return "#";
+    // Si c'est déjà une URL complète
+    if (link.startsWith("http://") || link.startsWith("https://")) {
+      return link;
+    }
+    // Sinon on considère que c'est un numéro (avec ou sans +)
+    const cleanNumber = link.replace(/[^0-9]/g, "");
+    return `https://wa.me/${cleanNumber}`;
+  };
 
   useEffect(() => {
     // Load header/footer settings
@@ -48,6 +62,7 @@ const Header = () => {
             showPhone: value.showPhone ?? false,
             phoneNumber: value.phoneNumber || "0 800 123 456",
             showWhatsapp: value.showWhatsapp ?? false,
+            whatsappLink: value.whatsappLink || "",
             showMemberSpace: value.showMemberSpace ?? true,
           });
         }
@@ -132,7 +147,9 @@ const Header = () => {
               {/* WhatsApp - visible from md, fixed size */}
               {headerFooterSettings.showWhatsapp && (
                 <a 
-                  href="#whatsapp" 
+                  href={getWhatsappUrl()} 
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center justify-center w-8 h-8 flex-shrink-0 rounded-full hover:scale-110 transition-all duration-300 hover:shadow-lg"
                   aria-label="Contacter via WhatsApp"
                 >
@@ -422,7 +439,9 @@ const Header = () => {
               </Link>
               {headerFooterSettings.showWhatsapp && (
                 <a
-                  href="#whatsapp"
+                  href={getWhatsappUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center text-foreground hover:text-primary transition-colors"
                 >
                   <img src={whatsappIcon} alt="WhatsApp" className="w-[18px] h-[18px] mr-2" />

@@ -105,6 +105,7 @@ const AdminSettings = () => {
     showPhone: true,
     phoneNumber: "0 800 123 456",
     showWhatsapp: true,
+    whatsappLink: "",
     showMemberSpace: true,
   });
 
@@ -164,6 +165,7 @@ const AdminSettings = () => {
           showPhone: value.showPhone ?? true,
           phoneNumber: value.phoneNumber || "0 800 123 456",
           showWhatsapp: value.showWhatsapp ?? true,
+          whatsappLink: value.whatsappLink || "",
           showMemberSpace: value.showMemberSpace ?? true,
         });
       }
@@ -662,22 +664,42 @@ const AdminSettings = () => {
                   </div>
 
                   {/* WhatsApp settings */}
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="showWhatsapp" className="text-base">
-                        Afficher WhatsApp
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Icône WhatsApp visible dans le header et le footer
-                      </p>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="showWhatsapp" className="text-base">
+                          Afficher WhatsApp
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Icône WhatsApp visible dans le header et le footer
+                        </p>
+                      </div>
+                      <Switch
+                        id="showWhatsapp"
+                        checked={headerFooterSettings.showWhatsapp}
+                        onCheckedChange={(checked) => 
+                          setHeaderFooterSettings({ ...headerFooterSettings, showWhatsapp: checked })
+                        }
+                      />
                     </div>
-                    <Switch
-                      id="showWhatsapp"
-                      checked={headerFooterSettings.showWhatsapp}
-                      onCheckedChange={(checked) => 
-                        setHeaderFooterSettings({ ...headerFooterSettings, showWhatsapp: checked })
-                      }
-                    />
+                    
+                    {headerFooterSettings.showWhatsapp && (
+                      <div>
+                        <Label htmlFor="whatsappLink">Lien ou numéro WhatsApp</Label>
+                        <Input
+                          id="whatsappLink"
+                          value={headerFooterSettings.whatsappLink}
+                          onChange={(e) => 
+                            setHeaderFooterSettings({ ...headerFooterSettings, whatsappLink: e.target.value })
+                          }
+                          placeholder="https://wa.me/33612345678 ou 33612345678"
+                          className="mt-1"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Entrez un lien complet (https://wa.me/...) ou juste le numéro avec indicatif pays sans + (ex: 33612345678)
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Member space settings */}

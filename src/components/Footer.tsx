@@ -9,8 +9,22 @@ const Footer = () => {
     showPhone: false,
     phoneNumber: "0 800 123 456",
     showWhatsapp: false,
+    whatsappLink: "",
     showMemberSpace: true,
   });
+
+  // Génère le lien WhatsApp à partir du paramètre configuré
+  const getWhatsappUrl = () => {
+    const link = headerFooterSettings.whatsappLink?.trim();
+    if (!link) return "#";
+    // Si c'est déjà une URL complète
+    if (link.startsWith("http://") || link.startsWith("https://")) {
+      return link;
+    }
+    // Sinon on considère que c'est un numéro (avec ou sans +)
+    const cleanNumber = link.replace(/[^0-9]/g, "");
+    return `https://wa.me/${cleanNumber}`;
+  };
 
   useEffect(() => {
     supabase
@@ -25,6 +39,7 @@ const Footer = () => {
             showPhone: value.showPhone ?? false,
             phoneNumber: value.phoneNumber || "0 800 123 456",
             showWhatsapp: value.showWhatsapp ?? false,
+            whatsappLink: value.whatsappLink || "",
             showMemberSpace: value.showMemberSpace ?? true,
           });
         }
@@ -159,7 +174,7 @@ const Footer = () => {
               <Youtube className="w-4 h-4" />
             </a>
             {headerFooterSettings.showWhatsapp && (
-              <a href="#whatsapp" className="text-white/60 hover:text-white transition-colors" aria-label="WhatsApp">
+              <a href={getWhatsappUrl()} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="WhatsApp">
                 <MessageCircle className="w-4 h-4" />
               </a>
             )}
