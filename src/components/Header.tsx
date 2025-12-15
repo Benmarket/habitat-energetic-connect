@@ -25,11 +25,12 @@ const Header = () => {
   const [profile, setProfile] = useState<{ first_name: string | null; last_name: string | null; account_type: string | null; company_name: string | null } | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [headerFooterSettings, setHeaderFooterSettings] = useState({
-    showPhone: true,
+    showPhone: false,
     phoneNumber: "0 800 123 456",
-    showWhatsapp: true,
+    showWhatsapp: false,
     showMemberSpace: true,
   });
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -44,12 +45,13 @@ const Header = () => {
         if (data?.value) {
           const value = data.value as any;
           setHeaderFooterSettings({
-            showPhone: value.showPhone ?? true,
+            showPhone: value.showPhone ?? false,
             phoneNumber: value.phoneNumber || "0 800 123 456",
-            showWhatsapp: value.showWhatsapp ?? true,
+            showWhatsapp: value.showWhatsapp ?? false,
             showMemberSpace: value.showMemberSpace ?? true,
           });
         }
+        setSettingsLoaded(true);
       });
   }, []);
 
