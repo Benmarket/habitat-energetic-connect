@@ -83,7 +83,7 @@ export default function SitePopup() {
 
   // Fetch active popup for current page
   const { data: popup } = useQuery({
-    queryKey: ["active-popup", location.pathname, isArticlePage, articleCategory],
+    queryKey: ["active-popup", location.pathname, isArticlePage, articleCategory, categorySlug],
     queryFn: async () => {
       // For article pages, look for actualites popup
       if (isArticlePage) {
@@ -98,10 +98,10 @@ export default function SitePopup() {
         if (!data) return null;
         
         const popupData = data as Popup;
+        const currentCategory = articleCategory || categorySlug;
         
-        // Check category filter
+        // Check category filter - if no categories selected, show on all articles
         if (popupData.target_categories && popupData.target_categories.length > 0) {
-          const currentCategory = articleCategory || categorySlug;
           if (!currentCategory || !popupData.target_categories.includes(currentCategory)) {
             return null;
           }
