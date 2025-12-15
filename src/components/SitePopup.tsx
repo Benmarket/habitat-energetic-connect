@@ -165,6 +165,17 @@ export default function SitePopup() {
           });
 
         if (error) throw error;
+
+        // Also insert into form_submissions for unified view
+        if (popup.form_id) {
+          await supabase
+            .from("form_submissions")
+            .insert({
+              form_id: popup.form_id,
+              data: { email, source: "popup" },
+              status: "new"
+            });
+        }
         
         setIsSuccess(true);
         toast.success("Inscription réussie !");
