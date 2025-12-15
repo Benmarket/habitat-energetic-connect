@@ -106,7 +106,6 @@ const CreatePost = () => {
   const [aiInstructionsModalOpen, setAiInstructionsModalOpen] = useState(false);
   const [defaultAiInstructions, setDefaultAiInstructions] = useState("");
   const [currentAiInstructions, setCurrentAiInstructions] = useState("");
-  const [customAuthorRegistered, setCustomAuthorRegistered] = useState(false);
   const [registeringCustomAuthor, setRegisteringCustomAuthor] = useState(false);
 
   useEffect(() => {
@@ -188,11 +187,6 @@ const CreatePost = () => {
           display_author_id: post.display_author_id || "",
           custom_author_name: post.custom_author_name || "",
         });
-        
-        // Si l'article a un auteur personnalisé déjà enregistré, marquer comme validé
-        if (post.author_display_type === "custom" && post.custom_author_name) {
-          setCustomAuthorRegistered(true);
-        }
       }
     } catch (error: any) {
       console.error("Error loading post:", error);
@@ -508,18 +502,11 @@ const CreatePost = () => {
         return;
       }
 
-      // Validation auteur personnalisé
+      // Validation auteur personnalisé - bloquer si on est encore en mode "custom" sans avoir créé l'auteur
       if (!formData.hide_author && formData.author_display_type === "custom") {
-        if (!formData.custom_author_name.trim()) {
-          toast.error("Veuillez saisir un nom d'auteur personnalisé");
-          setLoading(false);
-          return;
-        }
-        if (!customAuthorRegistered) {
-          toast.error("Veuillez enregistrer l'auteur personnalisé avant de publier");
-          setLoading(false);
-          return;
-        }
+        toast.error("Veuillez créer l'auteur avant de publier l'article");
+        setLoading(false);
+        return;
       }
 
       // Préparer les données du post
@@ -1037,15 +1024,13 @@ const CreatePost = () => {
                                 value={formData.custom_author_name}
                                 onChange={(e) => {
                                   setFormData({ ...formData, custom_author_name: e.target.value });
-                                  setCustomAuthorRegistered(false);
                                 }}
-                                placeholder="Nom de l'auteur à afficher"
+                                placeholder="Nom de l'auteur à créer"
                                 maxLength={100}
-                                className={customAuthorRegistered ? "border-green-500" : ""}
                               />
                               <Button
                                 type="button"
-                                variant={customAuthorRegistered ? "default" : "outline"}
+                                variant="outline"
                                 size="sm"
                                 disabled={!formData.custom_author_name.trim() || registeringCustomAuthor}
                                 onClick={async () => {
@@ -1067,8 +1052,14 @@ const CreatePost = () => {
                                       }
                                     } else {
                                       setAvailableAuthors((prev) => [...prev, data]);
-                                      setCustomAuthorRegistered(true);
-                                      toast.success("Auteur enregistré avec succès");
+                                      // Passer automatiquement en mode "auteur enregistré"
+                                      setFormData((prev) => ({
+                                        ...prev,
+                                        author_display_type: "author",
+                                        display_author_id: data.id,
+                                        custom_author_name: "",
+                                      }));
+                                      toast.success(`Auteur "${data.name}" créé et sélectionné`);
                                     }
                                   } catch (error) {
                                     console.error("Error registering author:", error);
@@ -1081,23 +1072,14 @@ const CreatePost = () => {
                               >
                                 {registeringCustomAuthor ? (
                                   <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : customAuthorRegistered ? (
-                                  "✓ Enregistré"
                                 ) : (
-                                  "Enregistrer"
+                                  "Créer l'auteur"
                                 )}
                               </Button>
                             </div>
-                            {!customAuthorRegistered && formData.custom_author_name.trim() && (
-                              <p className="text-xs text-amber-600">
-                                ⚠️ Vous devez enregistrer l'auteur avant de pouvoir publier l'article
-                              </p>
-                            )}
-                            {customAuthorRegistered && (
-                              <p className="text-xs text-green-600">
-                                ✓ Auteur enregistré et prêt à être utilisé
-                              </p>
-                            )}
+                            <p className="text-xs text-muted-foreground">
+                              Saisissez le nom puis cliquez sur "Créer l'auteur" pour l'enregistrer
+                            </p>
                           </div>
                         )}
 
