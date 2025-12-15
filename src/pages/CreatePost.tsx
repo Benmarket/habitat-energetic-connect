@@ -166,6 +166,17 @@ const CreatePost = () => {
       if (postError) throw postError;
 
       if (post) {
+        // Déterminer le bon author_display_type
+        // Si l'article a un display_author_id, c'est forcément "author" (pas "custom")
+        let authorDisplayType: "none" | "user" | "custom" | "author" = "none";
+        if (post.display_author_id) {
+          authorDisplayType = "author";
+        } else if (post.author_display_type === "user") {
+          authorDisplayType = "user";
+        } else if (!post.hide_author) {
+          authorDisplayType = "user";
+        }
+        
         // Remplir le formulaire avec les données de l'article
         setFormData({
           title: post.title || "",
@@ -183,9 +194,9 @@ const CreatePost = () => {
           tag_ids: post.post_tags?.map((pt: any) => pt.tag_id) || [],
           // Author fields
           hide_author: post.hide_author ?? true,
-          author_display_type: (post.author_display_type || "none") as "none" | "user" | "custom" | "author",
+          author_display_type: authorDisplayType,
           display_author_id: post.display_author_id || "",
-          custom_author_name: post.custom_author_name || "",
+          custom_author_name: "",
         });
       }
     } catch (error: any) {
