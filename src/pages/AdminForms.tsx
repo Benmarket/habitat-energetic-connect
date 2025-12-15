@@ -13,9 +13,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, Edit, Trash2, Download, ExternalLink, Eye, Loader2, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Search, Filter, FileText, TrendingUp, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, Download, ExternalLink, Eye, Loader2, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Search, Filter, FileText, TrendingUp, Clock, CheckCircle2, AlertCircle, Layers } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type FormConfig = {
   id: string;
@@ -107,6 +108,36 @@ export default function AdminForms() {
       return counts;
     },
     refetchInterval: 5000, // Refresh every 5 seconds
+  });
+
+  // Fetch popups linked to forms
+  const { data: formPopups } = useQuery({
+    queryKey: ["form-popups"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("popups")
+        .select("id, name, target_page, form_id, is_active");
+      
+      if (error) throw error;
+      
+      // Group popups by form_id
+      const popupsByForm: Record<string, Array<{ id: string; name: string; target_page: string; is_active: boolean }>> = {};
+      data.forEach((popup: any) => {
+        if (popup.form_id) {
+          if (!popupsByForm[popup.form_id]) {
+            popupsByForm[popup.form_id] = [];
+          }
+          popupsByForm[popup.form_id].push({
+            id: popup.id,
+            name: popup.name,
+            target_page: popup.target_page,
+            is_active: popup.is_active,
+          });
+        }
+      });
+      
+      return popupsByForm;
+    },
   });
 
   // Fetch submissions for selected form
@@ -720,6 +751,29 @@ export default function AdminForms() {
                                 <Badge variant="outline" className="gap-1 bg-green-50 text-green-700 border-green-200">
                                   Rapide
                                 </Badge>
+                              )}
+                              {/* Popup count indicator */}
+                              {formPopups?.[form.id] && formPopups[form.id].length > 0 && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Badge variant="outline" className="gap-1 bg-pink-50 text-pink-700 border-pink-200 cursor-help">
+                                      <Layers className="h-3 w-3" />
+                                      {formPopups[form.id].length} pop-up{formPopups[form.id].length > 1 ? 's' : ''}
+                                    </Badge>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="max-w-xs">
+                                    <p className="font-semibold mb-1">Utilisé dans :</p>
+                                    <ul className="text-xs space-y-1">
+                                      {formPopups[form.id].map((popup) => (
+                                        <li key={popup.id} className="flex items-center gap-2">
+                                          <span className={`w-2 h-2 rounded-full ${popup.is_active ? 'bg-green-500' : 'bg-gray-300'}`} />
+                                          <span>{popup.name}</span>
+                                          <span className="text-muted-foreground">({popup.target_page})</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </TooltipContent>
+                                </Tooltip>
                               )}
                             </CardDescription>
                           </div>
