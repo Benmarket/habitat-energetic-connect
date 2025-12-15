@@ -193,14 +193,6 @@ const CookieBanner = () => {
                 {settings.refuseButtonText}
               </button>
             </div>
-            
-            <button
-              onClick={handleClose}
-              className="p-2 rounded-lg transition-colors hover:bg-black/10 sm:ml-1"
-              aria-label="Fermer"
-            >
-              <X className="w-5 h-5" />
-            </button>
           </div>
         </div>
       </div>
