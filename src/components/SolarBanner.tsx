@@ -9,6 +9,14 @@ const SolarBanner = () => {
   return (
     <section className="py-6 md:py-12 lg:py-16 bg-gradient-to-b from-blue-50/30 to-background">
       <div className="container mx-auto px-4">
+        {/* Desktop: Title above grid - full width */}
+        <div className="hidden lg:block mb-8">
+          <div className="inline-block w-16 h-1 bg-primary mb-4"></div>
+          <h2 className="text-4xl font-extrabold text-foreground leading-tight">
+            Générer de l'électricité avec des panneaux solaires photovoltaïques
+          </h2>
+        </div>
+
         <div className="grid lg:grid-cols-2 gap-8 items-center">
           {/* Left side - Image with guarantee badge */}
           <div className="relative">
@@ -28,14 +36,6 @@ const SolarBanner = () => {
 
           {/* Right side - Content */}
           <div className="space-y-6">
-            {/* Desktop: Title at top spanning full width */}
-            <div className="hidden lg:block">
-              <div className="inline-block w-16 h-1 bg-primary mb-4"></div>
-              <h2 className="text-4xl font-extrabold text-foreground mb-6 leading-tight">
-                Générer de l'électricité avec des panneaux solaires photovoltaïques
-              </h2>
-            </div>
-
             <div>
               {/* Mobile & Tablet: Title inline */}
               <div className="lg:hidden">
