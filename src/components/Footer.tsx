@@ -6,9 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 
 const Footer = () => {
   const [headerFooterSettings, setHeaderFooterSettings] = useState({
-    showPhone: true,
+    showPhone: false,
     phoneNumber: "0 800 123 456",
-    showWhatsapp: true,
+    showWhatsapp: false,
     showMemberSpace: true,
   });
 
@@ -22,9 +22,9 @@ const Footer = () => {
         if (data?.value) {
           const value = data.value as any;
           setHeaderFooterSettings({
-            showPhone: value.showPhone ?? true,
+            showPhone: value.showPhone ?? false,
             phoneNumber: value.phoneNumber || "0 800 123 456",
-            showWhatsapp: value.showWhatsapp ?? true,
+            showWhatsapp: value.showWhatsapp ?? false,
             showMemberSpace: value.showMemberSpace ?? true,
           });
         }
