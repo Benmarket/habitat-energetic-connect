@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Newspaper, BookOpen, HandCoins, Plus, Megaphone, ShieldCheck, Sparkles, FileText, Mail, User, Building2, BadgeCheck } from "lucide-react";
+import { Loader2, Newspaper, BookOpen, HandCoins, Plus, Megaphone, ShieldCheck, Sparkles, FileText, Mail, User, Building2, BadgeCheck, MessageSquare, Calculator, Lock, ArrowRight } from "lucide-react";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -17,6 +17,11 @@ const Dashboard = () => {
   const [hasPermissions, setHasPermissions] = useState(false);
   const [permissions, setPermissions] = useState<any[]>([]);
   const [newsletterCount, setNewsletterCount] = useState(0);
+  
+  // New states for user sections
+  const [aides, setAides] = useState<any[]>([]);
+  const [articles, setArticles] = useState<any[]>([]);
+  const [forumStats, setForumStats] = useState({ topicsCount: 0, postsCount: 0, recentTopics: [] as any[] });
 
   useEffect(() => {
     if (!loading && !user) {
@@ -30,6 +35,9 @@ const Dashboard = () => {
       fetchRole();
       fetchPermissions();
       fetchNewsletterCount();
+      fetchAides();
+      fetchArticles();
+      fetchForumActivity();
     }
   }, [user]);
 
@@ -82,6 +90,81 @@ const Dashboard = () => {
       .eq("status", "active");
     
     setNewsletterCount(count || 0);
+  };
+
+  const fetchAides = async () => {
+    const { data } = await supabase
+      .from("posts")
+      .select("id, title, slug, excerpt")
+      .eq("content_type", "aide")
+      .eq("status", "published")
+      .order("published_at", { ascending: false })
+      .limit(3);
+    
+    if (data) setAides(data);
+  };
+
+  const fetchArticles = async () => {
+    const { data } = await supabase
+      .from("posts")
+      .select("id, title, slug, excerpt, featured_image")
+      .eq("content_type", "actualite")
+      .eq("status", "published")
+      .order("published_at", { ascending: false })
+      .limit(3);
+    
+    if (data) setArticles(data);
+  };
+
+  const fetchForumActivity = async () => {
+    if (!user) return;
+    
+    // Fetch topics count
+    const { count: topicsCount } = await supabase
+      .from("forum_topics")
+      .select("*", { count: "exact", head: true })
+      .eq("author_id", user.id);
+    
+    // Fetch posts count
+    const { count: postsCount } = await supabase
+      .from("forum_posts")
+      .select("*", { count: "exact", head: true })
+      .eq("author_id", user.id);
+    
+    // Fetch recent topics where user participated
+    const { data: userTopics } = await supabase
+      .from("forum_topics")
+      .select("id, title, slug, created_at")
+      .eq("author_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(3);
+    
+    const { data: userPostTopics } = await supabase
+      .from("forum_posts")
+      .select("topic_id, forum_topics(id, title, slug, created_at)")
+      .eq("author_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(3);
+    
+    // Merge and deduplicate topics
+    const allTopics = [...(userTopics || [])];
+    userPostTopics?.forEach(post => {
+      const topic = post.forum_topics as any;
+      if (topic && !allTopics.find(t => t.id === topic.id)) {
+        allTopics.push(topic);
+      }
+    });
+    
+    // Sort by date and take first 3
+    const recentTopics = allTopics
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 3);
+    
+    setForumStats({
+      topicsCount: topicsCount || 0,
+      postsCount: postsCount || 0,
+      recentTopics
+    });
   };
 
   const getPermissionIcon = (code: string) => {
@@ -410,6 +493,213 @@ const Dashboard = () => {
                 </div>
               </div>
             )}
+
+            {/* ===== USER SECTIONS (visible to all users) ===== */}
+            
+            {/* Aides & Subventions Section */}
+            <div className="space-y-6 mt-8 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-1 w-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"></div>
+                <h2 className="text-2xl font-bold">Aides & Subventions disponibles</h2>
+              </div>
+              
+              {aides.length > 0 ? (
+                <div className="grid md:grid-cols-3 gap-6">
+                  {aides.map((aide) => (
+                    <Card key={aide.id} className="group hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 border-l-4 border-l-blue-500 hover:scale-[1.02] hover:-translate-y-1">
+                      <CardHeader>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="p-3 bg-gradient-to-br from-blue-500/10 to-blue-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                            <HandCoins className="w-6 h-6 text-blue-600" />
+                          </div>
+                        </div>
+                        <CardTitle className="text-lg group-hover:text-blue-600 transition-colors line-clamp-2">
+                          {aide.title}
+                        </CardTitle>
+                        {aide.excerpt && (
+                          <CardDescription className="line-clamp-2">
+                            {aide.excerpt}
+                          </CardDescription>
+                        )}
+                      </CardHeader>
+                      <CardContent>
+                        <Link to={`/aides/${aide.slug}`}>
+                          <Button variant="outline" className="w-full border-blue-500/30 text-blue-600 hover:bg-blue-50 hover:border-blue-500">
+                            Voir l'aide <ArrowRight className="w-4 h-4 ml-2" />
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card className="border-dashed border-2 border-blue-200 bg-blue-50/30">
+                  <CardContent className="py-8 text-center">
+                    <HandCoins className="w-12 h-12 text-blue-400 mx-auto mb-3" />
+                    <p className="text-muted-foreground">Aucune aide disponible pour le moment</p>
+                  </CardContent>
+                </Card>
+              )}
+              
+              <div className="flex justify-center">
+                <Link to="/aides">
+                  <Button variant="outline" className="border-blue-500/30 text-blue-600 hover:bg-blue-50">
+                    Voir toutes les aides <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Forum & Simulations Row */}
+            <div className="grid md:grid-cols-2 gap-6 mt-8">
+              {/* Forum Activity Section */}
+              <Card className="group hover:shadow-2xl hover:shadow-teal-500/10 transition-all duration-300 border-l-4 border-l-teal-500 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+                <CardHeader>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-3 bg-gradient-to-br from-teal-500/10 to-teal-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                      <MessageSquare className="w-6 h-6 text-teal-600" />
+                    </div>
+                  </div>
+                  <CardTitle className="group-hover:text-teal-600 transition-colors">Mon activité Forum</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {forumStats.topicsCount > 0 || forumStats.postsCount > 0 ? (
+                    <>
+                      <div className="flex gap-4">
+                        <div className="flex-1 p-3 bg-teal-50 rounded-lg text-center">
+                          <p className="text-2xl font-bold text-teal-600">{forumStats.topicsCount}</p>
+                          <p className="text-xs text-muted-foreground">Sujets créés</p>
+                        </div>
+                        <div className="flex-1 p-3 bg-teal-50 rounded-lg text-center">
+                          <p className="text-2xl font-bold text-teal-600">{forumStats.postsCount}</p>
+                          <p className="text-xs text-muted-foreground">Réponses postées</p>
+                        </div>
+                      </div>
+                      
+                      {forumStats.recentTopics.length > 0 && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground mb-2">Derniers sujets :</p>
+                          <div className="space-y-2">
+                            {forumStats.recentTopics.map((topic) => (
+                              <Link
+                                key={topic.id}
+                                to={`/forum/topic/${topic.slug}`}
+                                className="block p-2 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors text-sm truncate"
+                              >
+                                {topic.title}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-muted-foreground mb-2">Vous n'avez pas encore participé au forum</p>
+                    </div>
+                  )}
+                  
+                  <Link to="/forum">
+                    <Button className="w-full bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 shadow-lg shadow-teal-500/30">
+                      {forumStats.topicsCount > 0 || forumStats.postsCount > 0 ? 'Accéder au forum' : 'Découvrir le forum'}
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Simulations Placeholder Section */}
+              <Card className="group relative overflow-hidden border-l-4 border-l-emerald-500 animate-fade-in" style={{ animationDelay: '0.7s' }}>
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-emerald-600/10" />
+                <div className="absolute top-2 right-2">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-200">
+                    <Lock className="w-3 h-3" />
+                    Bientôt disponible
+                  </span>
+                </div>
+                
+                <CardHeader className="relative">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-3 bg-gradient-to-br from-emerald-500/10 to-emerald-600/20 rounded-xl">
+                      <Calculator className="w-6 h-6 text-emerald-600" />
+                    </div>
+                  </div>
+                  <CardTitle className="text-emerald-700">Mes Simulations</CardTitle>
+                </CardHeader>
+                <CardContent className="relative space-y-4">
+                  <p className="text-muted-foreground">
+                    Simulez vos économies d'énergie et votre impact environnemental grâce à nos outils de calcul personnalisés.
+                  </p>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-2 py-1 text-xs rounded-full bg-emerald-100/50 text-emerald-700">Classe énergétique</span>
+                    <span className="px-2 py-1 text-xs rounded-full bg-emerald-100/50 text-emerald-700">Économies solaires</span>
+                    <span className="px-2 py-1 text-xs rounded-full bg-emerald-100/50 text-emerald-700">Pompe à chaleur</span>
+                  </div>
+                  
+                  <Button disabled className="w-full bg-emerald-600/50 cursor-not-allowed">
+                    Accéder aux simulateurs
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Articles recommandés Section */}
+            <div className="space-y-6 mt-8 animate-fade-in" style={{ animationDelay: '0.8s' }}>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-1 w-12 bg-gradient-to-r from-green-500 to-green-600 rounded-full"></div>
+                <h2 className="text-2xl font-bold">Articles recommandés</h2>
+              </div>
+              
+              {articles.length > 0 ? (
+                <div className="grid md:grid-cols-3 gap-6">
+                  {articles.map((article) => (
+                    <Card key={article.id} className="group hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-300 border-l-4 border-l-green-500 hover:scale-[1.02] hover:-translate-y-1 overflow-hidden">
+                      {article.featured_image && (
+                        <div className="h-32 overflow-hidden">
+                          <img
+                            src={article.featured_image}
+                            alt={article.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                        </div>
+                      )}
+                      <CardHeader>
+                        <CardTitle className="text-lg group-hover:text-green-600 transition-colors line-clamp-2">
+                          {article.title}
+                        </CardTitle>
+                        {article.excerpt && (
+                          <CardDescription className="line-clamp-2">
+                            {article.excerpt}
+                          </CardDescription>
+                        )}
+                      </CardHeader>
+                      <CardContent>
+                        <Link to={`/actualites/${article.slug}`}>
+                          <Button variant="outline" className="w-full border-green-500/30 text-green-600 hover:bg-green-50 hover:border-green-500">
+                            Lire l'article <ArrowRight className="w-4 h-4 ml-2" />
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card className="border-dashed border-2 border-green-200 bg-green-50/30">
+                  <CardContent className="py-8 text-center">
+                    <Newspaper className="w-12 h-12 text-green-400 mx-auto mb-3" />
+                    <p className="text-muted-foreground">Aucun article disponible pour le moment</p>
+                  </CardContent>
+                </Card>
+              )}
+              
+              <div className="flex justify-center">
+                <Link to="/actualites">
+                  <Button variant="outline" className="border-green-500/30 text-green-600 hover:bg-green-50">
+                    Voir toutes les actualités <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </main>
         <Footer />
