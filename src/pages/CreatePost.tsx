@@ -106,6 +106,8 @@ const CreatePost = () => {
   const [aiInstructionsModalOpen, setAiInstructionsModalOpen] = useState(false);
   const [defaultAiInstructions, setDefaultAiInstructions] = useState("");
   const [currentAiInstructions, setCurrentAiInstructions] = useState("");
+  const [customAuthorRegistered, setCustomAuthorRegistered] = useState(false);
+  const [registeringCustomAuthor, setRegisteringCustomAuthor] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -186,6 +188,11 @@ const CreatePost = () => {
           display_author_id: post.display_author_id || "",
           custom_author_name: post.custom_author_name || "",
         });
+        
+        // Si l'article a un auteur personnalisé déjà enregistré, marquer comme validé
+        if (post.author_display_type === "custom" && post.custom_author_name) {
+          setCustomAuthorRegistered(true);
+        }
       }
     } catch (error: any) {
       console.error("Error loading post:", error);
@@ -499,6 +506,20 @@ const CreatePost = () => {
         toast.error("Veuillez sélectionner au moins une étiquette");
         setLoading(false);
         return;
+      }
+
+      // Validation auteur personnalisé
+      if (!formData.hide_author && formData.author_display_type === "custom") {
+        if (!formData.custom_author_name.trim()) {
+          toast.error("Veuillez saisir un nom d'auteur personnalisé");
+          setLoading(false);
+          return;
+        }
+        if (!customAuthorRegistered) {
+          toast.error("Veuillez enregistrer l'auteur personnalisé avant de publier");
+          setLoading(false);
+          return;
+        }
       }
 
       // Préparer les données du post
@@ -1010,15 +1031,73 @@ const CreatePost = () => {
                         </RadioGroup>
 
                         {formData.author_display_type === "custom" && (
-                          <div className="pl-6">
-                            <Input
-                              value={formData.custom_author_name}
-                              onChange={(e) =>
-                                setFormData({ ...formData, custom_author_name: e.target.value })
-                              }
-                              placeholder="Nom de l'auteur à afficher"
-                              maxLength={100}
-                            />
+                          <div className="pl-6 space-y-2">
+                            <div className="flex gap-2">
+                              <Input
+                                value={formData.custom_author_name}
+                                onChange={(e) => {
+                                  setFormData({ ...formData, custom_author_name: e.target.value });
+                                  setCustomAuthorRegistered(false);
+                                }}
+                                placeholder="Nom de l'auteur à afficher"
+                                maxLength={100}
+                                className={customAuthorRegistered ? "border-green-500" : ""}
+                              />
+                              <Button
+                                type="button"
+                                variant={customAuthorRegistered ? "default" : "outline"}
+                                size="sm"
+                                disabled={!formData.custom_author_name.trim() || registeringCustomAuthor}
+                                onClick={async () => {
+                                  if (!formData.custom_author_name.trim()) return;
+                                  
+                                  setRegisteringCustomAuthor(true);
+                                  try {
+                                    const { data, error } = await supabase
+                                      .from("authors")
+                                      .insert({ name: formData.custom_author_name.trim() })
+                                      .select()
+                                      .single();
+                                    
+                                    if (error) {
+                                      if (error.code === '23505') {
+                                        toast.error("Cet auteur existe déjà");
+                                      } else {
+                                        throw error;
+                                      }
+                                    } else {
+                                      setAvailableAuthors((prev) => [...prev, data]);
+                                      setCustomAuthorRegistered(true);
+                                      toast.success("Auteur enregistré avec succès");
+                                    }
+                                  } catch (error) {
+                                    console.error("Error registering author:", error);
+                                    toast.error("Erreur lors de l'enregistrement de l'auteur");
+                                  } finally {
+                                    setRegisteringCustomAuthor(false);
+                                  }
+                                }}
+                                className="whitespace-nowrap"
+                              >
+                                {registeringCustomAuthor ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : customAuthorRegistered ? (
+                                  "✓ Enregistré"
+                                ) : (
+                                  "Enregistrer"
+                                )}
+                              </Button>
+                            </div>
+                            {!customAuthorRegistered && formData.custom_author_name.trim() && (
+                              <p className="text-xs text-amber-600">
+                                ⚠️ Vous devez enregistrer l'auteur avant de pouvoir publier l'article
+                              </p>
+                            )}
+                            {customAuthorRegistered && (
+                              <p className="text-xs text-green-600">
+                                ✓ Auteur enregistré et prêt à être utilisé
+                              </p>
+                            )}
                           </div>
                         )}
 
