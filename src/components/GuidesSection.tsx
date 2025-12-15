@@ -84,7 +84,7 @@ const GuidesSection = () => {
   if (guides.length === 0) return null;
 
   return (
-    <section className="py-12 md:py-16 lg:py-20 px-4 relative overflow-x-hidden overflow-y-visible bg-gradient-to-b from-background via-orange-50/30 to-background">
+    <section className="py-12 md:py-16 lg:py-20 px-4 relative overflow-hidden bg-gradient-to-b from-background via-orange-50/30 to-background">
       {/* Decorative background elements */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Animated orange gradient orbs */}
@@ -103,7 +103,7 @@ const GuidesSection = () => {
       </div>
 
       <div className="container mx-auto max-w-7xl relative z-10">
-        <div className="text-center mb-8 md:mb-12 animate-fade-in flex flex-col items-center relative z-0">
+        <div className="text-center mb-8 md:mb-12 animate-fade-in flex flex-col items-center">
           <div className="inline-flex items-center gap-3 mb-4 bg-gradient-to-r from-orange-600/10 to-orange-500/10 px-8 py-4 rounded-full backdrop-blur-sm border-2 border-orange-500/30 shadow-lg shadow-orange-500/20 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300 hover:scale-105">
             <div className="p-2 bg-gradient-to-br from-orange-600 to-orange-700 rounded-lg shadow-lg">
               <BookOpen className="w-6 h-6 text-white" />
@@ -126,13 +126,13 @@ const GuidesSection = () => {
             loop: true,
             slidesToScroll: 1,
           }}
-          className="w-full mt-6 relative z-10"
+          className="w-full mt-6"
         >
           <CarouselContent className="-ml-4">
             {guides.map((guide) => (
-              <CarouselItem key={guide.id} className="pl-4 basis-full md:basis-1/3 relative z-0 hover:z-20">
-                <Link to={`/guide/${guide.slug}`} className="group block h-full relative z-0 hover:z-30">
-                  <Card className="h-full transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/20 hover:-translate-y-1 bg-card/80 backdrop-blur-sm border-2 border-orange-500/20 hover:border-orange-500 overflow-hidden">
+              <CarouselItem key={guide.id} className="pl-4 basis-full md:basis-1/3">
+                <Link to={`/guide/${guide.slug}`} className="group block h-full relative z-0 hover:z-10">
+                  <Card className="h-full transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 hover:scale-[1.03] hover:-translate-y-2 bg-card/80 backdrop-blur-sm border-2 border-orange-500/20 hover:border-orange-500 overflow-hidden">
                     {guide.featured_image && (
                       <div className="relative h-56 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-orange-950/20 to-transparent z-10" />
