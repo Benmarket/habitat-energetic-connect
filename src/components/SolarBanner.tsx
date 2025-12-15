@@ -28,11 +28,22 @@ const SolarBanner = () => {
 
           {/* Right side - Content */}
           <div className="space-y-6">
-            <div>
+            {/* Desktop: Title at top spanning full width */}
+            <div className="hidden lg:block">
               <div className="inline-block w-16 h-1 bg-primary mb-4"></div>
-              <h2 className="text-2xl lg:text-4xl font-extrabold text-foreground mb-6 leading-tight">
+              <h2 className="text-4xl font-extrabold text-foreground mb-6 leading-tight">
                 Générer de l'électricité avec des panneaux solaires photovoltaïques
               </h2>
+            </div>
+
+            <div>
+              {/* Mobile & Tablet: Title inline */}
+              <div className="lg:hidden">
+                <div className="inline-block w-16 h-1 bg-primary mb-4"></div>
+                <h2 className="text-2xl font-extrabold text-foreground mb-6 leading-tight">
+                  Générer de l'électricité avec des panneaux solaires photovoltaïques
+                </h2>
+              </div>
               
               {/* Mobile Layout - Diagram with legend beside */}
               <div className="md:hidden flex gap-3 items-start mb-4">
@@ -96,31 +107,47 @@ const SolarBanner = () => {
                 </div>
               </div>
 
-              {/* Desktop Layout - Diagram with legend beside */}
-              <div className="hidden lg:flex gap-4 items-start mb-6">
-                <img
-                  src={solarSystemDiagram}
-                  alt="Schéma du système photovoltaïque"
-                  className="w-1/2 max-w-[252px]"
-                />
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-start gap-2">
-                    <div className="w-4 h-4 mt-1 rounded bg-orange-500 flex-shrink-0"></div>
-                    <p className="text-sm text-foreground font-medium leading-tight">
-                      Capter les rayons du soleil et les convertir en kW utilisable
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <div className="w-4 h-4 mt-1 rounded bg-cyan-500 flex-shrink-0"></div>
-                    <p className="text-sm text-foreground font-medium leading-tight">
-                      Revente du surplus non consommé vers le circuit général
-                    </p>
+              {/* Desktop Layout - Text left, Diagram right */}
+              <div className="hidden lg:grid grid-cols-2 gap-8 mb-6">
+                {/* Left Column - Text */}
+                <div>
+                  <p className="text-base text-foreground leading-relaxed">
+                    Le photovoltaïque permet de produire votre propre électricité grâce à l'énergie solaire, 
+                    une ressource gratuite et inépuisable. En plus de réduire vos factures, c'est un 
+                    investissement rentable grâce aux aides de l'État qui peuvent couvrir une partie de 
+                    l'installation. De plus, avec le contrat EDF OA (Obligation d'Achat), vous avez la 
+                    possibilité de revendre le surplus d'électricité produit, assurant ainsi un 
+                    revenu complémentaire. En choisissant le photovoltaïque, vous contribuez à la 
+                    transition énergétique tout en réalisant d'importantes économies.
+                  </p>
+                </div>
+
+                {/* Right Column - Diagram with legend */}
+                <div className="flex flex-col items-center">
+                  <img
+                    src={solarSystemDiagram}
+                    alt="Schéma du système photovoltaïque"
+                    className="w-full max-w-[252px] mb-4"
+                  />
+                  <div className="space-y-2 w-full max-w-[280px]">
+                    <div className="flex items-start gap-2">
+                      <div className="w-4 h-4 mt-1 rounded bg-orange-500 flex-shrink-0"></div>
+                      <p className="text-sm text-foreground font-medium leading-tight">
+                        Capter les rayons du soleil et les convertir en kW utilisable
+                      </p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <div className="w-4 h-4 mt-1 rounded bg-cyan-500 flex-shrink-0"></div>
+                      <p className="text-sm text-foreground font-medium leading-tight">
+                        Revente du surplus non consommé vers le circuit général
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Text below - Mobile & Desktop only */}
-              <p className="md:hidden lg:block text-xs lg:text-base text-foreground leading-relaxed mb-4 md:mb-6">
+              {/* Text below - Mobile only */}
+              <p className="md:hidden text-xs text-foreground leading-relaxed mb-4">
                 Le photovoltaïque permet de produire votre propre électricité grâce à l'énergie solaire, 
                 une ressource gratuite et inépuisable. En plus de réduire vos factures, c'est un 
                 investissement rentable grâce aux aides de l'État qui peuvent couvrir une partie de 
