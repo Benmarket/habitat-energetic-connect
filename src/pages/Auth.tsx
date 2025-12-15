@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -30,8 +30,34 @@ const signUpSchema = z.object({
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [memberSpaceDisabled, setMemberSpaceDisabled] = useState(false);
+  const [checkingSettings, setCheckingSettings] = useState(true);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if member space is enabled
+    const checkMemberSpaceSettings = async () => {
+      try {
+        const { data } = await supabase
+          .from("site_settings")
+          .select("value")
+          .eq("key", "header_footer")
+          .maybeSingle();
+
+        if (data?.value) {
+          const value = data.value as any;
+          setMemberSpaceDisabled(!(value.showMemberSpace ?? true));
+        }
+      } catch (error) {
+        console.error("Error checking member space settings:", error);
+      } finally {
+        setCheckingSettings(false);
+      }
+    };
+
+    checkMemberSpaceSettings();
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -59,39 +85,57 @@ const Auth = () => {
             : error.message,
         });
       } else {
-        // CRITICAL SECURITY: Vérifier le mode maintenance et le rôle après connexion
-        const { data: maintenanceData } = await supabase
-          .from("site_settings")
-          .select("value")
-          .eq("key", "maintenance_mode")
-          .maybeSingle();
+        // CRITICAL SECURITY: Vérifier le mode maintenance, l'espace membre et le rôle après connexion
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        
+        if (currentUser) {
+          const { data: roleData } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", currentUser.id)
+            .single();
 
-        const isMaintenanceMode = maintenanceData?.value 
-          ? (maintenanceData.value as { enabled: boolean }).enabled 
-          : false;
+          const isAdmin = roleData && (roleData.role === 'super_admin' || roleData.role === 'admin');
 
-        if (isMaintenanceMode) {
-          // Vérifier si l'utilisateur est admin/super-admin
-          const { data: { user: currentUser } } = await supabase.auth.getUser();
-          
-          if (currentUser) {
-            const { data: roleData } = await supabase
-              .from("user_roles")
-              .select("role")
-              .eq("user_id", currentUser.id)
-              .single();
+          // Check member space settings
+          const { data: headerFooterData } = await supabase
+            .from("site_settings")
+            .select("value")
+            .eq("key", "header_footer")
+            .maybeSingle();
 
-            const isAdmin = roleData && (roleData.role === 'super_admin' || roleData.role === 'admin');
+          const isMemberSpaceEnabled = headerFooterData?.value 
+            ? (headerFooterData.value as any).showMemberSpace ?? true
+            : true;
 
-            if (!isAdmin) {
-              // Non-admin en mode maintenance : refuser l'accès et rediriger vers accueil
-              await supabase.auth.signOut();
-              toast.error("Accès refusé", {
-                description: "Le site est actuellement en maintenance. Veuillez réessayer plus tard.",
-              });
-              navigate("/");
-              return;
-            }
+          if (!isMemberSpaceEnabled && !isAdmin) {
+            // Non-admin avec espace membre désactivé : refuser l'accès
+            await supabase.auth.signOut();
+            toast.error("Accès refusé", {
+              description: "L'espace membre est temporairement désactivé.",
+            });
+            return;
+          }
+
+          // Check maintenance mode
+          const { data: maintenanceData } = await supabase
+            .from("site_settings")
+            .select("value")
+            .eq("key", "maintenance_mode")
+            .maybeSingle();
+
+          const isMaintenanceMode = maintenanceData?.value 
+            ? (maintenanceData.value as { enabled: boolean }).enabled 
+            : false;
+
+          if (isMaintenanceMode && !isAdmin) {
+            // Non-admin en mode maintenance : refuser l'accès et rediriger vers accueil
+            await supabase.auth.signOut();
+            toast.error("Accès refusé", {
+              description: "Le site est actuellement en maintenance. Veuillez réessayer plus tard.",
+            });
+            navigate("/");
+            return;
           }
         }
 
@@ -165,6 +209,58 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
+  if (checkingSettings) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Show disabled message if member space is disabled
+  if (memberSpaceDisabled) {
+    return (
+      <>
+        <Helmet>
+          <title>Espace membre désactivé | Prime Énergies</title>
+          <meta name="description" content="L'espace membre est temporairement désactivé" />
+        </Helmet>
+
+        <div className="min-h-screen flex items-center justify-center bg-muted p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+              <div className="mb-4 flex flex-col items-center">
+                <span className="text-2xl font-bold leading-tight">
+                  <span className="text-primary">Prime </span>
+                  <span className="text-foreground">energies</span>
+                </span>
+                <span className="text-xs text-muted-foreground">prime-energies.fr</span>
+              </div>
+            </CardHeader>
+            <CardContent className="text-center">
+              <div className="flex flex-col items-center gap-4 py-6">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-8 h-8 text-orange-600" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-foreground mb-2">
+                    Espace membre temporairement désactivé
+                  </h2>
+                  <p className="text-muted-foreground">
+                    L'accès à l'espace membre est actuellement suspendu. Veuillez réessayer ultérieurement.
+                  </p>
+                </div>
+                <Button variant="outline" onClick={() => navigate("/")}>
+                  Retour à l'accueil
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
