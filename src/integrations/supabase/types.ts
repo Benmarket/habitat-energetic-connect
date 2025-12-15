@@ -184,6 +184,36 @@ export type Database = {
         }
         Relationships: []
       }
+      authors: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       button_presets: {
         Row: {
           align: string
@@ -1089,14 +1119,18 @@ export type Database = {
       }
       posts: {
         Row: {
+          author_display_type: string | null
           author_id: string
           content: string
           content_type: Database["public"]["Enums"]["content_type"]
           created_at: string
+          custom_author_name: string | null
+          display_author_id: string | null
           excerpt: string | null
           faq: Json | null
           featured_image: string | null
           focus_keywords: string[] | null
+          hide_author: boolean
           id: string
           meta_description: string | null
           meta_title: string | null
@@ -1110,14 +1144,18 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          author_display_type?: string | null
           author_id: string
           content: string
           content_type: Database["public"]["Enums"]["content_type"]
           created_at?: string
+          custom_author_name?: string | null
+          display_author_id?: string | null
           excerpt?: string | null
           faq?: Json | null
           featured_image?: string | null
           focus_keywords?: string[] | null
+          hide_author?: boolean
           id?: string
           meta_description?: string | null
           meta_title?: string | null
@@ -1131,14 +1169,18 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          author_display_type?: string | null
           author_id?: string
           content?: string
           content_type?: Database["public"]["Enums"]["content_type"]
           created_at?: string
+          custom_author_name?: string | null
+          display_author_id?: string | null
           excerpt?: string | null
           faq?: Json | null
           featured_image?: string | null
           focus_keywords?: string[] | null
+          hide_author?: boolean
           id?: string
           meta_description?: string | null
           meta_title?: string | null
@@ -1151,7 +1193,15 @@ export type Database = {
           tldr?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "posts_display_author_id_fkey"
+            columns: ["display_author_id"]
+            isOneToOne: false
+            referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

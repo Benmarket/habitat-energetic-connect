@@ -11,17 +11,26 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, X, Sparkles, FileText } from "lucide-react";
+import { Loader2, ArrowLeft, X, Sparkles, FileText, Plus, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ArticleVariantsModal } from "@/components/ArticleVariantsModal";
 import { ArticlePreviewModal } from "@/components/ArticlePreviewModal";
 import { AIInstructionsModal } from "@/components/AIInstructionsModal";
+import { AuthorSelectModal } from "@/components/AuthorSelectModal";
 import { z } from "zod";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { MediaLibrary } from "@/components/MediaLibrary";
 import { FavoriteButtonsBar } from "@/components/FavoriteButtonsBar";
+
+interface Author {
+  id: string;
+  name: string;
+  bio: string | null;
+  avatar_url: string | null;
+}
 
 const postSchema = z.object({
   title: z.string().trim().min(5, "Le titre doit contenir au moins 5 caractères").max(200, "Le titre ne peut pas dépasser 200 caractères"),
@@ -77,11 +86,19 @@ const CreatePost = () => {
     status: "draft",
     category_id: "",
     tag_ids: [] as string[],
+    // Author fields
+    hide_author: true,
+    author_display_type: "none" as "none" | "user" | "custom" | "author",
+    display_author_id: "",
+    custom_author_name: "",
   });
   const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
   const [keywordInput, setKeywordInput] = useState("");
   const [variantsModalOpen, setVariantsModalOpen] = useState(false);
   const [generatedVariants, setGeneratedVariants] = useState<any>(null);
+  const [availableAuthors, setAvailableAuthors] = useState<Author[]>([]);
+  const [authorModalOpen, setAuthorModalOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<{ first_name: string | null; last_name: string | null } | null>(null);
   const [generatingArticle, setGeneratingArticle] = useState(false);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [regeneratingVariantId, setRegeneratingVariantId] = useState<number | null>(null);
@@ -99,6 +116,8 @@ const CreatePost = () => {
   useEffect(() => {
     fetchCategories();
     fetchTags();
+    fetchAuthors();
+    fetchUserProfile();
     loadAiInstructions();
   }, [contentType]);
 
@@ -108,6 +127,26 @@ const CreatePost = () => {
       loadPostForEdit(editId);
     }
   }, [editId, user]);
+
+  const fetchAuthors = async () => {
+    const { data } = await supabase
+      .from("authors")
+      .select("*")
+      .order("name");
+    
+    if (data) setAvailableAuthors(data);
+  };
+
+  const fetchUserProfile = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("profiles")
+      .select("first_name, last_name")
+      .eq("id", user.id)
+      .maybeSingle();
+    
+    if (data) setUserProfile(data);
+  };
 
   const loadPostForEdit = async (postId: string) => {
     setLoadingPost(true);
@@ -141,6 +180,11 @@ const CreatePost = () => {
           status: post.status || "draft",
           category_id: post.post_categories?.[0]?.category_id || "",
           tag_ids: post.post_tags?.map((pt: any) => pt.tag_id) || [],
+          // Author fields
+          hide_author: post.hide_author ?? true,
+          author_display_type: (post.author_display_type || "none") as "none" | "user" | "custom" | "author",
+          display_author_id: post.display_author_id || "",
+          custom_author_name: post.custom_author_name || "",
         });
       }
     } catch (error: any) {
@@ -464,6 +508,11 @@ const CreatePost = () => {
         content: validatedData.content,
         content_type: contentType as "actualite" | "guide" | "aide" | "annonce",
         status,
+        // Author fields
+        hide_author: formData.hide_author,
+        author_display_type: formData.hide_author ? "none" : formData.author_display_type,
+        display_author_id: formData.author_display_type === "author" ? formData.display_author_id || null : null,
+        custom_author_name: formData.author_display_type === "custom" ? formData.custom_author_name || null : null,
       };
 
       if (validatedData.excerpt) postData.excerpt = validatedData.excerpt;
@@ -911,6 +960,120 @@ const CreatePost = () => {
                     </p>
                   </div>
 
+                  {/* Section Auteur */}
+                  <div className="space-y-4 border rounded-md p-4 bg-muted/30">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="hide_author"
+                        checked={formData.hide_author}
+                        onCheckedChange={(checked) => {
+                          setFormData({
+                            ...formData,
+                            hide_author: !!checked,
+                            author_display_type: checked ? "none" : "user",
+                          });
+                        }}
+                      />
+                      <Label htmlFor="hide_author" className="cursor-pointer">
+                        Masquer l'auteur de l'article
+                      </Label>
+                    </div>
+
+                    {!formData.hide_author && (
+                      <div className="space-y-4 pt-2">
+                        <Label>Comment afficher l'auteur ?</Label>
+                        <RadioGroup
+                          value={formData.author_display_type}
+                          onValueChange={(value: "user" | "custom" | "author") =>
+                            setFormData({ ...formData, author_display_type: value })
+                          }
+                          className="space-y-3"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="user" id="author_user" />
+                            <Label htmlFor="author_user" className="cursor-pointer font-normal">
+                              Mon nom ({userProfile?.first_name || ""} {userProfile?.last_name || ""})
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="custom" id="author_custom" />
+                            <Label htmlFor="author_custom" className="cursor-pointer font-normal">
+                              Saisir un nom personnalisé
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="author" id="author_registered" />
+                            <Label htmlFor="author_registered" className="cursor-pointer font-normal">
+                              Choisir un auteur enregistré
+                            </Label>
+                          </div>
+                        </RadioGroup>
+
+                        {formData.author_display_type === "custom" && (
+                          <div className="pl-6">
+                            <Input
+                              value={formData.custom_author_name}
+                              onChange={(e) =>
+                                setFormData({ ...formData, custom_author_name: e.target.value })
+                              }
+                              placeholder="Nom de l'auteur à afficher"
+                              maxLength={100}
+                            />
+                          </div>
+                        )}
+
+                        {formData.author_display_type === "author" && (
+                          <div className="pl-6 space-y-2">
+                            <div className="flex gap-2">
+                              <Select
+                                value={formData.display_author_id}
+                                onValueChange={(value) =>
+                                  setFormData({ ...formData, display_author_id: value })
+                                }
+                              >
+                                <SelectTrigger className="flex-1">
+                                  <SelectValue placeholder="Sélectionner un auteur" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {availableAuthors.map((author) => (
+                                    <SelectItem key={author.id} value={author.id}>
+                                      <div className="flex items-center gap-2">
+                                        {author.avatar_url ? (
+                                          <img
+                                            src={author.avatar_url}
+                                            alt={author.name}
+                                            className="w-5 h-5 rounded-full object-cover"
+                                          />
+                                        ) : (
+                                          <User className="w-5 h-5 text-muted-foreground" />
+                                        )}
+                                        {author.name}
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={() => setAuthorModalOpen(true)}
+                                title="Créer un nouvel auteur"
+                              >
+                                <Plus className="w-4 h-4" />
+                              </Button>
+                            </div>
+                            {availableAuthors.length === 0 && (
+                              <p className="text-xs text-muted-foreground">
+                                Aucun auteur enregistré. Créez-en un avec le bouton +
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   <div className="flex gap-4 pt-4">
                     <Button
                       type="button"
@@ -974,6 +1137,15 @@ const CreatePost = () => {
           defaultInstructions={defaultAiInstructions}
           currentInstructions={currentAiInstructions}
           onSave={(instructions) => setCurrentAiInstructions(instructions)}
+        />
+
+        <AuthorSelectModal
+          open={authorModalOpen}
+          onOpenChange={setAuthorModalOpen}
+          onAuthorCreated={(author) => {
+            setAvailableAuthors((prev) => [...prev, author]);
+            setFormData({ ...formData, display_author_id: author.id });
+          }}
         />
       </div>
     </>
