@@ -24,8 +24,34 @@ const Header = () => {
   const [isUserMenuExpanded, setIsUserMenuExpanded] = useState(false);
   const [profile, setProfile] = useState<{ first_name: string | null; last_name: string | null; account_type: string | null; company_name: string | null } | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [headerFooterSettings, setHeaderFooterSettings] = useState({
+    showPhone: true,
+    phoneNumber: "0 800 123 456",
+    showWhatsapp: true,
+    showMemberSpace: true,
+  });
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Load header/footer settings
+    supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'header_footer')
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.value) {
+          const value = data.value as any;
+          setHeaderFooterSettings({
+            showPhone: value.showPhone ?? true,
+            phoneNumber: value.phoneNumber || "0 800 123 456",
+            showWhatsapp: value.showWhatsapp ?? true,
+            showMemberSpace: value.showMemberSpace ?? true,
+          });
+        }
+      });
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -102,24 +128,28 @@ const Header = () => {
             {/* Right side actions - Progressive visibility */}
             <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
               {/* WhatsApp - visible from md, fixed size */}
-              <a 
-                href="#whatsapp" 
-                className="flex items-center justify-center w-8 h-8 flex-shrink-0 rounded-full hover:scale-110 transition-all duration-300 hover:shadow-lg"
-                aria-label="Contacter via WhatsApp"
-              >
-                <img src={whatsappIcon} alt="WhatsApp" className="w-8 h-8 object-contain" />
-              </a>
+              {headerFooterSettings.showWhatsapp && (
+                <a 
+                  href="#whatsapp" 
+                  className="flex items-center justify-center w-8 h-8 flex-shrink-0 rounded-full hover:scale-110 transition-all duration-300 hover:shadow-lg"
+                  aria-label="Contacter via WhatsApp"
+                >
+                  <img src={whatsappIcon} alt="WhatsApp" className="w-8 h-8 object-contain" />
+                </a>
+              )}
               
               {/* Phone - visible from md, strict one-line layout */}
-              <a 
-                href="tel:0800123456" 
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/50 hover:bg-muted/70 rounded-full transition-all duration-300 hover:shadow-md border border-border/50 flex-shrink-0"
-              >
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 flex-shrink-0">
-                  <Phone className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                </div>
-                <span className="font-bold text-foreground text-sm tracking-wide whitespace-nowrap">0 800 123 456</span>
-              </a>
+              {headerFooterSettings.showPhone && (
+                <a 
+                  href={`tel:${headerFooterSettings.phoneNumber.replace(/\s/g, '')}`}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/50 hover:bg-muted/70 rounded-full transition-all duration-300 hover:shadow-md border border-border/50 flex-shrink-0"
+                >
+                  <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 flex-shrink-0">
+                    <Phone className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                  </div>
+                  <span className="font-bold text-foreground text-sm tracking-wide whitespace-nowrap">{headerFooterSettings.phoneNumber}</span>
+                </a>
+              )}
               
               {/* Installer button - visible from lg only */}
               <Button asChild className="hidden lg:flex whitespace-nowrap text-sm lg:text-base px-3 lg:px-4">
@@ -130,7 +160,7 @@ const Header = () => {
               {isAdminOrAbove && <LiveChatNotifications />}
               
               {/* User menu - visible from md */}
-              {user ? (
+              {user && headerFooterSettings.showMemberSpace ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2 h-auto py-2 px-3">
@@ -215,12 +245,12 @@ const Header = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
+            ) : headerFooterSettings.showMemberSpace ? (
               <Button variant="outline" onClick={() => setIsAuthModalOpen(true)} className="gap-2">
                 <User className="h-4 w-4" />
                 Espace Perso
               </Button>
-            )}
+            ) : null}
             </div>
 
             {/* Mobile Menu Button - visible below lg */}
@@ -388,27 +418,31 @@ const Header = () => {
               >
                 Simulateurs
               </Link>
-              <a
-                href="#whatsapp"
-                className="flex items-center text-foreground hover:text-primary transition-colors"
-              >
-                <img src={whatsappIcon} alt="WhatsApp" className="w-[18px] h-[18px] mr-2" />
-                <span className="font-semibold">WhatsApp</span>
-              </a>
-              <a
-                href="tel:0800123456"
-                className="flex items-center text-foreground hover:text-primary transition-colors"
-              >
-                <Phone className="w-4 h-4 mr-2" />
-                <span className="font-semibold">0 800 123 456</span>
-              </a>
+              {headerFooterSettings.showWhatsapp && (
+                <a
+                  href="#whatsapp"
+                  className="flex items-center text-foreground hover:text-primary transition-colors"
+                >
+                  <img src={whatsappIcon} alt="WhatsApp" className="w-[18px] h-[18px] mr-2" />
+                  <span className="font-semibold">WhatsApp</span>
+                </a>
+              )}
+              {headerFooterSettings.showPhone && (
+                <a
+                  href={`tel:${headerFooterSettings.phoneNumber.replace(/\s/g, '')}`}
+                  className="flex items-center text-foreground hover:text-primary transition-colors"
+                >
+                  <Phone className="w-4 h-4 mr-2" />
+                  <span className="font-semibold">{headerFooterSettings.phoneNumber}</span>
+                </a>
+              )}
               <div className="pt-2 space-y-2">
                 <Button asChild className="w-full">
                   <Link to="/#etude" onClick={() => setIsMenuOpen(false)}>
                     Trouver un installateur
                   </Link>
                 </Button>
-                {!user && (
+                {!user && headerFooterSettings.showMemberSpace && (
                   <Button 
                     variant="outline" 
                     className="w-full"

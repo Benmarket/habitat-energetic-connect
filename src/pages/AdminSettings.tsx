@@ -101,6 +101,13 @@ const AdminSettings = () => {
     aiCustomInstructions: "",
   });
 
+  const [headerFooterSettings, setHeaderFooterSettings] = useState({
+    showPhone: true,
+    phoneNumber: "0 800 123 456",
+    showWhatsapp: true,
+    showMemberSpace: true,
+  });
+
   const [heroSlider, setHeroSlider] = useState({
     enabled: false,
     duration: 5,
@@ -139,8 +146,31 @@ const AdminSettings = () => {
       loadAiSettings();
       loadHeroSliderSettings();
       loadCookieBannerSettings();
+      loadHeaderFooterSettings();
     }
   }, [user]);
+
+  const loadHeaderFooterSettings = async () => {
+    try {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "header_footer")
+        .maybeSingle();
+
+      if (data?.value) {
+        const value = data.value as any;
+        setHeaderFooterSettings({
+          showPhone: value.showPhone ?? true,
+          phoneNumber: value.phoneNumber || "0 800 123 456",
+          showWhatsapp: value.showWhatsapp ?? true,
+          showMemberSpace: value.showMemberSpace ?? true,
+        });
+      }
+    } catch (error) {
+      console.error("Error loading header/footer settings:", error);
+    }
+  };
 
   const loadGeneralSettings = async () => {
     try {
@@ -493,6 +523,16 @@ const AdminSettings = () => {
           onConflict: "key"
         });
 
+      const headerFooterUpdate = supabase
+        .from("site_settings")
+        .upsert({
+          key: "header_footer",
+          value: headerFooterSettings,
+          updated_by: user.id,
+        }, {
+          onConflict: "key"
+        });
+
       // Sauvegarder les paramètres généraux
       const generalSettingsUpdates = [
         supabase.from("site_settings").upsert({ key: "site_title", value: settings.siteName, updated_by: user.id }, { onConflict: "key" }),
@@ -503,13 +543,14 @@ const AdminSettings = () => {
         supabase.from("site_settings").upsert({ key: "address", value: settings.address, updated_by: user.id }, { onConflict: "key" }),
       ];
 
-      const [maintenanceResult, urlResult, modelResult, enabledResult, instructionsResult, cookieBannerResult, ...generalResults] = await Promise.all([
+      const [maintenanceResult, urlResult, modelResult, enabledResult, instructionsResult, cookieBannerResult, headerFooterResult, ...generalResults] = await Promise.all([
         maintenanceUpdate,
         aiUrlUpdate,
         aiModelUpdate,
         aiEnabledUpdate,
         aiInstructionsUpdate,
         cookieBannerUpdate,
+        headerFooterUpdate,
         ...generalSettingsUpdates
       ]);
 
@@ -519,6 +560,7 @@ const AdminSettings = () => {
       if (enabledResult.error) throw enabledResult.error;
       if (instructionsResult.error) throw instructionsResult.error;
       if (cookieBannerResult.error) throw cookieBannerResult.error;
+      if (headerFooterResult.error) throw headerFooterResult.error;
       
       // Vérifier les erreurs des paramètres généraux
       generalResults.forEach((result, index) => {
@@ -574,6 +616,91 @@ const AdminSettings = () => {
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Header / Footer Settings */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Header / Footer</CardTitle>
+                  <CardDescription>
+                    Configurez les éléments affichés dans l'en-tête et le pied de page
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Phone settings */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="showPhone" className="text-base">
+                          Afficher le numéro de téléphone
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Visible dans le header et le footer
+                        </p>
+                      </div>
+                      <Switch
+                        id="showPhone"
+                        checked={headerFooterSettings.showPhone}
+                        onCheckedChange={(checked) => 
+                          setHeaderFooterSettings({ ...headerFooterSettings, showPhone: checked })
+                        }
+                      />
+                    </div>
+                    
+                    {headerFooterSettings.showPhone && (
+                      <div>
+                        <Label htmlFor="phoneNumber">Numéro de téléphone</Label>
+                        <Input
+                          id="phoneNumber"
+                          value={headerFooterSettings.phoneNumber}
+                          onChange={(e) => 
+                            setHeaderFooterSettings({ ...headerFooterSettings, phoneNumber: e.target.value })
+                          }
+                          placeholder="0 800 123 456"
+                          className="max-w-xs"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* WhatsApp settings */}
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="showWhatsapp" className="text-base">
+                        Afficher WhatsApp
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Icône WhatsApp visible dans le header et le footer
+                      </p>
+                    </div>
+                    <Switch
+                      id="showWhatsapp"
+                      checked={headerFooterSettings.showWhatsapp}
+                      onCheckedChange={(checked) => 
+                        setHeaderFooterSettings({ ...headerFooterSettings, showWhatsapp: checked })
+                      }
+                    />
+                  </div>
+
+                  {/* Member space settings */}
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="showMemberSpace" className="text-base">
+                        Activer l'espace membre
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Si désactivé, les connexions non-admin seront bloquées et le bouton "Espace Perso" sera masqué
+                      </p>
+                    </div>
+                    <Switch
+                      id="showMemberSpace"
+                      checked={headerFooterSettings.showMemberSpace}
+                      onCheckedChange={(checked) => 
+                        setHeaderFooterSettings({ ...headerFooterSettings, showMemberSpace: checked })
+                      }
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Banner/Hero Slider */}
               <Card>
                 <CardHeader>
