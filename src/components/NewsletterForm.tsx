@@ -49,15 +49,6 @@ export const NewsletterForm = () => {
 
       if (error) throw error;
 
-      // Also insert into form_submissions for unified view
-      await supabase
-        .from("form_submissions")
-        .insert({
-          form_id: "a18b6048-24d3-4b9c-bd34-99c91e8d95bc",
-          data: { email, source: "footer" },
-          status: "new"
-        });
-
       toast.success("Merci pour votre inscription ! Vous recevrez bientôt nos actualités.");
       setEmail("");
     } catch (error) {
