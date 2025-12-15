@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import ForumImageUpload from "@/components/forum/ForumImageUpload";
 
 interface Category {
   id: string;
@@ -37,6 +38,7 @@ const NewTopic = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [images, setImages] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -133,14 +135,31 @@ const NewTopic = () => {
 
       if (topicError) throw topicError;
 
+      // Build content with images
+      let finalContent = content.trim();
+      if (images.length > 0) {
+        finalContent += "\n\n" + images.map(img => `![Image](${img})`).join("\n");
+      }
+
       // Create first post
-      const { error: postError } = await supabase.from("forum_posts").insert({
+      const { data: newPost, error: postError } = await supabase.from("forum_posts").insert({
         topic_id: newTopic.id,
         author_id: user!.id,
-        content: content.trim(),
-      });
+        content: finalContent,
+      }).select().single();
 
       if (postError) throw postError;
+
+      // Link images to the post
+      if (images.length > 0 && newPost) {
+        await supabase
+          .from("forum_images")
+          .update({ post_id: newPost.id, topic_id: newTopic.id })
+          .in("storage_path", images.map(url => {
+            const parts = url.split("/forum-images/");
+            return parts[1] || "";
+          }).filter(Boolean));
+      }
 
       toast({
         title: "Sujet créé",
@@ -242,6 +261,20 @@ const NewTopic = () => {
                     <p className="text-xs text-muted-foreground mt-1">
                       Soyez précis et détaillé pour obtenir de meilleures réponses
                     </p>
+                  </div>
+
+                  {/* Image upload */}
+                  <div>
+                    <Label>Images (optionnel)</Label>
+                    <div className="mt-2">
+                      <ForumImageUpload
+                        userId={user?.id || ""}
+                        images={images}
+                        onImageUploaded={(url) => setImages([...images, url])}
+                        onRemoveImage={(url) => setImages(images.filter(i => i !== url))}
+                        disabled={submitting}
+                      />
+                    </div>
                   </div>
 
                   <div className="flex gap-4">

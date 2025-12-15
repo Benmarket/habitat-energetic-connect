@@ -559,6 +559,63 @@ export type Database = {
         }
         Relationships: []
       }
+      forum_images: {
+        Row: {
+          created_at: string
+          file_size: number | null
+          filename: string
+          id: string
+          ip_address: string | null
+          mime_type: string | null
+          post_id: string | null
+          storage_path: string
+          topic_id: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_size?: number | null
+          filename: string
+          id?: string
+          ip_address?: string | null
+          mime_type?: string | null
+          post_id?: string | null
+          storage_path: string
+          topic_id?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_size?: number | null
+          filename?: string
+          id?: string
+          ip_address?: string | null
+          mime_type?: string | null
+          post_id?: string | null
+          storage_path?: string
+          topic_id?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_images_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "forum_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forum_images_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "forum_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       forum_posts: {
         Row: {
           author_id: string

@@ -12,6 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft, Clock, CheckCircle, MessageSquare } from "lucide-react";
+import ForumImageUpload from "@/components/forum/ForumImageUpload";
+import ForumPostContent from "@/components/forum/ForumPostContent";
 
 interface Post {
   id: string;
@@ -53,6 +55,7 @@ const ForumTopic = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [replyContent, setReplyContent] = useState("");
+  const [replyImages, setReplyImages] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -192,13 +195,30 @@ const ForumTopic = () => {
 
       if (!topicData) return;
 
-      const { error } = await supabase.from("forum_posts").insert({
+      // Build content with images
+      let finalContent = replyContent.trim();
+      if (replyImages.length > 0) {
+        finalContent += "\n\n" + replyImages.map(img => `![Image](${img})`).join("\n");
+      }
+
+      const { data: newPost, error } = await supabase.from("forum_posts").insert({
         topic_id: topicData.id,
         author_id: user.id,
-        content: replyContent,
-      });
+        content: finalContent,
+      }).select().single();
 
       if (error) throw error;
+
+      // Link images to the post
+      if (replyImages.length > 0 && newPost) {
+        await supabase
+          .from("forum_images")
+          .update({ post_id: newPost.id, topic_id: topicData.id })
+          .in("storage_path", replyImages.map(url => {
+            const parts = url.split("/forum-images/");
+            return parts[1] || "";
+          }).filter(Boolean));
+      }
 
       // Update topic updated_at
       await supabase
@@ -212,6 +232,7 @@ const ForumTopic = () => {
       });
 
       setReplyContent("");
+      setReplyImages([]);
       fetchTopic();
     } catch (error) {
       console.error("Error submitting reply:", error);
@@ -348,9 +369,7 @@ const ForumTopic = () => {
                         </Badge>
                       )}
                     </div>
-                    <div className="prose prose-sm max-w-none dark:prose-invert">
-                      <p>{posts[0]?.content || "Aucun contenu"}</p>
-                    </div>
+                    <ForumPostContent content={posts[0]?.content || "Aucun contenu"} />
                   </div>
                 </div>
               </CardContent>
@@ -392,9 +411,7 @@ const ForumTopic = () => {
                           {formatDate(post.created_at)}
                         </span>
                       </div>
-                      <div className="prose prose-sm max-w-none dark:prose-invert">
-                        <p>{post.content}</p>
-                      </div>
+                      <ForumPostContent content={post.content} />
                     </div>
                   </div>
                 </CardContent>
@@ -418,6 +435,18 @@ const ForumTopic = () => {
                             rows={6}
                             className="mb-4"
                           />
+                          
+                          {/* Image upload for replies */}
+                          <div className="mb-4">
+                            <ForumImageUpload
+                              userId={user.id}
+                              images={replyImages}
+                              onImageUploaded={(url) => setReplyImages([...replyImages, url])}
+                              onRemoveImage={(url) => setReplyImages(replyImages.filter(i => i !== url))}
+                              disabled={submitting}
+                            />
+                          </div>
+                          
                           <Button
                             type="submit"
                             disabled={submitting || !replyContent.trim()}
