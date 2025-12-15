@@ -67,32 +67,37 @@ const ForumCategory = () => {
         .from("forum_categories")
         .select("id")
         .eq("slug", slug)
-        .single();
+        .maybeSingle();
 
-      if (!categoryData) return;
+      if (!categoryData) {
+        setLoading(false);
+        return;
+      }
 
       const { data: topicsData } = await supabase
         .from("forum_topics")
-        .select(`
-          *,
-          profiles!forum_topics_author_id_fkey (
-            first_name,
-            last_name,
-            email,
-            account_type
-          )
-        `)
+        .select("*")
         .eq("category_id", categoryData.id)
         .order("is_pinned", { ascending: false })
         .order("updated_at", { ascending: false });
 
-      if (!topicsData) {
+      if (!topicsData || topicsData.length === 0) {
         setTopics([]);
+        setLoading(false);
         return;
       }
 
+      // Fetch all author profiles
+      const authorIds = [...new Set(topicsData.map(t => t.author_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, first_name, last_name, email, account_type")
+        .in("id", authorIds);
+
+      const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
       // Fetch post counts
-      const topicsWithCounts = await Promise.all(
+      const topicsWithData = await Promise.all(
         topicsData.map(async (topic) => {
           const { count } = await supabase
             .from("forum_posts")
@@ -101,13 +106,13 @@ const ForumCategory = () => {
 
           return {
             ...topic,
-            author: topic.profiles as any,
+            author: profilesMap.get(topic.author_id) || null,
             postsCount: count || 0,
           };
         })
       );
 
-      setTopics(topicsWithCounts);
+      setTopics(topicsWithData);
     } catch (error) {
       console.error("Error fetching topics:", error);
     } finally {
