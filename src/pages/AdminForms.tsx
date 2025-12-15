@@ -142,9 +142,32 @@ export default function AdminForms() {
 
   // Fetch submissions for selected form
   const { data: submissions, isLoading: loadingSubmissions } = useQuery({
-    queryKey: ["form-submissions", selectedForm?.id],
+    queryKey: ["form-submissions", selectedForm?.id, selectedForm?.form_identifier],
     queryFn: async () => {
       if (!selectedForm) return [];
+      
+      // Special handling for newsletter form - fetch from newsletter_subscribers
+      if (selectedForm.form_identifier === "newsletter") {
+        const { data, error } = await supabase
+          .from("newsletter_subscribers")
+          .select("*")
+          .order("subscribed_at", { ascending: false });
+        if (error) throw error;
+        
+        // Transform newsletter_subscribers to match FormSubmission structure
+        return (data || []).map((sub: any) => ({
+          id: sub.id,
+          form_id: selectedForm.id,
+          data: { email: sub.email, source: sub.source, status: sub.status },
+          submitted_at: sub.subscribed_at || sub.created_at,
+          ip_address: null,
+          user_agent: null,
+          is_read: true,
+          status: sub.status === "active" ? "processed" : "new",
+        })) as FormSubmission[];
+      }
+      
+      // Regular form submissions
       const { data, error } = await supabase
         .from("form_submissions")
         .select("*")
@@ -225,8 +248,14 @@ export default function AdminForms() {
   // Delete submission mutation
   const deleteSubmissionMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("form_submissions").delete().eq("id", id);
-      if (error) throw error;
+      // Check if this is a newsletter form
+      if (selectedForm?.form_identifier === "newsletter") {
+        const { error } = await supabase.from("newsletter_subscribers").delete().eq("id", id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("form_submissions").delete().eq("id", id);
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["form-submissions"] });
@@ -244,11 +273,21 @@ export default function AdminForms() {
   // Update submission status mutation
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const { error } = await supabase
-        .from("form_submissions")
-        .update({ status })
-        .eq("id", id);
-      if (error) throw error;
+      // Check if this is a newsletter form
+      if (selectedForm?.form_identifier === "newsletter") {
+        const newsletterStatus = status === "processed" ? "active" : "inactive";
+        const { error } = await supabase
+          .from("newsletter_subscribers")
+          .update({ status: newsletterStatus })
+          .eq("id", id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("form_submissions")
+          .update({ status })
+          .eq("id", id);
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["form-submissions"] });
@@ -346,8 +385,12 @@ export default function AdminForms() {
     }
 
     try {
+      const tableName = selectedForm?.form_identifier === "newsletter" 
+        ? "newsletter_subscribers" 
+        : "form_submissions";
+      
       const deletePromises = Array.from(selectedSubmissions).map(id =>
-        supabase.from("form_submissions").delete().eq("id", id)
+        supabase.from(tableName).delete().eq("id", id)
       );
       
       await Promise.all(deletePromises);
