@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { X } from "lucide-react";
+import { X, Mail, Sparkles, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 type Popup = {
   id: string;
@@ -42,11 +42,11 @@ type FormConfig = {
 
 export default function SitePopup() {
   const location = useLocation();
-  const { toast } = useToast();
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   // Fetch active popup for current page
   const { data: popup } = useQuery({
@@ -57,13 +57,10 @@ export default function SitePopup() {
         .select("*")
         .eq("target_page", location.pathname)
         .eq("is_active", true)
-        .single();
+        .maybeSingle();
       
-      if (error) {
-        if (error.code === "PGRST116") return null; // No popup found
-        throw error;
-      }
-      return data as Popup;
+      if (error) throw error;
+      return data as Popup | null;
     },
   });
 
@@ -76,10 +73,10 @@ export default function SitePopup() {
         .from("form_configurations")
         .select("*")
         .eq("id", popup.form_id)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
-      return data as FormConfig;
+      return data as FormConfig | null;
     },
     enabled: !!popup?.form_id,
   });
@@ -119,7 +116,11 @@ export default function SitePopup() {
 
   const handleClose = () => {
     setIsAnimating(false);
-    setTimeout(() => setIsVisible(false), 300);
+    setTimeout(() => {
+      setIsVisible(false);
+      setIsSuccess(false);
+      setFormData({});
+    }, 300);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,23 +129,64 @@ export default function SitePopup() {
 
     setIsSubmitting(true);
     try {
-      const { error } = await supabase
-        .from("form_submissions")
-        .insert([{
-          form_id: form.id,
-          data: formData,
-        }]);
+      // Check if this is a newsletter form
+      if (form.form_identifier === "newsletter") {
+        const email = formData.email;
+        if (!email || !email.includes("@")) {
+          toast.error("Veuillez entrer une adresse email valide");
+          setIsSubmitting(false);
+          return;
+        }
 
-      if (error) throw error;
+        // Check if already subscribed
+        const { data: existing } = await supabase
+          .from("newsletter_subscribers")
+          .select("email, status")
+          .eq("email", email)
+          .maybeSingle();
 
-      toast({ title: "Merci !", description: "Votre demande a bien été envoyée." });
-      handleClose();
+        if (existing) {
+          if (existing.status === "active") {
+            toast.info("Vous êtes déjà inscrit à notre newsletter !");
+          } else {
+            toast.info("Cette adresse était désinscrite.");
+          }
+          handleClose();
+          return;
+        }
+
+        // Insert new subscriber
+        const { error } = await supabase
+          .from("newsletter_subscribers")
+          .insert({
+            email,
+            source: "popup",
+            status: "active"
+          });
+
+        if (error) throw error;
+        
+        setIsSuccess(true);
+        toast.success("Inscription réussie !");
+        setTimeout(handleClose, 2000);
+      } else {
+        // Regular form submission
+        const { error } = await supabase
+          .from("form_submissions")
+          .insert([{
+            form_id: form.id,
+            data: formData,
+          }]);
+
+        if (error) throw error;
+        
+        setIsSuccess(true);
+        toast.success("Merci ! Votre demande a bien été envoyée.");
+        setTimeout(handleClose, 2000);
+      }
     } catch (error) {
-      toast({ 
-        title: "Erreur", 
-        description: "Une erreur est survenue",
-        variant: "destructive" 
-      });
+      console.error("Submission error:", error);
+      toast.error("Une erreur est survenue. Veuillez réessayer.");
     } finally {
       setIsSubmitting(false);
     }
@@ -211,50 +253,120 @@ export default function SitePopup() {
     return fields.map((field: any, index: number) => (
       <Input
         key={index}
-        placeholder={field.label || field.name}
+        placeholder={field.placeholder || field.label || field.name}
         type={field.type || "text"}
         required={field.required}
         value={formData[field.name] || ""}
         onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.value }))}
-        className="bg-white/90 border-0"
+        className="h-12 bg-white border-2 border-gray-200 focus:border-primary rounded-lg text-base"
       />
     ));
   };
 
   const renderContent = () => {
+    // Success state
+    if (isSuccess) {
+      return (
+        <div className="flex flex-col items-center justify-center py-8 space-y-4">
+          <div 
+            className="w-16 h-16 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: `${popup.accent_color}20` }}
+          >
+            <CheckCircle2 className="w-10 h-10" style={{ color: popup.accent_color }} />
+          </div>
+          <h2 className="text-2xl font-bold text-center" style={{ color: popup.text_color }}>
+            Merci pour votre inscription !
+          </h2>
+          <p className="text-center opacity-70" style={{ color: popup.text_color }}>
+            Vous recevrez bientôt nos actualités.
+          </p>
+        </div>
+      );
+    }
+
     switch (popup.template) {
       case "lead_capture":
         return (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Decorative header */}
+            <div className="flex justify-center mb-2">
+              <div 
+                className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
+                style={{ 
+                  background: `linear-gradient(135deg, ${popup.accent_color}, ${popup.accent_color}dd)` 
+                }}
+              >
+                <Mail className="w-7 h-7 text-white" />
+              </div>
+            </div>
+
+            {popup.badge_text && (
+              <div className="flex justify-center">
+                <Badge 
+                  className="text-white font-medium px-3 py-1 text-xs"
+                  style={{ backgroundColor: popup.accent_color }}
+                >
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  {popup.badge_text}
+                </Badge>
+              </div>
+            )}
+
             {popup.title && (
-              <h2 className="text-2xl font-bold" style={{ color: popup.text_color }}>
+              <h2 
+                className="text-2xl font-bold text-center leading-tight" 
+                style={{ color: popup.text_color }}
+              >
                 {popup.title}
               </h2>
             )}
+            
             {popup.subtitle && (
-              <p className="text-sm opacity-80" style={{ color: popup.text_color }}>
+              <p 
+                className="text-sm text-center opacity-70 leading-relaxed px-2" 
+                style={{ color: popup.text_color }}
+              >
                 {popup.subtitle}
               </p>
             )}
-            <div className="space-y-3">
+            
+            <div className="space-y-3 pt-2">
               {form ? renderFormFields() : (
                 <Input 
-                  placeholder="Votre email" 
+                  placeholder="Votre adresse email" 
                   type="email"
-                  className="bg-white/90 border-0"
+                  required
+                  className="h-12 bg-white border-2 border-gray-200 focus:border-primary rounded-lg text-base"
                   value={formData.email || ""}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                 />
               )}
               <Button 
                 type="submit"
-                className="w-full font-semibold text-white"
-                style={{ backgroundColor: popup.accent_color }}
+                className="w-full h-12 font-semibold text-white text-base rounded-lg shadow-md hover:shadow-lg transition-all"
+                style={{ 
+                  backgroundColor: popup.accent_color,
+                  boxShadow: `0 4px 14px ${popup.accent_color}40`
+                }}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Envoi..." : "S'inscrire"}
+                {isSubmitting ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Inscription...
+                  </span>
+                ) : (
+                  "S'inscrire maintenant"
+                )}
               </Button>
             </div>
+
+            <p 
+              className="text-xs text-center opacity-50 pt-1" 
+              style={{ color: popup.text_color }}
+            >
+              En vous inscrivant, vous acceptez de recevoir nos communications.
+            </p>
           </form>
         );
       
@@ -371,7 +483,7 @@ export default function SitePopup() {
     <div className="fixed inset-0 z-[100]">
       {/* Overlay */}
       <div 
-        className={`absolute inset-0 bg-black transition-opacity duration-300 ${isAnimating ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isAnimating ? "opacity-100" : "opacity-0"}`}
         style={{ opacity: isAnimating ? popup.overlay_opacity / 100 : 0 }}
         onClick={handleClose}
       />
@@ -379,7 +491,7 @@ export default function SitePopup() {
       {/* Popup */}
       <div
         className={`fixed ${getPositionClasses()} ${getSizeClasses()} ${getAnimationClasses()} 
-          ${popup.size !== "fullscreen" ? "rounded-xl shadow-2xl p-6" : ""} overflow-hidden transition-all duration-300`}
+          ${popup.size !== "fullscreen" ? "rounded-2xl shadow-2xl p-8" : ""} overflow-hidden transition-all duration-300`}
         style={{
           backgroundColor: popup.background_color,
           backgroundImage: popup.background_image ? `url(${popup.background_image})` : undefined,
@@ -387,11 +499,19 @@ export default function SitePopup() {
           backgroundPosition: "center",
         }}
       >
+        {/* Decorative gradient overlay */}
+        {!popup.background_image && popup.size !== "fullscreen" && (
+          <div 
+            className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 -mr-10 -mt-10"
+            style={{ backgroundColor: popup.accent_color }}
+          />
+        )}
+
         {/* Close button */}
         {popup.show_close_button && (
           <button
             onClick={handleClose}
-            className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-black/10 transition-colors z-10"
+            className="absolute top-4 right-4 p-2 rounded-full bg-black/5 hover:bg-black/10 transition-colors z-10"
             style={{ color: popup.text_color }}
           >
             <X className="w-5 h-5" />
@@ -399,7 +519,7 @@ export default function SitePopup() {
         )}
 
         {/* Content */}
-        <div className={popup.size === "fullscreen" ? "h-full" : ""}>
+        <div className={`relative ${popup.size === "fullscreen" ? "h-full" : ""}`}>
           {renderContent()}
         </div>
       </div>
