@@ -84,7 +84,7 @@ const GuidesSection = () => {
   if (guides.length === 0) return null;
 
   return (
-    <section className="py-12 md:py-16 lg:py-20 px-4 relative overflow-hidden bg-gradient-to-b from-background via-orange-50/30 to-background">
+    <section className="py-12 md:py-16 lg:py-20 px-4 relative overflow-x-hidden overflow-y-visible bg-gradient-to-b from-background via-orange-50/30 to-background">
       {/* Decorative background elements */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Animated orange gradient orbs */}
@@ -103,7 +103,7 @@ const GuidesSection = () => {
       </div>
 
       <div className="container mx-auto max-w-7xl relative z-10">
-        <div className="text-center mb-8 md:mb-12 animate-fade-in flex flex-col items-center">
+        <div className="text-center mb-8 md:mb-12 animate-fade-in flex flex-col items-center relative z-0">
           <div className="inline-flex items-center gap-3 mb-4 bg-gradient-to-r from-orange-600/10 to-orange-500/10 px-8 py-4 rounded-full backdrop-blur-sm border-2 border-orange-500/30 shadow-lg shadow-orange-500/20 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300 hover:scale-105">
             <div className="p-2 bg-gradient-to-br from-orange-600 to-orange-700 rounded-lg shadow-lg">
               <BookOpen className="w-6 h-6 text-white" />
@@ -126,7 +126,7 @@ const GuidesSection = () => {
             loop: true,
             slidesToScroll: 1,
           }}
-          className="w-full mt-6"
+          className="w-full mt-6 relative z-10"
         >
           <CarouselContent className="-ml-4">
             {guides.map((guide) => (
