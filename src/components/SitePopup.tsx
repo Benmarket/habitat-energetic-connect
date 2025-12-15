@@ -13,6 +13,7 @@ type Popup = {
   name: string;
   is_active: boolean;
   target_page: string;
+  target_categories: string[] | null;
   form_id: string | null;
   delay_seconds: number;
   frequency: string;
@@ -48,10 +49,68 @@ export default function SitePopup() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // Check if we're on an article detail page
+  const isArticlePage = location.pathname.startsWith("/actualites/") && location.pathname.split("/").length > 2;
+  const articleSlug = isArticlePage ? location.pathname.split("/").pop() : null;
+  const categorySlug = isArticlePage ? location.pathname.split("/")[2] : null;
+
+  // Fetch article category if on article page
+  const { data: articleCategory } = useQuery({
+    queryKey: ["article-category", articleSlug],
+    queryFn: async () => {
+      if (!articleSlug) return null;
+      
+      // Get the article and its category
+      const { data: article, error } = await supabase
+        .from("posts")
+        .select(`
+          id,
+          post_categories!inner(
+            category:categories(slug)
+          )
+        `)
+        .eq("slug", articleSlug)
+        .eq("content_type", "actualite")
+        .maybeSingle();
+      
+      if (error || !article) return categorySlug; // Fallback to URL category
+      
+      const categories = article.post_categories as any[];
+      return categories?.[0]?.category?.slug || categorySlug;
+    },
+    enabled: isArticlePage,
+  });
+
   // Fetch active popup for current page
   const { data: popup } = useQuery({
-    queryKey: ["active-popup", location.pathname],
+    queryKey: ["active-popup", location.pathname, isArticlePage, articleCategory],
     queryFn: async () => {
+      // For article pages, look for actualites popup
+      if (isArticlePage) {
+        const { data, error } = await supabase
+          .from("popups")
+          .select("*")
+          .eq("target_page", "/actualites")
+          .eq("is_active", true)
+          .maybeSingle();
+        
+        if (error) throw error;
+        if (!data) return null;
+        
+        const popupData = data as Popup;
+        
+        // Check category filter
+        if (popupData.target_categories && popupData.target_categories.length > 0) {
+          const currentCategory = articleCategory || categorySlug;
+          if (!currentCategory || !popupData.target_categories.includes(currentCategory)) {
+            return null;
+          }
+        }
+        
+        return popupData;
+      }
+      
+      // For other pages, match exact path
       const { data, error } = await supabase
         .from("popups")
         .select("*")

@@ -883,6 +883,7 @@ export type Database = {
           show_close_button: boolean
           size: string
           subtitle: string | null
+          target_categories: string[] | null
           target_page: string
           template: string
           text_color: string | null
@@ -911,6 +912,7 @@ export type Database = {
           show_close_button?: boolean
           size?: string
           subtitle?: string | null
+          target_categories?: string[] | null
           target_page?: string
           template?: string
           text_color?: string | null
@@ -939,6 +941,7 @@ export type Database = {
           show_close_button?: boolean
           size?: string
           subtitle?: string | null
+          target_categories?: string[] | null
           target_page?: string
           template?: string
           text_color?: string | null
