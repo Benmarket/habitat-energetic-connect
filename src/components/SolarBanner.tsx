@@ -61,7 +61,7 @@ const SolarBanner = () => {
               <div className="hidden md:grid lg:hidden grid-cols-2 gap-6 mb-6">
                 {/* Left Column - Text */}
                 <div className="space-y-4">
-                  <p className="text-sm text-foreground leading-relaxed">
+                  <p className="text-base text-foreground leading-relaxed">
                     Le photovoltaïque permet de produire votre propre électricité grâce à l'énergie solaire, 
                     une ressource gratuite et inépuisable. En plus de réduire vos factures, c'est un 
                     investissement rentable grâce aux aides de l'État qui peuvent couvrir une partie de 
@@ -120,7 +120,7 @@ const SolarBanner = () => {
               </div>
 
               {/* Text below - Mobile & Desktop only */}
-              <p className="md:hidden lg:block text-xs lg:text-base text-foreground leading-relaxed mb-4 md:mb-6">
+              <p className="md:hidden lg:block text-xs lg:text-lg text-foreground leading-relaxed mb-4 md:mb-6">
                 Le photovoltaïque permet de produire votre propre électricité grâce à l'énergie solaire, 
                 une ressource gratuite et inépuisable. En plus de réduire vos factures, c'est un 
                 investissement rentable grâce aux aides de l'État qui peuvent couvrir une partie de 
