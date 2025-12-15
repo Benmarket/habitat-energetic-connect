@@ -48,29 +48,35 @@ const Auth = () => {
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    
+
     try {
       const data = signInSchema.parse({
         email: formData.get("email"),
         password: formData.get("password"),
       });
 
+      // Bloque toute redirection automatique pendant qu'on valide l'accès
+      isAuthenticatingRef.current = true;
+      setShowMemberDisabled(false);
       setIsLoading(true);
+
       const { error } = await signIn(data.email, data.password);
-      
+
       if (error) {
         toast.error("Erreur de connexion", {
-          description: error.message === "Invalid login credentials" 
-            ? "Email ou mot de passe incorrect"
-            : error.message,
+          description:
+            error.message === "Invalid login credentials"
+              ? "Email ou mot de passe incorrect"
+              : error.message,
         });
-        setIsLoading(false);
         return;
       }
 
       // CRITICAL SECURITY: Vérifier le mode maintenance, l'espace membre et le rôle après connexion
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user: currentUser },
+      } = await supabase.auth.getUser();
+
       if (currentUser) {
         const { data: roleData } = await supabase
           .from("user_roles")
@@ -78,7 +84,8 @@ const Auth = () => {
           .eq("user_id", currentUser.id)
           .single();
 
-        const isAdmin = roleData && (roleData.role === 'super_admin' || roleData.role === 'admin');
+        const isAdmin =
+          !!roleData && (roleData.role === "super_admin" || roleData.role === "admin");
 
         // Check member space settings
         const { data: headerFooterData } = await supabase
@@ -87,15 +94,14 @@ const Auth = () => {
           .eq("key", "header_footer")
           .maybeSingle();
 
-        const isMemberSpaceEnabled = headerFooterData?.value 
+        const isMemberSpaceEnabled = headerFooterData?.value
           ? (headerFooterData.value as any).showMemberSpace ?? true
           : true;
 
         if (!isMemberSpaceEnabled && !isAdmin) {
-          // Non-admin avec espace membre désactivé : déconnecter et afficher page désactivé
+          // Non-admin avec espace membre désactivé : déconnecter et afficher la page dédiée
           await supabase.auth.signOut();
           setShowMemberDisabled(true);
-          setIsLoading(false);
           return;
         }
 
@@ -106,18 +112,18 @@ const Auth = () => {
           .eq("key", "maintenance_mode")
           .maybeSingle();
 
-        const isMaintenanceMode = maintenanceData?.value 
-          ? (maintenanceData.value as { enabled: boolean }).enabled 
+        const isMaintenanceMode = maintenanceData?.value
+          ? (maintenanceData.value as { enabled: boolean }).enabled
           : false;
 
         if (isMaintenanceMode && !isAdmin) {
           // Non-admin en mode maintenance : refuser l'accès et rediriger vers accueil
           await supabase.auth.signOut();
           toast.error("Accès refusé", {
-            description: "Le site est actuellement en maintenance. Veuillez réessayer plus tard.",
+            description:
+              "Le site est actuellement en maintenance. Veuillez réessayer plus tard.",
           });
           navigate("/");
-          setIsLoading(false);
           return;
         }
       }
@@ -129,6 +135,7 @@ const Auth = () => {
         toast.error(error.errors[0].message);
       }
     } finally {
+      isAuthenticatingRef.current = false;
       setIsLoading(false);
     }
   };
@@ -246,8 +253,8 @@ const Auth = () => {
             </CardHeader>
             <CardContent className="text-center">
               <div className="flex flex-col items-center gap-4 py-6">
-                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
-                  <AlertTriangle className="w-8 h-8 text-orange-600" />
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-8 h-8 text-primary" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-foreground mb-2">
