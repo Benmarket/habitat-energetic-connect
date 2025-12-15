@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Calendar, ArrowLeft, Tag, Clock } from "lucide-react";
+import { Loader2, Calendar, ArrowLeft, Tag, Clock, User } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,13 @@ import { extractTableOfContents, addHeadingIds } from "@/utils/tableOfContents";
 import type { Database } from "@/integrations/supabase/types";
 
 type ContentType = Database["public"]["Enums"]["content_type"];
+
+interface Author {
+  id: string;
+  name: string;
+  bio: string | null;
+  avatar_url: string | null;
+}
 
 interface Article {
   id: string;
@@ -33,6 +40,12 @@ interface Article {
   status: string;
   tldr: string | null;
   faq: Array<{ question: string; answer: string }> | null;
+  // Author fields
+  hide_author: boolean;
+  author_display_type: string | null;
+  display_author_id: string | null;
+  custom_author_name: string | null;
+  author_id: string;
   post_categories: {
     categories: {
       id: string;
@@ -56,10 +69,44 @@ const ArticleDetail = () => {
   const [contentWithIds, setContentWithIds] = useState("");
   const [toc, setToc] = useState<Array<{ id: string; text: string; level: number }>>([]);
   const [readingTime, setReadingTime] = useState(0);
+  const [authorInfo, setAuthorInfo] = useState<{ name: string; bio?: string | null; avatar?: string | null } | null>(null);
 
   useEffect(() => {
     fetchArticle();
   }, [slug]);
+
+  const fetchAuthorInfo = async (articleData: any) => {
+    try {
+      if (articleData.author_display_type === "user") {
+        // Fetch user profile
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("first_name, last_name")
+          .eq("id", articleData.author_id)
+          .maybeSingle();
+        
+        if (profile) {
+          const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(" ");
+          setAuthorInfo({ name: fullName || "Auteur" });
+        }
+      } else if (articleData.author_display_type === "custom") {
+        setAuthorInfo({ name: articleData.custom_author_name || "Auteur" });
+      } else if (articleData.author_display_type === "author" && articleData.display_author_id) {
+        // Fetch registered author
+        const { data: author } = await supabase
+          .from("authors")
+          .select("name, bio, avatar_url")
+          .eq("id", articleData.display_author_id)
+          .maybeSingle();
+        
+        if (author) {
+          setAuthorInfo({ name: author.name, bio: author.bio, avatar: author.avatar_url });
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching author info:", error);
+    }
+  };
 
   const fetchArticle = async () => {
     setLoading(true);
@@ -91,6 +138,11 @@ const ArticleDetail = () => {
           const contentWithHeadingIds = addHeadingIds(data.content);
           setContentWithIds(contentWithHeadingIds);
           setToc(extractTableOfContents(contentWithHeadingIds));
+        }
+
+        // Fetch author info if not hidden
+        if (!data.hide_author) {
+          await fetchAuthorInfo(data);
         }
       }
     } catch (error) {
@@ -443,6 +495,30 @@ const ArticleDetail = () => {
               {/* Table of contents */}
               {toc.length > 0 && <TableOfContents items={toc} />}
               
+              {/* Author Section */}
+              {authorInfo && (
+                <div className="flex items-center gap-4 mb-8 p-4 bg-muted/50 rounded-lg">
+                  {authorInfo.avatar ? (
+                    <img
+                      src={authorInfo.avatar}
+                      alt={authorInfo.name}
+                      className="w-14 h-14 rounded-full object-cover border-2 border-primary/20"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="w-7 h-7 text-primary" />
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm text-muted-foreground">Rédigé par</p>
+                    <p className="font-semibold text-foreground">{authorInfo.name}</p>
+                    {authorInfo.bio && (
+                      <p className="text-sm text-muted-foreground mt-1">{authorInfo.bio}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div 
                 className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground prose-a:text-primary prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl"
                 dangerouslySetInnerHTML={{ __html: contentWithIds }}
