@@ -18,7 +18,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, Edit, Trash2, Eye, Loader2, Layers, FileText, Megaphone, Maximize, X, Save, Copy } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, Eye, Loader2, Layers, FileText, Megaphone, Maximize, X, Save, Copy, Check } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Helmet } from "react-helmet";
 import PopupPreview from "@/components/PopupPreview";
 
@@ -33,6 +34,7 @@ type Popup = {
   name: string;
   is_active: boolean;
   target_page: string;
+  target_categories: string[] | null;
   form_id: string | null;
   delay_seconds: number;
   frequency: string;
@@ -55,6 +57,12 @@ type Popup = {
   custom_template_name: string | null;
   created_at: string;
   updated_at: string;
+};
+
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
 };
 
 type PopupTemplate = {
@@ -121,6 +129,7 @@ const defaultPopupData: Omit<Popup, "id" | "created_at" | "updated_at"> = {
   name: "",
   is_active: false,
   target_page: "/",
+  target_categories: null,
   form_id: null,
   delay_seconds: 3,
   frequency: "session",
@@ -184,6 +193,20 @@ export default function AdminPopups() {
         .order("name");
       if (error) throw error;
       return data as FormConfig[];
+    },
+  });
+
+  // Fetch categories for article targeting
+  const { data: categories } = useQuery({
+    queryKey: ["categories-actualites"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("id, name, slug")
+        .eq("content_type", "actualite")
+        .order("name");
+      if (error) throw error;
+      return data as Category[];
     },
   });
 
@@ -343,6 +366,7 @@ export default function AdminPopups() {
         name: popup.name,
         is_active: popup.is_active,
         target_page: popup.target_page,
+        target_categories: popup.target_categories,
         form_id: popup.form_id,
         delay_seconds: popup.delay_seconds,
         frequency: popup.frequency,
@@ -550,6 +574,7 @@ export default function AdminPopups() {
                                         name: popup.name,
                                         is_active: popup.is_active,
                                         target_page: popup.target_page,
+                                        target_categories: popup.target_categories,
                                         form_id: popup.form_id,
                                         delay_seconds: popup.delay_seconds,
                                         frequency: popup.frequency,
@@ -663,6 +688,67 @@ export default function AdminPopups() {
                   </Select>
                 </div>
               </div>
+
+              {/* Category selection for /actualites */}
+              {popupData.target_page === "/actualites" && categories && categories.length > 0 && (
+                <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-base">Catégories d'articles</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Sélectionnez les catégories où afficher ce popup (sur la liste et les articles)
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (popupData.target_categories?.length === categories.length) {
+                          setPopupData(prev => ({ ...prev, target_categories: null }));
+                        } else {
+                          setPopupData(prev => ({ ...prev, target_categories: categories.map(c => c.slug) }));
+                        }
+                      }}
+                    >
+                      {popupData.target_categories?.length === categories.length ? "Décocher tout" : "Tout cocher"}
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {categories.map((category) => {
+                      const isChecked = popupData.target_categories?.includes(category.slug) ?? false;
+                      return (
+                        <label
+                          key={category.id}
+                          className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                            isChecked ? "bg-primary/10 border-primary" : "hover:bg-muted"
+                          }`}
+                        >
+                          <Checkbox
+                            checked={isChecked}
+                            onCheckedChange={(checked) => {
+                              setPopupData(prev => {
+                                const currentCategories = prev.target_categories || [];
+                                if (checked) {
+                                  return { ...prev, target_categories: [...currentCategories, category.slug] };
+                                } else {
+                                  return { ...prev, target_categories: currentCategories.filter(c => c !== category.slug) };
+                                }
+                              });
+                            }}
+                          />
+                          <span className="font-medium">{category.name}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  {(!popupData.target_categories || popupData.target_categories.length === 0) && (
+                    <p className="text-xs text-amber-600">
+                      ⚠️ Aucune catégorie sélectionnée = popup affiché sur toutes les actualités
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
