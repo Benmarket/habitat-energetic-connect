@@ -803,6 +803,158 @@ export type Database = {
         }
         Relationships: []
       }
+      popup_templates: {
+        Row: {
+          accent_color: string | null
+          animation: string
+          background_color: string | null
+          badge_color: string | null
+          close_button_style: string | null
+          created_at: string
+          id: string
+          name: string
+          overlay_opacity: number | null
+          position: string
+          show_close_button: boolean
+          size: string
+          template: string
+          text_color: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accent_color?: string | null
+          animation?: string
+          background_color?: string | null
+          badge_color?: string | null
+          close_button_style?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          overlay_opacity?: number | null
+          position?: string
+          show_close_button?: boolean
+          size?: string
+          template?: string
+          text_color?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accent_color?: string | null
+          animation?: string
+          background_color?: string | null
+          badge_color?: string | null
+          close_button_style?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          overlay_opacity?: number | null
+          position?: string
+          show_close_button?: boolean
+          size?: string
+          template?: string
+          text_color?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      popups: {
+        Row: {
+          accent_color: string | null
+          animation: string
+          background_color: string | null
+          background_image: string | null
+          badge_color: string | null
+          badge_text: string | null
+          close_button_style: string | null
+          created_at: string
+          custom_template_name: string | null
+          delay_seconds: number
+          form_id: string | null
+          frequency: string
+          id: string
+          is_active: boolean
+          is_custom_template: boolean
+          name: string
+          overlay_opacity: number | null
+          position: string
+          show_close_button: boolean
+          size: string
+          subtitle: string | null
+          target_page: string
+          template: string
+          text_color: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string | null
+          animation?: string
+          background_color?: string | null
+          background_image?: string | null
+          badge_color?: string | null
+          badge_text?: string | null
+          close_button_style?: string | null
+          created_at?: string
+          custom_template_name?: string | null
+          delay_seconds?: number
+          form_id?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          is_custom_template?: boolean
+          name: string
+          overlay_opacity?: number | null
+          position?: string
+          show_close_button?: boolean
+          size?: string
+          subtitle?: string | null
+          target_page?: string
+          template?: string
+          text_color?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string | null
+          animation?: string
+          background_color?: string | null
+          background_image?: string | null
+          badge_color?: string | null
+          badge_text?: string | null
+          close_button_style?: string | null
+          created_at?: string
+          custom_template_name?: string | null
+          delay_seconds?: number
+          form_id?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          is_custom_template?: boolean
+          name?: string
+          overlay_opacity?: number | null
+          position?: string
+          show_close_button?: boolean
+          size?: string
+          subtitle?: string | null
+          target_page?: string
+          template?: string
+          text_color?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "popups_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "form_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_categories: {
         Row: {
           category_id: string
