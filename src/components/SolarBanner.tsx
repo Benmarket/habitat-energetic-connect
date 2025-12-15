@@ -108,9 +108,9 @@ const SolarBanner = () => {
               </div>
 
               {/* Desktop Layout - Text left, Diagram right */}
-              <div className="hidden lg:grid grid-cols-2 gap-8 mb-6">
-                {/* Left Column - Text */}
-                <div>
+              <div className="hidden lg:flex gap-8 mb-6 items-start">
+                {/* Left Column - Text (flex-1 to take remaining space) */}
+                <div className="flex-1">
                   <p className="text-base text-foreground leading-relaxed">
                     Le photovoltaïque permet de produire votre propre électricité grâce à l'énergie solaire, 
                     une ressource gratuite et inépuisable. En plus de réduire vos factures, c'est un 
@@ -122,23 +122,23 @@ const SolarBanner = () => {
                   </p>
                 </div>
 
-                {/* Right Column - Diagram with legend */}
-                <div className="flex flex-col items-center">
+                {/* Right Column - Diagram with legend (fixed width) */}
+                <div className="flex flex-col items-center w-[220px] flex-shrink-0">
                   <img
                     src={solarSystemDiagram}
                     alt="Schéma du système photovoltaïque"
-                    className="w-full max-w-[252px] mb-4"
+                    className="w-full mb-3"
                   />
-                  <div className="space-y-2 w-full max-w-[280px]">
+                  <div className="space-y-1.5 w-full">
                     <div className="flex items-start gap-2">
-                      <div className="w-4 h-4 mt-1 rounded bg-orange-500 flex-shrink-0"></div>
-                      <p className="text-sm text-foreground font-medium leading-tight">
+                      <div className="w-3 h-3 mt-0.5 rounded bg-orange-500 flex-shrink-0"></div>
+                      <p className="text-xs text-foreground font-medium leading-tight">
                         Capter les rayons du soleil et les convertir en kW utilisable
                       </p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-4 h-4 mt-1 rounded bg-cyan-500 flex-shrink-0"></div>
-                      <p className="text-sm text-foreground font-medium leading-tight">
+                      <div className="w-3 h-3 mt-0.5 rounded bg-cyan-500 flex-shrink-0"></div>
+                      <p className="text-xs text-foreground font-medium leading-tight">
                         Revente du surplus non consommé vers le circuit général
                       </p>
                     </div>
