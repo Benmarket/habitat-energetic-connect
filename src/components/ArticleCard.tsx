@@ -36,23 +36,20 @@ const ArticleCard = ({
 
   if (variant === "guide") {
     return (
-      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col group border-border/50 rounded-2xl">
-        <CardContent className="p-6 flex-1 flex flex-col">
-          <Link to={articleUrl} className="group/link flex-1 flex flex-col">
-            <h3 className="text-xl font-bold mb-3 group-hover/link:text-primary transition-colors line-clamp-2 leading-tight text-foreground">
+      <Link to={articleUrl} className="group block h-full">
+        <Card className="h-full transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 hover:scale-[1.01] hover:-translate-y-1 bg-card/80 backdrop-blur-sm border-2 border-orange-500/20 hover:border-orange-500 overflow-hidden rounded-2xl">
+          <CardContent className="p-6 flex flex-col h-full">
+            <h3 className="text-xl font-bold mb-3 group-hover:text-orange-600 transition-colors duration-300 line-clamp-2 leading-tight text-foreground">
               {title}
             </h3>
-            <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed flex-1">{excerpt}</p>
-          </Link>
-          <Link 
-            to={articleUrl} 
-            className="inline-flex items-center gap-2 text-primary font-semibold mt-4 hover:gap-3 transition-all duration-200"
-          >
-            Lire le guide
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </CardContent>
-      </Card>
+            <p className="text-muted-foreground text-base line-clamp-3 leading-relaxed flex-1">{excerpt}</p>
+            <div className="mt-6 flex items-center gap-2 text-orange-600 font-bold group-hover:gap-4 transition-all duration-300">
+              <span>Lire le guide</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
     );
   }
 
