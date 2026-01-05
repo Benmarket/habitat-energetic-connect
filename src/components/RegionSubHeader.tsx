@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
 
 // Import region images
@@ -23,15 +23,11 @@ interface RegionSubHeaderProps {
 }
 
 const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isManuallyCollapsed, setIsManuallyCollapsed] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
 
-  // Auto-collapse on scroll
-  useEffect(() => {
-    if (isScrolled && !isCollapsed) {
-      setIsCollapsed(true);
-    }
-  }, [isScrolled]);
+  // Auto-collapse on scroll, auto-expand when back to top
+  const isCollapsed = isScrolled ? true : isManuallyCollapsed;
 
   const handleRegionClick = (regionName: string) => {
     setSelectedRegion(regionName);
@@ -40,30 +36,29 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
 
   return (
     <div className="bg-muted/50 border-t border-border/50">
-      {/* Toggle button - always visible */}
       <div 
         className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          isCollapsed ? "max-h-0" : "max-h-24"
+          isCollapsed ? "max-h-0" : "max-h-32"
         }`}
       >
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-4 md:gap-8 lg:gap-12 py-2 md:py-3">
+        <div className="container mx-auto px-4 md:px-8 lg:px-12">
+          <div className="flex items-center justify-between py-3 md:py-4">
             {regions.map((region) => (
               <button
                 key={region.name}
                 onClick={() => handleRegionClick(region.name)}
-                className={`group flex flex-col items-center gap-1 transition-all duration-200 hover:scale-110 focus:outline-none ${
+                className={`group flex flex-col items-center gap-1.5 flex-1 transition-all duration-200 hover:scale-110 focus:outline-none ${
                   selectedRegion === region.name ? "scale-105" : ""
                 }`}
               >
-                <div className="relative w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 flex items-center justify-center">
+                <div className="relative w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center">
                   <img
                     src={region.image}
                     alt={region.name}
-                    className="w-full h-full object-contain transition-transform duration-200 group-hover:scale-110"
+                    className="w-full h-full object-contain transition-transform duration-200 group-hover:scale-115"
                   />
                 </div>
-                <span className="text-[10px] md:text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors whitespace-nowrap">
+                <span className="text-xs md:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors whitespace-nowrap">
                   {region.name}
                 </span>
               </button>
@@ -74,7 +69,7 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
       
       {/* Collapse/Expand toggle */}
       <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
+        onClick={() => setIsManuallyCollapsed(!isManuallyCollapsed)}
         className="w-full flex items-center justify-center py-1 hover:bg-muted/70 transition-colors group"
         aria-label={isCollapsed ? "Afficher les régions" : "Masquer les régions"}
       >
