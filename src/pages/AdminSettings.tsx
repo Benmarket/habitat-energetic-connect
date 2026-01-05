@@ -240,6 +240,7 @@ const AdminSettings = () => {
     aiModel: "gpt-4o-mini",
     aiEnabled: true,
     aiCustomInstructions: "",
+    reviewsLink: "",
   });
 
   const [headerFooterSettings, setHeaderFooterSettings] = useState({
@@ -721,7 +722,7 @@ const AdminSettings = () => {
       const { data, error } = await supabase
         .from("site_settings")
         .select("key, value")
-        .in("key", ["site_title", "site_description", "meta_description", "contact_email", "contact_phone", "address"]);
+        .in("key", ["site_title", "site_description", "meta_description", "contact_email", "contact_phone", "address", "reviews_link"]);
 
       if (error) throw error;
 
@@ -732,6 +733,7 @@ const AdminSettings = () => {
         const contactEmail = data.find(s => s.key === "contact_email");
         const contactPhone = data.find(s => s.key === "contact_phone");
         const address = data.find(s => s.key === "address");
+        const reviewsLink = data.find(s => s.key === "reviews_link");
 
         const loadedGeneral = {
           siteName: siteTitle?.value as string || "Prime Énergies",
@@ -740,6 +742,7 @@ const AdminSettings = () => {
           contactEmail: contactEmail?.value as string || "contact@prime-energies.fr",
           contactPhone: contactPhone?.value as string || "01 23 45 67 89",
           address: address?.value as string || "123 Rue de l'Énergie, 75001 Paris",
+          reviewsLink: reviewsLink?.value as string || "",
         };
 
         setSettings(prev => ({ ...prev, ...loadedGeneral }));
@@ -1079,6 +1082,7 @@ const AdminSettings = () => {
         supabase.from("site_settings").upsert({ key: "contact_email", value: settings.contactEmail, updated_by: user.id }, { onConflict: "key" }),
         supabase.from("site_settings").upsert({ key: "contact_phone", value: settings.contactPhone, updated_by: user.id }, { onConflict: "key" }),
         supabase.from("site_settings").upsert({ key: "address", value: settings.address, updated_by: user.id }, { onConflict: "key" }),
+        supabase.from("site_settings").upsert({ key: "reviews_link", value: settings.reviewsLink, updated_by: user.id }, { onConflict: "key" }),
       ]);
 
       // Vérifier les erreurs
@@ -1781,6 +1785,34 @@ const AdminSettings = () => {
                     </SortableContext>
                   </DndContext>
 
+
+                  {/* Paramètre spécifique - Avis clients */}
+                  <div className="border border-border rounded-lg p-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div 
+                        className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-white"
+                        style={{ backgroundColor: '#fbbf24' }}
+                      >
+                        <Star className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Avis clients - Lien Google</p>
+                        <p className="text-xs text-muted-foreground">Lien pour le bouton "Laisser un avis"</p>
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="reviewsLink">URL Google Avis</Label>
+                      <Input
+                        id="reviewsLink"
+                        value={settings.reviewsLink}
+                        onChange={(e) => setSettings({ ...settings, reviewsLink: e.target.value })}
+                        placeholder="https://g.page/r/VOTRE_LIEN/review"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Entrez l'URL complète de votre page Google pour laisser un avis
+                      </p>
+                    </div>
+                  </div>
 
                   <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                     <p className="text-sm text-blue-900 dark:text-blue-100">
