@@ -1727,8 +1727,8 @@ const AdminSettings = () => {
                 </CardContent>
               </Card>
 
-              <div className="flex justify-end">
-                <Button type="submit" disabled={saving}>
+              <div className="sticky bottom-4 z-50 flex justify-end pt-4">
+                <Button type="submit" disabled={saving} className="shadow-lg">
                   {saving ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
