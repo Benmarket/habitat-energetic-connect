@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
 
 // Import region images
@@ -23,19 +23,11 @@ interface RegionSubHeaderProps {
 }
 
 const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
-  const [isManuallyExpanded, setIsManuallyExpanded] = useState(false);
+  const [isManuallyCollapsed, setIsManuallyCollapsed] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
 
-  // Reset manual expansion when returning to top of page
-  useEffect(() => {
-    if (!isScrolled) {
-      setIsManuallyExpanded(false);
-    }
-  }, [isScrolled]);
-
-  // Logic: when scrolled, auto-collapse unless manually expanded
-  // When not scrolled (top of page), always show expanded
-  const isCollapsed = isScrolled && !isManuallyExpanded;
+  // Auto-collapse on scroll, auto-expand when back to top
+  const isCollapsed = isScrolled ? true : isManuallyCollapsed;
 
   const handleRegionClick = (regionName: string) => {
     setSelectedRegion(regionName);
@@ -77,7 +69,7 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
       
       {/* Collapse/Expand toggle */}
       <button
-        onClick={() => setIsManuallyExpanded(!isManuallyExpanded)}
+        onClick={() => setIsManuallyCollapsed(!isManuallyCollapsed)}
         className="w-full flex items-center justify-center py-1 hover:bg-muted/70 transition-colors group"
         aria-label={isCollapsed ? "Afficher les régions" : "Masquer les régions"}
       >
