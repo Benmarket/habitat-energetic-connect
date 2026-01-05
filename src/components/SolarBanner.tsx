@@ -23,7 +23,7 @@ const SolarBanner = () => {
             <img
               src={solarHouseBanner}
               alt="Maison avec panneaux solaires photovoltaïques"
-              className="rounded-2xl shadow-2xl w-full object-cover md:max-h-[200px] lg:max-h-none"
+              className="rounded-2xl shadow-2xl w-full object-cover md:max-h-[300px] lg:max-h-none"
             />
             <div className="absolute top-4 left-4 w-20 h-20 lg:w-28 lg:h-28">
               <img
