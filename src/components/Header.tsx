@@ -37,6 +37,7 @@ const Header = () => {
     installerButtonColor: "#22c55e",
     installerButtonTextColor: "#ffffff",
     installerButtonLink: "/#etude",
+    showRegionSubHeader: true,
   });
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const { user, signOut } = useAuth();
@@ -87,6 +88,7 @@ const Header = () => {
             installerButtonColor: value.installerButtonColor || "#22c55e",
             installerButtonTextColor: value.installerButtonTextColor || "#ffffff",
             installerButtonLink: value.installerButtonLink || "/#etude",
+            showRegionSubHeader: value.showRegionSubHeader ?? true,
           });
         }
         setSettingsLoaded(true);
@@ -532,8 +534,8 @@ const Header = () => {
         )}
       </div>
       
-      {/* Region Sub-Header - Only on homepage */}
-      {isHomePage && <RegionSubHeader isScrolled={isScrolled} />}
+      {/* Region Sub-Header - Only on homepage and if enabled */}
+      {isHomePage && headerFooterSettings.showRegionSubHeader && <RegionSubHeader isScrolled={isScrolled} />}
       
       <AuthModal open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
     </header>
