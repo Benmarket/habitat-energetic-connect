@@ -36,6 +36,17 @@ const Header = () => {
     installerButtonText: "Trouver un installateur",
     installerButtonColor: "#22c55e",
     installerButtonTextColor: "#ffffff",
+    installerButtonBorderRadius: 6,
+    installerButtonPaddingX: 16,
+    installerButtonPaddingY: 8,
+    installerButtonBorderWidth: 0,
+    installerButtonBorderColor: "#000000",
+    installerButtonBorderStyle: "solid",
+    installerButtonShadowSize: "none",
+    installerButtonUseGradient: false,
+    installerButtonGradientColor1: "#22c55e",
+    installerButtonGradientColor2: "#16a34a",
+    installerButtonGradientAngle: 90,
     installerButtonLink: "/#etude",
     showRegionSubHeader: true,
   });
@@ -87,6 +98,17 @@ const Header = () => {
             installerButtonText: value.installerButtonText || "Trouver un installateur",
             installerButtonColor: value.installerButtonColor || "#22c55e",
             installerButtonTextColor: value.installerButtonTextColor || "#ffffff",
+            installerButtonBorderRadius: value.installerButtonBorderRadius ?? 6,
+            installerButtonPaddingX: value.installerButtonPaddingX ?? 16,
+            installerButtonPaddingY: value.installerButtonPaddingY ?? 8,
+            installerButtonBorderWidth: value.installerButtonBorderWidth ?? 0,
+            installerButtonBorderColor: value.installerButtonBorderColor || "#000000",
+            installerButtonBorderStyle: value.installerButtonBorderStyle || "solid",
+            installerButtonShadowSize: value.installerButtonShadowSize || "none",
+            installerButtonUseGradient: value.installerButtonUseGradient ?? false,
+            installerButtonGradientColor1: value.installerButtonGradientColor1 || "#22c55e",
+            installerButtonGradientColor2: value.installerButtonGradientColor2 || "#16a34a",
+            installerButtonGradientAngle: value.installerButtonGradientAngle ?? 90,
             installerButtonLink: value.installerButtonLink || "/#etude",
             showRegionSubHeader: value.showRegionSubHeader ?? true,
           });
@@ -217,10 +239,21 @@ const Header = () => {
                       navigate(link);
                     }
                   }}
-                  className="hidden lg:flex whitespace-nowrap text-sm lg:text-base px-3 lg:px-4 py-2 rounded-md font-medium transition-all hover:opacity-90 cursor-pointer"
+                  className="hidden lg:flex whitespace-nowrap font-medium transition-all hover:opacity-90 cursor-pointer"
                   style={{
-                    backgroundColor: headerFooterSettings.installerButtonColor,
+                    background: headerFooterSettings.installerButtonUseGradient
+                      ? `linear-gradient(${headerFooterSettings.installerButtonGradientAngle}deg, ${headerFooterSettings.installerButtonGradientColor1}, ${headerFooterSettings.installerButtonGradientColor2})`
+                      : headerFooterSettings.installerButtonColor,
                     color: headerFooterSettings.installerButtonTextColor,
+                    borderRadius: `${headerFooterSettings.installerButtonBorderRadius}px`,
+                    padding: `${headerFooterSettings.installerButtonPaddingY}px ${headerFooterSettings.installerButtonPaddingX}px`,
+                    border: headerFooterSettings.installerButtonBorderWidth > 0 
+                      ? `${headerFooterSettings.installerButtonBorderWidth}px ${headerFooterSettings.installerButtonBorderStyle} ${headerFooterSettings.installerButtonBorderColor}` 
+                      : 'none',
+                    boxShadow: headerFooterSettings.installerButtonShadowSize === 'sm' ? '0 1px 2px rgba(0,0,0,0.05)' 
+                      : headerFooterSettings.installerButtonShadowSize === 'md' ? '0 4px 6px rgba(0,0,0,0.1)'
+                      : headerFooterSettings.installerButtonShadowSize === 'lg' ? '0 10px 15px rgba(0,0,0,0.15)'
+                      : 'none',
                   }}
                 >
                   {headerFooterSettings.installerButtonText}
