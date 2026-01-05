@@ -79,11 +79,11 @@ const Index = () => {
 
         if (data?.value) {
           const savedSections = data.value as unknown as HomepageSection[];
-          // Merge saved sections with defaults to ensure new sections are included
-          const mergedSections = DEFAULT_SECTIONS.map(defaultSection => {
-            const savedSection = savedSections.find(s => s.id === defaultSection.id);
-            return savedSection || defaultSection;
-          }).sort((a, b) => a.order - b.order);
+          // Start with saved sections and add any new default sections that don't exist
+          const savedIds = savedSections.map(s => s.id);
+          const newDefaultSections = DEFAULT_SECTIONS.filter(d => !savedIds.includes(d.id));
+          // Combine saved sections with new defaults, then sort by order
+          const mergedSections = [...savedSections, ...newDefaultSections].sort((a, b) => a.order - b.order);
           setSections(mergedSections);
         }
       } catch (error) {
