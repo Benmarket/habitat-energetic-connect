@@ -10,7 +10,7 @@ const WhySolarSection = () => {
     {
       image: ecologiqueImg,
       title: "Écologique",
-      description: "Le panneau solaire, utilise la lumière du soleil pour produire de l'électricité sans émissions nocives. C'est une solution écologique qui contribue à la préservation de l'environnement."
+      description: "L'énergie solaire utilise la lumière du soleil pour produire de l'électricité sans émission nocive. Cette solution contribue à la préservation de l'environnement."
     },
     {
       image: factureEdfImg,
