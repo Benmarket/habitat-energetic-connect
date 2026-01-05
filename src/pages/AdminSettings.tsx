@@ -765,103 +765,57 @@ const AdminSettings = () => {
       };
       
       if (settings.maintenanceMode && !wasEnabled) {
-        // On active le mode maintenance, on ajoute le timestamp
         maintenanceValue.activatedAt = new Date().toISOString();
       } else if (settings.maintenanceMode && wasEnabled && currentValue?.activatedAt) {
-        // Le mode était déjà activé, on garde le timestamp existant
         maintenanceValue.activatedAt = currentValue.activatedAt;
       }
-      // Si on désactive, on ne met pas de timestamp (sera ignoré de toute façon)
 
-      const maintenanceUpdate = supabase
-        .from("site_settings")
-        .update({
-          value: maintenanceValue
-        })
-        .eq("key", "maintenance_mode");
+      // Préparer les données du slider hero
+      const heroSliderData = {
+        ...heroSlider,
+      };
 
-      // Sauvegarder les paramètres IA
-      const aiUrlUpdate = supabase
-        .from("site_settings")
-        .update({ value: settings.aiApiUrl })
-        .eq("key", "ai_generation_api_url");
+      // Préparer les données des bandes accueil
+      const sectionsToSave = homepageSections.map((section, idx) => ({
+        ...section,
+        visible: Boolean(section.visible),
+        order: idx
+      }));
 
-      const aiModelUpdate = supabase
-        .from("site_settings")
-        .update({ value: settings.aiModel })
-        .eq("key", "ai_generation_model");
-
-      const aiEnabledUpdate = supabase
-        .from("site_settings")
-        .update({ value: settings.aiEnabled })
-        .eq("key", "ai_generation_enabled");
-
-      const aiInstructionsUpdate = supabase
-        .from("site_settings")
-        .upsert({
-          key: "ai_custom_instructions",
-          value: settings.aiCustomInstructions
-        }, {
-          onConflict: "key"
-        });
-
-      const cookieBannerUpdate = supabase
-        .from("site_settings")
-        .upsert({
-          key: "cookie_banner",
-          value: cookieBanner,
-          updated_by: user.id,
-        }, {
-          onConflict: "key"
-        });
-
-      const headerFooterUpdate = supabase
-        .from("site_settings")
-        .upsert({
-          key: "header_footer",
-          value: headerFooterSettings,
-          updated_by: user.id,
-        }, {
-          onConflict: "key"
-        });
-
-      // Sauvegarder les paramètres généraux
-      const generalSettingsUpdates = [
+      // Toutes les mises à jour en parallèle
+      const allUpdates = await Promise.all([
+        // Maintenance
+        supabase.from("site_settings").update({ value: maintenanceValue }).eq("key", "maintenance_mode"),
+        // IA
+        supabase.from("site_settings").update({ value: settings.aiApiUrl }).eq("key", "ai_generation_api_url"),
+        supabase.from("site_settings").update({ value: settings.aiModel }).eq("key", "ai_generation_model"),
+        supabase.from("site_settings").update({ value: settings.aiEnabled }).eq("key", "ai_generation_enabled"),
+        supabase.from("site_settings").upsert({ key: "ai_custom_instructions", value: settings.aiCustomInstructions }, { onConflict: "key" }),
+        // Cookie banner
+        supabase.from("site_settings").upsert({ key: "cookie_banner", value: cookieBanner, updated_by: user.id }, { onConflict: "key" }),
+        // Header/Footer
+        supabase.from("site_settings").upsert({ key: "header_footer", value: headerFooterSettings, updated_by: user.id }, { onConflict: "key" }),
+        // Hero Slider
+        supabase.from("site_settings").upsert({ key: "hero_slider", value: heroSliderData, updated_by: user.id }, { onConflict: "key" }),
+        // Homepage Sections (Bandes accueil)
+        supabase.from("site_settings").upsert({ key: "homepage_sections", value: sectionsToSave, updated_by: user.id }, { onConflict: "key" }),
+        // Paramètres généraux
         supabase.from("site_settings").upsert({ key: "site_title", value: settings.siteName, updated_by: user.id }, { onConflict: "key" }),
         supabase.from("site_settings").upsert({ key: "site_description", value: settings.siteDescription, updated_by: user.id }, { onConflict: "key" }),
         supabase.from("site_settings").upsert({ key: "meta_description", value: settings.metaDescription, updated_by: user.id }, { onConflict: "key" }),
         supabase.from("site_settings").upsert({ key: "contact_email", value: settings.contactEmail, updated_by: user.id }, { onConflict: "key" }),
         supabase.from("site_settings").upsert({ key: "contact_phone", value: settings.contactPhone, updated_by: user.id }, { onConflict: "key" }),
         supabase.from("site_settings").upsert({ key: "address", value: settings.address, updated_by: user.id }, { onConflict: "key" }),
-      ];
-
-      const [maintenanceResult, urlResult, modelResult, enabledResult, instructionsResult, cookieBannerResult, headerFooterResult, ...generalResults] = await Promise.all([
-        maintenanceUpdate,
-        aiUrlUpdate,
-        aiModelUpdate,
-        aiEnabledUpdate,
-        aiInstructionsUpdate,
-        cookieBannerUpdate,
-        headerFooterUpdate,
-        ...generalSettingsUpdates
       ]);
 
-      if (maintenanceResult.error) throw maintenanceResult.error;
-      if (urlResult.error) throw urlResult.error;
-      if (modelResult.error) throw modelResult.error;
-      if (enabledResult.error) throw enabledResult.error;
-      if (instructionsResult.error) throw instructionsResult.error;
-      if (cookieBannerResult.error) throw cookieBannerResult.error;
-      if (headerFooterResult.error) throw headerFooterResult.error;
-      
-      // Vérifier les erreurs des paramètres généraux
-      generalResults.forEach((result, index) => {
+      // Vérifier les erreurs
+      for (const result of allUpdates) {
         if (result.error) throw result.error;
-      });
+      }
 
       toast({
         title: "Paramètres sauvegardés",
-        description: "Les modifications ont été enregistrées avec succès",
+        description: "Toutes les modifications ont été enregistrées avec succès",
       });
     } catch (error: any) {
       console.error("Error saving settings:", error);
@@ -1504,16 +1458,6 @@ const AdminSettings = () => {
                     </div>
                   </div>
 
-                  <div className="flex justify-end pt-4 border-t">
-                    <Button
-                      type="button"
-                      onClick={saveHeroSlider}
-                      variant="default"
-                    >
-                      <Save className="w-4 h-4 mr-2" />
-                      Enregistrer le slider
-                    </Button>
-                  </div>
 
                   <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                     <p className="text-sm text-blue-900 dark:text-blue-100">
@@ -1557,16 +1501,6 @@ const AdminSettings = () => {
                     </SortableContext>
                   </DndContext>
 
-                  <div className="flex justify-end pt-4 border-t">
-                    <Button
-                      type="button"
-                      onClick={saveHomepageSections}
-                      variant="default"
-                    >
-                      <Save className="w-4 h-4 mr-2" />
-                      Enregistrer les bandes
-                    </Button>
-                  </div>
 
                   <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                     <p className="text-sm text-blue-900 dark:text-blue-100">
