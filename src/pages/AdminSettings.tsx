@@ -32,21 +32,22 @@ interface HomepageSection {
 }
 
 const DEFAULT_HOMEPAGE_SECTIONS: HomepageSection[] = [
-  { id: 'solar-banner', name: 'Bannière Solaire', anchor: '#solaire', visible: true, order: 0, description: 'Bandeau promotionnel panneaux solaires avec garantie 25 ans', icon: 'sun', color: '#f59e0b' },
-  { id: 'why-solar', name: 'Pourquoi le Solaire', anchor: '#pourquoi-solaire', visible: true, order: 1, description: '3 avantages du solaire avec visuels (facture, app, écologie)', icon: 'zap', color: '#eab308' },
-  { id: 'renovation', name: 'Programme Rénovation', anchor: '#renovation', visible: true, order: 2, description: 'Section rénovation d\'ampleur avec image maison', icon: 'home', color: '#22c55e' },
-  { id: 'news', name: 'Actualités', anchor: '#actualites', visible: true, order: 3, description: 'Carrousel des dernières actualités du site', icon: 'newspaper', color: '#3b82f6' },
-  { id: 'aides', name: 'Aides disponibles', anchor: '#aides', visible: true, order: 4, description: 'Section des aides financières disponibles', icon: 'help', color: '#8b5cf6' },
-  { id: 'guides', name: 'Guides par projet', anchor: '#guides', visible: true, order: 5, description: 'Grille des guides pratiques par thématique', icon: 'book', color: '#06b6d4' },
-  { id: 'eligibility', name: 'Étude gratuite', anchor: '#etude', visible: true, order: 6, description: 'Formulaire principal de demande d\'étude énergétique', icon: 'file', color: '#10b981' },
-  { id: 'simulators', name: 'Simulateurs', anchor: '#simulateurs', visible: true, order: 7, description: 'Grille des simulateurs (économies, aides, etc.)', icon: 'calculator', color: '#f97316' },
-  { id: 'installers', name: 'Trouver un installateur', anchor: '#installateurs', visible: true, order: 8, description: 'Carte de France interactive des régions', icon: 'map', color: '#ec4899' },
-  { id: 'partner-offers', name: 'Offres partenaires', anchor: '#offres', visible: true, order: 9, description: 'Carrousel des offres promotionnelles partenaires', icon: 'gift', color: '#ef4444' },
-  { id: 'cta-partner', name: 'Devenir partenaire', anchor: '#devenir-partenaire', visible: true, order: 10, description: 'Appel à l\'action pour les professionnels', icon: 'handshake', color: '#14b8a6' },
-  { id: 'faq', name: 'FAQ', anchor: '#faq', visible: true, order: 11, description: 'Questions fréquentes en accordéon', icon: 'message', color: '#6366f1' },
-  { id: 'reviews', name: 'Avis clients', anchor: '#avis', visible: true, order: 12, description: 'Carrousel des témoignages clients avec photos', icon: 'star', color: '#fbbf24' },
-  { id: 'contact', name: 'Contact', anchor: '#contact', visible: true, order: 13, description: 'Formulaire de contact et coordonnées', icon: 'phone', color: '#64748b' },
-  { id: 'app-download', name: 'Télécharger l\'app', anchor: '#app', visible: true, order: 14, description: 'Section téléchargement application mobile', icon: 'smartphone', color: '#0ea5e9' },
+  { id: 'hero', name: 'Hero Principal', anchor: '#hero', visible: true, order: 0, description: 'Bannière principale avec slider d\'images et CTA', icon: 'home', color: '#7c3aed' },
+  { id: 'solar-banner', name: 'Bannière Solaire', anchor: '#solaire', visible: true, order: 1, description: 'Bandeau promotionnel panneaux solaires avec garantie 25 ans', icon: 'sun', color: '#f59e0b' },
+  { id: 'why-solar', name: 'Pourquoi le Solaire', anchor: '#pourquoi-solaire', visible: true, order: 2, description: '3 avantages du solaire avec visuels (facture, app, écologie)', icon: 'zap', color: '#eab308' },
+  { id: 'renovation', name: 'Programme Rénovation', anchor: '#renovation', visible: true, order: 3, description: 'Section rénovation d\'ampleur avec image maison', icon: 'home', color: '#22c55e' },
+  { id: 'news', name: 'Actualités', anchor: '#actualites', visible: true, order: 4, description: 'Carrousel des dernières actualités du site', icon: 'newspaper', color: '#3b82f6' },
+  { id: 'aides', name: 'Aides disponibles', anchor: '#aides', visible: true, order: 5, description: 'Section des aides financières disponibles', icon: 'help', color: '#8b5cf6' },
+  { id: 'guides', name: 'Guides par projet', anchor: '#guides', visible: true, order: 6, description: 'Grille des guides pratiques par thématique', icon: 'book', color: '#06b6d4' },
+  { id: 'eligibility', name: 'Étude gratuite', anchor: '#etude', visible: true, order: 7, description: 'Formulaire principal de demande d\'étude énergétique', icon: 'file', color: '#10b981' },
+  { id: 'simulators', name: 'Simulateurs', anchor: '#simulateurs', visible: true, order: 8, description: 'Grille des simulateurs (économies, aides, etc.)', icon: 'calculator', color: '#f97316' },
+  { id: 'installers', name: 'Trouver un installateur', anchor: '#installateurs', visible: true, order: 9, description: 'Carte de France interactive des régions', icon: 'map', color: '#ec4899' },
+  { id: 'partner-offers', name: 'Offres partenaires', anchor: '#offres', visible: true, order: 10, description: 'Carrousel des offres promotionnelles partenaires', icon: 'gift', color: '#ef4444' },
+  { id: 'cta-partner', name: 'Devenir partenaire', anchor: '#devenir-partenaire', visible: true, order: 11, description: 'Appel à l\'action pour les professionnels', icon: 'handshake', color: '#14b8a6' },
+  { id: 'faq', name: 'FAQ', anchor: '#faq', visible: true, order: 12, description: 'Questions fréquentes en accordéon', icon: 'message', color: '#6366f1' },
+  { id: 'reviews', name: 'Avis clients', anchor: '#avis', visible: true, order: 13, description: 'Carrousel des témoignages clients avec photos', icon: 'star', color: '#fbbf24' },
+  { id: 'contact', name: 'Contact', anchor: '#contact', visible: true, order: 14, description: 'Formulaire de contact et coordonnées', icon: 'phone', color: '#64748b' },
+  { id: 'app-download', name: 'Télécharger l\'app', anchor: '#app', visible: true, order: 15, description: 'Section téléchargement application mobile', icon: 'smartphone', color: '#0ea5e9' },
 ];
 
 const SECTION_ICONS: Record<string, React.ReactNode> = {
@@ -357,15 +358,13 @@ const AdminSettings = () => {
   };
 
   const toggleSectionVisibility = (id: string) => {
-    setHomepageSections(prev => {
-      const updated = prev.map(section => 
+    setHomepageSections(prev => 
+      prev.map(section => 
         section.id === id 
           ? { ...section, visible: !section.visible } 
           : { ...section }
-      );
-      console.log('Toggle visibility for', id, '- New state:', updated.map(s => ({ id: s.id, visible: s.visible, order: s.order })));
-      return updated;
-    });
+      )
+    );
   };
 
   const saveHomepageSections = async () => {
@@ -376,8 +375,6 @@ const AdminSettings = () => {
         visible: Boolean(section.visible),
         order: idx // Use current array index as order
       }));
-      
-      console.log('Saving homepage sections:', sectionsToSave.map(s => ({ id: s.id, visible: s.visible, order: s.order })));
       
       const { data: existing } = await supabase
         .from("site_settings")
@@ -414,7 +411,6 @@ const AdminSettings = () => {
         description: "L'ordre et la visibilité des bandes ont été enregistrés",
       });
     } catch (error: any) {
-      console.error("Error saving homepage sections:", error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible de sauvegarder les bandes",
