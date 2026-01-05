@@ -325,14 +325,17 @@ const AidesSection = () => {
                 Nos installateurs partenaires vous accompagnent dans toutes vos démarches administratives
               </p>
               <Button
-                asChild
                 size="lg"
                 className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105 font-bold px-8"
+                onClick={() => {
+                  // Emit custom event to trigger click-based popup
+                  window.dispatchEvent(new CustomEvent("trigger-popup", {
+                    detail: { triggerId: "find-professional-cta" }
+                  }));
+                }}
               >
-                <Link to="/contact" className="flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  Trouver un professionnel
-                </Link>
+                <Users className="w-5 h-5 mr-2" />
+                Trouver un professionnel
               </Button>
             </div>
           </>

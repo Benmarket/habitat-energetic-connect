@@ -55,6 +55,8 @@ type Popup = {
   close_button_style: string;
   is_custom_template: boolean;
   custom_template_name: string | null;
+  trigger_type: string;
+  trigger_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -125,6 +127,15 @@ const PAGES = [
   { id: "/forum", name: "Forum" },
 ];
 
+const TRIGGER_TYPES = [
+  { id: "auto", name: "Automatique (après délai)" },
+  { id: "click", name: "Au clic (bouton spécifique)" },
+];
+
+const TRIGGER_IDS = [
+  { id: "find-professional-cta", name: "Bouton 'Trouver un professionnel'" },
+];
+
 const defaultPopupData: Omit<Popup, "id" | "created_at" | "updated_at"> = {
   name: "",
   is_active: false,
@@ -150,6 +161,8 @@ const defaultPopupData: Omit<Popup, "id" | "created_at" | "updated_at"> = {
   close_button_style: "icon",
   is_custom_template: false,
   custom_template_name: null,
+  trigger_type: "auto",
+  trigger_id: null,
 };
 
 export default function AdminPopups() {
@@ -387,6 +400,8 @@ export default function AdminPopups() {
         close_button_style: popup.close_button_style,
         is_custom_template: popup.is_custom_template,
         custom_template_name: popup.custom_template_name,
+        trigger_type: popup.trigger_type || "auto",
+        trigger_id: popup.trigger_id,
       });
     } else {
       setEditingPopup(null);
@@ -595,6 +610,8 @@ export default function AdminPopups() {
                                         close_button_style: popup.close_button_style,
                                         is_custom_template: popup.is_custom_template,
                                         custom_template_name: popup.custom_template_name,
+                                        trigger_type: popup.trigger_type || "auto",
+                                        trigger_id: popup.trigger_id,
                                       });
                                       setIsPreviewOpen(true);
                                     }}
@@ -1039,16 +1056,73 @@ export default function AdminPopups() {
 
             {/* Behavior Tab */}
             <TabsContent value="behavior" className="space-y-4 mt-4">
+              {/* Trigger Type Selection */}
               <div className="space-y-2">
-                <Label>Délai avant affichage: {popupData.delay_seconds} seconde(s)</Label>
-                <Slider
-                  value={[popupData.delay_seconds]}
-                  onValueChange={([value]) => setPopupData(prev => ({ ...prev, delay_seconds: value }))}
-                  min={0}
-                  max={30}
-                  step={1}
-                />
+                <Label htmlFor="trigger_type">Mode de déclenchement</Label>
+                <Select
+                  value={popupData.trigger_type}
+                  onValueChange={(value) => setPopupData(prev => ({ 
+                    ...prev, 
+                    trigger_type: value,
+                    // Reset trigger_id if switching to auto
+                    trigger_id: value === "auto" ? null : prev.trigger_id
+                  }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TRIGGER_TYPES.map((trigger) => (
+                      <SelectItem key={trigger.id} value={trigger.id}>
+                        {trigger.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  {popupData.trigger_type === "auto" && "Le pop-up s'affichera automatiquement après le délai défini"}
+                  {popupData.trigger_type === "click" && "Le pop-up s'affichera uniquement au clic sur un bouton spécifique"}
+                </p>
               </div>
+
+              {/* Trigger ID for click type */}
+              {popupData.trigger_type === "click" && (
+                <div className="space-y-2 p-4 border rounded-lg bg-muted/30">
+                  <Label htmlFor="trigger_id">Bouton déclencheur</Label>
+                  <Select
+                    value={popupData.trigger_id || ""}
+                    onValueChange={(value) => setPopupData(prev => ({ ...prev, trigger_id: value || null }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner un bouton" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TRIGGER_IDS.map((trigger) => (
+                        <SelectItem key={trigger.id} value={trigger.id}>
+                          {trigger.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Ce pop-up s'ouvrira quand l'utilisateur cliquera sur ce bouton
+                  </p>
+                </div>
+              )}
+
+              {/* Delay - only for auto trigger */}
+              {popupData.trigger_type === "auto" && (
+                <div className="space-y-2">
+                  <Label>Délai avant affichage: {popupData.delay_seconds} seconde(s)</Label>
+                  <Slider
+                    value={[popupData.delay_seconds]}
+                    onValueChange={([value]) => setPopupData(prev => ({ ...prev, delay_seconds: value }))}
+                    min={0}
+                    max={30}
+                    step={1}
+                  />
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="frequency">Fréquence d'affichage</Label>

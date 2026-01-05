@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,6 +32,8 @@ type Popup = {
   badge_color: string;
   show_close_button: boolean;
   close_button_style: string;
+  trigger_type: string;
+  trigger_id: string | null;
 };
 
 type FormConfig = {
@@ -48,6 +50,7 @@ export default function SitePopup() {
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [activePopup, setActivePopup] = useState<Popup | null>(null);
 
   // Check if we're on an article detail page
   const isArticlePage = location.pathname.startsWith("/actualites/") && location.pathname.split("/").length > 2;
@@ -60,7 +63,6 @@ export default function SitePopup() {
     queryFn: async () => {
       if (!articleSlug) return null;
       
-      // Get the article and its category
       const { data: article, error } = await supabase
         .from("posts")
         .select(`
@@ -73,7 +75,7 @@ export default function SitePopup() {
         .eq("content_type", "actualite")
         .maybeSingle();
       
-      if (error || !article) return categorySlug; // Fallback to URL category
+      if (error || !article) return categorySlug;
       
       const categories = article.post_categories as any[];
       return categories?.[0]?.category?.slug || categorySlug;
@@ -81,17 +83,17 @@ export default function SitePopup() {
     enabled: isArticlePage,
   });
 
-  // Fetch active popup for current page
-  const { data: popup } = useQuery({
-    queryKey: ["active-popup", location.pathname, isArticlePage, articleCategory, categorySlug],
+  // Fetch AUTO popup for current page (existing behavior)
+  const { data: autoPopup } = useQuery({
+    queryKey: ["active-auto-popup", location.pathname, isArticlePage, articleCategory, categorySlug],
     queryFn: async () => {
-      // For article pages, look for actualites popup
       if (isArticlePage) {
         const { data, error } = await supabase
           .from("popups")
           .select("*")
           .eq("target_page", "/actualites")
           .eq("is_active", true)
+          .eq("trigger_type", "auto")
           .maybeSingle();
         
         if (error) throw error;
@@ -100,7 +102,6 @@ export default function SitePopup() {
         const popupData = data as Popup;
         const currentCategory = articleCategory || categorySlug;
         
-        // Check category filter - if no categories selected, show on all articles
         if (popupData.target_categories && popupData.target_categories.length > 0) {
           if (!currentCategory || !popupData.target_categories.includes(currentCategory)) {
             return null;
@@ -110,12 +111,12 @@ export default function SitePopup() {
         return popupData;
       }
       
-      // For other pages, match exact path
       const { data, error } = await supabase
         .from("popups")
         .select("*")
         .eq("target_page", location.pathname)
         .eq("is_active", true)
+        .eq("trigger_type", "auto")
         .maybeSingle();
       
       if (error) throw error;
@@ -123,30 +124,41 @@ export default function SitePopup() {
     },
   });
 
-  // Fetch form if popup has one
-  const { data: form } = useQuery({
-    queryKey: ["popup-form", popup?.form_id],
+  // Fetch all CLICK popups (globally available)
+  const { data: clickPopups } = useQuery({
+    queryKey: ["click-popups"],
     queryFn: async () => {
-      if (!popup?.form_id) return null;
+      const { data, error } = await supabase
+        .from("popups")
+        .select("*")
+        .eq("is_active", true)
+        .eq("trigger_type", "click")
+        .not("trigger_id", "is", null);
+      
+      if (error) throw error;
+      return data as Popup[];
+    },
+  });
+
+  // Fetch form if active popup has one
+  const { data: form } = useQuery({
+    queryKey: ["popup-form", activePopup?.form_id],
+    queryFn: async () => {
+      if (!activePopup?.form_id) return null;
       const { data, error } = await supabase
         .from("form_configurations")
         .select("*")
-        .eq("id", popup.form_id)
+        .eq("id", activePopup.form_id)
         .maybeSingle();
       
       if (error) throw error;
       return data as FormConfig | null;
     },
-    enabled: !!popup?.form_id,
+    enabled: !!activePopup?.form_id,
   });
 
-  useEffect(() => {
-    if (!popup) {
-      setIsVisible(false);
-      return;
-    }
-
-    // Check frequency
+  // Function to show a popup
+  const showPopup = useCallback((popup: Popup) => {
     const storageKey = `popup_${popup.id}_shown`;
     
     if (popup.frequency === "once") {
@@ -157,21 +169,49 @@ export default function SitePopup() {
       if (wasShown) return;
     }
 
-    // Show popup after delay
+    setActivePopup(popup);
+    setIsAnimating(true);
+    setIsVisible(true);
+    
+    if (popup.frequency === "once") {
+      localStorage.setItem(storageKey, "true");
+    } else if (popup.frequency === "session") {
+      sessionStorage.setItem(storageKey, "true");
+    }
+  }, []);
+
+  // Handle AUTO popups (with delay)
+  useEffect(() => {
+    if (!autoPopup) {
+      return;
+    }
+
     const timer = setTimeout(() => {
-      setIsAnimating(true);
-      setIsVisible(true);
-      
-      // Store that popup was shown
-      if (popup.frequency === "once") {
-        localStorage.setItem(storageKey, "true");
-      } else if (popup.frequency === "session") {
-        sessionStorage.setItem(storageKey, "true");
-      }
-    }, popup.delay_seconds * 1000);
+      showPopup(autoPopup);
+    }, autoPopup.delay_seconds * 1000);
 
     return () => clearTimeout(timer);
-  }, [popup]);
+  }, [autoPopup, showPopup]);
+
+  // Handle CLICK popups (listen for custom events)
+  useEffect(() => {
+    const handleTriggerPopup = (event: CustomEvent<{ triggerId: string }>) => {
+      const { triggerId } = event.detail;
+      
+      if (!clickPopups) return;
+      
+      const matchingPopup = clickPopups.find(p => p.trigger_id === triggerId);
+      if (matchingPopup) {
+        showPopup(matchingPopup);
+      }
+    };
+
+    window.addEventListener("trigger-popup", handleTriggerPopup as EventListener);
+    
+    return () => {
+      window.removeEventListener("trigger-popup", handleTriggerPopup as EventListener);
+    };
+  }, [clickPopups, showPopup]);
 
   const handleClose = () => {
     setIsAnimating(false);
@@ -179,6 +219,7 @@ export default function SitePopup() {
       setIsVisible(false);
       setIsSuccess(false);
       setFormData({});
+      setActivePopup(null);
     }, 300);
   };
 
@@ -188,7 +229,6 @@ export default function SitePopup() {
 
     setIsSubmitting(true);
     try {
-      // Check if this is a newsletter form
       if (form.form_identifier === "newsletter") {
         const email = formData.email;
         if (!email || !email.includes("@")) {
@@ -197,7 +237,6 @@ export default function SitePopup() {
           return;
         }
 
-        // Check if already subscribed
         const { data: existing } = await supabase
           .from("newsletter_subscribers")
           .select("email, status")
@@ -214,7 +253,6 @@ export default function SitePopup() {
           return;
         }
 
-        // Insert new subscriber
         const { error } = await supabase
           .from("newsletter_subscribers")
           .insert({
@@ -229,7 +267,6 @@ export default function SitePopup() {
         toast.success("Inscription réussie !");
         setTimeout(handleClose, 2000);
       } else {
-        // Regular form submission
         const { error } = await supabase
           .from("form_submissions")
           .insert([{
@@ -251,10 +288,10 @@ export default function SitePopup() {
     }
   };
 
-  if (!isVisible || !popup) return null;
+  if (!isVisible || !activePopup) return null;
 
   const getSizeClasses = () => {
-    switch (popup.size) {
+    switch (activePopup.size) {
       case "small":
         return "max-w-sm";
       case "medium":
@@ -269,9 +306,9 @@ export default function SitePopup() {
   };
 
   const getPositionClasses = () => {
-    if (popup.size === "fullscreen") return "inset-0";
+    if (activePopup.size === "fullscreen") return "inset-0";
     
-    switch (popup.position) {
+    switch (activePopup.position) {
       case "center":
         return "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2";
       case "bottom-right":
@@ -290,7 +327,7 @@ export default function SitePopup() {
   const getAnimationClasses = () => {
     if (!isAnimating) return "opacity-0 scale-95";
     
-    switch (popup.animation) {
+    switch (activePopup.animation) {
       case "fade":
         return "animate-fade-in";
       case "slide-up":
@@ -323,69 +360,67 @@ export default function SitePopup() {
   };
 
   const renderContent = () => {
-    // Success state
     if (isSuccess) {
       return (
         <div className="flex flex-col items-center justify-center py-8 space-y-4">
           <div 
             className="w-16 h-16 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: `${popup.accent_color}20` }}
+            style={{ backgroundColor: `${activePopup.accent_color}20` }}
           >
-            <CheckCircle2 className="w-10 h-10" style={{ color: popup.accent_color }} />
+            <CheckCircle2 className="w-10 h-10" style={{ color: activePopup.accent_color }} />
           </div>
-          <h2 className="text-2xl font-bold text-center" style={{ color: popup.text_color }}>
+          <h2 className="text-2xl font-bold text-center" style={{ color: activePopup.text_color }}>
             Merci pour votre inscription !
           </h2>
-          <p className="text-center opacity-70" style={{ color: popup.text_color }}>
+          <p className="text-center opacity-70" style={{ color: activePopup.text_color }}>
             Vous recevrez bientôt nos actualités.
           </p>
         </div>
       );
     }
 
-    switch (popup.template) {
+    switch (activePopup.template) {
       case "lead_capture":
         return (
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Decorative header */}
             <div className="flex justify-center mb-2">
               <div 
                 className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
                 style={{ 
-                  background: `linear-gradient(135deg, ${popup.accent_color}, ${popup.accent_color}dd)` 
+                  background: `linear-gradient(135deg, ${activePopup.accent_color}, ${activePopup.accent_color}dd)` 
                 }}
               >
                 <Mail className="w-7 h-7 text-white" />
               </div>
             </div>
 
-            {popup.badge_text && (
+            {activePopup.badge_text && (
               <div className="flex justify-center">
                 <Badge 
                   className="text-white font-medium px-3 py-1 text-xs"
-                  style={{ backgroundColor: popup.accent_color }}
+                  style={{ backgroundColor: activePopup.accent_color }}
                 >
                   <Sparkles className="w-3 h-3 mr-1" />
-                  {popup.badge_text}
+                  {activePopup.badge_text}
                 </Badge>
               </div>
             )}
 
-            {popup.title && (
+            {activePopup.title && (
               <h2 
                 className="text-2xl font-bold text-center leading-tight" 
-                style={{ color: popup.text_color }}
+                style={{ color: activePopup.text_color }}
               >
-                {popup.title}
+                {activePopup.title}
               </h2>
             )}
             
-            {popup.subtitle && (
+            {activePopup.subtitle && (
               <p 
                 className="text-sm text-center opacity-70 leading-relaxed px-2" 
-                style={{ color: popup.text_color }}
+                style={{ color: activePopup.text_color }}
               >
-                {popup.subtitle}
+                {activePopup.subtitle}
               </p>
             )}
             
@@ -404,8 +439,8 @@ export default function SitePopup() {
                 type="submit"
                 className="w-full h-12 font-semibold text-white text-base rounded-lg shadow-md hover:shadow-lg transition-all"
                 style={{ 
-                  backgroundColor: popup.accent_color,
-                  boxShadow: `0 4px 14px ${popup.accent_color}40`
+                  backgroundColor: activePopup.accent_color,
+                  boxShadow: `0 4px 14px ${activePopup.accent_color}40`
                 }}
                 disabled={isSubmitting}
               >
@@ -422,7 +457,7 @@ export default function SitePopup() {
 
             <p 
               className="text-xs text-center opacity-50 pt-1" 
-              style={{ color: popup.text_color }}
+              style={{ color: activePopup.text_color }}
             >
               En vous inscrivant, vous acceptez de recevoir nos communications.
             </p>
@@ -432,28 +467,28 @@ export default function SitePopup() {
       case "promotion":
         return (
           <div className="space-y-4 text-center">
-            {popup.badge_text && (
+            {activePopup.badge_text && (
               <Badge 
                 className="text-white font-bold px-4 py-1"
-                style={{ backgroundColor: popup.badge_color }}
+                style={{ backgroundColor: activePopup.badge_color }}
               >
-                {popup.badge_text}
+                {activePopup.badge_text}
               </Badge>
             )}
-            {popup.title && (
-              <h2 className="text-3xl font-bold" style={{ color: popup.text_color }}>
-                {popup.title}
+            {activePopup.title && (
+              <h2 className="text-3xl font-bold" style={{ color: activePopup.text_color }}>
+                {activePopup.title}
               </h2>
             )}
-            {popup.subtitle && (
-              <p className="text-lg" style={{ color: popup.text_color }}>
-                {popup.subtitle}
+            {activePopup.subtitle && (
+              <p className="text-lg" style={{ color: activePopup.text_color }}>
+                {activePopup.subtitle}
               </p>
             )}
             <Button 
               size="lg"
               className="font-semibold mt-4 text-white"
-              style={{ backgroundColor: popup.accent_color }}
+              style={{ backgroundColor: activePopup.accent_color }}
               onClick={handleClose}
             >
               Profiter de l'offre
@@ -464,22 +499,22 @@ export default function SitePopup() {
       case "information":
         return (
           <div className="space-y-4">
-            {popup.title && (
-              <h2 className="text-xl font-bold" style={{ color: popup.text_color }}>
-                {popup.title}
+            {activePopup.title && (
+              <h2 className="text-xl font-bold" style={{ color: activePopup.text_color }}>
+                {activePopup.title}
               </h2>
             )}
-            {popup.subtitle && (
-              <p style={{ color: popup.text_color }}>
-                {popup.subtitle}
+            {activePopup.subtitle && (
+              <p style={{ color: activePopup.text_color }}>
+                {activePopup.subtitle}
               </p>
             )}
             <Button 
               variant="outline"
               className="font-medium"
               style={{ 
-                borderColor: popup.accent_color, 
-                color: popup.accent_color 
+                borderColor: activePopup.accent_color, 
+                color: activePopup.accent_color 
               }}
               onClick={handleClose}
             >
@@ -491,29 +526,29 @@ export default function SitePopup() {
       case "fullscreen":
         return (
           <div className="flex flex-col items-center justify-center h-full space-y-6 text-center p-8">
-            {popup.badge_text && (
+            {activePopup.badge_text && (
               <Badge 
                 className="text-white font-bold px-6 py-2 text-lg"
-                style={{ backgroundColor: popup.badge_color }}
+                style={{ backgroundColor: activePopup.badge_color }}
               >
-                {popup.badge_text}
+                {activePopup.badge_text}
               </Badge>
             )}
-            {popup.title && (
-              <h2 className="text-4xl md:text-6xl font-bold" style={{ color: popup.text_color }}>
-                {popup.title}
+            {activePopup.title && (
+              <h2 className="text-4xl md:text-6xl font-bold" style={{ color: activePopup.text_color }}>
+                {activePopup.title}
               </h2>
             )}
-            {popup.subtitle && (
-              <p className="text-xl md:text-2xl max-w-2xl" style={{ color: popup.text_color }}>
-                {popup.subtitle}
+            {activePopup.subtitle && (
+              <p className="text-xl md:text-2xl max-w-2xl" style={{ color: activePopup.text_color }}>
+                {activePopup.subtitle}
               </p>
             )}
             <div className="flex gap-4 mt-8">
               <Button 
                 size="lg"
                 className="font-semibold px-8 text-white"
-                style={{ backgroundColor: popup.accent_color }}
+                style={{ backgroundColor: activePopup.accent_color }}
               >
                 Découvrir
               </Button>
@@ -522,8 +557,8 @@ export default function SitePopup() {
                 variant="outline"
                 className="font-semibold px-8"
                 style={{ 
-                  borderColor: popup.text_color, 
-                  color: popup.text_color 
+                  borderColor: activePopup.text_color, 
+                  color: activePopup.text_color 
                 }}
                 onClick={handleClose}
               >
@@ -543,42 +578,42 @@ export default function SitePopup() {
       {/* Overlay */}
       <div 
         className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isAnimating ? "opacity-100" : "opacity-0"}`}
-        style={{ opacity: isAnimating ? popup.overlay_opacity / 100 : 0 }}
+        style={{ opacity: isAnimating ? activePopup.overlay_opacity / 100 : 0 }}
         onClick={handleClose}
       />
 
       {/* Popup */}
       <div
         className={`fixed ${getPositionClasses()} ${getSizeClasses()} ${getAnimationClasses()} 
-          ${popup.size !== "fullscreen" ? "rounded-2xl shadow-2xl p-8" : ""} overflow-hidden transition-all duration-300`}
+          ${activePopup.size !== "fullscreen" ? "rounded-2xl shadow-2xl p-8" : ""} overflow-hidden transition-all duration-300`}
         style={{
-          backgroundColor: popup.background_color,
-          backgroundImage: popup.background_image ? `url(${popup.background_image})` : undefined,
+          backgroundColor: activePopup.background_color,
+          backgroundImage: activePopup.background_image ? `url(${activePopup.background_image})` : undefined,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
         {/* Decorative gradient overlay */}
-        {!popup.background_image && popup.size !== "fullscreen" && (
+        {!activePopup.background_image && activePopup.size !== "fullscreen" && (
           <div 
             className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 -mr-10 -mt-10"
-            style={{ backgroundColor: popup.accent_color }}
+            style={{ backgroundColor: activePopup.accent_color }}
           />
         )}
 
         {/* Close button */}
-        {popup.show_close_button && (
+        {activePopup.show_close_button && (
           <button
             onClick={handleClose}
             className="absolute top-4 right-4 p-2 rounded-full bg-black/5 hover:bg-black/10 transition-colors z-10"
-            style={{ color: popup.text_color }}
+            style={{ color: activePopup.text_color }}
           >
             <X className="w-5 h-5" />
           </button>
         )}
 
         {/* Content */}
-        <div className={`relative ${popup.size === "fullscreen" ? "h-full" : ""}`}>
+        <div className={`relative ${activePopup.size === "fullscreen" ? "h-full" : ""}`}>
           {renderContent()}
         </div>
       </div>
