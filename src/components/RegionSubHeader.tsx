@@ -42,7 +42,7 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
         }`}
       >
         <div className="container mx-auto px-4 md:px-8 lg:px-12">
-          <div className="flex items-center justify-between py-3 md:py-4">
+          <div className="flex items-center justify-between pt-4 pb-3 md:pt-5 md:pb-4">
             {regions.map((region) => (
               <button
                 key={region.name}
