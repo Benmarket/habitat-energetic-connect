@@ -120,6 +120,7 @@ const NewsSection = () => {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8 md:mb-12">
+          <div className="inline-block w-16 h-1 bg-orange-500 mb-4"></div>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Actualités Énergies Renouvelables
           </h2>
