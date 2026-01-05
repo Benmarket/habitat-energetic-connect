@@ -15,12 +15,12 @@ const WhySolarSection = () => {
     {
       image: factureEdfImg,
       title: "Économique",
-      description: "Avec votre installation solaire vous pouvez réaliser jusqu'à 70% d'économies sur votre facture d'énergie. Les panneaux solaires sont actuellement la solution la plus efficace pour faire des économies d'énergies."
+      description: "Votre installation solaire peut vous faire réaliser jusqu'à 70% d'économie sur votre facture d'électricité. C'est la solution la plus efficace à ce jour."
     },
     {
       image: smartphoneImg,
       title: "Maîtrise",
-      description: "Avec des panneaux solaires, vous maîtrisez votre consommation électrique. En produisant votre propre énergie, vous devenez autonome, réduisez votre dépendance aux fournisseurs et contrôlez votre consommation."
+      description: "Maîtrisez votre consommation électrique. En produisant votre propre énergie. Vous devenez autonome, réduisez votre dépendance aux fournisseurs."
     },
     {
       image: appliPvImg,
