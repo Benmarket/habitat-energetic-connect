@@ -164,7 +164,7 @@ const GuideDetail = () => {
   const currentUrl = `https://prime-energies.fr/guide/${guide.slug}`;
   
   const breadcrumbItems = [
-    { name: "Accueil", url: "https://prime-energies.fr" },
+    { name: "Accueil", url: "/" },
     { name: "Guides", url: "/guides" },
     { name: guide.title, url: currentUrl },
   ];
