@@ -81,12 +81,7 @@ const OffrePartenaire = () => {
           .limit(6);
 
         if (!othersError && others) {
-          // Filter out expired offers
-          const validOffers = others.filter((offer: any) => {
-            if (!offer.expires_at) return true;
-            return !isPast(new Date(offer.expires_at));
-          });
-          setOtherOffers(validOffers);
+          setOtherOffers(others);
         }
       }
     } catch (error) {
@@ -109,12 +104,17 @@ const OffrePartenaire = () => {
     }
   };
 
+  const isOfferExpired = (expiresAt: string | null) => {
+    if (!expiresAt) return false;
+    return isPast(new Date(expiresAt));
+  };
+
   const getExpirationInfo = (expiresAt: string | null) => {
     if (!expiresAt) return null;
     const expirationDate = new Date(expiresAt);
-    const daysLeft = differenceInDays(expirationDate, new Date());
+    if (isPast(expirationDate)) return null; // Don't show if expired
     
-    if (daysLeft <= 0) return null;
+    const daysLeft = differenceInDays(expirationDate, new Date());
     if (daysLeft === 1) return "Expire demain";
     if (daysLeft <= 7) return `Expire dans ${daysLeft} jours`;
     return `Jusqu'au ${format(expirationDate, "d MMMM yyyy", { locale: fr })}`;
@@ -225,12 +225,12 @@ const OffrePartenaire = () => {
                     <span className="text-4xl md:text-5xl font-bold text-amber-600">
                       {offer.price.toLocaleString('fr-FR')}€
                     </span>
-                    {offer.original_price && (
+                    {offer.original_price && !isOfferExpired(offer.expires_at) && (
                       <span className="text-xl text-muted-foreground line-through">
                         {offer.original_price.toLocaleString('fr-FR')}€
                       </span>
                     )}
-                    {offer.original_price && (
+                    {offer.original_price && !isOfferExpired(offer.expires_at) && (
                       <Badge className="bg-red-500 text-white">
                         -{Math.round((1 - offer.price / offer.original_price) * 100)}%
                       </Badge>
@@ -397,7 +397,7 @@ const OffrePartenaire = () => {
                         <span className="text-2xl font-bold text-amber-600">
                           {otherOffer.price.toLocaleString('fr-FR')}€
                         </span>
-                        {otherOffer.original_price && (
+                        {otherOffer.original_price && !isOfferExpired(otherOffer.expires_at) && (
                           <span className="text-sm text-muted-foreground line-through">
                             {otherOffer.original_price.toLocaleString('fr-FR')}€
                           </span>

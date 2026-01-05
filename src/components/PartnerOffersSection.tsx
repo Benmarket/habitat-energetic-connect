@@ -58,13 +58,8 @@ const PartnerOffersSection = () => {
 
       if (error) throw error;
       
-      // Filter out expired offers
-      const validOffers = (data || []).filter((offer: any) => {
-        if (!offer.expires_at) return true;
-        return !isPast(new Date(offer.expires_at));
-      }).slice(0, 3);
-      
-      setOffers(validOffers);
+      // Take first 3 offers (expired or not)
+      setOffers((data || []).slice(0, 3));
     } catch (error) {
       console.error("Error fetching featured offers:", error);
     } finally {
@@ -100,12 +95,17 @@ const PartnerOffersSection = () => {
     }
   };
 
+  const isOfferExpired = (expiresAt: string | null) => {
+    if (!expiresAt) return false;
+    return isPast(new Date(expiresAt));
+  };
+
   const getExpirationInfo = (expiresAt: string | null) => {
     if (!expiresAt) return null;
     const expirationDate = new Date(expiresAt);
-    const daysLeft = differenceInDays(expirationDate, new Date());
+    if (isPast(expirationDate)) return null; // Don't show if expired
     
-    if (daysLeft <= 0) return null;
+    const daysLeft = differenceInDays(expirationDate, new Date());
     if (daysLeft === 1) return "Expire demain";
     if (daysLeft <= 7) return `Expire dans ${daysLeft} jours`;
     return `Jusqu'au ${format(expirationDate, "d MMMM", { locale: fr })}`;
@@ -201,7 +201,7 @@ const PartnerOffersSection = () => {
                       <span className="text-3xl md:text-4xl font-bold text-amber-600">
                         {offer.price.toLocaleString('fr-FR')}€
                       </span>
-                      {offer.original_price && (
+                      {offer.original_price && !isOfferExpired(offer.expires_at) && (
                         <span className="text-lg md:text-xl text-muted-foreground line-through">
                           {offer.original_price.toLocaleString('fr-FR')}€
                         </span>
