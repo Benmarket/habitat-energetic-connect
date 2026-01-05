@@ -182,16 +182,34 @@ const Header = () => {
               
               {/* Installer button - visible from lg only */}
               {headerFooterSettings.showInstallerButton && (
-                <Link 
-                  to={headerFooterSettings.installerButtonLink}
-                  className="hidden lg:flex whitespace-nowrap text-sm lg:text-base px-3 lg:px-4 py-2 rounded-md font-medium transition-all hover:opacity-90"
+                <button 
+                  onClick={() => {
+                    const link = headerFooterSettings.installerButtonLink;
+                    if (link.includes('#')) {
+                      const [path, hash] = link.split('#');
+                      const currentPath = window.location.pathname;
+                      // If we're already on the target page or it's the home page
+                      if (!path || path === '/' || currentPath === path) {
+                        const element = document.getElementById(hash);
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      } else {
+                        // Navigate to the page first, then scroll
+                        navigate(link);
+                      }
+                    } else {
+                      navigate(link);
+                    }
+                  }}
+                  className="hidden lg:flex whitespace-nowrap text-sm lg:text-base px-3 lg:px-4 py-2 rounded-md font-medium transition-all hover:opacity-90 cursor-pointer"
                   style={{
                     backgroundColor: headerFooterSettings.installerButtonColor,
                     color: headerFooterSettings.installerButtonTextColor,
                   }}
                 >
                   {headerFooterSettings.installerButtonText}
-                </Link>
+                </button>
               )}
               
               {/* Live chat notifications - visible for admins */}
