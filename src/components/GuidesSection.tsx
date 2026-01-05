@@ -126,7 +126,7 @@ const GuidesSection = () => {
             loop: true,
             slidesToScroll: 1,
           }}
-          className="w-full mt-6 pt-4 -mt-4"
+          className="w-full mt-6 pt-4 -mt-4 px-6 md:px-0"
         >
           <CarouselContent className="-ml-4 pt-2">
             {guides.map((guide) => (
