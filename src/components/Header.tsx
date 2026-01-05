@@ -24,7 +24,6 @@ const Header = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUserMenuExpanded, setIsUserMenuExpanded] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [subHeaderHeight, setSubHeaderHeight] = useState(120);
   const [profile, setProfile] = useState<{ first_name: string | null; last_name: string | null; account_type: string | null; company_name: string | null } | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [headerFooterSettings, setHeaderFooterSettings] = useState({
@@ -145,7 +144,6 @@ const Header = () => {
   const isAdminOrAbove = userRole === 'super_admin' || userRole === 'admin' || userRole === 'moderator';
 
   return (
-    <>
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
@@ -533,17 +531,10 @@ const Header = () => {
       </div>
       
       {/* Region Sub-Header */}
-      <RegionSubHeader isScrolled={isScrolled} onHeightChange={setSubHeaderHeight} />
+      <RegionSubHeader isScrolled={isScrolled} />
       
       <AuthModal open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
     </header>
-    
-    {/* Spacer to push content below the fixed header */}
-    <div 
-      className="transition-all duration-300"
-      style={{ height: `calc(80px + ${subHeaderHeight}px)` }}
-    />
-    </>
   );
 };
 
