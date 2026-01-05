@@ -11,6 +11,7 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Autoplay from "embla-carousel-autoplay";
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import sophieAvatar from "@/assets/avatars/sophie-l.jpg";
 import marcAvatar from "@/assets/avatars/marc-d.jpg";
 import claireAvatar from "@/assets/avatars/claire-r.jpg";
@@ -99,6 +100,26 @@ const ReviewsSection = () => {
   const [current, setCurrent] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const [reviewsLink, setReviewsLink] = useState("");
+
+  useEffect(() => {
+    const loadReviewsLink = async () => {
+      try {
+        const { data } = await supabase
+          .from("site_settings")
+          .select("value")
+          .eq("key", "reviews_link")
+          .maybeSingle();
+        
+        if (data?.value) {
+          setReviewsLink(data.value as string);
+        }
+      } catch (error) {
+        console.error("Error loading reviews link:", error);
+      }
+    };
+    loadReviewsLink();
+  }, []);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -337,23 +358,25 @@ const ReviewsSection = () => {
         </div>
 
         {/* CTA Button */}
-        <div className="flex justify-center">
-          <Button
-            size="lg"
-            className="bg-primary hover:bg-primary/90 text-white font-medium"
-            asChild
-          >
-            <a
-              href="https://g.page/r/YOUR_GOOGLE_BUSINESS_LINK/review"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2"
+        {reviewsLink && (
+          <div className="flex justify-center">
+            <Button
+              size="lg"
+              className="bg-primary hover:bg-primary/90 text-white font-medium"
+              asChild
             >
-              <MessageSquare className="w-5 h-5" />
-              Laisser un avis
-            </a>
-          </Button>
-        </div>
+              <a
+                href={reviewsLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2"
+              >
+                <MessageSquare className="w-5 h-5" />
+                Laisser un avis
+              </a>
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   );
