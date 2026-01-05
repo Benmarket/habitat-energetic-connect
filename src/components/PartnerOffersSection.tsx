@@ -7,6 +7,7 @@ import { Check, Tag, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { format, differenceInDays, isPast } from "date-fns";
 import { fr } from "date-fns/locale";
+import { getOfferUrl } from "@/utils/slugify";
 import {
   Carousel,
   CarouselContent,
@@ -239,7 +240,7 @@ const PartnerOffersSection = () => {
                       asChild
                       className="w-full mt-4 md:mt-6 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-bold py-5 md:py-6 text-base md:text-lg shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 transition-all duration-300 hover:scale-105 border border-amber-400/30"
                     >
-                      <Link to={`/offre-partenaire/${offer.id}`}>
+                      <Link to={getOfferUrl(offer.advertiser.name, offer.id)}>
                         Voir l'offre
                       </Link>
                     </Button>
