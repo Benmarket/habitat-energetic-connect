@@ -73,14 +73,22 @@ const Header = () => {
     return `https://wa.me/${cleanNumber}`;
   };
 
-  // Scroll detection for sub-header
+  // Scroll detection for sub-header with hysteresis to prevent flickering
   useEffect(() => {
+    let lastScrollY = window.scrollY;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const currentScrollY = window.scrollY;
+      // Add hysteresis: collapse at 60px, expand at 30px to avoid flickering
+      if (!isScrolled && currentScrollY > 60) {
+        setIsScrolled(true);
+      } else if (isScrolled && currentScrollY < 30) {
+        setIsScrolled(false);
+      }
+      lastScrollY = currentScrollY;
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isScrolled]);
 
   useEffect(() => {
     // Load header/footer settings
