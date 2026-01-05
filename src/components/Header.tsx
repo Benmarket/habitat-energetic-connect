@@ -75,16 +75,18 @@ const Header = () => {
 
   // Scroll detection for sub-header with hysteresis to prevent flickering
   useEffect(() => {
-    let lastScrollY = window.scrollY;
+    const COLLAPSE_THRESHOLD = 100; // Collapse when scrolling past this point
+    const EXPAND_THRESHOLD = 20;    // Re-expand only when very close to top
+    
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      // Add hysteresis: collapse at 60px, expand at 30px to avoid flickering
-      if (!isScrolled && currentScrollY > 60) {
+      // Wide hysteresis zone (20px - 100px) prevents "dancing" behavior
+      if (!isScrolled && currentScrollY > COLLAPSE_THRESHOLD) {
         setIsScrolled(true);
-      } else if (isScrolled && currentScrollY < 30) {
+      } else if (isScrolled && currentScrollY < EXPAND_THRESHOLD) {
         setIsScrolled(false);
       }
-      lastScrollY = currentScrollY;
+      // In the neutral zone (20-100px), maintain current state
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
