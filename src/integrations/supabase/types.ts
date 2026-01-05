@@ -975,6 +975,8 @@ export type Database = {
           template: string
           text_color: string | null
           title: string | null
+          trigger_id: string | null
+          trigger_type: string
           updated_at: string
         }
         Insert: {
@@ -1004,6 +1006,8 @@ export type Database = {
           template?: string
           text_color?: string | null
           title?: string | null
+          trigger_id?: string | null
+          trigger_type?: string
           updated_at?: string
         }
         Update: {
@@ -1033,6 +1037,8 @@ export type Database = {
           template?: string
           text_color?: string | null
           title?: string | null
+          trigger_id?: string | null
+          trigger_type?: string
           updated_at?: string
         }
         Relationships: [
