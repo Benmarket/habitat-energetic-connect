@@ -216,31 +216,43 @@ const HeroSection = () => {
               {/* Quick action buttons */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-2 md:mb-8">
                 <div 
-                  className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg cursor-default"
+                  className="group flex flex-col items-center justify-center gap-1 px-3 py-4 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg cursor-default"
                 >
-                  <Sun className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm text-center">Solaire</span>
+                  <div className="flex items-center gap-2">
+                    <Sun className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+                    <span className="text-white font-semibold text-sm">Solaire</span>
+                  </div>
+                  <span className="text-white/70 text-[10px] md:text-xs text-center leading-tight">Production d'électricité, avec ou sans batteries</span>
                 </div>
 
                 <div 
-                  className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg cursor-default"
+                  className="group flex flex-col items-center justify-center gap-1 px-3 py-4 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg cursor-default"
                 >
-                  <Droplets className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm text-center">PAC</span>
+                  <div className="flex items-center gap-2">
+                    <Droplets className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                    <span className="text-white font-semibold text-sm">Chauffage</span>
+                  </div>
+                  <span className="text-white/70 text-[10px] md:text-xs text-center leading-tight">Système principal ou chauffage complémentaire</span>
                 </div>
 
                 <div 
-                  className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg cursor-default"
+                  className="group flex flex-col items-center justify-center gap-1 px-3 py-4 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg cursor-default"
                 >
-                  <Home className="w-4 h-4 text-green-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm text-center">Isolation</span>
+                  <div className="flex items-center gap-2">
+                    <Home className="w-4 h-4 text-green-400 flex-shrink-0" />
+                    <span className="text-white font-semibold text-sm">Isolation</span>
+                  </div>
+                  <span className="text-white/70 text-[10px] md:text-xs text-center leading-tight">Intérieure, extérieure, combles — réduisez les déperditions</span>
                 </div>
 
                 <div 
-                  className="group flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg cursor-default"
+                  className="group flex flex-col items-center justify-center gap-1 px-3 py-4 rounded-xl bg-black/70 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-white/30 transition-all shadow-lg cursor-default"
                 >
-                  <HandCoins className="w-4 h-4 text-cyan-400 flex-shrink-0" />
-                  <span className="text-white font-semibold text-sm text-center">Aides</span>
+                  <div className="flex items-center gap-2">
+                    <HandCoins className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+                    <span className="text-white font-semibold text-sm">Aides</span>
+                  </div>
+                  <span className="text-white/70 text-[10px] md:text-xs text-center leading-tight">Toutes les aides pour votre habitat — projets subventionnés</span>
                 </div>
               </div>
             </div>
