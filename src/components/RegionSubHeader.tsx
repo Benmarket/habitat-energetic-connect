@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
 
 // Import region images
@@ -20,14 +20,22 @@ const regions = [
 
 interface RegionSubHeaderProps {
   isScrolled?: boolean;
+  onHeightChange?: (height: number) => void;
 }
 
-const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
+const RegionSubHeader = ({ isScrolled = false, onHeightChange }: RegionSubHeaderProps) => {
   const [isManuallyCollapsed, setIsManuallyCollapsed] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
 
   // Auto-collapse on scroll, auto-expand when back to top
   const isCollapsed = isScrolled ? true : isManuallyCollapsed;
+
+  // Notify parent of height changes
+  useEffect(() => {
+    // Collapsed = only toggle button (~24px), expanded = full height (~120px)
+    const height = isCollapsed ? 24 : 120;
+    onHeightChange?.(height);
+  }, [isCollapsed, onHeightChange]);
 
   const handleRegionClick = (regionName: string) => {
     setSelectedRegion(regionName);
@@ -35,7 +43,7 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
   };
 
   return (
-    <div className="bg-muted border-t border-border/50">
+    <div className="bg-zinc-700 border-t border-zinc-600">
       <div 
         className={`overflow-hidden transition-all duration-300 ease-in-out ${
           isCollapsed ? "max-h-0" : "max-h-32"
@@ -58,7 +66,7 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
                     className="w-full h-full object-contain transition-transform duration-200 group-hover:scale-115"
                   />
                 </div>
-                <span className="text-xs md:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors whitespace-nowrap">
+                <span className="text-xs md:text-sm font-medium text-zinc-300 group-hover:text-white transition-colors whitespace-nowrap">
                   {region.name}
                 </span>
               </button>
@@ -70,13 +78,13 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
       {/* Collapse/Expand toggle */}
       <button
         onClick={() => setIsManuallyCollapsed(!isManuallyCollapsed)}
-        className="w-full flex items-center justify-center py-1 hover:bg-muted/70 transition-colors group"
+        className="w-full flex items-center justify-center py-1 hover:bg-zinc-600 transition-colors group"
         aria-label={isCollapsed ? "Afficher les régions" : "Masquer les régions"}
       >
         {isCollapsed ? (
-          <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+          <ChevronDown className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors" />
         ) : (
-          <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+          <ChevronUp className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors" />
         )}
       </button>
     </div>
