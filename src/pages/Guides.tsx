@@ -108,44 +108,39 @@ const Guides = () => {
           ]}
         />
         
-        <main className="relative overflow-hidden">
-          {/* Decorative background elements - Orange theme */}
-          <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-background via-orange-50/30 to-background">
-            {/* Animated orange gradient orbs */}
-            <div className="absolute top-20 left-10 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl animate-pulse" />
-            <div className="absolute bottom-20 right-10 w-96 h-96 bg-orange-600/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-400/5 rounded-full blur-3xl" />
-          </div>
-          
-          {/* Wave decorations */}
-          <div className="absolute inset-0 opacity-30 pointer-events-none">
-            <svg className="absolute top-0 w-full h-48 rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="rgb(249, 115, 22)" fillOpacity="0.3" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,213.3C672,224,768,224,864,213.3C960,203,1056,181,1152,170.7C1248,160,1344,160,1392,160L1440,160L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
-            </svg>
-            <svg className="absolute bottom-0 w-full h-48" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
-              <path fill="rgb(249, 115, 22)" fillOpacity="0.4" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,144C960,149,1056,139,1152,128C1248,117,1344,107,1392,101.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-            </svg>
-          </div>
-
-          <div className="container mx-auto px-4 py-16 relative z-10">
-            <div className="text-center mb-16 animate-fade-in flex flex-col items-center">
-              <div className="inline-flex items-center gap-3 mb-6 bg-gradient-to-r from-orange-600/10 to-orange-500/10 px-8 py-4 rounded-full backdrop-blur-sm border-2 border-orange-500/30 shadow-lg shadow-orange-500/20 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300">
-                <div className="p-2 bg-gradient-to-br from-orange-600 to-orange-700 rounded-lg shadow-lg">
-                  <BookOpen className="w-6 h-6 text-white" />
+        <main className="relative">
+          {/* Hero Section - Orange solid background */}
+          <section className="relative py-20 overflow-hidden bg-gradient-to-br from-orange-500 via-orange-500/90 to-orange-600">
+            {/* Background decorative elements */}
+            <div className="absolute inset-0">
+              <div className="absolute top-0 left-0 w-72 h-72 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2" />
+              <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full translate-x-1/3 translate-y-1/3" />
+              <div className="absolute top-1/2 left-1/4 w-48 h-48 bg-white/3 rounded-full" />
+            </div>
+            
+            <div className="container mx-auto px-4 relative z-10">
+              <div className="text-center flex flex-col items-center">
+                <div className="inline-flex items-center gap-3 mb-6 bg-white/10 px-8 py-4 rounded-full backdrop-blur-sm border-2 border-white/30 shadow-lg">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <BookOpen className="w-6 h-6 text-white" />
+                  </div>
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white">
+                    Guides Prime Énergies 2025
+                  </h1>
                 </div>
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 bg-clip-text text-transparent">
-                  Guides Prime Énergies 2025
-                </h1>
-              </div>
-              
-              <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                Explorez notre bibliothèque complète de guides experts pour réussir vos projets de rénovation énergétique
-              </p>
-              
-              <div className="flex items-center justify-center gap-2 mt-4">
-                <div className="h-1 w-16 bg-gradient-to-r from-transparent via-orange-500 to-transparent rounded-full"></div>
+                
+                <p className="text-lg text-white/80 max-w-3xl mx-auto leading-relaxed">
+                  Explorez notre bibliothèque complète de guides experts pour réussir vos projets de rénovation énergétique
+                </p>
+                
+                <div className="flex items-center justify-center gap-2 mt-4">
+                  <div className="h-1 w-16 bg-gradient-to-r from-transparent via-white/60 to-transparent rounded-full"></div>
+                </div>
               </div>
             </div>
+          </section>
+
+          <div className="container mx-auto px-4 py-12">
 
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
