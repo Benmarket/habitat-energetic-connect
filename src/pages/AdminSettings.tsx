@@ -112,6 +112,7 @@ const AdminSettings = () => {
     installerButtonColor: "#22c55e",
     installerButtonTextColor: "#ffffff",
     installerButtonLink: "/#etude",
+    showRegionSubHeader: true,
   });
 
   const [heroSlider, setHeroSlider] = useState({
@@ -177,6 +178,7 @@ const AdminSettings = () => {
           installerButtonColor: value.installerButtonColor || "#22c55e",
           installerButtonTextColor: value.installerButtonTextColor || "#ffffff",
           installerButtonLink: value.installerButtonLink || "/#etude",
+          showRegionSubHeader: value.showRegionSubHeader ?? true,
         });
       }
     } catch (error) {
@@ -727,6 +729,25 @@ const AdminSettings = () => {
                       checked={headerFooterSettings.showMemberSpace}
                       onCheckedChange={(checked) => 
                         setHeaderFooterSettings({ ...headerFooterSettings, showMemberSpace: checked })
+                      }
+                    />
+                  </div>
+
+                  {/* Region sub-header toggle */}
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="showRegionSubHeader" className="text-base">
+                        Afficher le sous-header régions
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Barre de sélection des régions sous le header (page d'accueil uniquement)
+                      </p>
+                    </div>
+                    <Switch
+                      id="showRegionSubHeader"
+                      checked={headerFooterSettings.showRegionSubHeader}
+                      onCheckedChange={(checked) => 
+                        setHeaderFooterSettings({ ...headerFooterSettings, showRegionSubHeader: checked })
                       }
                     />
                   </div>
