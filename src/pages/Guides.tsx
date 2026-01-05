@@ -155,7 +155,7 @@ const Guides = () => {
               >
                 <path 
                   d="M0 80C240 20 480 0 720 40C960 80 1200 160 1440 120V200H0V80Z" 
-                  fill="hsl(var(--primary) / 0.08)"
+                  fill="hsl(24 95% 53% / 0.1)"
                 />
               </svg>
             </div>
