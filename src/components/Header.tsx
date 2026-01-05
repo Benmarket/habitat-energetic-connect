@@ -73,31 +73,61 @@ const Header = () => {
     return `https://wa.me/${cleanNumber}`;
   };
 
-  // Scroll detection for sub-header with hysteresis to prevent flickering
-  // Using ref to avoid recreating listener on each state change
+  // Scroll detection for RegionSubHeader
+  // Important: when the sub-header opens/closes, header height changes can shift scrollY,
+  // which can cause an infinite open/close loop. We therefore:
+  // 1) use a ref for state
+  // 2) temporarily lock the scroll handler while layout settles
+  // 3) restore the previous scrollY after the toggle
   const isScrolledRef = useRef(isScrolled);
+  const ignoreScrollRef = useRef(false);
+  const scrollLockTimerRef = useRef<number | null>(null);
   isScrolledRef.current = isScrolled;
-  
+
+  const lockScrollHandling = (ms = 350) => {
+    ignoreScrollRef.current = true;
+    if (scrollLockTimerRef.current) window.clearTimeout(scrollLockTimerRef.current);
+    scrollLockTimerRef.current = window.setTimeout(() => {
+      ignoreScrollRef.current = false;
+      scrollLockTimerRef.current = null;
+    }, ms);
+  };
+
+  const restoreScrollY = (y: number) => {
+    lockScrollHandling();
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: y, left: 0, behavior: "auto" });
+    });
+  };
+
   useEffect(() => {
-    const COLLAPSE_THRESHOLD = 80;  // Collapse when scrolling past this point
-    const EXPAND_THRESHOLD = 10;    // Re-expand only when very close to top
-    
+    const COLLAPSE_THRESHOLD = 80; // collapse when scrolling past this point
+    const EXPAND_THRESHOLD = 10; // re-expand only when very close to top
+
     const handleScroll = () => {
+      if (ignoreScrollRef.current) return;
+
       const currentScrollY = window.scrollY;
-      
-      // Only change state when clearly past thresholds
-      // Wide hysteresis gap (10px - 80px) prevents oscillation
+
       if (!isScrolledRef.current && currentScrollY > COLLAPSE_THRESHOLD) {
+        const yBefore = currentScrollY;
+        isScrolledRef.current = true;
         setIsScrolled(true);
+        restoreScrollY(yBefore);
       } else if (isScrolledRef.current && currentScrollY < EXPAND_THRESHOLD) {
+        const yBefore = currentScrollY;
+        isScrolledRef.current = false;
         setIsScrolled(false);
+        restoreScrollY(yBefore);
       }
-      // In the neutral zone (10-80px), maintain current state - no change
     };
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []); // Empty deps - listener created once
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollLockTimerRef.current) window.clearTimeout(scrollLockTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     // Load header/footer settings
