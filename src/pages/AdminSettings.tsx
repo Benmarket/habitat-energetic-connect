@@ -11,8 +11,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical, Eye, EyeOff, LayoutList, Sun, Zap, Home, Newspaper, HelpCircle, BookOpen, FileText, Calculator, MapPin, Gift, Handshake, MessageSquare, Star, Phone, Smartphone, Search } from "lucide-react";
+import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical, Eye, EyeOff, LayoutList, Sun, Zap, Home, Newspaper, HelpCircle, BookOpen, FileText, Calculator, MapPin, Gift, Handshake, MessageSquare, Star, Phone, Smartphone, Search, Palette } from "lucide-react";
 import SectionPreviewModal from "@/components/SectionPreviewModal";
+import ButtonPresetSelector from "@/components/ButtonPresetSelector";
 import { supabase } from "@/integrations/supabase/client";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -244,12 +245,26 @@ const AdminSettings = () => {
     whatsappLink: "",
     showMemberSpace: true,
     showInstallerButton: true,
+    installerButtonPresetId: null as string | null,
     installerButtonText: "Trouver un installateur",
     installerButtonColor: "#22c55e",
     installerButtonTextColor: "#ffffff",
+    installerButtonBorderRadius: 6,
+    installerButtonPaddingX: 16,
+    installerButtonPaddingY: 8,
+    installerButtonBorderWidth: 0,
+    installerButtonBorderColor: "#000000",
+    installerButtonBorderStyle: "solid",
+    installerButtonShadowSize: "none",
+    installerButtonUseGradient: false,
+    installerButtonGradientColor1: "#22c55e",
+    installerButtonGradientColor2: "#16a34a",
+    installerButtonGradientAngle: 90,
     installerButtonLink: "/#etude",
     showRegionSubHeader: true,
   });
+  
+  const [buttonSelectorOpen, setButtonSelectorOpen] = useState(false);
 
   const [heroSlider, setHeroSlider] = useState({
     enabled: false,
@@ -407,9 +422,21 @@ const AdminSettings = () => {
           whatsappLink: value.whatsappLink || "",
           showMemberSpace: value.showMemberSpace ?? true,
           showInstallerButton: value.showInstallerButton ?? true,
+          installerButtonPresetId: value.installerButtonPresetId || null,
           installerButtonText: value.installerButtonText || "Trouver un installateur",
           installerButtonColor: value.installerButtonColor || "#22c55e",
           installerButtonTextColor: value.installerButtonTextColor || "#ffffff",
+          installerButtonBorderRadius: value.installerButtonBorderRadius ?? 6,
+          installerButtonPaddingX: value.installerButtonPaddingX ?? 16,
+          installerButtonPaddingY: value.installerButtonPaddingY ?? 8,
+          installerButtonBorderWidth: value.installerButtonBorderWidth ?? 0,
+          installerButtonBorderColor: value.installerButtonBorderColor || "#000000",
+          installerButtonBorderStyle: value.installerButtonBorderStyle || "solid",
+          installerButtonShadowSize: value.installerButtonShadowSize || "none",
+          installerButtonUseGradient: value.installerButtonUseGradient ?? false,
+          installerButtonGradientColor1: value.installerButtonGradientColor1 || "#22c55e",
+          installerButtonGradientColor2: value.installerButtonGradientColor2 || "#16a34a",
+          installerButtonGradientAngle: value.installerButtonGradientAngle ?? 90,
           installerButtonLink: value.installerButtonLink || "/#etude",
           showRegionSubHeader: value.showRegionSubHeader ?? true,
         });
@@ -1007,83 +1034,45 @@ const AdminSettings = () => {
                     
                     {headerFooterSettings.showInstallerButton && (
                       <div className="space-y-4 pl-4 border-l-2 border-primary/20">
+                        {/* Sélecteur de bouton */}
                         <div>
-                          <Label htmlFor="installerButtonText">Texte du bouton</Label>
-                          <Input
-                            id="installerButtonText"
-                            value={headerFooterSettings.installerButtonText}
-                            onChange={(e) => 
-                              setHeaderFooterSettings({ ...headerFooterSettings, installerButtonText: e.target.value })
-                            }
-                            placeholder="Trouver un installateur"
-                            className="max-w-xs"
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="installerButtonColor">Couleur de fond</Label>
-                            <div className="flex gap-2 items-center mt-1">
-                              <Input
-                                id="installerButtonColor"
-                                type="color"
-                                value={headerFooterSettings.installerButtonColor}
-                                onChange={(e) => 
-                                  setHeaderFooterSettings({ ...headerFooterSettings, installerButtonColor: e.target.value })
-                                }
-                                className="w-16 h-10 cursor-pointer p-1"
-                              />
-                              <Input
-                                type="text"
-                                value={headerFooterSettings.installerButtonColor}
-                                onChange={(e) => 
-                                  setHeaderFooterSettings({ ...headerFooterSettings, installerButtonColor: e.target.value })
-                                }
-                                className="flex-1"
-                                placeholder="#22c55e"
-                              />
-                            </div>
-                          </div>
-
-                          <div>
-                            <Label htmlFor="installerButtonTextColor">Couleur du texte</Label>
-                            <div className="flex gap-2 items-center mt-1">
-                              <Input
-                                id="installerButtonTextColor"
-                                type="color"
-                                value={headerFooterSettings.installerButtonTextColor}
-                                onChange={(e) => 
-                                  setHeaderFooterSettings({ ...headerFooterSettings, installerButtonTextColor: e.target.value })
-                                }
-                                className="w-16 h-10 cursor-pointer p-1"
-                              />
-                              <Input
-                                type="text"
-                                value={headerFooterSettings.installerButtonTextColor}
-                                onChange={(e) => 
-                                  setHeaderFooterSettings({ ...headerFooterSettings, installerButtonTextColor: e.target.value })
-                                }
-                                className="flex-1"
-                                placeholder="#ffffff"
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Aperçu du bouton */}
-                        <div>
-                          <Label className="mb-2 block">Aperçu du bouton</Label>
-                          <div className="bg-muted/30 rounded-lg p-4 border border-border">
-                            <button
+                          <Label className="mb-2 block">Style du bouton</Label>
+                          <div className="space-y-3">
+                            <Button
                               type="button"
-                              className="px-4 py-2 rounded-md font-medium transition-all hover:opacity-90"
-                              style={{
-                                backgroundColor: headerFooterSettings.installerButtonColor,
-                                color: headerFooterSettings.installerButtonTextColor,
-                              }}
+                              variant="outline"
+                              onClick={() => setButtonSelectorOpen(true)}
+                              className="w-full justify-start"
                             >
-                              {headerFooterSettings.installerButtonText || "Trouver un installateur"}
-                            </button>
+                              <Palette className="w-4 h-4 mr-2" />
+                              Choisir un bouton depuis ma bibliothèque
+                            </Button>
+                            
+                            {/* Aperçu du bouton actuel */}
+                            <div className="bg-muted/30 rounded-lg p-4 border border-border">
+                              <Label className="text-xs text-muted-foreground mb-2 block">Aperçu actuel</Label>
+                              <button
+                                type="button"
+                                className="font-medium transition-all hover:opacity-90"
+                                style={{
+                                  background: headerFooterSettings.installerButtonUseGradient
+                                    ? `linear-gradient(${headerFooterSettings.installerButtonGradientAngle}deg, ${headerFooterSettings.installerButtonGradientColor1}, ${headerFooterSettings.installerButtonGradientColor2})`
+                                    : headerFooterSettings.installerButtonColor,
+                                  color: headerFooterSettings.installerButtonTextColor,
+                                  borderRadius: `${headerFooterSettings.installerButtonBorderRadius}px`,
+                                  padding: `${headerFooterSettings.installerButtonPaddingY}px ${headerFooterSettings.installerButtonPaddingX}px`,
+                                  border: headerFooterSettings.installerButtonBorderWidth > 0 
+                                    ? `${headerFooterSettings.installerButtonBorderWidth}px ${headerFooterSettings.installerButtonBorderStyle} ${headerFooterSettings.installerButtonBorderColor}` 
+                                    : 'none',
+                                  boxShadow: headerFooterSettings.installerButtonShadowSize === 'sm' ? '0 1px 2px rgba(0,0,0,0.05)' 
+                                    : headerFooterSettings.installerButtonShadowSize === 'md' ? '0 4px 6px rgba(0,0,0,0.1)'
+                                    : headerFooterSettings.installerButtonShadowSize === 'lg' ? '0 10px 15px rgba(0,0,0,0.15)'
+                                    : 'none',
+                                }}
+                              >
+                                {headerFooterSettings.installerButtonText || "Trouver un installateur"}
+                              </button>
+                            </div>
                           </div>
                         </div>
 
@@ -1132,6 +1121,32 @@ const AdminSettings = () => {
                             Choisissez vers quelle section ou page le bouton redirigera l'utilisateur
                           </p>
                         </div>
+
+                        <ButtonPresetSelector
+                          open={buttonSelectorOpen}
+                          onOpenChange={setButtonSelectorOpen}
+                          currentPresetId={headerFooterSettings.installerButtonPresetId}
+                          onSelect={(preset) => {
+                            setHeaderFooterSettings({
+                              ...headerFooterSettings,
+                              installerButtonPresetId: preset.id,
+                              installerButtonText: preset.text,
+                              installerButtonColor: preset.backgroundColor,
+                              installerButtonTextColor: preset.textColor,
+                              installerButtonBorderRadius: preset.borderRadius,
+                              installerButtonPaddingX: preset.paddingX,
+                              installerButtonPaddingY: preset.paddingY,
+                              installerButtonBorderWidth: preset.borderWidth,
+                              installerButtonBorderColor: preset.borderColor,
+                              installerButtonBorderStyle: preset.borderStyle,
+                              installerButtonShadowSize: preset.shadowSize,
+                              installerButtonUseGradient: preset.useGradient,
+                              installerButtonGradientColor1: preset.gradientColor1,
+                              installerButtonGradientColor2: preset.gradientColor2,
+                              installerButtonGradientAngle: preset.gradientAngle,
+                            });
+                          }}
+                        />
                       </div>
                     )}
                   </div>
