@@ -35,7 +35,7 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
   };
 
   return (
-    <div className="bg-muted/50 border-t border-border/50">
+    <div className="bg-muted border-t border-border/50">
       <div 
         className={`overflow-hidden transition-all duration-300 ease-in-out ${
           isCollapsed ? "max-h-0" : "max-h-32"
