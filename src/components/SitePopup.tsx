@@ -197,10 +197,15 @@ export default function SitePopup() {
   useEffect(() => {
     const handleTriggerPopup = (event: CustomEvent<{ triggerId: string }>) => {
       const { triggerId } = event.detail;
+      console.log("Trigger popup event received:", triggerId, "Available popups:", clickPopups);
       
-      if (!clickPopups) return;
+      if (!clickPopups) {
+        console.log("No clickPopups loaded yet");
+        return;
+      }
       
       const matchingPopup = clickPopups.find(p => p.trigger_id === triggerId);
+      console.log("Matching popup found:", matchingPopup);
       if (matchingPopup) {
         showPopup(matchingPopup);
       }
