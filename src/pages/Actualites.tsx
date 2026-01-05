@@ -134,12 +134,19 @@ const Actualites = () => {
         
         <main className="pt-20">
           {/* Hero Section */}
-          <section className="bg-muted py-16">
-            <div className="container mx-auto px-4">
-              <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-4">
+          <section className="relative py-20 overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-primary/80">
+            {/* Background decorative elements */}
+            <div className="absolute inset-0">
+              <div className="absolute top-0 left-0 w-72 h-72 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2" />
+              <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full translate-x-1/3 translate-y-1/3" />
+              <div className="absolute top-1/2 left-1/4 w-48 h-48 bg-white/3 rounded-full" />
+            </div>
+            
+            <div className="container mx-auto px-4 relative z-10">
+              <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">
                 Actualités Énergies Renouvelables
               </h1>
-              <p className="text-xl text-muted-foreground max-w-3xl">
+              <p className="text-xl text-white/80 max-w-3xl">
                 Restez informés des dernières innovations, aides publiques et tendances du secteur
               </p>
             </div>
