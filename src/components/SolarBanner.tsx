@@ -19,11 +19,11 @@ const SolarBanner = () => {
 
         <div className="grid lg:grid-cols-2 gap-8 items-center">
           {/* Left side - Image with guarantee badge */}
-          <div className="relative md:max-h-[200px] md:overflow-hidden lg:max-h-none lg:overflow-visible">
+          <div className="relative rounded-2xl shadow-2xl overflow-hidden md:h-[220px] lg:h-[260px] xl:h-auto">
             <img
               src={solarHouseBanner}
               alt="Maison avec panneaux solaires photovoltaïques"
-              className="rounded-2xl shadow-2xl w-full object-cover"
+              className="w-full object-cover md:h-full xl:h-auto"
             />
             <div className="absolute top-4 left-4 w-20 h-20 lg:w-28 lg:h-28">
               <img
