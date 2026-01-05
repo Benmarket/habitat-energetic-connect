@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone, User, Home, BarChart3, MessageCircle, Users, LogOut, ChevronDown, Settings } from "lucide-react";
@@ -74,36 +74,30 @@ const Header = () => {
   };
 
   // Scroll detection for sub-header with hysteresis to prevent flickering
+  // Using ref to avoid recreating listener on each state change
+  const isScrolledRef = useRef(isScrolled);
+  isScrolledRef.current = isScrolled;
+  
   useEffect(() => {
     const COLLAPSE_THRESHOLD = 80;  // Collapse when scrolling past this point
     const EXPAND_THRESHOLD = 10;    // Re-expand only when very close to top
-    let lastScrollY = window.scrollY;
-    let ticking = false;
     
     const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY;
-          
-          // Only change state when clearly past thresholds
-          // Wide hysteresis gap (10px - 80px) prevents oscillation
-          if (!isScrolled && currentScrollY > COLLAPSE_THRESHOLD) {
-            setIsScrolled(true);
-          } else if (isScrolled && currentScrollY < EXPAND_THRESHOLD) {
-            setIsScrolled(false);
-          }
-          // In the neutral zone (10-80px), maintain current state - no change
-          
-          lastScrollY = currentScrollY;
-          ticking = false;
-        });
-        ticking = true;
+      const currentScrollY = window.scrollY;
+      
+      // Only change state when clearly past thresholds
+      // Wide hysteresis gap (10px - 80px) prevents oscillation
+      if (!isScrolledRef.current && currentScrollY > COLLAPSE_THRESHOLD) {
+        setIsScrolled(true);
+      } else if (isScrolledRef.current && currentScrollY < EXPAND_THRESHOLD) {
+        setIsScrolled(false);
       }
+      // In the neutral zone (10-80px), maintain current state - no change
     };
     
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isScrolled]);
+  }, []); // Empty deps - listener created once
 
   useEffect(() => {
     // Load header/footer settings
