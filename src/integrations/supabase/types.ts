@@ -60,6 +60,7 @@ export type Database = {
           is_featured: boolean
           original_price: number | null
           price: number | null
+          product_type: string | null
           status: string
           title: string
           updated_at: string
@@ -79,6 +80,7 @@ export type Database = {
           is_featured?: boolean
           original_price?: number | null
           price?: number | null
+          product_type?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -98,6 +100,7 @@ export type Database = {
           is_featured?: boolean
           original_price?: number | null
           price?: number | null
+          product_type?: string | null
           status?: string
           title?: string
           updated_at?: string
