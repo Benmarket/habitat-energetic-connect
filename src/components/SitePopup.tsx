@@ -2,7 +2,16 @@ import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { X, Mail, Sparkles, CheckCircle2 } from "lucide-react";
+import { X, Mail, Sparkles, CheckCircle2, FileText } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -351,34 +360,127 @@ export default function SitePopup() {
     
     const fields = Array.isArray(form.fields_schema) ? form.fields_schema : [];
     
-    return fields.map((field: any, index: number) => (
-      <Input
-        key={index}
-        placeholder={field.placeholder || field.label || field.name}
-        type={field.type || "text"}
-        required={field.required}
-        value={formData[field.name] || ""}
-        onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.value }))}
-        className="h-12 bg-white border-2 border-gray-200 focus:border-primary rounded-lg text-base"
-      />
-    ));
+    return fields.map((field: any, index: number) => {
+      // Handle select fields
+      if (field.type === "select" && field.options) {
+        return (
+          <div key={index} className="space-y-2">
+            <Label className="text-sm font-medium" style={{ color: activePopup.text_color }}>
+              {field.label}
+            </Label>
+            <Select
+              value={formData[field.name] || ""}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, [field.name]: value }))}
+              required={field.required}
+            >
+              <SelectTrigger className="h-12 bg-white border-2 border-gray-200 focus:border-primary rounded-lg text-base">
+                <SelectValue placeholder={field.placeholder || `Sélectionnez ${field.label.toLowerCase()}`} />
+              </SelectTrigger>
+              <SelectContent>
+                {field.options.map((option: any, optIndex: number) => (
+                  <SelectItem key={optIndex} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        );
+      }
+      
+      // Handle radio fields
+      if (field.type === "radio" && field.options) {
+        return (
+          <div key={index} className="space-y-3">
+            <Label className="text-sm font-medium" style={{ color: activePopup.text_color }}>
+              {field.label}
+            </Label>
+            <RadioGroup
+              value={formData[field.name] || ""}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, [field.name]: value }))}
+              className="flex flex-wrap gap-4"
+            >
+              {field.options.map((option: any, optIndex: number) => (
+                <div key={optIndex} className="flex items-center space-x-2">
+                  <RadioGroupItem 
+                    value={option.value} 
+                    id={`${field.name}-${option.value}`}
+                    className="border-2 border-gray-300"
+                  />
+                  <Label 
+                    htmlFor={`${field.name}-${option.value}`}
+                    className="text-sm cursor-pointer"
+                    style={{ color: activePopup.text_color }}
+                  >
+                    {option.label}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+        );
+      }
+      
+      // Default: text/email/tel input
+      return (
+        <div key={index} className="space-y-2">
+          <Label className="text-sm font-medium" style={{ color: activePopup.text_color }}>
+            {field.label}
+          </Label>
+          <Input
+            placeholder={field.placeholder || field.label || field.name}
+            type={field.type || "text"}
+            required={field.required}
+            value={formData[field.name] || ""}
+            onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.value }))}
+            className="h-12 bg-white border-2 border-gray-200 focus:border-primary rounded-lg text-base"
+          />
+        </div>
+      );
+    });
+  };
+
+  // Get appropriate success message based on form type
+  const getSuccessContent = () => {
+    if (form?.form_identifier === "aide-dossier") {
+      return {
+        icon: FileText,
+        title: "Demande envoyée avec succès !",
+        subtitle: "Un conseiller vous contactera dans les plus brefs délais pour vous accompagner dans la constitution de votre dossier d'aides."
+      };
+    }
+    if (form?.form_identifier === "newsletter") {
+      return {
+        icon: CheckCircle2,
+        title: "Merci pour votre inscription !",
+        subtitle: "Vous recevrez bientôt nos actualités."
+      };
+    }
+    return {
+      icon: CheckCircle2,
+      title: "Merci !",
+      subtitle: "Votre demande a bien été envoyée. Nous vous répondrons rapidement."
+    };
   };
 
   const renderContent = () => {
     if (isSuccess) {
+      const successContent = getSuccessContent();
+      const SuccessIcon = successContent.icon;
+      
       return (
         <div className="flex flex-col items-center justify-center py-8 space-y-4">
           <div 
             className="w-16 h-16 rounded-full flex items-center justify-center"
             style={{ backgroundColor: `${activePopup.accent_color}20` }}
           >
-            <CheckCircle2 className="w-10 h-10" style={{ color: activePopup.accent_color }} />
+            <SuccessIcon className="w-10 h-10" style={{ color: activePopup.accent_color }} />
           </div>
           <h2 className="text-2xl font-bold text-center" style={{ color: activePopup.text_color }}>
-            Merci pour votre inscription !
+            {successContent.title}
           </h2>
-          <p className="text-center opacity-70" style={{ color: activePopup.text_color }}>
-            Vous recevrez bientôt nos actualités.
+          <p className="text-center opacity-70 px-4" style={{ color: activePopup.text_color }}>
+            {successContent.subtitle}
           </p>
         </div>
       );
@@ -386,6 +488,15 @@ export default function SitePopup() {
 
     switch (activePopup.template) {
       case "lead_capture":
+        // Determine icon and button text based on form type
+        const isAideDossier = form?.form_identifier === "aide-dossier";
+        const FormIcon = isAideDossier ? FileText : Mail;
+        const submitButtonText = isAideDossier ? "Envoyer ma demande" : "S'inscrire maintenant";
+        const loadingText = isAideDossier ? "Envoi..." : "Inscription...";
+        const footerText = isAideDossier 
+          ? "Vos données sont utilisées uniquement pour traiter votre demande."
+          : "En vous inscrivant, vous acceptez de recevoir nos communications.";
+        
         return (
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="flex justify-center mb-2">
@@ -395,7 +506,7 @@ export default function SitePopup() {
                   background: `linear-gradient(135deg, ${activePopup.accent_color}, ${activePopup.accent_color}dd)` 
                 }}
               >
-                <Mail className="w-7 h-7 text-white" />
+                <FormIcon className="w-7 h-7 text-white" />
               </div>
             </div>
 
@@ -429,7 +540,7 @@ export default function SitePopup() {
               </p>
             )}
             
-            <div className="space-y-3 pt-2">
+            <div className="space-y-4 pt-2">
               {form ? renderFormFields() : (
                 <Input 
                   placeholder="Votre adresse email" 
@@ -452,10 +563,10 @@ export default function SitePopup() {
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Inscription...
+                    {loadingText}
                   </span>
                 ) : (
-                  "S'inscrire maintenant"
+                  submitButtonText
                 )}
               </Button>
             </div>
@@ -464,7 +575,7 @@ export default function SitePopup() {
               className="text-xs text-center opacity-50 pt-1" 
               style={{ color: activePopup.text_color }}
             >
-              En vous inscrivant, vous acceptez de recevoir nos communications.
+              {footerText}
             </p>
           </form>
         );
