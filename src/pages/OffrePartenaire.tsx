@@ -8,7 +8,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check, ArrowLeft, MapPin, Mail, Globe, Tag, Building2 } from "lucide-react";
+import { Check, ArrowLeft, MapPin, Mail, Globe, Tag, Building2, Clock } from "lucide-react";
+import { format, differenceInDays, isPast } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface Advertisement {
   id: string;
@@ -23,6 +25,7 @@ interface Advertisement {
   badge_text: string | null;
   badge_type: string | null;
   advertiser_id: string;
+  expires_at: string | null;
   advertiser: {
     id: string;
     name: string;
@@ -78,7 +81,12 @@ const OffrePartenaire = () => {
           .limit(6);
 
         if (!othersError && others) {
-          setOtherOffers(others);
+          // Filter out expired offers
+          const validOffers = others.filter((offer: any) => {
+            if (!offer.expires_at) return true;
+            return !isPast(new Date(offer.expires_at));
+          });
+          setOtherOffers(validOffers);
         }
       }
     } catch (error) {
@@ -99,6 +107,17 @@ const OffrePartenaire = () => {
       default:
         return 'default';
     }
+  };
+
+  const getExpirationInfo = (expiresAt: string | null) => {
+    if (!expiresAt) return null;
+    const expirationDate = new Date(expiresAt);
+    const daysLeft = differenceInDays(expirationDate, new Date());
+    
+    if (daysLeft <= 0) return null;
+    if (daysLeft === 1) return "Expire demain";
+    if (daysLeft <= 7) return `Expire dans ${daysLeft} jours`;
+    return `Jusqu'au ${format(expirationDate, "d MMMM yyyy", { locale: fr })}`;
   };
 
   if (loading) {
@@ -202,7 +221,7 @@ const OffrePartenaire = () => {
                   </div>
 
                   {/* Price */}
-                  <div className="flex items-baseline gap-3 p-4 bg-amber-50 rounded-xl border border-amber-200">
+                  <div className="flex items-center gap-3 p-4 bg-amber-50 rounded-xl border border-amber-200 flex-wrap">
                     <span className="text-4xl md:text-5xl font-bold text-amber-600">
                       {offer.price.toLocaleString('fr-FR')}€
                     </span>
@@ -214,6 +233,12 @@ const OffrePartenaire = () => {
                     {offer.original_price && (
                       <Badge className="bg-red-500 text-white">
                         -{Math.round((1 - offer.price / offer.original_price) * 100)}%
+                      </Badge>
+                    )}
+                    {getExpirationInfo(offer.expires_at) && (
+                      <Badge variant="outline" className="flex items-center gap-1.5 text-orange-600 border-orange-300 bg-orange-50 px-3 py-1">
+                        <Clock className="w-4 h-4" />
+                        {getExpirationInfo(offer.expires_at)}
                       </Badge>
                     )}
                   </div>
