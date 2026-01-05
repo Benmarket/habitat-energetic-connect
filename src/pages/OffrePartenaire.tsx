@@ -12,6 +12,7 @@ import { Check, ArrowLeft, MapPin, Mail, Globe, Tag, Building2, Clock } from "lu
 import { format, differenceInDays, isPast } from "date-fns";
 import { fr } from "date-fns/locale";
 import { getOfferUrl } from "@/utils/slugify";
+import LeadOfferModal from "@/components/LeadOfferModal";
 
 interface Advertisement {
   id: string;
@@ -27,6 +28,7 @@ interface Advertisement {
   badge_type: string | null;
   advertiser_id: string;
   expires_at: string | null;
+  product_type: string | null;
   advertiser: {
     id: string;
     name: string;
@@ -46,6 +48,7 @@ const OffrePartenaire = () => {
   const [offer, setOffer] = useState<Advertisement | null>(null);
   const [otherOffers, setOtherOffers] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -269,13 +272,11 @@ const OffrePartenaire = () => {
 
                   {/* CTA */}
                   <Button 
-                    asChild
+                    onClick={() => setIsLeadModalOpen(true)}
                     size="lg"
                     className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-bold py-6 text-lg shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 transition-all duration-300"
                   >
-                    <a href={offer.cta_url} target="_blank" rel="noopener noreferrer">
-                      {offer.cta_text}
-                    </a>
+                    En savoir plus sur cette offre
                   </Button>
                 </CardContent>
               </Card>
@@ -424,6 +425,21 @@ const OffrePartenaire = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Lead Modal */}
+      {offer && (
+        <LeadOfferModal
+          isOpen={isLeadModalOpen}
+          onClose={() => setIsLeadModalOpen(false)}
+          offerData={{
+            offerId: offer.id,
+            offerTitle: offer.title,
+            advertiserName: offer.advertiser.name,
+            advertiserId: offer.advertiser.id,
+            productType: offer.product_type || "Non spécifié",
+          }}
+        />
+      )}
     </>
   );
 };
