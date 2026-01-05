@@ -29,6 +29,7 @@ import AdminUsers from "./pages/AdminUsers";
 import AdminCategories from "./pages/AdminCategories";
 import AdminTags from "./pages/AdminTags";
 import AdminSettings from "./pages/AdminSettings";
+import AdminButtons from "./pages/AdminButtons";
 import AdminNewsletter from "./pages/AdminNewsletter";
 import AdminChatbot from "./pages/AdminChatbot";
 import AdminForms from "./pages/AdminForms";
@@ -89,6 +90,7 @@ const App = () => (
               <Route path="/admin/categories" element={<AdminCategories />} />
               <Route path="/admin/etiquettes" element={<AdminTags />} />
               <Route path="/admin/parametres" element={<AdminSettings />} />
+              <Route path="/admin/boutons" element={<AdminButtons />} />
               <Route path="/admin/newsletter" element={<AdminNewsletter />} />
               <Route path="/admin/chatbot" element={<AdminChatbot />} />
               <Route path="/admin/formulaires" element={<AdminForms />} />
