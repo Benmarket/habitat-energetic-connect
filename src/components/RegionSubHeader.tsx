@@ -41,24 +41,24 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
           isCollapsed ? "max-h-0" : "max-h-32"
         }`}
       >
-        <div className="container mx-auto px-4 md:px-8 lg:px-12">
-          <div className="flex items-center justify-between pt-4 pb-3 md:pt-5 md:pb-4">
+        <div className="container mx-auto px-1 md:px-8 lg:px-12">
+          <div className="flex items-center justify-between pt-4 pb-3 md:pt-5 md:pb-4 gap-0.5 md:gap-2">
             {regions.map((region) => (
               <button
                 key={region.name}
                 onClick={() => handleRegionClick(region.name)}
-                className={`group flex flex-col items-center gap-1.5 flex-1 transition-all duration-200 hover:scale-110 focus:outline-none ${
+                className={`group flex flex-col items-center gap-1 flex-1 transition-all duration-200 hover:scale-110 focus:outline-none ${
                   selectedRegion === region.name ? "scale-105" : ""
                 }`}
               >
-                <div className="relative w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center">
+                <div className="relative w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center">
                   <img
                     src={region.image}
                     alt={region.name}
                     className="w-full h-full object-contain transition-transform duration-200 group-hover:scale-115"
                   />
                 </div>
-                <span className="text-xs md:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors whitespace-nowrap">
+                <span className="text-[10px] md:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors whitespace-nowrap">
                   {region.name}
                 </span>
               </button>
