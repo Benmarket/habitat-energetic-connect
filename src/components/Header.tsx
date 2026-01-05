@@ -76,20 +76,21 @@ const Header = () => {
   // Strict scroll detection: open ONLY at absolute top, close on any scroll
   // Uses debounce to prevent "dancing" when header height changes
   useEffect(() => {
-    const TOP_THRESHOLD = 5; // Must be within 5px of top to open
+    const TOP_THRESHOLD = 0; // open ONLY at the absolute top
     let ignoreUntil = 0;
-    
+
     const handleScroll = () => {
       const now = Date.now();
       if (now < ignoreUntil) return; // Ignore during debounce period
-      
+
       const atTop = window.scrollY <= TOP_THRESHOLD;
-      
-      setIsScrolled(prev => {
-        if (prev === atTop) return prev; // No change needed
+      const desiredIsScrolled = !atTop; // any scroll => true
+
+      setIsScrolled((prev) => {
+        if (prev === desiredIsScrolled) return prev;
         // State is changing - set debounce to prevent oscillation
         ignoreUntil = now + 300;
-        return !atTop;
+        return desiredIsScrolled;
       });
     };
     
