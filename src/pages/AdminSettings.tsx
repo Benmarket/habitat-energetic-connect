@@ -1130,9 +1130,7 @@ const AdminSettings = () => {
                             setHeaderFooterSettings({
                               ...headerFooterSettings,
                               installerButtonPresetId: preset.id,
-                              installerButtonText: preset.text,
                               installerButtonColor: preset.backgroundColor,
-                              installerButtonTextColor: preset.textColor,
                               installerButtonBorderRadius: preset.borderRadius,
                               installerButtonPaddingX: preset.paddingX,
                               installerButtonPaddingY: preset.paddingY,
@@ -1147,6 +1145,63 @@ const AdminSettings = () => {
                             });
                           }}
                         />
+
+                        {/* Texte et couleur personnalisés */}
+                        <div className="space-y-4 pt-4 border-t">
+                          <div className="space-y-2">
+                            <Label htmlFor="installerButtonText">Texte du bouton</Label>
+                            <Input
+                              id="installerButtonText"
+                              value={headerFooterSettings.installerButtonText}
+                              onChange={(e) => setHeaderFooterSettings(prev => ({ ...prev, installerButtonText: e.target.value }))}
+                              placeholder="Trouver un installateur"
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="installerButtonTextColor">Couleur du texte</Label>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="color"
+                                id="installerButtonTextColor"
+                                value={headerFooterSettings.installerButtonTextColor}
+                                onChange={(e) => setHeaderFooterSettings(prev => ({ ...prev, installerButtonTextColor: e.target.value }))}
+                                className="w-16 h-10 p-1 cursor-pointer"
+                              />
+                              <Input
+                                value={headerFooterSettings.installerButtonTextColor}
+                                onChange={(e) => setHeaderFooterSettings(prev => ({ ...prev, installerButtonTextColor: e.target.value }))}
+                                placeholder="#ffffff"
+                                className="flex-1"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Aperçu du bouton */}
+                          <div className="p-4 bg-muted rounded-lg">
+                            <p className="text-sm text-muted-foreground mb-2">Aperçu :</p>
+                            <div className="flex justify-center">
+                              <button
+                                style={{
+                                  backgroundColor: headerFooterSettings.installerButtonUseGradient ? undefined : headerFooterSettings.installerButtonColor,
+                                  background: headerFooterSettings.installerButtonUseGradient 
+                                    ? `linear-gradient(${headerFooterSettings.installerButtonGradientAngle}deg, ${headerFooterSettings.installerButtonGradientColor1}, ${headerFooterSettings.installerButtonGradientColor2})` 
+                                    : undefined,
+                                  borderRadius: `${headerFooterSettings.installerButtonBorderRadius}px`,
+                                  padding: `${headerFooterSettings.installerButtonPaddingY}px ${headerFooterSettings.installerButtonPaddingX}px`,
+                                  border: headerFooterSettings.installerButtonBorderWidth > 0 
+                                    ? `${headerFooterSettings.installerButtonBorderWidth}px ${headerFooterSettings.installerButtonBorderStyle} ${headerFooterSettings.installerButtonBorderColor}` 
+                                    : 'none',
+                                  color: headerFooterSettings.installerButtonTextColor,
+                                  fontWeight: 500,
+                                }}
+                                className="transition-all"
+                              >
+                                {headerFooterSettings.installerButtonText || 'Trouver un installateur'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
