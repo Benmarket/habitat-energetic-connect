@@ -178,6 +178,7 @@ const Guides = () => {
                     category={guide.categories?.[0]?.name || "Guide"}
                     categorySlug={guide.categories?.[0]?.slug || "guide"}
                     contentType="guide"
+                    hideImage
                   />
                 ))}
               </div>
