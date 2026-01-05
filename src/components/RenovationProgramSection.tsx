@@ -75,6 +75,11 @@ const RenovationProgramSection = () => {
           </div>
         </div>
       </div>
+      
+      {/* Separator line */}
+      <div className="mt-12 md:mt-16 flex justify-center">
+        <div className="w-full max-w-4xl h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
+      </div>
     </section>
   );
 };
