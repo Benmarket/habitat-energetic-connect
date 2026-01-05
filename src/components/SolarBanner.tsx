@@ -7,7 +7,7 @@ import guarantee25Years from "@/assets/guarantee-25-years.png";
 
 const SolarBanner = () => {
   return (
-    <section className="py-6 md:py-12 lg:py-16 bg-gradient-to-b from-blue-50/30 to-background">
+    <section id="solaire" className="py-6 md:py-12 lg:py-16 bg-gradient-to-b from-blue-50/30 to-background">
       <div className="container mx-auto px-4">
         {/* Desktop: Title above grid - full width */}
         <div className="hidden lg:block mb-8">

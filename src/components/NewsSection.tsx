@@ -116,7 +116,7 @@ const NewsSection = () => {
   }
 
   return (
-    <section className="py-8 md:py-12 lg:py-20 bg-background">
+    <section id="actualites" className="py-8 md:py-12 lg:py-20 bg-background">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8 md:mb-12">

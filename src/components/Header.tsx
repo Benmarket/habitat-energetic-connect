@@ -30,6 +30,11 @@ const Header = () => {
     showWhatsapp: false,
     whatsappLink: "",
     showMemberSpace: true,
+    showInstallerButton: true,
+    installerButtonText: "Trouver un installateur",
+    installerButtonColor: "#22c55e",
+    installerButtonTextColor: "#ffffff",
+    installerButtonLink: "/#etude",
   });
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const { user, signOut } = useAuth();
@@ -64,6 +69,11 @@ const Header = () => {
             showWhatsapp: value.showWhatsapp ?? false,
             whatsappLink: value.whatsappLink || "",
             showMemberSpace: value.showMemberSpace ?? true,
+            showInstallerButton: value.showInstallerButton ?? true,
+            installerButtonText: value.installerButtonText || "Trouver un installateur",
+            installerButtonColor: value.installerButtonColor || "#22c55e",
+            installerButtonTextColor: value.installerButtonTextColor || "#ffffff",
+            installerButtonLink: value.installerButtonLink || "/#etude",
           });
         }
         setSettingsLoaded(true);
@@ -171,9 +181,18 @@ const Header = () => {
               )}
               
               {/* Installer button - visible from lg only */}
-              <Button asChild className="hidden lg:flex whitespace-nowrap text-sm lg:text-base px-3 lg:px-4">
-                <Link to="/#etude">Trouver un installateur</Link>
-              </Button>
+              {headerFooterSettings.showInstallerButton && (
+                <Link 
+                  to={headerFooterSettings.installerButtonLink}
+                  className="hidden lg:flex whitespace-nowrap text-sm lg:text-base px-3 lg:px-4 py-2 rounded-md font-medium transition-all hover:opacity-90"
+                  style={{
+                    backgroundColor: headerFooterSettings.installerButtonColor,
+                    color: headerFooterSettings.installerButtonTextColor,
+                  }}
+                >
+                  {headerFooterSettings.installerButtonText}
+                </Link>
+              )}
               
               {/* Live chat notifications - visible for admins */}
               {isAdminOrAbove && <LiveChatNotifications />}

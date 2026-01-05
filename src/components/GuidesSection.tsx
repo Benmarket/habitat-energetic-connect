@@ -84,7 +84,7 @@ const GuidesSection = () => {
   if (guides.length === 0) return null;
 
   return (
-    <section className="py-12 md:py-16 lg:py-20 px-4 relative overflow-hidden bg-gradient-to-b from-background via-orange-50/30 to-background">
+    <section id="guides" className="py-12 md:py-16 lg:py-20 px-4 relative overflow-hidden bg-gradient-to-b from-background via-orange-50/30 to-background">
       {/* Decorative background elements */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Animated orange gradient orbs */}

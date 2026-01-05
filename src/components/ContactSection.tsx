@@ -94,7 +94,7 @@ const ContactSection = () => {
   const messageLength = formData.message.length;
 
   return (
-    <section className="bg-background py-16">
+    <section id="contact" className="bg-background py-16">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">

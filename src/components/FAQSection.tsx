@@ -28,7 +28,7 @@ const FAQSection = () => {
   ];
 
   return (
-    <section className="py-12 bg-gradient-to-b from-background to-muted/30">
+    <section id="faq" className="py-12 bg-gradient-to-b from-background to-muted/30">
       <FAQSchema faqs={faqs} />
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">

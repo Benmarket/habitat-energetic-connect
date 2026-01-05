@@ -107,6 +107,11 @@ const AdminSettings = () => {
     showWhatsapp: true,
     whatsappLink: "",
     showMemberSpace: true,
+    showInstallerButton: true,
+    installerButtonText: "Trouver un installateur",
+    installerButtonColor: "#22c55e",
+    installerButtonTextColor: "#ffffff",
+    installerButtonLink: "/#etude",
   });
 
   const [heroSlider, setHeroSlider] = useState({
@@ -167,6 +172,11 @@ const AdminSettings = () => {
           showWhatsapp: value.showWhatsapp ?? true,
           whatsappLink: value.whatsappLink || "",
           showMemberSpace: value.showMemberSpace ?? true,
+          showInstallerButton: value.showInstallerButton ?? true,
+          installerButtonText: value.installerButtonText || "Trouver un installateur",
+          installerButtonColor: value.installerButtonColor || "#22c55e",
+          installerButtonTextColor: value.installerButtonTextColor || "#ffffff",
+          installerButtonLink: value.installerButtonLink || "/#etude",
         });
       }
     } catch (error) {
@@ -719,6 +729,157 @@ const AdminSettings = () => {
                         setHeaderFooterSettings({ ...headerFooterSettings, showMemberSpace: checked })
                       }
                     />
+                  </div>
+
+                  {/* Installer button settings */}
+                  <div className="space-y-4 pt-4 border-t border-border">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="showInstallerButton" className="text-base">
+                          Afficher le bouton "Trouver un installateur"
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Bouton visible dans le header (desktop uniquement)
+                        </p>
+                      </div>
+                      <Switch
+                        id="showInstallerButton"
+                        checked={headerFooterSettings.showInstallerButton}
+                        onCheckedChange={(checked) => 
+                          setHeaderFooterSettings({ ...headerFooterSettings, showInstallerButton: checked })
+                        }
+                      />
+                    </div>
+                    
+                    {headerFooterSettings.showInstallerButton && (
+                      <div className="space-y-4 pl-4 border-l-2 border-primary/20">
+                        <div>
+                          <Label htmlFor="installerButtonText">Texte du bouton</Label>
+                          <Input
+                            id="installerButtonText"
+                            value={headerFooterSettings.installerButtonText}
+                            onChange={(e) => 
+                              setHeaderFooterSettings({ ...headerFooterSettings, installerButtonText: e.target.value })
+                            }
+                            placeholder="Trouver un installateur"
+                            className="max-w-xs"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="installerButtonColor">Couleur de fond</Label>
+                            <div className="flex gap-2 items-center mt-1">
+                              <Input
+                                id="installerButtonColor"
+                                type="color"
+                                value={headerFooterSettings.installerButtonColor}
+                                onChange={(e) => 
+                                  setHeaderFooterSettings({ ...headerFooterSettings, installerButtonColor: e.target.value })
+                                }
+                                className="w-16 h-10 cursor-pointer p-1"
+                              />
+                              <Input
+                                type="text"
+                                value={headerFooterSettings.installerButtonColor}
+                                onChange={(e) => 
+                                  setHeaderFooterSettings({ ...headerFooterSettings, installerButtonColor: e.target.value })
+                                }
+                                className="flex-1"
+                                placeholder="#22c55e"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <Label htmlFor="installerButtonTextColor">Couleur du texte</Label>
+                            <div className="flex gap-2 items-center mt-1">
+                              <Input
+                                id="installerButtonTextColor"
+                                type="color"
+                                value={headerFooterSettings.installerButtonTextColor}
+                                onChange={(e) => 
+                                  setHeaderFooterSettings({ ...headerFooterSettings, installerButtonTextColor: e.target.value })
+                                }
+                                className="w-16 h-10 cursor-pointer p-1"
+                              />
+                              <Input
+                                type="text"
+                                value={headerFooterSettings.installerButtonTextColor}
+                                onChange={(e) => 
+                                  setHeaderFooterSettings({ ...headerFooterSettings, installerButtonTextColor: e.target.value })
+                                }
+                                className="flex-1"
+                                placeholder="#ffffff"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Aperçu du bouton */}
+                        <div>
+                          <Label className="mb-2 block">Aperçu du bouton</Label>
+                          <div className="bg-muted/30 rounded-lg p-4 border border-border">
+                            <button
+                              type="button"
+                              className="px-4 py-2 rounded-md font-medium transition-all hover:opacity-90"
+                              style={{
+                                backgroundColor: headerFooterSettings.installerButtonColor,
+                                color: headerFooterSettings.installerButtonTextColor,
+                              }}
+                            >
+                              {headerFooterSettings.installerButtonText || "Trouver un installateur"}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <Label htmlFor="installerButtonLink">Lien du bouton</Label>
+                          <select
+                            id="installerButtonLink"
+                            value={headerFooterSettings.installerButtonLink}
+                            onChange={(e) => 
+                              setHeaderFooterSettings({ ...headerFooterSettings, installerButtonLink: e.target.value })
+                            }
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 mt-1"
+                          >
+                            <optgroup label="Ancres de la page d'accueil">
+                              <option value="/#hero">Section Héro (haut de page)</option>
+                              <option value="/#solaire">Solaire - Bannière</option>
+                              <option value="/#pourquoi-solaire">Pourquoi le Solaire</option>
+                              <option value="/#renovation">Programme Rénovation</option>
+                              <option value="/#actualites">Actualités</option>
+                              <option value="/#aides">Aides disponibles</option>
+                              <option value="/#guides">Guides par projet</option>
+                              <option value="/#etude">Étude gratuite (formulaire)</option>
+                              <option value="/#simulateurs">Simulateurs</option>
+                              <option value="/#installateurs">Trouver un installateur</option>
+                              <option value="/#offres">Offres partenaires</option>
+                              <option value="/#devenir-partenaire">Devenir partenaire</option>
+                              <option value="/#faq">FAQ</option>
+                              <option value="/#avis">Avis clients</option>
+                              <option value="/#contact">Contact</option>
+                              <option value="/#app">Télécharger l'app</option>
+                            </optgroup>
+                            <optgroup label="Landing Pages">
+                              <option value="/solaire#etude">Solaire - Formulaire</option>
+                              <option value="/pompe-a-chaleur#etude">Pompe à chaleur - Formulaire</option>
+                              <option value="/isolation#etude">Isolation - Formulaire</option>
+                              <option value="/renovation-globale#etude">Rénovation globale - Formulaire</option>
+                            </optgroup>
+                            <optgroup label="Pages">
+                              <option value="/guides">Tous les guides</option>
+                              <option value="/actualites">Actualités</option>
+                              <option value="/aides">Aides</option>
+                              <option value="/forum">Forum</option>
+                            </optgroup>
+                          </select>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Choisissez vers quelle section ou page le bouton redirigera l'utilisateur
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
