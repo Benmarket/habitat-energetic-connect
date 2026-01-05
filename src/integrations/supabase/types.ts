@@ -111,35 +111,53 @@ export type Database = {
       }
       advertisers: {
         Row: {
+          city: string | null
           contact_email: string | null
           created_at: string
+          department: string | null
           description: string | null
           id: string
+          intervention_departments: string[] | null
+          intervention_radius_km: number | null
           is_active: boolean
           logo: string | null
           name: string
+          postal_code: string | null
+          region: string | null
           updated_at: string
           website: string | null
         }
         Insert: {
+          city?: string | null
           contact_email?: string | null
           created_at?: string
+          department?: string | null
           description?: string | null
           id?: string
+          intervention_departments?: string[] | null
+          intervention_radius_km?: number | null
           is_active?: boolean
           logo?: string | null
           name: string
+          postal_code?: string | null
+          region?: string | null
           updated_at?: string
           website?: string | null
         }
         Update: {
+          city?: string | null
           contact_email?: string | null
           created_at?: string
+          department?: string | null
           description?: string | null
           id?: string
+          intervention_departments?: string[] | null
+          intervention_radius_km?: number | null
           is_active?: boolean
           logo?: string | null
           name?: string
+          postal_code?: string | null
+          region?: string | null
           updated_at?: string
           website?: string | null
         }
