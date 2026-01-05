@@ -159,7 +159,7 @@ const SolarBanner = () => {
               
               {/* Button */}
               <div className="flex justify-center">
-                <Link to="/offres/panneaux-solaires">
+                <Link to="/landing/solaire">
                   <Button 
                     size="lg"
                     className="bg-primary hover:bg-primary/90 text-white shadow-xl font-semibold gap-2"
