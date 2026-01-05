@@ -277,9 +277,9 @@ const HeroSection = () => {
                 
                 <form onSubmit={handleSubmit}>
                   {/* Responsive grid layout */}
-                  <div className="space-y-2 md:space-y-0 md:grid md:grid-cols-4 lg:flex lg:flex-wrap md:gap-3 mb-3 md:mb-4">
+                  <div className="space-y-2 md:space-y-0 md:grid md:grid-cols-4 lg:flex lg:flex-nowrap md:gap-3 mb-3 md:mb-4">
                     {/* Nom complet - Full width on mobile, flex item on desktop */}
-                    <div className="lg:flex-[1.2] lg:min-w-[160px] md:col-span-1">
+                    <div className="lg:flex-1 lg:min-w-[120px] lg:max-w-[180px] md:col-span-1">
                       <Label htmlFor="fullName" className="text-white text-sm mb-1 block font-medium drop-shadow">
                         Nom complet <span className="text-yellow-300">*</span>
                       </Label>
@@ -295,7 +295,7 @@ const HeroSection = () => {
 
                     {/* Téléphone et Email - Side by side on mobile, separate on desktop */}
                     <div className="grid grid-cols-2 gap-3 md:col-span-2 md:grid-cols-2 lg:contents">
-                      <div className="lg:flex-1 lg:min-w-[140px]">
+                      <div className="lg:flex-1 lg:min-w-[100px] lg:max-w-[140px]">
                         <Label htmlFor="phone" className="text-white text-sm mb-1 block font-medium drop-shadow">
                           Téléphone <span className="text-yellow-300">*</span>
                         </Label>
@@ -310,7 +310,7 @@ const HeroSection = () => {
                         />
                       </div>
 
-                      <div className="lg:flex-1 lg:min-w-[160px]">
+                      <div className="lg:flex-1 lg:min-w-[130px] lg:max-w-[180px]">
                         <Label htmlFor="email" className="text-white text-sm mb-1 block font-medium drop-shadow">
                           E-mail <span className="text-yellow-300">*</span>
                         </Label>
@@ -327,7 +327,7 @@ const HeroSection = () => {
                     </div>
 
                     {/* Code postal - Visible on tablet, part of main flex on desktop */}
-                    <div className="md:col-span-1 hidden md:block lg:flex-[0.8] lg:min-w-[110px]">
+                    <div className="md:col-span-1 hidden md:block lg:flex-1 lg:min-w-[90px] lg:max-w-[120px]">
                       <Label htmlFor="postalCode" className="text-white text-sm mb-1 block font-medium drop-shadow">
                         Code postal <span className="text-yellow-300">*</span>
                       </Label>
@@ -342,35 +342,34 @@ const HeroSection = () => {
                       />
                     </div>
 
-                    {/* Type de travaux + Button group - On desktop, inline with other fields */}
-                    <div className="hidden lg:flex lg:flex-wrap lg:gap-3 lg:flex-1 lg:min-w-[320px]">
-                      <div className="lg:flex-[1.5] lg:min-w-[200px]">
-                        <Label htmlFor="workType" className="text-white text-sm mb-1 block font-medium drop-shadow">
-                          Type de travaux <span className="text-yellow-300">*</span>
-                        </Label>
-                        <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
-                          <SelectTrigger className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white">
-                            <SelectValue placeholder="Panneaux photovoltaïques" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white z-50 shadow-xl">
-                            <SelectItem value="isolation">Isolation</SelectItem>
-                            <SelectItem value="chauffage">Chauffage</SelectItem>
-                            <SelectItem value="energie-solaire">Panneaux photovoltaïques</SelectItem>
-                            <SelectItem value="renovation-globale">Rénovation globale</SelectItem>
-                            <SelectItem value="ne-sait-pas">Ne sait pas</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    {/* Type de travaux - On desktop, inline with other fields */}
+                    <div className="hidden lg:block lg:flex-1 lg:min-w-[180px] lg:max-w-[220px]">
+                      <Label htmlFor="workType" className="text-white text-sm mb-1 block font-medium drop-shadow">
+                        Type de travaux <span className="text-yellow-300">*</span>
+                      </Label>
+                      <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
+                        <SelectTrigger className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white">
+                          <SelectValue placeholder="Panneaux photovoltaïques" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white z-50 shadow-xl">
+                          <SelectItem value="isolation">Isolation</SelectItem>
+                          <SelectItem value="chauffage">Chauffage</SelectItem>
+                          <SelectItem value="energie-solaire">Panneaux photovoltaïques</SelectItem>
+                          <SelectItem value="renovation-globale">Rénovation globale</SelectItem>
+                          <SelectItem value="ne-sait-pas">Ne sait pas</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                      <div className="flex items-end lg:flex-[0.7] lg:min-w-[120px]">
-                        <Button
-                          type="submit" 
-                          className="h-11 w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold shadow-lg text-sm transition-all hover:scale-105 hover:shadow-xl" 
-                          disabled={isSubmitting}
-                        >
-                          {isSubmitting ? "Envoi..." : "Envoyer"}
-                        </Button>
-                      </div>
+                    {/* Button - On desktop, inline with other fields */}
+                    <div className="hidden lg:flex lg:items-end lg:flex-shrink-0">
+                      <Button
+                        type="submit" 
+                        className="h-11 px-6 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold shadow-lg text-sm transition-all hover:scale-105 hover:shadow-xl" 
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? "Envoi..." : "Envoyer"}
+                      </Button>
                     </div>
                   </div>
 
