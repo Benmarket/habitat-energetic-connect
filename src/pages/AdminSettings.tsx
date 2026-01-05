@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical, Eye, EyeOff, ArrowUp, ArrowDown, LayoutList } from "lucide-react";
+import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical, Eye, EyeOff, LayoutList, Sun, Zap, Home, Newspaper, HelpCircle, BookOpen, FileText, Calculator, MapPin, Gift, Handshake, MessageSquare, Star, Phone, Smartphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -24,25 +24,122 @@ interface HomepageSection {
   anchor: string;
   visible: boolean;
   order: number;
+  description: string;
+  icon: string;
+  color: string;
 }
 
 const DEFAULT_HOMEPAGE_SECTIONS: HomepageSection[] = [
-  { id: 'solar-banner', name: 'Bannière Solaire', anchor: '#solaire', visible: true, order: 0 },
-  { id: 'why-solar', name: 'Pourquoi le Solaire', anchor: '#pourquoi-solaire', visible: true, order: 1 },
-  { id: 'renovation', name: 'Programme Rénovation', anchor: '#renovation', visible: true, order: 2 },
-  { id: 'news', name: 'Actualités', anchor: '#actualites', visible: true, order: 3 },
-  { id: 'aides', name: 'Aides disponibles', anchor: '#aides', visible: true, order: 4 },
-  { id: 'guides', name: 'Guides par projet', anchor: '#guides', visible: true, order: 5 },
-  { id: 'eligibility', name: 'Étude gratuite (formulaire)', anchor: '#etude', visible: true, order: 6 },
-  { id: 'simulators', name: 'Simulateurs', anchor: '#simulateurs', visible: true, order: 7 },
-  { id: 'installers', name: 'Trouver un installateur', anchor: '#installateurs', visible: true, order: 8 },
-  { id: 'partner-offers', name: 'Offres partenaires', anchor: '#offres', visible: true, order: 9 },
-  { id: 'cta-partner', name: 'Devenir partenaire', anchor: '#devenir-partenaire', visible: true, order: 10 },
-  { id: 'faq', name: 'FAQ', anchor: '#faq', visible: true, order: 11 },
-  { id: 'reviews', name: 'Avis clients', anchor: '#avis', visible: true, order: 12 },
-  { id: 'contact', name: 'Contact', anchor: '#contact', visible: true, order: 13 },
-  { id: 'app-download', name: 'Télécharger l\'app', anchor: '#app', visible: true, order: 14 },
+  { id: 'solar-banner', name: 'Bannière Solaire', anchor: '#solaire', visible: true, order: 0, description: 'Bandeau promotionnel panneaux solaires avec garantie 25 ans', icon: 'sun', color: '#f59e0b' },
+  { id: 'why-solar', name: 'Pourquoi le Solaire', anchor: '#pourquoi-solaire', visible: true, order: 1, description: '3 avantages du solaire avec visuels (facture, app, écologie)', icon: 'zap', color: '#eab308' },
+  { id: 'renovation', name: 'Programme Rénovation', anchor: '#renovation', visible: true, order: 2, description: 'Section rénovation d\'ampleur avec image maison', icon: 'home', color: '#22c55e' },
+  { id: 'news', name: 'Actualités', anchor: '#actualites', visible: true, order: 3, description: 'Carrousel des dernières actualités du site', icon: 'newspaper', color: '#3b82f6' },
+  { id: 'aides', name: 'Aides disponibles', anchor: '#aides', visible: true, order: 4, description: 'Section des aides financières disponibles', icon: 'help', color: '#8b5cf6' },
+  { id: 'guides', name: 'Guides par projet', anchor: '#guides', visible: true, order: 5, description: 'Grille des guides pratiques par thématique', icon: 'book', color: '#06b6d4' },
+  { id: 'eligibility', name: 'Étude gratuite', anchor: '#etude', visible: true, order: 6, description: 'Formulaire principal de demande d\'étude énergétique', icon: 'file', color: '#10b981' },
+  { id: 'simulators', name: 'Simulateurs', anchor: '#simulateurs', visible: true, order: 7, description: 'Grille des simulateurs (économies, aides, etc.)', icon: 'calculator', color: '#f97316' },
+  { id: 'installers', name: 'Trouver un installateur', anchor: '#installateurs', visible: true, order: 8, description: 'Carte de France interactive des régions', icon: 'map', color: '#ec4899' },
+  { id: 'partner-offers', name: 'Offres partenaires', anchor: '#offres', visible: true, order: 9, description: 'Carrousel des offres promotionnelles partenaires', icon: 'gift', color: '#ef4444' },
+  { id: 'cta-partner', name: 'Devenir partenaire', anchor: '#devenir-partenaire', visible: true, order: 10, description: 'Appel à l\'action pour les professionnels', icon: 'handshake', color: '#14b8a6' },
+  { id: 'faq', name: 'FAQ', anchor: '#faq', visible: true, order: 11, description: 'Questions fréquentes en accordéon', icon: 'message', color: '#6366f1' },
+  { id: 'reviews', name: 'Avis clients', anchor: '#avis', visible: true, order: 12, description: 'Carrousel des témoignages clients avec photos', icon: 'star', color: '#fbbf24' },
+  { id: 'contact', name: 'Contact', anchor: '#contact', visible: true, order: 13, description: 'Formulaire de contact et coordonnées', icon: 'phone', color: '#64748b' },
+  { id: 'app-download', name: 'Télécharger l\'app', anchor: '#app', visible: true, order: 14, description: 'Section téléchargement application mobile', icon: 'smartphone', color: '#0ea5e9' },
 ];
+
+const SECTION_ICONS: Record<string, React.ReactNode> = {
+  'sun': <Sun className="w-5 h-5" />,
+  'zap': <Zap className="w-5 h-5" />,
+  'home': <Home className="w-5 h-5" />,
+  'newspaper': <Newspaper className="w-5 h-5" />,
+  'help': <HelpCircle className="w-5 h-5" />,
+  'book': <BookOpen className="w-5 h-5" />,
+  'file': <FileText className="w-5 h-5" />,
+  'calculator': <Calculator className="w-5 h-5" />,
+  'map': <MapPin className="w-5 h-5" />,
+  'gift': <Gift className="w-5 h-5" />,
+  'handshake': <Handshake className="w-5 h-5" />,
+  'message': <MessageSquare className="w-5 h-5" />,
+  'star': <Star className="w-5 h-5" />,
+  'phone': <Phone className="w-5 h-5" />,
+  'smartphone': <Smartphone className="w-5 h-5" />,
+};
+
+interface SortableSectionItemProps {
+  section: HomepageSection;
+  onToggleVisibility: (id: string) => void;
+}
+
+const SortableSectionItem = ({ section, onToggleVisibility }: SortableSectionItemProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: section.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-4 p-4 rounded-lg border ${
+        section.visible 
+          ? 'border-border bg-background hover:bg-muted/50' 
+          : 'border-muted bg-muted/30 opacity-60'
+      } transition-colors`}
+    >
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing flex-shrink-0"
+      >
+        <GripVertical className="w-5 h-5 text-muted-foreground" />
+      </div>
+      
+      {/* Icon preview */}
+      <div 
+        className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center text-white"
+        style={{ backgroundColor: section.color }}
+      >
+        {SECTION_ICONS[section.icon] || <LayoutList className="w-5 h-5" />}
+      </div>
+      
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium">{section.name}</p>
+        <p className="text-xs text-muted-foreground line-clamp-1">{section.description}</p>
+        <p className="text-xs text-primary/60 mt-0.5">{section.anchor}</p>
+      </div>
+      
+      <Button
+        type="button"
+        variant={section.visible ? "outline" : "secondary"}
+        size="sm"
+        onClick={() => onToggleVisibility(section.id)}
+        className="flex-shrink-0"
+      >
+        {section.visible ? (
+          <>
+            <Eye className="w-4 h-4 mr-1" />
+            Visible
+          </>
+        ) : (
+          <>
+            <EyeOff className="w-4 h-4 mr-1" />
+            Masqué
+          </>
+        )}
+      </Button>
+    </div>
+  );
+};
 
 interface SortableImageItemProps {
   id: string;
@@ -208,17 +305,21 @@ const AdminSettings = () => {
     }
   };
 
-  const moveSection = (index: number, direction: 'up' | 'down') => {
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= homepageSections.length) return;
-    
-    const newSections = [...homepageSections];
-    [newSections[index], newSections[newIndex]] = [newSections[newIndex], newSections[index]];
-    // Update order values
-    newSections.forEach((section, idx) => {
-      section.order = idx;
-    });
-    setHomepageSections(newSections);
+  const handleSectionDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setHomepageSections((prev) => {
+        const oldIndex = prev.findIndex(s => s.id === active.id);
+        const newIndex = prev.findIndex(s => s.id === over.id);
+        const newSections = arrayMove(prev, oldIndex, newIndex);
+        // Update order values
+        newSections.forEach((section, idx) => {
+          section.order = idx;
+        });
+        return newSections;
+      });
+    }
   };
 
   const toggleSectionVisibility = (id: string) => {
@@ -1241,66 +1342,26 @@ const AdminSettings = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    {homepageSections.map((section, index) => (
-                      <div
-                        key={section.id}
-                        className={`flex items-center gap-3 p-3 rounded-lg border ${
-                          section.visible 
-                            ? 'border-border bg-background' 
-                            : 'border-muted bg-muted/30 opacity-60'
-                        }`}
-                      >
-                        <div className="flex flex-col gap-1">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6"
-                            onClick={() => moveSection(index, 'up')}
-                            disabled={index === 0}
-                          >
-                            <ArrowUp className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6"
-                            onClick={() => moveSection(index, 'down')}
-                            disabled={index === homepageSections.length - 1}
-                          >
-                            <ArrowDown className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium">{section.name}</p>
-                          <p className="text-xs text-muted-foreground">{section.anchor}</p>
-                        </div>
-                        
-                        <Button
-                          type="button"
-                          variant={section.visible ? "outline" : "secondary"}
-                          size="sm"
-                          onClick={() => toggleSectionVisibility(section.id)}
-                          className="flex-shrink-0"
-                        >
-                          {section.visible ? (
-                            <>
-                              <Eye className="w-4 h-4 mr-1" />
-                              Visible
-                            </>
-                          ) : (
-                            <>
-                              <EyeOff className="w-4 h-4 mr-1" />
-                              Masqué
-                            </>
-                          )}
-                        </Button>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleSectionDragEnd}
+                  >
+                    <SortableContext
+                      items={homepageSections.map(s => s.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="space-y-2">
+                        {homepageSections.map((section) => (
+                          <SortableSectionItem
+                            key={section.id}
+                            section={section}
+                            onToggleVisibility={toggleSectionVisibility}
+                          />
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    </SortableContext>
+                  </DndContext>
 
                   <div className="flex justify-end pt-4 border-t">
                     <Button
@@ -1315,7 +1376,7 @@ const AdminSettings = () => {
 
                   <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                     <p className="text-sm text-blue-900 dark:text-blue-100">
-                      <strong>💡 Astuce :</strong> Utilisez les flèches pour réordonner les sections. Les sections masquées ne seront pas affichées sur la page d'accueil.
+                      <strong>💡 Astuce :</strong> Glissez-déposez les bandes pour les réordonner. Les sections masquées ne seront pas affichées sur la page d'accueil.
                     </p>
                   </div>
                 </CardContent>
