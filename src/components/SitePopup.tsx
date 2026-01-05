@@ -305,6 +305,12 @@ export default function SitePopup() {
   if (!isVisible || !activePopup) return null;
 
   const getSizeClasses = () => {
+    // For aide-dossier form, use a wider but shorter layout
+    const isAideDossier = form?.form_identifier === "aide-dossier";
+    if (isAideDossier) {
+      return "max-w-4xl";
+    }
+    
     switch (activePopup.size) {
       case "small":
         return "max-w-sm";
@@ -497,6 +503,88 @@ export default function SitePopup() {
           ? "Vos données sont utilisées uniquement pour traiter votre demande."
           : "En vous inscrivant, vous acceptez de recevoir nos communications.";
         
+        // Check if this is aide-dossier form for 2-column layout
+        const isAideDossierForm = form?.form_identifier === "aide-dossier";
+        
+        if (isAideDossierForm) {
+          // 2-column layout for aide-dossier (more compact/horizontal)
+          return (
+            <form onSubmit={handleSubmit} className="flex gap-8">
+              {/* Left column - Header */}
+              <div className="flex-1 flex flex-col justify-center items-center text-center border-r border-gray-200 pr-8">
+                <div 
+                  className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg mb-4"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${activePopup.accent_color}, ${activePopup.accent_color}dd)` 
+                  }}
+                >
+                  <FormIcon className="w-8 h-8 text-white" />
+                </div>
+                
+                {activePopup.badge_text && (
+                  <Badge 
+                    className="text-white font-medium px-3 py-1 text-xs mb-4"
+                    style={{ backgroundColor: activePopup.accent_color }}
+                  >
+                    <Sparkles className="w-3 h-3 mr-1" />
+                    {activePopup.badge_text}
+                  </Badge>
+                )}
+                
+                {activePopup.title && (
+                  <h2 
+                    className="text-xl font-bold leading-tight mb-3" 
+                    style={{ color: activePopup.text_color }}
+                  >
+                    {activePopup.title}
+                  </h2>
+                )}
+                
+                {activePopup.subtitle && (
+                  <p 
+                    className="text-sm opacity-70 leading-relaxed" 
+                    style={{ color: activePopup.text_color }}
+                  >
+                    {activePopup.subtitle}
+                  </p>
+                )}
+              </div>
+              
+              {/* Right column - Form fields */}
+              <div className="flex-1 space-y-3">
+                {renderFormFields()}
+                
+                <Button 
+                  type="submit"
+                  className="w-full h-11 font-semibold text-white text-base rounded-lg shadow-md hover:shadow-lg transition-all mt-4"
+                  style={{ 
+                    backgroundColor: activePopup.accent_color,
+                    boxShadow: `0 4px 14px ${activePopup.accent_color}40`
+                  }}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      {loadingText}
+                    </span>
+                  ) : (
+                    submitButtonText
+                  )}
+                </Button>
+                
+                <p 
+                  className="text-xs text-center opacity-50" 
+                  style={{ color: activePopup.text_color }}
+                >
+                  {footerText}
+                </p>
+              </div>
+            </form>
+          );
+        }
+        
+        // Default single column layout for other forms
         return (
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="flex justify-center mb-2">
