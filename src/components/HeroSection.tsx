@@ -277,9 +277,9 @@ const HeroSection = () => {
                 
                 <form onSubmit={handleSubmit}>
                   {/* Responsive grid layout */}
-                  <div className="space-y-2 md:space-y-0 md:grid md:grid-cols-4 lg:flex lg:flex-nowrap md:gap-3 mb-3 md:mb-4">
+                  <div className="space-y-2 md:space-y-0 md:grid md:grid-cols-4 lg:flex lg:flex-nowrap lg:items-end md:gap-3 mb-3 md:mb-4">
                     {/* Nom complet - Full width on mobile, flex item on desktop */}
-                    <div className="lg:flex-1 lg:min-w-[120px] lg:max-w-[180px] md:col-span-1">
+                    <div className="lg:flex-1 lg:min-w-[120px] md:col-span-1">
                       <Label htmlFor="fullName" className="text-white text-sm mb-1 block font-medium drop-shadow">
                         Nom complet <span className="text-yellow-300">*</span>
                       </Label>
@@ -295,7 +295,7 @@ const HeroSection = () => {
 
                     {/* Téléphone et Email - Side by side on mobile, separate on desktop */}
                     <div className="grid grid-cols-2 gap-3 md:col-span-2 md:grid-cols-2 lg:contents">
-                      <div className="lg:flex-1 lg:min-w-[100px] lg:max-w-[140px]">
+                      <div className="lg:flex-1 lg:min-w-[100px]">
                         <Label htmlFor="phone" className="text-white text-sm mb-1 block font-medium drop-shadow">
                           Téléphone <span className="text-yellow-300">*</span>
                         </Label>
@@ -310,7 +310,7 @@ const HeroSection = () => {
                         />
                       </div>
 
-                      <div className="lg:flex-1 lg:min-w-[130px] lg:max-w-[180px]">
+                      <div className="lg:flex-1 lg:min-w-[130px]">
                         <Label htmlFor="email" className="text-white text-sm mb-1 block font-medium drop-shadow">
                           E-mail <span className="text-yellow-300">*</span>
                         </Label>
@@ -327,7 +327,7 @@ const HeroSection = () => {
                     </div>
 
                     {/* Code postal - Visible on tablet, part of main flex on desktop */}
-                    <div className="md:col-span-1 hidden md:block lg:flex-1 lg:min-w-[90px] lg:max-w-[120px]">
+                    <div className="md:col-span-1 hidden md:block lg:flex-1 lg:min-w-[90px] lg:max-w-[130px]">
                       <Label htmlFor="postalCode" className="text-white text-sm mb-1 block font-medium drop-shadow">
                         Code postal <span className="text-yellow-300">*</span>
                       </Label>
@@ -343,7 +343,7 @@ const HeroSection = () => {
                     </div>
 
                     {/* Type de travaux - On desktop, inline with other fields */}
-                    <div className="hidden lg:block lg:flex-1 lg:min-w-[180px] lg:max-w-[220px]">
+                    <div className="hidden lg:block lg:flex-1 lg:min-w-[180px]">
                       <Label htmlFor="workType" className="text-white text-sm mb-1 block font-medium drop-shadow">
                         Type de travaux <span className="text-yellow-300">*</span>
                       </Label>
