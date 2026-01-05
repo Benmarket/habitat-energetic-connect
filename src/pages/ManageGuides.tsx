@@ -32,7 +32,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Lock, Unlock, BookOpen, Star, GraduationCap } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Lock, Unlock, BookOpen, Star, GraduationCap, Download } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -323,6 +323,7 @@ const ManageGuides = () => {
                         <TableHead>Titre</TableHead>
                         <TableHead className="w-28">Template</TableHead>
                         <TableHead className="w-24">Accès</TableHead>
+                        <TableHead className="w-28 text-center">Téléchargements</TableHead>
                         <TableHead className="w-32">Catégorie</TableHead>
                         <TableHead className="w-32">Statut</TableHead>
                         <TableHead className="w-40">Date</TableHead>
@@ -378,6 +379,12 @@ const ManageGuides = () => {
                                   Public
                                 </span>
                               )}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+                                <Download className="w-4 h-4" />
+                                {post.download_count || 0}
+                              </span>
                             </TableCell>
                             <TableCell>
                               {post.post_categories?.[0]?.categories?.name || "-"}
