@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone, User, Home, BarChart3, MessageCircle, Users, LogOut, ChevronDown, Settings } from "lucide-react";
 import RegionSubHeader from "@/components/RegionSubHeader";
@@ -41,6 +41,8 @@ const Header = () => {
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
 
   // Génère le lien WhatsApp à partir du paramètre configuré
   const getWhatsappUrl = () => {
@@ -144,7 +146,7 @@ const Header = () => {
   const isAdminOrAbove = userRole === 'super_admin' || userRole === 'admin' || userRole === 'moderator';
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+    <header className="sticky top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -530,8 +532,8 @@ const Header = () => {
         )}
       </div>
       
-      {/* Region Sub-Header */}
-      <RegionSubHeader isScrolled={isScrolled} />
+      {/* Region Sub-Header - Only on homepage */}
+      {isHomePage && <RegionSubHeader isScrolled={isScrolled} />}
       
       <AuthModal open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
     </header>
