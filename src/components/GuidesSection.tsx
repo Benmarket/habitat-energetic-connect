@@ -181,8 +181,8 @@ const GuidesSection = () => {
           </CarouselContent>
           
           {/* Navigation Buttons - Lateral on both mobile and desktop */}
-          <CarouselPrevious className="-left-2 md:-left-12 h-10 w-10 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300" />
-          <CarouselNext className="-right-2 md:-right-12 h-10 w-10 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300" />
+          <CarouselPrevious className="-left-6 md:-left-12 h-10 w-10 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300" />
+          <CarouselNext className="-right-6 md:-right-12 h-10 w-10 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300" />
         </Carousel>
 
         {/* View All Button - Centered */}
