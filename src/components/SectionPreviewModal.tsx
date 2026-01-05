@@ -1,4 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 import SolarBanner from "@/components/SolarBanner";
 import WhySolarSection from "@/components/WhySolarSection";
 import RenovationProgramSection from "@/components/RenovationProgramSection";
@@ -45,9 +47,18 @@ const SectionPreviewModal = ({ open, onOpenChange, sectionId, sectionName }: Sec
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
-        <DialogHeader className="p-4 border-b sticky top-0 bg-background z-10">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0 [&>button]:hidden">
+        <DialogHeader className="p-4 border-b sticky top-0 bg-background z-10 flex flex-row items-center justify-between">
           <DialogTitle>Aperçu : {sectionName}</DialogTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onOpenChange(false)}
+            className="h-8 w-8"
+          >
+            <X className="h-5 w-5" />
+            <span className="sr-only">Fermer</span>
+          </Button>
         </DialogHeader>
         <div className="bg-background">
           {Component ? (

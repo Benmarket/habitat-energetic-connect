@@ -92,7 +92,7 @@ const SortableSectionItem = ({ section, onToggleVisibility, onPreview }: Sortabl
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-3 p-3 rounded-lg border ${
+      className={`flex items-center gap-4 p-4 rounded-lg border ${
         section.visible 
           ? 'border-border bg-background hover:bg-muted/50' 
           : 'border-muted bg-muted/30 opacity-60'
@@ -106,9 +106,18 @@ const SortableSectionItem = ({ section, onToggleVisibility, onPreview }: Sortabl
         <GripVertical className="w-5 h-5 text-muted-foreground" />
       </div>
       
+      {/* Icon preview */}
+      <div 
+        className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center text-white"
+        style={{ backgroundColor: section.color }}
+      >
+        {SECTION_ICONS[section.icon] || <LayoutList className="w-5 h-5" />}
+      </div>
+      
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium">{section.name}</p>
-        <p className="text-xs text-primary/60">{section.anchor}</p>
+        <p className="text-xs text-muted-foreground line-clamp-1">{section.description}</p>
+        <p className="text-xs text-primary/60 mt-0.5">{section.anchor}</p>
       </div>
       
       <Button
@@ -129,7 +138,17 @@ const SortableSectionItem = ({ section, onToggleVisibility, onPreview }: Sortabl
         onClick={() => onToggleVisibility(section.id)}
         className="flex-shrink-0"
       >
-        {section.visible ? "Visible" : "Masqué"}
+        {section.visible ? (
+          <>
+            <Eye className="w-4 h-4 mr-1" />
+            Visible
+          </>
+        ) : (
+          <>
+            <EyeOff className="w-4 h-4 mr-1" />
+            Masqué
+          </>
+        )}
       </Button>
     </div>
   );
