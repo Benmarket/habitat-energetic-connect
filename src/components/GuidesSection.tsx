@@ -126,9 +126,9 @@ const GuidesSection = () => {
             loop: true,
             slidesToScroll: 1,
           }}
-          className="w-full mt-6"
+          className="w-full mt-6 pt-4 -mt-4"
         >
-          <CarouselContent className="-ml-4">
+          <CarouselContent className="-ml-4 pt-2">
             {guides.map((guide) => (
               <CarouselItem key={guide.id} className="pl-4 basis-full md:basis-1/3">
                 <Link to={`/guide/${guide.slug}`} className="group block h-full relative z-0 hover:z-10">
