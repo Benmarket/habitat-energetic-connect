@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical, Eye, EyeOff, LayoutList, Sun, Zap, Home, Newspaper, HelpCircle, BookOpen, FileText, Calculator, MapPin, Gift, Handshake, MessageSquare, Star, Phone, Smartphone, Search, Palette } from "lucide-react";
+import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical, Eye, EyeOff, LayoutList, Sun, Zap, Home, Newspaper, HelpCircle, BookOpen, FileText, Calculator, MapPin, Gift, Handshake, MessageSquare, Star, Phone, Smartphone, Search, Palette, User, Settings, BarChart3, MessageCircle } from "lucide-react";
 import SectionPreviewModal from "@/components/SectionPreviewModal";
 import ButtonPresetSelector from "@/components/ButtonPresetSelector";
 import { supabase } from "@/integrations/supabase/client";
@@ -262,6 +262,11 @@ const AdminSettings = () => {
     installerButtonGradientAngle: 90,
     installerButtonLink: "/#etude",
     showRegionSubHeader: true,
+    // Mini espace membre - éléments du menu
+    memberMenuShowAccount: true,
+    memberMenuShowDashboard: true,
+    memberMenuShowEconomies: true,
+    memberMenuShowForum: true,
   });
   
   const [buttonSelectorOpen, setButtonSelectorOpen] = useState(false);
@@ -439,6 +444,10 @@ const AdminSettings = () => {
           installerButtonGradientAngle: value.installerButtonGradientAngle ?? 90,
           installerButtonLink: value.installerButtonLink || "/#etude",
           showRegionSubHeader: value.showRegionSubHeader ?? true,
+          memberMenuShowAccount: value.memberMenuShowAccount ?? true,
+          memberMenuShowDashboard: value.memberMenuShowDashboard ?? true,
+          memberMenuShowEconomies: value.memberMenuShowEconomies ?? true,
+          memberMenuShowForum: value.memberMenuShowForum ?? true,
         });
       }
     } catch (error) {
@@ -992,6 +1001,76 @@ const AdminSettings = () => {
                       }
                     />
                   </div>
+
+                  {/* Mini espace membre - configuration des éléments */}
+                  <Card className="bg-muted/30">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        Menu espace membre
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Gérez la visibilité des éléments du menu déroulant membre
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Settings className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">Mon compte</span>
+                        </div>
+                        <Switch
+                          checked={headerFooterSettings.memberMenuShowAccount}
+                          onCheckedChange={(checked) => 
+                            setHeaderFooterSettings({ ...headerFooterSettings, memberMenuShowAccount: checked })
+                          }
+                        />
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Home className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">Tableau de bord</span>
+                        </div>
+                        <Switch
+                          checked={headerFooterSettings.memberMenuShowDashboard}
+                          onCheckedChange={(checked) => 
+                            setHeaderFooterSettings({ ...headerFooterSettings, memberMenuShowDashboard: checked })
+                          }
+                        />
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <BarChart3 className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">Économies réalisées</span>
+                        </div>
+                        <Switch
+                          checked={headerFooterSettings.memberMenuShowEconomies}
+                          onCheckedChange={(checked) => 
+                            setHeaderFooterSettings({ ...headerFooterSettings, memberMenuShowEconomies: checked })
+                          }
+                        />
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <MessageCircle className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">Forums de discussion</span>
+                        </div>
+                        <Switch
+                          checked={headerFooterSettings.memberMenuShowForum}
+                          onCheckedChange={(checked) => 
+                            setHeaderFooterSettings({ ...headerFooterSettings, memberMenuShowForum: checked })
+                          }
+                        />
+                      </div>
+                      
+                      <p className="text-xs text-muted-foreground pt-2 border-t">
+                        L'élément "Administration" reste toujours visible pour les administrateurs.
+                      </p>
+                    </CardContent>
+                  </Card>
 
                   {/* Region sub-header toggle */}
                   <div className="flex items-center justify-between">
