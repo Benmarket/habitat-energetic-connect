@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { MessageCircle, X, Send, UserCog, Bot, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ChatbotFlowRunner } from "./ChatbotFlowRunner";
 
+// Admin routes where chatbot should be hidden
+const ADMIN_ROUTES = [
+  '/administration',
+  '/admin/',
+  '/creer-contenu',
+  '/gerer-actualites',
+  '/gerer-guides',
+  '/gerer-aides',
+  '/gerer-annonces',
+  '/chat-support'
+];
+
 type Message = {
   role: "user" | "assistant" | "agent";
   content: string;
@@ -17,6 +30,7 @@ type Message = {
 };
 
 export const ChatBot = () => {
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -31,6 +45,9 @@ export const ChatBot = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+
+  // Check if current route is an admin route
+  const isAdminRoute = ADMIN_ROUTES.some(route => location.pathname.startsWith(route));
 
   // Load active flow on mount
   useEffect(() => {
@@ -364,8 +381,8 @@ export const ChatBot = () => {
 
   return (
     <>
-      {/* Chatbot button */}
-      {!isOpen && isButtonVisible && (
+      {/* Chatbot button - hidden on admin routes */}
+      {!isOpen && isButtonVisible && !isAdminRoute && (
         <button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 z-50 flex items-center gap-0 group hover:scale-105 transition-all duration-300 ease-out animate-in fade-in slide-in-from-bottom-4"
