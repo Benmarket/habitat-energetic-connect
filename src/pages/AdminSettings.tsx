@@ -11,7 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical, Eye, EyeOff, LayoutList, Sun, Zap, Home, Newspaper, HelpCircle, BookOpen, FileText, Calculator, MapPin, Gift, Handshake, MessageSquare, Star, Phone, Smartphone } from "lucide-react";
+import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical, Eye, EyeOff, LayoutList, Sun, Zap, Home, Newspaper, HelpCircle, BookOpen, FileText, Calculator, MapPin, Gift, Handshake, MessageSquare, Star, Phone, Smartphone, Search } from "lucide-react";
+import SectionPreviewModal from "@/components/SectionPreviewModal";
 import { supabase } from "@/integrations/supabase/client";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -68,9 +69,10 @@ const SECTION_ICONS: Record<string, React.ReactNode> = {
 interface SortableSectionItemProps {
   section: HomepageSection;
   onToggleVisibility: (id: string) => void;
+  onPreview: (section: HomepageSection) => void;
 }
 
-const SortableSectionItem = ({ section, onToggleVisibility }: SortableSectionItemProps) => {
+const SortableSectionItem = ({ section, onToggleVisibility, onPreview }: SortableSectionItemProps) => {
   const {
     attributes,
     listeners,
@@ -90,7 +92,7 @@ const SortableSectionItem = ({ section, onToggleVisibility }: SortableSectionIte
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-4 p-4 rounded-lg border ${
+      className={`flex items-center gap-3 p-3 rounded-lg border ${
         section.visible 
           ? 'border-border bg-background hover:bg-muted/50' 
           : 'border-muted bg-muted/30 opacity-60'
@@ -104,19 +106,21 @@ const SortableSectionItem = ({ section, onToggleVisibility }: SortableSectionIte
         <GripVertical className="w-5 h-5 text-muted-foreground" />
       </div>
       
-      {/* Icon preview */}
-      <div 
-        className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center text-white"
-        style={{ backgroundColor: section.color }}
-      >
-        {SECTION_ICONS[section.icon] || <LayoutList className="w-5 h-5" />}
-      </div>
-      
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium">{section.name}</p>
-        <p className="text-xs text-muted-foreground line-clamp-1">{section.description}</p>
-        <p className="text-xs text-primary/60 mt-0.5">{section.anchor}</p>
+        <p className="text-xs text-primary/60">{section.anchor}</p>
       </div>
+      
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        onClick={() => onPreview(section)}
+        className="flex-shrink-0"
+        title="Voir l'aperçu"
+      >
+        <Eye className="w-4 h-4" />
+      </Button>
       
       <Button
         type="button"
@@ -125,17 +129,7 @@ const SortableSectionItem = ({ section, onToggleVisibility }: SortableSectionIte
         onClick={() => onToggleVisibility(section.id)}
         className="flex-shrink-0"
       >
-        {section.visible ? (
-          <>
-            <Eye className="w-4 h-4 mr-1" />
-            Visible
-          </>
-        ) : (
-          <>
-            <EyeOff className="w-4 h-4 mr-1" />
-            Masqué
-          </>
-        )}
+        {section.visible ? "Visible" : "Masqué"}
       </Button>
     </div>
   );
@@ -270,6 +264,7 @@ const AdminSettings = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   
   const [homepageSections, setHomepageSections] = useState<HomepageSection[]>(DEFAULT_HOMEPAGE_SECTIONS);
+  const [previewSection, setPreviewSection] = useState<HomepageSection | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -1357,6 +1352,7 @@ const AdminSettings = () => {
                             key={section.id}
                             section={section}
                             onToggleVisibility={toggleSectionVisibility}
+                            onPreview={(s) => setPreviewSection(s)}
                           />
                         ))}
                       </div>
@@ -1379,6 +1375,13 @@ const AdminSettings = () => {
                       <strong>💡 Astuce :</strong> Glissez-déposez les bandes pour les réordonner. Les sections masquées ne seront pas affichées sur la page d'accueil.
                     </p>
                   </div>
+
+                  <SectionPreviewModal
+                    open={!!previewSection}
+                    onOpenChange={(open) => !open && setPreviewSection(null)}
+                    sectionId={previewSection?.id || null}
+                    sectionName={previewSection?.name || ""}
+                  />
                 </CardContent>
               </Card>
 
