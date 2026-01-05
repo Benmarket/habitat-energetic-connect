@@ -87,7 +87,7 @@ const WhySolarSection = () => {
         </div>
 
         {/* Desktop Grid - visible only on large screens */}
-        <div className="hidden lg:grid grid-cols-4 gap-6 max-w-7xl mx-auto">
+        <div className="hidden lg:grid grid-cols-4 gap-6 max-w-7xl mx-auto mb-16">
           {benefits.map((benefit, index) => (
             <div key={index} className="flex flex-col items-center text-center">
               {/* Image Circle */}
