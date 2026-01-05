@@ -62,7 +62,7 @@ const RenovationProgramSection = () => {
             </div>
 
             <div className="flex justify-center">
-              <Link to="/aides">
+              <Link to="/guide/renovation-energetique-globale">
                 <Button 
                   size="lg"
                   className="bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-lg gap-2"
