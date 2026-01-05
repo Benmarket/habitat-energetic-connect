@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { OrganizationSchema } from "@/components/SEO/OrganizationSchema";
 import Header from "@/components/Header";
@@ -18,8 +19,81 @@ import FAQSection from "@/components/FAQSection";
 import ReviewsSection from "@/components/ReviewsSection";
 import ContactSection from "@/components/ContactSection";
 import AppDownloadSection from "@/components/AppDownloadSection";
+import { supabase } from "@/integrations/supabase/client";
+
+interface HomepageSection {
+  id: string;
+  name: string;
+  anchor: string;
+  visible: boolean;
+  order: number;
+}
+
+const DEFAULT_SECTIONS: HomepageSection[] = [
+  { id: 'solar-banner', name: 'Bannière Solaire', anchor: '#solaire', visible: true, order: 0 },
+  { id: 'why-solar', name: 'Pourquoi le Solaire', anchor: '#pourquoi-solaire', visible: true, order: 1 },
+  { id: 'renovation', name: 'Programme Rénovation', anchor: '#renovation', visible: true, order: 2 },
+  { id: 'news', name: 'Actualités', anchor: '#actualites', visible: true, order: 3 },
+  { id: 'aides', name: 'Aides disponibles', anchor: '#aides', visible: true, order: 4 },
+  { id: 'guides', name: 'Guides par projet', anchor: '#guides', visible: true, order: 5 },
+  { id: 'eligibility', name: 'Étude gratuite (formulaire)', anchor: '#etude', visible: true, order: 6 },
+  { id: 'simulators', name: 'Simulateurs', anchor: '#simulateurs', visible: true, order: 7 },
+  { id: 'installers', name: 'Trouver un installateur', anchor: '#installateurs', visible: true, order: 8 },
+  { id: 'partner-offers', name: 'Offres partenaires', anchor: '#offres', visible: true, order: 9 },
+  { id: 'cta-partner', name: 'Devenir partenaire', anchor: '#devenir-partenaire', visible: true, order: 10 },
+  { id: 'faq', name: 'FAQ', anchor: '#faq', visible: true, order: 11 },
+  { id: 'reviews', name: 'Avis clients', anchor: '#avis', visible: true, order: 12 },
+  { id: 'contact', name: 'Contact', anchor: '#contact', visible: true, order: 13 },
+  { id: 'app-download', name: 'Télécharger l\'app', anchor: '#app', visible: true, order: 14 },
+];
+
+const SECTION_COMPONENTS: Record<string, React.FC> = {
+  'solar-banner': SolarBanner,
+  'why-solar': WhySolarSection,
+  'renovation': RenovationProgramSection,
+  'news': NewsSection,
+  'aides': AidesSection,
+  'guides': GuidesSection,
+  'eligibility': EligibilityFormSection,
+  'simulators': SimulatorsSection,
+  'installers': InstallerFinderSection,
+  'partner-offers': PartnerOffersSection,
+  'cta-partner': CTAPartner,
+  'faq': FAQSection,
+  'reviews': ReviewsSection,
+  'contact': ContactSection,
+  'app-download': AppDownloadSection,
+};
 
 const Index = () => {
+  const [sections, setSections] = useState<HomepageSection[]>(DEFAULT_SECTIONS);
+
+  useEffect(() => {
+    const loadSections = async () => {
+      try {
+        const { data } = await supabase
+          .from("site_settings")
+          .select("value")
+          .eq("key", "homepage_sections")
+          .maybeSingle();
+
+        if (data?.value) {
+          const savedSections = data.value as unknown as HomepageSection[];
+          // Merge saved sections with defaults to ensure new sections are included
+          const mergedSections = DEFAULT_SECTIONS.map(defaultSection => {
+            const savedSection = savedSections.find(s => s.id === defaultSection.id);
+            return savedSection || defaultSection;
+          }).sort((a, b) => a.order - b.order);
+          setSections(mergedSections);
+        }
+      } catch (error) {
+        console.error("Error loading homepage sections:", error);
+      }
+    };
+
+    loadSections();
+  }, []);
+
   return (
     <>
       <Helmet>
@@ -44,21 +118,12 @@ const Index = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <HeroSection />
-        <SolarBanner />
-        <WhySolarSection />
-        <RenovationProgramSection />
-        <NewsSection />
-        <AidesSection />
-        <GuidesSection />
-        <EligibilityFormSection />
-        <SimulatorsSection />
-        <InstallerFinderSection />
-        <PartnerOffersSection />
-        <CTAPartner />
-        <FAQSection />
-        <ReviewsSection />
-        <ContactSection />
-        <AppDownloadSection />
+        {sections
+          .filter(section => section.visible)
+          .map(section => {
+            const Component = SECTION_COMPONENTS[section.id];
+            return Component ? <Component key={section.id} /> : null;
+          })}
         <Footer />
       </div>
     </>

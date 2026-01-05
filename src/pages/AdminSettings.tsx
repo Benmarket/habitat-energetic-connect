@@ -11,12 +11,38 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical } from "lucide-react";
+import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical, Eye, EyeOff, ArrowUp, ArrowDown, LayoutList } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+
+interface HomepageSection {
+  id: string;
+  name: string;
+  anchor: string;
+  visible: boolean;
+  order: number;
+}
+
+const DEFAULT_HOMEPAGE_SECTIONS: HomepageSection[] = [
+  { id: 'solar-banner', name: 'Bannière Solaire', anchor: '#solaire', visible: true, order: 0 },
+  { id: 'why-solar', name: 'Pourquoi le Solaire', anchor: '#pourquoi-solaire', visible: true, order: 1 },
+  { id: 'renovation', name: 'Programme Rénovation', anchor: '#renovation', visible: true, order: 2 },
+  { id: 'news', name: 'Actualités', anchor: '#actualites', visible: true, order: 3 },
+  { id: 'aides', name: 'Aides disponibles', anchor: '#aides', visible: true, order: 4 },
+  { id: 'guides', name: 'Guides par projet', anchor: '#guides', visible: true, order: 5 },
+  { id: 'eligibility', name: 'Étude gratuite (formulaire)', anchor: '#etude', visible: true, order: 6 },
+  { id: 'simulators', name: 'Simulateurs', anchor: '#simulateurs', visible: true, order: 7 },
+  { id: 'installers', name: 'Trouver un installateur', anchor: '#installateurs', visible: true, order: 8 },
+  { id: 'partner-offers', name: 'Offres partenaires', anchor: '#offres', visible: true, order: 9 },
+  { id: 'cta-partner', name: 'Devenir partenaire', anchor: '#devenir-partenaire', visible: true, order: 10 },
+  { id: 'faq', name: 'FAQ', anchor: '#faq', visible: true, order: 11 },
+  { id: 'reviews', name: 'Avis clients', anchor: '#avis', visible: true, order: 12 },
+  { id: 'contact', name: 'Contact', anchor: '#contact', visible: true, order: 13 },
+  { id: 'app-download', name: 'Télécharger l\'app', anchor: '#app', visible: true, order: 14 },
+];
 
 interface SortableImageItemProps {
   id: string;
@@ -145,6 +171,8 @@ const AdminSettings = () => {
   });
 
   const [uploadingImage, setUploadingImage] = useState(false);
+  
+  const [homepageSections, setHomepageSections] = useState<HomepageSection[]>(DEFAULT_HOMEPAGE_SECTIONS);
 
   useEffect(() => {
     if (user) {
@@ -154,8 +182,98 @@ const AdminSettings = () => {
       loadHeroSliderSettings();
       loadCookieBannerSettings();
       loadHeaderFooterSettings();
+      loadHomepageSections();
     }
   }, [user]);
+
+  const loadHomepageSections = async () => {
+    try {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "homepage_sections")
+        .maybeSingle();
+
+      if (data?.value) {
+        const savedSections = data.value as unknown as HomepageSection[];
+        // Merge saved sections with defaults to ensure new sections are included
+        const mergedSections = DEFAULT_HOMEPAGE_SECTIONS.map(defaultSection => {
+          const savedSection = savedSections.find(s => s.id === defaultSection.id);
+          return savedSection || defaultSection;
+        }).sort((a, b) => a.order - b.order);
+        setHomepageSections(mergedSections);
+      }
+    } catch (error) {
+      console.error("Error loading homepage sections:", error);
+    }
+  };
+
+  const moveSection = (index: number, direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= homepageSections.length) return;
+    
+    const newSections = [...homepageSections];
+    [newSections[index], newSections[newIndex]] = [newSections[newIndex], newSections[index]];
+    // Update order values
+    newSections.forEach((section, idx) => {
+      section.order = idx;
+    });
+    setHomepageSections(newSections);
+  };
+
+  const toggleSectionVisibility = (id: string) => {
+    setHomepageSections(prev => 
+      prev.map(section => 
+        section.id === id ? { ...section, visible: !section.visible } : section
+      )
+    );
+  };
+
+  const saveHomepageSections = async () => {
+    try {
+      const { data: existing } = await supabase
+        .from("site_settings")
+        .select("id")
+        .eq("key", "homepage_sections")
+        .maybeSingle();
+
+      let error;
+      if (existing) {
+        const result = await supabase
+          .from("site_settings")
+          .update({
+            value: JSON.parse(JSON.stringify(homepageSections)),
+            updated_by: user?.id,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("key", "homepage_sections");
+        error = result.error;
+      } else {
+        const result = await supabase
+          .from("site_settings")
+          .insert([{
+            key: "homepage_sections",
+            value: JSON.parse(JSON.stringify(homepageSections)),
+            updated_by: user?.id,
+          }]);
+        error = result.error;
+      }
+
+      if (error) throw error;
+
+      toast({
+        title: "Bandes sauvegardées",
+        description: "L'ordre et la visibilité des bandes ont été enregistrés",
+      });
+    } catch (error: any) {
+      console.error("Error saving homepage sections:", error);
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de sauvegarder les bandes",
+        variant: "destructive",
+      });
+    }
+  };
 
   const loadHeaderFooterSettings = async () => {
     try {
@@ -1106,6 +1224,98 @@ const AdminSettings = () => {
                   <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                     <p className="text-sm text-blue-900 dark:text-blue-100">
                       <strong>💡 Astuce :</strong> Les transitions entre images sont fluides (fondu enchaîné). Les visiteurs ne peuvent pas contrôler le slider manuellement.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Bandes Accueil */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <LayoutList className="w-5 h-5" />
+                    Bandes accueil
+                  </CardTitle>
+                  <CardDescription>
+                    Gérez l'ordre et la visibilité des sections de la page d'accueil
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    {homepageSections.map((section, index) => (
+                      <div
+                        key={section.id}
+                        className={`flex items-center gap-3 p-3 rounded-lg border ${
+                          section.visible 
+                            ? 'border-border bg-background' 
+                            : 'border-muted bg-muted/30 opacity-60'
+                        }`}
+                      >
+                        <div className="flex flex-col gap-1">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => moveSection(index, 'up')}
+                            disabled={index === 0}
+                          >
+                            <ArrowUp className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => moveSection(index, 'down')}
+                            disabled={index === homepageSections.length - 1}
+                          >
+                            <ArrowDown className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium">{section.name}</p>
+                          <p className="text-xs text-muted-foreground">{section.anchor}</p>
+                        </div>
+                        
+                        <Button
+                          type="button"
+                          variant={section.visible ? "outline" : "secondary"}
+                          size="sm"
+                          onClick={() => toggleSectionVisibility(section.id)}
+                          className="flex-shrink-0"
+                        >
+                          {section.visible ? (
+                            <>
+                              <Eye className="w-4 h-4 mr-1" />
+                              Visible
+                            </>
+                          ) : (
+                            <>
+                              <EyeOff className="w-4 h-4 mr-1" />
+                              Masqué
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex justify-end pt-4 border-t">
+                    <Button
+                      type="button"
+                      onClick={saveHomepageSections}
+                      variant="default"
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      Enregistrer les bandes
+                    </Button>
+                  </div>
+
+                  <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <p className="text-sm text-blue-900 dark:text-blue-100">
+                      <strong>💡 Astuce :</strong> Utilisez les flèches pour réordonner les sections. Les sections masquées ne seront pas affichées sur la page d'accueil.
                     </p>
                   </div>
                 </CardContent>
