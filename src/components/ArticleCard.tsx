@@ -15,6 +15,7 @@ interface ArticleCardProps {
   publishedAt: string;
   contentType: "actualite" | "guide" | "aide" | "annonce";
   slug: string;
+  hideImage?: boolean;
 }
 
 const ArticleCard = ({
@@ -26,21 +27,24 @@ const ArticleCard = ({
   publishedAt,
   contentType,
   slug,
+  hideImage = false,
 }: ArticleCardProps) => {
   const basePath = contentType === "actualite" ? "actualites" : contentType === "guide" ? "guides" : "aides";
   const articleUrl = `/${basePath}/${categorySlug}/${slug}`;
 
   return (
     <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col group border-border/50">
-      <Link to={articleUrl} className="block">
-        <div className="aspect-video overflow-hidden bg-muted">
-          <img
-            src={featuredImage}
-            alt={title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        </div>
-      </Link>
+      {!hideImage && (
+        <Link to={articleUrl} className="block">
+          <div className="aspect-video overflow-hidden bg-muted">
+            <img
+              src={featuredImage}
+              alt={title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          </div>
+        </Link>
+      )}
       <CardContent className="p-6 flex-1 flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 rounded-full px-4 py-1">
