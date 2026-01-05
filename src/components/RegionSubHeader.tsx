@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
 
 // Import region images
@@ -23,15 +23,37 @@ interface RegionSubHeaderProps {
 }
 
 const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
-  const [isManuallyCollapsed, setIsManuallyCollapsed] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+  // Manual override: null = follow auto, true = force closed, false = force open
+  const [manualOverride, setManualOverride] = useState<boolean | null>(null);
+  const prevIsScrolled = useRef(isScrolled);
 
-  // Auto-collapse on scroll, auto-expand when back to top
-  const isCollapsed = isScrolled ? true : isManuallyCollapsed;
+  // When returning to top (isScrolled becomes false), reset manual override
+  useEffect(() => {
+    if (prevIsScrolled.current && !isScrolled) {
+      // Just scrolled back to top -> reset override so it auto-opens
+      setManualOverride(null);
+    }
+    prevIsScrolled.current = isScrolled;
+  }, [isScrolled]);
+
+  // Determine collapsed state
+  const isCollapsed = manualOverride !== null ? manualOverride : isScrolled;
 
   const handleRegionClick = (regionName: string) => {
     setSelectedRegion(regionName);
-    // Pour le moment, pas de redirection
+  };
+
+  const handleToggle = () => {
+    // Toggle manual override
+    setManualOverride(prev => {
+      if (prev === null) {
+        // Currently following auto state, toggle opposite
+        return !isScrolled;
+      }
+      // Toggle the override
+      return !prev;
+    });
   };
 
   return (
@@ -67,9 +89,9 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
         </div>
       </div>
       
-      {/* Collapse/Expand toggle */}
+      {/* Toggle button - always visible */}
       <button
-        onClick={() => setIsManuallyCollapsed(!isManuallyCollapsed)}
+        onClick={handleToggle}
         className="w-full flex items-center justify-center py-1 hover:bg-muted/70 transition-colors group"
         aria-label={isCollapsed ? "Afficher les régions" : "Masquer les régions"}
       >

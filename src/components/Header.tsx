@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone, User, Home, BarChart3, MessageCircle, Users, LogOut, ChevronDown, Settings } from "lucide-react";
@@ -73,60 +73,18 @@ const Header = () => {
     return `https://wa.me/${cleanNumber}`;
   };
 
-  // Scroll detection for RegionSubHeader
-  // Important: when the sub-header opens/closes, header height changes can shift scrollY,
-  // which can cause an infinite open/close loop. We therefore:
-  // 1) use a ref for state
-  // 2) temporarily lock the scroll handler while layout settles
-  // 3) restore the previous scrollY after the toggle
-  const isScrolledRef = useRef(isScrolled);
-  const ignoreScrollRef = useRef(false);
-  const scrollLockTimerRef = useRef<number | null>(null);
-  isScrolledRef.current = isScrolled;
-
-  const lockScrollHandling = (ms = 350) => {
-    ignoreScrollRef.current = true;
-    if (scrollLockTimerRef.current) window.clearTimeout(scrollLockTimerRef.current);
-    scrollLockTimerRef.current = window.setTimeout(() => {
-      ignoreScrollRef.current = false;
-      scrollLockTimerRef.current = null;
-    }, ms);
-  };
-
-  const restoreScrollY = (y: number) => {
-    lockScrollHandling();
-    window.requestAnimationFrame(() => {
-      window.scrollTo({ top: y, left: 0, behavior: "auto" });
-    });
-  };
-
+  // Simple scroll detection for RegionSubHeader
   useEffect(() => {
-    const COLLAPSE_THRESHOLD = 80; // collapse when scrolling past this point
-    const EXPAND_THRESHOLD = 10; // re-expand only when very close to top
-
+    const SCROLL_THRESHOLD = 50;
+    
     const handleScroll = () => {
-      if (ignoreScrollRef.current) return;
-
-      const currentScrollY = window.scrollY;
-
-      if (!isScrolledRef.current && currentScrollY > COLLAPSE_THRESHOLD) {
-        const yBefore = currentScrollY;
-        isScrolledRef.current = true;
-        setIsScrolled(true);
-        restoreScrollY(yBefore);
-      } else if (isScrolledRef.current && currentScrollY < EXPAND_THRESHOLD) {
-        const yBefore = currentScrollY;
-        isScrolledRef.current = false;
-        setIsScrolled(false);
-        restoreScrollY(yBefore);
-      }
+      const atTop = window.scrollY < SCROLL_THRESHOLD;
+      setIsScrolled(!atTop);
     };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (scrollLockTimerRef.current) window.clearTimeout(scrollLockTimerRef.current);
-    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial check
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
