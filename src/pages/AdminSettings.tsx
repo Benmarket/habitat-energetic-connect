@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import SectionPreviewModal from "@/components/SectionPreviewModal";
 import ButtonPresetSelector from "@/components/ButtonPresetSelector";
 import ConfirmChangesModal, { ChangeItem } from "@/components/ConfirmChangesModal";
+import MaintenanceSuggestionModal from "@/components/MaintenanceSuggestionModal";
 import { supabase } from "@/integrations/supabase/client";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -318,6 +319,11 @@ const AdminSettings = () => {
   // Modal state
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingChanges, setPendingChanges] = useState<ChangeItem[]>([]);
+  const [showMaintenanceSuggestion, setShowMaintenanceSuggestion] = useState(false);
+  const [pendingSectionToggleId, setPendingSectionToggleId] = useState<string | null>(null);
+  
+  // Ref for scrolling to maintenance section
+  const maintenanceSectionRef = useRef<HTMLDivElement>(null);
 
   // Deep compare helper
   const deepEqual = useCallback((a: any, b: any): boolean => {
@@ -568,6 +574,17 @@ const AdminSettings = () => {
   };
 
   const toggleSectionVisibility = (id: string) => {
+    // Check if this would disable the last visible section
+    const currentSection = homepageSections.find(s => s.id === id);
+    const visibleCount = homepageSections.filter(s => s.visible).length;
+    
+    // If trying to hide the last visible section
+    if (currentSection?.visible && visibleCount === 1) {
+      setPendingSectionToggleId(id);
+      setShowMaintenanceSuggestion(true);
+      return;
+    }
+    
     setHomepageSections(prev => 
       prev.map(section => 
         section.id === id 
@@ -575,6 +592,29 @@ const AdminSettings = () => {
           : { ...section }
       )
     );
+  };
+
+  const handleMaintenanceSuggestionAccept = () => {
+    setShowMaintenanceSuggestion(false);
+    setPendingSectionToggleId(null);
+    
+    // Activate maintenance mode (but don't save yet)
+    setSettings(prev => ({ ...prev, maintenanceMode: true }));
+    
+    // Scroll to maintenance section
+    setTimeout(() => {
+      maintenanceSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+    
+    toast({
+      title: "Mode maintenance activé",
+      description: "N'oubliez pas d'enregistrer les modifications pour appliquer les changements.",
+    });
+  };
+
+  const handleMaintenanceSuggestionCancel = () => {
+    setShowMaintenanceSuggestion(false);
+    setPendingSectionToggleId(null);
   };
 
   const saveHomepageSections = async () => {
@@ -2331,7 +2371,7 @@ const AdminSettings = () => {
               </Card>
 
               {/* Mode Maintenance */}
-              <Card>
+              <Card ref={maintenanceSectionRef}>
                 <CardHeader>
                   <CardTitle>Mode maintenance</CardTitle>
                   <CardDescription>
@@ -2431,6 +2471,13 @@ const AdminSettings = () => {
         changes={pendingChanges}
         onConfirm={performSave}
         isLoading={saving}
+      />
+
+      <MaintenanceSuggestionModal
+        open={showMaintenanceSuggestion}
+        onOpenChange={setShowMaintenanceSuggestion}
+        onAccept={handleMaintenanceSuggestionAccept}
+        onCancel={handleMaintenanceSuggestionCancel}
       />
     </>
   );
