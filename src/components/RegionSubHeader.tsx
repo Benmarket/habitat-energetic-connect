@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
 
 // Import region images
@@ -24,17 +24,10 @@ interface RegionSubHeaderProps {
 
 const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
   const [isManuallyCollapsed, setIsManuallyCollapsed] = useState(false);
-  const [hasManuallyToggled, setHasManuallyToggled] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
 
-  // If user manually collapsed, respect that choice
-  // Otherwise, auto-collapse on scroll
-  const isCollapsed = hasManuallyToggled ? isManuallyCollapsed : isScrolled;
-
-  const handleToggle = () => {
-    setHasManuallyToggled(true);
-    setIsManuallyCollapsed(!isManuallyCollapsed);
-  };
+  // Auto-collapse on scroll, auto-expand when back to top
+  const isCollapsed = isScrolled ? true : isManuallyCollapsed;
 
   const handleRegionClick = (regionName: string) => {
     setSelectedRegion(regionName);
@@ -49,7 +42,7 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
         }`}
       >
         <div className="container mx-auto px-4 md:px-8 lg:px-12">
-          <div className="flex items-center justify-between pt-5 pb-3 md:pt-6 md:pb-4">
+          <div className="flex items-center justify-between pt-4 pb-3 md:pt-5 md:pb-4">
             {regions.map((region) => (
               <button
                 key={region.name}
@@ -76,7 +69,7 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
       
       {/* Collapse/Expand toggle */}
       <button
-        onClick={handleToggle}
+        onClick={() => setIsManuallyCollapsed(!isManuallyCollapsed)}
         className="w-full flex items-center justify-center py-1 hover:bg-muted/70 transition-colors group"
         aria-label={isCollapsed ? "Afficher les régions" : "Masquer les régions"}
       >

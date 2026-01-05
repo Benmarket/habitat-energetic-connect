@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone, User, Home, BarChart3, MessageCircle, Users, LogOut, ChevronDown, Settings } from "lucide-react";
 import RegionSubHeader from "@/components/RegionSubHeader";
@@ -26,7 +26,6 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [profile, setProfile] = useState<{ first_name: string | null; last_name: string | null; account_type: string | null; company_name: string | null } | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [showRegionSubHeader, setShowRegionSubHeader] = useState(true);
   const [headerFooterSettings, setHeaderFooterSettings] = useState({
     showPhone: false,
     phoneNumber: "0 800 123 456",
@@ -42,10 +41,6 @@ const Header = () => {
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  
-  // Only show region sub-header on homepage
-  const isHomePage = location.pathname === "/";
 
   // Génère le lien WhatsApp à partir du paramètre configuré
   const getWhatsappUrl = () => {
@@ -91,8 +86,6 @@ const Header = () => {
             installerButtonTextColor: value.installerButtonTextColor || "#ffffff",
             installerButtonLink: value.installerButtonLink || "/#etude",
           });
-          // Load region sub-header setting
-          setShowRegionSubHeader(value.showRegionSubHeader ?? true);
         }
         setSettingsLoaded(true);
       });
@@ -537,12 +530,10 @@ const Header = () => {
         )}
       </div>
       
-      <AuthModal open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
+      {/* Region Sub-Header */}
+      <RegionSubHeader isScrolled={isScrolled} />
       
-      {/* Region Sub-Header - Only on homepage and if enabled */}
-      {isHomePage && showRegionSubHeader && (
-        <RegionSubHeader isScrolled={isScrolled} />
-      )}
+      <AuthModal open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
     </header>
   );
 };
