@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { Sun, Droplet, Home, FileText, Calculator, Lightbulb, Newspaper } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -8,6 +10,22 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+
+interface HomepageSection {
+  id: string;
+  name: string;
+  anchor: string;
+  visible: boolean;
+  order: number;
+}
+
+// Mapping between mega menu keys and homepage section IDs
+const MENU_TO_SECTION_MAP: Record<string, string> = {
+  offres: 'partner-offers',     // Offres -> Offres partenaires
+  guides: 'guides',             // Guides -> Guides par projet
+  actualite: 'news',            // Actualité -> Actualités
+  simulateurs: 'simulators',    // Simulateurs -> Simulateurs
+};
 
 const megaMenuData = {
   offres: {
@@ -105,175 +123,236 @@ const megaMenuData = {
 };
 
 export const MegaMenu = () => {
+  const [sectionVisibility, setSectionVisibility] = useState<Record<string, boolean>>({
+    offres: true,
+    guides: true,
+    aides: true,
+    actualite: true,
+    simulateurs: true,
+  });
+
+  useEffect(() => {
+    const loadSectionVisibility = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("site_settings")
+          .select("value")
+          .eq("key", "homepage_sections")
+          .maybeSingle();
+
+        if (error) {
+          console.error("Error fetching homepage sections:", error);
+          return;
+        }
+
+        if (data?.value && Array.isArray(data.value)) {
+          const savedSections = data.value as unknown as HomepageSection[];
+          
+          // Check visibility for each menu item based on its corresponding section
+          const visibility: Record<string, boolean> = {
+            offres: true, // Check partner-offers section
+            guides: true,
+            aides: true, // Aides is always visible (no direct mapping)
+            actualite: true,
+            simulateurs: true,
+          };
+
+          for (const [menuKey, sectionId] of Object.entries(MENU_TO_SECTION_MAP)) {
+            const section = savedSections.find(s => s.id === sectionId);
+            if (section) {
+              visibility[menuKey] = Boolean(section.visible);
+            }
+          }
+
+          setSectionVisibility(visibility);
+        }
+      } catch (error) {
+        console.error("Error loading section visibility:", error);
+      }
+    };
+
+    loadSectionVisibility();
+  }, []);
+
   return (
     <NavigationMenu>
       <NavigationMenuList className="space-x-1">
-        {/* Offres - Always visible */}
-        <NavigationMenuItem>
-          <NavigationMenuTrigger className="px-2 py-1.5 text-sm">Offres</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <div className="w-[700px] p-6 bg-background">
-              <div className="grid grid-cols-3 gap-6">
-                {megaMenuData.offres.categories.map((category, idx) => (
+        {/* Offres - Visible if partner-offers section is visible */}
+        {sectionVisibility.offres && (
+          <NavigationMenuItem>
+            <NavigationMenuTrigger className="px-2 py-1.5 text-sm">Offres</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <div className="w-[700px] p-6 bg-background">
+                <div className="grid grid-cols-3 gap-6">
+                  {megaMenuData.offres.categories.map((category, idx) => (
+                    <div key={idx}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <category.icon className="w-4 h-4 text-primary" />
+                        <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">{category.title}</h3>
+                      </div>
+                      <ul className="space-y-2">
+                        {category.items.map((item) => (
+                          <li key={item.href}>
+                            <Link
+                              to={item.href}
+                              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                            >
+                              {item.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        )}
+
+        {/* Guides - Visible if guides section is visible */}
+        {sectionVisibility.guides && (
+          <NavigationMenuItem>
+            <NavigationMenuTrigger className="px-2 py-1.5 text-sm">Guides</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
+                {megaMenuData.guides.categories.map((category, idx) => (
                   <div key={idx}>
                     <div className="flex items-center gap-2 mb-3">
-                      <category.icon className="w-4 h-4 text-primary" />
-                      <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">{category.title}</h3>
+                      <category.icon className="w-5 h-5 text-primary" />
+                      <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">
+                        {category.title}
+                      </h3>
                     </div>
                     <ul className="space-y-2">
-                      {category.items.map((item) => (
-                        <li key={item.href}>
-                          <Link
-                            to={item.href}
-                            className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                          >
-                            {item.label}
-                          </Link>
+                      {category.items.map((item, itemIdx) => (
+                        <li key={itemIdx}>
+                          <NavigationMenuLink asChild>
+                            <Link
+                              to={item.href}
+                              className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                            >
+                              {item.label}
+                            </Link>
+                          </NavigationMenuLink>
                         </li>
                       ))}
                     </ul>
                   </div>
                 ))}
               </div>
-            </div>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        )}
 
-        {/* Guides - Always visible */}
-        <NavigationMenuItem>
-          <NavigationMenuTrigger className="px-2 py-1.5 text-sm">Guides</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
-              {megaMenuData.guides.categories.map((category, idx) => (
-                <div key={idx}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <category.icon className="w-5 h-5 text-primary" />
-                    <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">
-                      {category.title}
-                    </h3>
+        {/* Aides - Always visible (no direct section mapping) */}
+        {sectionVisibility.aides && (
+          <NavigationMenuItem>
+            <NavigationMenuTrigger className="px-2 py-1.5 text-sm">Aides</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
+                {megaMenuData.aides.categories.map((category, idx) => (
+                  <div key={idx}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <category.icon className="w-5 h-5 text-primary" />
+                      <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">
+                        {category.title}
+                      </h3>
+                    </div>
+                    <ul className="space-y-2">
+                      {category.items.map((item, itemIdx) => (
+                        <li key={itemIdx}>
+                          <NavigationMenuLink asChild>
+                            <Link
+                              to={item.href}
+                              className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                            >
+                              {item.label}
+                            </Link>
+                          </NavigationMenuLink>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <ul className="space-y-2">
-                    {category.items.map((item, itemIdx) => (
-                      <li key={itemIdx}>
-                        <NavigationMenuLink asChild>
-                          <Link
-                            to={item.href}
-                            className="block text-sm text-muted-foreground hover:text-primary transition-colors"
-                          >
-                            {item.label}
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
+                ))}
+              </div>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        )}
 
-        {/* Aides - Always visible */}
-        <NavigationMenuItem>
-          <NavigationMenuTrigger className="px-2 py-1.5 text-sm">Aides</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
-              {megaMenuData.aides.categories.map((category, idx) => (
-                <div key={idx}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <category.icon className="w-5 h-5 text-primary" />
-                    <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">
-                      {category.title}
-                    </h3>
+        {/* Actualité - Visible if news section is visible */}
+        {sectionVisibility.actualite && (
+          <NavigationMenuItem>
+            <NavigationMenuTrigger className="px-2 py-1.5 text-sm text-foreground hover:text-primary data-[state=open]:text-primary">
+              Actualité
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
+                {megaMenuData.actualite.categories.map((category, idx) => (
+                  <div key={idx}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <category.icon className="w-5 h-5 text-primary" />
+                      <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">
+                        {category.title}
+                      </h3>
+                    </div>
+                    <ul className="space-y-2">
+                      {category.items.map((item, itemIdx) => (
+                        <li key={itemIdx}>
+                          <NavigationMenuLink asChild>
+                            <Link
+                              to={item.href}
+                              className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                            >
+                              {item.label}
+                            </Link>
+                          </NavigationMenuLink>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <ul className="space-y-2">
-                    {category.items.map((item, itemIdx) => (
-                      <li key={itemIdx}>
-                        <NavigationMenuLink asChild>
-                          <Link
-                            to={item.href}
-                            className="block text-sm text-muted-foreground hover:text-primary transition-colors"
-                          >
-                            {item.label}
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
+                ))}
+              </div>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        )}
 
-        {/* Actualité - Always visible */}
-        <NavigationMenuItem>
-          <NavigationMenuTrigger className="px-2 py-1.5 text-sm text-foreground hover:text-primary data-[state=open]:text-primary">
-            Actualité
-          </NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
-              {megaMenuData.actualite.categories.map((category, idx) => (
-                <div key={idx}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <category.icon className="w-5 h-5 text-primary" />
-                    <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">
-                      {category.title}
-                    </h3>
+        {/* Simulateurs - Visible if simulators section is visible */}
+        {sectionVisibility.simulateurs && (
+          <NavigationMenuItem>
+            <NavigationMenuTrigger className="px-2 py-1.5 text-sm text-foreground hover:text-primary data-[state=open]:text-primary">
+              Simulateurs
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
+                {megaMenuData.simulateurs.categories.map((category, idx) => (
+                  <div key={idx}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <category.icon className="w-5 h-5 text-primary" />
+                      <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">
+                        {category.title}
+                      </h3>
+                    </div>
+                    <ul className="space-y-2">
+                      {category.items.map((item, itemIdx) => (
+                        <li key={itemIdx}>
+                          <NavigationMenuLink asChild>
+                            <Link
+                              to={item.href}
+                              className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                            >
+                              {item.label}
+                            </Link>
+                          </NavigationMenuLink>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <ul className="space-y-2">
-                    {category.items.map((item, itemIdx) => (
-                      <li key={itemIdx}>
-                        <NavigationMenuLink asChild>
-                          <Link
-                            to={item.href}
-                            className="block text-sm text-muted-foreground hover:text-primary transition-colors"
-                          >
-                            {item.label}
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-
-        {/* Simulateurs - Always visible */}
-        <NavigationMenuItem>
-          <NavigationMenuTrigger className="px-2 py-1.5 text-sm text-foreground hover:text-primary data-[state=open]:text-primary">
-            Simulateurs
-          </NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
-              {megaMenuData.simulateurs.categories.map((category, idx) => (
-                <div key={idx}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <category.icon className="w-5 h-5 text-primary" />
-                    <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">
-                      {category.title}
-                    </h3>
-                  </div>
-                  <ul className="space-y-2">
-                    {category.items.map((item, itemIdx) => (
-                      <li key={itemIdx}>
-                        <NavigationMenuLink asChild>
-                          <Link
-                            to={item.href}
-                            className="block text-sm text-muted-foreground hover:text-primary transition-colors"
-                          >
-                            {item.label}
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
+                ))}
+              </div>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        )}
       </NavigationMenuList>
     </NavigationMenu>
   );
