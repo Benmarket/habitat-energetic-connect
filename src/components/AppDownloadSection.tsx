@@ -84,10 +84,10 @@ const AppDownloadSection = () => {
                     {/* User header */}
                     <div className="flex items-center gap-2 pb-2 md:pb-3 border-b border-border">
                       <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-xs md:text-sm flex-shrink-0">
-                        BM
+                        FD
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-[10px] md:text-xs truncate">Ben Market</p>
+                        <p className="font-semibold text-[10px] md:text-xs truncate">François D.</p>
                         <span className="text-[9px] md:text-[10px] bg-primary/10 text-primary px-1.5 md:px-2 py-0.5 rounded-full">
                           particulier
                         </span>
