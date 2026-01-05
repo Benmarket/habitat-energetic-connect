@@ -1126,6 +1126,7 @@ export type Database = {
           created_at: string
           custom_author_name: string | null
           display_author_id: string | null
+          download_count: number
           excerpt: string | null
           faq: Json | null
           featured_image: string | null
@@ -1154,6 +1155,7 @@ export type Database = {
           created_at?: string
           custom_author_name?: string | null
           display_author_id?: string | null
+          download_count?: number
           excerpt?: string | null
           faq?: Json | null
           featured_image?: string | null
@@ -1182,6 +1184,7 @@ export type Database = {
           created_at?: string
           custom_author_name?: string | null
           display_author_id?: string | null
+          download_count?: number
           excerpt?: string | null
           faq?: Json | null
           featured_image?: string | null
