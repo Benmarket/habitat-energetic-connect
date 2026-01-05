@@ -99,24 +99,7 @@ const Guides = () => {
         />
       )}
 
-      <div className="min-h-screen bg-gradient-to-b from-background via-orange-50/30 to-background relative overflow-hidden">
-        {/* Background wave decorations */}
-        <div className="absolute inset-0 pointer-events-none">
-          {/* Animated orange gradient orbs */}
-          <div className="absolute top-40 left-10 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-40 right-10 w-96 h-96 bg-orange-600/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        </div>
-        
-        {/* Wave decoration */}
-        <div className="absolute inset-0 opacity-30 pointer-events-none">
-          <svg className="absolute bottom-0 w-full h-48" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
-            <path fill="rgb(249, 115, 22)" fillOpacity="0.4" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,144C960,149,1056,139,1152,128C1248,117,1344,107,1392,101.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-          </svg>
-          <svg className="absolute top-0 w-full h-48 rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
-            <path fill="rgb(249, 115, 22)" fillOpacity="0.2" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,213.3C672,224,768,224,864,213.3C960,203,1056,181,1152,170.7C1248,160,1344,160,1392,160L1440,160L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
-          </svg>
-        </div>
-
+      <div className="min-h-screen bg-background">
         <Header />
         <Breadcrumb 
           items={[
@@ -125,7 +108,7 @@ const Guides = () => {
           ]}
         />
         
-        <main className="relative z-10">
+        <main className="relative">
           {/* Hero Section - Orange solid background */}
           <section className="relative py-20 overflow-hidden bg-gradient-to-br from-orange-500 via-orange-500/90 to-orange-600">
             {/* Background decorative elements with floating animation */}
@@ -159,7 +142,7 @@ const Guides = () => {
             </div>
           </section>
 
-          <div className="container mx-auto px-4 py-12 relative z-10">
+          <div className="container mx-auto px-4 py-12">
 
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
