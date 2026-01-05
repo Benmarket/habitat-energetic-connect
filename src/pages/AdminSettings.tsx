@@ -346,26 +346,39 @@ const AdminSettings = () => {
       setHomepageSections((prev) => {
         const oldIndex = prev.findIndex(s => s.id === active.id);
         const newIndex = prev.findIndex(s => s.id === over.id);
-        const newSections = arrayMove(prev, oldIndex, newIndex);
-        // Update order values
-        newSections.forEach((section, idx) => {
-          section.order = idx;
-        });
-        return newSections;
+        const reordered = arrayMove(prev, oldIndex, newIndex);
+        // Create new objects with updated order values (immutable)
+        return reordered.map((section, idx) => ({
+          ...section,
+          order: idx
+        }));
       });
     }
   };
 
   const toggleSectionVisibility = (id: string) => {
-    setHomepageSections(prev => 
-      prev.map(section => 
-        section.id === id ? { ...section, visible: !section.visible } : section
-      )
-    );
+    setHomepageSections(prev => {
+      const updated = prev.map(section => 
+        section.id === id 
+          ? { ...section, visible: !section.visible } 
+          : { ...section }
+      );
+      console.log('Toggle visibility for', id, '- New state:', updated.map(s => ({ id: s.id, visible: s.visible, order: s.order })));
+      return updated;
+    });
   };
 
   const saveHomepageSections = async () => {
     try {
+      // Ensure proper types before saving
+      const sectionsToSave = homepageSections.map((section, idx) => ({
+        ...section,
+        visible: Boolean(section.visible),
+        order: idx // Use current array index as order
+      }));
+      
+      console.log('Saving homepage sections:', sectionsToSave.map(s => ({ id: s.id, visible: s.visible, order: s.order })));
+      
       const { data: existing } = await supabase
         .from("site_settings")
         .select("id")
@@ -377,7 +390,7 @@ const AdminSettings = () => {
         const result = await supabase
           .from("site_settings")
           .update({
-            value: JSON.parse(JSON.stringify(homepageSections)),
+            value: sectionsToSave,
             updated_by: user?.id,
             updated_at: new Date().toISOString(),
           })
@@ -388,7 +401,7 @@ const AdminSettings = () => {
           .from("site_settings")
           .insert([{
             key: "homepage_sections",
-            value: JSON.parse(JSON.stringify(homepageSections)),
+            value: sectionsToSave,
             updated_by: user?.id,
           }]);
         error = result.error;
