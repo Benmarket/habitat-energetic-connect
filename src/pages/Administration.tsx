@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle, Bot, FileCheck, FileText, Mail, Newspaper, BookOpen, HandCoins, Megaphone, Send, MessageSquare, Shield, Calculator, Smartphone, Layers } from "lucide-react";
+import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle, Bot, FileCheck, FileText, Mail, Newspaper, BookOpen, HandCoins, Megaphone, Send, MessageSquare, Shield, Calculator, Smartphone, Layers, MousePointerClick } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import TrafficDashboard from "@/components/TrafficDashboard";
 
@@ -543,6 +543,27 @@ const Administration = () => {
                   <CardContent>
                     <Link to="/admin/parametres">
                       <Button className="w-full bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 shadow-lg shadow-slate-500/30">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                <Card className="group hover:shadow-2xl hover:shadow-slate-500/10 transition-all duration-300 border-l-4 border-l-slate-600 hover:scale-[1.02] hover:-translate-y-1">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-gradient-to-br from-slate-600/10 to-slate-700/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <MousePointerClick className="w-6 h-6 text-slate-600" />
+                      </div>
+                    </div>
+                    <CardTitle className="group-hover:text-slate-600 transition-colors">Gestion des boutons</CardTitle>
+                    <CardDescription>
+                      Créez et gérez vos boutons personnalisés pour les articles
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/admin/boutons">
+                      <Button className="w-full bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 shadow-lg shadow-slate-500/30">
                         Accéder
                       </Button>
                     </Link>
