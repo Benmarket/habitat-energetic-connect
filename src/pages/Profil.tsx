@@ -15,6 +15,8 @@ import Footer from "@/components/Footer";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { usePageMaintenance } from "@/hooks/usePageMaintenance";
+import { PageMaintenance } from "@/components/PageMaintenance";
 import {
   Form,
   FormControl,
@@ -54,6 +56,7 @@ const Profil = () => {
   const { user, loading: authLoading } = useAuth();
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const [isLoadingPassword, setIsLoadingPassword] = useState(false);
+  const { isUnderMaintenance, isLoading: maintenanceLoading } = usePageMaintenance('account');
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -162,12 +165,17 @@ const Profil = () => {
     }
   };
 
-  if (authLoading) {
+  if (authLoading || maintenanceLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
+  }
+
+  // Show maintenance page if this page is disabled
+  if (isUnderMaintenance) {
+    return <PageMaintenance pageName="Mon compte" description="La page Mon compte est actuellement en maintenance. Nous travaillons pour vous offrir une meilleure expérience. Veuillez réessayer ultérieurement." />;
   }
 
   return (

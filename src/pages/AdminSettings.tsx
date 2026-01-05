@@ -1010,14 +1010,20 @@ const AdminSettings = () => {
                         Menu espace membre
                       </CardTitle>
                       <CardDescription className="text-xs">
-                        Gérez la visibilité des éléments du menu déroulant membre
+                        Gérez la visibilité des éléments du menu déroulant membre. 
+                        <span className="text-amber-600 font-medium"> Désactiver un élément masquera aussi l'accès à sa page (mode maintenance).</span>
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Settings className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">Mon compte</span>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <Settings className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-sm">Mon compte</span>
+                          </div>
+                          {!headerFooterSettings.memberMenuShowAccount && (
+                            <p className="text-xs text-amber-600 mt-1 ml-6">⚠️ Page /profil en maintenance</p>
+                          )}
                         </div>
                         <Switch
                           checked={headerFooterSettings.memberMenuShowAccount}
@@ -1028,9 +1034,14 @@ const AdminSettings = () => {
                       </div>
                       
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Home className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">Tableau de bord</span>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <Home className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-sm">Tableau de bord</span>
+                          </div>
+                          {!headerFooterSettings.memberMenuShowDashboard && (
+                            <p className="text-xs text-amber-600 mt-1 ml-6">⚠️ Page /tableau-de-bord en maintenance</p>
+                          )}
                         </div>
                         <Switch
                           checked={headerFooterSettings.memberMenuShowDashboard}
@@ -1041,9 +1052,14 @@ const AdminSettings = () => {
                       </div>
                       
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <BarChart3 className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">Économies réalisées</span>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <BarChart3 className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-sm">Économies réalisées</span>
+                          </div>
+                          {!headerFooterSettings.memberMenuShowEconomies && (
+                            <p className="text-xs text-amber-600 mt-1 ml-6">⚠️ Section économies en maintenance</p>
+                          )}
                         </div>
                         <Switch
                           checked={headerFooterSettings.memberMenuShowEconomies}
@@ -1054,9 +1070,14 @@ const AdminSettings = () => {
                       </div>
                       
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <MessageCircle className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">Forums de discussion</span>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <MessageCircle className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-sm">Forums de discussion</span>
+                          </div>
+                          {!headerFooterSettings.memberMenuShowForum && (
+                            <p className="text-xs text-amber-600 mt-1 ml-6">⚠️ Page /forum en maintenance</p>
+                          )}
                         </div>
                         <Switch
                           checked={headerFooterSettings.memberMenuShowForum}

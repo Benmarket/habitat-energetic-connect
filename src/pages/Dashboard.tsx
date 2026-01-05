@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Newspaper, BookOpen, HandCoins, Plus, Megaphone, ShieldCheck, Sparkles, FileText, Mail, User, Building2, BadgeCheck, MessageSquare, Calculator, Lock, ArrowRight } from "lucide-react";
+import { usePageMaintenance } from "@/hooks/usePageMaintenance";
+import { PageMaintenance } from "@/components/PageMaintenance";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -17,6 +19,7 @@ const Dashboard = () => {
   const [hasPermissions, setHasPermissions] = useState(false);
   const [permissions, setPermissions] = useState<any[]>([]);
   const [newsletterCount, setNewsletterCount] = useState(0);
+  const { isUnderMaintenance, isLoading: maintenanceLoading } = usePageMaintenance('dashboard');
   
   // New states for user sections
   const [aides, setAides] = useState<any[]>([]);
@@ -183,12 +186,17 @@ const Dashboard = () => {
     return code;
   };
 
-  if (loading || !user) {
+  if (loading || maintenanceLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
+  }
+
+  // Show maintenance page if this page is disabled
+  if (isUnderMaintenance) {
+    return <PageMaintenance pageName="Tableau de bord" description="Le tableau de bord est actuellement en maintenance. Nous travaillons pour vous offrir une meilleure expérience. Veuillez réessayer ultérieurement." />;
   }
 
   const isSuperAdmin = role === "super_admin";
