@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone, User, Home, BarChart3, MessageCircle, Users, LogOut, ChevronDown, Settings } from "lucide-react";
+import RegionSubHeader from "@/components/RegionSubHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { MegaMenu } from "@/components/MegaMenu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -22,6 +23,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUserMenuExpanded, setIsUserMenuExpanded] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const [profile, setProfile] = useState<{ first_name: string | null; last_name: string | null; account_type: string | null; company_name: string | null } | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [headerFooterSettings, setHeaderFooterSettings] = useState({
@@ -52,6 +54,15 @@ const Header = () => {
     const cleanNumber = link.replace(/[^0-9]/g, "");
     return `https://wa.me/${cleanNumber}`;
   };
+
+  // Scroll detection for sub-header
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     // Load header/footer settings
@@ -518,6 +529,9 @@ const Header = () => {
           </nav>
         )}
       </div>
+      
+      {/* Region Sub-Header */}
+      <RegionSubHeader isScrolled={isScrolled} />
       
       <AuthModal open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
     </header>
