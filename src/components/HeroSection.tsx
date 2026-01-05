@@ -310,7 +310,7 @@ const HeroSection = () => {
                         />
                       </div>
 
-                      <div className="lg:flex-[1.3] lg:min-w-[180px]">
+                      <div className="lg:flex-1 lg:min-w-[160px]">
                         <Label htmlFor="email" className="text-white text-sm mb-1 block font-medium drop-shadow">
                           E-mail <span className="text-yellow-300">*</span>
                         </Label>
@@ -344,13 +344,13 @@ const HeroSection = () => {
 
                     {/* Type de travaux + Button group - On desktop, inline with other fields */}
                     <div className="hidden lg:flex lg:flex-wrap lg:gap-3 lg:flex-1 lg:min-w-[320px]">
-                      <div className="lg:flex-[1.2] lg:min-w-[160px]">
+                      <div className="lg:flex-[1.5] lg:min-w-[200px]">
                         <Label htmlFor="workType" className="text-white text-sm mb-1 block font-medium drop-shadow">
                           Type de travaux <span className="text-yellow-300">*</span>
                         </Label>
                         <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
                           <SelectTrigger className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white">
-                            <SelectValue placeholder="Panneaux..." />
+                            <SelectValue placeholder="Panneaux photovoltaïques" />
                           </SelectTrigger>
                           <SelectContent className="bg-white z-50 shadow-xl">
                             <SelectItem value="isolation">Isolation</SelectItem>
