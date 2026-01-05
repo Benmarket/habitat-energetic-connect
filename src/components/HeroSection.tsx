@@ -375,7 +375,7 @@ const HeroSection = () => {
                   </div>
 
                   {/* Code postal + Type de travaux + Button - Only visible on mobile and tablet */}
-                  <div className="grid grid-cols-2 gap-2 md:grid-cols-2 mb-3 md:mb-4 lg:hidden">
+                  <div className="grid grid-cols-2 gap-2 md:grid-cols-3 mb-3 md:mb-4 lg:hidden">
                     {/* Code postal - Visible only on mobile */}
                     <div className="md:hidden">
                       <Label htmlFor="postalCode-mobile" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
@@ -393,13 +393,13 @@ const HeroSection = () => {
                     </div>
 
                     {/* Type de travaux */}
-                    <div className="col-span-1">
+                    <div className="col-span-1 md:col-span-2">
                       <Label htmlFor="workType-mobile" className="text-white text-sm mb-1.5 block font-medium drop-shadow">
                         Type de travaux <span className="text-yellow-300">*</span>
                       </Label>
                       <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
                         <SelectTrigger className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white">
-                          <SelectValue placeholder="Panneaux..." />
+                          <SelectValue placeholder="Panneaux photovoltaïques" />
                         </SelectTrigger>
                         <SelectContent className="bg-white z-50 shadow-xl">
                           <SelectItem value="isolation">Isolation</SelectItem>
