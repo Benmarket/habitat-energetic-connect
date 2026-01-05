@@ -142,47 +142,66 @@ const Guides = () => {
             </div>
           </section>
 
-          <div className="container mx-auto px-4 py-12">
+          {/* Wave background section */}
+          <div className="relative">
+            {/* Orange wave SVG at bottom */}
+            <div className="absolute bottom-0 left-0 right-0 z-0">
+              <svg 
+                viewBox="0 0 1440 200" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-full h-auto"
+                preserveAspectRatio="none"
+              >
+                <path 
+                  d="M0 80C240 20 480 0 720 40C960 80 1200 160 1440 120V200H0V80Z" 
+                  fill="hsl(var(--primary) / 0.08)"
+                />
+              </svg>
+            </div>
 
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="space-y-4">
-                    <Skeleton className="h-56 w-full rounded-xl" />
-                    <Skeleton className="h-8 w-3/4" />
-                    <Skeleton className="h-20 w-full" />
-                  </div>
-                ))}
-              </div>
-            ) : guides.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="p-4 bg-gradient-to-br from-orange-600 to-orange-700 rounded-2xl shadow-lg inline-block mb-6">
-                  <BookOpen className="w-16 h-16 text-white" />
+            <div className="container mx-auto px-4 py-12 relative z-10">
+
+              {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="space-y-4">
+                      <Skeleton className="h-56 w-full rounded-xl" />
+                      <Skeleton className="h-8 w-3/4" />
+                      <Skeleton className="h-20 w-full" />
+                    </div>
+                  ))}
                 </div>
-                <h2 className="text-2xl font-semibold mb-4">Aucun guide disponible</h2>
-                <p className="text-muted-foreground">
-                  Les guides seront bientôt disponibles. Revenez plus tard !
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {guides.map((guide) => (
-                  <ArticleCard
-                    key={guide.id}
-                    id={guide.id}
-                    title={guide.title}
-                    excerpt={guide.excerpt || ""}
-                    slug={guide.slug}
-                    featuredImage={guide.featured_image || ""}
-                    publishedAt={guide.published_at || ""}
-                    category={guide.categories?.[0]?.name || "Guide"}
-                    categorySlug={guide.categories?.[0]?.slug || "guide"}
-                    contentType="guide"
-                    variant="guide"
-                  />
-                ))}
-              </div>
-            )}
+              ) : guides.length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="p-4 bg-gradient-to-br from-orange-600 to-orange-700 rounded-2xl shadow-lg inline-block mb-6">
+                    <BookOpen className="w-16 h-16 text-white" />
+                  </div>
+                  <h2 className="text-2xl font-semibold mb-4">Aucun guide disponible</h2>
+                  <p className="text-muted-foreground">
+                    Les guides seront bientôt disponibles. Revenez plus tard !
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {guides.map((guide) => (
+                    <ArticleCard
+                      key={guide.id}
+                      id={guide.id}
+                      title={guide.title}
+                      excerpt={guide.excerpt || ""}
+                      slug={guide.slug}
+                      featuredImage={guide.featured_image || ""}
+                      publishedAt={guide.published_at || ""}
+                      category={guide.categories?.[0]?.name || "Guide"}
+                      categorySlug={guide.categories?.[0]?.slug || "guide"}
+                      contentType="guide"
+                      variant="guide"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </main>
 
