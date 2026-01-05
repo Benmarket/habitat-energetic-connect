@@ -51,6 +51,7 @@ import ForumCategory from "./pages/forum/ForumCategory";
 import ForumTopic from "./pages/forum/ForumTopic";
 import NewTopic from "./pages/forum/NewTopic";
 import InstallApp from "./pages/InstallApp";
+import OffrePartenaire from "./pages/OffrePartenaire";
 
 const queryClient = new QueryClient();
 
@@ -98,6 +99,7 @@ const App = () => (
               <Route path="/admin/landing-pages" element={<AdminLandingPages />} />
               <Route path="/admin/app" element={<AdminApp />} />
               <Route path="/installer-app" element={<InstallApp />} />
+              <Route path="/offre-partenaire/:id" element={<OffrePartenaire />} />
               <Route path="/landing/solaire" element={<LandingSolaire />} />
               <Route path="/landing/isolation" element={<LandingIsolation />} />
               <Route path="/landing/pompe-a-chaleur" element={<LandingPompeAChaleur />} />
