@@ -3,8 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, Tag } from "lucide-react";
+import { Check, Tag, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
+import { format, differenceInDays, isPast } from "date-fns";
+import { fr } from "date-fns/locale";
 import {
   Carousel,
   CarouselContent,
@@ -26,6 +28,7 @@ interface Advertisement {
   cta_url: string;
   badge_text: string | null;
   badge_type: string;
+  expires_at: string | null;
   advertiser: {
     name: string;
     logo: string | null;
@@ -51,10 +54,17 @@ const PartnerOffersSection = () => {
         .eq("status", "active")
         .eq("is_featured", true)
         .order("created_at", { ascending: false })
-        .limit(3);
+        .limit(6);
 
       if (error) throw error;
-      setOffers(data || []);
+      
+      // Filter out expired offers
+      const validOffers = (data || []).filter((offer: any) => {
+        if (!offer.expires_at) return true;
+        return !isPast(new Date(offer.expires_at));
+      }).slice(0, 3);
+      
+      setOffers(validOffers);
     } catch (error) {
       console.error("Error fetching featured offers:", error);
     } finally {
@@ -88,6 +98,17 @@ const PartnerOffersSection = () => {
       default:
         return 'default';
     }
+  };
+
+  const getExpirationInfo = (expiresAt: string | null) => {
+    if (!expiresAt) return null;
+    const expirationDate = new Date(expiresAt);
+    const daysLeft = differenceInDays(expirationDate, new Date());
+    
+    if (daysLeft <= 0) return null;
+    if (daysLeft === 1) return "Expire demain";
+    if (daysLeft <= 7) return `Expire dans ${daysLeft} jours`;
+    return `Jusqu'au ${format(expirationDate, "d MMMM", { locale: fr })}`;
   };
 
   return (
@@ -176,7 +197,7 @@ const PartnerOffersSection = () => {
                     </div>
 
                     {/* Price */}
-                    <div className="flex items-baseline gap-2 md:gap-3">
+                    <div className="flex items-baseline gap-2 md:gap-3 flex-wrap">
                       <span className="text-3xl md:text-4xl font-bold text-amber-600">
                         {offer.price.toLocaleString('fr-FR')}€
                       </span>
@@ -184,6 +205,12 @@ const PartnerOffersSection = () => {
                         <span className="text-lg md:text-xl text-muted-foreground line-through">
                           {offer.original_price.toLocaleString('fr-FR')}€
                         </span>
+                      )}
+                      {getExpirationInfo(offer.expires_at) && (
+                        <Badge variant="outline" className="text-xs flex items-center gap-1 text-orange-600 border-orange-300 bg-orange-50">
+                          <Clock className="w-3 h-3" />
+                          {getExpirationInfo(offer.expires_at)}
+                        </Badge>
                       )}
                     </div>
 

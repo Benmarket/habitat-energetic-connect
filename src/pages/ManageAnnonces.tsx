@@ -34,6 +34,7 @@ interface Advertisement {
   badge_type: string;
   is_featured: boolean;
   status: string;
+  expires_at: string | null;
   created_at: string;
   advertiser: {
     id: string;
@@ -72,6 +73,7 @@ const ManageAnnonces = () => {
     badge_type: "sponsored",
     is_featured: false,
     status: "active",
+    expires_at: "",
   });
 
   useEffect(() => {
@@ -144,6 +146,7 @@ const ManageAnnonces = () => {
       badge_type: formData.badge_type,
       is_featured: formData.is_featured,
       status: formData.status,
+      expires_at: formData.expires_at ? new Date(formData.expires_at).toISOString() : null,
     };
 
     try {
@@ -194,6 +197,7 @@ const ManageAnnonces = () => {
       badge_type: ad.badge_type,
       is_featured: ad.is_featured,
       status: ad.status,
+      expires_at: ad.expires_at ? ad.expires_at.split('T')[0] : "",
     });
     setDialogOpen(true);
   };
@@ -271,6 +275,7 @@ const ManageAnnonces = () => {
       badge_type: "sponsored",
       is_featured: false,
       status: "active",
+      expires_at: "",
     });
     setCurrentFeature("");
   };
@@ -490,21 +495,36 @@ const ManageAnnonces = () => {
                       </div>
                     </div>
 
-                    <div>
-                      <Label htmlFor="status">Statut</Label>
-                      <Select
-                        value={formData.status}
-                        onValueChange={(value) => setFormData({ ...formData, status: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="inactive">Inactive</SelectItem>
-                          <SelectItem value="archived">Archivée</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="status">Statut</Label>
+                        <Select
+                          value={formData.status}
+                          onValueChange={(value) => setFormData({ ...formData, status: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
+                            <SelectItem value="archived">Archivée</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="expires_at">Date d'expiration</Label>
+                        <Input
+                          id="expires_at"
+                          type="date"
+                          value={formData.expires_at}
+                          onChange={(e) => setFormData({ ...formData, expires_at: e.target.value })}
+                          min={new Date().toISOString().split('T')[0]}
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Laisser vide pour une offre sans expiration
+                        </p>
+                      </div>
                     </div>
 
                     <div className="flex items-center space-x-2">

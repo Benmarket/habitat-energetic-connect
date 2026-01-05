@@ -53,6 +53,7 @@ export type Database = {
           cta_text: string
           cta_url: string
           description: string
+          expires_at: string | null
           features: string[] | null
           id: string
           image: string | null
@@ -71,6 +72,7 @@ export type Database = {
           cta_text?: string
           cta_url: string
           description: string
+          expires_at?: string | null
           features?: string[] | null
           id?: string
           image?: string | null
@@ -89,6 +91,7 @@ export type Database = {
           cta_text?: string
           cta_url?: string
           description?: string
+          expires_at?: string | null
           features?: string[] | null
           id?: string
           image?: string | null
