@@ -158,7 +158,10 @@ const ReviewsSection = () => {
               ))}
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold">{averageRating}</div>
+              <div className="flex items-center justify-center gap-1">
+                <span className="text-2xl font-bold">{averageRating}</span>
+                <span className="text-xs text-muted-foreground">(233 avis)</span>
+              </div>
               <div className="text-xs text-muted-foreground">Note moyenne</div>
             </div>
           </div>
