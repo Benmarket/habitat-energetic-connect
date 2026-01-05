@@ -11,7 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical, Eye, EyeOff, LayoutList, Sun, Zap, Home, Newspaper, HelpCircle, BookOpen, FileText, Calculator, MapPin, Gift, Handshake, MessageSquare, Star, Phone, Smartphone, Search, Palette, User, Settings, BarChart3, MessageCircle } from "lucide-react";
+import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical, Eye, EyeOff, LayoutList, Sun, Zap, Home, Newspaper, HelpCircle, BookOpen, FileText, Calculator, MapPin, Gift, Handshake, MessageSquare, Star, Phone, Smartphone, Search, Palette, User, Settings, BarChart3, MessageCircle, RotateCcw, Undo2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import SectionPreviewModal from "@/components/SectionPreviewModal";
 import ButtonPresetSelector from "@/components/ButtonPresetSelector";
 import ConfirmChangesModal, { ChangeItem } from "@/components/ConfirmChangesModal";
@@ -472,6 +473,33 @@ const AdminSettings = () => {
   const hasChanges = useCallback((): boolean => {
     return computeChanges().length > 0;
   }, [computeChanges]);
+
+  // Count total number of individual changes
+  const countChanges = useCallback((): number => {
+    return computeChanges().reduce((total, cat) => total + cat.changes.length, 0);
+  }, [computeChanges]);
+
+  // Reset all changes to initial values
+  const cancelAllChanges = useCallback(() => {
+    if (initialSettings) setSettings(JSON.parse(JSON.stringify(initialSettings)));
+    if (initialHeaderFooterSettings) setHeaderFooterSettings(JSON.parse(JSON.stringify(initialHeaderFooterSettings)));
+    if (initialHeroSlider) setHeroSlider(JSON.parse(JSON.stringify(initialHeroSlider)));
+    if (initialCookieBanner) setCookieBanner(JSON.parse(JSON.stringify(initialCookieBanner)));
+    if (initialHomepageSections) setHomepageSections(JSON.parse(JSON.stringify(initialHomepageSections)));
+    toast({
+      title: "Modifications annulées",
+      description: "Toutes les modifications ont été annulées",
+    });
+  }, [initialSettings, initialHeaderFooterSettings, initialHeroSlider, initialCookieBanner, initialHomepageSections, toast]);
+
+  // Reset homepage sections to default
+  const resetSectionsToDefault = useCallback(() => {
+    setHomepageSections(JSON.parse(JSON.stringify(DEFAULT_HOMEPAGE_SECTIONS)));
+    toast({
+      title: "Bandes réinitialisées",
+      description: "Les bandes ont été réinitialisées aux valeurs par défaut",
+    });
+  }, [toast]);
 
   // Load all settings on mount
   useEffect(() => {
@@ -2345,11 +2373,30 @@ const AdminSettings = () => {
                 </CardContent>
               </Card>
 
-              <div className="sticky bottom-4 z-50 flex justify-end pt-4">
+              <div className="sticky bottom-4 z-50 flex justify-end gap-2 pt-4">
+                <Button 
+                  type="button"
+                  variant="outline"
+                  onClick={resetSectionsToDefault}
+                  className="shadow-lg"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Reset bandes par défaut
+                </Button>
+                <Button 
+                  type="button"
+                  variant="secondary"
+                  onClick={cancelAllChanges}
+                  disabled={!hasChanges()}
+                  className="shadow-lg"
+                >
+                  <Undo2 className="w-4 h-4 mr-2" />
+                  Annuler
+                </Button>
                 <Button 
                   type="submit" 
                   disabled={saving || !hasChanges()} 
-                  className="shadow-lg"
+                  className="shadow-lg relative"
                 >
                   {saving ? (
                     <>
@@ -2360,6 +2407,14 @@ const AdminSettings = () => {
                     <>
                       <Save className="w-4 h-4 mr-2" />
                       Enregistrer les modifications
+                      {countChanges() > 0 && (
+                        <Badge 
+                          variant="destructive" 
+                          className="absolute -top-2 -right-2 h-5 min-w-5 flex items-center justify-center text-xs p-0 px-1"
+                        >
+                          {countChanges()}
+                        </Badge>
+                      )}
                     </>
                   )}
                 </Button>
