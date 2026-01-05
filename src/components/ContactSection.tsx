@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,6 +7,7 @@ import { Phone, Mail, MapPin, Home, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useLocation } from "react-router-dom";
 
 const contactSchemaBase = z.object({
   fullName: z.string().trim().min(2, "Le nom doit contenir au moins 2 caractères").max(100),
@@ -18,6 +19,7 @@ const contactSchemaBase = z.object({
 });
 
 const ContactSection = () => {
+  const location = useLocation();
   const [accountType, setAccountType] = useState<"particulier" | "professionnel">("particulier");
   const [formData, setFormData] = useState({
     fullName: "",
@@ -28,6 +30,17 @@ const ContactSection = () => {
     companyName: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Listen for pre-selection events from other components
+  useEffect(() => {
+    const handlePreselect = (event: CustomEvent<{ subject: string; accountType: "particulier" | "professionnel" }>) => {
+      setAccountType(event.detail.accountType);
+      setFormData(prev => ({ ...prev, subject: event.detail.subject }));
+    };
+
+    window.addEventListener('contact-preselect', handlePreselect as EventListener);
+    return () => window.removeEventListener('contact-preselect', handlePreselect as EventListener);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -255,8 +268,9 @@ const ContactSection = () => {
                       <SelectItem value="autre-question">Autre question</SelectItem>
                     </>
                   ) : (
-                    <>
+                  <>
                       <SelectItem value="demande-partenariat">Demande de partenariat</SelectItem>
+                      <SelectItem value="aide-dossier-subvention">Demande d'aide dossier de subvention</SelectItem>
                       <SelectItem value="referencement-installateur">Référencement installateur</SelectItem>
                       <SelectItem value="formation-equipes">Formation équipes</SelectItem>
                       <SelectItem value="support-technique">Support technique</SelectItem>

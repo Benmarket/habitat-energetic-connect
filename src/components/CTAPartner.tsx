@@ -2,6 +2,22 @@ import { Button } from "@/components/ui/button";
 import { Briefcase } from "lucide-react";
 
 const CTAPartner = () => {
+  const handleClick = () => {
+    // Dispatch event to preselect the subject in contact form
+    window.dispatchEvent(new CustomEvent('contact-preselect', {
+      detail: {
+        subject: 'aide-dossier-subvention',
+        accountType: 'professionnel'
+      }
+    }));
+    
+    // Navigate to contact section
+    const contactSection = document.getElementById('contact');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section id="devenir-partenaire" className="py-16 bg-green-50/50">
       <div className="container mx-auto px-4">
@@ -15,6 +31,7 @@ const CTAPartner = () => {
           <Button 
             size="lg"
             className="h-14 px-8 bg-green-600 hover:bg-green-700 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all gap-3"
+            onClick={handleClick}
           >
             <Briefcase className="w-5 h-5" />
             Devenir partenaire
