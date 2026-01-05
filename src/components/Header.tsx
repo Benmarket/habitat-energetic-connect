@@ -49,6 +49,10 @@ const Header = () => {
     installerButtonGradientAngle: 90,
     installerButtonLink: "/#etude",
     showRegionSubHeader: true,
+    memberMenuShowAccount: true,
+    memberMenuShowDashboard: true,
+    memberMenuShowEconomies: true,
+    memberMenuShowForum: true,
   });
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const { user, signOut } = useAuth();
@@ -111,6 +115,10 @@ const Header = () => {
             installerButtonGradientAngle: value.installerButtonGradientAngle ?? 90,
             installerButtonLink: value.installerButtonLink || "/#etude",
             showRegionSubHeader: value.showRegionSubHeader ?? true,
+            memberMenuShowAccount: value.memberMenuShowAccount ?? true,
+            memberMenuShowDashboard: value.memberMenuShowDashboard ?? true,
+            memberMenuShowEconomies: value.memberMenuShowEconomies ?? true,
+            memberMenuShowForum: value.memberMenuShowForum ?? true,
           });
         }
         setSettingsLoaded(true);
@@ -300,36 +308,44 @@ const Header = () => {
                       <Badge variant="outline" className="w-fit text-xs bg-emerald-50 text-emerald-700 border-emerald-200 mt-1">
                         {profile?.account_type || 'particulier'}
                       </Badge>
-                      <div className="flex justify-end mt-1">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => navigate("/profil")}
-                          className="flex items-center gap-1.5 text-xs h-auto py-1 px-2"
-                        >
-                          <Settings className="h-3.5 w-3.5 text-muted-foreground" />
-                          <span className="text-muted-foreground">Mon compte</span>
-                        </Button>
-                      </div>
+                      {headerFooterSettings.memberMenuShowAccount && (
+                        <div className="flex justify-end mt-1">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => navigate("/profil")}
+                            className="flex items-center gap-1.5 text-xs h-auto py-1 px-2"
+                          >
+                            <Settings className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="text-muted-foreground">Mon compte</span>
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
                   <DropdownMenuSeparator />
                   
-                  <DropdownMenuItem onClick={() => navigate("/dashboard")} className="cursor-pointer py-2.5">
-                    <Home className="mr-3 h-4 w-4 text-muted-foreground" />
-                    <span>Tableau de bord</span>
-                  </DropdownMenuItem>
+                  {headerFooterSettings.memberMenuShowDashboard && (
+                    <DropdownMenuItem onClick={() => navigate("/dashboard")} className="cursor-pointer py-2.5">
+                      <Home className="mr-3 h-4 w-4 text-muted-foreground" />
+                      <span>Tableau de bord</span>
+                    </DropdownMenuItem>
+                  )}
                   
-                  <DropdownMenuItem onClick={() => navigate("/economies")} className="cursor-pointer py-2.5">
-                    <BarChart3 className="mr-3 h-4 w-4 text-muted-foreground" />
-                    <span>Économies réalisées</span>
-                  </DropdownMenuItem>
+                  {headerFooterSettings.memberMenuShowEconomies && (
+                    <DropdownMenuItem onClick={() => navigate("/economies")} className="cursor-pointer py-2.5">
+                      <BarChart3 className="mr-3 h-4 w-4 text-muted-foreground" />
+                      <span>Économies réalisées</span>
+                    </DropdownMenuItem>
+                  )}
                   
-                  <DropdownMenuItem onClick={() => navigate("/forum")} className="cursor-pointer py-2.5">
-                    <MessageCircle className="mr-3 h-4 w-4 text-muted-foreground" />
-                    <span>Forums de discussion</span>
-                  </DropdownMenuItem>
+                  {headerFooterSettings.memberMenuShowForum && (
+                    <DropdownMenuItem onClick={() => navigate("/forum")} className="cursor-pointer py-2.5">
+                      <MessageCircle className="mr-3 h-4 w-4 text-muted-foreground" />
+                      <span>Forums de discussion</span>
+                    </DropdownMenuItem>
+                  )}
                   
                   {isAdminOrAbove && (
                     <>
@@ -405,53 +421,61 @@ const Header = () => {
                         </div>
                       )}
                       
-                      <button
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          setIsUserMenuExpanded(false);
-                          navigate("/profil");
-                        }}
-                        className="flex items-center w-full py-2 px-2 rounded-md hover:bg-accent transition-colors text-left text-sm"
-                      >
-                        <Settings className="mr-3 h-4 w-4 text-muted-foreground" />
-                        <span>Mon compte</span>
-                      </button>
+                      {headerFooterSettings.memberMenuShowAccount && (
+                        <button
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            setIsUserMenuExpanded(false);
+                            navigate("/profil");
+                          }}
+                          className="flex items-center w-full py-2 px-2 rounded-md hover:bg-accent transition-colors text-left text-sm"
+                        >
+                          <Settings className="mr-3 h-4 w-4 text-muted-foreground" />
+                          <span>Mon compte</span>
+                        </button>
+                      )}
 
-                      <button
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          setIsUserMenuExpanded(false);
-                          navigate("/dashboard");
-                        }}
-                        className="flex items-center w-full py-2 px-2 rounded-md hover:bg-accent transition-colors text-left text-sm"
-                      >
-                        <Home className="mr-3 h-4 w-4 text-muted-foreground" />
-                        <span>Tableau de bord</span>
-                      </button>
+                      {headerFooterSettings.memberMenuShowDashboard && (
+                        <button
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            setIsUserMenuExpanded(false);
+                            navigate("/dashboard");
+                          }}
+                          className="flex items-center w-full py-2 px-2 rounded-md hover:bg-accent transition-colors text-left text-sm"
+                        >
+                          <Home className="mr-3 h-4 w-4 text-muted-foreground" />
+                          <span>Tableau de bord</span>
+                        </button>
+                      )}
                       
-                      <button
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          setIsUserMenuExpanded(false);
-                          navigate("/economies");
-                        }}
-                        className="flex items-center w-full py-2 px-2 rounded-md hover:bg-accent transition-colors text-left text-sm"
-                      >
-                        <BarChart3 className="mr-3 h-4 w-4 text-muted-foreground" />
-                        <span>Économies réalisées</span>
-                      </button>
+                      {headerFooterSettings.memberMenuShowEconomies && (
+                        <button
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            setIsUserMenuExpanded(false);
+                            navigate("/economies");
+                          }}
+                          className="flex items-center w-full py-2 px-2 rounded-md hover:bg-accent transition-colors text-left text-sm"
+                        >
+                          <BarChart3 className="mr-3 h-4 w-4 text-muted-foreground" />
+                          <span>Économies réalisées</span>
+                        </button>
+                      )}
                       
-                      <button
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          setIsUserMenuExpanded(false);
-                          navigate("/forum");
-                        }}
-                        className="flex items-center w-full py-2 px-2 rounded-md hover:bg-accent transition-colors text-left text-sm"
-                      >
-                        <MessageCircle className="mr-3 h-4 w-4 text-muted-foreground" />
-                        <span>Forums de discussion</span>
-                      </button>
+                      {headerFooterSettings.memberMenuShowForum && (
+                        <button
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            setIsUserMenuExpanded(false);
+                            navigate("/forum");
+                          }}
+                          className="flex items-center w-full py-2 px-2 rounded-md hover:bg-accent transition-colors text-left text-sm"
+                        >
+                          <MessageCircle className="mr-3 h-4 w-4 text-muted-foreground" />
+                          <span>Forums de discussion</span>
+                        </button>
+                      )}
                       
                       {isAdminOrAbove && (
                         <>
