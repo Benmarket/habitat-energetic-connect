@@ -534,8 +534,8 @@ const Header = () => {
         )}
       </div>
       
-      {/* Region Sub-Header - Only on homepage and if enabled */}
-      {isHomePage && headerFooterSettings.showRegionSubHeader && <RegionSubHeader isScrolled={isScrolled} />}
+      {/* Region Sub-Header - Only on homepage and if enabled (wait for settings to load) */}
+      {settingsLoaded && isHomePage && headerFooterSettings.showRegionSubHeader && <RegionSubHeader isScrolled={isScrolled} />}
       
       <AuthModal open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
     </header>
