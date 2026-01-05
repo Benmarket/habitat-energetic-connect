@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical, Eye, EyeOff, LayoutList, Sun, Zap, Home, Newspaper, HelpCircle, BookOpen, FileText, Calculator, MapPin, Gift, Handshake, MessageSquare, Star, Phone, Smartphone, Search, Palette, User, Settings, BarChart3, MessageCircle } from "lucide-react";
 import SectionPreviewModal from "@/components/SectionPreviewModal";
 import ButtonPresetSelector from "@/components/ButtonPresetSelector";
+import ConfirmChangesModal, { ChangeItem } from "@/components/ConfirmChangesModal";
 import { supabase } from "@/integrations/supabase/client";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -306,6 +307,173 @@ const AdminSettings = () => {
   const [homepageSections, setHomepageSections] = useState<HomepageSection[]>(DEFAULT_HOMEPAGE_SECTIONS);
   const [previewSection, setPreviewSection] = useState<HomepageSection | null>(null);
 
+  // Tracking initial values for change detection
+  const [initialSettings, setInitialSettings] = useState<typeof settings | null>(null);
+  const [initialHeaderFooterSettings, setInitialHeaderFooterSettings] = useState<typeof headerFooterSettings | null>(null);
+  const [initialHeroSlider, setInitialHeroSlider] = useState<typeof heroSlider | null>(null);
+  const [initialCookieBanner, setInitialCookieBanner] = useState<typeof cookieBanner | null>(null);
+  const [initialHomepageSections, setInitialHomepageSections] = useState<HomepageSection[] | null>(null);
+  
+  // Modal state
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingChanges, setPendingChanges] = useState<ChangeItem[]>([]);
+
+  // Deep compare helper
+  const deepEqual = useCallback((a: any, b: any): boolean => {
+    return JSON.stringify(a) === JSON.stringify(b);
+  }, []);
+
+  // Compute changes
+  const computeChanges = useCallback((): ChangeItem[] => {
+    const changes: ChangeItem[] = [];
+
+    // General settings changes
+    if (initialSettings) {
+      const generalChanges: string[] = [];
+      if (settings.siteName !== initialSettings.siteName) generalChanges.push("Nom du site modifié");
+      if (settings.siteDescription !== initialSettings.siteDescription) generalChanges.push("Description du site modifiée");
+      if (settings.contactEmail !== initialSettings.contactEmail) generalChanges.push("Email de contact modifié");
+      if (settings.contactPhone !== initialSettings.contactPhone) generalChanges.push("Téléphone de contact modifié");
+      if (settings.address !== initialSettings.address) generalChanges.push("Adresse modifiée");
+      if (settings.metaDescription !== initialSettings.metaDescription) generalChanges.push("Meta description modifiée");
+      if (settings.maintenanceMode !== initialSettings.maintenanceMode) {
+        generalChanges.push(settings.maintenanceMode ? "Mode maintenance activé" : "Mode maintenance désactivé");
+      }
+      if (settings.maintenanceMessage !== initialSettings.maintenanceMessage) generalChanges.push("Message de maintenance modifié");
+      if (settings.aiEnabled !== initialSettings.aiEnabled) {
+        generalChanges.push(settings.aiEnabled ? "IA activée" : "IA désactivée");
+      }
+      if (settings.aiApiUrl !== initialSettings.aiApiUrl) generalChanges.push("URL API IA modifiée");
+      if (settings.aiModel !== initialSettings.aiModel) generalChanges.push("Modèle IA modifié");
+      if (settings.aiCustomInstructions !== initialSettings.aiCustomInstructions) generalChanges.push("Instructions IA modifiées");
+      
+      if (generalChanges.length > 0) {
+        changes.push({ category: "Paramètres généraux", changes: generalChanges });
+      }
+    }
+
+    // Header/Footer changes
+    if (initialHeaderFooterSettings) {
+      const headerChanges: string[] = [];
+      if (headerFooterSettings.showPhone !== initialHeaderFooterSettings.showPhone) {
+        headerChanges.push(headerFooterSettings.showPhone ? "Téléphone affiché" : "Téléphone masqué");
+      }
+      if (headerFooterSettings.phoneNumber !== initialHeaderFooterSettings.phoneNumber) headerChanges.push("Numéro de téléphone modifié");
+      if (headerFooterSettings.showWhatsapp !== initialHeaderFooterSettings.showWhatsapp) {
+        headerChanges.push(headerFooterSettings.showWhatsapp ? "WhatsApp affiché" : "WhatsApp masqué");
+      }
+      if (headerFooterSettings.showMemberSpace !== initialHeaderFooterSettings.showMemberSpace) {
+        headerChanges.push(headerFooterSettings.showMemberSpace ? "Espace membre affiché" : "Espace membre masqué");
+      }
+      if (headerFooterSettings.showInstallerButton !== initialHeaderFooterSettings.showInstallerButton) {
+        headerChanges.push(headerFooterSettings.showInstallerButton ? "Bouton installateur affiché" : "Bouton installateur masqué");
+      }
+      if (headerFooterSettings.showRegionSubHeader !== initialHeaderFooterSettings.showRegionSubHeader) {
+        headerChanges.push(headerFooterSettings.showRegionSubHeader ? "Sous-header région affiché" : "Sous-header région masqué");
+      }
+      // Check button styling changes
+      if (!deepEqual(
+        { 
+          text: headerFooterSettings.installerButtonText,
+          color: headerFooterSettings.installerButtonColor,
+          link: headerFooterSettings.installerButtonLink
+        },
+        { 
+          text: initialHeaderFooterSettings.installerButtonText,
+          color: initialHeaderFooterSettings.installerButtonColor,
+          link: initialHeaderFooterSettings.installerButtonLink
+        }
+      )) {
+        headerChanges.push("Style du bouton installateur modifié");
+      }
+      // Check member menu changes
+      if (headerFooterSettings.memberMenuShowAccount !== initialHeaderFooterSettings.memberMenuShowAccount ||
+          headerFooterSettings.memberMenuShowDashboard !== initialHeaderFooterSettings.memberMenuShowDashboard ||
+          headerFooterSettings.memberMenuShowEconomies !== initialHeaderFooterSettings.memberMenuShowEconomies ||
+          headerFooterSettings.memberMenuShowForum !== initialHeaderFooterSettings.memberMenuShowForum) {
+        headerChanges.push("Menu espace membre modifié");
+      }
+
+      if (headerChanges.length > 0) {
+        changes.push({ category: "Header / Footer", changes: headerChanges });
+      }
+    }
+
+    // Hero Slider changes
+    if (initialHeroSlider) {
+      const sliderChanges: string[] = [];
+      if (heroSlider.enabled !== initialHeroSlider.enabled) {
+        sliderChanges.push(heroSlider.enabled ? "Slider activé" : "Slider désactivé");
+      }
+      if (heroSlider.duration !== initialHeroSlider.duration) sliderChanges.push("Durée du slider modifiée");
+      if (!deepEqual(heroSlider.images, initialHeroSlider.images)) sliderChanges.push("Images du slider modifiées");
+      if (heroSlider.overlayColor !== initialHeroSlider.overlayColor) sliderChanges.push("Couleur de superposition modifiée");
+      if (heroSlider.overlayIntensity !== initialHeroSlider.overlayIntensity) sliderChanges.push("Intensité de superposition modifiée");
+
+      if (sliderChanges.length > 0) {
+        changes.push({ category: "Slider Hero", changes: sliderChanges });
+      }
+    }
+
+    // Cookie Banner changes
+    if (initialCookieBanner) {
+      const cookieChanges: string[] = [];
+      if (cookieBanner.enabled !== initialCookieBanner.enabled) {
+        cookieChanges.push(cookieBanner.enabled ? "Bannière cookies activée" : "Bannière cookies désactivée");
+      }
+      if (cookieBanner.text !== initialCookieBanner.text) cookieChanges.push("Texte de la bannière modifié");
+      if (cookieBanner.backgroundColor !== initialCookieBanner.backgroundColor ||
+          cookieBanner.textColor !== initialCookieBanner.textColor ||
+          cookieBanner.buttonColor !== initialCookieBanner.buttonColor) {
+        cookieChanges.push("Style de la bannière modifié");
+      }
+      if (!deepEqual(cookieBanner.refuseBanner, initialCookieBanner.refuseBanner)) {
+        cookieChanges.push("Bannière de refus modifiée");
+      }
+
+      if (cookieChanges.length > 0) {
+        changes.push({ category: "Bannière Cookies", changes: cookieChanges });
+      }
+    }
+
+    // Homepage Sections changes
+    if (initialHomepageSections) {
+      const sectionChanges: string[] = [];
+      
+      // Check order changes
+      const currentOrder = homepageSections.map(s => s.id).join(',');
+      const initialOrder = initialHomepageSections.map(s => s.id).join(',');
+      if (currentOrder !== initialOrder) {
+        sectionChanges.push("Ordre des bandes modifié");
+      }
+
+      // Check visibility changes
+      const visibilityChanges: string[] = [];
+      homepageSections.forEach(section => {
+        const initial = initialHomepageSections.find(s => s.id === section.id);
+        if (initial && section.visible !== initial.visible) {
+          visibilityChanges.push(`${section.name} ${section.visible ? 'affichée' : 'masquée'}`);
+        }
+      });
+      
+      if (visibilityChanges.length > 0) {
+        sectionChanges.push(...visibilityChanges);
+      }
+
+      if (sectionChanges.length > 0) {
+        changes.push({ category: "Bandes Accueil", changes: sectionChanges });
+      }
+    }
+
+    return changes;
+  }, [settings, initialSettings, headerFooterSettings, initialHeaderFooterSettings, heroSlider, initialHeroSlider, cookieBanner, initialCookieBanner, homepageSections, initialHomepageSections, deepEqual]);
+
+  // Check if there are any changes
+  const hasChanges = useCallback((): boolean => {
+    return computeChanges().length > 0;
+  }, [computeChanges]);
+
+  // Load all settings on mount
   useEffect(() => {
     if (user) {
       loadGeneralSettings();
@@ -317,6 +485,17 @@ const AdminSettings = () => {
       loadHomepageSections();
     }
   }, [user]);
+
+  // Store initial settings state after all async loads complete
+  // We use a timeout to ensure all state updates have been applied
+  useEffect(() => {
+    if (user && initialSettings === null) {
+      const timer = setTimeout(() => {
+        setInitialSettings(JSON.parse(JSON.stringify(settings)));
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [user, settings, initialSettings]);
 
   const loadHomepageSections = async () => {
     try {
@@ -334,6 +513,9 @@ const AdminSettings = () => {
         // Combine saved sections with new defaults, then sort by order
         const mergedSections = [...savedSections, ...newDefaultSections].sort((a, b) => a.order - b.order);
         setHomepageSections(mergedSections);
+        setInitialHomepageSections(JSON.parse(JSON.stringify(mergedSections)));
+      } else {
+        setInitialHomepageSections(JSON.parse(JSON.stringify(DEFAULT_HOMEPAGE_SECTIONS)));
       }
     } catch (error) {
       console.error("Error loading homepage sections:", error);
@@ -429,7 +611,7 @@ const AdminSettings = () => {
 
       if (data?.value) {
         const value = data.value as any;
-        setHeaderFooterSettings({
+        const loadedSettings = {
           showPhone: value.showPhone ?? true,
           phoneNumber: value.phoneNumber || "0 800 123 456",
           showWhatsapp: value.showWhatsapp ?? true,
@@ -457,7 +639,9 @@ const AdminSettings = () => {
           memberMenuShowDashboard: value.memberMenuShowDashboard ?? true,
           memberMenuShowEconomies: value.memberMenuShowEconomies ?? true,
           memberMenuShowForum: value.memberMenuShowForum ?? true,
-        });
+        };
+        setHeaderFooterSettings(loadedSettings);
+        setInitialHeaderFooterSettings(JSON.parse(JSON.stringify(loadedSettings)));
       }
     } catch (error) {
       console.error("Error loading header/footer settings:", error);
@@ -481,15 +665,17 @@ const AdminSettings = () => {
         const contactPhone = data.find(s => s.key === "contact_phone");
         const address = data.find(s => s.key === "address");
 
-        setSettings(prev => ({
-          ...prev,
+        const loadedGeneral = {
           siteName: siteTitle?.value as string || "Prime Énergies",
           siteDescription: siteDescription?.value as string || "Réduisez vos factures énergétiques jusqu'à 80%",
           metaDescription: metaDescription?.value as string || "Bénéficiez d'une étude énergétique gratuite et découvrez les travaux subventionnés adaptés à votre logement.",
           contactEmail: contactEmail?.value as string || "contact@prime-energies.fr",
           contactPhone: contactPhone?.value as string || "01 23 45 67 89",
           address: address?.value as string || "123 Rue de l'Énergie, 75001 Paris",
-        }));
+        };
+
+        setSettings(prev => ({ ...prev, ...loadedGeneral }));
+        // Store initial after all settings loaded (done in a separate effect)
       }
     } catch (error) {
       console.error("Error loading general settings:", error);
@@ -557,13 +743,17 @@ const AdminSettings = () => {
 
       if (data?.value) {
         const value = data.value as any;
-        setHeroSlider({
+        const loadedSlider = {
           enabled: value.enabled || false,
           duration: value.duration || 5,
           images: Array.isArray(value.images) ? value.images : [],
           overlayColor: value.overlayColor || '#000000',
           overlayIntensity: value.overlayIntensity || 50,
-        });
+        };
+        setHeroSlider(loadedSlider);
+        setInitialHeroSlider(JSON.parse(JSON.stringify(loadedSlider)));
+      } else {
+        setInitialHeroSlider(JSON.parse(JSON.stringify(heroSlider)));
       }
     } catch (error) {
       console.error("Error loading hero slider settings:", error);
@@ -580,7 +770,7 @@ const AdminSettings = () => {
 
       if (data?.value) {
         const value = data.value as any;
-        setCookieBanner({
+        const loadedCookie = {
           enabled: value.enabled ?? true,
           text: value.text || "Nous utilisons des cookies pour améliorer votre expérience et analyser le trafic de notre site. En continuant à naviguer, vous acceptez notre utilisation des cookies.",
           backgroundColor: value.backgroundColor || '#22c55e',
@@ -599,7 +789,11 @@ const AdminSettings = () => {
             buttonColor: value.refuseBanner?.buttonColor || '#dc2626',
             buttonTextColor: value.refuseBanner?.buttonTextColor || '#ffffff',
           },
-        });
+        };
+        setCookieBanner(loadedCookie);
+        setInitialCookieBanner(JSON.parse(JSON.stringify(loadedCookie)));
+      } else {
+        setInitialCookieBanner(JSON.parse(JSON.stringify(cookieBanner)));
       }
     } catch (error) {
       console.error("Error loading cookie banner settings:", error);
@@ -743,9 +937,20 @@ const AdminSettings = () => {
     }
   }, [user, authLoading, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Handle form submit - show confirmation modal
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const changes = computeChanges();
+    if (changes.length === 0) return;
+    
+    setPendingChanges(changes);
+    setShowConfirmModal(true);
+  };
+
+  // Actual save function called after confirmation
+  const performSave = async () => {
     setSaving(true);
+    setShowConfirmModal(false);
 
     try {
       // Sauvegarder le mode maintenance avec timestamp d'activation
@@ -812,6 +1017,13 @@ const AdminSettings = () => {
       for (const result of allUpdates) {
         if (result.error) throw result.error;
       }
+
+      // Update initial values to current values after successful save
+      setInitialSettings(JSON.parse(JSON.stringify(settings)));
+      setInitialHeaderFooterSettings(JSON.parse(JSON.stringify(headerFooterSettings)));
+      setInitialHeroSlider(JSON.parse(JSON.stringify(heroSlider)));
+      setInitialCookieBanner(JSON.parse(JSON.stringify(cookieBanner)));
+      setInitialHomepageSections(JSON.parse(JSON.stringify(homepageSections)));
 
       toast({
         title: "Paramètres sauvegardés",
@@ -2134,7 +2346,11 @@ const AdminSettings = () => {
               </Card>
 
               <div className="sticky bottom-4 z-50 flex justify-end pt-4">
-                <Button type="submit" disabled={saving} className="shadow-lg">
+                <Button 
+                  type="submit" 
+                  disabled={saving || !hasChanges()} 
+                  className="shadow-lg"
+                >
                   {saving ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -2153,6 +2369,14 @@ const AdminSettings = () => {
         </main>
         <Footer />
       </div>
+
+      <ConfirmChangesModal
+        open={showConfirmModal}
+        onOpenChange={setShowConfirmModal}
+        changes={pendingChanges}
+        onConfirm={performSave}
+        isLoading={saving}
+      />
     </>
   );
 };
