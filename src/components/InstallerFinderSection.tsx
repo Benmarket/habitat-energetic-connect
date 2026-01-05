@@ -111,11 +111,12 @@ const InstallerFinderSection = () => {
           return false;
         }
 
-        // Search by city or region (text search)
+        // Search by city, region or company name (text search)
         const cityMatch = advertiser.city?.toLowerCase().includes(query);
         const regionMatch = advertiser.region?.toLowerCase().includes(query);
+        const nameMatch = advertiser.name?.toLowerCase().includes(query);
         
-        return cityMatch || regionMatch;
+        return cityMatch || regionMatch || nameMatch;
       });
 
       setResults(filteredResults as SearchResult[]);
@@ -164,10 +165,10 @@ const InstallerFinderSection = () => {
             </h3>
             <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1">
-                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder="Code postal, ville ou région..."
+                  placeholder="Nom d'entreprise, code postal, ville..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="flex-1 h-14 text-lg pl-12 pr-6"
