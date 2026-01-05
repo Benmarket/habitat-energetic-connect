@@ -134,7 +134,7 @@ const Actualites = () => {
         
         <main className="pt-20">
           {/* Hero Section */}
-          <section className="relative py-20 overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-primary/80">
+          <section className="relative py-20 overflow-hidden bg-gradient-to-br from-[hsl(210,80%,45%)] via-[hsl(215,75%,50%)] to-[hsl(220,70%,55%)]">
             {/* Background decorative elements */}
             <div className="absolute inset-0">
               <div className="absolute top-0 left-0 w-72 h-72 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2" />
