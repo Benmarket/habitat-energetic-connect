@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Check, ArrowLeft, MapPin, Mail, Globe, Tag, Building2, Clock } from "lucide-react";
 import { format, differenceInDays, isPast } from "date-fns";
 import { fr } from "date-fns/locale";
+import { getOfferUrl } from "@/utils/slugify";
 
 interface Advertisement {
   id: string;
@@ -41,7 +42,7 @@ interface Advertisement {
 }
 
 const OffrePartenaire = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id, advertiserSlug } = useParams<{ id: string; advertiserSlug: string }>();
   const [offer, setOffer] = useState<Advertisement | null>(null);
   const [otherOffers, setOtherOffers] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -410,7 +411,7 @@ const OffrePartenaire = () => {
                         asChild
                         className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white"
                       >
-                        <Link to={`/offre-partenaire/${otherOffer.id}`}>
+                        <Link to={getOfferUrl(otherOffer.advertiser.name, otherOffer.id)}>
                           Voir l'offre
                         </Link>
                       </Button>

@@ -99,7 +99,7 @@ const App = () => (
               <Route path="/admin/landing-pages" element={<AdminLandingPages />} />
               <Route path="/admin/app" element={<AdminApp />} />
               <Route path="/installer-app" element={<InstallApp />} />
-              <Route path="/offre-partenaire/:id" element={<OffrePartenaire />} />
+              <Route path="/offre-partenaire/:advertiserSlug/:id" element={<OffrePartenaire />} />
               <Route path="/landing/solaire" element={<LandingSolaire />} />
               <Route path="/landing/isolation" element={<LandingIsolation />} />
               <Route path="/landing/pompe-a-chaleur" element={<LandingPompeAChaleur />} />
