@@ -1130,8 +1130,11 @@ export type Database = {
           faq: Json | null
           featured_image: string | null
           focus_keywords: string[] | null
+          guide_template: string | null
           hide_author: boolean
           id: string
+          is_downloadable: boolean
+          is_members_only: boolean
           meta_description: string | null
           meta_title: string | null
           published_at: string | null
@@ -1155,8 +1158,11 @@ export type Database = {
           faq?: Json | null
           featured_image?: string | null
           focus_keywords?: string[] | null
+          guide_template?: string | null
           hide_author?: boolean
           id?: string
+          is_downloadable?: boolean
+          is_members_only?: boolean
           meta_description?: string | null
           meta_title?: string | null
           published_at?: string | null
@@ -1180,8 +1186,11 @@ export type Database = {
           faq?: Json | null
           featured_image?: string | null
           focus_keywords?: string[] | null
+          guide_template?: string | null
           hide_author?: boolean
           id?: string
+          is_downloadable?: boolean
+          is_members_only?: boolean
           meta_description?: string | null
           meta_title?: string | null
           published_at?: string | null
