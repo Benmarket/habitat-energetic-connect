@@ -7,8 +7,10 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Eye, Clock, Plus } from "lucide-react";
+import { MessageSquare, Eye, Clock, Plus, Loader2 } from "lucide-react";
 import * as Icons from "lucide-react";
+import { usePageMaintenance } from "@/hooks/usePageMaintenance";
+import { PageMaintenance } from "@/components/PageMaintenance";
 
 interface ForumCategory {
   id: string;
@@ -26,6 +28,7 @@ interface ForumCategory {
 const Forum = () => {
   const [categories, setCategories] = useState<ForumCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const { isUnderMaintenance, isLoading: maintenanceLoading } = usePageMaintenance('forum');
 
   useEffect(() => {
     fetchCategories();
@@ -99,6 +102,19 @@ const Forum = () => {
     if (diffInMinutes < 1440) return `Il y a ${Math.floor(diffInMinutes / 60)}h`;
     return `Il y a ${Math.floor(diffInMinutes / 1440)}j`;
   };
+
+  if (loading || maintenanceLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Show maintenance page if forum is disabled
+  if (isUnderMaintenance) {
+    return <PageMaintenance pageName="Forum de discussion" description="Le forum de discussion est actuellement en maintenance. Nous travaillons pour vous offrir une meilleure expérience. Veuillez réessayer ultérieurement." />;
+  }
 
   return (
     <>
