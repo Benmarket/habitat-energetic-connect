@@ -91,6 +91,10 @@ const CreatePost = () => {
     author_display_type: "none" as "none" | "user" | "custom" | "author",
     display_author_id: "",
     custom_author_name: "",
+    // Guide-specific fields
+    is_members_only: false,
+    guide_template: "classique" as "classique" | "premium" | "expert",
+    is_downloadable: true,
   });
   const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
   const [keywordInput, setKeywordInput] = useState("");
@@ -197,6 +201,10 @@ const CreatePost = () => {
           author_display_type: authorDisplayType,
           display_author_id: post.display_author_id || "",
           custom_author_name: "",
+          // Guide-specific fields
+          is_members_only: post.is_members_only ?? false,
+          guide_template: (post.guide_template as "classique" | "premium" | "expert") || "classique",
+          is_downloadable: post.is_downloadable ?? true,
         });
       }
     } catch (error: any) {
@@ -534,6 +542,13 @@ const CreatePost = () => {
         custom_author_name: formData.author_display_type === "custom" ? formData.custom_author_name || null : null,
       };
 
+      // Guide-specific fields
+      if (contentType === "guide") {
+        postData.is_members_only = formData.is_members_only;
+        postData.guide_template = formData.guide_template;
+        postData.is_downloadable = formData.is_downloadable;
+      }
+
       if (validatedData.excerpt) postData.excerpt = validatedData.excerpt;
       if (validatedData.featured_image) postData.featured_image = validatedData.featured_image;
       if (validatedData.meta_title) postData.meta_title = validatedData.meta_title;
@@ -752,6 +767,84 @@ const CreatePost = () => {
                     </div>
                   </div>
 
+                  {/* Guide-specific options */}
+                  {contentType === "guide" && (
+                    <div className="space-y-4 p-4 border-2 border-primary/20 rounded-lg bg-primary/5">
+                      <h3 className="font-semibold text-primary flex items-center gap-2">
+                        📚 Options du guide
+                      </h3>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="guide_template">Template du guide</Label>
+                        <Select
+                          value={formData.guide_template}
+                          onValueChange={(value: "classique" | "premium" | "expert") => 
+                            setFormData({ ...formData, guide_template: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choisir un template" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="classique">
+                              <div className="flex flex-col">
+                                <span className="font-medium">Classique</span>
+                                <span className="text-xs text-muted-foreground">Simple et épuré, avec sidebar TOC</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="premium">
+                              <div className="flex flex-col">
+                                <span className="font-medium">⭐ Premium</span>
+                                <span className="text-xs text-muted-foreground">Hero imposant, 2 colonnes, badge doré</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="expert">
+                              <div className="flex flex-col">
+                                <span className="font-medium">🎓 Expert</span>
+                                <span className="text-xs text-muted-foreground">Barre de progression, numérotation, style technique</span>
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="flex items-center space-x-3 pt-2">
+                        <Checkbox
+                          id="is_members_only"
+                          checked={formData.is_members_only}
+                          onCheckedChange={(checked) => 
+                            setFormData({ ...formData, is_members_only: checked as boolean })
+                          }
+                        />
+                        <div>
+                          <Label htmlFor="is_members_only" className="cursor-pointer font-medium">
+                            Réservé aux membres
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Le contenu sera flouté pour les visiteurs non connectés
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-3">
+                        <Checkbox
+                          id="is_downloadable"
+                          checked={formData.is_downloadable}
+                          onCheckedChange={(checked) => 
+                            setFormData({ ...formData, is_downloadable: checked as boolean })
+                          }
+                        />
+                        <div>
+                          <Label htmlFor="is_downloadable" className="cursor-pointer font-medium">
+                            Téléchargeable
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Affiche un bouton pour télécharger le guide
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="featured_image">Image à la une</Label>
                     <div className="flex gap-2">

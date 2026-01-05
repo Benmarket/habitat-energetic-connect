@@ -32,7 +32,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Lock, Unlock, BookOpen, Star, GraduationCap } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -321,6 +321,8 @@ const ManageGuides = () => {
                       <TableRow>
                         <TableHead className="w-20">Image</TableHead>
                         <TableHead>Titre</TableHead>
+                        <TableHead className="w-28">Template</TableHead>
+                        <TableHead className="w-24">Accès</TableHead>
                         <TableHead className="w-32">Catégorie</TableHead>
                         <TableHead className="w-32">Statut</TableHead>
                         <TableHead className="w-40">Date</TableHead>
@@ -346,6 +348,37 @@ const ManageGuides = () => {
                               )}
                             </TableCell>
                             <TableCell className="font-medium">{post.title}</TableCell>
+                            <TableCell>
+                              {post.guide_template === 'premium' ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                                  <Star className="w-3 h-3" />
+                                  Premium
+                                </span>
+                              ) : post.guide_template === 'expert' ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                                  <GraduationCap className="w-3 h-3" />
+                                  Expert
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                                  <BookOpen className="w-3 h-3" />
+                                  Classique
+                                </span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {post.is_members_only ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                                  <Lock className="w-3 h-3" />
+                                  Membres
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                  <Unlock className="w-3 h-3" />
+                                  Public
+                                </span>
+                              )}
+                            </TableCell>
                             <TableCell>
                               {post.post_categories?.[0]?.categories?.name || "-"}
                             </TableCell>
