@@ -31,8 +31,12 @@ const ArticleCard = ({
   hideImage = false,
   variant = "default",
 }: ArticleCardProps) => {
-  const basePath = contentType === "actualite" ? "actualites" : contentType === "guide" ? "guides" : "aides";
-  const articleUrl = `/${basePath}/${categorySlug}/${slug}`;
+  const getArticleUrl = () => {
+    if (contentType === "guide") return `/guide/${slug}`;
+    if (contentType === "aide") return `/aide/${slug}`;
+    return `/actualites/${categorySlug}/${slug}`;
+  };
+  const articleUrl = getArticleUrl();
 
   if (variant === "guide") {
     return (
