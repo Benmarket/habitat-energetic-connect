@@ -5,7 +5,7 @@ import renovationImage from "@/assets/renovation-ampleur.png";
 
 const RenovationProgramSection = () => {
   return (
-    <section className="py-6 md:py-8 lg:py-16 bg-background">
+    <section id="renovation" className="py-6 md:py-8 lg:py-16 bg-background">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center max-w-7xl mx-auto">
           {/* Left side - Image with overlay text */}
