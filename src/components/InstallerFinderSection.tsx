@@ -63,27 +63,6 @@ const InstallerFinderSection = () => {
           </CardContent>
         </Card>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-2xl mx-auto">
-          <Button
-            size="lg"
-            className="w-full sm:w-auto h-14 px-8 bg-green-600 hover:bg-green-700 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all gap-3"
-          >
-            <Search className="w-5 h-5" />
-            Trouver un installateur
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            size="lg"
-            className="w-full sm:w-auto h-14 px-8 bg-white/95 hover:bg-white border-2 border-green-600/30 hover:border-green-600 text-foreground font-semibold text-lg shadow-lg hover:shadow-xl transition-all gap-3"
-          >
-            <Link to="/actualites">
-              <Newspaper className="w-5 h-5" />
-              Lire les actualités
-            </Link>
-          </Button>
-        </div>
       </div>
     </section>
   );
