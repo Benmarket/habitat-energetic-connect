@@ -119,12 +119,12 @@ const NewsSection = () => {
     <section id="actualites" className="pt-2 md:pt-4 lg:pt-6 pb-8 md:pb-12 lg:pb-20 bg-background">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="text-center mb-8 md:mb-12">
-          <div className="inline-block w-16 h-1 bg-orange-500 mb-4"></div>
+        <div className="max-w-3xl mx-auto mb-8 md:mb-12">
+          <div className="w-16 h-1 bg-orange-500 mb-4"></div>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Actualités Énergies Renouvelables
           </h2>
-          <p className="text-sm md:text-base text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-sm md:text-base text-muted-foreground">
             Restez informés des dernières innovations, aides publiques et tendances du secteur
           </p>
         </div>
