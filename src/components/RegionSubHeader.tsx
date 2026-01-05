@@ -43,7 +43,7 @@ const RegionSubHeader = ({ isScrolled = false, onHeightChange }: RegionSubHeader
   };
 
   return (
-    <div className="bg-zinc-700 border-t border-zinc-600">
+    <div className="bg-zinc-600 border-t border-zinc-500">
       <div 
         className={`overflow-hidden transition-all duration-300 ease-in-out ${
           isCollapsed ? "max-h-0" : "max-h-32"
