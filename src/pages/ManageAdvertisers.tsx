@@ -13,8 +13,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Plus, Edit, Trash2, Building2 } from "lucide-react";
+import { Plus, Edit, Trash2, Building2, MapPin, X } from "lucide-react";
 import { Helmet } from "react-helmet";
+import { Badge } from "@/components/ui/badge";
 
 interface Advertiser {
   id: string;
@@ -25,7 +26,34 @@ interface Advertiser {
   contact_email: string | null;
   is_active: boolean;
   created_at: string;
+  postal_code: string | null;
+  city: string | null;
+  department: string | null;
+  region: string | null;
+  intervention_radius_km: number | null;
+  intervention_departments: string[] | null;
 }
+
+const REGIONS_FRANCE = [
+  "Auvergne-Rhône-Alpes",
+  "Bourgogne-Franche-Comté",
+  "Bretagne",
+  "Centre-Val de Loire",
+  "Corse",
+  "Grand Est",
+  "Hauts-de-France",
+  "Île-de-France",
+  "Normandie",
+  "Nouvelle-Aquitaine",
+  "Occitanie",
+  "Pays de la Loire",
+  "Provence-Alpes-Côte d'Azur",
+  "Guadeloupe",
+  "Martinique",
+  "Guyane",
+  "La Réunion",
+  "Mayotte"
+];
 
 const ManageAdvertisers = () => {
   const navigate = useNavigate();
@@ -34,6 +62,7 @@ const ManageAdvertisers = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingAdvertiser, setEditingAdvertiser] = useState<Advertiser | null>(null);
+  const [newDepartment, setNewDepartment] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     logo: "",
@@ -41,6 +70,12 @@ const ManageAdvertisers = () => {
     website: "",
     contact_email: "",
     is_active: true,
+    postal_code: "",
+    city: "",
+    department: "",
+    region: "",
+    intervention_radius_km: "",
+    intervention_departments: [] as string[],
   });
 
   useEffect(() => {
@@ -75,11 +110,26 @@ const ManageAdvertisers = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    const dataToSubmit = {
+      name: formData.name,
+      logo: formData.logo || null,
+      description: formData.description || null,
+      website: formData.website || null,
+      contact_email: formData.contact_email || null,
+      is_active: formData.is_active,
+      postal_code: formData.postal_code || null,
+      city: formData.city || null,
+      department: formData.department || null,
+      region: formData.region || null,
+      intervention_radius_km: formData.intervention_radius_km ? parseInt(formData.intervention_radius_km) : null,
+      intervention_departments: formData.intervention_departments.length > 0 ? formData.intervention_departments : null,
+    };
+
     try {
       if (editingAdvertiser) {
         const { error } = await supabase
           .from("advertisers")
-          .update(formData)
+          .update(dataToSubmit)
           .eq("id", editingAdvertiser.id);
 
         if (error) throw error;
@@ -87,7 +137,7 @@ const ManageAdvertisers = () => {
       } else {
         const { error } = await supabase
           .from("advertisers")
-          .insert([formData]);
+          .insert([dataToSubmit]);
 
         if (error) throw error;
         toast.success("Annonceur créé avec succès");
@@ -111,6 +161,12 @@ const ManageAdvertisers = () => {
       website: advertiser.website || "",
       contact_email: advertiser.contact_email || "",
       is_active: advertiser.is_active,
+      postal_code: advertiser.postal_code || "",
+      city: advertiser.city || "",
+      department: advertiser.department || "",
+      region: advertiser.region || "",
+      intervention_radius_km: advertiser.intervention_radius_km?.toString() || "",
+      intervention_departments: advertiser.intervention_departments || [],
     });
     setDialogOpen(true);
   };
@@ -135,6 +191,7 @@ const ManageAdvertisers = () => {
 
   const resetForm = () => {
     setEditingAdvertiser(null);
+    setNewDepartment("");
     setFormData({
       name: "",
       logo: "",
@@ -142,6 +199,29 @@ const ManageAdvertisers = () => {
       website: "",
       contact_email: "",
       is_active: true,
+      postal_code: "",
+      city: "",
+      department: "",
+      region: "",
+      intervention_radius_km: "",
+      intervention_departments: [],
+    });
+  };
+
+  const addDepartment = () => {
+    if (newDepartment && !formData.intervention_departments.includes(newDepartment)) {
+      setFormData({
+        ...formData,
+        intervention_departments: [...formData.intervention_departments, newDepartment.padStart(2, '0')]
+      });
+      setNewDepartment("");
+    }
+  };
+
+  const removeDepartment = (dept: string) => {
+    setFormData({
+      ...formData,
+      intervention_departments: formData.intervention_departments.filter(d => d !== dept)
     });
   };
 
@@ -187,59 +267,176 @@ const ManageAdvertisers = () => {
                 </DialogHeader>
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <Label htmlFor="name">Nom de l'entreprise *</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      required
-                      placeholder="Ex: SolarMax France"
-                    />
+                  {/* Informations générales */}
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg border-b pb-2">Informations générales</h3>
+                    
+                    <div>
+                      <Label htmlFor="name">Nom de l'entreprise *</Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        required
+                        placeholder="Ex: SolarMax France"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="logo">URL du logo</Label>
+                      <Input
+                        id="logo"
+                        type="url"
+                        value={formData.logo}
+                        onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
+                        placeholder="https://example.com/logo.png"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="description">Description</Label>
+                      <Textarea
+                        id="description"
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        rows={3}
+                        placeholder="Description de l'entreprise partenaire"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="website">Site web</Label>
+                      <Input
+                        id="website"
+                        type="url"
+                        value={formData.website}
+                        onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                        placeholder="https://www.example.com"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="contact_email">Email de contact</Label>
+                      <Input
+                        id="contact_email"
+                        type="email"
+                        value={formData.contact_email}
+                        onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
+                        placeholder="contact@example.com"
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <Label htmlFor="logo">URL du logo</Label>
-                    <Input
-                      id="logo"
-                      type="url"
-                      value={formData.logo}
-                      onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-                      placeholder="https://example.com/logo.png"
-                    />
-                  </div>
+                  {/* Localisation */}
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg border-b pb-2 flex items-center gap-2">
+                      <MapPin className="w-5 h-5" />
+                      Localisation & Zone d'intervention
+                    </h3>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="postal_code">Code postal (siège)</Label>
+                        <Input
+                          id="postal_code"
+                          value={formData.postal_code}
+                          onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
+                          placeholder="75008"
+                          maxLength={5}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="city">Ville</Label>
+                        <Input
+                          id="city"
+                          value={formData.city}
+                          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                          placeholder="Paris"
+                        />
+                      </div>
+                    </div>
 
-                  <div>
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      rows={3}
-                      placeholder="Description de l'entreprise partenaire"
-                    />
-                  </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="department">Département</Label>
+                        <Input
+                          id="department"
+                          value={formData.department}
+                          onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                          placeholder="75"
+                          maxLength={3}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="region">Région</Label>
+                        <select
+                          id="region"
+                          value={formData.region}
+                          onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          <option value="">Sélectionner...</option>
+                          {REGIONS_FRANCE.map((region) => (
+                            <option key={region} value={region}>{region}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
 
-                  <div>
-                    <Label htmlFor="website">Site web</Label>
-                    <Input
-                      id="website"
-                      type="url"
-                      value={formData.website}
-                      onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                      placeholder="https://www.example.com"
-                    />
-                  </div>
+                    <div>
+                      <Label htmlFor="intervention_radius_km">Rayon d'intervention (km)</Label>
+                      <Input
+                        id="intervention_radius_km"
+                        type="number"
+                        value={formData.intervention_radius_km}
+                        onChange={(e) => setFormData({ ...formData, intervention_radius_km: e.target.value })}
+                        placeholder="100"
+                        min="0"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Optionnel : rayon autour du siège
+                      </p>
+                    </div>
 
-                  <div>
-                    <Label htmlFor="contact_email">Email de contact</Label>
-                    <Input
-                      id="contact_email"
-                      type="email"
-                      value={formData.contact_email}
-                      onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
-                      placeholder="contact@example.com"
-                    />
+                    <div>
+                      <Label>Départements couverts</Label>
+                      <div className="flex gap-2 mt-2">
+                        <Input
+                          value={newDepartment}
+                          onChange={(e) => setNewDepartment(e.target.value)}
+                          placeholder="Ex: 75, 92, 93..."
+                          maxLength={3}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              addDepartment();
+                            }
+                          }}
+                        />
+                        <Button type="button" variant="outline" onClick={addDepartment}>
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      {formData.intervention_departments.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {formData.intervention_departments.map((dept) => (
+                            <Badge key={dept} variant="secondary" className="gap-1">
+                              {dept}
+                              <button
+                                type="button"
+                                onClick={() => removeDepartment(dept)}
+                                className="ml-1 hover:text-destructive"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Liste des départements où l'installateur intervient
+                      </p>
+                    </div>
                   </div>
 
                   <div className="flex items-center space-x-2">
@@ -282,8 +479,8 @@ const ManageAdvertisers = () => {
                   <TableRow>
                     <TableHead>Logo</TableHead>
                     <TableHead>Nom</TableHead>
-                    <TableHead>Site web</TableHead>
-                    <TableHead>Email</TableHead>
+                    <TableHead>Localisation</TableHead>
+                    <TableHead>Zone d'intervention</TableHead>
                     <TableHead>Statut</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -306,20 +503,37 @@ const ManageAdvertisers = () => {
                       </TableCell>
                       <TableCell className="font-medium">{advertiser.name}</TableCell>
                       <TableCell>
-                        {advertiser.website ? (
-                          <a 
-                            href={advertiser.website} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline"
-                          >
-                            Visiter
-                          </a>
+                        {advertiser.city ? (
+                          <div className="text-sm">
+                            <div className="font-medium">{advertiser.city}</div>
+                            <div className="text-muted-foreground text-xs">
+                              {advertiser.postal_code} - {advertiser.region}
+                            </div>
+                          </div>
                         ) : (
-                          "-"
+                          <span className="text-muted-foreground">-</span>
                         )}
                       </TableCell>
-                      <TableCell>{advertiser.contact_email || "-"}</TableCell>
+                      <TableCell>
+                        {advertiser.intervention_departments && advertiser.intervention_departments.length > 0 ? (
+                          <div className="flex flex-wrap gap-1 max-w-[200px]">
+                            {advertiser.intervention_departments.slice(0, 5).map((dept) => (
+                              <Badge key={dept} variant="outline" className="text-xs">
+                                {dept}
+                              </Badge>
+                            ))}
+                            {advertiser.intervention_departments.length > 5 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{advertiser.intervention_departments.length - 5}
+                              </Badge>
+                            )}
+                          </div>
+                        ) : advertiser.intervention_radius_km ? (
+                          <span className="text-sm">{advertiser.intervention_radius_km} km</span>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           advertiser.is_active 
