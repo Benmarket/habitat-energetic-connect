@@ -71,19 +71,34 @@ const Index = () => {
   useEffect(() => {
     const loadSections = async () => {
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("site_settings")
           .select("value")
           .eq("key", "homepage_sections")
           .maybeSingle();
 
-        if (data?.value) {
+        if (error) {
+          console.error("Error fetching homepage sections:", error);
+          return;
+        }
+
+        if (data?.value && Array.isArray(data.value)) {
           const savedSections = data.value as unknown as HomepageSection[];
-          // Start with saved sections and add any new default sections that don't exist
+          // Use saved sections with their visibility and order
+          // Add any new default sections that don't exist yet
           const savedIds = savedSections.map(s => s.id);
           const newDefaultSections = DEFAULT_SECTIONS.filter(d => !savedIds.includes(d.id));
-          // Combine saved sections with new defaults, then sort by order
-          const mergedSections = [...savedSections, ...newDefaultSections].sort((a, b) => a.order - b.order);
+          
+          // Merge and sort by saved order
+          const mergedSections = [...savedSections, ...newDefaultSections]
+            .map(section => ({
+              ...section,
+              // Ensure visible is properly cast to boolean
+              visible: Boolean(section.visible),
+              order: typeof section.order === 'number' ? section.order : 0
+            }))
+            .sort((a, b) => a.order - b.order);
+          
           setSections(mergedSections);
         }
       } catch (error) {
