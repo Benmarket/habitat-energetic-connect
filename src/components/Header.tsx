@@ -73,13 +73,24 @@ const Header = () => {
     return `https://wa.me/${cleanNumber}`;
   };
 
-  // Simple scroll detection for RegionSubHeader
+  // Strict scroll detection: open ONLY at absolute top, close on any scroll
+  // Uses debounce to prevent "dancing" when header height changes
   useEffect(() => {
-    const SCROLL_THRESHOLD = 50;
+    const TOP_THRESHOLD = 5; // Must be within 5px of top to open
+    let ignoreUntil = 0;
     
     const handleScroll = () => {
-      const atTop = window.scrollY < SCROLL_THRESHOLD;
-      setIsScrolled(!atTop);
+      const now = Date.now();
+      if (now < ignoreUntil) return; // Ignore during debounce period
+      
+      const atTop = window.scrollY <= TOP_THRESHOLD;
+      
+      setIsScrolled(prev => {
+        if (prev === atTop) return prev; // No change needed
+        // State is changing - set debounce to prevent oscillation
+        ignoreUntil = now + 300;
+        return !atTop;
+      });
     };
     
     window.addEventListener('scroll', handleScroll, { passive: true });
