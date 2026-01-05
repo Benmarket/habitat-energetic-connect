@@ -105,10 +105,10 @@ const SimulatorsSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-1.5 md:gap-2 lg:gap-3 mb-4 bg-gradient-to-r from-primary/20 to-accent/20 px-4 md:px-6 lg:px-8 py-2.5 md:py-3 lg:py-4 rounded-full backdrop-blur-sm border border-primary/20 shadow-lg max-w-full">
+          <div className="inline-flex items-center gap-1.5 md:gap-2 lg:gap-3 mb-4 bg-gradient-to-r from-primary/20 to-accent/20 px-4 md:px-6 lg:px-8 py-2.5 md:py-3 lg:py-4 rounded-full backdrop-blur-sm border border-primary/20 shadow-lg max-w-full hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-default">
             <Zap className="w-4 h-4 md:w-5 md:h-5 lg:w-7 lg:h-7 text-primary animate-pulse flex-shrink-0" />
             <h2 className="text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-5xl flex items-center gap-1 flex-wrap justify-center">
-              <span className="text-blue-800 font-condensed font-semibold uppercase tracking-tight whitespace-nowrap">Simulateurs</span>
+              <span className="font-extrabold uppercase tracking-tight whitespace-nowrap bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600 bg-clip-text text-transparent">Simulateurs</span>
               <span className="text-primary font-extrabold whitespace-nowrap">Prime</span>
               <span className="text-foreground font-extrabold whitespace-nowrap">énergies</span>
             </h2>
