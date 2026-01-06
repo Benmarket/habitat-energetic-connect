@@ -45,7 +45,7 @@ const HeroSection = () => {
     phone: "",
     email: "",
     postalCode: "",
-    workType: "",
+    workType: "energie-solaire",
     acceptTerms: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -340,13 +340,13 @@ const HeroSection = () => {
                         Type de travaux <span className="text-yellow-300">*</span>
                       </Label>
                       <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
-                        <SelectTrigger className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white">
-                          <SelectValue placeholder="Panneaux photovoltaïques" />
+                        <SelectTrigger className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white [&>span]:truncate">
+                          <SelectValue placeholder="Solaire" />
                         </SelectTrigger>
                         <SelectContent className="bg-white z-50 shadow-xl">
-                          <SelectItem value="isolation">Isolation</SelectItem>
+                          <SelectItem value="energie-solaire">Solaire</SelectItem>
                           <SelectItem value="chauffage">Chauffage</SelectItem>
-                          <SelectItem value="energie-solaire">Panneaux photovoltaïques</SelectItem>
+                          <SelectItem value="isolation">Isolation</SelectItem>
                           <SelectItem value="renovation-globale">Rénovation globale</SelectItem>
                           <SelectItem value="ne-sait-pas">Ne sait pas</SelectItem>
                         </SelectContent>
@@ -389,13 +389,13 @@ const HeroSection = () => {
                         Type de travaux <span className="text-yellow-300">*</span>
                       </Label>
                       <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
-                        <SelectTrigger className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white">
-                          <SelectValue placeholder="Panneaux photovoltaïques" />
+                        <SelectTrigger className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white [&>span]:truncate">
+                          <SelectValue placeholder="Solaire" />
                         </SelectTrigger>
                         <SelectContent className="bg-white z-50 shadow-xl">
-                          <SelectItem value="isolation">Isolation</SelectItem>
+                          <SelectItem value="energie-solaire">Solaire</SelectItem>
                           <SelectItem value="chauffage">Chauffage</SelectItem>
-                          <SelectItem value="energie-solaire">Panneaux photovoltaïques</SelectItem>
+                          <SelectItem value="isolation">Isolation</SelectItem>
                           <SelectItem value="renovation-globale">Rénovation globale</SelectItem>
                           <SelectItem value="ne-sait-pas">Ne sait pas</SelectItem>
                         </SelectContent>
