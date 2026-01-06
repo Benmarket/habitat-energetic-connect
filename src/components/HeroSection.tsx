@@ -341,10 +341,10 @@ const HeroSection = () => {
                       </Label>
                       <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
                         <SelectTrigger className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white [&>span]:truncate">
-                          <SelectValue placeholder="Solaire" />
+                          <SelectValue placeholder="Panneaux photovoltaïques" />
                         </SelectTrigger>
                         <SelectContent className="bg-white z-50 shadow-xl">
-                          <SelectItem value="energie-solaire">Solaire</SelectItem>
+                          <SelectItem value="energie-solaire">Panneaux photovoltaïques</SelectItem>
                           <SelectItem value="chauffage">Chauffage</SelectItem>
                           <SelectItem value="isolation">Isolation</SelectItem>
                           <SelectItem value="renovation-globale">Rénovation globale</SelectItem>
@@ -390,10 +390,10 @@ const HeroSection = () => {
                       </Label>
                       <Select value={formData.workType} onValueChange={(value) => setFormData({ ...formData, workType: value })}>
                         <SelectTrigger className="h-11 bg-white/95 backdrop-blur border-0 shadow-md text-sm focus:ring-2 focus:ring-white/50 transition-all hover:bg-white [&>span]:truncate">
-                          <SelectValue placeholder="Solaire" />
+                          <SelectValue placeholder="Panneaux photovoltaïques" />
                         </SelectTrigger>
                         <SelectContent className="bg-white z-50 shadow-xl">
-                          <SelectItem value="energie-solaire">Solaire</SelectItem>
+                          <SelectItem value="energie-solaire">Panneaux photovoltaïques</SelectItem>
                           <SelectItem value="chauffage">Chauffage</SelectItem>
                           <SelectItem value="isolation">Isolation</SelectItem>
                           <SelectItem value="renovation-globale">Rénovation globale</SelectItem>
