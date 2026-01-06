@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,6 @@ const EligibilityFormSection = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
-  const [isTransitioning, setIsTransitioning] = useState(false);
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     propertyType: "",
@@ -57,38 +56,36 @@ const EligibilityFormSection = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Animation de transition entre étapes
-  const transitionToStep = (nextStep: number, delay = 600) => {
-    setIsTransitioning(true);
+  // Transition vers l'étape suivante avec délai pour le double bounce
+  const goToNextStep = (nextStep: number) => {
     setTimeout(() => {
       setStep(nextStep);
       setSelectedValue(null);
-      setTimeout(() => setIsTransitioning(false), 50);
-    }, delay);
+    }, 500);
   };
 
   const handlePropertyTypeSelect = (type: "maison" | "appartement") => {
     setSelectedValue(type);
     setFormData({ ...formData, propertyType: type });
-    transitionToStep(2);
+    goToNextStep(2);
   };
 
   const handleOwnerSelect = (isOwner: "oui" | "non") => {
     setSelectedValue(isOwner);
     setFormData({ ...formData, isOwner });
-    transitionToStep(3);
+    goToNextStep(3);
   };
 
   const handleHeatingSelect = (heatingSystem: "gaz" | "fuel" | "electrique" | "autres") => {
     setSelectedValue(heatingSystem);
     setFormData({ ...formData, heatingSystem });
-    transitionToStep(4);
+    goToNextStep(4);
   };
 
   const handleInstallationSelect = (installationType: "panneaux-photovoltaiques" | "chauffage" | "isolation" | "renovation" | "ne-sait-pas") => {
     setSelectedValue(installationType);
     setFormData({ ...formData, installationType });
-    transitionToStep(5);
+    goToNextStep(5);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -247,48 +244,40 @@ const EligibilityFormSection = () => {
           <Card className="p-8 shadow-lg overflow-hidden">
             {/* Étape 1 : Type de logement */}
             {step === 1 && (
-              <div className={cn(
-                "transition-all duration-300",
-                isTransitioning ? "opacity-0 translate-x-8" : "opacity-100 translate-x-0 animate-fade-in"
-              )}>
-                <div className="space-y-8">
-                  <h3 className="text-xl md:text-2xl font-semibold text-center uppercase tracking-wide">
-                    Sélectionner votre type de{" "}
-                    <span className="text-primary">logement :</span>
-                  </h3>
+              <div className="space-y-8">
+                <h3 className="text-xl md:text-2xl font-semibold text-center uppercase tracking-wide">
+                  Sélectionner votre type de{" "}
+                  <span className="text-primary">logement :</span>
+                </h3>
 
-                  <div className="grid grid-cols-2 gap-3 md:gap-6 max-w-2xl mx-auto">
-                    <SelectionButton
-                      onClick={() => handlePropertyTypeSelect("maison")}
-                      icon={Home}
-                      label="Maison"
-                      value="maison"
-                    />
-                    <SelectionButton
-                      onClick={() => handlePropertyTypeSelect("appartement")}
-                      icon={Building2}
-                      label="Appartement"
-                      value="appartement"
-                    />
-                  </div>
-
-                  <p className="text-center text-sm text-muted-foreground mt-8">
-                    Vos données sont protégées. En savoir plus sur notre{" "}
-                    <Link to="/politique-confidentialite" className="text-primary hover:underline">
-                      politique de confidentialité
-                    </Link>
-                    .
-                  </p>
+                <div className="grid grid-cols-2 gap-3 md:gap-6 max-w-2xl mx-auto">
+                  <SelectionButton
+                    onClick={() => handlePropertyTypeSelect("maison")}
+                    icon={Home}
+                    label="Maison"
+                    value="maison"
+                  />
+                  <SelectionButton
+                    onClick={() => handlePropertyTypeSelect("appartement")}
+                    icon={Building2}
+                    label="Appartement"
+                    value="appartement"
+                  />
                 </div>
+
+                <p className="text-center text-sm text-muted-foreground mt-8">
+                  Vos données sont protégées. En savoir plus sur notre{" "}
+                  <Link to="/politique-confidentialite" className="text-primary hover:underline">
+                    politique de confidentialité
+                  </Link>
+                  .
+                </p>
               </div>
             )}
 
             {/* Étape 2 : Propriétaire ou non */}
             {step === 2 && (
-              <div className={cn(
-                "space-y-8 transition-all duration-300",
-                isTransitioning ? "opacity-0 translate-x-8" : "opacity-100 translate-x-0 animate-fade-in"
-              )}>
+              <div className="space-y-8">
                 <StepHeader currentStep={2} totalSteps={5} onBack={() => setStep(1)} />
 
                 <h3 className="text-xl md:text-2xl font-semibold text-center">
@@ -314,10 +303,7 @@ const EligibilityFormSection = () => {
 
             {/* Étape 3 : Système de chauffage */}
             {step === 3 && (
-              <div className={cn(
-                "space-y-8 transition-all duration-300",
-                isTransitioning ? "opacity-0 translate-x-8" : "opacity-100 translate-x-0 animate-fade-in"
-              )}>
+              <div className="space-y-8">
                 <StepHeader currentStep={3} totalSteps={5} onBack={() => setStep(2)} />
 
                 <h3 className="text-xl md:text-2xl font-semibold text-center">
@@ -356,10 +342,7 @@ const EligibilityFormSection = () => {
 
             {/* Étape 4 : Type d'installation */}
             {step === 4 && (
-              <div className={cn(
-                "space-y-8 transition-all duration-300",
-                isTransitioning ? "opacity-0 translate-x-8" : "opacity-100 translate-x-0 animate-fade-in"
-              )}>
+              <div className="space-y-8">
                 <StepHeader currentStep={4} totalSteps={5} onBack={() => setStep(3)} />
 
                 <h3 className="text-xl md:text-2xl font-semibold text-center">
@@ -417,10 +400,7 @@ const EligibilityFormSection = () => {
 
             {/* Étape 5 : Coordonnées */}
             {step === 5 && (
-              <div className={cn(
-                "space-y-6 transition-all duration-300",
-                isTransitioning ? "opacity-0 translate-x-8" : "opacity-100 translate-x-0 animate-fade-in"
-              )}>
+              <div className="space-y-6">
                 <StepHeader currentStep={5} totalSteps={5} onBack={() => setStep(4)} />
 
                 <h3 className="text-xl font-semibold text-center mb-6">
