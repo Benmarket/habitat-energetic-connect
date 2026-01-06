@@ -332,7 +332,7 @@ const EligibilityFormSection = () => {
                   />
                   <SelectionButton
                     onClick={() => handleHeatingSelect("autres")}
-                    customIcon={<Logs className="w-8 h-8 md:w-14 md:h-14 text-primary" />}
+                    customIcon={<Logs className="w-8 h-8 md:w-14 md:h-14 text-black" />}
                     label="Autres"
                     value="autres"
                   />
@@ -387,7 +387,7 @@ const EligibilityFormSection = () => {
                     <div className="w-full max-w-[calc(50%-6px)] md:max-w-[200px]">
                       <SelectionButton
                         onClick={() => handleInstallationSelect("ne-sait-pas")}
-                        customIcon={<HelpCircle className="w-8 h-8 md:w-14 md:h-14 text-primary" />}
+                        customIcon={<HelpCircle className="w-8 h-8 md:w-14 md:h-14 text-black" />}
                         label="Je ne sais pas"
                         value="ne-sait-pas"
                         className="w-full"
