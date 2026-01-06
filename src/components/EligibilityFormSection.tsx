@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Home, Building2, Clock, KeyRound, Flame, Droplets, Zap, Logs, Sun, Thermometer, Layers, Hammer, HelpCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
@@ -42,6 +43,8 @@ const EligibilityFormSection = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [selectedValue, setSelectedValue] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     propertyType: "",
     isOwner: "",
@@ -54,24 +57,38 @@ const EligibilityFormSection = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Animation de transition entre étapes
+  const transitionToStep = (nextStep: number, delay = 600) => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setStep(nextStep);
+      setSelectedValue(null);
+      setTimeout(() => setIsTransitioning(false), 50);
+    }, delay);
+  };
+
   const handlePropertyTypeSelect = (type: "maison" | "appartement") => {
+    setSelectedValue(type);
     setFormData({ ...formData, propertyType: type });
-    setStep(2);
+    transitionToStep(2);
   };
 
   const handleOwnerSelect = (isOwner: "oui" | "non") => {
+    setSelectedValue(isOwner);
     setFormData({ ...formData, isOwner });
-    setStep(3);
+    transitionToStep(3);
   };
 
   const handleHeatingSelect = (heatingSystem: "gaz" | "fuel" | "electrique" | "autres") => {
+    setSelectedValue(heatingSystem);
     setFormData({ ...formData, heatingSystem });
-    setStep(4);
+    transitionToStep(4);
   };
 
   const handleInstallationSelect = (installationType: "panneaux-photovoltaiques" | "chauffage" | "isolation" | "renovation" | "ne-sait-pas") => {
+    setSelectedValue(installationType);
     setFormData({ ...formData, installationType });
-    setStep(5);
+    transitionToStep(5);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -146,39 +163,52 @@ const EligibilityFormSection = () => {
     return ((step - 1) / 4) * 100;
   };
 
-  // Bouton de sélection réutilisable
+  // Bouton de sélection réutilisable avec animations
   const SelectionButton = ({ 
     onClick, 
     icon: Icon, 
     customIcon,
     label,
+    value,
     className = ""
   }: { 
     onClick: () => void; 
     icon?: React.ElementType; 
     customIcon?: React.ReactNode;
     label: string;
+    value?: string;
     className?: string;
-  }) => (
-    <button
-      onClick={onClick}
-      className={`group relative overflow-hidden rounded-xl border-4 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl bg-white p-4 md:p-8 ${className}`}
-    >
-      <div className="flex flex-col items-center gap-2 md:gap-4">
-        <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
-          {customIcon ? customIcon : Icon && <Icon className="w-8 h-8 md:w-14 md:h-14 text-primary" />}
+  }) => {
+    const isSelected = selectedValue === value;
+    
+    return (
+      <button
+        onClick={onClick}
+        className={cn(
+          "group relative overflow-hidden rounded-xl border-4 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl bg-white p-4 md:p-8",
+          isSelected && "animate-double-bounce border-primary shadow-[0_0_20px_rgba(34,197,94,0.5),0_0_40px_rgba(34,197,94,0.3)]",
+          className
+        )}
+      >
+        <div className="flex flex-col items-center gap-2 md:gap-4">
+          <div className={cn(
+            "w-16 h-16 md:w-24 md:h-24 flex items-center justify-center bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors",
+            isSelected && "bg-primary/30"
+          )}>
+            {customIcon ? customIcon : Icon && <Icon className="w-8 h-8 md:w-14 md:h-14 text-primary" />}
+          </div>
+          <span className="text-base md:text-xl font-bold text-primary">{label}</span>
         </div>
-        <span className="text-base md:text-xl font-bold text-primary">{label}</span>
-      </div>
-    </button>
-  );
+      </button>
+    );
+  };
 
   // En-tête avec bouton retour et indicateur d'étape
   const StepHeader = ({ currentStep, totalSteps, onBack }: { currentStep: number; totalSteps: number; onBack: () => void }) => (
     <div className="space-y-4 mb-6">
-      {/* Barre de progression */}
+      {/* Barre de progression bleue */}
       <div className="w-full">
-        <Progress value={getProgressPercentage()} className="h-2 bg-muted" />
+        <Progress value={getProgressPercentage()} className="h-2 bg-muted [&>div]:bg-blue-500" />
       </div>
       
       <div className="flex items-center justify-between">
@@ -214,41 +244,51 @@ const EligibilityFormSection = () => {
           </div>
 
           {/* Form Content */}
-          <Card className="p-8 shadow-lg">
+          <Card className="p-8 shadow-lg overflow-hidden">
             {/* Étape 1 : Type de logement */}
             {step === 1 && (
-              <div className="space-y-8">
-                <h3 className="text-xl md:text-2xl font-semibold text-center uppercase tracking-wide">
-                  Sélectionner votre type de{" "}
-                  <span className="text-primary">logement :</span>
-                </h3>
+              <div className={cn(
+                "transition-all duration-300",
+                isTransitioning ? "opacity-0 translate-x-8" : "opacity-100 translate-x-0 animate-fade-in"
+              )}>
+                <div className="space-y-8">
+                  <h3 className="text-xl md:text-2xl font-semibold text-center uppercase tracking-wide">
+                    Sélectionner votre type de{" "}
+                    <span className="text-primary">logement :</span>
+                  </h3>
 
-                <div className="grid grid-cols-2 gap-3 md:gap-6 max-w-2xl mx-auto">
-                  <SelectionButton
-                    onClick={() => handlePropertyTypeSelect("maison")}
-                    icon={Home}
-                    label="Maison"
-                  />
-                  <SelectionButton
-                    onClick={() => handlePropertyTypeSelect("appartement")}
-                    icon={Building2}
-                    label="Appartement"
-                  />
+                  <div className="grid grid-cols-2 gap-3 md:gap-6 max-w-2xl mx-auto">
+                    <SelectionButton
+                      onClick={() => handlePropertyTypeSelect("maison")}
+                      icon={Home}
+                      label="Maison"
+                      value="maison"
+                    />
+                    <SelectionButton
+                      onClick={() => handlePropertyTypeSelect("appartement")}
+                      icon={Building2}
+                      label="Appartement"
+                      value="appartement"
+                    />
+                  </div>
+
+                  <p className="text-center text-sm text-muted-foreground mt-8">
+                    Vos données sont protégées. En savoir plus sur notre{" "}
+                    <Link to="/politique-confidentialite" className="text-primary hover:underline">
+                      politique de confidentialité
+                    </Link>
+                    .
+                  </p>
                 </div>
-
-                <p className="text-center text-sm text-muted-foreground mt-8">
-                  Vos données sont protégées. En savoir plus sur notre{" "}
-                  <Link to="/politique-confidentialite" className="text-primary hover:underline">
-                    politique de confidentialité
-                  </Link>
-                  .
-                </p>
               </div>
             )}
 
             {/* Étape 2 : Propriétaire ou non */}
             {step === 2 && (
-              <div className="space-y-8">
+              <div className={cn(
+                "space-y-8 transition-all duration-300",
+                isTransitioning ? "opacity-0 translate-x-8" : "opacity-100 translate-x-0 animate-fade-in"
+              )}>
                 <StepHeader currentStep={2} totalSteps={5} onBack={() => setStep(1)} />
 
                 <h3 className="text-xl md:text-2xl font-semibold text-center">
@@ -260,11 +300,13 @@ const EligibilityFormSection = () => {
                     onClick={() => handleOwnerSelect("oui")}
                     icon={KeyRound}
                     label="Oui"
+                    value="oui"
                   />
                   <SelectionButton
                     onClick={() => handleOwnerSelect("non")}
                     customIcon={<KeyCrossedIcon className="w-8 h-8 md:w-14 md:h-14 text-primary" />}
                     label="Non"
+                    value="non"
                   />
                 </div>
               </div>
@@ -272,7 +314,10 @@ const EligibilityFormSection = () => {
 
             {/* Étape 3 : Système de chauffage */}
             {step === 3 && (
-              <div className="space-y-8">
+              <div className={cn(
+                "space-y-8 transition-all duration-300",
+                isTransitioning ? "opacity-0 translate-x-8" : "opacity-100 translate-x-0 animate-fade-in"
+              )}>
                 <StepHeader currentStep={3} totalSteps={5} onBack={() => setStep(2)} />
 
                 <h3 className="text-xl md:text-2xl font-semibold text-center">
@@ -285,21 +330,25 @@ const EligibilityFormSection = () => {
                     onClick={() => handleHeatingSelect("gaz")}
                     icon={Flame}
                     label="Gaz"
+                    value="gaz"
                   />
                   <SelectionButton
                     onClick={() => handleHeatingSelect("fuel")}
                     icon={Droplets}
                     label="Fuel"
+                    value="fuel"
                   />
                   <SelectionButton
                     onClick={() => handleHeatingSelect("electrique")}
                     icon={Zap}
                     label="Électrique"
+                    value="electrique"
                   />
                   <SelectionButton
                     onClick={() => handleHeatingSelect("autres")}
                     icon={Logs}
                     label="Autres"
+                    value="autres"
                   />
                 </div>
               </div>
@@ -307,7 +356,10 @@ const EligibilityFormSection = () => {
 
             {/* Étape 4 : Type d'installation */}
             {step === 4 && (
-              <div className="space-y-8">
+              <div className={cn(
+                "space-y-8 transition-all duration-300",
+                isTransitioning ? "opacity-0 translate-x-8" : "opacity-100 translate-x-0 animate-fade-in"
+              )}>
                 <StepHeader currentStep={4} totalSteps={5} onBack={() => setStep(3)} />
 
                 <h3 className="text-xl md:text-2xl font-semibold text-center">
@@ -320,26 +372,31 @@ const EligibilityFormSection = () => {
                     onClick={() => handleInstallationSelect("panneaux-photovoltaiques")}
                     icon={Sun}
                     label="Panneaux solaires"
+                    value="panneaux-photovoltaiques"
                   />
                   <SelectionButton
                     onClick={() => handleInstallationSelect("chauffage")}
                     icon={Thermometer}
                     label="Chauffage"
+                    value="chauffage"
                   />
                   <SelectionButton
                     onClick={() => handleInstallationSelect("isolation")}
                     icon={Layers}
                     label="Isolation"
+                    value="isolation"
                   />
                   <SelectionButton
                     onClick={() => handleInstallationSelect("renovation")}
                     icon={Hammer}
                     label="Rénovation globale"
+                    value="renovation"
                   />
                   <SelectionButton
                     onClick={() => handleInstallationSelect("ne-sait-pas")}
                     icon={HelpCircle}
                     label="Je ne sais pas"
+                    value="ne-sait-pas"
                     className="md:col-start-2"
                   />
                 </div>
@@ -348,7 +405,10 @@ const EligibilityFormSection = () => {
 
             {/* Étape 5 : Coordonnées */}
             {step === 5 && (
-              <div className="space-y-6">
+              <div className={cn(
+                "space-y-6 transition-all duration-300",
+                isTransitioning ? "opacity-0 translate-x-8" : "opacity-100 translate-x-0 animate-fade-in"
+              )}>
                 <StepHeader currentStep={5} totalSteps={5} onBack={() => setStep(4)} />
 
                 <h3 className="text-xl font-semibold text-center mb-6">
