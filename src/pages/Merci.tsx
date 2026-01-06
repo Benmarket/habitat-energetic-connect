@@ -25,34 +25,49 @@ const Merci = () => {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       
-      <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/30">
+      <div className="min-h-screen flex flex-col bg-background">
         <Header />
         
-        <main className="flex-1 flex items-center justify-center py-12 px-4">
-          <div className="w-full max-w-2xl">
-            {/* Success Icon avec animation */}
-            <div className="text-center mb-8">
-              <div className="relative inline-flex">
-                <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center animate-pulse">
-                  <CheckCircle2 className="w-14 h-14 text-primary" />
-                </div>
-                <Sparkles className="w-6 h-6 text-amber-500 absolute -top-1 -right-1 animate-bounce" />
-              </div>
-            </div>
-
+        <main className="flex-1 py-12 px-4">
+          <div className="w-full max-w-3xl mx-auto">
             {/* Message principal personnalisé */}
-            <div className="text-center mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                {firstName ? `Merci ${firstName} !` : "Merci !"}
+            <div className="text-center mb-6">
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+                Merci !
               </h1>
               <p className="text-lg text-muted-foreground">
                 Votre demande a bien été enregistrée avec succès.
               </p>
             </div>
 
+            {/* Vidéo avec icône de validation */}
+            <div className="relative mb-8">
+              <div className="relative rounded-xl overflow-hidden shadow-lg">
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="w-full aspect-video object-cover"
+                >
+                  <source src="/videos/post-lead-confirmation.mp4" type="video/mp4" />
+                </video>
+              </div>
+              
+              {/* Icône de validation animée en haut à droite de la vidéo */}
+              <div className="absolute -top-3 -right-3 md:-top-4 md:-right-4">
+                <div className="relative">
+                  <div className="w-14 h-14 md:w-16 md:h-16 bg-primary rounded-full flex items-center justify-center shadow-lg animate-scale-in">
+                    <CheckCircle2 className="w-8 h-8 md:w-10 md:h-10 text-primary-foreground" />
+                  </div>
+                  <Sparkles className="w-5 h-5 text-amber-400 absolute -top-1 -right-1 animate-bounce" />
+                </div>
+              </div>
+            </div>
+
             {/* Carte avec infos de l'offre (si provient d'une annonce) */}
             {isFromOffer && (
-              <Card className="mb-8 border-primary/20 bg-primary/5">
+              <Card className="mb-6 border-primary/20 bg-primary/5">
                 <CardContent className="pt-6">
                   <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-primary" />
