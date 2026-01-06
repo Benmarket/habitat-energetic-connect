@@ -354,6 +354,7 @@ const AdminSettings = () => {
       if (settings.aiApiUrl !== initialSettings.aiApiUrl) generalChanges.push("URL API IA modifiée");
       if (settings.aiModel !== initialSettings.aiModel) generalChanges.push("Modèle IA modifié");
       if (settings.aiCustomInstructions !== initialSettings.aiCustomInstructions) generalChanges.push("Instructions IA modifiées");
+      if (settings.reviewsLink !== initialSettings.reviewsLink) generalChanges.push("Lien des avis Google modifié");
       
       if (generalChanges.length > 0) {
         changes.push({ category: "Paramètres généraux", changes: generalChanges });
