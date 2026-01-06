@@ -4,7 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Home, Building2, Clock, Key, KeyRound, Flame, Droplets, Zap, TreePine, Sun, Thermometer, Layers, Hammer, HelpCircle } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Home, Building2, Clock, KeyRound, Flame, Droplets, Zap, Logs, Sun, Thermometer, Layers, Hammer, HelpCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
@@ -19,6 +20,27 @@ const formSchema = z.object({
   email: z.string().trim().email("Email invalide"),
   postalCode: z.string().trim().min(5, "Code postal invalide"),
 });
+
+// Composant icône clé barrée pour "Non propriétaire"
+const KeyCrossedIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    {/* Clé */}
+    <path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4" />
+    <path d="m21 2-9.6 9.6" />
+    <circle cx="7.5" cy="15.5" r="5.5" />
+    {/* Barre diagonale */}
+    <line x1="3" y1="3" x2="21" y2="21" strokeWidth="2.5" />
+  </svg>
+);
 
 const EligibilityFormSection = () => {
   const { toast } = useToast();
@@ -121,15 +143,24 @@ const EligibilityFormSection = () => {
     }
   };
 
+  // Calculer le pourcentage de progression (étapes 2-5)
+  const getProgressPercentage = () => {
+    if (step === 1) return 0;
+    // Étape 2 = 25%, Étape 3 = 50%, Étape 4 = 75%, Étape 5 = 100%
+    return ((step - 1) / 4) * 100;
+  };
+
   // Bouton de sélection réutilisable
   const SelectionButton = ({ 
     onClick, 
     icon: Icon, 
+    customIcon,
     label,
     className = ""
   }: { 
     onClick: () => void; 
-    icon: React.ElementType; 
+    icon?: React.ElementType; 
+    customIcon?: React.ReactNode;
     label: string;
     className?: string;
   }) => (
@@ -139,7 +170,7 @@ const EligibilityFormSection = () => {
     >
       <div className="flex flex-col items-center gap-2 md:gap-4">
         <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
-          <Icon className="w-8 h-8 md:w-14 md:h-14 text-primary" />
+          {customIcon ? customIcon : Icon && <Icon className="w-8 h-8 md:w-14 md:h-14 text-primary" />}
         </div>
         <span className="text-base md:text-xl font-bold text-primary">{label}</span>
       </div>
@@ -148,18 +179,25 @@ const EligibilityFormSection = () => {
 
   // En-tête avec bouton retour et indicateur d'étape
   const StepHeader = ({ currentStep, totalSteps, onBack }: { currentStep: number; totalSteps: number; onBack: () => void }) => (
-    <div className="flex items-center justify-between mb-6">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onBack}
-        type="button"
-      >
-        ← Retour
-      </Button>
-      <span className="text-sm text-muted-foreground">
-        Étape <span className="font-semibold text-primary">{currentStep}</span> / {totalSteps}
-      </span>
+    <div className="space-y-4 mb-6">
+      {/* Barre de progression */}
+      <div className="w-full">
+        <Progress value={getProgressPercentage()} className="h-2 bg-muted" />
+      </div>
+      
+      <div className="flex items-center justify-between">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onBack}
+          type="button"
+        >
+          ← Retour
+        </Button>
+        <span className="text-sm text-muted-foreground">
+          Étape <span className="font-semibold text-primary">{currentStep}</span> / {totalSteps}
+        </span>
+      </div>
     </div>
   );
 
@@ -224,12 +262,12 @@ const EligibilityFormSection = () => {
                 <div className="grid grid-cols-2 gap-3 md:gap-6 max-w-2xl mx-auto">
                   <SelectionButton
                     onClick={() => handleOwnerSelect("oui")}
-                    icon={Key}
+                    icon={KeyRound}
                     label="Oui"
                   />
                   <SelectionButton
                     onClick={() => handleOwnerSelect("non")}
-                    icon={KeyRound}
+                    customIcon={<KeyCrossedIcon className="w-8 h-8 md:w-14 md:h-14 text-primary" />}
                     label="Non"
                   />
                 </div>
@@ -264,14 +302,10 @@ const EligibilityFormSection = () => {
                   />
                   <SelectionButton
                     onClick={() => handleHeatingSelect("autres")}
-                    icon={TreePine}
+                    icon={Logs}
                     label="Autres"
                   />
                 </div>
-
-                <p className="text-center text-xs text-muted-foreground">
-                  (Bois, pellets, pompe à chaleur...)
-                </p>
               </div>
             )}
 
