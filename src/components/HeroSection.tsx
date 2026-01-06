@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +30,7 @@ const formSchema = z.object({
 
 const HeroSection = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [sliderSettings, setSliderSettings] = useState<HeroSliderSettings>({
     enabled: false,
     duration: 5,
@@ -137,19 +139,7 @@ const HeroSection = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Demande envoyée !",
-        description: "Nous vous contacterons dans les plus brefs délais.",
-      });
-
-      setFormData({
-        fullName: "",
-        phone: "",
-        email: "",
-        postalCode: "",
-        workType: "",
-        acceptTerms: false,
-      });
+      navigate("/merci");
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,6 +56,7 @@ export default function LeadOfferModal({
   offerData,
 }: LeadOfferModalProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -105,18 +107,9 @@ export default function LeadOfferModal({
 
       if (submitError) throw submitError;
 
-      setIsSuccess(true);
-      toast({
-        title: "Demande envoyée !",
-        description: "Vous serez recontacté très prochainement.",
-      });
-
-      // Reset and close after delay
-      setTimeout(() => {
-        reset();
-        setIsSuccess(false);
-        onClose();
-      }, 2000);
+      reset();
+      onClose();
+      navigate("/merci");
     } catch (error) {
       console.error("Error submitting lead:", error);
       toast({

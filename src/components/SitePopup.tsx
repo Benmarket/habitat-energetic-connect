@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { X, Mail, Sparkles, CheckCircle2, FileText } from "lucide-react";
@@ -54,6 +54,7 @@ type FormConfig = {
 
 export default function SitePopup() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [formData, setFormData] = useState<Record<string, string>>({});
@@ -290,9 +291,8 @@ export default function SitePopup() {
 
         if (error) throw error;
         
-        setIsSuccess(true);
-        toast.success("Merci ! Votre demande a bien été envoyée.");
-        setTimeout(handleClose, 2000);
+        handleClose();
+        navigate("/merci");
       }
     } catch (error) {
       console.error("Submission error:", error);
