@@ -13,10 +13,23 @@ const Merci = () => {
   const name = searchParams.get("name");
   const offerTitle = searchParams.get("offer");
   const advertiserName = searchParams.get("partner");
+  const workType = searchParams.get("workType");
   const isFromOffer = offerTitle && advertiserName;
 
-  // Extraire le prénom du nom complet
-  const firstName = name ? name.split(" ")[0] : null;
+  // Mapper les types de travaux vers des libellés lisibles
+  const workTypeLabels: Record<string, string> = {
+    "energie-solaire": "Panneaux photovoltaïques",
+    "chauffage": "Chauffage",
+    "isolation": "Isolation",
+    "renovation-globale": "Rénovation globale",
+    "autre": "Autre projet",
+  };
+
+  // Déterminer le libellé de l'offre demandée
+  const displayOffer = offerTitle || (workType ? workTypeLabels[workType] : null);
+
+  // Afficher le nom complet seulement s'il est valide (non vide, pas de placeholder)
+  const displayName = name && name.trim().length > 0 ? name.trim() : null;
 
   return (
     <>
@@ -33,7 +46,7 @@ const Merci = () => {
             {/* Message principal */}
             <div className="text-center mb-4">
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
-                Merci !
+                Merci{displayName ? ` ${displayName}` : ""} !
               </h1>
               <p className="text-base text-muted-foreground">
                 Votre demande a bien été enregistrée avec succès.
@@ -67,8 +80,8 @@ const Merci = () => {
               </div>
             </div>
 
-            {/* Carte avec infos de l'offre (si provient d'une annonce) */}
-            {isFromOffer && (
+            {/* Carte avec infos de l'offre (si provient d'une annonce ou si type de travaux renseigné) */}
+            {(isFromOffer || displayOffer) && (
               <Card className="mb-4 border-primary/20 bg-primary/5">
                 <CardContent className="py-4">
                   <h2 className="font-semibold text-base mb-3 flex items-center gap-2">
@@ -76,14 +89,16 @@ const Merci = () => {
                     Récapitulatif de votre demande
                   </h2>
                   <div className="space-y-2 text-sm">
-                    <div className="flex justify-between items-center py-1.5 border-b border-border/50">
+                    <div className={`flex justify-between items-center py-1.5 ${advertiserName ? 'border-b border-border/50' : ''}`}>
                       <span className="text-muted-foreground">Offre demandée</span>
-                      <span className="font-medium text-foreground">{offerTitle}</span>
+                      <span className="font-medium text-foreground">{displayOffer}</span>
                     </div>
-                    <div className="flex justify-between items-center py-1.5">
-                      <span className="text-muted-foreground">Partenaire</span>
-                      <span className="font-medium text-foreground">{advertiserName}</span>
-                    </div>
+                    {advertiserName && (
+                      <div className="flex justify-between items-center py-1.5">
+                        <span className="text-muted-foreground">Partenaire</span>
+                        <span className="font-medium text-foreground">{advertiserName}</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
