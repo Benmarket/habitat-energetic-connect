@@ -292,7 +292,12 @@ export default function SitePopup() {
         if (error) throw error;
         
         handleClose();
-        navigate("/merci");
+        
+        // Récupérer le nom depuis le formData (fullName, nom, ou name)
+        const userName = formData.fullName || formData.nom || formData.name || "";
+        const params = new URLSearchParams();
+        if (userName) params.set("name", userName);
+        navigate(`/merci${params.toString() ? `?${params.toString()}` : ""}`);
       }
     } catch (error) {
       console.error("Submission error:", error);

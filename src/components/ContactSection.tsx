@@ -81,7 +81,9 @@ const ContactSection = () => {
 
       if (error) throw error;
 
-      navigate("/merci");
+      // Rediriger avec le nom pour personnaliser
+      const params = new URLSearchParams({ name: formData.fullName });
+      navigate(`/merci?${params.toString()}`);
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);

@@ -66,7 +66,9 @@ const EligibilityFormSection = () => {
 
       if (error) throw error;
 
-      navigate("/merci");
+      // Rediriger avec le nom pour personnaliser
+      const params = new URLSearchParams({ name: validated.fullName });
+      navigate(`/merci?${params.toString()}`);
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({

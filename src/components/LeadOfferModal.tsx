@@ -109,7 +109,14 @@ export default function LeadOfferModal({
 
       reset();
       onClose();
-      navigate("/merci");
+      
+      // Rediriger avec paramètres personnalisés
+      const params = new URLSearchParams({
+        name: data.fullName,
+        offer: offerData.offerTitle,
+        partner: offerData.advertiserName,
+      });
+      navigate(`/merci?${params.toString()}`);
     } catch (error) {
       console.error("Error submitting lead:", error);
       toast({
