@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +8,6 @@ import { Home, Building2, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
-import { Link } from "react-router-dom";
 
 const formSchema = z.object({
   propertyType: z.enum(["maison", "appartement"]),
@@ -19,6 +19,7 @@ const formSchema = z.object({
 
 const EligibilityFormSection = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     propertyType: "",
@@ -65,20 +66,7 @@ const EligibilityFormSection = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Demande envoyée !",
-        description: "Nous analyserons votre éligibilité et vous contacterons rapidement.",
-      });
-
-      // Réinitialiser
-      setFormData({
-        propertyType: "",
-        fullName: "",
-        phone: "",
-        email: "",
-        postalCode: "",
-      });
-      setStep(1);
+      navigate("/merci");
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({

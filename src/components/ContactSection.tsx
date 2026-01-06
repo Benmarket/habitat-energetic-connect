@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,7 +8,6 @@ import { Phone, Mail, MapPin, Home, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useLocation } from "react-router-dom";
 
 const contactSchemaBase = z.object({
   fullName: z.string().trim().min(2, "Le nom doit contenir au moins 2 caractères").max(100),
@@ -20,6 +20,7 @@ const contactSchemaBase = z.object({
 
 const ContactSection = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [accountType, setAccountType] = useState<"particulier" | "professionnel">("particulier");
   const [formData, setFormData] = useState({
     fullName: "",
@@ -80,19 +81,7 @@ const ContactSection = () => {
 
       if (error) throw error;
 
-      toast.success("Message envoyé avec succès !", {
-        description: "Notre équipe vous contactera sous 24h",
-      });
-
-      // Reset form
-      setFormData({
-        fullName: "",
-        email: "",
-        phone: "",
-        subject: "",
-        message: "",
-        companyName: "",
-      });
+      navigate("/merci");
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);
