@@ -381,20 +381,22 @@ const ArticleDetail = () => {
               />
               <div className="absolute inset-0 z-20 flex items-end">
                 <div className="container mx-auto px-4 pb-12">
-                  <Link 
-                    to={`/${basePath}`}
-                    className="inline-flex items-center gap-2 text-white/90 hover:text-white mb-4 transition-colors"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    Retour aux {basePath}
-                  </Link>
-                  {category && (
-                    <Link to={`/${basePath}?category=${category.slug}`} className="inline-block mb-4 mt-4">
-                      <Badge variant="secondary" className="bg-primary text-primary-foreground rounded-full px-4 py-1 cursor-pointer hover:bg-primary/90 transition-colors">
-                        {category.name}
-                      </Badge>
+                  <div className="flex flex-col items-start gap-4 mb-4">
+                    <Link 
+                      to={`/${basePath}`}
+                      className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      Retour aux {basePath}
                     </Link>
-                  )}
+                    {category && (
+                      <Link to={`/${basePath}?category=${category.slug}`}>
+                        <Badge variant="secondary" className="bg-primary text-primary-foreground rounded-full px-4 py-1 cursor-pointer hover:bg-primary/90 transition-colors">
+                          {category.name}
+                        </Badge>
+                      </Link>
+                    )}
+                  </div>
                   <h1 className="text-3xl lg:text-5xl font-bold text-white mb-4 max-w-4xl">
                     {article.title}
                   </h1>
