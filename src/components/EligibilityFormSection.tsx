@@ -328,25 +328,25 @@ const EligibilityFormSection = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-3xl mx-auto">
                   <SelectionButton
                     onClick={() => handleHeatingSelect("gaz")}
-                    icon={Flame}
+                    customIcon={<Flame className="w-8 h-8 md:w-14 md:h-14 text-gray-500" />}
                     label="Gaz"
                     value="gaz"
                   />
                   <SelectionButton
                     onClick={() => handleHeatingSelect("fuel")}
-                    icon={Droplets}
+                    customIcon={<Droplets className="w-8 h-8 md:w-14 md:h-14 text-red-500" />}
                     label="Fuel"
                     value="fuel"
                   />
                   <SelectionButton
                     onClick={() => handleHeatingSelect("electrique")}
-                    icon={Zap}
+                    customIcon={<Zap className="w-8 h-8 md:w-14 md:h-14 text-yellow-500" />}
                     label="Électrique"
                     value="electrique"
                   />
                   <SelectionButton
                     onClick={() => handleHeatingSelect("autres")}
-                    icon={Logs}
+                    customIcon={<Logs className="w-8 h-8 md:w-14 md:h-14 text-primary" />}
                     label="Autres"
                     value="autres"
                   />
