@@ -21,25 +21,21 @@ const formSchema = z.object({
   postalCode: z.string().trim().min(5, "Code postal invalide"),
 });
 
-// Composant icône clé barrée pour "Non propriétaire"
+// Composant icône clé barrée pour "Non propriétaire" - même clé que KeyRound avec barre
 const KeyCrossedIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    {/* Clé */}
-    <path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4" />
-    <path d="m21 2-9.6 9.6" />
-    <circle cx="7.5" cy="15.5" r="5.5" />
-    {/* Barre diagonale */}
-    <line x1="3" y1="3" x2="21" y2="21" strokeWidth="2.5" />
-  </svg>
+  <div className="relative">
+    <KeyRound className={className} />
+    <svg 
+      className={`absolute inset-0 ${className}`}
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2.5" 
+      strokeLinecap="round"
+    >
+      <line x1="4" y1="4" x2="20" y2="20" />
+    </svg>
+  </div>
 );
 
 const EligibilityFormSection = () => {
