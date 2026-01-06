@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, CheckCircle2 } from "lucide-react";
+import { Loader2, CheckCircle2, Lightbulb, Calculator, Zap, ArrowRight } from "lucide-react";
 
 const Aides = () => {
   const [searchParams] = useSearchParams();
@@ -197,11 +197,17 @@ const Aides = () => {
             </div>
           </section>
 
-          <section className="py-12">
-            <div className="container mx-auto px-4">
+          <section className="py-12 bg-gradient-to-b from-blue-50/50 via-background to-background dark:from-blue-950/20 dark:via-background dark:to-background relative overflow-hidden">
+            {/* Decorative elements */}
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute top-20 right-10 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl" />
+              <div className="absolute bottom-20 left-10 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl" />
+            </div>
+            
+            <div className="container mx-auto px-4 relative z-10">
               {loading ? (
                 <div className="flex justify-center items-center py-20">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
                 </div>
               ) : posts.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
@@ -209,37 +215,74 @@ const Aides = () => {
                 </div>
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {posts.map((post) => {
+                  {posts.map((post, index) => {
                     const conditions = extractConditions(post.content);
                     const amount = extractAmount(post.content);
+                    const iconMap: { [key: number]: any } = { 0: Lightbulb, 1: Calculator, 2: Zap };
+                    const Icon = iconMap[index % 3] || Lightbulb;
+                    const category = post.post_categories?.[0]?.categories;
 
                     return (
-                      <Card key={post.id} className="hover:shadow-lg transition-shadow">
-                        <CardHeader>
-                          <CardTitle className="text-xl mb-2">{post.title}</CardTitle>
-                          <CardDescription className="text-base">
+                      <Card 
+                        key={post.id} 
+                        className="group hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 hover:scale-105 hover:-translate-y-1 h-full flex flex-col border-2 border-blue-500/20 hover:border-blue-500/40 overflow-hidden bg-card/80 backdrop-blur-sm"
+                      >
+                        <CardHeader className="flex-shrink-0 pb-3">
+                          <div className="flex items-start gap-3 mb-3">
+                            <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-600/20 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                              <Icon className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <CardTitle className="text-base md:text-lg mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors font-bold leading-tight">
+                                {post.title}
+                              </CardTitle>
+                              {category && (
+                                <div className="mb-1.5">
+                                  <Badge
+                                    variant="outline"
+                                    className="text-[10px] bg-blue-500/10 text-blue-700 border-blue-500/30 font-semibold px-2 py-0.5"
+                                  >
+                                    {category.name}
+                                  </Badge>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <CardDescription className="text-xs md:text-sm line-clamp-2 leading-snug">
                             {post.excerpt}
                           </CardDescription>
                         </CardHeader>
-                        <CardContent>
-                          <Badge variant="secondary" className="mb-4 text-sm px-4 py-2 bg-primary/10 text-primary border-primary/20">
-                            <CheckCircle2 className="w-4 h-4 mr-2" />
-                            {amount}
-                          </Badge>
+                        <CardContent className="flex-grow flex flex-col justify-between pt-2 pb-4">
+                          <div>
+                            <Badge
+                              variant="secondary"
+                              className="mb-3 text-xs px-3 py-1 bg-blue-500/10 text-blue-700 border-blue-500/20"
+                            >
+                              <CheckCircle2 className="w-3 h-3 mr-1.5" />
+                              <span className="line-clamp-1">{amount}</span>
+                            </Badge>
 
-                          <div className="space-y-2 mb-4">
-                            <p className="text-sm font-semibold text-foreground">Conditions :</p>
-                            {conditions.map((condition, idx) => (
-                              <div key={idx} className="flex items-start gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                                <span className="text-sm text-muted-foreground">{condition}</span>
-                              </div>
-                            ))}
+                            <div className="space-y-1.5 mb-4">
+                              <p className="text-xs font-semibold text-foreground">Conditions :</p>
+                              {conditions.slice(0, 3).map((condition, idx) => (
+                                <div key={idx} className="flex items-start gap-1.5">
+                                  <CheckCircle2 className="w-3 h-3 text-blue-600 mt-0.5 flex-shrink-0" />
+                                  <span className="text-xs text-muted-foreground line-clamp-1 leading-tight">
+                                    {condition}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
 
-                          <Link to={`/aide/${post.slug}`}>
-                            <Button variant="outline" className="w-full">
+                          <Link to={`/aide/${post.slug}`} className="mt-auto">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full border-blue-500/30 text-blue-700 hover:bg-blue-600 hover:text-white font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30 text-xs"
+                            >
                               En savoir plus
+                              <ArrowRight className="w-3 h-3 ml-2 inline group-hover:translate-x-1 transition-transform" />
                             </Button>
                           </Link>
                         </CardContent>
