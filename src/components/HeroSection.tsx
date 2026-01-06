@@ -139,8 +139,11 @@ const HeroSection = () => {
 
       if (error) throw error;
 
-      // Rediriger avec le nom pour personnaliser
-      const params = new URLSearchParams({ name: validated.fullName });
+      // Rediriger avec le nom et le type de travaux pour personnaliser
+      const params = new URLSearchParams({ 
+        name: validated.fullName,
+        workType: validated.workType 
+      });
       navigate(`/merci?${params.toString()}`);
     } catch (error) {
       if (error instanceof z.ZodError) {
