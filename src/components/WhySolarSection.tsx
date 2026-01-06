@@ -56,7 +56,7 @@ const WhySolarSection = () => {
                 <CarouselItem key={index} className="md:basis-1/2">
                   <div className="flex flex-col items-center text-center px-4">
                     {/* Image Circle */}
-                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-muted flex items-center justify-center mb-6 overflow-hidden">
+                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-muted flex items-center justify-center mb-6 overflow-hidden transition-transform duration-300 hover:scale-110">
                       <img 
                         src={benefit.image} 
                         alt={benefit.title}
@@ -91,7 +91,7 @@ const WhySolarSection = () => {
           {benefits.map((benefit, index) => (
             <div key={index} className="flex flex-col items-center text-center">
               {/* Image Circle */}
-              <div className="w-40 h-40 rounded-full bg-muted flex items-center justify-center mb-6 overflow-hidden">
+              <div className="w-40 h-40 rounded-full bg-muted flex items-center justify-center mb-6 overflow-hidden transition-transform duration-300 hover:scale-110 cursor-pointer">
                 <img 
                   src={benefit.image} 
                   alt={benefit.title}
