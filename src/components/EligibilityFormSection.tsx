@@ -4,13 +4,16 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Home, Building2, Clock } from "lucide-react";
+import { Home, Building2, Clock, Key, KeyRound, Flame, Droplets, Zap, TreePine, Sun, Thermometer, Layers, Hammer, HelpCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 
 const formSchema = z.object({
   propertyType: z.enum(["maison", "appartement"]),
+  isOwner: z.enum(["oui", "non"]),
+  heatingSystem: z.enum(["gaz", "fuel", "electrique", "autres"]),
+  installationType: z.enum(["panneaux-photovoltaiques", "chauffage", "isolation", "renovation", "ne-sait-pas"]),
   fullName: z.string().trim().min(1, "Le nom complet est requis"),
   phone: z.string().trim().min(10, "Téléphone invalide"),
   email: z.string().trim().email("Email invalide"),
@@ -23,6 +26,9 @@ const EligibilityFormSection = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     propertyType: "",
+    isOwner: "",
+    heatingSystem: "",
+    installationType: "",
     fullName: "",
     phone: "",
     email: "",
@@ -33,6 +39,21 @@ const EligibilityFormSection = () => {
   const handlePropertyTypeSelect = (type: "maison" | "appartement") => {
     setFormData({ ...formData, propertyType: type });
     setStep(2);
+  };
+
+  const handleOwnerSelect = (isOwner: "oui" | "non") => {
+    setFormData({ ...formData, isOwner });
+    setStep(3);
+  };
+
+  const handleHeatingSelect = (heatingSystem: "gaz" | "fuel" | "electrique" | "autres") => {
+    setFormData({ ...formData, heatingSystem });
+    setStep(4);
+  };
+
+  const handleInstallationSelect = (installationType: "panneaux-photovoltaiques" | "chauffage" | "isolation" | "renovation" | "ne-sait-pas") => {
+    setFormData({ ...formData, installationType });
+    setStep(5);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,8 +87,20 @@ const EligibilityFormSection = () => {
 
       if (error) throw error;
 
-      // Rediriger avec le nom pour personnaliser
-      const params = new URLSearchParams({ name: validated.fullName });
+      // Mapper le type d'installation vers le workType de la page Merci
+      const workTypeMap: Record<string, string> = {
+        "panneaux-photovoltaiques": "energie-solaire",
+        "chauffage": "chauffage",
+        "isolation": "isolation",
+        "renovation": "renovation-globale",
+        "ne-sait-pas": "autre",
+      };
+
+      // Rediriger avec le nom et le type de travaux
+      const params = new URLSearchParams({ 
+        name: validated.fullName,
+        workType: workTypeMap[validated.installationType] || "autre"
+      });
       navigate(`/merci?${params.toString()}`);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -88,6 +121,48 @@ const EligibilityFormSection = () => {
     }
   };
 
+  // Bouton de sélection réutilisable
+  const SelectionButton = ({ 
+    onClick, 
+    icon: Icon, 
+    label,
+    className = ""
+  }: { 
+    onClick: () => void; 
+    icon: React.ElementType; 
+    label: string;
+    className?: string;
+  }) => (
+    <button
+      onClick={onClick}
+      className={`group relative overflow-hidden rounded-xl border-4 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl bg-white p-4 md:p-8 ${className}`}
+    >
+      <div className="flex flex-col items-center gap-2 md:gap-4">
+        <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
+          <Icon className="w-8 h-8 md:w-14 md:h-14 text-primary" />
+        </div>
+        <span className="text-base md:text-xl font-bold text-primary">{label}</span>
+      </div>
+    </button>
+  );
+
+  // En-tête avec bouton retour et indicateur d'étape
+  const StepHeader = ({ currentStep, totalSteps, onBack }: { currentStep: number; totalSteps: number; onBack: () => void }) => (
+    <div className="flex items-center justify-between mb-6">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onBack}
+        type="button"
+      >
+        ← Retour
+      </Button>
+      <span className="text-sm text-muted-foreground">
+        Étape <span className="font-semibold text-primary">{currentStep}</span> / {totalSteps}
+      </span>
+    </div>
+  );
+
   return (
     <section id="etude" className="pt-16 pb-8 bg-gradient-to-b from-background to-muted/20">
       <div className="container mx-auto px-4">
@@ -106,6 +181,7 @@ const EligibilityFormSection = () => {
 
           {/* Form Content */}
           <Card className="p-8 shadow-lg">
+            {/* Étape 1 : Type de logement */}
             {step === 1 && (
               <div className="space-y-8">
                 <h3 className="text-xl md:text-2xl font-semibold text-center uppercase tracking-wide">
@@ -114,31 +190,16 @@ const EligibilityFormSection = () => {
                 </h3>
 
                 <div className="grid grid-cols-2 gap-3 md:gap-6 max-w-2xl mx-auto">
-                  {/* Maison Card */}
-                  <button
+                  <SelectionButton
                     onClick={() => handlePropertyTypeSelect("maison")}
-                    className="group relative overflow-hidden rounded-xl border-4 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl bg-white p-4 md:p-8"
-                  >
-                    <div className="flex flex-col items-center gap-2 md:gap-4">
-                      <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
-                        <Home className="w-8 h-8 md:w-14 md:h-14 text-primary" />
-                      </div>
-                      <span className="text-lg md:text-2xl font-bold text-primary">Maison</span>
-                    </div>
-                  </button>
-
-                  {/* Appartement Card */}
-                  <button
+                    icon={Home}
+                    label="Maison"
+                  />
+                  <SelectionButton
                     onClick={() => handlePropertyTypeSelect("appartement")}
-                    className="group relative overflow-hidden rounded-xl border-4 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-xl bg-white p-4 md:p-8"
-                  >
-                    <div className="flex flex-col items-center gap-2 md:gap-4">
-                      <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
-                        <Building2 className="w-8 h-8 md:w-14 md:h-14 text-primary" />
-                      </div>
-                      <span className="text-lg md:text-2xl font-bold text-primary">Appartement</span>
-                    </div>
-                  </button>
+                    icon={Building2}
+                    label="Appartement"
+                  />
                 </div>
 
                 <p className="text-center text-sm text-muted-foreground mt-8">
@@ -151,24 +212,114 @@ const EligibilityFormSection = () => {
               </div>
             )}
 
+            {/* Étape 2 : Propriétaire ou non */}
             {step === 2 && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between mb-6">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setStep(1)}
-                    type="button"
-                  >
-                    ← Retour
-                  </Button>
-                  <span className="text-sm text-muted-foreground">
-                    Type sélectionné :{" "}
-                    <span className="font-semibold text-primary capitalize">
-                      {formData.propertyType}
-                    </span>
-                  </span>
+              <div className="space-y-8">
+                <StepHeader currentStep={2} totalSteps={5} onBack={() => setStep(1)} />
+
+                <h3 className="text-xl md:text-2xl font-semibold text-center">
+                  Êtes-vous <span className="text-primary">propriétaire</span> ?
+                </h3>
+
+                <div className="grid grid-cols-2 gap-3 md:gap-6 max-w-2xl mx-auto">
+                  <SelectionButton
+                    onClick={() => handleOwnerSelect("oui")}
+                    icon={Key}
+                    label="Oui"
+                  />
+                  <SelectionButton
+                    onClick={() => handleOwnerSelect("non")}
+                    icon={KeyRound}
+                    label="Non"
+                  />
                 </div>
+              </div>
+            )}
+
+            {/* Étape 3 : Système de chauffage */}
+            {step === 3 && (
+              <div className="space-y-8">
+                <StepHeader currentStep={3} totalSteps={5} onBack={() => setStep(2)} />
+
+                <h3 className="text-xl md:text-2xl font-semibold text-center">
+                  Quel est votre système de{" "}
+                  <span className="text-primary">chauffage actuel</span> ?
+                </h3>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-3xl mx-auto">
+                  <SelectionButton
+                    onClick={() => handleHeatingSelect("gaz")}
+                    icon={Flame}
+                    label="Gaz"
+                  />
+                  <SelectionButton
+                    onClick={() => handleHeatingSelect("fuel")}
+                    icon={Droplets}
+                    label="Fuel"
+                  />
+                  <SelectionButton
+                    onClick={() => handleHeatingSelect("electrique")}
+                    icon={Zap}
+                    label="Électrique"
+                  />
+                  <SelectionButton
+                    onClick={() => handleHeatingSelect("autres")}
+                    icon={TreePine}
+                    label="Autres"
+                  />
+                </div>
+
+                <p className="text-center text-xs text-muted-foreground">
+                  (Bois, pellets, pompe à chaleur...)
+                </p>
+              </div>
+            )}
+
+            {/* Étape 4 : Type d'installation */}
+            {step === 4 && (
+              <div className="space-y-8">
+                <StepHeader currentStep={4} totalSteps={5} onBack={() => setStep(3)} />
+
+                <h3 className="text-xl md:text-2xl font-semibold text-center">
+                  Pour quel type{" "}
+                  <span className="text-primary">d'installation</span> ?
+                </h3>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 max-w-3xl mx-auto">
+                  <SelectionButton
+                    onClick={() => handleInstallationSelect("panneaux-photovoltaiques")}
+                    icon={Sun}
+                    label="Panneaux solaires"
+                  />
+                  <SelectionButton
+                    onClick={() => handleInstallationSelect("chauffage")}
+                    icon={Thermometer}
+                    label="Chauffage"
+                  />
+                  <SelectionButton
+                    onClick={() => handleInstallationSelect("isolation")}
+                    icon={Layers}
+                    label="Isolation"
+                  />
+                  <SelectionButton
+                    onClick={() => handleInstallationSelect("renovation")}
+                    icon={Hammer}
+                    label="Rénovation globale"
+                  />
+                  <SelectionButton
+                    onClick={() => handleInstallationSelect("ne-sait-pas")}
+                    icon={HelpCircle}
+                    label="Je ne sais pas"
+                    className="md:col-start-2"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Étape 5 : Coordonnées */}
+            {step === 5 && (
+              <div className="space-y-6">
+                <StepHeader currentStep={5} totalSteps={5} onBack={() => setStep(4)} />
 
                 <h3 className="text-xl font-semibold text-center mb-6">
                   Vos coordonnées pour recevoir votre étude personnalisée
