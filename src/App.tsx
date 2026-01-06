@@ -52,6 +52,7 @@ import ForumTopic from "./pages/forum/ForumTopic";
 import NewTopic from "./pages/forum/NewTopic";
 import InstallApp from "./pages/InstallApp";
 import OffrePartenaire from "./pages/OffrePartenaire";
+import Merci from "./pages/Merci";
 
 const queryClient = new QueryClient();
 
@@ -113,6 +114,7 @@ const App = () => (
               <Route path="/mentions-legales" element={<MentionsLegales />} />
               <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
               <Route path="/conditions-utilisation" element={<ConditionsUtilisation />} />
+              <Route path="/merci" element={<Merci />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
