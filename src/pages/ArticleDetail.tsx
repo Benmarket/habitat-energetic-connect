@@ -383,13 +383,13 @@ const ArticleDetail = () => {
                 <div className="container mx-auto px-4 pb-12">
                   <Link 
                     to={`/${basePath}`}
-                    className="inline-flex items-center gap-2 text-white/90 hover:text-white mb-6 transition-colors"
+                    className="inline-flex items-center gap-2 text-white/90 hover:text-white mb-4 transition-colors"
                   >
                     <ArrowLeft className="w-4 h-4" />
                     Retour aux {basePath}
                   </Link>
                   {category && (
-                    <Link to={`/${basePath}?category=${category.slug}`} className="inline-block mb-4 mt-2">
+                    <Link to={`/${basePath}?category=${category.slug}`} className="inline-block mb-4 mt-4">
                       <Badge variant="secondary" className="bg-primary text-primary-foreground rounded-full px-4 py-1 cursor-pointer hover:bg-primary/90 transition-colors">
                         {category.name}
                       </Badge>
