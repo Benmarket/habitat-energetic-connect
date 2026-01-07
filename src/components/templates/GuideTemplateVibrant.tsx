@@ -1,9 +1,10 @@
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, Clock, ArrowLeft, Sparkles, Zap, Star } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useActiveSection } from "@/hooks/useActiveSection";
+import { transformCtaBannersInHtml } from "@/utils/contentRenderer";
 
 interface TemplateColors {
   primary: string;
@@ -53,6 +54,9 @@ export const GuideTemplateVibrant = ({
   const colors = guide.template_colors || DEFAULT_COLORS;
   const { activeId, scrollProgress, scrollToSection } = useActiveSection(toc);
   const [isLoaded, setIsLoaded] = useState(false);
+  
+  // Transformer les bandeaux CTA pour le rendu
+  const transformedContent = useMemo(() => transformCtaBannersInHtml(contentWithIds), [contentWithIds]);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -299,7 +303,7 @@ export const GuideTemplateVibrant = ({
                     '--tw-prose-headings': colors.primary,
                     '--tw-prose-bullets': colors.accent,
                   } as React.CSSProperties}
-                  dangerouslySetInnerHTML={{ __html: contentWithIds }}
+                  dangerouslySetInnerHTML={{ __html: transformedContent }}
                 />
                 
                 {isPaywalled && children}

@@ -1,10 +1,11 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, ArrowLeft, Tag, Star, Crown, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useActiveSection } from "@/hooks/useActiveSection";
+import { transformCtaBannersInHtml } from "@/utils/contentRenderer";
 
 interface GuideTemplatePremiumProps {
   guide: {
@@ -38,6 +39,9 @@ export const GuideTemplatePremium = ({
   const category = guide.post_categories?.[0]?.categories;
   const { activeId, scrollProgress, scrollToSection } = useActiveSection(toc);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  
+  // Transformer les bandeaux CTA pour le rendu
+  const transformedContent = useMemo(() => transformCtaBannersInHtml(contentWithIds), [contentWithIds]);
 
   // Track mouse for glow effect
   useEffect(() => {
@@ -201,7 +205,7 @@ export const GuideTemplatePremium = ({
                       prose-strong:text-amber-700
                       prose-li:marker:text-amber-500
                       prose-img:rounded-2xl prose-img:shadow-xl prose-img:border prose-img:border-amber-100"
-                    dangerouslySetInnerHTML={{ __html: contentWithIds }}
+                    dangerouslySetInnerHTML={{ __html: transformedContent }}
                   />
                   
                   {isPaywalled && children}

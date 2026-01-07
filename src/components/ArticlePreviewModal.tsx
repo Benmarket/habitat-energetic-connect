@@ -10,6 +10,7 @@ import { fr } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { useMemo } from 'react';
 import { addHeadingIds, extractTableOfContents } from '@/utils/tableOfContents';
+import { transformCtaBannersInHtml } from '@/utils/contentRenderer';
 import { calculateReadingTime } from '@/utils/readingTime';
 import { GuideTemplateClassique } from '@/components/templates/GuideTemplateClassique';
 import { GuideTemplateEpure } from '@/components/templates/GuideTemplateEpure';
@@ -54,10 +55,12 @@ export const ArticlePreviewModal = ({
   // Process content for guide templates
   const { contentWithIds, toc, readingTime } = useMemo(() => {
     const processedContent = addHeadingIds(content || '');
+    // Transformer les bandeaux CTA pour le rendu
+    const contentWithBanners = transformCtaBannersInHtml(processedContent);
     const tocItems = extractTableOfContents(processedContent);
     const time = calculateReadingTime(content || '');
     return {
-      contentWithIds: processedContent,
+      contentWithIds: contentWithBanners,
       toc: tocItems,
       readingTime: time,
     };
@@ -227,7 +230,7 @@ export const ArticlePreviewModal = ({
                         prose-h3:text-xl
                         prose-img:rounded-lg
                         prose-img:shadow-md"
-                      dangerouslySetInnerHTML={{ __html: content }}
+                      dangerouslySetInnerHTML={{ __html: transformCtaBannersInHtml(content) }}
                     />
                   ) : (
                     <div className="text-center py-12 text-muted-foreground">
