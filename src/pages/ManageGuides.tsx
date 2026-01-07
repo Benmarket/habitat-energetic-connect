@@ -32,7 +32,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Lock, Unlock, BookOpen, Star, GraduationCap, Download } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Lock, Unlock, BookOpen, Star, GraduationCap, Download, Sparkles, Palette, Moon } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -359,6 +359,21 @@ const ManageGuides = () => {
                                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
                                   <GraduationCap className="w-3 h-3" />
                                   Expert
+                                </span>
+                              ) : post.guide_template === 'epure' ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                  <Sparkles className="w-3 h-3" />
+                                  Épuré
+                                </span>
+                              ) : post.guide_template === 'vibrant' ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-700">
+                                  <Palette className="w-3 h-3" />
+                                  Vibrant
+                                </span>
+                              ) : post.guide_template === 'sombre' ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-100">
+                                  <Moon className="w-3 h-3" />
+                                  Sombre
                                 </span>
                               ) : (
                                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">

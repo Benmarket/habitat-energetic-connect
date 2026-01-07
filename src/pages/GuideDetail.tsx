@@ -14,6 +14,9 @@ import { PaywallOverlay } from "@/components/PaywallOverlay";
 import { GuideTemplateClassique } from "@/components/templates/GuideTemplateClassique";
 import { GuideTemplatePremium } from "@/components/templates/GuideTemplatePremium";
 import { GuideTemplateExpert } from "@/components/templates/GuideTemplateExpert";
+import { GuideTemplateEpure } from "@/components/templates/GuideTemplateEpure";
+import { GuideTemplateVibrant } from "@/components/templates/GuideTemplateVibrant";
+import { GuideTemplateSombre } from "@/components/templates/GuideTemplateSombre";
 import { calculateReadingTime } from "@/utils/readingTime";
 import { extractTableOfContents, addHeadingIds } from "@/utils/tableOfContents";
 
@@ -236,6 +239,12 @@ const GuideDetail = () => {
         return <GuideTemplatePremium {...templateProps} />;
       case 'expert':
         return <GuideTemplateExpert {...templateProps} />;
+      case 'epure':
+        return <GuideTemplateEpure {...templateProps} />;
+      case 'vibrant':
+        return <GuideTemplateVibrant {...templateProps} />;
+      case 'sombre':
+        return <GuideTemplateSombre {...templateProps} />;
       case 'classique':
       default:
         return <GuideTemplateClassique {...templateProps} />;
