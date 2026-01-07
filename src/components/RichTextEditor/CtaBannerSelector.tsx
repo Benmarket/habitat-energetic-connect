@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Waves, Box, Sparkles, Minus, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
 interface CtaBanner {
   id: string;
   name: string;
@@ -56,6 +56,11 @@ export const CtaBannerSelector = ({ open, onClose, onInsert }: CtaBannerSelector
   const [selectedBannerId, setSelectedBannerId] = useState<string>('');
   const [selectedButtonId, setSelectedButtonId] = useState<string>('');
   const [selectedPopupId, setSelectedPopupId] = useState<string>('');
+  
+  // Custom text fields
+  const [customTitle, setCustomTitle] = useState<string>('');
+  const [customSubtitle, setCustomSubtitle] = useState<string>('');
+  const [customButtonText, setCustomButtonText] = useState<string>('');
 
   useEffect(() => {
     if (open) {
@@ -109,6 +114,25 @@ export const CtaBannerSelector = ({ open, onClose, onInsert }: CtaBannerSelector
   const selectedBanner = banners.find(b => b.id === selectedBannerId);
   const selectedButton = buttons.find(b => b.id === selectedButtonId);
 
+  // Get the display text (custom or default)
+  const displayTitle = customTitle || selectedBanner?.title || '';
+  const displaySubtitle = customSubtitle || selectedBanner?.subtitle || '';
+  const displayButtonText = customButtonText || selectedButton?.text || '';
+
+  // Update custom text when banner/button changes
+  useEffect(() => {
+    if (selectedBanner) {
+      setCustomTitle(selectedBanner.title);
+      setCustomSubtitle(selectedBanner.subtitle || '');
+    }
+  }, [selectedBannerId]);
+
+  useEffect(() => {
+    if (selectedButton) {
+      setCustomButtonText(selectedButton.text);
+    }
+  }, [selectedButtonId]);
+
   const renderBannerPreview = (banner: CtaBanner) => {
     const style = banner.template_style;
     
@@ -145,11 +169,11 @@ export const CtaBannerSelector = ({ open, onClose, onInsert }: CtaBannerSelector
         style={getBackgroundStyle()}
       >
         <h4 className="text-lg font-bold mb-1" style={{ color: banner.text_color }}>
-          {banner.title}
+          {displayTitle}
         </h4>
-        {banner.subtitle && (
+        {displaySubtitle && (
           <p className="text-sm opacity-90" style={{ color: banner.text_color }}>
-            {banner.subtitle}
+            {displaySubtitle}
           </p>
         )}
         {selectedButton && (
@@ -163,7 +187,7 @@ export const CtaBannerSelector = ({ open, onClose, onInsert }: CtaBannerSelector
               borderRadius: `${selectedButton.border_radius}px`
             }}
           >
-            {selectedButton.text}
+            {displayButtonText}
           </div>
         )}
       </div>
@@ -207,9 +231,9 @@ export const CtaBannerSelector = ({ open, onClose, onInsert }: CtaBannerSelector
     const bannerHtml = `
 <div data-cta-banner="${selectedBanner.id}" class="cta-banner-wrapper my-8" style="border-radius: 12px; overflow: hidden; ${getBackgroundCss()}">
   <div style="padding: 32px; text-align: center; position: relative;">
-    <h3 style="color: ${selectedBanner.text_color}; font-size: 24px; font-weight: 700; margin-bottom: 8px;">${selectedBanner.title}</h3>
-    ${selectedBanner.subtitle ? `<p style="color: ${selectedBanner.text_color}; opacity: 0.9; margin-bottom: 16px;">${selectedBanner.subtitle}</p>` : ''}
-    <a ${hrefAttr}${popupAttr} style="display: inline-block; padding: 12px 24px; background: ${buttonBackground}; color: ${selectedButton.text_color}; font-weight: 500; border-radius: ${selectedButton.border_radius}px; text-decoration: none; cursor: pointer;">${selectedButton.text}</a>
+    <h3 style="color: ${selectedBanner.text_color}; font-size: 24px; font-weight: 700; margin-bottom: 8px;">${displayTitle}</h3>
+    ${displaySubtitle ? `<p style="color: ${selectedBanner.text_color}; opacity: 0.9; margin-bottom: 16px;">${displaySubtitle}</p>` : ''}
+    <a ${hrefAttr}${popupAttr} style="display: inline-block; padding: 12px 24px; background: ${buttonBackground}; color: ${selectedButton.text_color}; font-weight: 500; border-radius: ${selectedButton.border_radius}px; text-decoration: none; cursor: pointer;">${displayButtonText}</a>
   </div>
 </div>
     `.trim();
@@ -307,6 +331,42 @@ export const CtaBannerSelector = ({ open, onClose, onInsert }: CtaBannerSelector
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Text customization */}
+              {selectedBannerId && (
+                <div className="space-y-3 p-3 bg-muted/50 rounded-lg">
+                  <Label className="text-sm font-medium">Personnaliser le texte</Label>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Titre de la bannière</Label>
+                    <Input
+                      value={customTitle}
+                      onChange={(e) => setCustomTitle(e.target.value)}
+                      placeholder="Titre..."
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Sous-titre (optionnel)</Label>
+                    <Input
+                      value={customSubtitle}
+                      onChange={(e) => setCustomSubtitle(e.target.value)}
+                      placeholder="Sous-titre..."
+                      className="mt-1"
+                    />
+                  </div>
+                  {selectedButtonId && (
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Texte du bouton</Label>
+                      <Input
+                        value={customButtonText}
+                        onChange={(e) => setCustomButtonText(e.target.value)}
+                        placeholder="Texte du bouton..."
+                        className="mt-1"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div>
                 <Label>3. Action du bouton (optionnel)</Label>
