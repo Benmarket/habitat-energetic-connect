@@ -93,7 +93,7 @@ const CreatePost = () => {
     custom_author_name: "",
     // Guide-specific fields
     is_members_only: false,
-    guide_template: "classique" as "classique" | "premium" | "expert",
+    guide_template: "classique" as "classique" | "premium" | "expert" | "epure" | "vibrant" | "sombre",
     is_downloadable: true,
   });
   const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
@@ -203,7 +203,7 @@ const CreatePost = () => {
           custom_author_name: "",
           // Guide-specific fields
           is_members_only: post.is_members_only ?? false,
-          guide_template: (post.guide_template as "classique" | "premium" | "expert") || "classique",
+          guide_template: (post.guide_template as "classique" | "premium" | "expert" | "epure" | "vibrant" | "sombre") || "classique",
           is_downloadable: post.is_downloadable ?? true,
         });
       }
@@ -778,7 +778,7 @@ const CreatePost = () => {
                         <Label htmlFor="guide_template">Template du guide</Label>
                         <Select
                           value={formData.guide_template}
-                          onValueChange={(value: "classique" | "premium" | "expert") => 
+                          onValueChange={(value: "classique" | "premium" | "expert" | "epure" | "vibrant" | "sombre") => 
                             setFormData({ ...formData, guide_template: value })
                           }
                         >
@@ -802,6 +802,24 @@ const CreatePost = () => {
                               <div className="flex flex-col">
                                 <span className="font-medium">🎓 Expert</span>
                                 <span className="text-xs text-muted-foreground">Barre de progression, numérotation, style technique</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="epure">
+                              <div className="flex flex-col">
+                                <span className="font-medium">✨ Épuré</span>
+                                <span className="text-xs text-muted-foreground">Minimaliste, zen, beaucoup d'espace blanc</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="vibrant">
+                              <div className="flex flex-col">
+                                <span className="font-medium">🎨 Vibrant</span>
+                                <span className="text-xs text-muted-foreground">Moderne, coloré, éléments dynamiques</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="sombre">
+                              <div className="flex flex-col">
+                                <span className="font-medium">🌙 Sombre</span>
+                                <span className="text-xs text-muted-foreground">Dark mode élégant, professionnel</span>
                               </div>
                             </SelectItem>
                           </SelectContent>

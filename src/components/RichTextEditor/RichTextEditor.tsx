@@ -8,7 +8,9 @@ import { CustomButton } from './CustomButton';
 import { CustomImage } from './CustomImage';
 import { ButtonEditorModal } from './ButtonEditorModal';
 import { ImageEditorModal } from './ImageEditorModal';
+import { CtaBannerSelector } from './CtaBannerSelector';
 import { FavoriteButtonsBar } from '@/components/FavoriteButtonsBar';
+import { FavoriteCtaBannersBar } from './FavoriteCtaBannersBar';
 import { MediaLibrary } from '@/components/MediaLibrary';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -23,6 +25,7 @@ import {
   Heading3,
   Image as ImageIcon,
   MousePointerClick,
+  LayoutTemplate,
   Undo,
   Redo,
   AlignLeft,
@@ -41,6 +44,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
   const [buttonDialogOpen, setButtonDialogOpen] = useState(false);
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const [ctaBannerSelectorOpen, setCtaBannerSelectorOpen] = useState(false);
   const [editingButton, setEditingButton] = useState<any>(null);
   const [editingImage, setEditingImage] = useState<any>(null);
   const [htmlContent, setHtmlContent] = useState(content);
@@ -175,9 +179,19 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
 
   const wordCount = editor?.state.doc.textContent.split(/\s+/).filter(word => word.length > 0).length || 0;
 
+  const handleCtaBannerInsert = (bannerHtml: string) => {
+    editor?.chain().focus().insertContent(bannerHtml).run();
+  };
+
+  const handleFavoriteCtaBannerSelect = (bannerId: string) => {
+    // Ouvrir le sélecteur avec le bandeau pré-sélectionné
+    setCtaBannerSelectorOpen(true);
+  };
+
   return (
     <div className="border rounded-md">
       <FavoriteButtonsBar onSelectButton={handleFavoriteButtonSelect} />
+      <FavoriteCtaBannersBar onSelectBanner={handleFavoriteCtaBannerSelect} />
       
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <div className="flex items-center justify-between border-b px-2 py-1 bg-muted/30">
@@ -302,8 +316,18 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           variant="ghost"
           size="sm"
           onClick={handleOpenButtonDialog}
+          title="Insérer un bouton"
         >
           <MousePointerClick className="w-4 h-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => setCtaBannerSelectorOpen(true)}
+          title="Insérer un bandeau CTA"
+        >
+          <LayoutTemplate className="w-4 h-4" />
         </Button>
         
         <div className="w-px h-8 bg-border mx-1" />
@@ -381,6 +405,12 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         }}
         onSave={updateImage}
         initialAttrs={editingImage}
+      />
+
+      <CtaBannerSelector
+        open={ctaBannerSelectorOpen}
+        onClose={() => setCtaBannerSelectorOpen(false)}
+        onInsert={handleCtaBannerInsert}
       />
     </div>
   );
