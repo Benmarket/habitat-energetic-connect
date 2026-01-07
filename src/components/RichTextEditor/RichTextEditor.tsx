@@ -51,6 +51,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const [editingButton, setEditingButton] = useState<any>(null);
   const [editingImage, setEditingImage] = useState<any>(null);
   const [editingCtaBanner, setEditingCtaBanner] = useState<any>(null);
+  const [ctaBannerDraft, setCtaBannerDraft] = useState<any>(null);
   const [htmlContent, setHtmlContent] = useState(content);
   const [activeTab, setActiveTab] = useState<string>('visual');
 
@@ -112,8 +113,9 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     const handleEditCtaBanner = (event: any) => {
       // Ne pas ouvrir si le modal est déjà ouvert
       if (ctaBannerEditorOpen) return;
-      
+
       const { attrs, pos } = event.detail;
+      setCtaBannerDraft(null);
       setEditingCtaBanner({ attrs, pos });
       setCtaBannerEditorOpen(true);
     };
@@ -208,39 +210,43 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
 
   const wordCount = editor?.state.doc.textContent.split(/\s+/).filter(word => word.length > 0).length || 0;
 
+  const insertCtaBanner = (attrs: any) => {
+    if (!editor) return false;
+    return editor
+      .chain()
+      .focus()
+      .insertContent({ type: 'customCtaBanner', attrs })
+      .run();
+  };
+
   const handleCtaBannerInsert = (bannerAttrs: any) => {
-    editor?.chain().focus().setCustomCtaBanner(bannerAttrs).run();
+    insertCtaBanner(bannerAttrs);
     setCtaBannerSelectorOpen(false);
   };
 
   const handleFavoriteCtaBannerSelect = (bannerAttrs: any) => {
-    if (!editor) {
-      console.error('Editor not available');
-      return;
-    }
-    
-    // S'assurer que l'éditeur a le focus avant d'insérer
-    editor.commands.focus('end');
-    
-    // Insérer la bannière CTA
-    const success = editor.commands.insertContent({
-      type: 'customCtaBanner',
-      attrs: bannerAttrs,
-    });
-    
-    console.log('CTA Banner insert success:', success);
+    // Ouvrir le mini menu de paramétrage AVANT insertion
+    setEditingCtaBanner(null);
+    setCtaBannerDraft(bannerAttrs);
+    setCtaBannerEditorOpen(true);
   };
 
   const addCtaBanner = (config: any) => {
+    if (!editor) return;
+
     if (editingCtaBanner) {
       // Mise à jour d'une bannière existante
-      editor?.commands.setNodeSelection(editingCtaBanner.pos);
-      editor?.commands.updateCustomCtaBanner(config);
+      editor.commands.setNodeSelection(editingCtaBanner.pos);
+      // Ne modifie que l'instance dans le contenu
+      (editor.commands as any).updateCustomCtaBanner?.(config) ??
+        editor.commands.updateAttributes('customCtaBanner', config);
     } else {
       // Ajout d'une nouvelle bannière
-      editor?.chain().focus().setCustomCtaBanner(config).run();
+      insertCtaBanner(config);
     }
+
     setEditingCtaBanner(null);
+    setCtaBannerDraft(null);
     setCtaBannerEditorOpen(false);
   };
 
@@ -475,10 +481,11 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           setCtaBannerEditorOpen(open);
           if (!open) {
             setEditingCtaBanner(null);
+            setCtaBannerDraft(null);
           }
         }}
         onSave={addCtaBanner}
-        initialConfig={editingCtaBanner?.attrs}
+        initialConfig={editingCtaBanner?.attrs ?? ctaBannerDraft}
       />
     </div>
   );
