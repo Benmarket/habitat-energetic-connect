@@ -14,6 +14,7 @@ interface CtaBannerEditorModalProps {
   onOpenChange: (open: boolean) => void;
   onSave: (config: Partial<CtaBannerAttributes>) => void;
   initialConfig?: Partial<CtaBannerAttributes>;
+  isEditing?: boolean;
 }
 
 const defaultConfig: CtaBannerAttributes = {
@@ -53,6 +54,7 @@ export const CtaBannerEditorModal = ({
   onOpenChange,
   onSave,
   initialConfig,
+  isEditing = false,
 }: CtaBannerEditorModalProps) => {
   const [config, setConfig] = useState<CtaBannerAttributes>({
     ...defaultConfig,
@@ -468,7 +470,7 @@ export const CtaBannerEditorModal = ({
             onClick={handleSave}
             disabled={!config.title.trim()}
           >
-            {initialConfig ? 'Mettre à jour' : 'Insérer'}
+            {isEditing ? 'Mettre à jour' : 'Insérer'}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -486,6 +486,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         }}
         onSave={addCtaBanner}
         initialConfig={editingCtaBanner?.attrs ?? ctaBannerDraft}
+        isEditing={!!editingCtaBanner}
       />
     </div>
   );
