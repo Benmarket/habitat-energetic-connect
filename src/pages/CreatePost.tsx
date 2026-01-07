@@ -24,6 +24,7 @@ import { z } from "zod";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { MediaLibrary } from "@/components/MediaLibrary";
 import { FavoriteButtonsBar } from "@/components/FavoriteButtonsBar";
+import { GuideSectionsEditor, GuideSection } from "@/components/GuideSectionsEditor";
 
 interface Author {
   id: string;
@@ -60,6 +61,68 @@ interface Tag {
   slug: string;
 }
 
+// Helper function to parse HTML content into sections (for editing existing guides)
+const parseContentToSections = (htmlContent: string): GuideSection[] => {
+  const sections: GuideSection[] = [];
+  
+  // Regex pour trouver les sections délimitées par des h2
+  const sectionRegex = /<h2[^>]*id="([^"]*)"[^>]*>([^<]*)<\/h2>([\s\S]*?)(?=<h2|$)/gi;
+  let match;
+  let index = 0;
+  
+  while ((match = sectionRegex.exec(htmlContent)) !== null) {
+    const id = match[1] || `section-${Date.now()}-${index}`;
+    const title = match[2].trim();
+    const content = match[3].trim();
+    
+    if (title || content) {
+      sections.push({
+        id,
+        title,
+        content
+      });
+      index++;
+    }
+  }
+  
+  // Si aucune section trouvée avec des IDs, essayer sans ID
+  if (sections.length === 0) {
+    const simpleRegex = /<h2[^>]*>([^<]*)<\/h2>([\s\S]*?)(?=<h2|$)/gi;
+    while ((match = simpleRegex.exec(htmlContent)) !== null) {
+      const title = match[1].trim();
+      const content = match[2].trim();
+      
+      if (title || content) {
+        sections.push({
+          id: `section-${Date.now()}-${index}`,
+          title,
+          content
+        });
+        index++;
+      }
+    }
+  }
+  
+  return sections;
+};
+
+// Helper function to convert sections to HTML content
+const sectionsToContent = (sections: GuideSection[]): string => {
+  return sections
+    .filter(s => s.title.trim() || s.content.trim())
+    .map(section => {
+      const sectionId = section.title
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") || section.id;
+      
+      return `<h2 id="${sectionId}">${section.title}</h2>\n${section.content}`;
+    })
+    .join('\n\n');
+};
+
 const CreatePost = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -95,6 +158,8 @@ const CreatePost = () => {
     is_members_only: false,
     guide_template: "" as "" | "classique" | "premium" | "expert" | "epure" | "vibrant" | "sombre",
     is_downloadable: true,
+    // Sections pour guides
+    guide_sections: [{ id: 'section-initial', title: '', content: '' }] as GuideSection[],
   });
   const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
   const [keywordInput, setKeywordInput] = useState("");
@@ -182,6 +247,17 @@ const CreatePost = () => {
         }
         
         // Remplir le formulaire avec les données de l'article
+        // Pour les guides, parser le contenu en sections si possible
+        let guideSections: GuideSection[] = [{ id: 'section-initial', title: '', content: '' }];
+        
+        if (post.content_type === 'guide' && post.content) {
+          // Essayer de parser les sections depuis le contenu HTML
+          const parsedSections = parseContentToSections(post.content);
+          if (parsedSections.length > 0) {
+            guideSections = parsedSections;
+          }
+        }
+        
         setFormData({
           title: post.title || "",
           slug: post.slug || "",
@@ -203,8 +279,9 @@ const CreatePost = () => {
           custom_author_name: "",
           // Guide-specific fields
           is_members_only: post.is_members_only ?? false,
-          guide_template: (post.guide_template as "classique" | "premium" | "expert" | "epure" | "vibrant" | "sombre") || "classique",
+          guide_template: (post.guide_template as "classique" | "premium" | "expert" | "epure" | "vibrant" | "sombre") || "",
           is_downloadable: post.is_downloadable ?? true,
+          guide_sections: guideSections,
         });
       }
     } catch (error: any) {
@@ -361,6 +438,23 @@ const CreatePost = () => {
   const handleSelectVariant = async (variant: any) => {
     // Les images ont déjà été générées dans handleGenerateArticle
     // Il suffit maintenant de remplir tous les champs du formulaire
+    
+    // Pour les guides, parser le contenu en sections
+    let guideSections = formData.guide_sections;
+    if (contentType === 'guide' && variant.content) {
+      const parsedSections = parseContentToSections(variant.content);
+      if (parsedSections.length > 0) {
+        guideSections = parsedSections;
+      } else {
+        // Si pas de sections trouvées, mettre tout le contenu dans une seule section
+        guideSections = [{
+          id: `section-${Date.now()}`,
+          title: 'Introduction',
+          content: variant.content
+        }];
+      }
+    }
+    
     setFormData(prev => ({
       ...prev,
       title: variant.title || '',
@@ -372,7 +466,8 @@ const CreatePost = () => {
       meta_description: variant.metaDescription || variant.excerpt?.slice(0, 160) || '',
       focus_keywords: variant.focusKeywords || prev.focus_keywords,
       tldr: variant.tldr || '',
-      faq: variant.faq || []
+      faq: variant.faq || [],
+      guide_sections: contentType === 'guide' ? guideSections : prev.guide_sections
     }));
 
     toast.success("Article sélectionné ! Tous les champs ont été remplis.");
@@ -503,12 +598,34 @@ const CreatePost = () => {
     setLoading(true);
 
     try {
+      // Pour les guides, générer le contenu à partir des sections
+      const finalContent = contentType === 'guide' 
+        ? sectionsToContent(formData.guide_sections)
+        : formData.content;
+      
+      // Validation du template pour les guides
+      if (contentType === 'guide' && !formData.guide_template) {
+        toast.error("Veuillez sélectionner un template pour le guide");
+        setLoading(false);
+        return;
+      }
+      
+      // Validation des sections pour les guides
+      if (contentType === 'guide') {
+        const validSections = formData.guide_sections.filter(s => s.title.trim() || s.content.trim());
+        if (validSections.length === 0) {
+          toast.error("Veuillez ajouter au moins une section avec du contenu");
+          setLoading(false);
+          return;
+        }
+      }
+      
       // Validation
       const validatedData = postSchema.parse({
         title: formData.title,
         slug: formData.slug,
         excerpt: formData.excerpt,
-        content: formData.content,
+        content: finalContent,
         featured_image: formData.featured_image,
         meta_title: formData.meta_title,
         meta_description: formData.meta_description,
@@ -986,16 +1103,34 @@ const CreatePost = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="content">Contenu *</Label>
-                    <RichTextEditor
-                      content={formData.content}
-                      onChange={(content) => setFormData({ ...formData, content })}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Utilisez la barre d'outils pour formater votre texte, ajouter des images et des boutons personnalisés
-                    </p>
-                  </div>
+                  {/* Contenu - différent pour guides vs autres */}
+                  {contentType === "guide" ? (
+                    <div className="space-y-2">
+                      <GuideSectionsEditor
+                        sections={formData.guide_sections}
+                        onChange={(sections) => {
+                          // Mettre à jour les sections ET générer le contenu HTML combiné
+                          const combinedContent = sectionsToContent(sections);
+                          setFormData({ 
+                            ...formData, 
+                            guide_sections: sections,
+                            content: combinedContent
+                          });
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Label htmlFor="content">Contenu *</Label>
+                      <RichTextEditor
+                        content={formData.content}
+                        onChange={(content) => setFormData({ ...formData, content })}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Utilisez la barre d'outils pour formater votre texte, ajouter des images et des boutons personnalisés
+                      </p>
+                    </div>
+                  )}
 
                   <div className="space-y-2">
                     <Label htmlFor="meta_title">Titre SEO (max 60 caractères)</Label>
@@ -1316,7 +1451,7 @@ const CreatePost = () => {
           open={previewModalOpen}
           onOpenChange={setPreviewModalOpen}
           title={formData.title}
-          content={formData.content}
+          content={contentType === 'guide' ? sectionsToContent(formData.guide_sections) : formData.content}
           featuredImage={formData.featured_image}
           excerpt={formData.excerpt}
           focusKeywords={formData.focus_keywords}
