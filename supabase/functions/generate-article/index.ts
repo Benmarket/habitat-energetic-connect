@@ -6,13 +6,36 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Fonction pour mélanger un tableau (Fisher-Yates shuffle)
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+// Sélectionner N éléments aléatoires d'un tableau
+function selectRandom<T>(array: T[], count: number): T[] {
+  return shuffleArray(array).slice(0, count);
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { keywords, contentType, baseContent, additionalInstructions, customInstructions } = await req.json();
+    const { 
+      keywords, 
+      contentType, 
+      baseContent, 
+      additionalInstructions, 
+      customInstructions,
+      guideTemplate, // Nouveau: thème pour les guides
+      userId // Nouveau: pour récupérer les boutons/bandeaux de l'utilisateur
+    } = await req.json();
     
     console.log('Request received:', { 
       keywords, 
@@ -20,6 +43,8 @@ serve(async (req) => {
       hasBaseContent: !!baseContent,
       hasAdditionalInstructions: !!additionalInstructions,
       hasCustomInstructions: !!customInstructions,
+      guideTemplate,
+      userId,
       additionalInstructions: additionalInstructions?.substring(0, 100)
     });
     
@@ -50,6 +75,76 @@ serve(async (req) => {
 
     if (!enabled) {
       throw new Error('La génération d\'articles par IA est désactivée');
+    }
+
+    // Récupérer les boutons et bandeaux CTA de l'utilisateur
+    let buttonPresets: any[] = [];
+    let ctaBanners: any[] = [];
+
+    if (userId) {
+      // Récupérer les boutons
+      const buttonsResponse = await fetch(`${supabaseUrl}/rest/v1/button_presets?select=id,name,text,url,background_color,text_color&user_id=eq.${userId}`, {
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+        }
+      });
+      buttonPresets = await buttonsResponse.json();
+      console.log(`Loaded ${buttonPresets.length} button presets`);
+
+      // Récupérer les bandeaux CTA
+      const bannersResponse = await fetch(`${supabaseUrl}/rest/v1/cta_banners?select=id,name,template_style,title,subtitle,background_color,secondary_color,text_color,accent_color&user_id=eq.${userId}`, {
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+        }
+      });
+      ctaBanners = await bannersResponse.json();
+      console.log(`Loaded ${ctaBanners.length} CTA banners`);
+    }
+
+    // Sélectionner aléatoirement 3-4 boutons et 1-2 bandeaux pour variation
+    const selectedButtons = selectRandom(buttonPresets, Math.min(4, buttonPresets.length));
+    const selectedBanners = selectRandom(ctaBanners, Math.min(2, ctaBanners.length));
+
+    // Créer les instructions spécifiques pour les boutons et bandeaux
+    let ctaInstructions = '';
+    
+    if (selectedButtons.length > 0) {
+      ctaInstructions += `\n\nBOUTONS CTA DISPONIBLES (utilise ces boutons existants au lieu d'en inventer) :
+${selectedButtons.map((btn: any, i: number) => 
+  `${i + 1}. "${btn.text}" (${btn.name}) - URL: ${btn.url} - Couleur: ${btn.background_color}`
+).join('\n')}
+
+Pour insérer un bouton, utilise le format: [BUTTON:${selectedButtons[0]?.text || 'Texte'}|${selectedButtons[0]?.url || '#contact'}]
+VARIE les boutons utilisés, ne choisis pas toujours le même !`;
+    }
+
+    if (selectedBanners.length > 0) {
+      ctaInstructions += `\n\nBANDEAUX CTA DISPONIBLES (insère 1-2 bandeaux dans l'article) :
+${selectedBanners.map((banner: any, i: number) => 
+  `${i + 1}. "${banner.title}" - ${banner.subtitle || 'Sans sous-titre'} - Style: ${banner.template_style}`
+).join('\n')}
+
+Pour insérer un bandeau CTA, utilise le format: [CTA_BANNER:${selectedBanners[0]?.id}]
+Place les bandeaux de manière stratégique (après une section importante ou avant la conclusion).`;
+    }
+
+    // Instructions spécifiques pour les guides avec thème
+    let themeInstructions = '';
+    if (contentType === 'guide' && guideTemplate) {
+      const themeDescriptions: Record<string, string> = {
+        classique: "Style classique et professionnel, sobre et élégant",
+        premium: "Style premium haut de gamme avec effets visuels modernes, adapté au luxe",
+        expert: "Style technique et expert, données précises, ton professionnel",
+        epure: "Style épuré et minimaliste, focus sur le contenu, design aéré",
+        vibrant: "Style dynamique et coloré, ton enthousiaste, engageant",
+        sombre: "Style sombre et moderne, sophistiqué, effets subtils"
+      };
+      
+      themeInstructions = `\n\nTHÈME DU GUIDE: ${guideTemplate.toUpperCase()}
+${themeDescriptions[guideTemplate] || ''}
+Adapte le ton, le style d'écriture et les appels à l'action à ce thème.`;
     }
 
     const contentTypeLabels = {
@@ -119,17 +214,20 @@ IMAGES:
 - Place les images de manière stratégique dans l'article
 - Les descriptions doivent être riches et précises
 
-BOUTONS CTA:
+BOUTONS CTA ET BANDEAUX:
 - Tu DOIS inclure 2-3 boutons d'appel à l'action pertinents
-- Format: [BUTTON: Texte du bouton | #contact]
-- Utilise des textes accrocheurs: "Recevoir mon étude gratuite", "Calculer mes économies", "Profiter des aides"
+- Tu DOIS inclure 1-2 bandeaux CTA si disponibles
+- VARIE tes choix à chaque génération - ne choisis pas toujours les mêmes !
 - Place-les stratégiquement (milieu et fin d'article)
+${ctaInstructions}
 
 LONGUEUR: Minimum 1000 mots, idéalement 1200-1800 mots.
+${themeInstructions}
 
 IMPORTANT : 
 - Retourne UNIQUEMENT le HTML pur sans balises markdown, sans commentaires, sans explications
 - TOUS les boutons doivent être au format [BUTTON:Texte|URL]
+- TOUS les bandeaux doivent être au format [CTA_BANNER:ID]
 - TOUTES les images et boutons seront automatiquement CENTRÉS
 - Le HTML doit être parfaitement formaté et lisible
 - Le bloc TL;DR et la section FAQ sont OBLIGATOIRES`;
@@ -151,7 +249,8 @@ Objectifs de cet article :
 - Captiver dès le titre
 - Résoudre un problème concret
 - Inclure des images CENTRÉES avec [IMAGE: description détaillée]
-- Avoir 2-3 boutons CTA CENTRÉS stratégiques
+- Avoir 2-3 boutons CTA CENTRÉS stratégiques (VARIE les boutons !)
+- Inclure 1-2 bandeaux CTA si disponibles
 - Être optimisé SEO avec mots-clés naturels
 - Format HTML pur prêt à publier
 
@@ -165,10 +264,14 @@ STRUCTURE EXEMPLE :
 [BUTTON:Demander un devis gratuit|#contact]
 <h2>Deuxième section</h2>
 <p>Contenu...</p>
+[CTA_BANNER:id-du-bandeau]
 [BUTTON:En savoir plus|#info]
 
-IMPORTANT : Utilise UNIQUEMENT le format [BUTTON:Texte|URL] pour les boutons.
-Retourne UNIQUEMENT le HTML sans balises de code ni commentaires.`;
+IMPORTANT : 
+- Utilise UNIQUEMENT le format [BUTTON:Texte|URL] pour les boutons.
+- Utilise le format [CTA_BANNER:ID] pour les bandeaux.
+- VARIE les boutons et bandeaux utilisés !
+- Retourne UNIQUEMENT le HTML sans balises de code ni commentaires.`;
 
     // Si on a des instructions additionnelles pour régénérer une variante
     if (additionalInstructions) {
@@ -184,7 +287,9 @@ Retourne UNIQUEMENT le HTML sans balises de code ni commentaires.`;
       model, 
       keywordsCount: keywords.length,
       isRegeneration: !!(additionalInstructions && baseContent),
-      hasCustomInstructions: !!customInstructions
+      hasCustomInstructions: !!customInstructions,
+      selectedButtonsCount: selectedButtons.length,
+      selectedBannersCount: selectedBanners.length
     });
 
     // Générer les variantes
@@ -209,7 +314,7 @@ Retourne UNIQUEMENT le HTML sans balises de code ni commentaires.`;
       JSON.stringify({ 
         success: true,
         variants: variants.map((content, index) => {
-          const cleanContent = cleanHtml(content);
+          const cleanContent = cleanHtml(content, ctaBanners);
           const extractedFaq = extractFaq(cleanContent);
           const extractedTldr = extractTldr(cleanContent);
           
@@ -287,7 +392,7 @@ async function generateVariant(
   return data.choices[0].message.content;
 }
 
-function cleanHtml(htmlContent: string): string {
+function cleanHtml(htmlContent: string, ctaBanners: any[]): string {
   // Nettoyer le contenu HTML des balises de code markdown
   let cleaned = htmlContent
     .replace(/```html\s*/gi, '')
@@ -304,6 +409,9 @@ function cleanHtml(htmlContent: string): string {
   
   // Convertir les boutons au format [BUTTON:Text|URL] en structure TipTap
   cleaned = convertButtonsToCustomFormat(cleaned);
+  
+  // Convertir les bandeaux CTA au format [CTA_BANNER:ID]
+  cleaned = convertCtaBannersToHtml(cleaned, ctaBanners);
   
   // Centrer toutes les images
   cleaned = centerImages(cleaned);
@@ -339,6 +447,57 @@ function convertButtonsToCustomFormat(htmlContent: string): string {
   </a>
 </div>`;
   });
+}
+
+function convertCtaBannersToHtml(htmlContent: string, ctaBanners: any[]): string {
+  // Convertir les placeholders [CTA_BANNER:ID] en HTML de bandeau
+  const bannerRegex = /\[CTA_BANNER:([^\]]+)\]/g;
+  
+  return htmlContent.replace(bannerRegex, (match, bannerId) => {
+    const banner = ctaBanners.find(b => b.id === bannerId.trim());
+    
+    if (!banner) {
+      // Si le bandeau n'est pas trouvé, essayer de trouver un bandeau aléatoire
+      if (ctaBanners.length > 0) {
+        const randomBanner = ctaBanners[Math.floor(Math.random() * ctaBanners.length)];
+        return generateBannerHtml(randomBanner);
+      }
+      return ''; // Supprimer le placeholder si aucun bandeau disponible
+    }
+    
+    return generateBannerHtml(banner);
+  });
+}
+
+function generateBannerHtml(banner: any): string {
+  const bgColor = banner.background_color || '#0284c7';
+  const secondaryColor = banner.secondary_color || '#0369a1';
+  const textColor = banner.text_color || '#ffffff';
+  const accentColor = banner.accent_color || '#f59e0b';
+  
+  let backgroundStyle = '';
+  switch (banner.template_style) {
+    case 'wave':
+      backgroundStyle = `background: linear-gradient(135deg, ${bgColor} 0%, ${secondaryColor} 100%);`;
+      break;
+    case 'geometric':
+      backgroundStyle = `background: ${bgColor};`;
+      break;
+    case 'gradient':
+      backgroundStyle = `background: linear-gradient(90deg, ${bgColor}, ${secondaryColor});`;
+      break;
+    case 'minimal':
+    default:
+      backgroundStyle = `background: ${bgColor};`;
+  }
+  
+  return `<div class="cta-banner my-8" style="${backgroundStyle} color: ${textColor}; padding: 2rem; border-radius: 12px; text-align: center;">
+  <h3 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; font-weight: bold; color: ${textColor};">${banner.title}</h3>
+  ${banner.subtitle ? `<p style="margin: 0; opacity: 0.9; color: ${textColor};">${banner.subtitle}</p>` : ''}
+  <a href="#contact" style="display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; background: ${accentColor}; color: #000; border-radius: 6px; text-decoration: none; font-weight: 600;">
+    Profiter de cette offre
+  </a>
+</div>`;
 }
 
 function centerImages(htmlContent: string): string {
