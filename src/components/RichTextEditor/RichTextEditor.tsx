@@ -6,9 +6,11 @@ import { Color } from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
 import { CustomButton } from './CustomButton';
 import { CustomImage } from './CustomImage';
+import { CustomCtaBanner } from './CustomCtaBanner';
 import { ButtonEditorModal } from './ButtonEditorModal';
 import { ImageEditorModal } from './ImageEditorModal';
 import { CtaBannerSelector } from './CtaBannerSelector';
+import { CtaBannerEditorModal } from './CtaBannerEditorModal';
 import { FavoriteButtonsBar } from '@/components/FavoriteButtonsBar';
 import { FavoriteCtaBannersBar } from './FavoriteCtaBannersBar';
 import { MediaLibrary } from '@/components/MediaLibrary';
@@ -45,8 +47,10 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const [buttonDialogOpen, setButtonDialogOpen] = useState(false);
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [ctaBannerSelectorOpen, setCtaBannerSelectorOpen] = useState(false);
+  const [ctaBannerEditorOpen, setCtaBannerEditorOpen] = useState(false);
   const [editingButton, setEditingButton] = useState<any>(null);
   const [editingImage, setEditingImage] = useState<any>(null);
+  const [editingCtaBanner, setEditingCtaBanner] = useState<any>(null);
   const [htmlContent, setHtmlContent] = useState(content);
   const [activeTab, setActiveTab] = useState<string>('visual');
 
@@ -67,6 +71,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       Color,
       CustomButton,
       CustomImage,
+      CustomCtaBanner,
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -84,7 +89,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     }
   }, [content, editor]);
 
-  // Écouter les événements de double-clic sur les boutons et images
+  // Écouter les événements de clic sur les boutons, images et bannières CTA
   useEffect(() => {
     const handleEditButton = (event: any) => {
       // Ne pas ouvrir si le modal est déjà ouvert
@@ -104,13 +109,24 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       setImageDialogOpen(true);
     };
 
+    const handleEditCtaBanner = (event: any) => {
+      // Ne pas ouvrir si le modal est déjà ouvert
+      if (ctaBannerEditorOpen) return;
+      
+      const { attrs, pos } = event.detail;
+      setEditingCtaBanner({ attrs, pos });
+      setCtaBannerEditorOpen(true);
+    };
+
     window.addEventListener('edit-button', handleEditButton);
     window.addEventListener('edit-image', handleEditImage);
+    window.addEventListener('edit-cta-banner', handleEditCtaBanner);
     return () => {
       window.removeEventListener('edit-button', handleEditButton);
       window.removeEventListener('edit-image', handleEditImage);
+      window.removeEventListener('edit-cta-banner', handleEditCtaBanner);
     };
-  }, [buttonDialogOpen, imageDialogOpen]);
+  }, [buttonDialogOpen, imageDialogOpen, ctaBannerEditorOpen]);
 
   if (!editor) {
     return null;
@@ -192,13 +208,27 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
 
   const wordCount = editor?.state.doc.textContent.split(/\s+/).filter(word => word.length > 0).length || 0;
 
-  const handleCtaBannerInsert = (bannerHtml: string) => {
-    editor?.chain().focus().insertContent(bannerHtml).run();
+  const handleCtaBannerInsert = (bannerAttrs: any) => {
+    editor?.chain().focus().setCustomCtaBanner(bannerAttrs).run();
+    setCtaBannerSelectorOpen(false);
   };
 
-  const handleFavoriteCtaBannerSelect = (bannerHtml: string) => {
-    // Insérer directement le HTML du bandeau
-    editor?.chain().focus().insertContent(bannerHtml).run();
+  const handleFavoriteCtaBannerSelect = (bannerAttrs: any) => {
+    // Insérer la bannière CTA comme un node personnalisé
+    editor?.chain().focus().setCustomCtaBanner(bannerAttrs).run();
+  };
+
+  const addCtaBanner = (config: any) => {
+    if (editingCtaBanner) {
+      // Mise à jour d'une bannière existante
+      editor?.commands.setNodeSelection(editingCtaBanner.pos);
+      editor?.commands.updateCustomCtaBanner(config);
+    } else {
+      // Ajout d'une nouvelle bannière
+      editor?.chain().focus().setCustomCtaBanner(config).run();
+    }
+    setEditingCtaBanner(null);
+    setCtaBannerEditorOpen(false);
   };
 
   return (
@@ -424,6 +454,18 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         open={ctaBannerSelectorOpen}
         onClose={() => setCtaBannerSelectorOpen(false)}
         onInsert={handleCtaBannerInsert}
+      />
+
+      <CtaBannerEditorModal
+        open={ctaBannerEditorOpen}
+        onOpenChange={(open) => {
+          setCtaBannerEditorOpen(open);
+          if (!open) {
+            setEditingCtaBanner(null);
+          }
+        }}
+        onSave={addCtaBanner}
+        initialConfig={editingCtaBanner?.attrs}
       />
     </div>
   );

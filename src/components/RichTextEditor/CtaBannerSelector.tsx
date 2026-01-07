@@ -43,7 +43,7 @@ interface Popup {
 interface CtaBannerSelectorProps {
   open: boolean;
   onClose: () => void;
-  onInsert: (bannerHtml: string) => void;
+  onInsert: (bannerAttrs: any) => void;
 }
 
 export const CtaBannerSelector = ({ open, onClose, onInsert }: CtaBannerSelectorProps) => {
@@ -204,41 +204,29 @@ export const CtaBannerSelector = ({ open, onClose, onInsert }: CtaBannerSelector
       return;
     }
 
-    const style = selectedBanner.template_style;
-    
-    const getBackgroundCss = () => {
-      switch (style) {
-        case 'wave':
-          return `background: linear-gradient(135deg, ${selectedBanner.background_color} 0%, ${selectedBanner.secondary_color} 100%);`;
-        case 'geometric':
-          return `background: ${selectedBanner.background_color}; background-image: linear-gradient(45deg, ${selectedBanner.secondary_color} 25%, transparent 25%), linear-gradient(-45deg, ${selectedBanner.secondary_color} 25%, transparent 25%); background-size: 20px 20px;`;
-        case 'gradient':
-          return `background: linear-gradient(90deg, ${selectedBanner.background_color} 0%, ${selectedBanner.secondary_color} 50%, ${selectedBanner.accent_color} 100%);`;
-        case 'minimal':
-          return `background: ${selectedBanner.background_color}; border-left: 4px solid ${selectedBanner.accent_color};`;
-        default:
-          return `background: ${selectedBanner.background_color};`;
-      }
-    };
-
     const buttonBackground = selectedButton.use_gradient 
       ? `linear-gradient(${selectedButton.gradient_angle}deg, ${selectedButton.gradient_color1}, ${selectedButton.gradient_color2})`
       : selectedButton.background_color;
 
-    const popupAttr = selectedPopupId ? ` data-popup-trigger="${selectedPopupId}"` : '';
-    const hrefAttr = selectedPopupId ? 'href="#"' : 'href="#contact"';
+    // Créer les attributs pour le node CTA Banner
+    const bannerAttrs = {
+      bannerId: selectedBanner.id,
+      templateStyle: selectedBanner.template_style,
+      backgroundColor: selectedBanner.background_color,
+      secondaryColor: selectedBanner.secondary_color,
+      textColor: selectedBanner.text_color,
+      accentColor: selectedBanner.accent_color,
+      title: displayTitle,
+      subtitle: displaySubtitle,
+      buttonText: displayButtonText,
+      buttonUrl: selectedPopupId ? '#popup' : '#contact',
+      buttonBackground: buttonBackground,
+      buttonTextColor: selectedButton.text_color,
+      buttonBorderRadius: selectedButton.border_radius,
+      popupId: selectedPopupId || null,
+    };
 
-    const bannerHtml = `
-<div data-cta-banner="${selectedBanner.id}" class="cta-banner-wrapper my-8" style="border-radius: 12px; overflow: hidden; ${getBackgroundCss()}">
-  <div style="padding: 32px; text-align: center; position: relative;">
-    <h3 style="color: ${selectedBanner.text_color}; font-size: 24px; font-weight: 700; margin-bottom: 8px;">${displayTitle}</h3>
-    ${displaySubtitle ? `<p style="color: ${selectedBanner.text_color}; opacity: 0.9; margin-bottom: 16px;">${displaySubtitle}</p>` : ''}
-    <a ${hrefAttr}${popupAttr} style="display: inline-block; padding: 12px 24px; background: ${buttonBackground}; color: ${selectedButton.text_color}; font-weight: 500; border-radius: ${selectedButton.border_radius}px; text-decoration: none; cursor: pointer;">${displayButtonText}</a>
-  </div>
-</div>
-    `.trim();
-
-    onInsert(bannerHtml);
+    onInsert(bannerAttrs);
     onClose();
     
     toast({
