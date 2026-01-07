@@ -33,13 +33,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Calendar, Bot } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Calendar, Bot, FileSearch } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { ButtonPresetsLibrary } from "@/components/ButtonPresetsLibrary";
 import { SchedulePublishModal } from "@/components/SchedulePublishModal";
 import { AIAutomationModal } from "@/components/AIAutomationModal";
+import { ArticlePreviewModal } from "@/components/ArticlePreviewModal";
 
 const ManageActualites = () => {
   const { user, loading: authLoading } = useAuth();
@@ -60,6 +61,8 @@ const ManageActualites = () => {
     scheduledDate: string | null;
   } | null>(null);
   const [aiAutomationOpen, setAiAutomationOpen] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [selectedPostForPreview, setSelectedPostForPreview] = useState<any>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -409,6 +412,18 @@ const ManageActualites = () => {
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex gap-2 justify-end">
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-8 w-8 text-purple-600 hover:bg-purple-50"
+                                  onClick={() => {
+                                    setSelectedPostForPreview(post);
+                                    setPreviewModalOpen(true);
+                                  }}
+                                  title="Prévisualiser"
+                                >
+                                  <FileSearch className="w-4 h-4" />
+                                </Button>
                                 {post.status === "draft" && (
                                   <>
                                     <Button
@@ -556,6 +571,28 @@ const ManageActualites = () => {
         open={aiAutomationOpen}
         onOpenChange={setAiAutomationOpen}
       />
+
+      {/* Preview Modal */}
+      {selectedPostForPreview && (
+        <ArticlePreviewModal
+          open={previewModalOpen}
+          onOpenChange={(open) => {
+            setPreviewModalOpen(open);
+            if (!open) setSelectedPostForPreview(null);
+          }}
+          title={selectedPostForPreview.title}
+          content={selectedPostForPreview.content}
+          featuredImage={selectedPostForPreview.featured_image}
+          excerpt={selectedPostForPreview.excerpt}
+          focusKeywords={selectedPostForPreview.focus_keywords || []}
+          metaTitle={selectedPostForPreview.meta_title}
+          metaDescription={selectedPostForPreview.meta_description}
+          contentType="actualite"
+          tldr={selectedPostForPreview.tldr}
+          faq={selectedPostForPreview.faq}
+          categoryName={selectedPostForPreview.post_categories?.[0]?.categories?.name}
+        />
+      )}
     </>
   );
 };
