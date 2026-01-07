@@ -71,7 +71,10 @@ export const ButtonNodeView = ({ node, selected, editor, getPos }: NodeViewProps
     overflow: 'hidden',
   };
 
-  const handleDoubleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (typeof getPos === 'function') {
       const pos = getPos();
       editor.commands.setNodeSelection(pos);
@@ -89,11 +92,9 @@ export const ButtonNodeView = ({ node, selected, editor, getPos }: NodeViewProps
       style={{ textAlign: attrs.align }}
       data-custom-button
     >
-      <a
-        href={attrs.url}
+      <span
         style={buttonStyle}
-        onClick={(e) => e.preventDefault()}
-        onDoubleClick={handleDoubleClick}
+        onClick={handleClick}
         onMouseEnter={(e) => {
           setIsHovered(true);
           if (attrs.hoverEffect) {
@@ -114,10 +115,12 @@ export const ButtonNodeView = ({ node, selected, editor, getPos }: NodeViewProps
             e.currentTarget.style.background = getBackground(false);
           }
         }}
-        title="Double-cliquez pour modifier"
+        title="Cliquez pour modifier le bouton"
+        role="button"
+        tabIndex={0}
       >
         {attrs.text}
-      </a>
+      </span>
     </NodeViewWrapper>
   );
 };

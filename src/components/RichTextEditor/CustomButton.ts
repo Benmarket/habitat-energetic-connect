@@ -9,6 +9,8 @@ export interface CustomButtonOptions {
 export interface ButtonAttributes {
   text: string;
   url: string;
+  destinationType: 'external' | 'internal' | 'popup' | 'anchor';
+  popupId?: string;
   backgroundColor: string;
   textColor: string;
   size: 'small' | 'medium' | 'large';
@@ -58,7 +60,13 @@ export const CustomButton = Node.create<CustomButtonOptions>({
         default: 'Cliquez ici',
       },
       url: {
-        default: '#',
+        default: '#contact',
+      },
+      destinationType: {
+        default: 'anchor',
+      },
+      popupId: {
+        default: null,
       },
       backgroundColor: {
         default: '#10b981',
@@ -138,6 +146,8 @@ export const CustomButton = Node.create<CustomButtonOptions>({
     const {
       text,
       url,
+      destinationType,
+      popupId,
       backgroundColor,
       textColor,
       size,
@@ -207,6 +217,14 @@ export const CustomButton = Node.create<CustomButtonOptions>({
       `box-shadow: ${shadowMap[shadowSize as keyof typeof shadowMap]}`,
     ].join('; ');
 
+    // Determine target and rel based on destination type
+    const isExternal = destinationType === 'external';
+    const targetAttr = isExternal ? '_blank' : undefined;
+    const relAttr = isExternal ? 'noopener noreferrer' : undefined;
+
+    // For popups, use data attribute
+    const dataPopupId = destinationType === 'popup' ? popupId : undefined;
+
     return [
       'div',
       mergeAttributes(this.options.HTMLAttributes, {
@@ -219,10 +237,12 @@ export const CustomButton = Node.create<CustomButtonOptions>({
         {
           href: url,
           style: buttonStyle,
-          target: '_blank',
-          rel: 'noopener noreferrer',
+          ...(targetAttr && { target: targetAttr }),
+          ...(relAttr && { rel: relAttr }),
           'data-button-text': text,
           'data-button-color': backgroundColor,
+          'data-destination-type': destinationType,
+          ...(dataPopupId && { 'data-popup-id': dataPopupId }),
         },
         text,
       ],
