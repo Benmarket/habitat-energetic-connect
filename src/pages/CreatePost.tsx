@@ -268,16 +268,24 @@ const CreatePost = () => {
       return;
     }
 
+    // Validation du thème pour les guides
+    if (contentType === 'guide' && !formData.guide_template) {
+      toast.error("Veuillez sélectionner un thème de guide avant de générer");
+      return;
+    }
+
     setGeneratingArticle(true);
     setVariantsModalOpen(true);
 
     try {
-      // 1. Générer les articles avec l'IA
+      // 1. Générer les articles avec l'IA (avec thème et userId pour boutons/bandeaux)
       const { data, error } = await supabase.functions.invoke('generate-article', {
         body: {
           keywords: formData.focus_keywords,
           contentType: contentType,
-          customInstructions: currentAiInstructions
+          customInstructions: currentAiInstructions,
+          guideTemplate: contentType === 'guide' ? formData.guide_template : undefined,
+          userId: user?.id
         }
       });
 
