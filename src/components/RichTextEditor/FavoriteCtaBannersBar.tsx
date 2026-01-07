@@ -102,11 +102,21 @@ export const FavoriteCtaBannersBar = ({ onSelectBanner }: FavoriteCtaBannersBarP
   };
 
   const handleBannerClick = (banner: FavoriteBanner) => {
-    if (!defaultButton) return;
+    // Utiliser le bouton par défaut ou des valeurs de fallback
+    const buttonData = defaultButton || {
+      text: 'En savoir plus',
+      background_color: '#ffffff',
+      text_color: '#10b981',
+      border_radius: 6,
+      use_gradient: false,
+      gradient_color1: '#10b981',
+      gradient_color2: '#059669',
+      gradient_angle: 90
+    };
 
-    const buttonBackground = defaultButton.use_gradient 
-      ? `linear-gradient(${defaultButton.gradient_angle}deg, ${defaultButton.gradient_color1}, ${defaultButton.gradient_color2})`
-      : defaultButton.background_color;
+    const buttonBackground = buttonData.use_gradient 
+      ? `linear-gradient(${buttonData.gradient_angle}deg, ${buttonData.gradient_color1}, ${buttonData.gradient_color2})`
+      : buttonData.background_color;
 
     // Créer les attributs pour le node CTA Banner
     const bannerAttrs: Partial<CtaBannerAttributes> = {
@@ -118,14 +128,15 @@ export const FavoriteCtaBannersBar = ({ onSelectBanner }: FavoriteCtaBannersBarP
       accentColor: banner.accent_color,
       title: banner.title,
       subtitle: banner.subtitle || '',
-      buttonText: defaultButton.text,
+      buttonText: buttonData.text,
       buttonUrl: '#contact',
       buttonBackground: buttonBackground,
-      buttonTextColor: defaultButton.text_color,
-      buttonBorderRadius: defaultButton.border_radius,
+      buttonTextColor: buttonData.text_color,
+      buttonBorderRadius: buttonData.border_radius,
       popupId: null,
     };
 
+    console.log('Inserting CTA banner:', bannerAttrs);
     onSelectBanner(bannerAttrs);
   };
 
