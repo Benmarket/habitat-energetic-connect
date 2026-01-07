@@ -40,11 +40,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Star } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Star, FileSearch } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { ButtonPresetsLibrary } from "@/components/ButtonPresetsLibrary";
+import { ArticlePreviewModal } from "@/components/ArticlePreviewModal";
 
 const ManageAides = () => {
   const { user, loading: authLoading } = useAuth();
@@ -62,6 +63,8 @@ const ManageAides = () => {
   const [featuredDialogOpen, setFeaturedDialogOpen] = useState(false);
   const [selectedFeatured, setSelectedFeatured] = useState<string[]>([]);
   const [savingFeatured, setSavingFeatured] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [selectedPostForPreview, setSelectedPostForPreview] = useState<any>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -487,6 +490,18 @@ const ManageAides = () => {
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex gap-2 justify-end">
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-8 w-8 text-purple-600 hover:bg-purple-50"
+                                  onClick={() => {
+                                    setSelectedPostForPreview(post);
+                                    setPreviewModalOpen(true);
+                                  }}
+                                  title="Prévisualiser"
+                                >
+                                  <FileSearch className="w-4 h-4" />
+                                </Button>
                                 {post.status === "draft" && (
                                   <Button
                                     variant="outline"
@@ -652,6 +667,28 @@ const ManageAides = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Preview Modal */}
+      {selectedPostForPreview && (
+        <ArticlePreviewModal
+          open={previewModalOpen}
+          onOpenChange={(open) => {
+            setPreviewModalOpen(open);
+            if (!open) setSelectedPostForPreview(null);
+          }}
+          title={selectedPostForPreview.title}
+          content={selectedPostForPreview.content}
+          featuredImage={selectedPostForPreview.featured_image}
+          excerpt={selectedPostForPreview.excerpt}
+          focusKeywords={selectedPostForPreview.focus_keywords || []}
+          metaTitle={selectedPostForPreview.meta_title}
+          metaDescription={selectedPostForPreview.meta_description}
+          contentType="aide"
+          tldr={selectedPostForPreview.tldr}
+          faq={selectedPostForPreview.faq}
+          categoryName={selectedPostForPreview.post_categories?.[0]?.categories?.name}
+        />
+      )}
     </>
   );
 };
