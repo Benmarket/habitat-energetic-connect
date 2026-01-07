@@ -130,8 +130,10 @@ Pour insérer un bandeau CTA, utilise le format: [CTA_BANNER:${selectedBanners[0
 Place les bandeaux de manière stratégique (après une section importante ou avant la conclusion).`;
     }
 
-    // Instructions spécifiques pour les guides avec thème
+    // Instructions spécifiques pour les guides avec thème et sections
     let themeInstructions = '';
+    let guideStructureInstructions = '';
+    
     if (contentType === 'guide' && guideTemplate) {
       const themeDescriptions: Record<string, string> = {
         classique: "Style classique et professionnel, sobre et élégant",
@@ -145,6 +147,40 @@ Place les bandeaux de manière stratégique (après une section importante ou av
       themeInstructions = `\n\nTHÈME DU GUIDE: ${guideTemplate.toUpperCase()}
 ${themeDescriptions[guideTemplate] || ''}
 Adapte le ton, le style d'écriture et les appels à l'action à ce thème.`;
+
+      // Instructions spécifiques pour la structure en sections des guides
+      guideStructureInstructions = `
+
+STRUCTURE EN SECTIONS POUR GUIDE:
+Le guide DOIT être structuré en 4-6 sections distinctes, chaque section commençant par un <h2> avec un ID unique.
+Chaque section doit avoir un titre clair et descriptif.
+
+FORMAT OBLIGATOIRE POUR CHAQUE SECTION:
+<h2 id="nom-de-la-section">Titre de la section</h2>
+<p>Contenu de la section...</p>
+[Listes, images, boutons, etc.]
+
+EXEMPLE DE STRUCTURE:
+<h2 id="introduction">Introduction et contexte</h2>
+<p>Texte d'introduction...</p>
+
+<h2 id="avantages">Les avantages clés</h2>
+<p>Description des avantages...</p>
+<ul><li>Avantage 1</li><li>Avantage 2</li></ul>
+
+<h2 id="comment-ca-marche">Comment ça fonctionne</h2>
+<p>Explication du fonctionnement...</p>
+
+<h2 id="etapes">Les étapes à suivre</h2>
+<ol><li>Étape 1</li><li>Étape 2</li></ol>
+
+<h2 id="conseils">Conseils pratiques</h2>
+<p>Recommandations...</p>
+
+<h2 id="conclusion">Conclusion</h2>
+<p>Résumé et appel à l'action...</p>
+
+IMPORTANT: Chaque <h2> DOIT avoir un attribut id unique basé sur le slug du titre !`;
     }
 
     const contentTypeLabels = {
@@ -223,6 +259,7 @@ ${ctaInstructions}
 
 LONGUEUR: Minimum 1000 mots, idéalement 1200-1800 mots.
 ${themeInstructions}
+${guideStructureInstructions}
 
 IMPORTANT : 
 - Retourne UNIQUEMENT le HTML pur sans balises markdown, sans commentaires, sans explications
