@@ -310,12 +310,12 @@ export const CtaBannerSelector = ({ open, onClose, onInsert }: CtaBannerSelector
 
               <div>
                 <Label>3. Action du bouton (optionnel)</Label>
-                <Select value={selectedPopupId} onValueChange={setSelectedPopupId}>
+                <Select value={selectedPopupId || "none"} onValueChange={(val) => setSelectedPopupId(val === "none" ? "" : val)}>
                   <SelectTrigger className="mt-2">
                     <SelectValue placeholder="Ouvrir un popup..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Aucun popup (lien standard)</SelectItem>
+                    <SelectItem value="none">Aucun popup (lien standard)</SelectItem>
                     {popups.map((popup) => (
                       <SelectItem key={popup.id} value={popup.id}>
                         {popup.name}
