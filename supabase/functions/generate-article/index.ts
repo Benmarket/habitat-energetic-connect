@@ -103,32 +103,61 @@ serve(async (req) => {
       console.log(`Loaded ${ctaBanners.length} CTA banners`);
     }
 
-    // Sélectionner aléatoirement 3-4 boutons et 1-2 bandeaux pour variation
-    const selectedButtons = selectRandom(buttonPresets, Math.min(4, buttonPresets.length));
-    const selectedBanners = selectRandom(ctaBanners, Math.min(2, ctaBanners.length));
+    // Fonction pour créer les instructions CTA pour une variante spécifique
+    function createCtaInstructions(variantIndex: number = 0): string {
+      let instructions = '';
+      
+      // Sélectionner des boutons différents pour chaque variante
+      const shuffledButtons = shuffleArray([...buttonPresets]);
+      const buttonsForVariant = shuffledButtons.slice(0, Math.min(4, shuffledButtons.length));
+      
+      // Sélectionner des bannières différentes pour chaque variante
+      const shuffledBanners = shuffleArray([...ctaBanners]);
+      const bannersForVariant = shuffledBanners.slice(0, Math.min(2, shuffledBanners.length));
+      
+      if (buttonsForVariant.length > 0) {
+        instructions += `\n\n=== BOUTONS CTA OBLIGATOIRES (VARIANTE ${variantIndex + 1}) ===
+Tu DOIS utiliser AU MOINS 2-3 de ces boutons différents dans ton article :
+${buttonsForVariant.map((btn: any, i: number) => 
+  `BOUTON ${i + 1}: Texte="${btn.text}" | URL="${btn.url}" | Nom="${btn.name}"`
+).join('\n')}
 
-    // Créer les instructions spécifiques pour les boutons et bandeaux
-    let ctaInstructions = '';
+FORMAT D'INSERTION (copie exactement ce format) :
+${buttonsForVariant.slice(0, 3).map((btn: any) => 
+  `[BUTTON:${btn.text}|${btn.url}]`
+).join('\n')}
+
+⚠️ IMPORTANT: Utilise les boutons EXACTEMENT comme listés ci-dessus, avec leur texte et URL exacts !
+⚠️ VARIE les boutons - utilise au moins 2 boutons DIFFÉRENTS !`;
+      } else {
+        instructions += `\n\n=== BOUTONS CTA ===
+Aucun bouton personnalisé disponible. Utilise le format [BUTTON:Demander un devis|#contact] pour créer des boutons génériques.`;
+      }
+
+      if (bannersForVariant.length > 0) {
+        instructions += `\n\n=== BANNIÈRES CTA OBLIGATOIRES (VARIANTE ${variantIndex + 1}) ===
+Tu DOIS insérer AU MOINS 1-2 de ces bannières dans ton article :
+${bannersForVariant.map((banner: any, i: number) => 
+  `BANNIÈRE ${i + 1}: ID="${banner.id}" | Titre="${banner.title}" | Style="${banner.template_style}"`
+).join('\n')}
+
+FORMAT D'INSERTION (copie exactement ce format) :
+${bannersForVariant.map((banner: any) => 
+  `[CTA_BANNER:${banner.id}]`
+).join('\n')}
+
+⚠️ IMPORTANT: Place les bannières stratégiquement - une au milieu de l'article et une avant la conclusion !
+⚠️ Copie l'ID EXACT de la bannière dans le format ci-dessus !`;
+      } else {
+        instructions += `\n\n=== BANNIÈRES CTA ===
+Aucune bannière CTA disponible. Concentre-toi sur les boutons CTA.`;
+      }
+      
+      return instructions;
+    }
     
-    if (selectedButtons.length > 0) {
-      ctaInstructions += `\n\nBOUTONS CTA DISPONIBLES (utilise ces boutons existants au lieu d'en inventer) :
-${selectedButtons.map((btn: any, i: number) => 
-  `${i + 1}. "${btn.text}" (${btn.name}) - URL: ${btn.url} - Couleur: ${btn.background_color}`
-).join('\n')}
-
-Pour insérer un bouton, utilise le format: [BUTTON:${selectedButtons[0]?.text || 'Texte'}|${selectedButtons[0]?.url || '#contact'}]
-VARIE les boutons utilisés, ne choisis pas toujours le même !`;
-    }
-
-    if (selectedBanners.length > 0) {
-      ctaInstructions += `\n\nBANDEAUX CTA DISPONIBLES (insère 1-2 bandeaux dans l'article) :
-${selectedBanners.map((banner: any, i: number) => 
-  `${i + 1}. "${banner.title}" - ${banner.subtitle || 'Sans sous-titre'} - Style: ${banner.template_style}`
-).join('\n')}
-
-Pour insérer un bandeau CTA, utilise le format: [CTA_BANNER:${selectedBanners[0]?.id}]
-Place les bandeaux de manière stratégique (après une section importante ou avant la conclusion).`;
-    }
+    // Pour usage dans le système - on utilisera des instructions spécifiques par variante
+    const ctaInstructionsBase = createCtaInstructions(0);
 
     // Instructions spécifiques pour les guides avec thème et sections
     let themeInstructions = '';
@@ -250,13 +279,6 @@ IMAGES:
 - Place les images de manière stratégique dans l'article
 - Les descriptions doivent être riches et précises
 
-BOUTONS CTA ET BANDEAUX:
-- Tu DOIS inclure 2-3 boutons d'appel à l'action pertinents
-- Tu DOIS inclure 1-2 bandeaux CTA si disponibles
-- VARIE tes choix à chaque génération - ne choisis pas toujours les mêmes !
-- Place-les stratégiquement (milieu et fin d'article)
-${ctaInstructions}
-
 LONGUEUR: Minimum 1000 mots, idéalement 1200-1800 mots.
 ${themeInstructions}
 ${guideStructureInstructions}
@@ -325,23 +347,36 @@ IMPORTANT :
       keywordsCount: keywords.length,
       isRegeneration: !!(additionalInstructions && baseContent),
       hasCustomInstructions: !!customInstructions,
-      selectedButtonsCount: selectedButtons.length,
-      selectedBannersCount: selectedBanners.length
+      buttonPresetsCount: buttonPresets.length,
+      ctaBannersCount: ctaBanners.length
     });
 
-    // Générer les variantes
+    // Générer les variantes avec des CTA différents
     let variants;
     if (additionalInstructions) {
       console.log('Regenerating with instructions:', additionalInstructions.substring(0, 200));
       // Régénération d'une seule variante avec instructions
-      const regeneratedContent = await generateVariant(apiUrl, model, OPENAI_API_KEY, finalSystemPrompt, userPrompt);
+      const ctaForRegen = createCtaInstructions(0);
+      const regeneratedContent = await generateVariant(
+        apiUrl, model, OPENAI_API_KEY, finalSystemPrompt, 
+        userPrompt + ctaForRegen
+      );
       variants = [regeneratedContent];
     } else {
-      console.log('Generating 2 initial variants');
-      // Génération initiale : 2 variantes différentes
+      console.log('Generating 2 initial variants with different CTAs');
+      // Génération initiale : 2 variantes avec boutons/bannières différents
+      const cta1 = createCtaInstructions(0);
+      const cta2 = createCtaInstructions(1);
+      
       variants = await Promise.all([
-        generateVariant(apiUrl, model, OPENAI_API_KEY, finalSystemPrompt, userPrompt + "\n\nVARIANTE 1 : Ton pédagogique, accessible au grand public, beaucoup d'exemples concrets et de bénéfices chiffrés."),
-        generateVariant(apiUrl, model, OPENAI_API_KEY, finalSystemPrompt, userPrompt + "\n\nVARIANTE 2 : Ton plus technique et expert, focus sur l'expertise et la crédibilité, données précises et arguments d'autorité.")
+        generateVariant(
+          apiUrl, model, OPENAI_API_KEY, finalSystemPrompt, 
+          userPrompt + cta1 + "\n\nVARIANTE 1 : Ton pédagogique, accessible au grand public, beaucoup d'exemples concrets et de bénéfices chiffrés."
+        ),
+        generateVariant(
+          apiUrl, model, OPENAI_API_KEY, finalSystemPrompt, 
+          userPrompt + cta2 + "\n\nVARIANTE 2 : Ton plus technique et expert, focus sur l'expertise et la crédibilité, données précises et arguments d'autorité."
+        )
       ]);
     }
     
