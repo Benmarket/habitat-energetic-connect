@@ -497,6 +497,60 @@ export type Database = {
         }
         Relationships: []
       }
+      cta_banners: {
+        Row: {
+          accent_color: string | null
+          background_color: string | null
+          created_at: string
+          description: string | null
+          favorite_order: number | null
+          id: string
+          is_favorite: boolean | null
+          name: string
+          secondary_color: string | null
+          subtitle: string | null
+          template_style: string
+          text_color: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accent_color?: string | null
+          background_color?: string | null
+          created_at?: string
+          description?: string | null
+          favorite_order?: number | null
+          id?: string
+          is_favorite?: boolean | null
+          name: string
+          secondary_color?: string | null
+          subtitle?: string | null
+          template_style?: string
+          text_color?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accent_color?: string | null
+          background_color?: string | null
+          created_at?: string
+          description?: string | null
+          favorite_order?: number | null
+          id?: string
+          is_favorite?: boolean | null
+          name?: string
+          secondary_color?: string | null
+          subtitle?: string | null
+          template_style?: string
+          text_color?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       form_configurations: {
         Row: {
           created_at: string
@@ -1173,6 +1227,7 @@ export type Database = {
           slug: string
           source: string | null
           status: Database["public"]["Enums"]["post_status"]
+          template_colors: Json | null
           title: string
           tldr: string | null
           updated_at: string
@@ -1202,6 +1257,7 @@ export type Database = {
           slug: string
           source?: string | null
           status?: Database["public"]["Enums"]["post_status"]
+          template_colors?: Json | null
           title: string
           tldr?: string | null
           updated_at?: string
@@ -1231,6 +1287,7 @@ export type Database = {
           slug?: string
           source?: string | null
           status?: Database["public"]["Enums"]["post_status"]
+          template_colors?: Json | null
           title?: string
           tldr?: string | null
           updated_at?: string
