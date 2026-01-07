@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Waves, Box, Sparkles, Minus } from "lucide-react";
+import { CtaBannerAttributes } from './CustomCtaBanner';
 
 interface FavoriteBanner {
   id: string;
@@ -17,7 +18,7 @@ interface FavoriteBanner {
 }
 
 interface FavoriteCtaBannersBarProps {
-  onSelectBanner: (bannerHtml: string) => void;
+  onSelectBanner: (bannerAttrs: Partial<CtaBannerAttributes>) => void;
 }
 
 export const FavoriteCtaBannersBar = ({ onSelectBanner }: FavoriteCtaBannersBarProps) => {
@@ -100,21 +101,6 @@ export const FavoriteCtaBannersBar = ({ onSelectBanner }: FavoriteCtaBannersBarP
     }
   };
 
-  const getBackgroundCss = (banner: FavoriteBanner) => {
-    switch (banner.template_style) {
-      case 'wave':
-        return `background: linear-gradient(135deg, ${banner.background_color} 0%, ${banner.secondary_color} 100%);`;
-      case 'geometric':
-        return `background: ${banner.background_color}; background-image: linear-gradient(45deg, ${banner.secondary_color} 25%, transparent 25%), linear-gradient(-45deg, ${banner.secondary_color} 25%, transparent 25%); background-size: 20px 20px;`;
-      case 'gradient':
-        return `background: linear-gradient(90deg, ${banner.background_color} 0%, ${banner.secondary_color} 50%, ${banner.accent_color} 100%);`;
-      case 'minimal':
-        return `background: ${banner.background_color}; border-left: 4px solid ${banner.accent_color};`;
-      default:
-        return `background: ${banner.background_color};`;
-    }
-  };
-
   const handleBannerClick = (banner: FavoriteBanner) => {
     if (!defaultButton) return;
 
@@ -122,17 +108,25 @@ export const FavoriteCtaBannersBar = ({ onSelectBanner }: FavoriteCtaBannersBarP
       ? `linear-gradient(${defaultButton.gradient_angle}deg, ${defaultButton.gradient_color1}, ${defaultButton.gradient_color2})`
       : defaultButton.background_color;
 
-    const bannerHtml = `
-<div data-cta-banner="${banner.id}" class="cta-banner-wrapper my-8" style="border-radius: 12px; overflow: hidden; ${getBackgroundCss(banner)}">
-  <div style="padding: 32px; text-align: center; position: relative;">
-    <h3 style="color: ${banner.text_color}; font-size: 24px; font-weight: 700; margin-bottom: 8px;">${banner.title}</h3>
-    ${banner.subtitle ? `<p style="color: ${banner.text_color}; opacity: 0.9; margin-bottom: 16px;">${banner.subtitle}</p>` : ''}
-    <a href="#contact" style="display: inline-block; padding: 12px 24px; background: ${buttonBackground}; color: ${defaultButton.text_color}; font-weight: 500; border-radius: ${defaultButton.border_radius}px; text-decoration: none; cursor: pointer;">${defaultButton.text}</a>
-  </div>
-</div>
-    `.trim();
+    // Créer les attributs pour le node CTA Banner
+    const bannerAttrs: Partial<CtaBannerAttributes> = {
+      bannerId: banner.id,
+      templateStyle: banner.template_style,
+      backgroundColor: banner.background_color,
+      secondaryColor: banner.secondary_color,
+      textColor: banner.text_color,
+      accentColor: banner.accent_color,
+      title: banner.title,
+      subtitle: banner.subtitle || '',
+      buttonText: defaultButton.text,
+      buttonUrl: '#contact',
+      buttonBackground: buttonBackground,
+      buttonTextColor: defaultButton.text_color,
+      buttonBorderRadius: defaultButton.border_radius,
+      popupId: null,
+    };
 
-    onSelectBanner(bannerHtml);
+    onSelectBanner(bannerAttrs);
   };
 
   const STYLE_ICONS: Record<string, typeof Waves> = {
