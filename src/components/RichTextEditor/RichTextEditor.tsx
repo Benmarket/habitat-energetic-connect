@@ -214,8 +214,21 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   };
 
   const handleFavoriteCtaBannerSelect = (bannerAttrs: any) => {
-    // Insérer la bannière CTA comme un node personnalisé
-    editor?.chain().focus().setCustomCtaBanner(bannerAttrs).run();
+    if (!editor) {
+      console.error('Editor not available');
+      return;
+    }
+    
+    // S'assurer que l'éditeur a le focus avant d'insérer
+    editor.commands.focus('end');
+    
+    // Insérer la bannière CTA
+    const success = editor.commands.insertContent({
+      type: 'customCtaBanner',
+      attrs: bannerAttrs,
+    });
+    
+    console.log('CTA Banner insert success:', success);
   };
 
   const addCtaBanner = (config: any) => {
