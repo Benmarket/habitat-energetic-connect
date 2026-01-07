@@ -1314,6 +1314,11 @@ const CreatePost = () => {
           focusKeywords={formData.focus_keywords}
           metaTitle={formData.meta_title}
           metaDescription={formData.meta_description}
+          contentType={contentType}
+          guideTemplate={formData.guide_template}
+          tldr={formData.tldr}
+          faq={formData.faq}
+          categoryName={categories.find(c => c.id === formData.category_id)?.name}
         />
 
         <AIInstructionsModal
