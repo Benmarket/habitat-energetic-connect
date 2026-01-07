@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { GuideDownloadModal } from "@/components/GuideDownloadModal";
 import { useActiveSection } from "@/hooks/useActiveSection";
+import { transformCtaBannersInHtml } from "@/utils/contentRenderer";
 
 interface GuideTemplateExpertProps {
   guide: {
@@ -43,6 +44,9 @@ export const GuideTemplateExpert = ({
   const { activeId, scrollProgress, scrollToSection } = useActiveSection(toc);
   
   const activeIndex = toc.findIndex(item => item.id === activeId);
+  
+  // Transformer les bandeaux CTA pour le rendu
+  const transformedContent = useMemo(() => transformCtaBannersInHtml(contentWithIds), [contentWithIds]);
 
   return (
     <main className="pt-20 bg-slate-50 min-h-screen">
@@ -222,7 +226,7 @@ export const GuideTemplateExpert = ({
                         prose-li:marker:text-emerald-500
                         prose-img:rounded-xl prose-img:shadow-lg prose-img:border prose-img:border-slate-200
                         prose-blockquote:border-l-emerald-500 prose-blockquote:bg-emerald-50 prose-blockquote:py-4 prose-blockquote:rounded-r-lg"
-                      dangerouslySetInnerHTML={{ __html: contentWithIds }}
+                      dangerouslySetInnerHTML={{ __html: transformedContent }}
                     />
                     
                     {isPaywalled && children}

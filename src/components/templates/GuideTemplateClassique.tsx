@@ -1,10 +1,11 @@
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, ArrowLeft, Tag, BookOpen } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useActiveSection } from "@/hooks/useActiveSection";
+import { transformCtaBannersInHtml } from "@/utils/contentRenderer";
 
 interface GuideTemplateClassiqueProps {
   guide: {
@@ -39,6 +40,9 @@ export const GuideTemplateClassique = ({
   const { activeId, scrollProgress, scrollToSection } = useActiveSection(toc);
   const [heroOffset, setHeroOffset] = useState(0);
   const heroRef = useRef<HTMLDivElement>(null);
+  
+  // Transformer les bandeaux CTA pour le rendu
+  const transformedContent = useMemo(() => transformCtaBannersInHtml(contentWithIds), [contentWithIds]);
 
   // Parallax effect for hero
   useEffect(() => {
@@ -255,7 +259,7 @@ export const GuideTemplateClassique = ({
                     prose-strong:text-slate-900
                     prose-li:marker:text-blue-500
                     prose-img:rounded-xl prose-img:shadow-lg"
-                  dangerouslySetInnerHTML={{ __html: contentWithIds }}
+                  dangerouslySetInnerHTML={{ __html: transformedContent }}
                 />
                 
                 {isPaywalled && children}

@@ -1,10 +1,11 @@
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, ArrowLeft, BookOpen, List, ChevronDown, ChevronUp, Zap } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useActiveSection } from "@/hooks/useActiveSection";
+import { transformCtaBannersInHtml } from "@/utils/contentRenderer";
 
 interface TemplateColors {
   primary: string;
@@ -55,6 +56,9 @@ export const GuideTemplateSombre = ({
   const colors = guide.template_colors || DEFAULT_COLORS;
   const { activeId, scrollProgress, scrollToSection } = useActiveSection(toc);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  
+  // Transformer les bandeaux CTA pour le rendu
+  const transformedContent = useMemo(() => transformCtaBannersInHtml(contentWithIds), [contentWithIds]);
 
   // Floating geometric shapes animation
   useEffect(() => {
@@ -328,7 +332,7 @@ export const GuideTemplateSombre = ({
                     '--tw-prose-links': colors.accent,
                     '--tw-prose-bullets': colors.accent,
                   } as React.CSSProperties}
-                  dangerouslySetInnerHTML={{ __html: contentWithIds }}
+                  dangerouslySetInnerHTML={{ __html: transformedContent }}
                 />
                 
                 {isPaywalled && children}
