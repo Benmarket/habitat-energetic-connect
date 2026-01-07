@@ -93,7 +93,7 @@ const CreatePost = () => {
     custom_author_name: "",
     // Guide-specific fields
     is_members_only: false,
-    guide_template: "classique" as "classique" | "premium" | "expert" | "epure" | "vibrant" | "sombre",
+    guide_template: "" as "" | "classique" | "premium" | "expert" | "epure" | "vibrant" | "sombre",
     is_downloadable: true,
   });
   const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
@@ -785,7 +785,7 @@ const CreatePost = () => {
                       <div className="space-y-2">
                         <Label htmlFor="guide_template">Template du guide</Label>
                         <Select
-                          value={formData.guide_template}
+                          value={formData.guide_template || undefined}
                           onValueChange={(value: "classique" | "premium" | "expert" | "epure" | "vibrant" | "sombre") => 
                             setFormData({ ...formData, guide_template: value })
                           }
@@ -1323,7 +1323,7 @@ const CreatePost = () => {
           metaTitle={formData.meta_title}
           metaDescription={formData.meta_description}
           contentType={contentType}
-          guideTemplate={formData.guide_template}
+          guideTemplate={formData.guide_template || undefined}
           tldr={formData.tldr}
           faq={formData.faq}
           categoryName={categories.find(c => c.id === formData.category_id)?.name}
