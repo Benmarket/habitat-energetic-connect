@@ -114,28 +114,74 @@ export const CustomCtaBanner = Node.create({
 
   renderHTML({ HTMLAttributes }) {
     const attrs = HTMLAttributes as CtaBannerAttributes;
-    
-    return [
-      'div',
-      mergeAttributes({
-        'data-cta-banner': attrs.bannerId,
-        'data-template-style': attrs.templateStyle,
-        'data-bg-color': attrs.backgroundColor,
-        'data-secondary-color': attrs.secondaryColor,
-        'data-text-color': attrs.textColor,
-        'data-accent-color': attrs.accentColor,
-        'data-title': attrs.title,
-        'data-subtitle': attrs.subtitle,
-        'data-button-text': attrs.buttonText,
-        'data-button-url': attrs.buttonUrl,
-        'data-button-bg': attrs.buttonBackground,
-        'data-button-text-color': attrs.buttonTextColor,
-        'data-button-radius': attrs.buttonBorderRadius,
-        'data-popup-id': attrs.popupId || '',
-        class: 'cta-banner-wrapper my-8',
-        style: `border-radius: 12px; overflow: hidden;`,
-      }),
+
+    const bgColor = attrs.backgroundColor || '#10b981';
+    const secondaryColor = attrs.secondaryColor || '#059669';
+    const textColor = attrs.textColor || '#ffffff';
+
+    let backgroundStyle = '';
+    switch (attrs.templateStyle) {
+      case 'wave':
+        backgroundStyle = `background: linear-gradient(135deg, ${bgColor} 0%, ${secondaryColor} 100%);`;
+        break;
+      case 'gradient':
+        backgroundStyle = `background: linear-gradient(90deg, ${bgColor}, ${secondaryColor});`;
+        break;
+      case 'geometric':
+      case 'minimal':
+      default:
+        backgroundStyle = `background: ${bgColor};`;
+    }
+
+    const wrapperAttrs: Record<string, any> = {
+      'data-cta-banner': attrs.bannerId,
+      'data-template-style': attrs.templateStyle,
+      'data-bg-color': attrs.backgroundColor,
+      'data-secondary-color': attrs.secondaryColor,
+      'data-text-color': attrs.textColor,
+      'data-accent-color': attrs.accentColor,
+      'data-title': attrs.title,
+      'data-subtitle': attrs.subtitle,
+      'data-button-text': attrs.buttonText,
+      'data-button-url': attrs.buttonUrl,
+      'data-button-bg': attrs.buttonBackground,
+      'data-button-text-color': attrs.buttonTextColor,
+      'data-button-radius': attrs.buttonBorderRadius,
+      'data-popup-id': attrs.popupId || '',
+      class: 'cta-banner-wrapper my-8',
+      style: `border-radius: 12px; overflow: hidden; ${backgroundStyle} color: ${textColor}; padding: 2rem; text-align: center;`,
+    };
+
+    const buttonStyle = [
+      'display: inline-block',
+      'margin-top: 1rem',
+      'padding: 0.75rem 1.5rem',
+      `background: ${attrs.buttonBackground}`,
+      `color: ${attrs.buttonTextColor}`,
+      `border-radius: ${attrs.buttonBorderRadius}px`,
+      'text-decoration: none',
+      'font-weight: 600',
+    ].join('; ');
+
+    const children: any[] = [
+      ['h3', { style: `margin: 0 0 0.5rem 0; font-size: 1.5rem; font-weight: 700; color: ${textColor};` }, attrs.title],
     ];
+
+    if (attrs.subtitle) {
+      children.push(['p', { style: `margin: 0; opacity: 0.9; color: ${textColor};` }, attrs.subtitle]);
+    }
+
+    children.push([
+      'a',
+      {
+        href: attrs.buttonUrl || '#contact',
+        style: buttonStyle,
+        'data-popup-id': attrs.popupId || '',
+      },
+      attrs.buttonText,
+    ]);
+
+    return ['div', mergeAttributes(wrapperAttrs), ...children];
   },
 
   addNodeView() {

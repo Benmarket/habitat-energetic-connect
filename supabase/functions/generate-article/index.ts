@@ -83,7 +83,7 @@ serve(async (req) => {
 
     if (userId) {
       // Récupérer les boutons
-      const buttonsResponse = await fetch(`${supabaseUrl}/rest/v1/button_presets?select=id,name,text,url,background_color,text_color&user_id=eq.${userId}`, {
+      const buttonsResponse = await fetch(`${supabaseUrl}/rest/v1/button_presets?select=id,name,text,url,background_color,text_color,size,width,custom_width,align,border_radius,padding_x,padding_y,border_width,border_color,border_style,shadow_size,hover_effect,use_gradient,gradient_type,gradient_color1,gradient_color2,gradient_angle,hover_gradient_shift&user_id=eq.${userId}`, {
         headers: {
           'apikey': supabaseKey,
           'Authorization': `Bearer ${supabaseKey}`,
@@ -386,7 +386,7 @@ IMPORTANT :
       JSON.stringify({ 
         success: true,
         variants: variants.map((content, index) => {
-          const cleanContent = cleanHtml(content, ctaBanners);
+          const cleanContent = cleanHtml(content, ctaBanners, buttonPresets);
           const extractedFaq = extractFaq(cleanContent);
           const extractedTldr = extractTldr(cleanContent);
           
@@ -464,13 +464,13 @@ async function generateVariant(
   return data.choices[0].message.content;
 }
 
-function cleanHtml(htmlContent: string, ctaBanners: any[]): string {
+function cleanHtml(htmlContent: string, ctaBanners: any[], buttonPresets: any[] = []): string {
   // Nettoyer le contenu HTML des balises de code markdown
   let cleaned = htmlContent
     .replace(/```html\s*/gi, '')
     .replace(/```\s*/g, '')
     .trim();
-  
+
   // Nettoyer les entités HTML mal formées
   cleaned = cleaned
     .replace(/&amp;/g, '&')
@@ -478,77 +478,194 @@ function cleanHtml(htmlContent: string, ctaBanners: any[]): string {
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'");
-  
+
   // Convertir les boutons au format [BUTTON:Text|URL] en structure TipTap
-  cleaned = convertButtonsToCustomFormat(cleaned);
-  
+  cleaned = convertButtonsToCustomFormat(cleaned, buttonPresets);
+
   // Convertir les bandeaux CTA au format [CTA_BANNER:ID]
   cleaned = convertCtaBannersToHtml(cleaned, ctaBanners);
-  
+
   // Centrer toutes les images
   cleaned = centerImages(cleaned);
-  
+
   return cleaned;
 }
 
-function convertButtonsToCustomFormat(htmlContent: string): string {
-  // Convertir les balises [BUTTON:Text|URL] en structure TipTap professionnelle
+function convertButtonsToCustomFormat(htmlContent: string, buttonPresets: any[]): string {
   const buttonRegex = /\[BUTTON:([^\|]+)\|([^\]]+)\]/g;
-  
-  return htmlContent.replace(buttonRegex, (match, text, url) => {
+
+  const findPreset = (text: string, url: string) =>
+    buttonPresets.find(
+      (b: any) => (b.text || '').trim() === text.trim() && (b.url || '').trim() === url.trim(),
+    );
+
+  const toBool = (v: any, fallback: boolean) => {
+    if (typeof v === 'boolean') return v;
+    if (typeof v === 'string') return v === 'true';
+    return fallback;
+  };
+
+  const toNum = (v: any, fallback: number) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : fallback;
+  };
+
+  return htmlContent.replace(buttonRegex, (_match, rawText, rawUrl) => {
+    const text = String(rawText ?? '').trim();
+    const url = String(rawUrl ?? '').trim();
+
+    const preset = findPreset(text, url);
+
+    const backgroundColor = preset?.background_color ?? '#10b981';
+    const textColor = preset?.text_color ?? '#ffffff';
+
+    const size = preset?.size ?? 'medium';
+    const width = preset?.width ?? 'auto';
+    const customWidth = toNum(preset?.custom_width, 200);
+    const align = preset?.align ?? 'center';
+
+    const borderRadius = toNum(preset?.border_radius, 6);
+    const paddingX = toNum(preset?.padding_x, 24);
+    const paddingY = toNum(preset?.padding_y, 12);
+    const borderWidth = toNum(preset?.border_width, 0);
+    const borderColor = preset?.border_color ?? '#000000';
+    const borderStyle = preset?.border_style ?? 'solid';
+
+    const shadowSize = preset?.shadow_size ?? 'md';
+    const hoverEffect = toBool(preset?.hover_effect, true);
+
+    const useGradient = toBool(preset?.use_gradient, false);
+    const gradientType = preset?.gradient_type ?? 'linear';
+    const gradientColor1 = preset?.gradient_color1 ?? '#ec4899';
+    const gradientColor2 = preset?.gradient_color2 ?? '#8b5cf6';
+    const gradientAngle = toNum(preset?.gradient_angle, 90);
+    const hoverGradientShift = toBool(preset?.hover_gradient_shift, true);
+
+    const destinationType = url.startsWith('http')
+      ? 'external'
+      : url.startsWith('#')
+        ? 'anchor'
+        : 'internal';
+
+    const sizeMap: Record<string, string> = {
+      small: '14px',
+      medium: '16px',
+      large: '18px',
+    };
+
+    const shadowMap: Record<string, string> = {
+      none: 'none',
+      sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+      md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+    };
+
+    const widthStyle = width === 'full' ? '100%' : width === 'custom' ? `${customWidth}px` : 'auto';
+    const border = borderWidth > 0 ? `${borderWidth}px ${borderStyle} ${borderColor}` : 'none';
+
+    let backgroundStyle: string;
+    if (useGradient) {
+      if (gradientType === 'linear') {
+        backgroundStyle = `background: linear-gradient(${gradientAngle}deg, ${gradientColor1}, ${gradientColor2})`;
+      } else {
+        backgroundStyle = `background: radial-gradient(circle at center, ${gradientColor1}, ${gradientColor2})`;
+      }
+    } else {
+      backgroundStyle = `background-color: ${backgroundColor}`;
+    }
+
     const buttonStyle = [
-      'background-color: #10b981',
-      'color: #ffffff',
-      'padding: 12px 24px',
-      'border-radius: 6px',
-      'font-size: 16px',
+      backgroundStyle,
+      `color: ${textColor}`,
+      `padding: ${paddingY}px ${paddingX}px`,
+      `border-radius: ${borderRadius}px`,
+      `font-size: ${sizeMap[size] ?? '16px'}`,
       'font-weight: 500',
       'text-decoration: none',
       'display: inline-block',
-      'transition: all 0.2s ease',
-      'border: none',
+      'transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      `border: ${border}`,
       'cursor: pointer',
-      'width: auto',
+      `width: ${widthStyle}`,
       'text-align: center',
-      'box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+      `box-shadow: ${shadowMap[shadowSize] ?? shadowMap.md}`,
     ].join('; ');
-    
-    return `<div data-custom-button class="custom-button-wrapper my-4" style="text-align: center">
-  <a href="${url.trim()}" style="${buttonStyle}" target="_blank" rel="noopener noreferrer" data-button-text="${text.trim()}" data-button-color="#10b981">
-    ${text.trim()}
-  </a>
+
+    const targetAttr = destinationType === 'external' ? ' target="_blank"' : '';
+    const relAttr = destinationType === 'external' ? ' rel="noopener noreferrer"' : '';
+
+    return `<div data-custom-button class="custom-button-wrapper my-4" style="text-align: ${align}"
+  data-text="${escapeHtmlAttr(text)}"
+  data-url="${escapeHtmlAttr(url)}"
+  data-destination-type="${destinationType}"
+  data-background-color="${escapeHtmlAttr(backgroundColor)}"
+  data-text-color="${escapeHtmlAttr(textColor)}"
+  data-size="${size}"
+  data-width="${width}"
+  data-custom-width="${customWidth}"
+  data-align="${align}"
+  data-border-radius="${borderRadius}"
+  data-padding-x="${paddingX}"
+  data-padding-y="${paddingY}"
+  data-border-width="${borderWidth}"
+  data-border-color="${escapeHtmlAttr(borderColor)}"
+  data-border-style="${borderStyle}"
+  data-shadow-size="${shadowSize}"
+  data-hover-effect="${hoverEffect}"
+  data-use-gradient="${useGradient}"
+  data-gradient-type="${gradientType}"
+  data-gradient-direction="to-right"
+  data-gradient-color1="${escapeHtmlAttr(gradientColor1)}"
+  data-gradient-color2="${escapeHtmlAttr(gradientColor2)}"
+  data-gradient-angle="${gradientAngle}"
+  data-hover-gradient-shift="${hoverGradientShift}">
+  <a href="${escapeHtmlAttr(url)}" style="${escapeHtmlAttr(buttonStyle)}"${targetAttr}${relAttr}
+     data-button-text="${escapeHtmlAttr(text)}"
+     data-button-color="${escapeHtmlAttr(backgroundColor)}"
+     data-destination-type="${destinationType}">${escapeHtmlText(text)}</a>
 </div>`;
   });
 }
 
 function convertCtaBannersToHtml(htmlContent: string, ctaBanners: any[]): string {
-  // Convertir les placeholders [CTA_BANNER:ID] en HTML de bandeau
   const bannerRegex = /\[CTA_BANNER:([^\]]+)\]/g;
-  
-  return htmlContent.replace(bannerRegex, (match, bannerId) => {
-    const banner = ctaBanners.find(b => b.id === bannerId.trim());
-    
+
+  return htmlContent.replace(bannerRegex, (_match, bannerId) => {
+    const banner = ctaBanners.find((b) => b.id === String(bannerId).trim());
+
     if (!banner) {
-      // Si le bandeau n'est pas trouvé, essayer de trouver un bandeau aléatoire
       if (ctaBanners.length > 0) {
         const randomBanner = ctaBanners[Math.floor(Math.random() * ctaBanners.length)];
         return generateBannerHtml(randomBanner);
       }
-      return ''; // Supprimer le placeholder si aucun bandeau disponible
+      return '';
     }
-    
+
     return generateBannerHtml(banner);
   });
 }
 
 function generateBannerHtml(banner: any): string {
+  const bannerId = String(banner.id ?? '').trim();
+  const templateStyle = String(banner.template_style ?? 'wave');
+
   const bgColor = banner.background_color || '#0284c7';
   const secondaryColor = banner.secondary_color || '#0369a1';
   const textColor = banner.text_color || '#ffffff';
   const accentColor = banner.accent_color || '#f59e0b';
-  
+
+  const title = String(banner.title ?? '').trim();
+  const subtitle = String(banner.subtitle ?? '').trim();
+
+  // Cohérent avec CustomCtaBanner
+  const buttonText = 'Profiter de cette offre';
+  const buttonUrl = '#contact';
+  const buttonBg = accentColor;
+  const buttonTextColor = '#000000';
+  const buttonRadius = 6;
+
   let backgroundStyle = '';
-  switch (banner.template_style) {
+  switch (templateStyle) {
     case 'wave':
       backgroundStyle = `background: linear-gradient(135deg, ${bgColor} 0%, ${secondaryColor} 100%);`;
       break;
@@ -562,13 +679,37 @@ function generateBannerHtml(banner: any): string {
     default:
       backgroundStyle = `background: ${bgColor};`;
   }
-  
-  return `<div class="cta-banner my-8" style="${backgroundStyle} color: ${textColor}; padding: 2rem; border-radius: 12px; text-align: center;">
-  <h3 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; font-weight: bold; color: ${textColor};">${banner.title}</h3>
-  ${banner.subtitle ? `<p style="margin: 0; opacity: 0.9; color: ${textColor};">${banner.subtitle}</p>` : ''}
-  <a href="#contact" style="display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; background: ${accentColor}; color: #000; border-radius: 6px; text-decoration: none; font-weight: 600;">
-    Profiter de cette offre
-  </a>
+
+  const buttonStyle = [
+    'display: inline-block',
+    'margin-top: 1rem',
+    'padding: 0.75rem 1.5rem',
+    `background: ${buttonBg}`,
+    `color: ${buttonTextColor}`,
+    `border-radius: ${buttonRadius}px`,
+    'text-decoration: none',
+    'font-weight: 600',
+  ].join('; ');
+
+  return `<div data-cta-banner="${escapeHtmlAttr(bannerId)}"
+  data-template-style="${escapeHtmlAttr(templateStyle)}"
+  data-bg-color="${escapeHtmlAttr(bgColor)}"
+  data-secondary-color="${escapeHtmlAttr(secondaryColor)}"
+  data-text-color="${escapeHtmlAttr(textColor)}"
+  data-accent-color="${escapeHtmlAttr(accentColor)}"
+  data-title="${escapeHtmlAttr(title)}"
+  data-subtitle="${escapeHtmlAttr(subtitle)}"
+  data-button-text="${escapeHtmlAttr(buttonText)}"
+  data-button-url="${escapeHtmlAttr(buttonUrl)}"
+  data-button-bg="${escapeHtmlAttr(buttonBg)}"
+  data-button-text-color="${escapeHtmlAttr(buttonTextColor)}"
+  data-button-radius="${buttonRadius}"
+  data-popup-id=""
+  class="cta-banner-wrapper my-8"
+  style="border-radius: 12px; overflow: hidden; ${escapeHtmlAttr(backgroundStyle)} color: ${escapeHtmlAttr(textColor)}; padding: 2rem; text-align: center;">
+  <h3 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; font-weight: 700; color: ${escapeHtmlAttr(textColor)};">${escapeHtmlText(title)}</h3>
+  ${subtitle ? `<p style="margin: 0; opacity: 0.9; color: ${escapeHtmlAttr(textColor)};">${escapeHtmlText(subtitle)}</p>` : ''}
+  <a href="${escapeHtmlAttr(buttonUrl)}" style="${escapeHtmlAttr(buttonStyle)}">${escapeHtmlText(buttonText)}</a>
 </div>`;
 }
 
@@ -578,6 +719,21 @@ function centerImages(htmlContent: string): string {
     /<img([^>]*)>/g,
     '<div style="text-align: center; margin: 1.5rem 0;"><img$1 style="max-width: 100%; height: auto; border-radius: 8px;"></div>'
   );
+}
+
+function escapeHtmlAttr(value: string): string {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function escapeHtmlText(value: string): string {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 function extractTitle(htmlContent: string): string {

@@ -138,6 +138,58 @@ export const CustomButton = Node.create<CustomButtonOptions>({
     return [
       {
         tag: 'div[data-custom-button]',
+        getAttrs: (element) => {
+          if (typeof element === 'string') return false;
+          const dom = element as HTMLElement;
+
+          const get = (k: string) => dom.getAttribute(k);
+          const a = dom.querySelector('a') as HTMLAnchorElement | null;
+
+          const urlRaw = (get('data-url') ?? a?.getAttribute('href') ?? '#contact').trim();
+          const derivedDestinationType = urlRaw.startsWith('http')
+            ? 'external'
+            : urlRaw.startsWith('#')
+              ? 'anchor'
+              : 'internal';
+
+          const num = (v: string | null, fallback: number) => {
+            const n = Number(v);
+            return Number.isFinite(n) ? n : fallback;
+          };
+
+          return {
+            text: (get('data-text') ?? a?.getAttribute('data-button-text') ?? a?.textContent ?? 'Cliquez ici').trim(),
+            url: urlRaw,
+            destinationType: ((get('data-destination-type') ?? a?.getAttribute('data-destination-type')) as any) ?? derivedDestinationType,
+            popupId: get('data-popup-id') ?? a?.getAttribute('data-popup-id') ?? null,
+
+            backgroundColor: (get('data-background-color') ?? a?.getAttribute('data-button-color') ?? '#10b981').trim(),
+            textColor: (get('data-text-color') ?? '#ffffff').trim(),
+
+            size: (get('data-size') as any) ?? 'medium',
+            width: (get('data-width') as any) ?? 'auto',
+            customWidth: num(get('data-custom-width'), 200),
+            align: (get('data-align') as any) ?? 'center',
+
+            borderRadius: num(get('data-border-radius'), 6),
+            paddingX: num(get('data-padding-x'), 24),
+            paddingY: num(get('data-padding-y'), 12),
+            borderWidth: num(get('data-border-width'), 0),
+            borderColor: (get('data-border-color') ?? '#000000').trim(),
+            borderStyle: (get('data-border-style') as any) ?? 'solid',
+
+            shadowSize: (get('data-shadow-size') as any) ?? 'md',
+            hoverEffect: (get('data-hover-effect') ?? 'true') === 'true',
+
+            useGradient: (get('data-use-gradient') ?? 'false') === 'true',
+            gradientType: (get('data-gradient-type') as any) ?? 'linear',
+            gradientDirection: (get('data-gradient-direction') as any) ?? 'to-right',
+            gradientColor1: (get('data-gradient-color1') ?? '#ec4899').trim(),
+            gradientColor2: (get('data-gradient-color2') ?? '#8b5cf6').trim(),
+            gradientAngle: num(get('data-gradient-angle'), 90),
+            hoverGradientShift: (get('data-hover-gradient-shift') ?? 'true') === 'true',
+          };
+        },
       },
     ];
   },
@@ -161,11 +213,14 @@ export const CustomButton = Node.create<CustomButtonOptions>({
       borderColor,
       borderStyle,
       shadowSize,
+      hoverEffect,
       useGradient,
       gradientType,
+      gradientDirection,
       gradientColor1,
       gradientColor2,
       gradientAngle,
+      hoverGradientShift,
     } = HTMLAttributes;
 
     const sizeMap = {
@@ -229,6 +284,31 @@ export const CustomButton = Node.create<CustomButtonOptions>({
       'div',
       mergeAttributes(this.options.HTMLAttributes, {
         'data-custom-button': '',
+        'data-text': text,
+        'data-url': url,
+        'data-destination-type': destinationType,
+        'data-popup-id': popupId ?? '',
+        'data-background-color': backgroundColor,
+        'data-text-color': textColor,
+        'data-size': size,
+        'data-width': width,
+        'data-custom-width': customWidth,
+        'data-align': align,
+        'data-border-radius': borderRadius,
+        'data-padding-x': paddingX,
+        'data-padding-y': paddingY,
+        'data-border-width': borderWidth,
+        'data-border-color': borderColor,
+        'data-border-style': borderStyle,
+        'data-shadow-size': shadowSize,
+        'data-hover-effect': String(hoverEffect),
+        'data-use-gradient': String(useGradient),
+        'data-gradient-type': gradientType,
+        'data-gradient-direction': gradientDirection,
+        'data-gradient-color1': gradientColor1,
+        'data-gradient-color2': gradientColor2,
+        'data-gradient-angle': gradientAngle,
+        'data-hover-gradient-shift': String(hoverGradientShift),
         class: 'custom-button-wrapper my-4',
         style: `text-align: ${align}`,
       }),
