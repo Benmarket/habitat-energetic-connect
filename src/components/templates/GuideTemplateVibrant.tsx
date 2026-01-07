@@ -1,10 +1,9 @@
 import { ReactNode, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, ArrowLeft, Tag, Sparkles, Zap } from "lucide-react";
+import { Calendar, Clock, ArrowLeft, Sparkles, Zap, Star } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { TableOfContents } from "@/components/TableOfContents";
+import { useActiveSection } from "@/hooks/useActiveSection";
 
 interface TemplateColors {
   primary: string;
@@ -50,84 +49,110 @@ export const GuideTemplateVibrant = ({
   children,
   isPaywalled = false,
 }: GuideTemplateVibrantProps) => {
-  const [scrollProgress, setScrollProgress] = useState(0);
   const category = guide.post_categories?.[0]?.categories;
   const colors = guide.template_colors || DEFAULT_COLORS;
+  const { activeId, scrollProgress, scrollToSection } = useActiveSection(toc);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-      setScrollProgress(progress);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    setIsLoaded(true);
   }, []);
 
   return (
-    <main className="pt-20 min-h-screen" style={{ backgroundColor: colors.surface }}>
-      {/* Progress Bar */}
-      <div className="fixed top-20 left-0 right-0 h-1 z-50 bg-gray-200">
+    <main className="pt-20 min-h-screen overflow-hidden" style={{ backgroundColor: colors.surface }}>
+      {/* Animated gradient progress bar */}
+      <div className="fixed top-20 left-0 right-0 h-1.5 z-50 bg-gray-200">
         <div 
-          className="h-full transition-all duration-100"
+          className="h-full transition-all duration-100 relative"
           style={{ 
             width: `${scrollProgress}%`,
-            background: `linear-gradient(90deg, ${colors.primary}, ${colors.secondary}, ${colors.accent})`
+            background: `linear-gradient(90deg, ${colors.primary}, ${colors.secondary}, ${colors.accent}, ${colors.primary})`
           }}
-        />
+        >
+          {/* Shimmer effect */}
+          <div 
+            className="absolute inset-0 opacity-50"
+            style={{
+              background: 'linear-gradient(90deg, transparent 0%, white 50%, transparent 100%)',
+              animation: 'shimmer 2s infinite'
+            }}
+          />
+        </div>
       </div>
 
-      {/* Animated Hero */}
+      {/* Animated Hero with blobs */}
       <section 
-        className="relative py-20 lg:py-32 overflow-hidden"
+        className="relative py-24 lg:py-36 overflow-hidden"
         style={{ 
-          background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`
+          background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 50%, ${colors.primary} 100%)`
         }}
       >
-        {/* Animated Waves */}
+        {/* Animated blob shapes */}
         <div className="absolute inset-0 overflow-hidden">
+          <div 
+            className="absolute -top-20 -left-20 w-96 h-96 rounded-full blur-3xl opacity-30 animate-pulse"
+            style={{ backgroundColor: colors.accent, animationDuration: '4s' }}
+          />
+          <div 
+            className="absolute top-1/2 -right-20 w-80 h-80 rounded-full blur-3xl opacity-20 animate-pulse"
+            style={{ backgroundColor: colors.surface, animationDuration: '5s', animationDelay: '1s' }}
+          />
+          <div 
+            className="absolute -bottom-32 left-1/3 w-72 h-72 rounded-full blur-3xl opacity-25 animate-pulse"
+            style={{ backgroundColor: colors.accent, animationDuration: '6s', animationDelay: '2s' }}
+          />
+        </div>
+
+        {/* Animated waves at bottom */}
+        <div className="absolute bottom-0 left-0 right-0">
           <svg 
-            className="absolute bottom-0 left-0 right-0 w-full"
             viewBox="0 0 1440 200" 
+            className="w-full h-auto"
             preserveAspectRatio="none"
-            style={{ height: '200px' }}
           >
             <path 
               fill={colors.surface}
-              opacity="0.1"
-              d="M0,100 C240,200 480,0 720,100 C960,200 1200,0 1440,100 L1440,200 L0,200 Z"
+              opacity="0.15"
+              d="M0,100 C240,180 480,20 720,100 C960,180 1200,20 1440,100 L1440,200 L0,200 Z"
             >
               <animate 
                 attributeName="d" 
-                dur="10s" 
+                dur="8s" 
                 repeatCount="indefinite"
                 values="
-                  M0,100 C240,200 480,0 720,100 C960,200 1200,0 1440,100 L1440,200 L0,200 Z;
-                  M0,100 C240,0 480,200 720,100 C960,0 1200,200 1440,100 L1440,200 L0,200 Z;
-                  M0,100 C240,200 480,0 720,100 C960,200 1200,0 1440,100 L1440,200 L0,200 Z
+                  M0,100 C240,180 480,20 720,100 C960,180 1200,20 1440,100 L1440,200 L0,200 Z;
+                  M0,100 C240,20 480,180 720,100 C960,20 1200,180 1440,100 L1440,200 L0,200 Z;
+                  M0,100 C240,180 480,20 720,100 C960,180 1200,20 1440,100 L1440,200 L0,200 Z
                 "
               />
             </path>
-          </svg>
-          <svg 
-            className="absolute bottom-0 left-0 right-0 w-full"
-            viewBox="0 0 1440 200" 
-            preserveAspectRatio="none"
-            style={{ height: '150px' }}
-          >
             <path 
               fill={colors.surface}
-              d="M0,150 C360,50 720,250 1080,150 C1260,100 1440,150 1440,150 L1440,200 L0,200 Z"
+              opacity="0.3"
+              d="M0,120 C360,80 720,160 1080,120 C1260,100 1440,140 1440,140 L1440,200 L0,200 Z"
+            >
+              <animate 
+                attributeName="d" 
+                dur="6s" 
+                repeatCount="indefinite"
+                values="
+                  M0,120 C360,80 720,160 1080,120 C1260,100 1440,140 1440,140 L1440,200 L0,200 Z;
+                  M0,120 C360,160 720,80 1080,120 C1260,140 1440,100 1440,100 L1440,200 L0,200 Z;
+                  M0,120 C360,80 720,160 1080,120 C1260,100 1440,140 1440,140 L1440,200 L0,200 Z
+                "
+              />
+            </path>
+            <path 
+              fill={colors.surface}
+              d="M0,160 Q360,120 720,160 T1440,160 L1440,200 L0,200 Z"
             />
           </svg>
         </div>
 
-        <div className="container mx-auto px-4 max-w-5xl relative z-10">
+        <div className={`container mx-auto px-4 max-w-5xl relative z-10 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <Link 
             to="/guides"
-            className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-8 transition-all hover:-translate-x-1"
+            className="inline-flex items-center gap-2 text-white/70 hover:text-white mb-10 transition-all hover:-translate-x-2"
           >
             <ArrowLeft className="w-4 h-4" />
             Retour aux guides
@@ -135,111 +160,121 @@ export const GuideTemplateVibrant = ({
           
           {category && (
             <div 
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
-              style={{ backgroundColor: colors.accent }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full mb-8 animate-bounce"
+              style={{ 
+                backgroundColor: colors.accent,
+                animationDuration: '2s'
+              }}
             >
-              <Sparkles className="w-4 h-4 text-white" />
-              <span className="text-sm font-bold text-white uppercase tracking-wide">
+              <Sparkles className="w-5 h-5 text-white" />
+              <span className="text-sm font-bold text-white uppercase tracking-wider">
                 {category.name}
               </span>
             </div>
           )}
           
-          <h1 className="text-4xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
+          <h1 className="text-5xl lg:text-7xl font-black text-white leading-tight mb-8">
             {guide.title}
           </h1>
           
           {guide.excerpt && (
-            <p className="text-xl text-white/90 max-w-2xl leading-relaxed">
+            <p className="text-xl lg:text-2xl text-white/90 max-w-3xl leading-relaxed font-light">
               {guide.excerpt}
             </p>
           )}
           
-          <div className="flex flex-wrap items-center gap-6 mt-8">
+          <div className="flex flex-wrap items-center gap-4 mt-10">
             {guide.published_at && (
               <div 
-                className="flex items-center gap-2 px-4 py-2 rounded-full"
-                style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
+                className="flex items-center gap-2 px-5 py-3 rounded-full backdrop-blur-md"
+                style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}
               >
-                <Calendar className="w-4 h-4 text-white" />
-                <span className="text-white text-sm font-medium">
+                <Calendar className="w-5 h-5 text-white" />
+                <span className="text-white font-medium">
                   {format(new Date(guide.published_at), "d MMMM yyyy", { locale: fr })}
                 </span>
               </div>
             )}
             <div 
-              className="flex items-center gap-2 px-4 py-2 rounded-full"
-              style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
+              className="flex items-center gap-2 px-5 py-3 rounded-full backdrop-blur-md"
+              style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}
             >
-              <Clock className="w-4 h-4 text-white" />
-              <span className="text-white text-sm font-medium">{readingTime} min de lecture</span>
+              <Clock className="w-5 h-5 text-white" />
+              <span className="text-white font-medium">{readingTime} min de lecture</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Featured Image with Overlay Effect */}
+      {/* Featured Image with gradient border */}
       {guide.featured_image && (
-        <div className="container mx-auto px-4 max-w-5xl -mt-16 relative z-20">
+        <div className="container mx-auto px-4 max-w-5xl -mt-20 relative z-20">
           <div 
-            className="rounded-3xl overflow-hidden shadow-2xl p-2"
-            style={{ background: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})` }}
+            className="p-1.5 rounded-3xl shadow-2xl"
+            style={{ background: `linear-gradient(135deg, ${colors.primary}, ${colors.accent}, ${colors.secondary})` }}
           >
             <img
               src={guide.featured_image}
               alt={guide.title}
-              className="w-full h-[350px] lg:h-[450px] object-cover rounded-2xl"
+              className="w-full h-[400px] lg:h-[500px] object-cover rounded-[1.25rem]"
             />
           </div>
         </div>
       )}
 
       {/* Content */}
-      <article className="py-16 lg:py-24">
+      <article className="py-20 lg:py-28">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-12 max-w-6xl mx-auto">
             {/* Main Content */}
             <div className="flex-1 max-w-3xl">
-              {/* Tags */}
+              {/* Tags with 3D hover effect */}
               {guide.post_tags && guide.post_tags.length > 0 && (
-                <div className="flex flex-wrap gap-3 mb-10">
+                <div className="flex flex-wrap gap-3 mb-12">
                   {guide.post_tags.map((pt) => (
                     <span 
                       key={pt.tags.id}
-                      className="inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-full transition-transform hover:scale-105"
+                      className="inline-flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-full transition-all duration-300 hover:scale-110 hover:shadow-lg cursor-default"
                       style={{ 
                         background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
-                        color: 'white'
+                        color: 'white',
+                        boxShadow: `0 4px 15px ${colors.primary}40`
                       }}
                     >
-                      <Zap className="w-3.5 h-3.5" />
+                      <Zap className="w-4 h-4" />
                       {pt.tags.name}
                     </span>
                   ))}
                 </div>
               )}
 
-              {/* TL;DR */}
+              {/* TL;DR with animated gradient border */}
               {guide.tldr && (
                 <div 
-                  className="relative p-8 rounded-3xl mb-12 overflow-hidden"
+                  className="relative p-1 rounded-3xl mb-14"
                   style={{ 
-                    background: `linear-gradient(135deg, ${colors.primary}15, ${colors.secondary}15)`
+                    background: `linear-gradient(135deg, ${colors.primary}, ${colors.accent}, ${colors.secondary}, ${colors.primary})`
                   }}
                 >
                   <div 
-                    className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-30"
-                    style={{ backgroundColor: colors.accent }}
-                  />
-                  <div className="relative z-10">
-                    <div 
-                      className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-4"
-                      style={{ color: colors.primary }}
-                    >
-                      <Sparkles className="w-4 h-4" />
-                      En bref
+                    className="p-8 rounded-[1.25rem]"
+                    style={{ backgroundColor: colors.surface }}
+                  >
+                    <div className="flex items-center gap-3 mb-4">
+                      <div 
+                        className="w-10 h-10 rounded-xl flex items-center justify-center"
+                        style={{ background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})` }}
+                      >
+                        <Sparkles className="w-5 h-5 text-white" />
+                      </div>
+                      <span 
+                        className="text-sm font-bold uppercase tracking-wider"
+                        style={{ color: colors.primary }}
+                      >
+                        En bref
+                      </span>
                     </div>
-                    <p className="text-lg leading-relaxed text-gray-800">
+                    <p className="text-lg leading-relaxed text-gray-700">
                       {guide.tldr}
                     </p>
                   </div>
@@ -251,17 +286,18 @@ export const GuideTemplateVibrant = ({
                 <div
                   className="prose prose-lg max-w-none
                     prose-headings:font-bold
-                    prose-h2:text-3xl prose-h2:mt-16 prose-h2:mb-6 prose-h2:relative
-                    prose-h3:text-2xl prose-h3:mt-10 prose-h3:mb-4
-                    prose-p:leading-relaxed prose-p:text-gray-700
-                    prose-a:font-semibold prose-a:no-underline
+                    prose-h2:text-3xl prose-h2:mt-20 prose-h2:mb-8 prose-h2:scroll-mt-28
+                    prose-h3:text-2xl prose-h3:mt-12 prose-h3:mb-5
+                    prose-p:leading-[1.8] prose-p:text-gray-600
+                    prose-a:font-bold prose-a:no-underline prose-a:bg-gradient-to-r prose-a:from-transparent prose-a:to-transparent prose-a:bg-[length:100%_2px] prose-a:bg-bottom prose-a:bg-no-repeat hover:prose-a:bg-[length:100%_100%] prose-a:transition-all
                     prose-strong:font-bold
-                    prose-ul:my-6 prose-ol:my-6
+                    prose-ul:my-8 prose-ol:my-8
                     prose-li:my-2
-                    prose-img:rounded-2xl prose-img:shadow-xl"
+                    prose-img:rounded-3xl prose-img:shadow-2xl"
                   style={{
                     '--tw-prose-links': colors.primary,
                     '--tw-prose-headings': colors.primary,
+                    '--tw-prose-bullets': colors.accent,
                   } as React.CSSProperties}
                   dangerouslySetInnerHTML={{ __html: contentWithIds }}
                 />
@@ -269,21 +305,26 @@ export const GuideTemplateVibrant = ({
                 {isPaywalled && children}
               </div>
 
-              {/* FAQ */}
+              {/* FAQ with cards */}
               {!isPaywalled && guide.faq && guide.faq.length > 0 && (
-                <div className="mt-20 pt-12 border-t-4" style={{ borderColor: colors.accent }}>
-                  <h2 
-                    className="text-3xl font-bold mb-10 flex items-center gap-3"
-                    style={{ color: colors.primary }}
+                <div className="mt-24">
+                  <div 
+                    className="inline-flex items-center gap-3 px-6 py-3 rounded-full mb-10"
+                    style={{ background: `linear-gradient(135deg, ${colors.primary}15, ${colors.secondary}15)` }}
                   >
-                    <Sparkles style={{ color: colors.accent }} />
-                    Questions fréquentes
-                  </h2>
-                  <div className="space-y-4">
+                    <Star style={{ color: colors.accent }} className="w-5 h-5" />
+                    <h2 
+                      className="text-2xl font-bold"
+                      style={{ color: colors.primary }}
+                    >
+                      Questions fréquentes
+                    </h2>
+                  </div>
+                  <div className="grid gap-4">
                     {guide.faq.map((item, index) => (
                       <div 
                         key={index} 
-                        className="p-6 rounded-2xl border-2 transition-all hover:shadow-lg"
+                        className="p-6 rounded-2xl border-2 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                         style={{ 
                           borderColor: `${colors.primary}20`,
                           backgroundColor: 'white'
@@ -295,7 +336,7 @@ export const GuideTemplateVibrant = ({
                         >
                           {item.question}
                         </h3>
-                        <p className="text-gray-600">{item.answer}</p>
+                        <p className="text-gray-600 leading-relaxed">{item.answer}</p>
                       </div>
                     ))}
                   </div>
@@ -303,39 +344,55 @@ export const GuideTemplateVibrant = ({
               )}
             </div>
 
-            {/* Sticky TOC */}
+            {/* Sticky TOC with gradient */}
             {toc.length > 0 && !isPaywalled && (
-              <aside className="hidden lg:block w-72 flex-shrink-0">
+              <aside className="hidden lg:block w-80 flex-shrink-0">
                 <div className="sticky top-28">
                   <div 
-                    className="p-6 rounded-2xl"
-                    style={{ 
-                      background: `linear-gradient(135deg, ${colors.primary}10, ${colors.secondary}10)`
-                    }}
+                    className="p-1 rounded-2xl"
+                    style={{ background: `linear-gradient(135deg, ${colors.primary}30, ${colors.secondary}30)` }}
                   >
                     <div 
-                      className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2"
-                      style={{ color: colors.primary }}
+                      className="p-6 rounded-xl"
+                      style={{ backgroundColor: colors.surface }}
                     >
-                      <Sparkles className="w-4 h-4" style={{ color: colors.accent }} />
-                      Sommaire
+                      <div 
+                        className="text-sm font-bold uppercase tracking-wider mb-5 flex items-center gap-2"
+                        style={{ color: colors.primary }}
+                      >
+                        <Sparkles className="w-4 h-4" style={{ color: colors.accent }} />
+                        Sommaire
+                      </div>
+                      <nav className="space-y-2">
+                        {toc.map((item, index) => (
+                          <button
+                            key={item.id}
+                            onClick={() => scrollToSection(item.id)}
+                            className={`w-full text-left text-sm py-3 px-4 rounded-xl transition-all duration-300 flex items-center gap-3 ${
+                              activeId === item.id 
+                                ? 'font-bold text-white shadow-lg' 
+                                : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                            style={{
+                              background: activeId === item.id 
+                                ? `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})` 
+                                : 'transparent',
+                              paddingLeft: `${16 + (item.level - 2) * 12}px`
+                            }}
+                          >
+                            <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold ${
+                              activeId === item.id 
+                                ? 'bg-white/20 text-white' 
+                                : 'bg-gray-100'
+                            }`}
+                            style={{ color: activeId !== item.id ? colors.primary : undefined }}>
+                              {index + 1}
+                            </span>
+                            <span className="truncate">{item.text}</span>
+                          </button>
+                        ))}
+                      </nav>
                     </div>
-                    <nav className="space-y-3">
-                      {toc.map((item) => (
-                        <a
-                          key={item.id}
-                          href={`#${item.id}`}
-                          className="block text-sm font-medium transition-all hover:translate-x-1"
-                          style={{ 
-                            paddingLeft: `${(item.level - 2) * 12}px`,
-                            color: colors.primary,
-                            opacity: 0.7,
-                          }}
-                        >
-                          {item.text}
-                        </a>
-                      ))}
-                    </nav>
                   </div>
                 </div>
               </aside>
@@ -343,6 +400,13 @@ export const GuideTemplateVibrant = ({
           </div>
         </div>
       </article>
+
+      <style>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </main>
   );
 };
