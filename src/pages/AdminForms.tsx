@@ -527,6 +527,41 @@ export default function AdminForms() {
   const totalSubmissionsPages = Math.ceil(sortedSubmissions.length / submissionsPerPage);
 
   // Get all field names from submissions
+  // Get field label from schema
+  const getFieldLabel = (fieldName: string): string => {
+    if (!selectedForm?.fields_schema) return fieldName;
+    const schema = selectedForm.fields_schema as Array<{ name: string; label: string }>;
+    const field = schema.find((f) => f.name === fieldName);
+    return field?.label || fieldName;
+  };
+
+  // Format field value for display
+  const formatFieldValue = (fieldName: string, value: any): string => {
+    if (value === null || value === undefined) return "-";
+    
+    // Mapping for common values
+    const valueLabels: Record<string, Record<string, string>> = {
+      propertyType: { maison: "Maison", appartement: "Appartement" },
+      isOwner: { oui: "Oui", non: "Non" },
+      heatingSystem: { gaz: "Gaz", fuel: "Fuel", electrique: "Électrique", autres: "Autres" },
+      installationType: { 
+        "panneaux-photovoltaiques": "Panneaux photovoltaïques", 
+        chauffage: "Chauffage", 
+        isolation: "Isolation", 
+        renovation: "Rénovation globale",
+        "ne-sait-pas": "Ne sait pas"
+      },
+    };
+    
+    if (valueLabels[fieldName] && valueLabels[fieldName][value]) {
+      return valueLabels[fieldName][value];
+    }
+    
+    if (typeof value === "boolean") return value ? "Oui" : "Non";
+    if (typeof value === "object") return JSON.stringify(value);
+    return String(value);
+  };
+
   const getFieldNames = (): string[] => {
     if (!submissions || submissions.length === 0) return [];
     const fields = new Set<string>();
@@ -1134,7 +1169,7 @@ export default function AdminForms() {
                           onClick={() => handleSort(field)}
                         >
                           <div className="flex items-center gap-1">
-                            {field}
+                            {getFieldLabel(field)}
                             {sortColumn === field ? (
                               sortDirection === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
                             ) : (
@@ -1163,9 +1198,7 @@ export default function AdminForms() {
                         </TableCell>
                         {getFieldNames().map((field) => (
                           <TableCell key={field} className="max-w-[200px] truncate">
-                            {typeof submission.data[field] === "object" 
-                              ? JSON.stringify(submission.data[field]) 
-                              : String(submission.data[field] || "-")}
+                            {formatFieldValue(field, submission.data[field])}
                           </TableCell>
                         ))}
                         <TableCell>
