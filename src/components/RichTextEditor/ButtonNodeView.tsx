@@ -1,11 +1,12 @@
 import { NodeViewWrapper } from '@tiptap/react';
 import { NodeViewProps } from '@tiptap/core';
 import { ButtonAttributes } from './CustomButton';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 export const ButtonNodeView = ({ node, selected, editor, getPos }: NodeViewProps) => {
   const attrs = node.attrs as ButtonAttributes;
   const [isHovered, setIsHovered] = useState(false);
+  const lastClickTime = useRef(0);
 
   const sizeMap = {
     small: '14px',
@@ -75,14 +76,24 @@ export const ButtonNodeView = ({ node, selected, editor, getPos }: NodeViewProps
     e.preventDefault();
     e.stopPropagation();
     
+    // Éviter les clics multiples rapides
+    const now = Date.now();
+    if (now - lastClickTime.current < 300) {
+      return;
+    }
+    lastClickTime.current = now;
+    
     if (typeof getPos === 'function') {
       const pos = getPos();
       editor.commands.setNodeSelection(pos);
       
-      const event = new CustomEvent('edit-button', {
-        detail: { attrs, pos },
-      });
-      window.dispatchEvent(event);
+      // Utiliser setTimeout pour éviter les conflits avec la fermeture du modal
+      setTimeout(() => {
+        const event = new CustomEvent('edit-button', {
+          detail: { attrs, pos },
+        });
+        window.dispatchEvent(event);
+      }, 10);
     }
   };
 
