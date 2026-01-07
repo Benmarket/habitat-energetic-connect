@@ -87,12 +87,18 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   // Écouter les événements de double-clic sur les boutons et images
   useEffect(() => {
     const handleEditButton = (event: any) => {
+      // Ne pas ouvrir si le modal est déjà ouvert
+      if (buttonDialogOpen) return;
+      
       const { attrs, pos } = event.detail;
       setEditingButton({ attrs, pos });
       setButtonDialogOpen(true);
     };
 
     const handleEditImage = (event: any) => {
+      // Ne pas ouvrir si le modal est déjà ouvert
+      if (imageDialogOpen) return;
+      
       const { attrs } = event.detail;
       setEditingImage(attrs);
       setImageDialogOpen(true);
@@ -104,7 +110,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       window.removeEventListener('edit-button', handleEditButton);
       window.removeEventListener('edit-image', handleEditImage);
     };
-  }, []);
+  }, [buttonDialogOpen, imageDialogOpen]);
 
   if (!editor) {
     return null;
@@ -144,12 +150,19 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       // Mise à jour d'un bouton existant
       editor?.commands.setNodeSelection(editingButton.pos);
       editor?.commands.updateCustomButton(config);
-      setEditingButton(null);
     } else {
       // Ajout d'un nouveau bouton
       editor?.chain().focus().setCustomButton(config).run();
     }
+    setEditingButton(null);
     setButtonDialogOpen(false);
+  };
+
+  const handleButtonDialogClose = (open: boolean) => {
+    if (!open) {
+      setEditingButton(null);
+    }
+    setButtonDialogOpen(open);
   };
 
   const handleFavoriteButtonSelect = (config: any) => {
