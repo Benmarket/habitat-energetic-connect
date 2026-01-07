@@ -501,7 +501,10 @@ const CreatePost = () => {
           keywords: formData.focus_keywords.length > 0 ? formData.focus_keywords : ['panneau solaire'],
           contentType: contentType,
           baseContent: currentVariant.content,
-          additionalInstructions: instructions
+          additionalInstructions: instructions,
+          customInstructions: currentAiInstructions,
+          guideTemplate: contentType === 'guide' ? formData.guide_template : undefined,
+          userId: user?.id,
         }
       });
 
