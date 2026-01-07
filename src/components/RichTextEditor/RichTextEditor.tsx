@@ -183,9 +183,9 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     editor?.chain().focus().insertContent(bannerHtml).run();
   };
 
-  const handleFavoriteCtaBannerSelect = (bannerId: string) => {
-    // Ouvrir le sélecteur avec le bandeau pré-sélectionné
-    setCtaBannerSelectorOpen(true);
+  const handleFavoriteCtaBannerSelect = (bannerHtml: string) => {
+    // Insérer directement le HTML du bandeau
+    editor?.chain().focus().insertContent(bannerHtml).run();
   };
 
   return (
