@@ -7,12 +7,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useState, useEffect } from "react";
-import { AlignLeft, AlignCenter, AlignRight, Sparkles, Palette, Star } from "lucide-react";
+import { AlignLeft, AlignCenter, AlignRight, Sparkles, Palette, Star, ExternalLink, FileText, Layers, Hash } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ButtonConfig {
   text: string;
   url: string;
+  destinationType: 'external' | 'internal' | 'popup' | 'anchor';
+  popupId?: string;
   backgroundColor: string;
   textColor: string;
   size: 'small' | 'medium' | 'large';
@@ -46,6 +48,8 @@ interface ButtonEditorModalProps {
 const defaultConfig: ButtonConfig = {
   text: 'Cliquez ici',
   url: '#contact',
+  destinationType: 'anchor',
+  popupId: undefined,
   backgroundColor: '#10b981',
   textColor: '#ffffff',
   size: 'medium',
@@ -171,6 +175,7 @@ export const ButtonEditorModal = ({
     ...initialConfig,
   });
   const [favoriteButtons, setFavoriteButtons] = useState<FavoriteButton[]>([]);
+  const [availablePopups, setAvailablePopups] = useState<Array<{ id: string; name: string }>>([]);
 
   useEffect(() => {
     if (open) {
@@ -179,6 +184,7 @@ export const ButtonEditorModal = ({
         ...initialConfig,
       });
       loadFavoriteButtons();
+      loadAvailablePopups();
     }
   }, [open, initialConfig]);
 
@@ -199,6 +205,20 @@ export const ButtonEditorModal = ({
       if (data) setFavoriteButtons(data);
     } catch (error) {
       console.error('Error loading favorite buttons:', error);
+    }
+  };
+
+  const loadAvailablePopups = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('popups')
+        .select('id, name')
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      if (data) setAvailablePopups(data);
+    } catch (error) {
+      console.error('Error loading popups:', error);
     }
   };
 
@@ -377,8 +397,9 @@ export const ButtonEditorModal = ({
         </div>
 
         <Tabs defaultValue="content" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="content">Contenu</TabsTrigger>
+            <TabsTrigger value="destination">Destination</TabsTrigger>
             <TabsTrigger value="style">Couleurs</TabsTrigger>
             <TabsTrigger value="gradient">
               <Palette className="w-3 h-3 mr-1" />
@@ -398,19 +419,6 @@ export const ButtonEditorModal = ({
                 value={config.text}
                 onChange={(e) => setConfig(prev => ({ ...prev, text: e.target.value }))}
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="url">Lien (URL) *</Label>
-              <Input
-                id="url"
-                placeholder="Ex: #contact ou https://..."
-                value={config.url}
-                onChange={(e) => setConfig(prev => ({ ...prev, url: e.target.value }))}
-              />
-              <p className="text-xs text-muted-foreground">
-                Utilisez #contact, #section, etc. pour ancrer sur la page, ou une URL complète
-              </p>
             </div>
 
             <div className="space-y-2">
@@ -444,6 +452,131 @@ export const ButtonEditorModal = ({
                   Droite
                 </Button>
               </div>
+            </div>
+          </TabsContent>
+
+          {/* Onglet Destination */}
+          <TabsContent value="destination" className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label>Type de destination</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant={config.destinationType === 'anchor' ? 'default' : 'outline'}
+                  onClick={() => setConfig(prev => ({ ...prev, destinationType: 'anchor', url: '#contact' }))}
+                  className="gap-2 h-auto py-3 flex-col"
+                >
+                  <Hash className="w-5 h-5" />
+                  <span className="text-xs">Ancre sur la page</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant={config.destinationType === 'internal' ? 'default' : 'outline'}
+                  onClick={() => setConfig(prev => ({ ...prev, destinationType: 'internal', url: '/' }))}
+                  className="gap-2 h-auto py-3 flex-col"
+                >
+                  <FileText className="w-5 h-5" />
+                  <span className="text-xs">Page interne</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant={config.destinationType === 'external' ? 'default' : 'outline'}
+                  onClick={() => setConfig(prev => ({ ...prev, destinationType: 'external', url: 'https://' }))}
+                  className="gap-2 h-auto py-3 flex-col"
+                >
+                  <ExternalLink className="w-5 h-5" />
+                  <span className="text-xs">Lien externe</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant={config.destinationType === 'popup' ? 'default' : 'outline'}
+                  onClick={() => setConfig(prev => ({ ...prev, destinationType: 'popup', url: '#popup' }))}
+                  className="gap-2 h-auto py-3 flex-col"
+                >
+                  <Layers className="w-5 h-5" />
+                  <span className="text-xs">Ouvrir un popup</span>
+                </Button>
+              </div>
+            </div>
+
+            {config.destinationType === 'anchor' && (
+              <div className="space-y-2">
+                <Label htmlFor="anchor">Ancre sur la page</Label>
+                <Input
+                  id="anchor"
+                  placeholder="Ex: #contact, #formulaire"
+                  value={config.url}
+                  onChange={(e) => setConfig(prev => ({ ...prev, url: e.target.value }))}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Utilisez # suivi du nom de la section (ex: #contact, #aides, #formulaire)
+                </p>
+              </div>
+            )}
+
+            {config.destinationType === 'internal' && (
+              <div className="space-y-2">
+                <Label htmlFor="internal-url">Page interne</Label>
+                <Input
+                  id="internal-url"
+                  placeholder="Ex: /guides/mon-guide"
+                  value={config.url}
+                  onChange={(e) => setConfig(prev => ({ ...prev, url: e.target.value }))}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Chemin relatif vers une page du site (ex: /aides, /guides/solaire)
+                </p>
+              </div>
+            )}
+
+            {config.destinationType === 'external' && (
+              <div className="space-y-2">
+                <Label htmlFor="external-url">URL externe</Label>
+                <Input
+                  id="external-url"
+                  placeholder="https://www.exemple.fr"
+                  value={config.url}
+                  onChange={(e) => setConfig(prev => ({ ...prev, url: e.target.value }))}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Lien complet vers un site externe (s'ouvre dans un nouvel onglet)
+                </p>
+              </div>
+            )}
+
+            {config.destinationType === 'popup' && (
+              <div className="space-y-2">
+                <Label>Sélectionner un popup</Label>
+                {availablePopups.length > 0 ? (
+                  <Select 
+                    value={config.popupId || ''} 
+                    onValueChange={(value) => setConfig(prev => ({ ...prev, popupId: value, url: `#popup-${value}` }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choisir un popup..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availablePopups.map((popup) => (
+                        <SelectItem key={popup.id} value={popup.id}>
+                          {popup.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="p-4 bg-muted/50 rounded-lg text-center">
+                    <p className="text-sm text-muted-foreground">Aucun popup disponible</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Créez d'abord un popup dans Administration &gt; Popups
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="p-4 bg-muted/30 rounded-lg mt-4">
+              <p className="text-sm font-medium mb-2">📍 Destination actuelle :</p>
+              <code className="text-xs bg-background px-2 py-1 rounded">{config.url}</code>
             </div>
           </TabsContent>
 
