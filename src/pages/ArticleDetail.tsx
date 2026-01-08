@@ -13,7 +13,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { TableOfContents } from "@/components/TableOfContents";
 import { RelatedArticles } from "@/components/RelatedArticles";
 import { calculateReadingTime, formatReadingTime } from "@/utils/readingTime";
-import { extractTableOfContents, addHeadingIds } from "@/utils/tableOfContents";
+import { extractTableOfContents, addHeadingIds } from "@/utils/tableOfContents"; import { transformCtaBannersInHtml } from "@/utils/contentRenderer";
 import type { Database } from "@/integrations/supabase/types";
 
 type ContentType = Database["public"]["Enums"]["content_type"];
@@ -525,7 +525,7 @@ const ArticleDetail = () => {
 
               <div 
                 className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground prose-a:text-primary prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl"
-                dangerouslySetInnerHTML={{ __html: contentWithIds }}
+                dangerouslySetInnerHTML={{ __html: transformCtaBannersInHtml(contentWithIds) }}
               />
 
               {/* FAQ Section */}
