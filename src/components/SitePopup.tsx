@@ -221,12 +221,63 @@ export default function SitePopup() {
       }
     };
 
+    // Handler pour les bandeaux CTA avec popupId (ouvre par ID de popup)
+    const handleOpenPopup = (event: CustomEvent<{ popupId: string }>) => {
+      const { popupId } = event.detail;
+      console.log("Open popup event received:", popupId);
+      
+      if (!popupId) return;
+      
+      // Chercher le popup par son ID directement
+      supabase
+        .from("popups")
+        .select("*")
+        .eq("id", popupId)
+        .eq("is_active", true)
+        .maybeSingle()
+        .then(({ data, error }) => {
+          if (error) {
+            console.error("Error fetching popup:", error);
+            return;
+          }
+          if (data) {
+            showPopup(data as Popup);
+          }
+        });
+    };
+
     window.addEventListener("trigger-popup", handleTriggerPopup as EventListener);
+    window.addEventListener("open-popup", handleOpenPopup as EventListener);
     
     return () => {
       window.removeEventListener("trigger-popup", handleTriggerPopup as EventListener);
+      window.removeEventListener("open-popup", handleOpenPopup as EventListener);
     };
   }, [clickPopups, showPopup]);
+
+  // Écouter les clics sur les éléments avec data-popup-trigger dans le DOM
+  useEffect(() => {
+    const handleDocumentClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const popupTrigger = target.closest('[data-popup-trigger]');
+      
+      if (popupTrigger) {
+        const popupId = popupTrigger.getAttribute('data-popup-trigger');
+        if (popupId) {
+          e.preventDefault();
+          e.stopPropagation();
+          window.dispatchEvent(new CustomEvent('open-popup', { 
+            detail: { popupId } 
+          }));
+        }
+      }
+    };
+
+    document.addEventListener('click', handleDocumentClick);
+    return () => {
+      document.removeEventListener('click', handleDocumentClick);
+    };
+  }, []);
 
   const handleClose = () => {
     setIsAnimating(false);

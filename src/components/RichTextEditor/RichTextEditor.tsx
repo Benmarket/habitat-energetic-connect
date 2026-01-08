@@ -92,32 +92,42 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
 
   // Écouter les événements de clic sur les boutons, images et bannières CTA
   useEffect(() => {
+    let isProcessingEvent = false;
+    
     const handleEditButton = (event: any) => {
-      // Ne pas ouvrir si le modal est déjà ouvert
-      if (buttonDialogOpen) return;
+      if (buttonDialogOpen || isProcessingEvent) return;
+      isProcessingEvent = true;
       
       const { attrs, pos } = event.detail;
       setEditingButton({ attrs, pos });
       setButtonDialogOpen(true);
+      
+      setTimeout(() => { isProcessingEvent = false; }, 300);
     };
 
     const handleEditImage = (event: any) => {
-      // Ne pas ouvrir si le modal est déjà ouvert
-      if (imageDialogOpen) return;
+      if (imageDialogOpen || isProcessingEvent) return;
+      isProcessingEvent = true;
       
       const { attrs } = event.detail;
       setEditingImage(attrs);
       setImageDialogOpen(true);
+      
+      setTimeout(() => { isProcessingEvent = false; }, 300);
     };
 
     const handleEditCtaBanner = (event: any) => {
-      // Ne pas ouvrir si le modal est déjà ouvert
-      if (ctaBannerEditorOpen) return;
+      // Protection contre les événements multiples
+      if (ctaBannerEditorOpen || isProcessingEvent) return;
+      isProcessingEvent = true;
 
       const { attrs, pos } = event.detail;
       setCtaBannerDraft(null);
       setEditingCtaBanner({ attrs, pos });
       setCtaBannerEditorOpen(true);
+      
+      // Reset après un délai suffisant
+      setTimeout(() => { isProcessingEvent = false; }, 500);
     };
 
     window.addEventListener('edit-button', handleEditButton);
