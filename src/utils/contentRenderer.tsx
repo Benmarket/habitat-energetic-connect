@@ -149,7 +149,45 @@ function parseCtaBannerAttributes(element: Element): CtaBannerAttributes {
 }
 
 /**
+ * Transforme les boutons personnalisés pour qu'ils fonctionnent correctement (popups, ancres, etc.)
+ */
+function transformCustomButtons(doc: Document): void {
+  const buttons = doc.querySelectorAll('div[data-custom-button]');
+  
+  buttons.forEach((buttonWrapper) => {
+    const anchor = buttonWrapper.querySelector('a');
+    if (!anchor) return;
+    
+    const destinationType = buttonWrapper.getAttribute('data-destination-type') || anchor.getAttribute('data-destination-type');
+    const popupId = buttonWrapper.getAttribute('data-popup-id') || anchor.getAttribute('data-popup-id');
+    const url = buttonWrapper.getAttribute('data-url') || anchor.getAttribute('href') || '#';
+    
+    // Si c'est un popup, ajouter data-popup-trigger et modifier le href
+    if (destinationType === 'popup' && popupId) {
+      anchor.setAttribute('data-popup-trigger', popupId);
+      anchor.setAttribute('href', '#');
+      anchor.removeAttribute('target');
+      anchor.removeAttribute('rel');
+    }
+    // Si c'est un lien externe
+    else if (destinationType === 'external') {
+      anchor.setAttribute('target', '_blank');
+      anchor.setAttribute('rel', 'noopener noreferrer');
+    }
+    // Si c'est une ancre
+    else if (destinationType === 'anchor' && url.startsWith('#')) {
+      anchor.setAttribute('href', url);
+    }
+    // Si c'est un lien interne
+    else if (destinationType === 'internal') {
+      anchor.setAttribute('href', url);
+    }
+  });
+}
+
+/**
  * Transforme le HTML en remplaçant les div[data-cta-banner] par des éléments HTML stylés
+ * et en transformant les boutons pour qu'ils fonctionnent correctement
  * (version pour dangerouslySetInnerHTML)
  */
 export function transformCtaBannersInHtml(html: string): string {
@@ -158,6 +196,9 @@ export function transformCtaBannersInHtml(html: string): string {
   // Créer un DOM temporaire pour parser le HTML
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
+  
+  // Transformer les boutons personnalisés
+  transformCustomButtons(doc);
   
   // Trouver tous les bandeaux CTA
   const banners = doc.querySelectorAll('div[data-cta-banner]');
