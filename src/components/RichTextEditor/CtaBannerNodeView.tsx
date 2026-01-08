@@ -1,11 +1,12 @@
 import { NodeViewWrapper } from '@tiptap/react';
 import { NodeViewProps } from '@tiptap/core';
 import { CtaBannerAttributes } from './CustomCtaBanner';
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
 export const CtaBannerNodeView = ({ node, selected, editor, getPos }: NodeViewProps) => {
   const attrs = node.attrs as CtaBannerAttributes;
   const [isHovered, setIsHovered] = useState(false);
+  const isEditingRef = useRef(false);
   const lastClickTime = useRef(0);
 
   const getBackgroundStyle = (): React.CSSProperties => {
@@ -35,29 +36,36 @@ export const CtaBannerNodeView = ({ node, selected, editor, getPos }: NodeViewPr
     }
   };
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // Éviter les clics multiples rapides
+    // Éviter les clics multiples ou si déjà en édition
     const now = Date.now();
-    if (now - lastClickTime.current < 300) {
+    if (now - lastClickTime.current < 500 || isEditingRef.current) {
       return;
     }
     lastClickTime.current = now;
+    isEditingRef.current = true;
     
     if (typeof getPos === 'function') {
       const pos = getPos();
       editor.commands.setNodeSelection(pos);
       
-      setTimeout(() => {
-        const event = new CustomEvent('edit-cta-banner', {
+      // Dispatch unique avec un délai
+      requestAnimationFrame(() => {
+        window.dispatchEvent(new CustomEvent('edit-cta-banner', {
           detail: { attrs, pos },
-        });
-        window.dispatchEvent(event);
-      }, 10);
+        }));
+        // Reset après un délai
+        setTimeout(() => {
+          isEditingRef.current = false;
+        }, 500);
+      });
+    } else {
+      isEditingRef.current = false;
     }
-  };
+  }, [attrs, editor, getPos]);
 
   return (
     <NodeViewWrapper
