@@ -159,15 +159,23 @@ function transformCustomButtons(doc: Document): void {
     if (!anchor) return;
     
     const destinationType = buttonWrapper.getAttribute('data-destination-type') || anchor.getAttribute('data-destination-type');
-    const popupId = buttonWrapper.getAttribute('data-popup-id') || anchor.getAttribute('data-popup-id');
+    const rawPopupId = buttonWrapper.getAttribute('data-popup-id') || anchor.getAttribute('data-popup-id') || '';
     const url = buttonWrapper.getAttribute('data-url') || anchor.getAttribute('href') || '#';
     
+    // Nettoyer le popupId - il peut être vide, avoir le préfixe #popup-, ou être juste l'ID
+    let popupId = rawPopupId.trim();
+    if (popupId.startsWith('#popup-')) {
+      popupId = popupId.replace('#popup-', '');
+    }
+    
     // Si c'est un popup, ajouter data-popup-trigger et modifier le href
-    if (destinationType === 'popup' && popupId) {
+    if (destinationType === 'popup' && popupId && popupId.length > 0) {
       anchor.setAttribute('data-popup-trigger', popupId);
       anchor.setAttribute('href', '#');
       anchor.removeAttribute('target');
       anchor.removeAttribute('rel');
+      // Ajouter aussi l'événement onclick pour prévenir la navigation
+      anchor.setAttribute('onclick', 'event.preventDefault();');
     }
     // Si c'est un lien externe
     else if (destinationType === 'external') {
