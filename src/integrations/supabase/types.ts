@@ -1341,6 +1341,7 @@ export type Database = {
       site_settings: {
         Row: {
           id: string
+          is_public: boolean | null
           key: string
           updated_at: string | null
           updated_by: string | null
@@ -1348,6 +1349,7 @@ export type Database = {
         }
         Insert: {
           id?: string
+          is_public?: boolean | null
           key: string
           updated_at?: string | null
           updated_by?: string | null
@@ -1355,6 +1357,7 @@ export type Database = {
         }
         Update: {
           id?: string
+          is_public?: boolean | null
           key?: string
           updated_at?: string | null
           updated_by?: string | null
@@ -1438,20 +1441,92 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      forum_images_safe: {
+        Row: {
+          created_at: string | null
+          file_size: number | null
+          filename: string | null
+          id: string | null
+          ip_address: string | null
+          mime_type: string | null
+          post_id: string | null
+          storage_path: string | null
+          topic_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          file_size?: number | null
+          filename?: string | null
+          id?: string | null
+          ip_address?: never
+          mime_type?: string | null
+          post_id?: string | null
+          storage_path?: string | null
+          topic_id?: string | null
+          user_agent?: never
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          file_size?: number | null
+          filename?: string | null
+          id?: string | null
+          ip_address?: never
+          mime_type?: string | null
+          post_id?: string | null
+          storage_path?: string | null
+          topic_id?: string | null
+          user_agent?: never
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_images_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "forum_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forum_images_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "forum_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
-      has_permission: {
-        Args: { _permission_code: string; _user_id: string }
-        Returns: boolean
-      }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
+      check_form_submission_rate: { Args: { p_ip: string }; Returns: boolean }
+      check_lead_rate: { Args: { p_email: string }; Returns: boolean }
+      check_newsletter_rate: { Args: { p_email: string }; Returns: boolean }
+      has_permission:
+        | {
+            Args: { _permission_code: string; _user_id: string }
+            Returns: boolean
+          }
+        | {
+            Args: { _permission_code: string; _user_id: string }
+            Returns: boolean
+          }
+      has_role:
+        | {
+            Args: {
+              _role: Database["public"]["Enums"]["app_role"]
+              _user_id: string
+            }
+            Returns: boolean
+          }
+        | {
+            Args: {
+              _role: Database["public"]["Enums"]["app_role"]
+              _user_id: string
+            }
+            Returns: boolean
+          }
     }
     Enums: {
       app_role: "super_admin" | "admin" | "moderator" | "user"
