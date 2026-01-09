@@ -29,18 +29,16 @@ export const useOnlinePresence = () => {
     channel
       .on('presence', { event: 'sync' }, () => {
         const state = channel.presenceState();
-        console.log('Presence state updated:', state);
         setPresenceState(state);
         setLiveCount(Object.keys(state).length);
       })
       .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-        console.log('User joined:', key, newPresences);
+        // Présence mise à jour
       })
       .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-        console.log('User left:', key, leftPresences);
+        // Présence supprimée
       })
       .subscribe(async (status) => {
-        console.log('Presence subscription status:', status);
         if (status === 'SUBSCRIBED') {
           const presenceData = user?.id
             ? {
@@ -55,13 +53,11 @@ export const useOnlinePresence = () => {
                 online_at: new Date().toISOString(),
               };
 
-          console.log('Tracking presence:', presenceData);
           await channel.track(presenceData);
         }
       });
 
     return () => {
-      console.log('Unsubscribing from presence channel');
       channel.unsubscribe();
     };
   }, [user]);

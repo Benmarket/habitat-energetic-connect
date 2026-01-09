@@ -36,17 +36,43 @@ const AdminUsers = () => {
     role: "user",
   });
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/connexion");
-    }
-  }, [user, authLoading, navigate]);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    const checkAuth = async () => {
+      if (!authLoading && !user) {
+        navigate("/connexion");
+        return;
+      }
+      
+      if (user) {
+        // SÉCURITÉ: Vérifier que l'utilisateur a un rôle admin ou super_admin
+        const { data: roles } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id);
+        
+        const hasAdminAccess = roles?.some(r => r.role === "admin" || r.role === "super_admin");
+        if (!hasAdminAccess) {
+          toast({
+            title: "Accès refusé",
+            description: "Vous n'avez pas les droits pour accéder à cette page",
+            variant: "destructive",
+          });
+          navigate("/");
+          return;
+        }
+        setIsAuthorized(true);
+      }
+    };
+    checkAuth();
+  }, [user, authLoading, navigate, toast]);
+
+  useEffect(() => {
+    if (user && isAuthorized) {
       fetchUsers();
     }
-  }, [user]);
+  }, [user, isAuthorized]);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -144,7 +170,7 @@ const AdminUsers = () => {
     }
   };
 
-  if (authLoading || !user) {
+  if (authLoading || !user || !isAuthorized) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />

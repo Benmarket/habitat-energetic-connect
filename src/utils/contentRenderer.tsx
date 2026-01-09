@@ -1,4 +1,5 @@
 import React from 'react';
+import { sanitizeHtml } from './sanitizeHtml';
 
 interface CtaBannerAttributes {
   bannerId: string;
@@ -201,9 +202,12 @@ function transformCustomButtons(doc: Document): void {
 export function transformCtaBannersInHtml(html: string): string {
   if (!html || typeof window === 'undefined') return html;
   
+  // SÉCURITÉ: Nettoyer le HTML avant transformation pour prévenir XSS
+  const sanitizedHtml = sanitizeHtml(html);
+  
   // Créer un DOM temporaire pour parser le HTML
   const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
+  const doc = parser.parseFromString(sanitizedHtml, 'text/html');
   
   // Transformer les boutons personnalisés
   transformCustomButtons(doc);
