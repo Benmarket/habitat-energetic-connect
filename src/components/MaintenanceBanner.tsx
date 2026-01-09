@@ -20,16 +20,12 @@ const MaintenanceBanner = () => {
         .eq("key", "maintenance_mode")
         .maybeSingle();
 
-      console.log("MaintenanceBanner: Fetched maintenance data", data);
-
       if (data?.value) {
         const value = data.value as { enabled: boolean; message: string; activatedAt?: string };
-        console.log("MaintenanceBanner: activatedAt value", value.activatedAt);
         if (value.activatedAt) {
           setActivatedAt(value.activatedAt);
         } else if (value.enabled) {
           // Si le mode maintenance est activé mais n'a pas de timestamp, on en crée un maintenant
-          console.log("MaintenanceBanner: No activatedAt found, setting current time");
           const now = new Date().toISOString();
           setActivatedAt(now);
           

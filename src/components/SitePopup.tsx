@@ -207,15 +207,12 @@ export default function SitePopup() {
   useEffect(() => {
     const handleTriggerPopup = (event: CustomEvent<{ triggerId: string }>) => {
       const { triggerId } = event.detail;
-      console.log("Trigger popup event received:", triggerId, "Available popups:", clickPopups);
       
       if (!clickPopups) {
-        console.log("No clickPopups loaded yet");
         return;
       }
       
       const matchingPopup = clickPopups.find(p => p.trigger_id === triggerId);
-      console.log("Matching popup found:", matchingPopup);
       if (matchingPopup) {
         showPopup(matchingPopup);
       }
@@ -224,7 +221,6 @@ export default function SitePopup() {
     // Handler pour les bandeaux CTA avec popupId (ouvre par ID de popup)
     const handleOpenPopup = (event: CustomEvent<{ popupId: string }>) => {
       const { popupId } = event.detail;
-      console.log("Open popup event received:", popupId);
       
       if (!popupId) return;
       
@@ -351,7 +347,6 @@ export default function SitePopup() {
         navigate(`/merci${params.toString() ? `?${params.toString()}` : ""}`);
       }
     } catch (error) {
-      console.error("Submission error:", error);
       toast.error("Une erreur est survenue. Veuillez réessayer.");
     } finally {
       setIsSubmitting(false);

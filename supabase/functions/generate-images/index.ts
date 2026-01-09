@@ -13,7 +13,45 @@ serve(async (req) => {
   }
 
   try {
-    const { imageDescriptions, userId } = await req.json();
+    // ===== SÉCURITÉ: Vérification JWT =====
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Non autorisé - Token manquant' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    // Client avec le token utilisateur pour valider l'auth
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Valider le token et récupérer l'utilisateur
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+    
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Non autorisé - Token invalide' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Extraire le userId du JWT validé (pas du body!)
+    const userId = claimsData.claims.sub;
+    if (!userId) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Non autorisé - Utilisateur non identifié' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { imageDescriptions } = await req.json();
     
     if (!imageDescriptions || imageDescriptions.length === 0) {
       throw new Error('Au moins une description d\'image est requise');
@@ -24,11 +62,8 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    console.log('Generating images with Lovable AI:', imageDescriptions.length, 'images');
+    // Client avec service role pour les opérations de stockage
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Générer toutes les images en parallèle
     const generatedImages = await Promise.all(
@@ -52,7 +87,6 @@ serve(async (req) => {
 
           if (!response.ok) {
             const errorText = await response.text();
-            console.error('Lovable AI error for image', index, ':', response.status, errorText);
             throw new Error(`Erreur génération image ${index + 1}: ${response.status}`);
           }
 
@@ -79,7 +113,6 @@ serve(async (req) => {
             });
 
           if (uploadError) {
-            console.error('Upload error:', uploadError);
             throw new Error(`Erreur upload image ${index + 1}`);
           }
 
@@ -102,7 +135,6 @@ serve(async (req) => {
             .single();
 
           if (mediaError) {
-            console.error('Media insert error:', mediaError);
             throw new Error(`Erreur enregistrement media ${index + 1}`);
           }
 
@@ -112,7 +144,6 @@ serve(async (req) => {
             success: true
           };
         } catch (error) {
-          console.error(`Error generating image ${index}:`, error);
           return {
             url: '',
             description: description,
@@ -124,7 +155,6 @@ serve(async (req) => {
     );
 
     const successCount = generatedImages.filter(img => img.success).length;
-    console.log(`Successfully generated ${successCount}/${imageDescriptions.length} images`);
 
     return new Response(
       JSON.stringify({ 
@@ -138,7 +168,6 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error in generate-images:', error);
     return new Response(
       JSON.stringify({ 
         success: false,

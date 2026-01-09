@@ -163,14 +163,13 @@ export const ChatBot = () => {
       if (error) throw error;
       setConversationId(data.id);
     } catch (error) {
-      console.error("Error initializing conversation:", error);
+      // Silent fail - conversation will be retried on next message
     }
   };
 
   const handleFlowAnswer = async (answer: string, nextNode?: string) => {
     // Don't add to messages yet - let the flow runner handle the navigation
     // We'll save all the conversation when the flow completes
-    console.log("Flow answer:", answer, "Next node:", nextNode);
   };
 
   const handleFlowComplete = async (isQualified: boolean, flowHistory: Array<{ question: string; answer: string }>) => {
