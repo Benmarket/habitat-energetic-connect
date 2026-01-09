@@ -73,7 +73,7 @@ if (!hasAdminAccess) {
 
 ---
 
-## 2. Nettoyage Console.log ✅ (Phase 2)
+## 2. Nettoyage Console.log ✅ (Phase 2 & 3)
 
 ### Fichiers nettoyés :
 
@@ -85,41 +85,89 @@ if (!hasAdminAccess) {
 | `src/components/MaintenanceBanner.tsx` | ✅ Fait (Phase 2) |
 | `src/components/ChatBot.tsx` | ✅ Fait (Phase 2) |
 | `src/components/RichTextEditor/FavoriteCtaBannersBar.tsx` | ✅ Fait (Phase 2) |
-| `src/pages/CreatePost.tsx` | ✅ Fait (Phase 2) |
+| `src/pages/CreatePost.tsx` | ✅ Fait (Phase 3) |
+| `src/pages/Index.tsx` | ✅ Fait (Phase 3) |
+| `src/pages/NotFound.tsx` | ✅ Fait (Phase 3) |
+| `src/pages/AdminUsers.tsx` | ✅ Fait (Phase 3) |
+| `src/components/MegaMenu.tsx` | ✅ Fait (Phase 3) |
+| `src/components/RichTextEditor/ButtonEditorModal.tsx` | ✅ Fait (Phase 3) |
+| `src/components/RichTextEditor/CtaBannerEditorModal.tsx` | ✅ Fait (Phase 3) |
+| `src/components/PartnerOffersSection.tsx` | ✅ Fait (Phase 3) |
+| `src/components/MaintenanceMode.tsx` | ✅ Fait (Phase 3) |
+| `src/components/forum/ForumImageUpload.tsx` | ✅ Fait (Phase 3) |
 | `supabase/functions/generate-images/index.ts` | ✅ Fait (Phase 2) |
+| `supabase/functions/generate-article/index.ts` | ✅ Fait (Phase 3) |
+| `supabase/functions/chat-bot/index.ts` | ✅ Fait (Phase 3) |
 
 ---
 
-## 3. Failles Moyennes à Corriger 🔶
+## 3. Failles Moyennes Corrigées ✅ (Phase 3)
 
-### 3.1 RLS Policies trop permissives
+### 3.1 Rate Limiting pour les formulaires ✅
 
-**Tables concernées :**
-- `form_submissions` - `WITH CHECK (true)` permet des insertions sans limite
-- `leads` - Idem
-- `newsletter_subscribers` - Idem
+**Problème :** Les politiques RLS `WITH CHECK (true)` permettaient des insertions illimitées.
 
-**Recommandation :** Ajouter du rate limiting côté serveur ou via une Edge Function avec validation captcha.
+**Solution :** Création de fonctions de rate limiting :
+
+| Table | Limite |
+|-------|--------|
+| `form_submissions` | Max 10 par IP par heure |
+| `leads` | Max 5 par email par heure |
+| `newsletter_subscribers` | Max 3 par email par jour |
+
+**Fonctions créées :**
+- `check_form_submission_rate(p_ip)`
+- `check_lead_rate(p_email)`
+- `check_newsletter_rate(p_email)`
+
+**Politiques RLS mises à jour :**
+- `Rate limited form submissions`
+- `Rate limited lead creation`
+- `Rate limited newsletter subscription`
 
 ---
 
-### 3.2 site_settings expose des informations sensibles
+### 3.2 Protection site_settings ✅
 
-**Problème :** La table `site_settings` est accessible en lecture publique et contient :
-- `ai_generation_api_url`
-- `ai_generation_model`
+**Problème :** La table `site_settings` exposait des configurations sensibles (URLs API IA, modèles).
 
-**Recommandation :** 
-- Ajouter une colonne `is_public` 
-- Modifier le RLS pour ne permettre l'accès public qu'aux settings marqués publics
+**Solution :** 
+- Ajout de la colonne `is_public` (boolean, default true)
+- Settings sensibles marqués comme privés : `ai_generation_api_url`, `ai_generation_model`, `ai_generation_enabled`, `ai_custom_instructions`
+- Politique RLS modifiée : seuls les settings `is_public = true` sont visibles publiquement
 
 ---
 
-### 3.3 forum_images expose IP et User-Agent
+### 3.3 Protection forum_images (IP/User-Agent) ✅
 
-**Problème :** Les colonnes `ip_address` et `user_agent` sont accessibles à tous.
+**Problème :** Les colonnes `ip_address` et `user_agent` étaient accessibles à tous.
 
-**Recommandation :** Créer une politique RLS qui masque ces colonnes aux non-admins.
+**Solution :** Création d'une vue sécurisée `forum_images_safe` qui :
+- Affiche toutes les colonnes non-sensibles
+- Masque `ip_address` et `user_agent` pour les non-admins
+- Utilise `SECURITY INVOKER` (permissions de l'utilisateur appelant)
+
+---
+
+### 3.4 Restriction newsletter_subscribers ✅
+
+**Problème :** Le rôle `poster_actualite` pouvait voir les emails des abonnés.
+
+**Solution :** Politique RLS modifiée : seuls `admin` et `super_admin` peuvent lire la table.
+
+---
+
+### 3.5 Correction search_path des fonctions SQL ✅
+
+**Problème :** Certaines fonctions n'avaient pas `SET search_path = public`, risque d'injection de schéma.
+
+**Solution :** Toutes les fonctions corrigées avec `SET search_path = public` :
+- `has_role`
+- `has_permission`
+- `update_updated_at_column`
+- `check_form_submission_rate`
+- `check_lead_rate`
+- `check_newsletter_rate`
 
 ---
 
@@ -135,15 +183,21 @@ Les rôles sont stockés dans une table séparée `user_roles` avec les types :
 
 ### 4.2 Fonction `has_role` sécurisée
 
-La fonction utilise `SECURITY DEFINER` pour éviter les boucles RLS infinies.
+La fonction utilise `SECURITY DEFINER` avec `SET search_path = public` pour éviter les boucles RLS infinies.
 
 ### 4.3 RLS actif sur toutes les tables
 
-Toutes les tables critiques ont Row Level Security activé.
+Toutes les tables critiques ont Row Level Security activé avec des politiques adaptées.
 
 ### 4.4 Authentification JWT dans Edge Functions
 
-Toutes les Edge Functions qui manipulent des données utilisateur valident maintenant le JWT.
+Toutes les Edge Functions qui manipulent des données utilisateur valident maintenant le JWT :
+- `generate-article` ✅
+- `generate-images` ✅
+
+### 4.5 Rate Limiting
+
+Protection contre le spam/DoS sur les formulaires publics via des fonctions de rate limiting.
 
 ---
 
@@ -155,15 +209,29 @@ Toutes les Edge Functions qui manipulent des données utilisateur valident maint
 | Critique | Authentifier generate-article | ✅ Fait |
 | Critique | Authentifier generate-images | ✅ Fait (Phase 2) |
 | Critique | Ajouter sanitization XSS | ✅ Fait |
-| Critique | Supprimer console.log sensibles | ✅ Fait (Phase 2) |
-| Moyenne | Séparer site_settings public/privé | 🔶 À faire |
-| Moyenne | Rate limiting form_submissions | 🔶 À faire |
-| Moyenne | Masquer IP/UA dans forum_images | 🔶 À faire |
-| Basse | Activer Leaked Password Protection | 🔶 À faire (dans Lovable Cloud Auth) |
+| Critique | Supprimer console.log sensibles | ✅ Fait (Phase 2 & 3) |
+| Moyenne | Séparer site_settings public/privé | ✅ Fait (Phase 3) |
+| Moyenne | Rate limiting form_submissions | ✅ Fait (Phase 3) |
+| Moyenne | Masquer IP/UA dans forum_images | ✅ Fait (Phase 3) |
+| Moyenne | Restreindre newsletter_subscribers aux admins | ✅ Fait (Phase 3) |
+| Moyenne | Corriger search_path des fonctions | ✅ Fait (Phase 3) |
+| Basse | Activer Leaked Password Protection | 🔶 À faire manuellement |
 
 ---
 
-## 6. Tests de Sécurité Recommandés
+## 6. Action Manuelle Requise
+
+### Activer Leaked Password Protection
+
+**Description :** Cette fonctionnalité empêche les utilisateurs d'utiliser des mots de passe connus comme compromis.
+
+**Comment faire :**
+1. Accéder aux paramètres d'authentification Lovable Cloud
+2. Activer "Leaked Password Protection"
+
+---
+
+## 7. Tests de Sécurité Recommandés
 
 1. **Test d'escalade de privilèges :**
    - Se connecter avec un compte `user`
@@ -178,6 +246,14 @@ Toutes les Edge Functions qui manipulent des données utilisateur valident maint
    - Créer un article avec du code JavaScript dans le contenu
    - Vérifier que le script n'est pas exécuté
 
+4. **Test Rate Limiting :**
+   - Soumettre 11 formulaires depuis la même IP → Vérifier blocage
+   - Créer 6 leads avec le même email → Vérifier blocage
+
+5. **Test site_settings :**
+   - En tant que visiteur anonyme, tenter de lire `ai_generation_api_url`
+   - Vérifier que la valeur n'est pas retournée
+
 ---
 
 ## Historique des Modifications
@@ -186,3 +262,4 @@ Toutes les Edge Functions qui manipulent des données utilisateur valident maint
 |------|-------|---------------|
 | 2026-01-09 | Phase 1 | Audit initial, corrections AdminUsers, generate-article, XSS |
 | 2026-01-09 | Phase 2 | Sécurisation generate-images, nettoyage console.log |
+| 2026-01-09 | Phase 3 | Rate limiting, protection site_settings, forum_images, newsletter_subscribers, correction search_path, nettoyage console.log complet |
