@@ -147,7 +147,8 @@ export const ChatBot = () => {
 
   const initConversation = async () => {
     try {
-      const visitorId = localStorage.getItem("visitor_id") || `visitor_${Date.now()}`;
+      // Use crypto.randomUUID for secure visitor ID generation
+      const visitorId = localStorage.getItem("visitor_id") || crypto.randomUUID();
       localStorage.setItem("visitor_id", visitorId);
 
       const { data, error } = await supabase
@@ -211,8 +212,8 @@ export const ChatBot = () => {
         sender_type: senderType,
         content: content,
       });
-    } catch (error) {
-      console.error("Error saving message:", error);
+    } catch {
+      // Silent fail - message save is not critical for UX
     }
   };
 
@@ -255,8 +256,7 @@ export const ChatBot = () => {
         title: "Demande envoyée",
         description: "Un agent va bientôt rejoindre la conversation.",
       });
-    } catch (error) {
-      console.error("Error requesting agent:", error);
+    } catch {
       toast({
         title: "Erreur",
         description: "Impossible de contacter un agent pour le moment.",
@@ -358,8 +358,7 @@ export const ChatBot = () => {
       }
 
       await saveMessage(assistantContent, "bot");
-    } catch (error) {
-      console.error(error);
+    } catch {
       setMessages((prev) => [
         ...prev,
         {

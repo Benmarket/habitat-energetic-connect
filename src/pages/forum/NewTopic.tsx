@@ -167,8 +167,7 @@ const NewTopic = () => {
       });
 
       navigate(`/forum/sujet/${finalSlug}`);
-    } catch (error) {
-      console.error("Error creating topic:", error);
+    } catch {
       toast({
         title: "Erreur",
         description: "Impossible de créer le sujet.",

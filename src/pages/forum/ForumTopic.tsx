@@ -102,7 +102,6 @@ const ForumTopic = () => {
         .maybeSingle();
 
       if (topicError) {
-        console.error("Error fetching topic:", topicError);
         setLoading(false);
         return;
       }
@@ -156,8 +155,8 @@ const ForumTopic = () => {
           }))
         );
       }
-    } catch (error) {
-      console.error("Error fetching topic:", error);
+    } catch {
+      // Silent fail - topic not found
     } finally {
       setLoading(false);
     }
@@ -234,8 +233,7 @@ const ForumTopic = () => {
       setReplyContent("");
       setReplyImages([]);
       fetchTopic();
-    } catch (error) {
-      console.error("Error submitting reply:", error);
+    } catch {
       toast({
         title: "Erreur",
         description: "Impossible de publier votre réponse.",

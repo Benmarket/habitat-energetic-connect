@@ -7,12 +7,42 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+// Simple in-memory rate limiting (resets on function cold start)
+const rateLimitStore = new Map<string, number>();
+const RATE_LIMIT_INTERVAL_MS = 10000; // 10 seconds minimum between requests per IP
+
+function checkRateLimit(clientIP: string): boolean {
+  const now = Date.now();
+  const lastRequest = rateLimitStore.get(clientIP);
+
+  if (lastRequest && now - lastRequest < RATE_LIMIT_INTERVAL_MS) {
+    return false;
+  }
+
+  rateLimitStore.set(clientIP, now);
+  return true;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Extract client IP for rate limiting
+    const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || 
+                     req.headers.get("cf-connecting-ip") || 
+                     req.headers.get("x-real-ip") || 
+                     "unknown";
+
+    // Check rate limit
+    if (!checkRateLimit(clientIP)) {
+      return new Response(JSON.stringify({ error: "Trop de requêtes. Veuillez patienter." }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -87,7 +117,6 @@ serve(async (req) => {
       },
     });
   } catch (error) {
-    console.error("Error generating sitemap:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,

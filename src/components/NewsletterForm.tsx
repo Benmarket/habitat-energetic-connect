@@ -51,8 +51,7 @@ export const NewsletterForm = () => {
 
       toast.success("Merci pour votre inscription ! Vous recevrez bientôt nos actualités.");
       setEmail("");
-    } catch (error) {
-      console.error("Newsletter subscription error:", error);
+    } catch {
       toast.error("Une erreur est survenue. Veuillez réessayer.");
     } finally {
       setIsLoading(false);
