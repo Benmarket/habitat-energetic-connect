@@ -325,7 +325,7 @@ const CreatePost = () => {
         setCurrentAiInstructions(instructions);
       }
     } catch (error) {
-      console.error("Error loading AI instructions:", error);
+      // Silent fail - AI instructions are optional
     }
   };
 
@@ -394,7 +394,7 @@ const CreatePost = () => {
               });
 
               if (imagesError) {
-                console.error('Error generating images for variant:', imagesError);
+                // Silent fail - images are optional
               } else if (imagesData?.success && imagesData.images) {
                 // Utiliser la première image comme image à la une
                 const firstSuccessImage = imagesData.images.find((img: any) => img.success);

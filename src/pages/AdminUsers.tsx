@@ -103,7 +103,6 @@ const AdminUsers = () => {
 
       setUsers(usersWithRoles || []);
     } catch (error) {
-      console.error("Error fetching users:", error);
       toast({
         title: "Erreur",
         description: "Impossible de charger les utilisateurs",
@@ -161,7 +160,6 @@ const AdminUsers = () => {
       setEditingId(null);
       fetchUsers();
     } catch (error: any) {
-      console.error("Error updating user:", error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible de mettre à jour l'utilisateur",

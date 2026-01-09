@@ -46,7 +46,6 @@ serve(async (req) => {
         });
       }
       const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
       return new Response(JSON.stringify({ error: "Erreur du service AI" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -57,7 +56,6 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (e) {
-    console.error("chat error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erreur inconnue" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
