@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -27,26 +28,51 @@ serve(async (req) => {
   }
 
   try {
+    // SÉCURITÉ: Vérifier l'authentification via le header Authorization
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Non autorisé - Token manquant' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+    // Créer un client Supabase avec le token utilisateur pour valider l'authentification
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // SÉCURITÉ: Valider le token en récupérant l'utilisateur
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+    
+    if (userError || !userData?.user) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Non autorisé - Token invalide' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // SÉCURITÉ: Extraire le userId du JWT validé
+    const userId = userData.user.id;
+    if (!userId) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Non autorisé - Utilisateur non identifié' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { 
       keywords, 
       contentType, 
       baseContent, 
       additionalInstructions, 
       customInstructions,
-      guideTemplate, // Nouveau: thème pour les guides
-      userId // Nouveau: pour récupérer les boutons/bandeaux de l'utilisateur
+      guideTemplate
     } = await req.json();
-    
-    console.log('Request received:', { 
-      keywords, 
-      contentType, 
-      hasBaseContent: !!baseContent,
-      hasAdditionalInstructions: !!additionalInstructions,
-      hasCustomInstructions: !!customInstructions,
-      guideTemplate,
-      userId,
-      additionalInstructions: additionalInstructions?.substring(0, 100)
-    });
     
     if (!keywords || keywords.length === 0) {
       throw new Error('Au moins un mot-clé est requis');
@@ -58,8 +84,6 @@ serve(async (req) => {
     }
 
     // Récupérer la configuration depuis site_settings
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
     const settingsResponse = await fetch(`${supabaseUrl}/rest/v1/site_settings?select=*&key=in.(ai_generation_api_url,ai_generation_model,ai_generation_enabled)`, {
       headers: {
