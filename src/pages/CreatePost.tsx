@@ -285,7 +285,6 @@ const CreatePost = () => {
         });
       }
     } catch (error: any) {
-      console.error("Error loading post:", error);
       toast.error("Erreur lors du chargement de l'article");
     } finally {
       setLoadingPost(false);
@@ -412,7 +411,7 @@ const CreatePost = () => {
                 });
               }
             } catch (imgError) {
-              console.error('Error in image generation for variant:', imgError);
+              // Silent fail - variant will be returned without images
             }
           }
 
@@ -427,7 +426,6 @@ const CreatePost = () => {
       setGeneratedVariants(variantsWithImages);
       toast.success("Articles générés avec images !");
     } catch (error: any) {
-      console.error("Error generating article:", error);
       toast.error(error.message || "Erreur lors de la génération de l'article");
       setVariantsModalOpen(false);
     } finally {

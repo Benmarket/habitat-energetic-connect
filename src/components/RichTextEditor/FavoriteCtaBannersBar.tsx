@@ -136,7 +136,6 @@ export const FavoriteCtaBannersBar = ({ onSelectBanner }: FavoriteCtaBannersBarP
       popupId: null,
     };
 
-    console.log('Inserting CTA banner:', bannerAttrs);
     onSelectBanner(bannerAttrs);
   };
 

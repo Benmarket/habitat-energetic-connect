@@ -32,7 +32,7 @@ if (!hasAdminAccess) {
 
 ---
 
-### 1.2 Edge Function generate-article - Authentification manquante
+### 1.2 Edge Function generate-article - Authentification JWT
 
 **Problème :** La fonction recevait le `userId` directement du body de la requête, permettant à n'importe qui d'usurper l'identité d'un autre utilisateur.
 
@@ -41,26 +41,24 @@ if (!hasAdminAccess) {
 - Extraction du `userId` depuis le token validé (pas du body)
 - Retour d'une erreur 401 si non authentifié
 
-```typescript
-// Valider le token en récupérant l'utilisateur
-const { data: userData, error: userError } = await supabaseClient.auth.getUser();
-
-if (userError || !userData?.user) {
-  return new Response(
-    JSON.stringify({ success: false, error: 'Non autorisé - Token invalide' }),
-    { status: 401, headers: corsHeaders }
-  );
-}
-
-// Extraire le userId du JWT validé
-const userId = userData.user.id;
-```
-
 **Fichier modifié :** `supabase/functions/generate-article/index.ts`
 
 ---
 
-### 1.3 Protection XSS - Sanitization HTML
+### 1.3 Edge Function generate-images - Authentification JWT ✅ (Phase 2)
+
+**Problème :** Même vulnérabilité que generate-article - le `userId` venait du body.
+
+**Solution :** 
+- Validation du token JWT via `supabase.auth.getClaims(token)`
+- Extraction du `userId` depuis `claims.sub`
+- Retour d'une erreur 401 si non authentifié
+
+**Fichier modifié :** `supabase/functions/generate-images/index.ts`
+
+---
+
+### 1.4 Protection XSS - Sanitization HTML
 
 **Problème :** Le contenu HTML des articles était affiché via `dangerouslySetInnerHTML` sans sanitization, exposant à des attaques XSS.
 
@@ -75,9 +73,26 @@ const userId = userData.user.id;
 
 ---
 
-## 2. Failles Moyennes à Corriger 🔶
+## 2. Nettoyage Console.log ✅ (Phase 2)
 
-### 2.1 RLS Policies trop permissives
+### Fichiers nettoyés :
+
+| Fichier | Logs supprimés |
+|---------|----------------|
+| `src/hooks/useOnlinePresence.tsx` | ✅ Fait (Phase 1) |
+| `src/components/SitePopup.tsx` | ✅ Fait (Phase 2) |
+| `src/components/HeroSection.tsx` | ✅ Fait (Phase 2) |
+| `src/components/MaintenanceBanner.tsx` | ✅ Fait (Phase 2) |
+| `src/components/ChatBot.tsx` | ✅ Fait (Phase 2) |
+| `src/components/RichTextEditor/FavoriteCtaBannersBar.tsx` | ✅ Fait (Phase 2) |
+| `src/pages/CreatePost.tsx` | ✅ Fait (Phase 2) |
+| `supabase/functions/generate-images/index.ts` | ✅ Fait (Phase 2) |
+
+---
+
+## 3. Failles Moyennes à Corriger 🔶
+
+### 3.1 RLS Policies trop permissives
 
 **Tables concernées :**
 - `form_submissions` - `WITH CHECK (true)` permet des insertions sans limite
@@ -88,7 +103,7 @@ const userId = userData.user.id;
 
 ---
 
-### 2.2 site_settings expose des informations sensibles
+### 3.2 site_settings expose des informations sensibles
 
 **Problème :** La table `site_settings` est accessible en lecture publique et contient :
 - `ai_generation_api_url`
@@ -100,19 +115,17 @@ const userId = userData.user.id;
 
 ---
 
-### 2.3 Console.log en production
+### 3.3 forum_images expose IP et User-Agent
 
-**Problème :** Des `console.log` exposaient des informations de débogage.
+**Problème :** Les colonnes `ip_address` et `user_agent` sont accessibles à tous.
 
-**Solution :** Suppression des logs sensibles dans `useOnlinePresence.tsx`.
-
-**Fichier modifié :** `src/hooks/useOnlinePresence.tsx`
+**Recommandation :** Créer une politique RLS qui masque ces colonnes aux non-admins.
 
 ---
 
-## 3. Bonnes Pratiques Implémentées ✅
+## 4. Bonnes Pratiques Implémentées ✅
 
-### 3.1 Séparation des rôles
+### 4.1 Séparation des rôles
 
 Les rôles sont stockés dans une table séparée `user_roles` avec les types :
 - `super_admin`
@@ -120,31 +133,37 @@ Les rôles sont stockés dans une table séparée `user_roles` avec les types :
 - `moderator`
 - `user`
 
-### 3.2 Fonction `has_role` sécurisée
+### 4.2 Fonction `has_role` sécurisée
 
 La fonction utilise `SECURITY DEFINER` pour éviter les boucles RLS infinies.
 
-### 3.3 RLS actif sur toutes les tables
+### 4.3 RLS actif sur toutes les tables
 
 Toutes les tables critiques ont Row Level Security activé.
 
+### 4.4 Authentification JWT dans Edge Functions
+
+Toutes les Edge Functions qui manipulent des données utilisateur valident maintenant le JWT.
+
 ---
 
-## 4. Actions Recommandées
+## 5. Actions Recommandées
 
 | Priorité | Action | Statut |
 |----------|--------|--------|
 | Critique | Sécuriser AdminUsers.tsx | ✅ Fait |
-| Critique | Authentifier Edge Functions | ✅ Fait |
+| Critique | Authentifier generate-article | ✅ Fait |
+| Critique | Authentifier generate-images | ✅ Fait (Phase 2) |
 | Critique | Ajouter sanitization XSS | ✅ Fait |
+| Critique | Supprimer console.log sensibles | ✅ Fait (Phase 2) |
 | Moyenne | Séparer site_settings public/privé | 🔶 À faire |
 | Moyenne | Rate limiting form_submissions | 🔶 À faire |
-| Basse | Supprimer tous les console.log | ✅ Partiellement fait |
+| Moyenne | Masquer IP/UA dans forum_images | 🔶 À faire |
 | Basse | Activer Leaked Password Protection | 🔶 À faire (dans Lovable Cloud Auth) |
 
 ---
 
-## 5. Tests de Sécurité Recommandés
+## 6. Tests de Sécurité Recommandés
 
 1. **Test d'escalade de privilèges :**
    - Se connecter avec un compte `user`
@@ -152,8 +171,8 @@ Toutes les tables critiques ont Row Level Security activé.
    - Vérifier la redirection vers `/`
 
 2. **Test d'usurpation d'identité (Edge Function) :**
-   - Appeler `generate-article` sans token
-   - Vérifier la réponse 401
+   - Appeler `generate-article` sans token → Vérifier 401
+   - Appeler `generate-images` sans token → Vérifier 401
 
 3. **Test XSS :**
    - Créer un article avec du code JavaScript dans le contenu
@@ -163,6 +182,7 @@ Toutes les tables critiques ont Row Level Security activé.
 
 ## Historique des Modifications
 
-| Date | Auteur | Modifications |
-|------|--------|---------------|
-| 2026-01-09 | Lovable AI | Audit initial et corrections critiques |
+| Date | Phase | Modifications |
+|------|-------|---------------|
+| 2026-01-09 | Phase 1 | Audit initial, corrections AdminUsers, generate-article, XSS |
+| 2026-01-09 | Phase 2 | Sécurisation generate-images, nettoyage console.log |
