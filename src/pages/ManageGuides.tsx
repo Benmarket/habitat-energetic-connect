@@ -116,8 +116,7 @@ const ManageGuides = () => {
       
       if (error) throw error;
       if (data) setPosts(data);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
+    } catch {
       toast.error("Erreur lors du chargement des guides");
     } finally {
       setLoading(false);
@@ -137,8 +136,7 @@ const ManageGuides = () => {
 
       toast.success("Guide supprimé avec succès");
       fetchPosts();
-    } catch (error) {
-      console.error("Error deleting post:", error);
+    } catch {
       toast.error("Erreur lors de la suppression");
     } finally {
       setDeleteDialogOpen(false);
@@ -176,8 +174,7 @@ const ManageGuides = () => {
           : "Guide désactivé avec succès"
       );
       fetchPosts();
-    } catch (error) {
-      console.error("Error updating post status:", error);
+    } catch {
       toast.error("Erreur lors de la mise à jour du statut");
     }
   };

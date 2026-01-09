@@ -85,7 +85,6 @@ const AdminCategories = () => {
 
     if (error) {
       toast.error("Erreur lors du chargement des catégories");
-      console.error(error);
     } else {
       setCategories(data || []);
     }
@@ -108,7 +107,6 @@ const AdminCategories = () => {
 
       if (error) {
         toast.error("Erreur lors de la modification");
-        console.error(error);
       } else {
         toast.success("Catégorie modifiée avec succès");
         fetchCategories();
@@ -126,7 +124,6 @@ const AdminCategories = () => {
 
       if (error) {
         toast.error("Erreur lors de la création");
-        console.error(error);
       } else {
         toast.success("Catégorie créée avec succès");
         fetchCategories();
@@ -145,7 +142,6 @@ const AdminCategories = () => {
 
     if (error) {
       toast.error("Erreur lors de la suppression");
-      console.error(error);
     } else {
       toast.success("Catégorie supprimée avec succès");
       fetchCategories();

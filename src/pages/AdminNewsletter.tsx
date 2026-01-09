@@ -86,8 +86,7 @@ export default function AdminNewsletter() {
         active,
         unsubscribed,
       });
-    } catch (error) {
-      console.error("Error fetching subscribers:", error);
+    } catch {
       toast.error("Erreur lors du chargement des abonnés");
     } finally {
       setIsLoading(false);
@@ -105,8 +104,7 @@ export default function AdminNewsletter() {
 
       toast.success(`${email} a été supprimé`);
       fetchSubscribers();
-    } catch (error) {
-      console.error("Error deleting subscriber:", error);
+    } catch {
       toast.error("Erreur lors de la suppression");
     }
   };

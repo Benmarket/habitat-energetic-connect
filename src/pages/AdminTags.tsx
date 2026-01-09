@@ -58,8 +58,7 @@ const AdminTags = () => {
 
       if (error) throw error;
       if (data) setTags(data);
-    } catch (error) {
-      console.error("Error fetching tags:", error);
+    } catch {
       toast({
         title: "Erreur",
         description: "Impossible de charger les étiquettes",
@@ -133,7 +132,6 @@ const AdminTags = () => {
       setEditingId(null);
       fetchTags();
     } catch (error: any) {
-      console.error("Error saving tag:", error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible de sauvegarder l'étiquette",
@@ -170,7 +168,6 @@ const AdminTags = () => {
       });
       fetchTags();
     } catch (error: any) {
-      console.error("Error deleting tag:", error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible de supprimer l'étiquette",
