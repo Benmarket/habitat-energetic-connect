@@ -204,7 +204,7 @@ export const ButtonEditorModal = ({
       if (error) throw error;
       if (data) setFavoriteButtons(data);
     } catch (error) {
-      console.error('Error loading favorite buttons:', error);
+      // Silent fail - favorite buttons are optional
     }
   };
 
@@ -218,7 +218,7 @@ export const ButtonEditorModal = ({
       if (error) throw error;
       if (data) setAvailablePopups(data);
     } catch (error) {
-      console.error('Error loading popups:', error);
+      // Silent fail - popups are optional
     }
   };
 

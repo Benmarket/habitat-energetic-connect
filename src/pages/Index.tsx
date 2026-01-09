@@ -80,7 +80,6 @@ const Index = () => {
           .maybeSingle();
 
         if (error) {
-          console.error("Error fetching homepage sections:", error);
           return;
         }
 
@@ -104,7 +103,7 @@ const Index = () => {
           setSections(mergedSections);
         }
       } catch (error) {
-        console.error("Error loading homepage sections:", error);
+        // Silent fail - use default sections
       }
     };
 

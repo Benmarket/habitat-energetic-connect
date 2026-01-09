@@ -32,7 +32,7 @@ const MaintenanceMode = ({ children }: MaintenanceModeProps) => {
         setMaintenanceMessage(value.message);
       }
     } catch (error) {
-      console.error("Error checking maintenance mode:", error);
+      // Silent fail - assume not in maintenance
     } finally {
       setLoading(false);
     }
@@ -53,7 +53,6 @@ const MaintenanceMode = ({ children }: MaintenanceModeProps) => {
           .single();
 
         if (error) {
-          console.error("Error checking admin status:", error);
           setIsAdmin(false);
           setLoading(false);
           return;
@@ -73,7 +72,6 @@ const MaintenanceMode = ({ children }: MaintenanceModeProps) => {
         setLoading(false);
       }
     } catch (error) {
-      console.error("Error checking admin status:", error);
       setIsAdmin(false);
       setIsAuthenticated(false);
       setLoading(false);

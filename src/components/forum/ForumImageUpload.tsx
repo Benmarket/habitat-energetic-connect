@@ -88,10 +88,7 @@ const ForumImageUpload = ({
         user_agent: navigator.userAgent,
       });
 
-      if (metaError) {
-        console.error("Error saving image metadata:", metaError);
-        // Continue anyway, image is uploaded
-      }
+      // Silent fail for metadata - image is still uploaded
 
       onImageUploaded(publicUrl);
 
@@ -100,7 +97,6 @@ const ForumImageUpload = ({
         description: "L'image a été téléchargée avec succès",
       });
     } catch (error) {
-      console.error("Error uploading image:", error);
       toast({
         title: "Erreur",
         description: "Impossible de télécharger l'image",

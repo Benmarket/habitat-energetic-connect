@@ -62,7 +62,7 @@ const PartnerOffersSection = () => {
       // Take first 3 offers (expired or not)
       setOffers((data || []).slice(0, 3));
     } catch (error) {
-      console.error("Error fetching featured offers:", error);
+      // Silent fail - offers section is optional
     } finally {
       setLoading(false);
     }

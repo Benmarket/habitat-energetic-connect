@@ -114,7 +114,6 @@ serve(async (req) => {
         }
       });
       buttonPresets = await buttonsResponse.json();
-      console.log(`Loaded ${buttonPresets.length} button presets`);
 
       // Récupérer les bandeaux CTA
       const bannersResponse = await fetch(`${supabaseUrl}/rest/v1/cta_banners?select=id,name,template_style,title,subtitle,background_color,secondary_color,text_color,accent_color&user_id=eq.${userId}`, {
@@ -124,7 +123,6 @@ serve(async (req) => {
         }
       });
       ctaBanners = await bannersResponse.json();
-      console.log(`Loaded ${ctaBanners.length} CTA banners`);
     }
 
     // Fonction pour créer les instructions CTA pour une variante spécifique
@@ -365,20 +363,11 @@ IMPORTANT :
       }
     }
 
-    console.log('Calling OpenAI API with:', { 
-      apiUrl, 
-      model, 
-      keywordsCount: keywords.length,
-      isRegeneration: !!(additionalInstructions && baseContent),
-      hasCustomInstructions: !!customInstructions,
-      buttonPresetsCount: buttonPresets.length,
-      ctaBannersCount: ctaBanners.length
-    });
 
     // Générer les variantes avec des CTA différents
     let variants;
     if (additionalInstructions) {
-      console.log('Regenerating with instructions:', additionalInstructions.substring(0, 200));
+      // Régénération d'une seule variante avec instructions
       // Régénération d'une seule variante avec instructions
       const ctaForRegen = createCtaInstructions(0);
       const regeneratedContent = await generateVariant(
@@ -387,7 +376,7 @@ IMPORTANT :
       );
       variants = [regeneratedContent];
     } else {
-      console.log('Generating 2 initial variants with different CTAs');
+      // Génération initiale : 2 variantes avec boutons/bannières différents
       // Génération initiale : 2 variantes avec boutons/bannières différents
       const cta1 = createCtaInstructions(0);
       const cta2 = createCtaInstructions(1);
@@ -403,8 +392,6 @@ IMPORTANT :
         )
       ]);
     }
-    
-    console.log('Variants generated successfully:', variants.length);
 
     return new Response(
       JSON.stringify({ 

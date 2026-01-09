@@ -141,7 +141,6 @@ export const MegaMenu = () => {
           .maybeSingle();
 
         if (error) {
-          console.error("Error fetching homepage sections:", error);
           return;
         }
 
@@ -167,7 +166,7 @@ export const MegaMenu = () => {
           setSectionVisibility(visibility);
         }
       } catch (error) {
-        console.error("Error loading section visibility:", error);
+        // Silent fail - default visibility
       }
     };
 

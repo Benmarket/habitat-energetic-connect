@@ -94,7 +94,7 @@ export const CtaBannerEditorModal = ({
       if (error) throw error;
       if (data) setAvailablePopups(data);
     } catch (error) {
-      console.error('Error loading popups:', error);
+      // Silent fail - popups are optional
     }
   };
 
