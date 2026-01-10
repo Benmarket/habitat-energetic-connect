@@ -823,6 +823,156 @@ export default function SitePopup() {
           </div>
         );
       
+      case "parcours_projet":
+        return (
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="text-center space-y-2">
+              {activePopup.badge_text && (
+                <Badge 
+                  className="text-white font-medium px-3 py-1 text-xs"
+                  style={{ backgroundColor: activePopup.accent_color }}
+                >
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  {activePopup.badge_text}
+                </Badge>
+              )}
+              {activePopup.title && (
+                <h2 
+                  className="text-2xl font-bold leading-tight" 
+                  style={{ color: activePopup.text_color }}
+                >
+                  {activePopup.title}
+                </h2>
+              )}
+              {activePopup.subtitle && (
+                <p 
+                  className="text-sm opacity-70" 
+                  style={{ color: activePopup.text_color }}
+                >
+                  {activePopup.subtitle}
+                </p>
+              )}
+            </div>
+
+            {/* 4 Options Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Option 1: Demande de contact */}
+              <button
+                onClick={() => {
+                  handleClose();
+                  navigate("/#eligibilite");
+                }}
+                className="group relative p-5 rounded-xl border-2 border-slate-200 hover:border-blue-400 bg-gradient-to-br from-white to-slate-50 hover:from-blue-50 hover:to-white transition-all duration-300 text-left"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform">
+                    <Mail className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-slate-800 group-hover:text-blue-700 transition-colors">
+                      Demande de contact
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Particulier ou professionnel
+                    </p>
+                    <p className="text-xs text-blue-600 font-medium mt-2 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      Rappel sous 24-48h
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              {/* Option 2: Simulation en ligne */}
+              <button
+                onClick={() => {
+                  handleClose();
+                  navigate("/#eligibilite");
+                }}
+                className="group relative p-5 rounded-xl border-2 border-slate-200 hover:border-emerald-400 bg-gradient-to-br from-white to-slate-50 hover:from-emerald-50 hover:to-white transition-all duration-300 text-left"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:scale-110 transition-transform">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-slate-800 group-hover:text-emerald-700 transition-colors">
+                      Simulation en ligne
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Éligibilité, primes, travaux
+                    </p>
+                    <p className="text-xs text-emerald-600 font-medium mt-2 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      Résultats instantanés
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              {/* Option 3: Lire les guides */}
+              <button
+                onClick={() => {
+                  handleClose();
+                  navigate("/guides");
+                }}
+                className="group relative p-5 rounded-xl border-2 border-slate-200 hover:border-violet-400 bg-gradient-to-br from-white to-slate-50 hover:from-violet-50 hover:to-white transition-all duration-300 text-left"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/25 group-hover:scale-110 transition-transform">
+                    <FileText className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-slate-800 group-hover:text-violet-700 transition-colors">
+                      Lire les guides
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Solaire, chauffage, isolation...
+                    </p>
+                    <p className="text-xs text-violet-600 font-medium mt-2 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      Se projeter pour mieux comprendre
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              {/* Option 4: Chercher un installateur */}
+              <button
+                onClick={() => {
+                  handleClose();
+                  window.dispatchEvent(new CustomEvent('trigger-popup', { 
+                    detail: { triggerId: 'find-professional-cta' } 
+                  }));
+                }}
+                className="group relative p-5 rounded-xl border-2 border-slate-200 hover:border-amber-400 bg-gradient-to-br from-white to-slate-50 hover:from-amber-50 hover:to-white transition-all duration-300 text-left"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25 group-hover:scale-110 transition-transform">
+                    <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-slate-800 group-hover:text-amber-700 transition-colors">
+                      Chercher un installateur
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Près de chez moi
+                    </p>
+                    <p className="text-xs text-amber-600 font-medium mt-2 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      Consultez les offres
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        );
+      
       default:
         return null;
     }

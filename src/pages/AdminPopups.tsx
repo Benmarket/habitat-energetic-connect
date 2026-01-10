@@ -88,6 +88,7 @@ const TEMPLATES = [
   { id: "promotion", name: "Promotion", icon: Megaphone, description: "Offre promotionnelle avec badge" },
   { id: "information", name: "Information", icon: Layers, description: "Message informatif simple" },
   { id: "fullscreen", name: "Plein écran", icon: Maximize, description: "Pop-up immersif en plein écran" },
+  { id: "parcours_projet", name: "Parcours projet", icon: Layers, description: "Grille de 4 options pour démarrer un projet" },
 ];
 
 const POSITIONS = [
@@ -134,6 +135,7 @@ const TRIGGER_TYPES = [
 
 const TRIGGER_IDS = [
   { id: "find-professional-cta", name: "Bouton 'Trouver un professionnel'" },
+  { id: "parcours-projet", name: "Bouton 'Démarrer mon projet'" },
 ];
 
 const defaultPopupData: Omit<Popup, "id" | "created_at" | "updated_at"> = {

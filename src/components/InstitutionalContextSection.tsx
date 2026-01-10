@@ -253,13 +253,17 @@ const InstitutionalContextSection = () => {
                     plus confortable et plus économique
                   </span>
                 </h3>
-                <a
-                  href="#eligibilite"
+                <button
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent('trigger-popup', { 
+                      detail: { triggerId: 'parcours-projet' } 
+                    }));
+                  }}
                   className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold text-lg rounded-full shadow-lg shadow-orange-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/40 hover:scale-105"
                 >
                   Démarrer mon projet
                   <ArrowRight className="w-5 h-5" />
-                </a>
+                </button>
               </div>
             </div>
           </div>

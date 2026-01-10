@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { X, Mail, Sparkles, FileText, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +41,9 @@ export default function PopupPreview({ popup, onClose }: PopupPreviewProps) {
         return "max-w-md";
     }
   };
+  
+  // Force large size for parcours_projet template
+  const effectiveSize = popup.template === "parcours_projet" ? "large" : popup.size;
 
   const getPositionClasses = () => {
     if (popup.size === "fullscreen") return "inset-0";
@@ -203,6 +206,98 @@ export default function PopupPreview({ popup, onClose }: PopupPreviewProps) {
               >
                 Plus tard
               </Button>
+            </div>
+          </div>
+        );
+      
+      case "parcours_projet":
+        return (
+          <div className="space-y-4">
+            {/* Header */}
+            <div className="text-center space-y-1">
+              {popup.badge_text && (
+                <Badge 
+                  className="text-white font-medium px-3 py-1 text-xs mb-2"
+                  style={{ backgroundColor: popup.accent_color }}
+                >
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  {popup.badge_text}
+                </Badge>
+              )}
+              {popup.title && (
+                <h2 
+                  className="text-xl font-bold leading-tight" 
+                  style={{ color: popup.text_color }}
+                >
+                  {popup.title}
+                </h2>
+              )}
+              {popup.subtitle && (
+                <p 
+                  className="text-xs opacity-70" 
+                  style={{ color: popup.text_color }}
+                >
+                  {popup.subtitle}
+                </p>
+              )}
+            </div>
+
+            {/* 4 Options Grid - Preview version */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Option 1 */}
+              <div className="p-3 rounded-lg border-2 border-slate-200 bg-gradient-to-br from-white to-slate-50">
+                <div className="flex items-start gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                    <Mail className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xs font-semibold text-slate-800">Demande de contact</h3>
+                    <p className="text-[10px] text-slate-500">Particulier ou professionnel</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Option 2 */}
+              <div className="p-3 rounded-lg border-2 border-slate-200 bg-gradient-to-br from-white to-slate-50">
+                <div className="flex items-start gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xs font-semibold text-slate-800">Simulation en ligne</h3>
+                    <p className="text-[10px] text-slate-500">Éligibilité, primes, travaux</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Option 3 */}
+              <div className="p-3 rounded-lg border-2 border-slate-200 bg-gradient-to-br from-white to-slate-50">
+                <div className="flex items-start gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xs font-semibold text-slate-800">Lire les guides</h3>
+                    <p className="text-[10px] text-slate-500">Solaire, chauffage, isolation...</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Option 4 */}
+              <div className="p-3 rounded-lg border-2 border-slate-200 bg-gradient-to-br from-white to-slate-50">
+                <div className="flex items-start gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xs font-semibold text-slate-800">Chercher un installateur</h3>
+                    <p className="text-[10px] text-slate-500">Près de chez moi</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         );
