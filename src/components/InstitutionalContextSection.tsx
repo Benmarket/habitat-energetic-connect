@@ -111,10 +111,10 @@ const InstitutionalContextSection = () => {
         <div className="grid lg:grid-cols-2 min-h-[800px] lg:min-h-[1000px]">
           {/* Left Column - Sticky */}
           <div className="lg:sticky lg:top-24 lg:h-fit py-16 lg:py-28 px-6 lg:px-12 flex flex-col justify-center">
-            <div className="max-w-md">
-              <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-slate-800 leading-tight mb-4">
+            <div className="max-w-lg lg:max-w-xl">
+              <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] xl:text-5xl font-bold text-slate-800 leading-[1.15] mb-5">
                 Votre maison, un choix{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-500">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-500 whitespace-nowrap">
                   économique et logique
                 </span>
               </h2>
