@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, FileText, Users, Award } from "lucide-react";
+import maisonPrimeGif from "@/assets/maison-prime.gif";
 
 interface Step {
   id: number;
@@ -125,6 +126,15 @@ const InstitutionalContextSection = () => {
                 Prime Énergies vous accompagne dans un parcours simple et structuré, 
                 pour comprendre les aides disponibles et construire votre projet sereinement.
               </p>
+              
+              {/* Illustration maison */}
+              <div className="mt-8 lg:mt-10">
+                <img 
+                  src={maisonPrimeGif} 
+                  alt="Maison avec panneaux solaires, éolienne et pompe à chaleur" 
+                  className="w-full max-w-sm lg:max-w-md rounded-xl"
+                />
+              </div>
             </div>
           </div>
 
