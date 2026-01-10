@@ -59,9 +59,9 @@ const InstitutionalContextSection = () => {
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
 
-      // Calculate progress through the section
-      const sectionStart = sectionTop - windowHeight * 0.5;
-      const sectionEnd = sectionTop + sectionHeight - windowHeight;
+      // Calculate progress through the section - extended range for slower transitions
+      const sectionStart = sectionTop - windowHeight * 0.3;
+      const sectionEnd = sectionTop + sectionHeight - windowHeight * 0.3;
       
       if (scrollY < sectionStart) {
         setActiveStep(0);
@@ -73,10 +73,12 @@ const InstitutionalContextSection = () => {
         return;
       }
 
-      // Calculate which step should be active
+      // Calculate which step should be active with slower progression
       const progress = (scrollY - sectionStart) / (sectionEnd - sectionStart);
+      // Apply easing to make transitions feel more gradual
+      const easedProgress = Math.pow(progress, 0.8);
       const stepIndex = Math.min(
-        Math.floor(progress * steps.length),
+        Math.floor(easedProgress * steps.length),
         steps.length - 1
       );
       setActiveStep(stepIndex);
@@ -95,16 +97,10 @@ const InstitutionalContextSection = () => {
       className="relative bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-0"
     >
       <div className="max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 min-h-[700px] lg:min-h-[900px]">
+        <div className="grid lg:grid-cols-2 min-h-[800px] lg:min-h-[1000px]">
           {/* Left Column - Sticky */}
           <div className="lg:sticky lg:top-24 lg:h-fit py-16 lg:py-28 px-6 lg:px-12 flex flex-col justify-center">
             <div className="max-w-md">
-              {/* Decorative badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-medium mb-6">
-                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                Votre parcours
-              </div>
-              
               <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-slate-800 leading-tight mb-4">
                 Votre maison, un choix{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-500">
@@ -117,30 +113,6 @@ const InstitutionalContextSection = () => {
               <p className="text-slate-500 leading-relaxed text-base lg:text-lg">
                 Prime Énergies vous accompagne dans un parcours simple et structuré, 
                 pour comprendre les aides disponibles et construire votre projet sereinement.
-              </p>
-
-              {/* Progress indicator */}
-              <div className="flex gap-3 mt-10">
-                {steps.map((step, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      const element = stepsRef.current[index];
-                      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }}
-                    className={`relative h-2 flex-1 rounded-full transition-all duration-500 overflow-hidden ${
-                      index <= activeStep ? "bg-gradient-to-r from-blue-500 to-blue-600" : "bg-slate-200"
-                    }`}
-                  >
-                    {index === activeStep && (
-                      <span className="absolute inset-0 bg-white/30 animate-pulse" />
-                    )}
-                  </button>
-                ))}
-              </div>
-              
-              <p className="text-sm text-slate-400 mt-3">
-                Étape {activeStep + 1} sur {steps.length}
               </p>
             </div>
           </div>
