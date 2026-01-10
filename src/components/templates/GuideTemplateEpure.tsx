@@ -149,9 +149,8 @@ export const GuideTemplateEpure = ({
       {/* Content - Magazine style single column */}
       <article className="py-20 lg:py-32">
         <div className="container mx-auto px-4">
-          {/* Le sommaire est maintenant géré par GuideStickyNav au niveau global */}
-
-          <div className="max-w-3xl mx-auto" ref={contentRef}>
+          {/* Conteneur avec marge pour le sommaire sticky à droite */}
+          <div className="max-w-3xl mx-auto lg:mr-80 lg:ml-auto" ref={contentRef}>
             {/* Tags - minimal pills */}
             {guide.post_tags && guide.post_tags.length > 0 && (
               <div className="flex flex-wrap gap-3 mb-16">

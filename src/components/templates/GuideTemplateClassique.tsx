@@ -168,17 +168,12 @@ export const GuideTemplateClassique = ({
         </section>
       )}
 
-      {/* Content Layout - Reversed: TOC on left, content on right */}
+      {/* Content Layout */}
       <article className="py-12 lg:py-16">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row gap-12">
-            {/* Espace réservé pour le sommaire sticky global */}
-            <aside className="hidden lg:block w-72 flex-shrink-0 order-1">
-              {/* L'espace est réservé pour le composant GuideStickyNav qui apparaît au scroll */}
-            </aside>
-
-            {/* Main Content - RIGHT */}
-            <div className="flex-1 max-w-3xl order-2">
+        <div className="container mx-auto px-4 lg:pr-80">
+          <div className="max-w-3xl mx-auto lg:ml-0">
+            {/* Main Content */}
+            <div className="flex-1">
               {/* Tags with reveal animation */}
               {guide.post_tags && guide.post_tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-8 animate-fade-in">

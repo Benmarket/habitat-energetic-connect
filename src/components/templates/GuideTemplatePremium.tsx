@@ -157,10 +157,9 @@ export const GuideTemplatePremium = ({
 
       {/* Content Grid Layout */}
       <article className="py-16 relative z-10">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Main Content - 8 columns */}
-            <div className="lg:col-span-8">
+        <div className="container mx-auto px-4 lg:pr-80">
+          {/* Main Content */}
+          <div className="max-w-3xl mx-auto lg:ml-0">
               {/* Glass card wrapper */}
               <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-amber-100/50 p-8 lg:p-12">
                 {/* Tags */}
@@ -230,16 +229,10 @@ export const GuideTemplatePremium = ({
                           <p className="text-gray-600 leading-relaxed">{item.answer}</p>
                         </div>
                       ))}
-                    </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
-
-            {/* Espace réservé pour le sommaire sticky global */}
-            <aside className="lg:col-span-4">
-              {/* L'espace est réservé pour le composant GuideStickyNav qui apparaît au scroll */}
-            </aside>
           </div>
         </div>
       </article>

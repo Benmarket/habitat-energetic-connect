@@ -212,142 +212,134 @@ export const GuideTemplateSombre = ({
 
       {/* Content */}
       <article className="py-16 lg:py-24 relative z-10">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row gap-12 max-w-6xl mx-auto">
-            {/* Espace réservé pour le sommaire sticky global */}
-            <aside className="lg:w-72 flex-shrink-0 order-2 lg:order-1">
-              {/* L'espace est réservé pour le composant GuideStickyNav qui apparaît au scroll */}
-            </aside>
-
-            {/* Main Content */}
-            <div className="flex-1 max-w-3xl order-1 lg:order-2">
-              {/* Tags */}
-              {guide.post_tags && guide.post_tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-10">
-                  {guide.post_tags.map((pt) => (
-                    <span 
-                      key={pt.tags.id}
-                      className="text-xs font-semibold px-4 py-2 rounded-full border transition-colors hover:border-opacity-100"
-                      style={{ 
-                        borderColor: `${colors.accent}50`,
-                        color: colors.accent
-                      }}
-                    >
-                      {pt.tags.name}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {/* TL;DR with glow */}
-              {guide.tldr && (
-                <div 
-                  className="p-8 rounded-2xl mb-12 border relative overflow-hidden"
-                  style={{ 
-                    backgroundColor: colors.secondary,
-                    borderColor: `${colors.accent}30`
-                  }}
-                >
-                  <div 
-                    className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20"
-                    style={{ backgroundColor: colors.accent }}
-                  />
-                  <div className="relative z-10">
-                    <div 
-                      className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-4"
-                      style={{ color: colors.accent }}
-                    >
-                      <BookOpen className="w-4 h-4" />
-                      Résumé exécutif
-                    </div>
-                    <p className="text-gray-300 leading-relaxed">
-                      {guide.tldr}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Content */}
-              <div className={`relative ${isPaywalled ? 'max-h-[600px] overflow-hidden' : ''}`}>
-                <div
-                  className="prose prose-lg prose-invert max-w-none
-                    prose-headings:font-bold prose-headings:text-white
-                    prose-h2:text-2xl prose-h2:mt-16 prose-h2:mb-6 prose-h2:scroll-mt-28
-                    prose-h3:text-xl prose-h3:mt-10 prose-h3:mb-4
-                    prose-p:leading-relaxed prose-p:text-gray-400
-                    prose-a:font-semibold prose-a:no-underline prose-a:border-b-2 prose-a:pb-0.5
-                    prose-strong:font-bold prose-strong:text-white
-                    prose-ul:text-gray-400 prose-ol:text-gray-400
-                    prose-li:my-1.5
-                    prose-img:rounded-2xl prose-img:border prose-img:border-gray-800"
-                  style={{
-                    '--tw-prose-links': colors.accent,
-                    '--tw-prose-bullets': colors.accent,
-                  } as React.CSSProperties}
-                  dangerouslySetInnerHTML={{ __html: transformedContent }}
-                />
-                
-                {isPaywalled && children}
+        <div className="container mx-auto px-4 lg:pr-80">
+          <div className="max-w-3xl mx-auto lg:ml-0">
+            {/* Tags */}
+            {guide.post_tags && guide.post_tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-10">
+                {guide.post_tags.map((pt) => (
+                  <span 
+                    key={pt.tags.id}
+                    className="text-xs font-semibold px-4 py-2 rounded-full border transition-colors hover:border-opacity-100"
+                    style={{ 
+                      borderColor: `${colors.accent}50`,
+                      color: colors.accent
+                    }}
+                  >
+                    {pt.tags.name}
+                  </span>
+                ))}
               </div>
+            )}
 
-              {/* FAQ Accordion with glow */}
-              {!isPaywalled && guide.faq && guide.faq.length > 0 && (
+            {/* TL;DR with glow */}
+            {guide.tldr && (
+              <div 
+                className="p-8 rounded-2xl mb-12 border relative overflow-hidden"
+                style={{ 
+                  backgroundColor: colors.secondary,
+                  borderColor: `${colors.accent}30`
+                }}
+              >
                 <div 
-                  className="mt-20 p-8 rounded-2xl border"
-                  style={{ 
-                    backgroundColor: colors.secondary,
-                    borderColor: `${colors.accent}20`
-                  }}
-                >
-                  <h2 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
-                    Questions fréquentes
-                    <span 
-                      className="text-sm font-normal px-3 py-1 rounded-full"
+                  className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20"
+                  style={{ backgroundColor: colors.accent }}
+                />
+                <div className="relative z-10">
+                  <div 
+                    className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-4"
+                    style={{ color: colors.accent }}
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    Résumé exécutif
+                  </div>
+                  <p className="text-gray-300 leading-relaxed">
+                    {guide.tldr}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Content */}
+            <div className={`relative ${isPaywalled ? 'max-h-[600px] overflow-hidden' : ''}`}>
+              <div
+                className="prose prose-lg prose-invert max-w-none
+                  prose-headings:font-bold prose-headings:text-white
+                  prose-h2:text-2xl prose-h2:mt-16 prose-h2:mb-6 prose-h2:scroll-mt-28
+                  prose-h3:text-xl prose-h3:mt-10 prose-h3:mb-4
+                  prose-p:leading-relaxed prose-p:text-gray-400
+                  prose-a:font-semibold prose-a:no-underline prose-a:border-b-2 prose-a:pb-0.5
+                  prose-strong:font-bold prose-strong:text-white
+                  prose-ul:text-gray-400 prose-ol:text-gray-400
+                  prose-li:my-1.5
+                  prose-img:rounded-2xl prose-img:border prose-img:border-gray-800"
+                style={{
+                  '--tw-prose-links': colors.accent,
+                  '--tw-prose-bullets': colors.accent,
+                } as React.CSSProperties}
+                dangerouslySetInnerHTML={{ __html: transformedContent }}
+              />
+              
+              {isPaywalled && children}
+            </div>
+
+            {/* FAQ Accordion with glow */}
+            {!isPaywalled && guide.faq && guide.faq.length > 0 && (
+              <div 
+                className="mt-20 p-8 rounded-2xl border"
+                style={{ 
+                  backgroundColor: colors.secondary,
+                  borderColor: `${colors.accent}20`
+                }}
+              >
+                <h2 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
+                  Questions fréquentes
+                  <span 
+                    className="text-sm font-normal px-3 py-1 rounded-full"
+                    style={{ 
+                      backgroundColor: colors.accent,
+                      color: colors.primary 
+                    }}
+                  >
+                    {guide.faq.length}
+                  </span>
+                </h2>
+                <div className="space-y-3">
+                  {guide.faq.map((item, index) => (
+                    <div 
+                      key={index} 
+                      className="rounded-xl overflow-hidden border transition-all"
                       style={{ 
-                        backgroundColor: colors.accent,
-                        color: colors.primary 
+                        backgroundColor: colors.primary,
+                        borderColor: expandedFaq === index ? colors.accent : 'transparent',
+                        boxShadow: expandedFaq === index ? `0 0 20px ${colors.accent}20` : 'none'
                       }}
                     >
-                      {guide.faq.length}
-                    </span>
-                  </h2>
-                  <div className="space-y-3">
-                    {guide.faq.map((item, index) => (
-                      <div 
-                        key={index} 
-                        className="rounded-xl overflow-hidden border transition-all"
-                        style={{ 
-                          backgroundColor: colors.primary,
-                          borderColor: expandedFaq === index ? colors.accent : 'transparent',
-                          boxShadow: expandedFaq === index ? `0 0 20px ${colors.accent}20` : 'none'
-                        }}
+                      <button
+                        className="w-full p-5 text-left flex items-center justify-between"
+                        onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
                       >
-                        <button
-                          className="w-full p-5 text-left flex items-center justify-between"
-                          onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
-                        >
-                          <span className="font-medium text-white pr-4">{item.question}</span>
-                          {expandedFaq === index ? (
-                            <ChevronUp className="w-5 h-5 flex-shrink-0" style={{ color: colors.accent }} />
-                          ) : (
-                            <ChevronDown className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                          )}
-                        </button>
-                        <div 
-                          className={`overflow-hidden transition-all duration-300 ${
-                            expandedFaq === index ? 'max-h-96' : 'max-h-0'
-                          }`}
-                        >
-                          <div className="px-5 pb-5 text-gray-400 leading-relaxed">
-                            {item.answer}
-                          </div>
+                        <span className="font-medium text-white pr-4">{item.question}</span>
+                        {expandedFaq === index ? (
+                          <ChevronUp className="w-5 h-5 flex-shrink-0" style={{ color: colors.accent }} />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                        )}
+                      </button>
+                      <div 
+                        className={`overflow-hidden transition-all duration-300 ${
+                          expandedFaq === index ? 'max-h-96' : 'max-h-0'
+                        }`}
+                      >
+                        <div className="px-5 pb-5 text-gray-400 leading-relaxed">
+                          {item.answer}
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </article>
