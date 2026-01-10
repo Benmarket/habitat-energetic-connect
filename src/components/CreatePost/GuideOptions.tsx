@@ -1,4 +1,5 @@
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CreatePostFormData } from "@/hooks/useCreatePost";
@@ -142,6 +143,23 @@ export function GuideOptions({ formData, setFormData }: GuideOptionsProps) {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Champ Topline */}
+      <div className="space-y-2">
+        <Label htmlFor="topline">
+          Topline (bandeau vert sur l'image)
+        </Label>
+        <Input
+          id="topline"
+          value={formData.topline || ""}
+          onChange={(e) => setFormData({ ...formData, topline: e.target.value })}
+          placeholder="Ex: Jusqu'à 63 000€ de subvention pour vos travaux"
+          maxLength={100}
+        />
+        <p className="text-xs text-muted-foreground">
+          Ce texte apparaîtra dans un bandeau vert arrondi sur l'image du guide mis en avant.
+        </p>
       </div>
 
       <div className="flex items-center space-x-2">
