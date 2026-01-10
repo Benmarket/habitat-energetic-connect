@@ -210,9 +210,9 @@ const Header = () => {
             <span className="text-xs text-muted-foreground">prime-energies.fr</span>
           </Link>
 
-          {/* Profile Selector - Desktop/Tablet only */}
+          {/* Profile Selector - Tablet (md) and Desktop (lg+) */}
           {headerFooterSettings.showProfileSelector && (
-            <div className="hidden md:block ml-6">
+            <div className="hidden sm:block md:block ml-4 lg:ml-6">
               <ProfileSelector />
             </div>
           )}
