@@ -126,13 +126,13 @@ const GuidesSection = () => {
             loop: true,
             slidesToScroll: 1,
           }}
-          className="w-full mt-6 pt-4 -mt-4 px-6 md:px-0"
+          className="w-full overflow-visible"
         >
-          <CarouselContent className="-ml-4 pt-2">
+          <CarouselContent className="-ml-4 py-6 px-2">
             {guides.map((guide) => (
               <CarouselItem key={guide.id} className="pl-4 basis-full md:basis-1/3">
                 <Link to={`/guide/${guide.slug}`} className="group block h-full relative z-0 hover:z-10">
-                  <Card className="h-full transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 hover:scale-[1.01] hover:-translate-y-1 bg-card/80 backdrop-blur-sm border-2 border-orange-500/20 hover:border-orange-500 overflow-hidden">
+                  <Card className="h-full transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 hover:scale-[1.02] hover:-translate-y-1 bg-card/80 backdrop-blur-sm border-2 border-orange-500/20 hover:border-orange-500 overflow-hidden">
                     {guide.featured_image && (
                       <div className="relative h-56 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-orange-950/20 to-transparent z-10" />
