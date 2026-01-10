@@ -30,13 +30,44 @@ const Actualites = () => {
   }, [searchParams]);
 
   const fetchCategories = async () => {
-    const { data } = await supabase
-      .from("categories")
-      .select("*")
-      .eq("content_type", "actualite")
-      .order("name");
-    
-    if (data) setCategories(data);
+    try {
+      // First fetch all categories
+      const { data: allCategories } = await supabase
+        .from("categories")
+        .select("*")
+        .eq("content_type", "actualite")
+        .order("name");
+
+      // Then fetch categories that have at least one published article
+      const { data: postsWithCategories } = await supabase
+        .from("posts")
+        .select(`
+          post_categories (
+            categories (id)
+          )
+        `)
+        .eq("content_type", "actualite")
+        .eq("status", "published");
+
+      // Extract unique category IDs that have published posts
+      const categoryIdsWithPosts = new Set<string>();
+      postsWithCategories?.forEach((post: any) => {
+        post.post_categories?.forEach((pc: any) => {
+          if (pc.categories?.id) {
+            categoryIdsWithPosts.add(pc.categories.id);
+          }
+        });
+      });
+
+      // Filter categories to only show those with published posts
+      const categoriesWithPosts = (allCategories || []).filter(
+        cat => categoryIdsWithPosts.has(cat.id)
+      );
+
+      setCategories(categoriesWithPosts);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
   };
 
   const fetchPosts = async () => {

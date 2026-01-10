@@ -45,14 +45,44 @@ const NewsSection = () => {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase
+      // First fetch all categories
+      const { data: allCategories, error: catError } = await supabase
         .from("categories")
         .select("id, name, slug")
         .eq("content_type", "actualite")
         .order("name", { ascending: true });
 
-      if (error) throw error;
-      setCategories(data || []);
+      if (catError) throw catError;
+
+      // Then fetch categories that have at least one published article
+      const { data: postsWithCategories, error: postsError } = await supabase
+        .from("posts")
+        .select(`
+          post_categories (
+            categories (id)
+          )
+        `)
+        .eq("content_type", "actualite")
+        .eq("status", "published");
+
+      if (postsError) throw postsError;
+
+      // Extract unique category IDs that have published posts
+      const categoryIdsWithPosts = new Set<string>();
+      postsWithCategories?.forEach((post: any) => {
+        post.post_categories?.forEach((pc: any) => {
+          if (pc.categories?.id) {
+            categoryIdsWithPosts.add(pc.categories.id);
+          }
+        });
+      });
+
+      // Filter categories to only show those with published posts
+      const categoriesWithPosts = (allCategories || []).filter(
+        cat => categoryIdsWithPosts.has(cat.id)
+      );
+
+      setCategories(categoriesWithPosts);
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
