@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Power, PowerOff, ArrowLeft, MessageCircle } from "lucide-react";
+import { Plus, Edit, Trash2, ArrowLeft, MessageCircle, Link2, Link2Off } from "lucide-react";
 import { ChatbotFlowEditor } from "@/components/ChatbotFlowEditor";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -50,6 +50,8 @@ const AdminChatbot = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isLinkConfirmDialogOpen, setIsLinkConfirmDialogOpen] = useState(false);
+  const [flowToLink, setFlowToLink] = useState<ChatbotFlow | null>(null);
   const [selectedFlow, setSelectedFlow] = useState<ChatbotFlow | null>(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -210,27 +212,79 @@ const AdminChatbot = () => {
     },
   });
 
-  // Toggle active status
-  const toggleActiveMutation = useMutation({
-    mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase
+  // Link flow to chatbot (only one can be active at a time)
+  const linkFlowMutation = useMutation({
+    mutationFn: async (flowId: string) => {
+      // First, deactivate all flows
+      const { error: deactivateError } = await supabase
         .from("chatbot_flows")
-        .update({ is_active })
-        .eq("id", id);
-      if (error) throw error;
+        .update({ is_active: false })
+        .neq("id", "00000000-0000-0000-0000-000000000000"); // Update all
+      
+      if (deactivateError) throw deactivateError;
+
+      // Then activate the selected flow
+      const { error: activateError } = await supabase
+        .from("chatbot_flows")
+        .update({ is_active: true })
+        .eq("id", flowId);
+      
+      if (activateError) throw activateError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["chatbot-flows"] });
-      toast({ title: "Statut mis à jour avec succès" });
+      toast({ title: "Parcours lié au chatbot avec succès" });
+      setIsLinkConfirmDialogOpen(false);
+      setFlowToLink(null);
     },
     onError: (error: any) => {
       toast({
-        title: "Erreur lors du changement de statut",
+        title: "Erreur lors de la liaison",
         description: error.message,
         variant: "destructive",
       });
     },
   });
+
+  // Unlink flow from chatbot
+  const unlinkFlowMutation = useMutation({
+    mutationFn: async (flowId: string) => {
+      const { error } = await supabase
+        .from("chatbot_flows")
+        .update({ is_active: false })
+        .eq("id", flowId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatbot-flows"] });
+      toast({ title: "Parcours délié du chatbot" });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Get the currently linked flow
+  const linkedFlow = flows?.find(f => f.is_active);
+
+  // Handle link button click
+  const handleLinkClick = (flow: ChatbotFlow) => {
+    if (flow.is_active) {
+      // Unlink this flow
+      unlinkFlowMutation.mutate(flow.id);
+    } else if (linkedFlow) {
+      // Another flow is already linked, show confirmation
+      setFlowToLink(flow);
+      setIsLinkConfirmDialogOpen(true);
+    } else {
+      // No flow is linked, link directly
+      linkFlowMutation.mutate(flow.id);
+    }
+  };
 
   const resetForm = () => {
     setFormData({
@@ -392,19 +446,20 @@ const AdminChatbot = () => {
       ) : (
         <div className="grid gap-4">
           {flows?.map((flow) => (
-            <Card key={flow.id}>
+            <Card key={flow.id} className={flow.is_active ? "border-green-500 border-2" : ""}>
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
                     <CardTitle className="flex items-center gap-2">
                       {flow.name}
                       {flow.is_active ? (
-                        <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
-                          Actif
+                        <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full dark:bg-green-900 dark:text-green-300">
+                          <Link2 className="w-3 h-3 mr-1" />
+                          Lié au chatbot
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full">
-                          Inactif
+                        <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-500 bg-gray-100 rounded-full dark:bg-gray-800 dark:text-gray-400">
+                          Non lié
                         </span>
                       )}
                     </CardTitle>
@@ -414,19 +469,16 @@ const AdminChatbot = () => {
                   </div>
                   <div className="flex gap-2">
                     <Button
-                      variant="outline"
+                      variant={flow.is_active ? "default" : "outline"}
                       size="sm"
-                      onClick={() =>
-                        toggleActiveMutation.mutate({
-                          id: flow.id,
-                          is_active: !flow.is_active,
-                        })
-                      }
+                      onClick={() => handleLinkClick(flow)}
+                      title={flow.is_active ? "Délier du chatbot" : "Lier au chatbot"}
+                      className={flow.is_active ? "bg-green-600 hover:bg-green-700" : ""}
                     >
                       {flow.is_active ? (
-                        <PowerOff className="w-4 h-4" />
+                        <Link2 className="w-4 h-4" />
                       ) : (
-                        <Power className="w-4 h-4" />
+                        <Link2Off className="w-4 h-4" />
                       )}
                     </Button>
                     <Button
@@ -486,16 +538,9 @@ const AdminChatbot = () => {
                 placeholder="Description du parcours"
               />
             </div>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="is_active"
-                checked={formData.is_active}
-                onCheckedChange={(checked) =>
-                  setFormData({ ...formData, is_active: checked })
-                }
-              />
-              <Label htmlFor="is_active">Activer ce parcours</Label>
-            </div>
+            <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
+              💡 Après la création, vous pourrez lier ce parcours au chatbot en cliquant sur le bouton chaîne.
+            </p>
             <div className="space-y-2">
               <Label>Éditeur visuel du parcours</Label>
               <ChatbotFlowEditor
@@ -547,16 +592,12 @@ const AdminChatbot = () => {
                 }
               />
             </div>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="edit-is_active"
-                checked={formData.is_active}
-                onCheckedChange={(checked) =>
-                  setFormData({ ...formData, is_active: checked })
-                }
-              />
-              <Label htmlFor="edit-is_active">Activer ce parcours</Label>
-            </div>
+            {selectedFlow?.is_active && (
+              <p className="text-sm text-green-600 bg-green-50 dark:bg-green-900/20 p-3 rounded-md flex items-center gap-2">
+                <Link2 className="w-4 h-4" />
+                Ce parcours est actuellement lié au chatbot
+              </p>
+            )}
             <div className="space-y-2">
               <Label>Éditeur visuel du parcours</Label>
               <ChatbotFlowEditor
@@ -600,6 +641,44 @@ const AdminChatbot = () => {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Link Confirmation Dialog */}
+      <AlertDialog open={isLinkConfirmDialogOpen} onOpenChange={setIsLinkConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Link2 className="w-5 h-5" />
+              Changer le parcours lié
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3">
+              <p>
+                Le parcours <strong>"{linkedFlow?.name}"</strong> est actuellement lié au chatbot.
+              </p>
+              <p>
+                En confirmant, le parcours <strong>"{flowToLink?.name}"</strong> le remplacera et deviendra le nouveau parcours utilisé par le chatbot.
+              </p>
+              <p className="text-muted-foreground text-sm">
+                L'ancien parcours ne sera pas supprimé, il sera simplement délié.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setFlowToLink(null);
+              setIsLinkConfirmDialogOpen(false);
+            }}>
+              Annuler
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => flowToLink && linkFlowMutation.mutate(flowToLink.id)}
+              className="bg-green-600 text-white hover:bg-green-700"
+            >
+              <Link2 className="w-4 h-4 mr-2" />
+              Confirmer le changement
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
