@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, ArrowLeft, MessageCircle, Link2, Link2Off } from "lucide-react";
+import { Plus, Edit, Trash2, ArrowLeft, MessageCircle, Link2, Link2Off, Crown, CrownIcon } from "lucide-react";
 import { ChatbotFlowEditor } from "@/components/ChatbotFlowEditor";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import {
   AlertDialog,
@@ -32,12 +31,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 
 type ChatbotFlow = {
   id: string;
   name: string;
   description: string | null;
   is_active: boolean;
+  is_main: boolean;
   tree_structure: any;
   created_at: string;
   updated_at: string;
@@ -57,6 +58,7 @@ const AdminChatbot = () => {
     name: "",
     description: "",
     is_active: false,
+    is_main: false,
   });
   const [flowStructure, setFlowStructure] = useState<any>({
     start_node: "node_1",
@@ -66,8 +68,8 @@ const AdminChatbot = () => {
         question: "Votre question ici",
         answer_type: "buttons",
         options: [
-          { label: "Option 1", next_node: "node_2" },
-          { label: "Option 2", next_node: "node_3" }
+          { label: "Option 1", next_node: "node_2", redirect_flow_id: "" },
+          { label: "Option 2", next_node: "node_3", redirect_flow_id: "" }
         ]
       }
     }
@@ -132,6 +134,7 @@ const AdminChatbot = () => {
       const { data, error } = await supabase
         .from("chatbot_flows")
         .select("*")
+        .order("is_main", { ascending: false })
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -139,9 +142,13 @@ const AdminChatbot = () => {
     },
   });
 
+  // Get available flows for editor (for linking options to other flows)
+  const availableFlowsForEditor = flows?.map(f => ({ id: f.id, name: f.name })) || [];
+
   // Create flow mutation
   const createFlowMutation = useMutation({
     mutationFn: async (data: any) => {
+      // If setting as main, we need to unset other main flows (trigger will handle this)
       const { error } = await supabase.from("chatbot_flows").insert([{
         ...data,
         tree_structure: flowStructure
@@ -212,6 +219,30 @@ const AdminChatbot = () => {
     },
   });
 
+  // Set as main flow mutation
+  const setMainFlowMutation = useMutation({
+    mutationFn: async (flowId: string) => {
+      // The trigger will automatically unset other main flows
+      const { error } = await supabase
+        .from("chatbot_flows")
+        .update({ is_main: true, is_active: true })
+        .eq("id", flowId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatbot-flows"] });
+      toast({ title: "Parcours principal défini avec succès" });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Link flow to chatbot (only one can be active at a time)
   const linkFlowMutation = useMutation({
     mutationFn: async (flowId: string) => {
@@ -268,8 +299,9 @@ const AdminChatbot = () => {
     },
   });
 
-  // Get the currently linked flow
-  const linkedFlow = flows?.find(f => f.is_active);
+  // Get the currently linked flow (main flow takes priority)
+  const mainFlow = flows?.find(f => f.is_main);
+  const linkedFlow = mainFlow || flows?.find(f => f.is_active);
 
   // Handle link button click
   const handleLinkClick = (flow: ChatbotFlow) => {
@@ -286,11 +318,29 @@ const AdminChatbot = () => {
     }
   };
 
+  // Handle set as main click
+  const handleSetMainClick = (flow: ChatbotFlow) => {
+    if (flow.is_main) {
+      // Already main, unset it
+      supabase
+        .from("chatbot_flows")
+        .update({ is_main: false })
+        .eq("id", flow.id)
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["chatbot-flows"] });
+          toast({ title: "Parcours principal retiré" });
+        });
+    } else {
+      setMainFlowMutation.mutate(flow.id);
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       name: "",
       description: "",
       is_active: false,
+      is_main: false,
     });
     setFlowStructure({
       start_node: "node_1",
@@ -300,8 +350,8 @@ const AdminChatbot = () => {
           question: "Votre question ici",
           answer_type: "buttons",
           options: [
-            { label: "Option 1", next_node: "node_2" },
-            { label: "Option 2", next_node: "node_3" }
+            { label: "Option 1", next_node: "node_2", redirect_flow_id: "" },
+            { label: "Option 2", next_node: "node_3", redirect_flow_id: "" }
           ]
         }
       }
@@ -321,6 +371,7 @@ const AdminChatbot = () => {
       name: formData.name,
       description: formData.description || null,
       is_active: formData.is_active,
+      is_main: formData.is_main,
     });
   };
 
@@ -340,6 +391,7 @@ const AdminChatbot = () => {
         name: formData.name,
         description: formData.description || null,
         is_active: formData.is_active,
+        is_main: formData.is_main,
       },
     });
   };
@@ -350,6 +402,7 @@ const AdminChatbot = () => {
       name: flow.name,
       description: flow.description || "",
       is_active: flow.is_active,
+      is_main: flow.is_main,
     });
     setFlowStructure(flow.tree_structure);
     setIsEditModalOpen(true);
@@ -428,6 +481,23 @@ const AdminChatbot = () => {
         </CardHeader>
       </Card>
 
+      {/* Info about flow chaining */}
+      <Card className="mb-6 border-amber-200 bg-amber-50/50 dark:border-amber-800 dark:bg-amber-900/20">
+        <CardContent className="pt-4">
+          <div className="flex items-start gap-3">
+            <Crown className="w-5 h-5 text-amber-600 mt-0.5" />
+            <div>
+              <p className="font-medium text-amber-800 dark:text-amber-200">Système de parcours chaînés</p>
+              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                Définissez un <strong>parcours principal</strong> (avec la couronne) qui sert de menu d'entrée. 
+                Chaque option peut rediriger vers un autre parcours secondaire. Le parcours principal 
+                sera automatiquement lié au chatbot et affiché en premier aux visiteurs.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="flex justify-between items-center mb-8">
         <div>
           <h2 className="text-2xl font-bold">Parcours de conversation</h2>
@@ -452,13 +522,23 @@ const AdminChatbot = () => {
       ) : (
         <div className="grid gap-4">
           {flows?.map((flow) => (
-            <Card key={flow.id} className={flow.is_active ? "border-green-500 border-2" : ""}>
+            <Card 
+              key={flow.id} 
+              className={`${flow.is_main ? "border-amber-500 border-2 bg-amber-50/30 dark:bg-amber-900/10" : flow.is_active ? "border-green-500 border-2" : ""}`}
+            >
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 flex-wrap">
+                      {flow.is_main && (
+                        <Crown className="w-5 h-5 text-amber-500" />
+                      )}
                       {flow.name}
-                      {flow.is_active ? (
+                      {flow.is_main ? (
+                        <Badge variant="outline" className="border-amber-500 text-amber-600 bg-amber-50">
+                          Parcours principal
+                        </Badge>
+                      ) : flow.is_active ? (
                         <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full dark:bg-green-900 dark:text-green-300">
                           <Link2 className="w-3 h-3 mr-1" />
                           Lié au chatbot
@@ -475,11 +555,21 @@ const AdminChatbot = () => {
                   </div>
                   <div className="flex gap-2">
                     <Button
+                      variant={flow.is_main ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handleSetMainClick(flow)}
+                      title={flow.is_main ? "Retirer comme principal" : "Définir comme principal"}
+                      className={flow.is_main ? "bg-amber-500 hover:bg-amber-600" : ""}
+                    >
+                      <Crown className="w-4 h-4" />
+                    </Button>
+                    <Button
                       variant={flow.is_active ? "default" : "outline"}
                       size="sm"
                       onClick={() => handleLinkClick(flow)}
                       title={flow.is_active ? "Délier du chatbot" : "Lier au chatbot"}
                       className={flow.is_active ? "bg-green-600 hover:bg-green-700" : ""}
+                      disabled={flow.is_main} // Main flow is always linked
                     >
                       {flow.is_active ? (
                         <Link2 className="w-4 h-4" />
@@ -516,7 +606,7 @@ const AdminChatbot = () => {
 
       {/* Create Modal */}
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Créer un nouveau parcours</DialogTitle>
             <DialogDescription>
@@ -524,34 +614,50 @@ const AdminChatbot = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nom du parcours</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Ex: Qualification prospects isolation"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Nom du parcours</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="Ex: Menu principal"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Input
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  placeholder="Description du parcours"
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Input
-                id="description"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                placeholder="Description du parcours"
+            
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="is_main"
+                checked={formData.is_main}
+                onCheckedChange={(checked) => setFormData({ ...formData, is_main: checked, is_active: checked ? true : formData.is_active })}
               />
+              <Label htmlFor="is_main" className="flex items-center gap-2">
+                <Crown className="w-4 h-4 text-amber-500" />
+                Définir comme parcours principal (affiché en premier)
+              </Label>
             </div>
+
             <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-              💡 Après la création, vous pourrez lier ce parcours au chatbot en cliquant sur le bouton chaîne.
+              💡 Le parcours principal sert de menu d'entrée. Ses options peuvent rediriger vers d'autres parcours.
             </p>
             <div className="space-y-2">
               <Label>Éditeur visuel du parcours</Label>
               <ChatbotFlowEditor
                 initialStructure={flowStructure}
                 onSave={setFlowStructure}
+                availableFlows={availableFlowsForEditor}
               />
             </div>
           </div>
@@ -572,7 +678,7 @@ const AdminChatbot = () => {
 
       {/* Edit Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Modifier le parcours</DialogTitle>
             <DialogDescription>
@@ -580,28 +686,49 @@ const AdminChatbot = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-name">Nom du parcours</Label>
-              <Input
-                id="edit-name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-name">Nom du parcours</Label>
+                <Input
+                  id="edit-name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-description">Description</Label>
+                <Input
+                  id="edit-description"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-description">Description</Label>
-              <Input
-                id="edit-description"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
+            
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="edit_is_main"
+                checked={formData.is_main}
+                onCheckedChange={(checked) => setFormData({ ...formData, is_main: checked, is_active: checked ? true : formData.is_active })}
               />
+              <Label htmlFor="edit_is_main" className="flex items-center gap-2">
+                <Crown className="w-4 h-4 text-amber-500" />
+                Définir comme parcours principal (affiché en premier)
+              </Label>
             </div>
-            {selectedFlow?.is_active && (
+
+            {selectedFlow?.is_active && !selectedFlow?.is_main && (
               <p className="text-sm text-green-600 bg-green-50 dark:bg-green-900/20 p-3 rounded-md flex items-center gap-2">
                 <Link2 className="w-4 h-4" />
                 Ce parcours est actuellement lié au chatbot
+              </p>
+            )}
+            {selectedFlow?.is_main && (
+              <p className="text-sm text-amber-600 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-md flex items-center gap-2">
+                <Crown className="w-4 h-4" />
+                Ce parcours est le parcours principal et sera affiché en premier
               </p>
             )}
             <div className="space-y-2">
@@ -609,6 +736,8 @@ const AdminChatbot = () => {
               <ChatbotFlowEditor
                 initialStructure={flowStructure}
                 onSave={setFlowStructure}
+                availableFlows={availableFlowsForEditor}
+                currentFlowId={selectedFlow?.id}
               />
             </div>
           </div>
@@ -636,6 +765,11 @@ const AdminChatbot = () => {
             <AlertDialogDescription>
               Êtes-vous sûr de vouloir supprimer le parcours "{selectedFlow?.name}" ?
               Cette action est irréversible.
+              {selectedFlow?.is_main && (
+                <span className="block mt-2 text-amber-600 font-medium">
+                  ⚠️ Attention : Ce parcours est défini comme principal. Supprimer ce parcours désactivera le menu d'entrée du chatbot.
+                </span>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
