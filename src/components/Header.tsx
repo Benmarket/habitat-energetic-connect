@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone, User, Home, BarChart3, MessageCircle, Users, LogOut, ChevronDown, Settings } from "lucide-react";
 import RegionSubHeader from "@/components/RegionSubHeader";
+import ProfileSelector from "@/components/ProfileSelector";
 import { useAuth } from "@/hooks/useAuth";
 import { MegaMenu } from "@/components/MegaMenu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -49,6 +50,7 @@ const Header = () => {
     installerButtonGradientAngle: 90,
     installerButtonLink: "/#etude",
     showRegionSubHeader: true,
+    showProfileSelector: true,
     memberMenuShowAccount: true,
     memberMenuShowDashboard: true,
     memberMenuShowEconomies: true,
@@ -132,6 +134,7 @@ const Header = () => {
             installerButtonGradientAngle: value.installerButtonGradientAngle ?? 90,
             installerButtonLink: value.installerButtonLink || "/#etude",
             showRegionSubHeader: value.showRegionSubHeader ?? true,
+            showProfileSelector: value.showProfileSelector ?? true,
             memberMenuShowAccount: value.memberMenuShowAccount ?? true,
             memberMenuShowDashboard: value.memberMenuShowDashboard ?? true,
             memberMenuShowEconomies: value.memberMenuShowEconomies ?? true,
@@ -206,6 +209,13 @@ const Header = () => {
             </span>
             <span className="text-xs text-muted-foreground">prime-energies.fr</span>
           </Link>
+
+          {/* Profile Selector - Desktop/Tablet only */}
+          {headerFooterSettings.showProfileSelector && (
+            <div className="hidden md:block ml-6">
+              <ProfileSelector />
+            </div>
+          )}
 
           {/* Desktop Navigation - Hidden on smaller screens */}
           <div className="hidden lg:flex flex-1 justify-center">
