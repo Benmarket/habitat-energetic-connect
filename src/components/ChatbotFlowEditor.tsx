@@ -88,10 +88,15 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave, availableFlows = [
   // Filter out current flow from available flows for redirection
   const redirectableFlows = availableFlows.filter(f => f.id !== currentFlowId);
 
+  // Track if initial load is complete to avoid triggering onSave during loading
+  const [isInitialized, setIsInitialized] = useState(false);
+
   // Load from initial structure on mount or when it changes
   useEffect(() => {
     if (initialStructure && initialStructure.nodes) {
       loadFromStructure(initialStructure);
+      // Mark as initialized after a short delay to allow nodes to settle
+      setTimeout(() => setIsInitialized(true), 100);
     }
   }, [initialStructure]);
 
@@ -193,6 +198,14 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave, availableFlows = [
 
     return structure;
   }, [nodes]);
+
+  // Auto-save when nodes change (after initialization)
+  useEffect(() => {
+    if (isInitialized && nodes.length > 0) {
+      const structure = convertToStructure();
+      onSave(structure);
+    }
+  }, [nodes, isInitialized, convertToStructure, onSave]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -317,13 +330,17 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave, availableFlows = [
 
     setIsEditModalOpen(false);
     setSelectedNode(null);
-    toast({ title: "Nœud mis à jour avec succès" });
+    toast({ 
+      title: "Nœud modifié", 
+      description: "Cliquez sur 'Enregistrer les modifications' pour sauvegarder." 
+    });
   };
 
+  // Manual save button handler (kept for explicit save action)
   const handleSave = () => {
     const structure = convertToStructure();
     onSave(structure);
-    toast({ title: "Parcours enregistré" });
+    toast({ title: "Parcours synchronisé" });
   };
 
   const addOption = () => {
