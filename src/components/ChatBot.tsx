@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { MessageCircle, X, Send, UserCog, Bot, User } from "lucide-react";
+import { MessageCircle, X, Send, UserCog, Bot, User, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -44,6 +44,8 @@ export const ChatBot = () => {
   const [agentConnected, setAgentConnected] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(true);
   const [activeFlow, setActiveFlow] = useState<any>(null);
+  const [mainFlow, setMainFlow] = useState<any>(null);
+  const [flowHistory, setFlowHistory] = useState<any[]>([]);
   const [showFlowRunner, setShowFlowRunner] = useState(true);
   const [flowCompleted, setFlowCompleted] = useState(false);
   const [chatbotEnabled, setChatbotEnabled] = useState<boolean | null>(null);
@@ -86,16 +88,17 @@ export const ChatBot = () => {
   useEffect(() => {
     const loadActiveFlow = async () => {
       // First try to get main flow
-      const { data: mainFlow } = await supabase
+      const { data: mainFlowData } = await supabase
         .from("chatbot_flows")
         .select("*")
         .eq("is_main", true)
         .limit(1)
         .maybeSingle();
 
-      if (mainFlow) {
-        console.log("Main chatbot flow loaded:", mainFlow);
-        setActiveFlow(mainFlow);
+      if (mainFlowData) {
+        console.log("Main chatbot flow loaded:", mainFlowData);
+        setMainFlow(mainFlowData);
+        setActiveFlow(mainFlowData);
         return;
       }
 
@@ -119,6 +122,11 @@ export const ChatBot = () => {
 
   // Handle flow redirect (switch to another flow)
   const handleFlowRedirect = async (flowId: string, conversationHistory: Array<{ question: string; answer: string }>) => {
+    // Save current flow to history for back navigation
+    if (activeFlow) {
+      setFlowHistory(prev => [...prev, activeFlow]);
+    }
+
     const { data: newFlow, error } = await supabase
       .from("chatbot_flows")
       .select("*")
@@ -138,6 +146,24 @@ export const ChatBot = () => {
       });
     }
   };
+
+  // Handle back button click - return to previous flow (or main flow)
+  const handleBackToMainFlow = () => {
+    if (flowHistory.length > 0) {
+      // Pop the last flow from history
+      const previousFlow = flowHistory[flowHistory.length - 1];
+      setFlowHistory(prev => prev.slice(0, -1));
+      setActiveFlow(previousFlow);
+    } else if (mainFlow) {
+      setActiveFlow(mainFlow);
+    }
+  };
+
+  // Check if we should show back button
+  const showBackButton = activeFlow && 
+    !activeFlow.is_main && 
+    activeFlow.show_back_button !== false && 
+    (flowHistory.length > 0 || mainFlow);
 
   // Initialize conversation on open
   useEffect(() => {
@@ -594,6 +620,17 @@ export const ChatBot = () => {
 
           {/* Messages */}
           <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+            {/* Back button for secondary flows */}
+            {showBackButton && showFlowRunner && !flowCompleted && (
+              <button
+                onClick={handleBackToMainFlow}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-3 transition-colors group"
+              >
+                <ArrowLeft className="h-3.5 w-3.5 group-hover:-translate-x-0.5 transition-transform" />
+                Retour au menu
+              </button>
+            )}
+
             {/* Show flow runner if active and not completed */}
             {activeFlow && showFlowRunner && !flowCompleted && (
               <div>

@@ -39,6 +39,7 @@ type ChatbotFlow = {
   description: string | null;
   is_active: boolean;
   is_main: boolean;
+  show_back_button: boolean;
   tree_structure: any;
   created_at: string;
   updated_at: string;
@@ -59,6 +60,7 @@ const AdminChatbot = () => {
     description: "",
     is_active: false,
     is_main: false,
+    show_back_button: true,
   });
   const [flowStructure, setFlowStructure] = useState<any>({
     start_node: "node_1",
@@ -341,6 +343,7 @@ const AdminChatbot = () => {
       description: "",
       is_active: false,
       is_main: false,
+      show_back_button: true,
     });
     setFlowStructure({
       start_node: "node_1",
@@ -372,6 +375,7 @@ const AdminChatbot = () => {
       description: formData.description || null,
       is_active: formData.is_active,
       is_main: formData.is_main,
+      show_back_button: formData.show_back_button,
     });
   };
 
@@ -392,6 +396,7 @@ const AdminChatbot = () => {
         description: formData.description || null,
         is_active: formData.is_active,
         is_main: formData.is_main,
+        show_back_button: formData.show_back_button,
       },
     });
   };
@@ -403,6 +408,7 @@ const AdminChatbot = () => {
       description: flow.description || "",
       is_active: flow.is_active,
       is_main: flow.is_main,
+      show_back_button: flow.show_back_button ?? true,
     });
     setFlowStructure(flow.tree_structure);
     setIsEditModalOpen(true);
@@ -649,6 +655,20 @@ const AdminChatbot = () => {
               </Label>
             </div>
 
+            {!formData.is_main && (
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="show_back_button"
+                  checked={formData.show_back_button}
+                  onCheckedChange={(checked) => setFormData({ ...formData, show_back_button: checked })}
+                />
+                <Label htmlFor="show_back_button" className="flex items-center gap-2">
+                  <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+                  Afficher un bouton retour (parcours secondaire)
+                </Label>
+              </div>
+            )}
+
             <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
               💡 Le parcours principal sert de menu d'entrée. Ses options peuvent rediriger vers d'autres parcours.
             </p>
@@ -718,6 +738,20 @@ const AdminChatbot = () => {
                 Définir comme parcours principal (affiché en premier)
               </Label>
             </div>
+
+            {!formData.is_main && (
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="edit_show_back_button"
+                  checked={formData.show_back_button}
+                  onCheckedChange={(checked) => setFormData({ ...formData, show_back_button: checked })}
+                />
+                <Label htmlFor="edit_show_back_button" className="flex items-center gap-2">
+                  <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+                  Afficher un bouton retour (parcours secondaire)
+                </Label>
+              </div>
+            )}
 
             {selectedFlow?.is_active && !selectedFlow?.is_main && (
               <p className="text-sm text-green-600 bg-green-50 dark:bg-green-900/20 p-3 rounded-md flex items-center gap-2">
