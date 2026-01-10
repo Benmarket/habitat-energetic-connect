@@ -17,6 +17,7 @@ import { GuideTemplateExpert } from "@/components/templates/GuideTemplateExpert"
 import { GuideTemplateEpure } from "@/components/templates/GuideTemplateEpure";
 import { GuideTemplateVibrant } from "@/components/templates/GuideTemplateVibrant";
 import { GuideTemplateSombre } from "@/components/templates/GuideTemplateSombre";
+import { GuideDownloadButton } from "@/components/GuideDownloadButton";
 import { calculateReadingTime } from "@/utils/readingTime";
 import { extractTableOfContents, addHeadingIds } from "@/utils/tableOfContents";
 
@@ -287,6 +288,14 @@ const GuideDetail = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <Breadcrumb items={breadcrumbItems} />
+        
+        {/* Bouton téléchargement sticky */}
+        {guide.is_downloadable && !isPaywalled && (
+          <GuideDownloadButton 
+            guideTitle={guide.title} 
+            template={guide.guide_template || 'classique'} 
+          />
+        )}
         
         {renderTemplate()}
       </div>
