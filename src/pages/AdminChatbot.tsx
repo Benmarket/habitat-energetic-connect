@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
@@ -77,6 +77,17 @@ const AdminChatbot = () => {
     }
   });
 
+  const flowStructureRef = useRef<any>(flowStructure);
+
+  const handleStructureChange = useCallback((structure: any) => {
+    flowStructureRef.current = structure;
+    setFlowStructure(structure);
+  }, []);
+
+  useEffect(() => {
+    flowStructureRef.current = flowStructure;
+  }, [flowStructure]);
+
   // Fetch global chatbot enabled status (default to true if no setting exists)
   const { data: chatbotEnabled, isLoading: isLoadingEnabled } = useQuery({
     queryKey: ["chatbot-enabled"],
@@ -153,7 +164,7 @@ const AdminChatbot = () => {
       // If setting as main, we need to unset other main flows (trigger will handle this)
       const { error } = await supabase.from("chatbot_flows").insert([{
         ...data,
-        tree_structure: flowStructure
+        tree_structure: flowStructureRef.current
       }]);
       if (error) throw error;
     },
@@ -179,7 +190,7 @@ const AdminChatbot = () => {
         .from("chatbot_flows")
         .update({
           ...data,
-          tree_structure: flowStructure
+          tree_structure: flowStructureRef.current
         })
         .eq("id", id);
       if (error) throw error;
@@ -345,7 +356,7 @@ const AdminChatbot = () => {
       is_main: false,
       show_back_button: true,
     });
-    setFlowStructure({
+    handleStructureChange({
       start_node: "node_1",
       nodes: {
         node_1: {
@@ -410,7 +421,7 @@ const AdminChatbot = () => {
       is_main: flow.is_main,
       show_back_button: flow.show_back_button ?? true,
     });
-    setFlowStructure(flow.tree_structure);
+    handleStructureChange(flow.tree_structure);
     setIsEditModalOpen(true);
   };
 
@@ -422,7 +433,7 @@ const AdminChatbot = () => {
   // Load structure into editor when modal opens
   useEffect(() => {
     if (isEditModalOpen && selectedFlow) {
-      setFlowStructure(selectedFlow.tree_structure);
+      handleStructureChange(selectedFlow.tree_structure);
     }
   }, [isEditModalOpen, selectedFlow]);
 
@@ -516,7 +527,12 @@ const AdminChatbot = () => {
             <MessageCircle className="w-4 h-4 mr-2" />
             Historique
           </Button>
-          <Button onClick={() => setIsCreateModalOpen(true)}>
+          <Button
+            onClick={() => {
+              resetForm();
+              setIsCreateModalOpen(true);
+            }}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Nouveau parcours
           </Button>
@@ -675,8 +691,9 @@ const AdminChatbot = () => {
             <div className="space-y-2">
               <Label>Éditeur visuel du parcours</Label>
               <ChatbotFlowEditor
+                key={isCreateModalOpen ? "create-open" : "create-closed"}
                 initialStructure={flowStructure}
-                onSave={setFlowStructure}
+                onSave={handleStructureChange}
                 availableFlows={availableFlowsForEditor}
               />
             </div>
@@ -768,8 +785,9 @@ const AdminChatbot = () => {
             <div className="space-y-2">
               <Label>Éditeur visuel du parcours</Label>
               <ChatbotFlowEditor
-                initialStructure={flowStructure}
-                onSave={setFlowStructure}
+                key={selectedFlow?.id ?? "edit"}
+                initialStructure={selectedFlow?.tree_structure ?? flowStructure}
+                onSave={handleStructureChange}
                 availableFlows={availableFlowsForEditor}
                 currentFlowId={selectedFlow?.id}
               />

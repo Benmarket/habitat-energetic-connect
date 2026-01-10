@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -88,21 +88,24 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave, availableFlows = [
   // Filter out current flow from available flows for redirection
   const redirectableFlows = availableFlows.filter(f => f.id !== currentFlowId);
 
-  // Track if initial load is complete to avoid triggering onSave during loading
-  const [isInitialized, setIsInitialized] = useState(false);
+  // Hydrate once: the parent updates its draft state frequently; we must NOT reset ReactFlow on each render
+  const hasHydratedRef = useRef(false);
+  const startNodeIdRef = useRef<string>("node_1");
 
-  // Load from initial structure on mount or when it changes
   useEffect(() => {
+    if (hasHydratedRef.current) return;
     if (initialStructure && initialStructure.nodes) {
       loadFromStructure(initialStructure);
-      // Mark as initialized after a short delay to allow nodes to settle
-      setTimeout(() => setIsInitialized(true), 100);
+      hasHydratedRef.current = true;
     }
   }, [initialStructure]);
 
   // Initialize from structure
   const loadFromStructure = useCallback((structure: any) => {
     if (!structure || !structure.nodes) return;
+
+    startNodeIdRef.current =
+      structure.start_node || Object.keys(structure.nodes)[0] || "node_1";
 
     const loadedNodes: Node[] = [];
     const loadedEdges: Edge[] = [];
@@ -175,37 +178,49 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave, availableFlows = [
   }, [setNodes, setEdges]);
 
   // Convert flow to structure format
-  const convertToStructure = useCallback(() => {
-    const structure: any = {
-      start_node: nodes.length > 0 ? nodes[0].id : "node_1",
-      nodes: {},
-    };
+  const convertToStructure = useCallback(
+    (inputNodes?: Node[]) => {
+      const nodesToUse = inputNodes ?? nodes;
 
-    nodes.forEach((node) => {
-      const nodeData = node.data as FlowNodeData;
-      structure.nodes[node.id] = {
-        type: nodeData.type,
-        ...(nodeData.question && { question: nodeData.question }),
-        ...(nodeData.answer_type && { answer_type: nodeData.answer_type }),
-        ...(nodeData.options && { options: nodeData.options }),
-        ...(nodeData.message && { message: nodeData.message }),
-        ...(nodeData.is_qualified !== undefined && { is_qualified: nodeData.is_qualified }),
-        ...(nodeData.redirect_flow_id && { redirect_flow_id: nodeData.redirect_flow_id }),
-        allow_text_input: nodeData.allow_text_input ?? false,
-        allow_agent_button: nodeData.allow_agent_button ?? false,
+      const preferredStart = startNodeIdRef.current;
+      const startNode =
+        preferredStart && nodesToUse.some((n) => n.id === preferredStart)
+          ? preferredStart
+          : nodesToUse.length > 0
+            ? nodesToUse[0].id
+            : "node_1";
+
+      const structure: any = {
+        start_node: startNode,
+        nodes: {},
       };
-    });
 
-    return structure;
-  }, [nodes]);
+      nodesToUse.forEach((node) => {
+        const nodeData = node.data as FlowNodeData;
+        structure.nodes[node.id] = {
+          type: nodeData.type,
+          ...(nodeData.question && { question: nodeData.question }),
+          ...(nodeData.answer_type && { answer_type: nodeData.answer_type }),
+          ...(nodeData.options && { options: nodeData.options }),
+          ...(nodeData.message && { message: nodeData.message }),
+          ...(nodeData.is_qualified !== undefined && {
+            is_qualified: nodeData.is_qualified,
+          }),
+          ...(nodeData.redirect_flow_id && {
+            redirect_flow_id: nodeData.redirect_flow_id,
+          }),
+          allow_text_input: nodeData.allow_text_input ?? false,
+          allow_agent_button: nodeData.allow_agent_button ?? false,
+        };
+      });
 
-  // Auto-save when nodes change (after initialization)
-  useEffect(() => {
-    if (isInitialized && nodes.length > 0) {
-      const structure = convertToStructure();
-      onSave(structure);
-    }
-  }, [nodes, isInitialized, convertToStructure, onSave]);
+      return structure;
+    },
+    [nodes]
+  );
+
+  // NOTE: No auto-save on ReactFlow UI changes (selection/drag), to avoid reset loops.
+  // We only call onSave on explicit business changes (edit node, add node, etc.).
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -263,8 +278,13 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave, availableFlows = [
       },
     };
 
-    setNodes((nds) => [...nds, newNode]);
-    toast({ title: "Nœud ajouté avec succès" });
+    const nextNodes = [...nodes, newNode];
+    setNodes(nextNodes);
+    onSave(convertToStructure(nextNodes));
+    toast({
+      title: "Nœud ajouté",
+      description: "Pensez à enregistrer le parcours pour persister en base.",
+    });
   };
 
   const handleUpdateNode = () => {
@@ -298,7 +318,11 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave, availableFlows = [
       },
     };
 
-    setNodes((nds) => nds.map((node) => (node.id === selectedNode.id ? updatedNode : node)));
+    const nextNodes = nodes.map((node) =>
+      node.id === selectedNode.id ? updatedNode : node
+    );
+    setNodes(nextNodes);
+    onSave(convertToStructure(nextNodes));
 
     // Update edges based on options
     if (editForm.type === "question" && editForm.options) {
@@ -336,11 +360,15 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave, availableFlows = [
     });
   };
 
-  // Manual save button handler (kept for explicit save action)
+  // Manual sync button: updates the draft in the parent (DB save happens in the admin modal)
   const handleSave = () => {
     const structure = convertToStructure();
     onSave(structure);
-    toast({ title: "Parcours synchronisé" });
+    toast({
+      title: "Modifications synchronisées",
+      description:
+        "Cliquez sur 'Créer le parcours' / 'Enregistrer les modifications' pour enregistrer en base.",
+    });
   };
 
   const addOption = () => {
