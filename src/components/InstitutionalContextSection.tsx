@@ -60,11 +60,10 @@ const InstitutionalContextSection = () => {
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
 
-      // Extended range for slower transitions + extra padding at the end for step 4
-      const sectionStart = sectionTop - windowHeight * 0.3;
-      // Add extra scroll space for the last step to persist longer
-      const extraScrollForLastStep = windowHeight * 0.5;
-      const sectionEnd = sectionTop + sectionHeight - windowHeight * 0.3 + extraScrollForLastStep;
+      // La section commence quand elle entre dans le viewport
+      const sectionStart = sectionTop - windowHeight * 0.5;
+      // La section se termine naturellement à la fin du contenu
+      const sectionEnd = sectionTop + sectionHeight - windowHeight;
       
       if (scrollY < sectionStart) {
         setActiveStep(0);
@@ -76,20 +75,19 @@ const InstitutionalContextSection = () => {
         return;
       }
 
-      // Calculate progress with weighted distribution
-      // Give more scroll space to the last step
-      const rawProgress = (scrollY - sectionStart) / (sectionEnd - sectionStart);
+      // Distribuer les étapes uniformément sur la hauteur de scroll
+      const scrollRange = sectionEnd - sectionStart;
+      const progress = (scrollY - sectionStart) / scrollRange;
       
-      // Custom step thresholds: steps 1-3 get 60% of scroll, step 4 gets 40%
+      // 5 zones: 4 étapes + CTA (chacune ~20% du scroll)
       let stepIndex: number;
-      if (rawProgress < 0.2) {
+      if (progress < 0.18) {
         stepIndex = 0;
-      } else if (rawProgress < 0.4) {
+      } else if (progress < 0.36) {
         stepIndex = 1;
-      } else if (rawProgress < 0.6) {
+      } else if (progress < 0.54) {
         stepIndex = 2;
       } else {
-        // Step 4 takes the remaining 40% of scroll distance
         stepIndex = 3;
       }
       
@@ -109,7 +107,7 @@ const InstitutionalContextSection = () => {
       className="relative bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-0"
     >
       <div className="max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 min-h-[800px] lg:min-h-[1000px]">
+        <div className="grid lg:grid-cols-2 lg:min-h-[1400px]">
           {/* Left Column - Sticky */}
           <div className="lg:sticky lg:top-24 lg:h-fit py-16 lg:py-28 px-6 lg:px-12 flex flex-col justify-center">
             <div className="max-w-lg lg:max-w-xl">
