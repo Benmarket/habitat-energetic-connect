@@ -87,28 +87,40 @@ export default function AdminForms() {
   const forms = formsData?.forms || [];
   const totalPages = Math.ceil((formsData?.totalCount || 0) / formsPerPage);
 
-  // Fetch unread submissions count for all forms
-  const { data: unreadCounts } = useQuery({
-    queryKey: ["unread-submissions-count"],
+  // Fetch submissions stats for all forms (total, unread, processed)
+  const { data: formStats } = useQuery({
+    queryKey: ["form-submissions-stats"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("form_submissions")
-        .select("form_id, is_read");
+        .select("form_id, is_read, status");
       
       if (error) throw error;
       
-      // Count unread submissions per form
-      const counts: Record<string, number> = {};
+      // Calculate stats per form
+      const stats: Record<string, { total: number; unread: number; processed: number }> = {};
       data.forEach((submission: any) => {
+        if (!stats[submission.form_id]) {
+          stats[submission.form_id] = { total: 0, unread: 0, processed: 0 };
+        }
+        stats[submission.form_id].total++;
         if (!submission.is_read) {
-          counts[submission.form_id] = (counts[submission.form_id] || 0) + 1;
+          stats[submission.form_id].unread++;
+        }
+        if (submission.status === 'processed' || submission.status === 'converted') {
+          stats[submission.form_id].processed++;
         }
       });
       
-      return counts;
+      return stats;
     },
     refetchInterval: 5000, // Refresh every 5 seconds
   });
+
+  // For backwards compatibility
+  const unreadCounts = formStats ? Object.fromEntries(
+    Object.entries(formStats).map(([formId, stats]) => [formId, stats.unread])
+  ) : {};
 
   // Fetch popups linked to forms
   const { data: formPopups } = useQuery({
@@ -259,6 +271,7 @@ export default function AdminForms() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["form-submissions"] });
+      queryClient.invalidateQueries({ queryKey: ["form-submissions-stats"] });
       toast({ title: "Soumission supprimée avec succès" });
     },
     onError: (error: any) => {
@@ -291,6 +304,7 @@ export default function AdminForms() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["form-submissions"] });
+      queryClient.invalidateQueries({ queryKey: ["form-submissions-stats"] });
       toast({ title: "Statut mis à jour" });
     },
     onError: (error: any) => {
@@ -345,7 +359,7 @@ export default function AdminForms() {
       console.error("Erreur lors du marquage des soumissions comme lues:", error);
     } else {
       // Rafraîchir les compteurs
-      queryClient.invalidateQueries({ queryKey: ["unread-submissions-count"] });
+      queryClient.invalidateQueries({ queryKey: ["form-submissions-stats"] });
     }
   };
 
@@ -396,6 +410,7 @@ export default function AdminForms() {
       await Promise.all(deletePromises);
       
       queryClient.invalidateQueries({ queryKey: ["form-submissions"] });
+      queryClient.invalidateQueries({ queryKey: ["form-submissions-stats"] });
       setSelectedSubmissions(new Set());
       
       toast({
@@ -762,7 +777,8 @@ export default function AdminForms() {
             {forms.map((form, index) => {
               const isLandingPageForm = form.form_identifier.startsWith('lp-');
               const isHomeForm = form.form_identifier.includes('accueil');
-              const unreadCount = unreadCounts?.[form.id] || 0;
+              const currentFormStats = formStats?.[form.id] || { total: 0, unread: 0, processed: 0 };
+              const unreadCount = currentFormStats.unread;
               
               // Styles selon le type de formulaire
               const getFormStyles = () => {
@@ -943,7 +959,7 @@ export default function AdminForms() {
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Total</p>
-                          <p className="text-lg font-bold">--</p>
+                          <p className="text-lg font-bold">{currentFormStats.total}</p>
                         </div>
                       </div>
                       
@@ -963,7 +979,7 @@ export default function AdminForms() {
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Traités</p>
-                          <p className="text-lg font-bold">--</p>
+                          <p className="text-lg font-bold">{currentFormStats.processed}</p>
                         </div>
                       </div>
                     </div>
