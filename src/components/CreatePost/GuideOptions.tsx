@@ -8,7 +8,61 @@ interface GuideOptionsProps {
   setFormData: React.Dispatch<React.SetStateAction<CreatePostFormData>>;
 }
 
+// Couleurs par template
+const templateColors: Record<string, { name: string; colors: { label: string; value: string }[] }> = {
+  classique: {
+    name: "Classique",
+    colors: [
+      { label: "Principal", value: "#22c55e" },
+      { label: "Secondaire", value: "#f8fafc" },
+      { label: "Texte", value: "#1e293b" },
+    ]
+  },
+  premium: {
+    name: "Premium",
+    colors: [
+      { label: "Or", value: "#f59e0b" },
+      { label: "Fond hero", value: "#1e293b" },
+      { label: "Accent", value: "#22c55e" },
+    ]
+  },
+  expert: {
+    name: "Expert",
+    colors: [
+      { label: "Principal", value: "#2563eb" },
+      { label: "Progression", value: "#22c55e" },
+      { label: "Fond sections", value: "#f1f5f9" },
+    ]
+  },
+  epure: {
+    name: "Épuré",
+    colors: [
+      { label: "Fond", value: "#fafafa" },
+      { label: "Texte", value: "#18181b" },
+      { label: "Accent", value: "#a1a1aa" },
+    ]
+  },
+  vibrant: {
+    name: "Vibrant",
+    colors: [
+      { label: "Principal", value: "#6366f1" },
+      { label: "Secondaire", value: "#8b5cf6" },
+      { label: "Accent", value: "#f59e0b" },
+    ]
+  },
+  sombre: {
+    name: "Sombre",
+    colors: [
+      { label: "Fond", value: "#0f172a" },
+      { label: "Texte", value: "#f8fafc" },
+      { label: "Accent", value: "#22c55e" },
+    ]
+  },
+};
+
 export function GuideOptions({ formData, setFormData }: GuideOptionsProps) {
+  const selectedTemplateColors = formData.guide_template ? templateColors[formData.guide_template] : null;
+
   return (
     <div className="space-y-4 p-4 border-2 border-primary/20 rounded-lg bg-primary/5">
       <h3 className="font-semibold text-primary flex items-center gap-2">
@@ -65,6 +119,29 @@ export function GuideOptions({ formData, setFormData }: GuideOptionsProps) {
             </SelectItem>
           </SelectContent>
         </Select>
+
+        {/* Aperçu des couleurs du template */}
+        {selectedTemplateColors && (
+          <div className="mt-3 p-3 bg-background rounded-md border">
+            <p className="text-xs text-muted-foreground mb-2">
+              Couleurs du template "{selectedTemplateColors.name}" :
+            </p>
+            <div className="flex flex-wrap gap-3">
+              {selectedTemplateColors.colors.map((color, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <div 
+                    className="w-6 h-6 rounded-md border shadow-sm" 
+                    style={{ backgroundColor: color.value }}
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium">{color.label}</span>
+                    <span className="text-[10px] text-muted-foreground font-mono">{color.value}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center space-x-2">
