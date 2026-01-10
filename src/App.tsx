@@ -60,6 +60,7 @@ const ForumTopic = lazy(() => import("./pages/forum/ForumTopic"));
 const NewTopic = lazy(() => import("./pages/forum/NewTopic"));
 const InstallApp = lazy(() => import("./pages/InstallApp"));
 const OffrePartenaire = lazy(() => import("./pages/OffrePartenaire"));
+const FAQ = lazy(() => import("./pages/FAQ"));
 const Merci = lazy(() => import("./pages/Merci"));
 
 const queryClient = new QueryClient();
@@ -149,6 +150,7 @@ const App = () => (
                 <Route path="/mentions-legales" element={<MentionsLegales />} />
                 <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
                 <Route path="/conditions-utilisation" element={<ConditionsUtilisation />} />
+                <Route path="/faq" element={<FAQ />} />
                 <Route path="/merci" element={<Merci />} />
 
                 {/* Catch-all */}
