@@ -172,42 +172,10 @@ export const GuideTemplateClassique = ({
       <article className="py-12 lg:py-16">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-12">
-            {/* Sticky TOC Sidebar - LEFT */}
-            {toc.length > 0 && !isPaywalled && (
-              <aside className="hidden lg:block w-72 flex-shrink-0 order-1">
-                <div className="sticky top-28">
-                  <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">
-                      <BookOpen className="w-4 h-4" />
-                      Sommaire
-                    </div>
-                    <nav className="space-y-1">
-                      {toc.map((item, index) => (
-                        <button
-                          key={item.id}
-                          onClick={() => scrollToSection(item.id)}
-                          className={`w-full text-left text-sm py-2 px-3 rounded-lg transition-all duration-200 flex items-center gap-3 group ${
-                            activeId === item.id 
-                              ? 'bg-blue-50 text-blue-700 font-medium' 
-                              : 'text-slate-600 hover:bg-slate-50'
-                          }`}
-                          style={{ paddingLeft: `${12 + (item.level - 2) * 12}px` }}
-                        >
-                          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                            activeId === item.id 
-                              ? 'bg-blue-500 text-white' 
-                              : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200'
-                          }`}>
-                            {index + 1}
-                          </span>
-                          <span className="truncate">{item.text}</span>
-                        </button>
-                      ))}
-                    </nav>
-                  </div>
-                </div>
-              </aside>
-            )}
+            {/* Espace réservé pour le sommaire sticky global */}
+            <aside className="hidden lg:block w-72 flex-shrink-0 order-1">
+              {/* L'espace est réservé pour le composant GuideStickyNav qui apparaît au scroll */}
+            </aside>
 
             {/* Main Content - RIGHT */}
             <div className="flex-1 max-w-3xl order-2">

@@ -348,59 +348,10 @@ export const GuideTemplateVibrant = ({
               )}
             </div>
 
-            {/* Sticky TOC with gradient */}
-            {toc.length > 0 && !isPaywalled && (
-              <aside className="hidden lg:block w-80 flex-shrink-0">
-                <div className="sticky top-28">
-                  <div 
-                    className="p-1 rounded-2xl"
-                    style={{ background: `linear-gradient(135deg, ${colors.primary}30, ${colors.secondary}30)` }}
-                  >
-                    <div 
-                      className="p-6 rounded-xl"
-                      style={{ backgroundColor: colors.surface }}
-                    >
-                      <div 
-                        className="text-sm font-bold uppercase tracking-wider mb-5 flex items-center gap-2"
-                        style={{ color: colors.primary }}
-                      >
-                        <Sparkles className="w-4 h-4" style={{ color: colors.accent }} />
-                        Sommaire
-                      </div>
-                      <nav className="space-y-2">
-                        {toc.map((item, index) => (
-                          <button
-                            key={item.id}
-                            onClick={() => scrollToSection(item.id)}
-                            className={`w-full text-left text-sm py-3 px-4 rounded-xl transition-all duration-300 flex items-center gap-3 ${
-                              activeId === item.id 
-                                ? 'font-bold text-white shadow-lg' 
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
-                            style={{
-                              background: activeId === item.id 
-                                ? `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})` 
-                                : 'transparent',
-                              paddingLeft: `${16 + (item.level - 2) * 12}px`
-                            }}
-                          >
-                            <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold ${
-                              activeId === item.id 
-                                ? 'bg-white/20 text-white' 
-                                : 'bg-gray-100'
-                            }`}
-                            style={{ color: activeId !== item.id ? colors.primary : undefined }}>
-                              {index + 1}
-                            </span>
-                            <span className="truncate">{item.text}</span>
-                          </button>
-                        ))}
-                      </nav>
-                    </div>
-                  </div>
-                </div>
-              </aside>
-            )}
+            {/* Espace réservé pour le sommaire sticky global */}
+            <aside className="hidden lg:block w-80 flex-shrink-0">
+              {/* L'espace est réservé pour le composant GuideStickyNav qui apparaît au scroll */}
+            </aside>
           </div>
         </div>
       </article>

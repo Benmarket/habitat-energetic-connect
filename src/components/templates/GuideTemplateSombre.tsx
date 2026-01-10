@@ -214,58 +214,10 @@ export const GuideTemplateSombre = ({
       <article className="py-16 lg:py-24 relative z-10">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-12 max-w-6xl mx-auto">
-            {/* Sidebar TOC with glow */}
-            {toc.length > 0 && !isPaywalled && (
-              <aside className="lg:w-72 flex-shrink-0 order-2 lg:order-1">
-                <div className="sticky top-28">
-                  <div 
-                    className="p-6 rounded-2xl border"
-                    style={{ 
-                      backgroundColor: colors.secondary,
-                      borderColor: `${colors.accent}20`
-                    }}
-                  >
-                    <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-6 text-gray-400">
-                      <List className="w-4 h-4" />
-                      Sommaire
-                    </div>
-                    <nav className="space-y-1">
-                      {toc.map((item, index) => (
-                        <button
-                          key={item.id}
-                          onClick={() => scrollToSection(item.id)}
-                          className={`w-full text-left text-sm py-3 px-4 rounded-xl transition-all duration-300 flex items-center gap-3 ${
-                            activeId === item.id 
-                              ? 'text-white font-medium' 
-                              : 'text-gray-500 hover:text-gray-300'
-                          }`}
-                          style={{
-                            backgroundColor: activeId === item.id ? `${colors.accent}20` : 'transparent',
-                            boxShadow: activeId === item.id ? `0 0 20px ${colors.accent}20` : 'none',
-                            paddingLeft: `${16 + (item.level - 2) * 12}px`
-                          }}
-                        >
-                          <span 
-                            className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-mono transition-all ${
-                              activeId === item.id 
-                                ? 'text-white' 
-                                : 'text-gray-600'
-                            }`}
-                            style={{
-                              backgroundColor: activeId === item.id ? colors.accent : colors.primary,
-                              boxShadow: activeId === item.id ? `0 0 10px ${colors.accent}50` : 'none'
-                            }}
-                          >
-                            {String(index + 1).padStart(2, '0')}
-                          </span>
-                          <span className="truncate">{item.text}</span>
-                        </button>
-                      ))}
-                    </nav>
-                  </div>
-                </div>
-              </aside>
-            )}
+            {/* Espace réservé pour le sommaire sticky global */}
+            <aside className="lg:w-72 flex-shrink-0 order-2 lg:order-1">
+              {/* L'espace est réservé pour le composant GuideStickyNav qui apparaît au scroll */}
+            </aside>
 
             {/* Main Content */}
             <div className="flex-1 max-w-3xl order-1 lg:order-2">

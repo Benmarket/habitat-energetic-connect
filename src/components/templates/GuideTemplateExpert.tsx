@@ -156,35 +156,8 @@ export const GuideTemplateExpert = ({
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              
-              {/* Left Mini-nav - Progress tracker */}
-              {toc.length > 0 && !isPaywalled && (
-                <aside className="hidden lg:block lg:col-span-1">
-                  <div className="sticky top-40">
-                    <div className="flex flex-col items-center gap-1">
-                      {toc.filter(t => t.level === 2).map((item, index) => (
-                        <button
-                          key={item.id}
-                          onClick={() => scrollToSection(item.id)}
-                          className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold transition-all duration-300 ${
-                            activeId === item.id 
-                              ? 'bg-emerald-500 text-white scale-110 shadow-lg shadow-emerald-500/30' 
-                              : index < activeIndex
-                                ? 'bg-emerald-100 text-emerald-600'
-                                : 'bg-slate-200 text-slate-500 hover:bg-slate-300'
-                          }`}
-                          title={item.text}
-                        >
-                          {index + 1}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </aside>
-              )}
-
-              {/* Main Content */}
-              <div className={`${toc.length > 0 && !isPaywalled ? 'lg:col-span-8' : 'lg:col-span-12'}`}>
+              {/* Main Content - prend plus d'espace sans le mini-nav */}
+              <div className="lg:col-span-9">
                 <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 lg:p-10">
                   {/* Tags */}
                   {guide.post_tags && guide.post_tags.length > 0 && (
@@ -282,41 +255,10 @@ export const GuideTemplateExpert = ({
                 </div>
               </div>
 
-              {/* Right TOC - Detailed */}
-              {toc.length > 0 && !isPaywalled && (
-                <aside className="hidden lg:block lg:col-span-3">
-                  <div className="sticky top-40">
-                    <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-5">
-                      <h4 className="font-bold text-sm uppercase tracking-wider text-slate-500 mb-4">
-                        Dans ce guide
-                      </h4>
-                      <nav className="space-y-1">
-                        {toc.map((item, index) => (
-                          <button
-                            key={item.id}
-                            onClick={() => scrollToSection(item.id)}
-                            className={`w-full text-left text-sm py-2 px-3 rounded-lg transition-all duration-200 flex items-center gap-2 ${
-                              activeId === item.id 
-                                ? 'bg-emerald-50 text-emerald-700 font-medium border-l-2 border-emerald-500' 
-                                : 'text-slate-600 hover:bg-slate-50'
-                            }`}
-                            style={{ paddingLeft: `${12 + (item.level - 2) * 12}px` }}
-                          >
-                            {item.level === 2 && (
-                              <span className={`w-5 h-5 rounded text-xs flex items-center justify-center font-mono ${
-                                activeId === item.id ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-500'
-                              }`}>
-                                {index + 1}
-                              </span>
-                            )}
-                            <span className="truncate">{item.text}</span>
-                          </button>
-                        ))}
-                      </nav>
-                    </div>
-                  </div>
-                </aside>
-              )}
+              {/* Espace réservé pour le sommaire sticky global */}
+              <aside className="hidden lg:block lg:col-span-3">
+                {/* L'espace est réservé pour le composant GuideStickyNav qui apparaît au scroll */}
+              </aside>
             </div>
           </div>
         </div>

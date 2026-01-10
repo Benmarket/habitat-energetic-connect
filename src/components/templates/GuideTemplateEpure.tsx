@@ -149,26 +149,7 @@ export const GuideTemplateEpure = ({
       {/* Content - Magazine style single column */}
       <article className="py-20 lg:py-32">
         <div className="container mx-auto px-4">
-          {/* Floating mini TOC - appears on scroll */}
-          {toc.length > 0 && !isPaywalled && (
-            <div className="fixed left-8 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-2 z-30">
-              {toc.filter(item => item.level === 2).map((item, index) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    activeId === item.id 
-                      ? 'scale-150' 
-                      : 'hover:scale-125 opacity-40 hover:opacity-70'
-                  }`}
-                  style={{ 
-                    backgroundColor: activeId === item.id ? colors.accent : colors.primary 
-                  }}
-                  title={item.text}
-                />
-              ))}
-            </div>
-          )}
+          {/* Le sommaire est maintenant géré par GuideStickyNav au niveau global */}
 
           <div className="max-w-3xl mx-auto" ref={contentRef}>
             {/* Tags - minimal pills */}
