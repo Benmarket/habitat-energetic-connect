@@ -511,14 +511,14 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave, availableFlows = [
                           <div className="space-y-1">
                             <Label className="text-xs">Ou rediriger vers parcours</Label>
                             <Select
-                              value={option.redirect_flow_id || ""}
-                              onValueChange={(value) => updateOption(index, "redirect_flow_id", value)}
+                              value={option.redirect_flow_id || "none"}
+                              onValueChange={(value) => updateOption(index, "redirect_flow_id", value === "none" ? "" : value)}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="Sélectionner..." />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="">Aucun (utiliser nœud)</SelectItem>
+                                <SelectItem value="none">Aucun (utiliser nœud)</SelectItem>
                                 {redirectableFlows.map((flow) => (
                                   <SelectItem key={flow.id} value={flow.id}>
                                     {flow.name}
