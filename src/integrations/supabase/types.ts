@@ -519,6 +519,7 @@ export type Database = {
           is_active: boolean
           is_main: boolean | null
           name: string
+          show_back_button: boolean | null
           tree_structure: Json
           updated_at: string
         }
@@ -529,6 +530,7 @@ export type Database = {
           is_active?: boolean
           is_main?: boolean | null
           name: string
+          show_back_button?: boolean | null
           tree_structure?: Json
           updated_at?: string
         }
@@ -539,6 +541,7 @@ export type Database = {
           is_active?: boolean
           is_main?: boolean | null
           name?: string
+          show_back_button?: boolean | null
           tree_structure?: Json
           updated_at?: string
         }
