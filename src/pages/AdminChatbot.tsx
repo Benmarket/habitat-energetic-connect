@@ -719,7 +719,7 @@ const AdminChatbot = () => {
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="relative z-50 bg-background pt-4 border-t mt-4">
             <Button
               variant="outline"
               onClick={() => {
@@ -814,7 +814,7 @@ const AdminChatbot = () => {
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="relative z-50 bg-background pt-4 border-t mt-4">
             <Button
               variant="outline"
               onClick={() => {
