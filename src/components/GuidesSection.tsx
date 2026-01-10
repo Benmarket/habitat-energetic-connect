@@ -168,17 +168,31 @@ const GuidesSection = () => {
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* Header - Orange badge style like Aides section */}
+        {/* Header - Premium orange badge style */}
         <div className="text-center mb-10 md:mb-14">
-          <div className="inline-flex items-center gap-3 px-6 py-3.5 rounded-full bg-white shadow-lg border border-[hsl(24,95%,55%)]/20 mb-5">
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-[hsl(24,95%,55%)]/10 border border-[hsl(24,95%,55%)]/30">
+          <div 
+            className="inline-flex items-center gap-3.5 px-7 py-4 rounded-full mb-5"
+            style={{
+              background: 'linear-gradient(135deg, hsl(30, 100%, 99%) 0%, hsl(30, 60%, 96%) 50%, hsl(24, 80%, 94%) 100%)',
+              boxShadow: '0 8px 32px -8px hsla(24, 95%, 55%, 0.25), 0 4px 16px -4px hsla(24, 95%, 55%, 0.15), inset 0 1px 0 0 hsla(0, 0%, 100%, 0.9)',
+              border: '1px solid hsla(24, 95%, 55%, 0.15)'
+            }}
+          >
+            <div 
+              className="flex items-center justify-center w-10 h-10 rounded-xl"
+              style={{
+                background: 'linear-gradient(145deg, hsla(24, 95%, 55%, 0.08) 0%, hsla(24, 95%, 55%, 0.15) 100%)',
+                border: '1.5px solid hsla(24, 95%, 55%, 0.3)',
+                boxShadow: 'inset 0 1px 0 0 hsla(0, 0%, 100%, 0.5)'
+              }}
+            >
               <BookOpen className="w-5 h-5 text-[hsl(24,95%,55%)]" />
             </div>
             <span className="text-xl md:text-2xl font-bold text-[hsl(24,95%,55%)]">
               Guides par projet
             </span>
           </div>
-          <p className="text-muted-foreground text-base md:text-lg whitespace-nowrap">
+          <p className="text-muted-foreground text-base md:text-lg">
             Des guides complets pour réussir votre projet d'énergies renouvelables, étape par étape.
           </p>
         </div>
