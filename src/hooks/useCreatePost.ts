@@ -48,6 +48,7 @@ export interface CreatePostFormData {
   guide_template: "" | "classique" | "premium" | "expert" | "epure" | "vibrant" | "sombre";
   is_downloadable: boolean;
   guide_sections: GuideSection[];
+  topline: string;
 }
 
 // Validation schema
@@ -152,6 +153,7 @@ const initialFormData: CreatePostFormData = {
   guide_template: "",
   is_downloadable: true,
   guide_sections: [{ id: 'section-initial', title: '', content: '' }],
+  topline: "",
 };
 
 export function useCreatePost() {
@@ -297,6 +299,7 @@ export function useCreatePost() {
           guide_template: (post.guide_template as CreatePostFormData['guide_template']) || "",
           is_downloadable: post.is_downloadable ?? true,
           guide_sections: guideSections,
+          topline: (post as any).topline || "",
         });
       }
     } catch {
@@ -385,6 +388,7 @@ export function useCreatePost() {
         postData.is_members_only = formData.is_members_only;
         postData.guide_template = formData.guide_template;
         postData.is_downloadable = formData.is_downloadable;
+        postData.topline = formData.topline || null;
       }
 
       if (validatedData.excerpt) postData.excerpt = validatedData.excerpt;
