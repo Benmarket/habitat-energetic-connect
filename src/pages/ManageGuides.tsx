@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { 
   Select,
   SelectContent,
@@ -32,12 +33,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Lock, Unlock, BookOpen, Star, GraduationCap, Download, Sparkles, Palette, Moon, FileSearch } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Lock, Unlock, BookOpen, Star, GraduationCap, Download, Sparkles, Palette, Moon, FileSearch, Home, Check } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { ButtonPresetsLibrary } from "@/components/ButtonPresetsLibrary";
 import { ArticlePreviewModal } from "@/components/ArticlePreviewModal";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const ManageGuides = () => {
   const { user, loading: authLoading } = useAuth();
@@ -54,6 +57,11 @@ const ManageGuides = () => {
   const [buttonLibraryOpen, setButtonLibraryOpen] = useState(false);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedPostForPreview, setSelectedPostForPreview] = useState<any>(null);
+  
+  // Featured guides selection
+  const [featuredGuideId, setFeaturedGuideId] = useState<string | null>(null);
+  const [secondaryGuideIds, setSecondaryGuideIds] = useState<string[]>([]);
+  const [savingFeatured, setSavingFeatured] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -80,8 +88,95 @@ const ManageGuides = () => {
   useEffect(() => {
     if (user) {
       fetchPosts();
+      fetchFeaturedGuides();
     }
   }, [user, sortOrder, periodFilter, statusFilter]);
+
+  const fetchFeaturedGuides = async () => {
+    try {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "featured_guides")
+        .maybeSingle();
+
+      if (data?.value) {
+        const value = data.value as any;
+        setFeaturedGuideId(value.featured_guide_id || null);
+        setSecondaryGuideIds(value.secondary_guide_ids || []);
+      }
+    } catch (error) {
+      console.error("Error fetching featured guides:", error);
+    }
+  };
+
+  const saveFeaturedGuides = async () => {
+    setSavingFeatured(true);
+    try {
+      const { data: existing } = await supabase
+        .from("site_settings")
+        .select("id")
+        .eq("key", "featured_guides")
+        .maybeSingle();
+
+      const valueToSave = {
+        featured_guide_id: featuredGuideId,
+        secondary_guide_ids: secondaryGuideIds,
+      };
+
+      let error;
+      if (existing) {
+        const result = await supabase
+          .from("site_settings")
+          .update({
+            value: valueToSave,
+            updated_by: user?.id,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("key", "featured_guides");
+        error = result.error;
+      } else {
+        const result = await supabase
+          .from("site_settings")
+          .insert({
+            key: "featured_guides",
+            value: valueToSave,
+            updated_by: user?.id,
+          });
+        error = result.error;
+      }
+
+      if (error) throw error;
+      toast.success("Guides mis en avant sauvegardés");
+    } catch {
+      toast.error("Erreur lors de la sauvegarde");
+    } finally {
+      setSavingFeatured(false);
+    }
+  };
+
+  const toggleFeaturedGuide = (guideId: string) => {
+    if (featuredGuideId === guideId) {
+      setFeaturedGuideId(null);
+    } else {
+      // Remove from secondary if it was there
+      setSecondaryGuideIds(prev => prev.filter(id => id !== guideId));
+      setFeaturedGuideId(guideId);
+    }
+  };
+
+  const toggleSecondaryGuide = (guideId: string) => {
+    if (guideId === featuredGuideId) return; // Can't be both
+    
+    setSecondaryGuideIds(prev => {
+      if (prev.includes(guideId)) {
+        return prev.filter(id => id !== guideId);
+      } else if (prev.length < 3) {
+        return [...prev, guideId];
+      }
+      return prev;
+    });
+  };
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -237,6 +332,107 @@ const ManageGuides = () => {
                 </Link>
               </div>
             </div>
+
+            {/* Featured Guides Selection */}
+            <Card className="p-6 mb-6 border-2 border-orange-500/20 bg-gradient-to-r from-orange-50/50 to-background">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg">
+                    <Home className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">Guides mis en avant sur l'accueil</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Sélectionnez 1 guide vedette et jusqu'à 3 guides secondaires à afficher sur la page d'accueil
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={saveFeaturedGuides}
+                  disabled={savingFeatured}
+                  className="gap-2 bg-orange-600 hover:bg-orange-700"
+                >
+                  {savingFeatured ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Check className="w-4 h-4" />
+                  )}
+                  Sauvegarder
+                </Button>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Featured Guide */}
+                <div>
+                  <Label className="text-sm font-medium mb-2 block">
+                    <Star className="w-4 h-4 inline mr-1 text-orange-500" />
+                    Guide vedette (1)
+                  </Label>
+                  <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-3 bg-background">
+                    {posts.filter(p => p.status === "published").length === 0 ? (
+                      <p className="text-sm text-muted-foreground">Aucun guide publié</p>
+                    ) : (
+                      posts.filter(p => p.status === "published").map((post) => (
+                        <div 
+                          key={post.id}
+                          className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
+                            featuredGuideId === post.id 
+                              ? "bg-orange-100 border border-orange-300" 
+                              : "hover:bg-muted"
+                          }`}
+                          onClick={() => toggleFeaturedGuide(post.id)}
+                        >
+                          {post.featured_image && (
+                            <img src={post.featured_image} alt="" className="w-10 h-10 rounded object-cover" />
+                          )}
+                          <span className="text-sm flex-1 truncate">{post.title}</span>
+                          {featuredGuideId === post.id && (
+                            <Badge className="bg-orange-500">Vedette</Badge>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* Secondary Guides */}
+                <div>
+                  <Label className="text-sm font-medium mb-2 block">
+                    <BookOpen className="w-4 h-4 inline mr-1 text-orange-500" />
+                    Guides secondaires ({secondaryGuideIds.length}/3)
+                  </Label>
+                  <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-3 bg-background">
+                    {posts.filter(p => p.status === "published" && p.id !== featuredGuideId).length === 0 ? (
+                      <p className="text-sm text-muted-foreground">Aucun guide disponible</p>
+                    ) : (
+                      posts.filter(p => p.status === "published" && p.id !== featuredGuideId).map((post) => (
+                        <div 
+                          key={post.id}
+                          className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
+                            secondaryGuideIds.includes(post.id) 
+                              ? "bg-orange-100 border border-orange-300" 
+                              : secondaryGuideIds.length >= 3 
+                                ? "opacity-50 cursor-not-allowed"
+                                : "hover:bg-muted"
+                          }`}
+                          onClick={() => toggleSecondaryGuide(post.id)}
+                        >
+                          {post.featured_image && (
+                            <img src={post.featured_image} alt="" className="w-10 h-10 rounded object-cover" />
+                          )}
+                          <span className="text-sm flex-1 truncate">{post.title}</span>
+                          {secondaryGuideIds.includes(post.id) && (
+                            <Badge variant="outline" className="border-orange-500 text-orange-600">
+                              #{secondaryGuideIds.indexOf(post.id) + 1}
+                            </Badge>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Card>
 
             {/* Filters and controls */}
             <Card className="p-4 mb-6">
