@@ -350,50 +350,42 @@ const EligibilityFormSection = () => {
                   <span className="text-primary">d'installation</span> ?
                 </h3>
 
-                <div className="space-y-4 max-w-3xl mx-auto">
-                  {/* Première ligne : 3 choix */}
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-                    <SelectionButton
-                      onClick={() => handleInstallationSelect("panneaux-photovoltaiques")}
-                      customIcon={<Sun className="w-8 h-8 md:w-14 md:h-14 text-yellow-500" />}
-                      label="Panneaux solaires"
-                      value="panneaux-photovoltaiques"
-                    />
-                    <SelectionButton
-                      onClick={() => handleInstallationSelect("chauffage")}
-                      customIcon={<Thermometer className="w-8 h-8 md:w-14 md:h-14 text-red-500" />}
-                      label="Chauffage"
-                      value="chauffage"
-                    />
-                    <SelectionButton
-                      onClick={() => handleInstallationSelect("isolation")}
-                      customIcon={<Layers className="w-8 h-8 md:w-14 md:h-14 text-blue-500" />}
-                      label="Isolation"
-                      value="isolation"
-                      className="col-span-2 md:col-span-1"
-                    />
-                  </div>
-                  {/* Deuxième ligne : 2 choix centrés */}
-                  <div className="flex justify-center gap-3 md:gap-4">
-                    <div className="w-full max-w-[calc(50%-6px)] md:max-w-[200px]">
-                      <SelectionButton
-                        onClick={() => handleInstallationSelect("renovation")}
-                        customIcon={<Hammer className="w-8 h-8 md:w-14 md:h-14 text-orange-500" />}
-                        label="Rénovation globale"
-                        value="renovation"
-                        className="w-full"
-                      />
-                    </div>
-                    <div className="w-full max-w-[calc(50%-6px)] md:max-w-[200px]">
-                      <SelectionButton
-                        onClick={() => handleInstallationSelect("ne-sait-pas")}
-                        customIcon={<HelpCircle className="w-8 h-8 md:w-14 md:h-14 text-black" />}
-                        label="Je ne sais pas"
-                        value="ne-sait-pas"
-                        className="w-full"
-                      />
-                    </div>
-                  </div>
+                <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3 max-w-5xl mx-auto">
+                  <SelectionButton
+                    onClick={() => handleInstallationSelect("panneaux-photovoltaiques")}
+                    customIcon={<Sun className="w-6 h-6 md:w-10 md:h-10 text-yellow-500" />}
+                    label="Solaire"
+                    value="panneaux-photovoltaiques"
+                    className="p-2 md:p-4"
+                  />
+                  <SelectionButton
+                    onClick={() => handleInstallationSelect("chauffage")}
+                    customIcon={<Thermometer className="w-6 h-6 md:w-10 md:h-10 text-red-500" />}
+                    label="Chauffage"
+                    value="chauffage"
+                    className="p-2 md:p-4"
+                  />
+                  <SelectionButton
+                    onClick={() => handleInstallationSelect("isolation")}
+                    customIcon={<Layers className="w-6 h-6 md:w-10 md:h-10 text-blue-500" />}
+                    label="Isolation"
+                    value="isolation"
+                    className="p-2 md:p-4"
+                  />
+                  <SelectionButton
+                    onClick={() => handleInstallationSelect("renovation")}
+                    customIcon={<Hammer className="w-6 h-6 md:w-10 md:h-10 text-orange-500" />}
+                    label="Rénovation"
+                    value="renovation"
+                    className="p-2 md:p-4 col-span-1"
+                  />
+                  <SelectionButton
+                    onClick={() => handleInstallationSelect("ne-sait-pas")}
+                    customIcon={<HelpCircle className="w-6 h-6 md:w-10 md:h-10 text-gray-600" />}
+                    label="Ne sais pas"
+                    value="ne-sait-pas"
+                    className="p-2 md:p-4 col-span-2 md:col-span-1"
+                  />
                 </div>
               </div>
             )}
