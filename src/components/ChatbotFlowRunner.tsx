@@ -156,8 +156,8 @@ export const ChatbotFlowRunner = ({
   if (currentNode.type === "end") {
     return (
       <div className="flex flex-col gap-4 p-4">
-        <div className="bg-muted/30 rounded-lg p-4">
-          <p className="text-sm">{currentNode.message}</p>
+      <div className="bg-blue-900/10 dark:bg-blue-100/10 border border-blue-900/20 dark:border-blue-100/20 rounded-xl px-5 py-4">
+          <p className="text-sm font-medium text-blue-900 dark:text-blue-100 text-center">{currentNode.message}</p>
         </div>
         {onComplete && (
           <Button onClick={handleEnd} className="w-full">
@@ -172,8 +172,8 @@ export const ChatbotFlowRunner = ({
   if (currentNode.type === "agent_handoff") {
     return (
       <div className="flex flex-col gap-4 p-4">
-        <div className="bg-muted/30 rounded-lg p-4">
-          <p className="text-sm">{currentNode.message}</p>
+      <div className="bg-blue-900/10 dark:bg-blue-100/10 border border-blue-900/20 dark:border-blue-100/20 rounded-xl px-5 py-4">
+          <p className="text-sm font-medium text-blue-900 dark:text-blue-100 text-center">{currentNode.message}</p>
         </div>
         {onRequestAgent && (
           <Button onClick={handleAgentRequest} className="w-full">
@@ -186,19 +186,19 @@ export const ChatbotFlowRunner = ({
 
   // Question node
   return (
-    <div className="flex flex-col gap-4 p-4">
-      <div className="bg-muted/30 rounded-lg p-4">
-        <p className="text-sm font-medium">{currentNode.question}</p>
+    <div className="flex flex-col gap-4">
+      <div className="bg-blue-900/10 dark:bg-blue-100/10 border border-blue-900/20 dark:border-blue-100/20 rounded-xl px-5 py-4">
+        <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 text-center leading-relaxed">{currentNode.question}</p>
       </div>
 
       {currentNode.answer_type === "buttons" && currentNode.options ? (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 mt-2">
           {currentNode.options.map((option, index) => (
             <Button
               key={index}
               onClick={() => handleButtonClick(option)}
               variant="outline"
-              className="w-full justify-center text-center whitespace-normal h-auto py-3"
+              className="w-full justify-center text-center whitespace-normal h-auto py-3 px-4 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-foreground font-normal"
             >
               {option.label}
             </Button>
