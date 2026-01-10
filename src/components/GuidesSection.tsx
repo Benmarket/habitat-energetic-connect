@@ -14,6 +14,7 @@ interface Guide {
   excerpt: string | null;
   featured_image: string | null;
   published_at: string | null;
+  topline: string | null;
   categories?: { name: string; slug: string }[];
 }
 
@@ -55,6 +56,7 @@ const GuidesSection = () => {
             excerpt,
             featured_image,
             published_at,
+            topline,
             post_categories (
               categories (
                 name,
@@ -91,6 +93,7 @@ const GuidesSection = () => {
             excerpt,
             featured_image,
             published_at,
+            topline,
             post_categories (
               categories (
                 name,
@@ -204,7 +207,7 @@ const GuidesSection = () => {
             <div className="lg:col-span-5">
               <Link to={`/guide/${featuredGuide.slug}`} className="group block h-full">
                 <article className="relative h-full bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-[hsl(24,95%,55%)]/30">
-                  {/* Image */}
+                  {/* Image with topline banner */}
                   <div className="relative h-56 md:h-64 overflow-hidden">
                     {featuredGuide.featured_image ? (
                       <img
@@ -218,8 +221,23 @@ const GuidesSection = () => {
                       </div>
                     )}
                     
-                    {/* Badge Guide 2025 */}
-                    <div className="absolute top-4 right-4 z-20">
+                    {/* Topline banner - Green rounded pill at top */}
+                    {featuredGuide.topline && (
+                      <div className="absolute top-4 left-4 right-4 z-20 flex justify-center">
+                        <div 
+                          className="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-semibold text-white shadow-lg"
+                          style={{
+                            background: 'linear-gradient(135deg, hsl(142, 70%, 45%) 0%, hsl(142, 65%, 40%) 100%)',
+                            boxShadow: '0 4px 20px -4px hsla(142, 70%, 45%, 0.5), 0 2px 8px -2px hsla(142, 70%, 45%, 0.3)'
+                          }}
+                        >
+                          {featuredGuide.topline}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Badge Guide 2025 - repositioned when topline exists */}
+                    <div className={`absolute z-20 ${featuredGuide.topline ? 'bottom-4 right-4' : 'top-4 right-4'}`}>
                       <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-[hsl(24,95%,55%)] text-white shadow-lg">
                         Guide 2025
                       </span>
@@ -228,11 +246,14 @@ const GuidesSection = () => {
 
                   {/* Content below image */}
                   <div className="p-5 md:p-6">
-                    {/* Category */}
+                    {/* Category with blue dash */}
                     {featuredGuide.categories && featuredGuide.categories.length > 0 && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[hsl(24,95%,55%)]/10 text-[hsl(24,95%,55%)] border border-[hsl(24,95%,55%)]/30 mb-3">
-                        {featuredGuide.categories[0].name}
-                      </span>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="w-5 h-0.5 bg-[hsl(210,100%,50%)] rounded-full" />
+                        <span className="text-xs font-semibold text-[hsl(210,100%,50%)] uppercase tracking-wide">
+                          {featuredGuide.categories[0].name}
+                        </span>
+                      </div>
                     )}
                     
                     <h3 className="text-lg md:text-xl font-bold text-foreground mb-3 leading-tight group-hover:text-[hsl(24,95%,55%)] transition-colors line-clamp-2">
