@@ -117,70 +117,78 @@ const GuidesSection = () => {
           </p>
         </div>
 
-        <Carousel
-          opts={{
-            align: "start",
-            loop: true,
-            slidesToScroll: 1,
-          }}
-          className="w-full mt-6"
-        >
-          <CarouselContent className="py-6 px-4 md:px-6">
-            {guides.map((guide) => (
-              <CarouselItem key={guide.id} className="basis-full md:basis-1/3">
-                <Link to={`/guide/${guide.slug}`} className="group block h-full relative z-0 hover:z-10">
-                  <Card className="h-full transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 hover:-translate-y-1 bg-card/80 backdrop-blur-sm border-2 border-orange-500/20 hover:border-orange-500 overflow-hidden">
-                    {guide.featured_image && (
-                      <div className="relative h-56 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-orange-950/20 to-transparent z-10" />
-                        <img
-                          src={guide.featured_image}
-                          alt={guide.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                        <div className="absolute top-4 right-4 z-20">
-                          <div className="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg shadow-orange-500/30 backdrop-blur-sm border border-orange-400/20">
-                            Guide 2025
+        <div className="relative">
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+              slidesToScroll: 1,
+            }}
+            className="w-full mt-6"
+          >
+            {/* Navigation Buttons - Fixed in margins on desktop */}
+            <CarouselPrevious className="hidden md:flex absolute -left-12 lg:-left-16 top-1/2 -translate-y-1/2 h-10 w-10 lg:h-12 lg:w-12 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300 z-20" />
+            <CarouselNext className="hidden md:flex absolute -right-12 lg:-right-16 top-1/2 -translate-y-1/2 h-10 w-10 lg:h-12 lg:w-12 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300 z-20" />
+
+            <CarouselContent className="py-6">
+              {guides.map((guide) => (
+                <CarouselItem key={guide.id} className="basis-full md:basis-1/3">
+                  <Link to={`/guide/${guide.slug}`} className="group block h-full relative z-0 hover:z-10">
+                    <Card className="h-full transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 hover:-translate-y-1 bg-card/80 backdrop-blur-sm border-2 border-orange-500/20 hover:border-orange-500 overflow-hidden">
+                      {guide.featured_image && (
+                        <div className="relative h-56 overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-orange-950/20 to-transparent z-10" />
+                          <img
+                            src={guide.featured_image}
+                            alt={guide.title}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          />
+                          <div className="absolute top-4 right-4 z-20">
+                            <div className="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg shadow-orange-500/30 backdrop-blur-sm border border-orange-400/20">
+                              Guide 2025
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                    <CardHeader className="space-y-3">
-                      {guide.categories && guide.categories.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {guide.categories.slice(0, 2).map((cat) => (
-                            <span
-                              key={cat.slug}
-                              className="text-xs px-3 py-1.5 rounded-full bg-orange-600/10 text-orange-700 border border-orange-500/30 font-semibold hover:bg-orange-600/20 transition-colors"
-                            >
-                              {cat.name}
-                            </span>
-                          ))}
-                        </div>
                       )}
-                      <CardTitle className="text-xl group-hover:text-orange-600 transition-colors duration-300 line-clamp-2 font-bold">
-                        {guide.title}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription className="line-clamp-3 text-base leading-relaxed">
-                        {guide.excerpt || "Découvrez ce guide complet pour optimiser votre projet énergétique..."}
-                      </CardDescription>
-                      <div className="mt-6 flex items-center gap-2 text-orange-600 font-bold group-hover:gap-4 transition-all duration-300">
-                        <span>Lire le guide</span>
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
+                      <CardHeader className="space-y-3">
+                        {guide.categories && guide.categories.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {guide.categories.slice(0, 2).map((cat) => (
+                              <span
+                                key={cat.slug}
+                                className="text-xs px-3 py-1.5 rounded-full bg-orange-600/10 text-orange-700 border border-orange-500/30 font-semibold hover:bg-orange-600/20 transition-colors"
+                              >
+                                {cat.name}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        <CardTitle className="text-xl group-hover:text-orange-600 transition-colors duration-300 line-clamp-2 font-bold">
+                          {guide.title}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <CardDescription className="line-clamp-3 text-base leading-relaxed">
+                          {guide.excerpt || "Découvrez ce guide complet pour optimiser votre projet énergétique..."}
+                        </CardDescription>
+                        <div className="mt-6 flex items-center gap-2 text-orange-600 font-bold group-hover:gap-4 transition-all duration-300">
+                          <span>Lire le guide</span>
+                          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
 
-          {/* Navigation Buttons - overlay (pas d'espace “perdu” à gauche/droite) */}
-          <CarouselPrevious className="left-2 md:left-4 h-8 w-8 md:h-10 md:w-10 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300 z-20" />
-          <CarouselNext className="right-2 md:right-4 h-8 w-8 md:h-10 md:w-10 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300 z-20" />
-        </Carousel>
+            {/* Mobile Navigation Buttons - Below carousel */}
+            <div className="flex md:hidden justify-center gap-4 mt-6">
+              <CarouselPrevious className="relative inset-0 translate-x-0 translate-y-0 h-10 w-10 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300" />
+              <CarouselNext className="relative inset-0 translate-x-0 translate-y-0 h-10 w-10 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300" />
+            </div>
+          </Carousel>
+        </div>
 
         {/* View All Button - Centered */}
         <div className="text-center mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
