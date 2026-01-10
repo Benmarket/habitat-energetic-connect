@@ -59,9 +59,11 @@ const InstitutionalContextSection = () => {
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
 
-      // Calculate progress through the section - extended range for slower transitions
+      // Extended range for slower transitions + extra padding at the end for step 4
       const sectionStart = sectionTop - windowHeight * 0.3;
-      const sectionEnd = sectionTop + sectionHeight - windowHeight * 0.3;
+      // Add extra scroll space for the last step to persist longer
+      const extraScrollForLastStep = windowHeight * 0.5;
+      const sectionEnd = sectionTop + sectionHeight - windowHeight * 0.3 + extraScrollForLastStep;
       
       if (scrollY < sectionStart) {
         setActiveStep(0);
@@ -73,14 +75,23 @@ const InstitutionalContextSection = () => {
         return;
       }
 
-      // Calculate which step should be active with slower progression
-      const progress = (scrollY - sectionStart) / (sectionEnd - sectionStart);
-      // Apply easing to make transitions feel more gradual
-      const easedProgress = Math.pow(progress, 0.8);
-      const stepIndex = Math.min(
-        Math.floor(easedProgress * steps.length),
-        steps.length - 1
-      );
+      // Calculate progress with weighted distribution
+      // Give more scroll space to the last step
+      const rawProgress = (scrollY - sectionStart) / (sectionEnd - sectionStart);
+      
+      // Custom step thresholds: steps 1-3 get 60% of scroll, step 4 gets 40%
+      let stepIndex: number;
+      if (rawProgress < 0.2) {
+        stepIndex = 0;
+      } else if (rawProgress < 0.4) {
+        stepIndex = 1;
+      } else if (rawProgress < 0.6) {
+        stepIndex = 2;
+      } else {
+        // Step 4 takes the remaining 40% of scroll distance
+        stepIndex = 3;
+      }
+      
       setActiveStep(stepIndex);
     };
 
