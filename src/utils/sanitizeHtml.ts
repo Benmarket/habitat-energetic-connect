@@ -56,8 +56,6 @@ export function sanitizeHtml(dirty: string): string {
   const clean = DOMPurify.sanitize(dirty, {
     ALLOWED_TAGS,
     ALLOWED_ATTR,
-    // Permet les attributs data-* personnalisés
-    ADD_ATTR: ['onclick'],
     // Retire les balises script, style inline dangereux
     FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form', 'input', 'textarea', 'select'],
     // Nettoie les URLs potentiellement dangereuses
