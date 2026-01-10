@@ -458,7 +458,15 @@ export function useCreatePost() {
           ? "Article publié avec succès"
           : "Brouillon enregistré avec succès"
       );
-      navigate("/gerer-actualites");
+      
+      // Redirect based on content type
+      const redirectMap: Record<string, string> = {
+        guide: "/gerer-guides",
+        aide: "/gerer-aides",
+        actualite: "/gerer-actualites",
+        annonce: "/gerer-annonces",
+      };
+      navigate(redirectMap[contentType] || "/gerer-actualites");
     } catch (error: any) {
       console.error("Error saving post:", error);
       if (error instanceof z.ZodError) {
