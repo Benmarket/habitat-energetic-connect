@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Power, PowerOff, ArrowLeft } from "lucide-react";
+import { Plus, Edit, Trash2, Power, PowerOff, ArrowLeft, MessageCircle } from "lucide-react";
 import { ChatbotFlowEditor } from "@/components/ChatbotFlowEditor";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -69,6 +69,56 @@ const AdminChatbot = () => {
         ]
       }
     }
+  });
+
+  // Fetch global chatbot enabled status
+  const { data: chatbotEnabled, isLoading: isLoadingEnabled } = useQuery({
+    queryKey: ["chatbot-enabled"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "chatbot_enabled")
+        .single();
+
+      if (error && error.code !== "PGRST116") throw error;
+      return data?.value === true;
+    },
+  });
+
+  // Toggle global chatbot status
+  const toggleGlobalChatbotMutation = useMutation({
+    mutationFn: async (enabled: boolean) => {
+      const { data: existing } = await supabase
+        .from("site_settings")
+        .select("id")
+        .eq("key", "chatbot_enabled")
+        .single();
+
+      if (existing) {
+        const { error } = await supabase
+          .from("site_settings")
+          .update({ value: enabled, updated_at: new Date().toISOString() })
+          .eq("key", "chatbot_enabled");
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("site_settings")
+          .insert({ key: "chatbot_enabled", value: enabled, is_public: true });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatbot-enabled"] });
+      toast({ title: chatbotEnabled ? "Chatbot désactivé du site" : "Chatbot activé sur le site" });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   // Fetch chatbot flows
@@ -279,10 +329,53 @@ const AdminChatbot = () => {
               <ArrowLeft className="w-4 h-4" />
               Retour à l'administration
             </Link>
+      {/* Global chatbot status card */}
+      <Card className="mb-8 border-2 border-blue-200 dark:border-blue-800">
+        <CardHeader className="pb-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${chatbotEnabled ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-gray-800'}`}>
+                <MessageCircle className={`h-6 w-6 ${chatbotEnabled ? 'text-green-600 dark:text-green-400' : 'text-gray-400'}`} />
+              </div>
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  Chatbot sur le site
+                  {chatbotEnabled ? (
+                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full dark:bg-green-900 dark:text-green-300">
+                      Actif
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-full dark:bg-gray-800 dark:text-gray-300">
+                      Désactivé
+                    </span>
+                  )}
+                </CardTitle>
+                <CardDescription className="mt-1">
+                  {chatbotEnabled 
+                    ? "Le bouton d'assistance en ligne est visible sur toutes les pages du site" 
+                    : "Le chatbot est masqué pour les visiteurs du site"}
+                </CardDescription>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch
+                id="global-chatbot-toggle"
+                checked={chatbotEnabled ?? false}
+                onCheckedChange={(checked) => toggleGlobalChatbotMutation.mutate(checked)}
+                disabled={isLoadingEnabled || toggleGlobalChatbotMutation.isPending}
+              />
+              <Label htmlFor="global-chatbot-toggle" className="sr-only">
+                Activer/Désactiver le chatbot
+              </Label>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Gestion du Chatbot</h1>
-          <p className="text-muted-foreground mt-2">
+          <h2 className="text-2xl font-bold">Parcours de conversation</h2>
+          <p className="text-muted-foreground mt-1">
             Créez et gérez les parcours de questions automatiques du chatbot
           </p>
         </div>

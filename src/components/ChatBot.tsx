@@ -42,12 +42,35 @@ export const ChatBot = () => {
   const [activeFlow, setActiveFlow] = useState<any>(null);
   const [showFlowRunner, setShowFlowRunner] = useState(true);
   const [flowCompleted, setFlowCompleted] = useState(false);
+  const [chatbotEnabled, setChatbotEnabled] = useState<boolean | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
   // Check if current route is an admin route
   const isAdminRoute = ADMIN_ROUTES.some(route => location.pathname.startsWith(route));
+
+  // Check if chatbot is globally enabled
+  useEffect(() => {
+    const checkChatbotEnabled = async () => {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "chatbot_enabled")
+        .single();
+
+      if (error && error.code !== "PGRST116") {
+        // Error fetching, default to enabled
+        setChatbotEnabled(true);
+        return;
+      }
+
+      // If no setting exists, default to enabled
+      setChatbotEnabled(data?.value === true || data === null);
+    };
+
+    checkChatbotEnabled();
+  }, []);
 
   // Load active flow on mount
   useEffect(() => {
@@ -377,10 +400,15 @@ export const ChatBot = () => {
     setInput("");
   };
 
+  // Don't render anything if chatbot is disabled globally
+  if (chatbotEnabled === false) {
+    return null;
+  }
+
   return (
     <>
-      {/* Chatbot button - hidden on admin routes */}
-      {!isOpen && isButtonVisible && !isAdminRoute && (
+      {/* Chatbot button - hidden on admin routes or when globally disabled */}
+      {!isOpen && isButtonVisible && !isAdminRoute && chatbotEnabled && (
         <button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 z-50 flex items-center gap-0 group hover:scale-105 transition-all duration-300 ease-out animate-in fade-in slide-in-from-bottom-4"
