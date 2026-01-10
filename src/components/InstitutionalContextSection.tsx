@@ -107,7 +107,7 @@ const InstitutionalContextSection = () => {
       className="relative bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-0"
     >
       <div className="max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 lg:min-h-[1600px]">
+        <div className="grid lg:grid-cols-2">
           {/* Left Column - Sticky, centered vertically in viewport */}
           <div className="lg:sticky lg:top-[15vh] lg:h-fit lg:self-start py-16 lg:py-12 px-6 lg:px-12 flex flex-col justify-center">
             <div className="max-w-lg lg:max-w-xl">
