@@ -1280,6 +1280,7 @@ export type Database = {
           template_colors: Json | null
           title: string
           tldr: string | null
+          topline: string | null
           updated_at: string
         }
         Insert: {
@@ -1310,6 +1311,7 @@ export type Database = {
           template_colors?: Json | null
           title: string
           tldr?: string | null
+          topline?: string | null
           updated_at?: string
         }
         Update: {
@@ -1340,6 +1342,7 @@ export type Database = {
           template_colors?: Json | null
           title?: string
           tldr?: string | null
+          topline?: string | null
           updated_at?: string
         }
         Relationships: [
