@@ -17,7 +17,8 @@ import { GuideTemplateExpert } from "@/components/templates/GuideTemplateExpert"
 import { GuideTemplateEpure } from "@/components/templates/GuideTemplateEpure";
 import { GuideTemplateVibrant } from "@/components/templates/GuideTemplateVibrant";
 import { GuideTemplateSombre } from "@/components/templates/GuideTemplateSombre";
-import { GuideDownloadButton } from "@/components/GuideDownloadButton";
+import { GuideStickyNav } from "@/components/GuideStickyNav";
+import { useActiveSection } from "@/hooks/useActiveSection";
 import { calculateReadingTime } from "@/utils/readingTime";
 import { extractTableOfContents, addHeadingIds } from "@/utils/tableOfContents";
 
@@ -63,6 +64,9 @@ const GuideDetail = () => {
   const [contentWithIds, setContentWithIds] = useState("");
   const [toc, setToc] = useState<Array<{ id: string; text: string; level: number }>>([]);
   const [readingTime, setReadingTime] = useState(0);
+  
+  // Hook pour le sommaire sticky
+  const { activeId, scrollToSection } = useActiveSection(toc);
 
   useEffect(() => {
     fetchGuide();
@@ -289,11 +293,15 @@ const GuideDetail = () => {
         <Header />
         <Breadcrumb items={breadcrumbItems} />
         
-        {/* Bouton téléchargement sticky */}
-        {guide.is_downloadable && !isPaywalled && (
-          <GuideDownloadButton 
-            guideTitle={guide.title} 
-            template={guide.guide_template || 'classique'} 
+        {/* Navigation sticky avec téléchargement + sommaire */}
+        {!isPaywalled && (
+          <GuideStickyNav
+            guideTitle={guide.title}
+            template={guide.guide_template || 'classique'}
+            toc={toc}
+            isDownloadable={guide.is_downloadable}
+            activeId={activeId}
+            onScrollToSection={scrollToSection}
           />
         )}
         
