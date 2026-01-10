@@ -1,17 +1,18 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, GitBranch } from "lucide-react";
 
 type FlowNode = {
-  type: "question" | "end" | "agent_handoff";
+  type: "question" | "end" | "agent_handoff" | "flow_redirect";
   question?: string;
   answer_type?: "buttons" | "text";
-  options?: Array<{ label: string; next_node: string }>;
+  options?: Array<{ label: string; next_node: string; redirect_flow_id?: string }>;
   message?: string;
   is_qualified?: boolean;
   allow_text_input?: boolean;
   allow_agent_button?: boolean;
+  redirect_flow_id?: string;
 };
 
 type FlowStructure = {
@@ -25,6 +26,7 @@ type ChatbotFlowRunnerProps = {
   onRequestAgent?: () => void;
   onComplete?: (isQualified: boolean, conversationHistory: Array<{ question: string; answer: string }>) => void;
   onNodeChange?: (node: FlowNode | null) => void;
+  onFlowRedirect?: (flowId: string, conversationHistory: Array<{ question: string; answer: string }>) => void;
 };
 
 export const ChatbotFlowRunner = ({
@@ -33,6 +35,7 @@ export const ChatbotFlowRunner = ({
   onRequestAgent,
   onComplete,
   onNodeChange,
+  onFlowRedirect,
 }: ChatbotFlowRunnerProps) => {
   const [currentNodeId, setCurrentNodeId] = useState<string>(flowStructure.start_node);
   const [textAnswer, setTextAnswer] = useState("");
@@ -55,18 +58,32 @@ export const ChatbotFlowRunner = ({
     }
   }, [currentNode, onNodeChange]);
 
-  const handleButtonClick = (option: { label: string; next_node: string }) => {
+  // Handle flow_redirect type automatically
+  useEffect(() => {
+    if (currentNode?.type === "flow_redirect" && currentNode.redirect_flow_id && onFlowRedirect) {
+      onFlowRedirect(currentNode.redirect_flow_id, conversationHistory);
+    }
+  }, [currentNode, conversationHistory, onFlowRedirect]);
+
+  const handleButtonClick = (option: { label: string; next_node: string; redirect_flow_id?: string }) => {
     // Save to conversation history
-    setConversationHistory((prev) => [
-      ...prev,
+    const newHistory = [
+      ...conversationHistory,
       {
         question: currentNode.question || "",
         answer: option.label,
       },
-    ]);
+    ];
+    setConversationHistory(newHistory);
 
     // Notify parent
     onAnswer(option.label, option.next_node);
+
+    // Check if this option redirects to another flow
+    if (option.redirect_flow_id && onFlowRedirect) {
+      onFlowRedirect(option.redirect_flow_id, newHistory);
+      return;
+    }
 
     // Navigate to next node
     if (option.next_node && flowStructure.nodes[option.next_node]) {
@@ -123,6 +140,18 @@ export const ChatbotFlowRunner = ({
     );
   }
 
+  // Flow redirect node (should be handled automatically, but show loading)
+  if (currentNode.type === "flow_redirect") {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <GitBranch className="w-12 h-12 text-amber-500 mb-4 animate-pulse" />
+        <p className="text-muted-foreground">
+          Redirection vers un autre parcours...
+        </p>
+      </div>
+    );
+  }
+
   // End node
   if (currentNode.type === "end") {
     return (
@@ -169,7 +198,7 @@ export const ChatbotFlowRunner = ({
               key={index}
               onClick={() => handleButtonClick(option)}
               variant="outline"
-              className="w-full justify-center text-center"
+              className="w-full justify-center text-center whitespace-normal h-auto py-3"
             >
               {option.label}
             </Button>

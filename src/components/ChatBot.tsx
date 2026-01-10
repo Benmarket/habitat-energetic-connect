@@ -82,9 +82,24 @@ export const ChatBot = () => {
     checkChatbotEnabled();
   }, []);
 
-  // Load active flow on mount
+  // Load active flow on mount (prioritize main flow)
   useEffect(() => {
     const loadActiveFlow = async () => {
+      // First try to get main flow
+      const { data: mainFlow } = await supabase
+        .from("chatbot_flows")
+        .select("*")
+        .eq("is_main", true)
+        .limit(1)
+        .maybeSingle();
+
+      if (mainFlow) {
+        console.log("Main chatbot flow loaded:", mainFlow);
+        setActiveFlow(mainFlow);
+        return;
+      }
+
+      // Fallback to any active flow
       const { data, error } = await supabase
         .from("chatbot_flows")
         .select("*")
@@ -101,6 +116,28 @@ export const ChatBot = () => {
 
     loadActiveFlow();
   }, []);
+
+  // Handle flow redirect (switch to another flow)
+  const handleFlowRedirect = async (flowId: string, conversationHistory: Array<{ question: string; answer: string }>) => {
+    const { data: newFlow, error } = await supabase
+      .from("chatbot_flows")
+      .select("*")
+      .eq("id", flowId)
+      .single();
+
+    if (newFlow && !error) {
+      console.log("Redirecting to flow:", newFlow.name);
+      setActiveFlow(newFlow);
+      // The flow runner will reset automatically with the new structure
+    } else {
+      console.error("Failed to load redirect flow:", flowId, error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger le parcours demandé.",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Initialize conversation on open
   useEffect(() => {
@@ -326,6 +363,11 @@ export const ChatBot = () => {
 
   const handleFlowNodeChange = (node: any) => {
     setCurrentFlowNode(node);
+  };
+
+  // Wrapper for flow redirect that includes conversation history handling
+  const handleFlowRedirectFromRunner = (flowId: string, conversationHistory: Array<{ question: string; answer: string }>) => {
+    handleFlowRedirect(flowId, conversationHistory);
   };
 
   // Determine visibility based on flow node or flow completion state

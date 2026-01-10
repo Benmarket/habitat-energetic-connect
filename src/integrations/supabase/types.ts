@@ -517,6 +517,7 @@ export type Database = {
           description: string | null
           id: string
           is_active: boolean
+          is_main: boolean | null
           name: string
           tree_structure: Json
           updated_at: string
@@ -526,6 +527,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          is_main?: boolean | null
           name: string
           tree_structure?: Json
           updated_at?: string
@@ -535,6 +537,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          is_main?: boolean | null
           name?: string
           tree_structure?: Json
           updated_at?: string

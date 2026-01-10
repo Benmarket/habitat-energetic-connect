@@ -14,7 +14,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { Button } from "@/components/ui/button";
-import { Plus, MessageCircle, StopCircle, UserPlus } from "lucide-react";
+import { Plus, MessageCircle, StopCircle, UserPlus, GitBranch } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -29,33 +29,44 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-type NodeType = "question" | "end" | "agent_handoff";
+type NodeType = "question" | "end" | "agent_handoff" | "flow_redirect";
 
 type FlowNodeData = {
   label: string;
   type: NodeType;
   question?: string;
   answer_type?: "buttons" | "text";
-  options?: Array<{ label: string; next_node: string }>;
+  options?: Array<{ label: string; next_node: string; redirect_flow_id?: string }>;
   message?: string;
   is_qualified?: boolean;
   allow_text_input?: boolean;
   allow_agent_button?: boolean;
+  redirect_flow_id?: string;
 };
 
 type ChatbotFlowEditorProps = {
   initialStructure?: any;
   onSave: (structure: any) => void;
+  availableFlows?: Array<{ id: string; name: string }>;
+  currentFlowId?: string;
 };
 
 const nodeTypes = {
   question: { color: "#8b5cf6", icon: MessageCircle },
   end: { color: "#ef4444", icon: StopCircle },
   agent_handoff: { color: "#10b981", icon: UserPlus },
+  flow_redirect: { color: "#f59e0b", icon: GitBranch },
 };
 
-export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEditorProps) => {
+export const ChatbotFlowEditor = ({ initialStructure, onSave, availableFlows = [], currentFlowId }: ChatbotFlowEditorProps) => {
   const { toast } = useToast();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -66,12 +77,16 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
     type: "question",
     question: "",
     answer_type: "buttons",
-    options: [{ label: "", next_node: "" }],
+    options: [{ label: "", next_node: "", redirect_flow_id: "" }],
     message: "",
     is_qualified: true,
     allow_text_input: false,
     allow_agent_button: false,
+    redirect_flow_id: "",
   });
+
+  // Filter out current flow from available flows for redirection
+  const redirectableFlows = availableFlows.filter(f => f.id !== currentFlowId);
 
   // Load from initial structure on mount or when it changes
   useEffect(() => {
@@ -120,7 +135,7 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
       // Create edges from options
       if (nodeData.options) {
         nodeData.options.forEach((option: any, optionIndex: number) => {
-          if (option.next_node) {
+          if (option.next_node && !option.redirect_flow_id) {
             loadedEdges.push({
               id: `${nodeId}-${option.next_node}-${optionIndex}`,
               source: nodeId,
@@ -170,6 +185,7 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
         ...(nodeData.options && { options: nodeData.options }),
         ...(nodeData.message && { message: nodeData.message }),
         ...(nodeData.is_qualified !== undefined && { is_qualified: nodeData.is_qualified }),
+        ...(nodeData.redirect_flow_id && { redirect_flow_id: nodeData.redirect_flow_id }),
         allow_text_input: nodeData.allow_text_input ?? false,
         allow_agent_button: nodeData.allow_agent_button ?? false,
       };
@@ -191,11 +207,12 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
       type: nodeData.type || "question",
       question: nodeData.question || "",
       answer_type: nodeData.answer_type || "buttons",
-      options: nodeData.options || [{ label: "", next_node: "" }],
+      options: nodeData.options || [{ label: "", next_node: "", redirect_flow_id: "" }],
       message: nodeData.message || "",
       is_qualified: nodeData.is_qualified ?? true,
       allow_text_input: nodeData.allow_text_input ?? false,
       allow_agent_button: nodeData.allow_agent_button ?? false,
+      redirect_flow_id: nodeData.redirect_flow_id || "",
     });
     setIsEditModalOpen(true);
   }, []);
@@ -218,9 +235,10 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
         type,
         question: type === "question" ? "Votre question ici" : undefined,
         answer_type: type === "question" ? "buttons" : undefined,
-        options: type === "question" ? [{ label: "Option 1", next_node: "" }] : undefined,
+        options: type === "question" ? [{ label: "Option 1", next_node: "", redirect_flow_id: "" }] : undefined,
         message: type !== "question" ? "Message ici" : undefined,
         is_qualified: true,
+        redirect_flow_id: "",
       },
       style: {
         background: config.color,
@@ -259,6 +277,7 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
         is_qualified: editForm.is_qualified,
         allow_text_input: editForm.allow_text_input,
         allow_agent_button: editForm.allow_agent_button,
+        redirect_flow_id: editForm.redirect_flow_id,
       },
       style: {
         ...selectedNode.style,
@@ -272,7 +291,8 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
     if (editForm.type === "question" && editForm.options) {
       const newEdges: Edge[] = [];
       editForm.options.forEach((option, index) => {
-        if (option.next_node) {
+        // Only create edge if next_node is set AND no redirect_flow_id
+        if (option.next_node && !option.redirect_flow_id) {
           newEdges.push({
             id: `${selectedNode.id}-${option.next_node}-${index}`,
             source: selectedNode.id,
@@ -309,7 +329,7 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
   const addOption = () => {
     setEditForm({
       ...editForm,
-      options: [...(editForm.options || []), { label: "", next_node: "" }],
+      options: [...(editForm.options || []), { label: "", next_node: "", redirect_flow_id: "" }],
     });
   };
 
@@ -320,12 +340,22 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
     });
   };
 
-  const updateOption = (index: number, field: "label" | "next_node", value: string) => {
+  const updateOption = (index: number, field: "label" | "next_node" | "redirect_flow_id", value: string) => {
     setEditForm({
       ...editForm,
-      options: editForm.options?.map((opt, i) =>
-        i === index ? { ...opt, [field]: value } : opt
-      ),
+      options: editForm.options?.map((opt, i) => {
+        if (i === index) {
+          // If setting redirect_flow_id, clear next_node and vice versa
+          if (field === "redirect_flow_id" && value) {
+            return { ...opt, redirect_flow_id: value, next_node: "" };
+          }
+          if (field === "next_node" && value) {
+            return { ...opt, next_node: value, redirect_flow_id: "" };
+          }
+          return { ...opt, [field]: value };
+        }
+        return opt;
+      }),
     });
   };
 
@@ -343,6 +373,10 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
         <Button onClick={() => addNewNode("agent_handoff")} size="sm" variant="outline">
           <UserPlus className="w-4 h-4 mr-2" />
           Agent humain
+        </Button>
+        <Button onClick={() => addNewNode("flow_redirect")} size="sm" variant="outline">
+          <GitBranch className="w-4 h-4 mr-2" />
+          Redirection
         </Button>
         <div className="flex-1" />
         <Button onClick={handleSave} variant="default">
@@ -395,6 +429,10 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
                   <RadioGroupItem value="agent_handoff" id="type-agent" />
                   <Label htmlFor="type-agent">Transfert agent humain</Label>
                 </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="flow_redirect" id="type-redirect" />
+                  <Label htmlFor="type-redirect">Redirection vers un autre parcours</Label>
+                </div>
               </RadioGroup>
             </div>
 
@@ -440,30 +478,91 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
                         Ajouter
                       </Button>
                     </div>
+                    <p className="text-xs text-muted-foreground">
+                      Pour chaque option, vous pouvez soit définir un nœud suivant, soit rediriger vers un autre parcours.
+                    </p>
                     {editForm.options?.map((option, index) => (
-                      <div key={index} className="flex gap-2 items-center">
-                        <Input
-                          placeholder="Texte du bouton"
-                          value={option.label}
-                          onChange={(e) => updateOption(index, "label", e.target.value)}
-                        />
-                        <Input
-                          placeholder="ID nœud suivant"
-                          value={option.next_node}
-                          onChange={(e) => updateOption(index, "next_node", e.target.value)}
-                        />
-                        <Button
-                          onClick={() => removeOption(index)}
-                          size="sm"
-                          variant="destructive"
-                        >
-                          ✕
-                        </Button>
+                      <div key={index} className="space-y-2 p-3 border rounded-lg bg-muted/20">
+                        <div className="flex gap-2 items-center">
+                          <Input
+                            placeholder="Texte du bouton"
+                            value={option.label}
+                            onChange={(e) => updateOption(index, "label", e.target.value)}
+                            className="flex-1"
+                          />
+                          <Button
+                            onClick={() => removeOption(index)}
+                            size="sm"
+                            variant="destructive"
+                          >
+                            ✕
+                          </Button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="space-y-1">
+                            <Label className="text-xs">Nœud suivant (ID)</Label>
+                            <Input
+                              placeholder="Ex: node_123"
+                              value={option.next_node}
+                              onChange={(e) => updateOption(index, "next_node", e.target.value)}
+                              disabled={!!option.redirect_flow_id}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Ou rediriger vers parcours</Label>
+                            <Select
+                              value={option.redirect_flow_id || ""}
+                              onValueChange={(value) => updateOption(index, "redirect_flow_id", value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Sélectionner..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="">Aucun (utiliser nœud)</SelectItem>
+                                {redirectableFlows.map((flow) => (
+                                  <SelectItem key={flow.id} value={flow.id}>
+                                    {flow.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        {option.redirect_flow_id && (
+                          <p className="text-xs text-amber-600 flex items-center gap-1">
+                            <GitBranch className="w-3 h-3" />
+                            Cette option redirigera vers un autre parcours
+                          </p>
+                        )}
                       </div>
                     ))}
                   </div>
                 )}
               </>
+            )}
+
+            {editForm.type === "flow_redirect" && (
+              <div className="space-y-2">
+                <Label>Parcours de destination</Label>
+                <Select
+                  value={editForm.redirect_flow_id || ""}
+                  onValueChange={(value) => setEditForm({ ...editForm, redirect_flow_id: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner un parcours..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {redirectableFlows.map((flow) => (
+                      <SelectItem key={flow.id} value={flow.id}>
+                        {flow.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Ce nœud redirigera automatiquement l'utilisateur vers le parcours sélectionné.
+                </p>
+              </div>
             )}
 
             {(editForm.type === "end" || editForm.type === "agent_handoff") && (
