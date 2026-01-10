@@ -80,7 +80,14 @@ export const ChatBot = () => {
   // Load active flow on mount
   useEffect(() => {
     const loadActiveFlow = async () => {
-      const { data, error } = await supabase.from("chatbot_flows").select("*").eq("is_active", true).limit(1).single();
+      const { data, error } = await supabase
+        .from("chatbot_flows")
+        .select("*")
+        .eq("is_active", true)
+        .limit(1)
+        .maybeSingle();
+
+      console.log("Chatbot flow loaded:", { data, error });
 
       if (data && !error) {
         setActiveFlow(data);
