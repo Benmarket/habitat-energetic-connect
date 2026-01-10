@@ -57,6 +57,16 @@ const EligibilityFormSection = () => {
     postalCode: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [buttonBounce, setButtonBounce] = useState<number | null>(null);
+
+  // Fonction pour déclencher le bounce et passer à l'étape suivante
+  const handleNextStepWithBounce = (currentStep: number, nextStep: number) => {
+    setButtonBounce(currentStep);
+    setTimeout(() => {
+      setStep(nextStep);
+      setButtonBounce(null);
+    }, 500);
+  };
 
   // Transition vers l'étape suivante avec délai pour le double bounce
   const goToNextStep = (nextStep: number) => {
@@ -452,9 +462,12 @@ const EligibilityFormSection = () => {
 
                     {/* Bouton */}
                     <Button
-                      onClick={() => setStep(6)}
+                      onClick={() => handleNextStepWithBounce(5, 6)}
                       disabled={!isPostalCodeValid}
-                      className="w-full h-14 text-lg font-semibold"
+                      className={cn(
+                        "w-full h-14 text-lg font-semibold",
+                        buttonBounce === 5 && "animate-double-bounce"
+                      )}
                     >
                       Suivant →
                     </Button>
@@ -517,9 +530,12 @@ const EligibilityFormSection = () => {
 
                     {/* Bouton */}
                     <Button
-                      onClick={() => setStep(7)}
+                      onClick={() => handleNextStepWithBounce(6, 7)}
                       disabled={!isNameValid}
-                      className="w-full h-14 text-lg font-semibold"
+                      className={cn(
+                        "w-full h-14 text-lg font-semibold",
+                        buttonBounce === 6 && "animate-double-bounce"
+                      )}
                     >
                       Suivant →
                     </Button>
@@ -585,7 +601,10 @@ const EligibilityFormSection = () => {
                       <Button
                         type="submit"
                         disabled={!isContactValid || isSubmitting}
-                        className="w-full h-14 text-lg font-semibold mt-4"
+                        className={cn(
+                          "w-full h-14 text-lg font-semibold mt-4",
+                          isSubmitting && "animate-double-bounce"
+                        )}
                       >
                         {isSubmitting ? "Envoi en cours..." : "Vérifier mon éligibilité →"}
                       </Button>
