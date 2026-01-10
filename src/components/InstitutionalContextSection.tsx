@@ -109,7 +109,7 @@ const InstitutionalContextSection = () => {
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 lg:min-h-[1600px]">
           {/* Left Column - Sticky, centered vertically in viewport */}
-          <div className="lg:sticky lg:top-[50%] lg:-translate-y-1/2 lg:h-fit py-16 lg:py-0 px-6 lg:px-12 flex flex-col justify-center">
+          <div className="lg:sticky lg:top-[15vh] lg:h-fit lg:self-start py-16 lg:py-12 px-6 lg:px-12 flex flex-col justify-center">
             <div className="max-w-lg lg:max-w-xl">
               <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] xl:text-5xl font-bold text-slate-800 leading-[1.15] mb-5">
                 Votre maison, un choix{" "}
