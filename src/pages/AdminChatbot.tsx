@@ -161,12 +161,22 @@ const AdminChatbot = () => {
   // Create flow mutation
   const createFlowMutation = useMutation({
     mutationFn: async (data: any) => {
-      // If setting as main, we need to unset other main flows (trigger will handle this)
-      const { error } = await supabase.from("chatbot_flows").insert([{
-        ...data,
-        tree_structure: flowStructureRef.current
-      }]);
+      const structureToSave = flowStructureRef.current;
+      console.log("[AdminChatbot] Creating flow with structure:", JSON.stringify(structureToSave, null, 2));
+
+      const { data: inserted, error } = await supabase
+        .from("chatbot_flows")
+        .insert([{
+          ...data,
+          tree_structure: structureToSave
+        }])
+        .select("id")
+        .single();
+
       if (error) throw error;
+      if (!inserted) throw new Error("Aucune ligne créée en base");
+      console.log("[AdminChatbot] Flow created with id:", inserted.id);
+      return inserted;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["chatbot-flows"] });
@@ -175,6 +185,7 @@ const AdminChatbot = () => {
       resetForm();
     },
     onError: (error: any) => {
+      console.error("[AdminChatbot] Create error:", error);
       toast({
         title: "Erreur lors de la création",
         description: error.message,
@@ -186,14 +197,23 @@ const AdminChatbot = () => {
   // Update flow mutation
   const updateFlowMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const { error } = await supabase
+      const structureToSave = flowStructureRef.current;
+      console.log("[AdminChatbot] Updating flow", id, "with structure:", JSON.stringify(structureToSave, null, 2));
+
+      const { data: updated, error } = await supabase
         .from("chatbot_flows")
         .update({
           ...data,
-          tree_structure: flowStructureRef.current
+          tree_structure: structureToSave
         })
-        .eq("id", id);
+        .eq("id", id)
+        .select("id, tree_structure")
+        .maybeSingle();
+
       if (error) throw error;
+      if (!updated) throw new Error("Aucune ligne mise à jour (permissions ou id invalide)");
+      console.log("[AdminChatbot] Flow updated successfully:", updated.id, updated.tree_structure);
+      return updated;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["chatbot-flows"] });
@@ -203,6 +223,7 @@ const AdminChatbot = () => {
       resetForm();
     },
     onError: (error: any) => {
+      console.error("[AdminChatbot] Update error:", error);
       toast({
         title: "Erreur lors de la mise à jour",
         description: error.message,
