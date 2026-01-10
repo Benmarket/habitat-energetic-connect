@@ -405,7 +405,7 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave, availableFlows = [
   };
 
   return (
-    <div className="h-[600px] border rounded-lg bg-background">
+    <div className="h-[500px] border rounded-lg bg-background overflow-hidden">
       <div className="bg-muted/30 border-b p-4 flex gap-2 flex-wrap">
         <Button onClick={() => addNewNode("question")} size="sm" variant="outline">
           <MessageCircle className="w-4 h-4 mr-2" />
@@ -437,6 +437,7 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave, availableFlows = [
         onConnect={onConnect}
         onNodeClick={handleNodeClick}
         fitView
+        proOptions={{ hideAttribution: true }}
       >
         <Controls position="bottom-left" />
         <MiniMap position="top-left" className="!top-2 !left-2" />
