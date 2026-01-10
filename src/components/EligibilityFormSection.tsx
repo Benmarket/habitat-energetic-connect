@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Home, Building2, Clock, KeyRound, Flame, Droplets, Zap, Logs, Sun, Thermometer, Layers, Hammer, HelpCircle } from "lucide-react";
+import { Home, Building2, Clock, KeyRound, Flame, Droplets, Zap, Logs, Sun, Thermometer, Layers, Hammer, HelpCircle, MapPin, User, Mail, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -16,10 +16,11 @@ const formSchema = z.object({
   isOwner: z.enum(["oui", "non"]),
   heatingSystem: z.enum(["gaz", "fuel", "electrique", "autres"]),
   installationType: z.enum(["panneaux-photovoltaiques", "chauffage", "isolation", "renovation", "ne-sait-pas"]),
-  fullName: z.string().trim().min(1, "Le nom complet est requis"),
+  firstName: z.string().trim().min(1, "Le prénom est requis"),
+  lastName: z.string().trim().min(1, "Le nom est requis"),
   phone: z.string().trim().min(10, "Téléphone invalide"),
   email: z.string().trim().email("Email invalide"),
-  postalCode: z.string().trim().min(5, "Code postal invalide"),
+  postalCode: z.string().trim().regex(/^\d{5}$/, "Code postal invalide (5 chiffres)"),
 });
 
 // Composant icône clé barrée pour "Non propriétaire" - même clé que KeyRound avec barre
@@ -49,7 +50,8 @@ const EligibilityFormSection = () => {
     isOwner: "",
     heatingSystem: "",
     installationType: "",
-    fullName: "",
+    firstName: "",
+    lastName: "",
     phone: "",
     email: "",
     postalCode: "",
@@ -130,7 +132,7 @@ const EligibilityFormSection = () => {
 
       // Rediriger avec le nom et le type de travaux
       const params = new URLSearchParams({ 
-        name: validated.fullName,
+        name: `${validated.firstName} ${validated.lastName}`,
         workType: workTypeMap[validated.installationType] || "autre"
       });
       navigate(`/merci?${params.toString()}`);
@@ -153,12 +155,21 @@ const EligibilityFormSection = () => {
     }
   };
 
-  // Calculer le pourcentage de progression (étapes 2-5)
+  // Calculer le pourcentage de progression (étapes 2-7)
   const getProgressPercentage = () => {
     if (step === 1) return 0;
-    // Étape 2 = 25%, Étape 3 = 50%, Étape 4 = 75%, Étape 5 = 100%
-    return ((step - 1) / 4) * 100;
+    // 7 étapes au total, progression de 2 à 7
+    return ((step - 1) / 6) * 100;
   };
+
+  // Validation du code postal (5 chiffres)
+  const isPostalCodeValid = /^\d{5}$/.test(formData.postalCode);
+  
+  // Validation nom/prénom
+  const isNameValid = formData.firstName.trim().length > 0 && formData.lastName.trim().length > 0;
+  
+  // Validation email/téléphone
+  const isContactValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) && formData.phone.trim().length >= 10;
 
   // Bouton de sélection réutilisable avec animations
   const SelectionButton = ({ 
@@ -221,6 +232,13 @@ const EligibilityFormSection = () => {
           Étape <span className="font-semibold text-primary">{currentStep}</span> / {totalSteps}
         </span>
       </div>
+    </div>
+  );
+
+  // Composant pour les étapes avec champs de saisie
+  const InputStepContainer = ({ children }: { children: React.ReactNode }) => (
+    <div className="flex flex-col items-center justify-center min-h-[320px] md:min-h-[380px]">
+      {children}
     </div>
   );
 
@@ -390,95 +408,198 @@ const EligibilityFormSection = () => {
               </div>
             )}
 
-            {/* Étape 5 : Coordonnées */}
+            {/* Étape 5 : Code postal */}
             {step === 5 && (
               <div className="space-y-6">
-                <StepHeader currentStep={5} totalSteps={5} onBack={() => setStep(4)} />
+                <StepHeader currentStep={5} totalSteps={7} onBack={() => setStep(4)} />
 
-                <h3 className="text-xl font-semibold text-center mb-6">
-                  Vos coordonnées pour recevoir votre étude personnalisée
-                </h3>
+                <InputStepContainer>
+                  <div className="w-full max-w-lg mx-auto space-y-6">
+                    {/* Icône */}
+                    <div className="flex justify-center">
+                      <div className="w-20 h-20 md:w-28 md:h-28 flex items-center justify-center bg-primary/10 rounded-full">
+                        <MapPin className="w-10 h-10 md:w-14 md:h-14 text-primary" />
+                      </div>
+                    </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto">
-                  <div>
-                    <Label htmlFor="fullName" className="text-sm">
-                      Nom complet
-                    </Label>
-                    <Input
-                      id="fullName"
-                      value={formData.fullName}
-                      onChange={(e) =>
-                        setFormData({ ...formData, fullName: e.target.value })
-                      }
-                      placeholder="Votre nom et prénom"
-                      className="h-10"
-                      required
-                    />
+                    {/* Titre */}
+                    <div className="text-center space-y-2">
+                      <h3 className="text-xl md:text-2xl font-bold text-foreground">
+                        Dans quelle <span className="text-primary">zone</span> se situe votre logement ?
+                      </h3>
+                      <p className="text-muted-foreground text-sm md:text-base">
+                        Le code postal nous permet de vérifier les aides disponibles dans votre région.
+                      </p>
+                    </div>
+
+                    {/* Champ */}
+                    <div className="space-y-3">
+                      <Label htmlFor="postalCode" className="text-base font-medium flex items-center gap-1">
+                        Code postal <span className="text-orange-500">*</span>
+                      </Label>
+                      <Input
+                        id="postalCode"
+                        value={formData.postalCode}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 5);
+                          setFormData({ ...formData, postalCode: value });
+                        }}
+                        placeholder="Ex: 75001"
+                        className="h-14 text-lg text-center border-2 border-primary/30 focus:border-primary"
+                        maxLength={5}
+                      />
+                    </div>
+
+                    {/* Bouton */}
+                    <Button
+                      onClick={() => setStep(6)}
+                      disabled={!isPostalCodeValid}
+                      className="w-full h-14 text-lg font-semibold"
+                    >
+                      Suivant →
+                    </Button>
                   </div>
+                </InputStepContainer>
+              </div>
+            )}
 
-                  <div>
-                    <Label htmlFor="phone" className="text-sm">
-                      Téléphone
-                    </Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="06 12 34 56 78"
-                      className="h-10"
-                      required
-                    />
+            {/* Étape 6 : Nom et Prénom */}
+            {step === 6 && (
+              <div className="space-y-6">
+                <StepHeader currentStep={6} totalSteps={7} onBack={() => setStep(5)} />
+
+                <InputStepContainer>
+                  <div className="w-full max-w-lg mx-auto space-y-6">
+                    {/* Icône */}
+                    <div className="flex justify-center">
+                      <div className="w-20 h-20 md:w-28 md:h-28 flex items-center justify-center bg-primary/10 rounded-full">
+                        <User className="w-10 h-10 md:w-14 md:h-14 text-primary" />
+                      </div>
+                    </div>
+
+                    {/* Titre */}
+                    <div className="text-center space-y-2">
+                      <h3 className="text-xl md:text-2xl font-bold text-foreground">
+                        <span className="text-primary">Félicitations</span>, votre zone est éligible !
+                      </h3>
+                      <p className="text-muted-foreground text-sm md:text-base">
+                        Maintenant, dites-nous qui vous êtes pour personnaliser votre étude.
+                      </p>
+                    </div>
+
+                    {/* Champs */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="firstName" className="text-base font-medium flex items-center gap-1">
+                          Prénom <span className="text-orange-500">*</span>
+                        </Label>
+                        <Input
+                          id="firstName"
+                          value={formData.firstName}
+                          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                          placeholder="Votre prénom"
+                          className="h-14 text-lg border-2 border-primary/30 focus:border-primary"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="lastName" className="text-base font-medium flex items-center gap-1">
+                          Nom <span className="text-orange-500">*</span>
+                        </Label>
+                        <Input
+                          id="lastName"
+                          value={formData.lastName}
+                          onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                          placeholder="Votre nom"
+                          className="h-14 text-lg border-2 border-primary/30 focus:border-primary"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Bouton */}
+                    <Button
+                      onClick={() => setStep(7)}
+                      disabled={!isNameValid}
+                      className="w-full h-14 text-lg font-semibold"
+                    >
+                      Suivant →
+                    </Button>
                   </div>
+                </InputStepContainer>
+              </div>
+            )}
 
-                  <div>
-                    <Label htmlFor="email" className="text-sm">
-                      Email
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="votre@email.com"
-                      className="h-10"
-                      required
-                    />
+            {/* Étape 7 : Email et Téléphone */}
+            {step === 7 && (
+              <div className="space-y-6">
+                <StepHeader currentStep={7} totalSteps={7} onBack={() => setStep(6)} />
+
+                <InputStepContainer>
+                  <div className="w-full max-w-lg mx-auto space-y-6">
+                    {/* Icône */}
+                    <div className="flex justify-center">
+                      <div className="w-20 h-20 md:w-28 md:h-28 flex items-center justify-center bg-primary/10 rounded-full">
+                        <Mail className="w-10 h-10 md:w-14 md:h-14 text-primary" />
+                      </div>
+                    </div>
+
+                    {/* Titre */}
+                    <div className="text-center space-y-2">
+                      <h3 className="text-xl md:text-2xl font-bold text-foreground">
+                        Dernière étape, <span className="text-primary">{formData.firstName || "..."}</span> !
+                      </h3>
+                      <p className="text-muted-foreground text-sm md:text-base">
+                        Vos coordonnées pour recevoir votre étude personnalisée gratuite.
+                      </p>
+                    </div>
+
+                    {/* Champs */}
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="text-base font-medium flex items-center gap-1">
+                          <Mail className="w-4 h-4" /> Email <span className="text-orange-500">*</span>
+                        </Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          placeholder="votre@email.com"
+                          className="h-14 text-lg border-2 border-primary/30 focus:border-primary"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone" className="text-base font-medium flex items-center gap-1">
+                          <Phone className="w-4 h-4" /> Téléphone <span className="text-orange-500">*</span>
+                        </Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          placeholder="06 12 34 56 78"
+                          className="h-14 text-lg border-2 border-primary/30 focus:border-primary"
+                        />
+                      </div>
+
+                      {/* Bouton */}
+                      <Button
+                        type="submit"
+                        disabled={!isContactValid || isSubmitting}
+                        className="w-full h-14 text-lg font-semibold mt-4"
+                      >
+                        {isSubmitting ? "Envoi en cours..." : "Vérifier mon éligibilité →"}
+                      </Button>
+                    </form>
+
+                    <p className="text-center text-xs text-muted-foreground">
+                      Vos données sont protégées. En savoir plus sur notre{" "}
+                      <Link to="/politique-confidentialite" className="text-primary hover:underline">
+                        politique de confidentialité
+                      </Link>
+                      .
+                    </p>
                   </div>
-
-                  <div>
-                    <Label htmlFor="postalCode" className="text-sm">
-                      Code postal
-                    </Label>
-                    <Input
-                      id="postalCode"
-                      value={formData.postalCode}
-                      onChange={(e) =>
-                        setFormData({ ...formData, postalCode: e.target.value })
-                      }
-                      placeholder="75001"
-                      maxLength={5}
-                      className="h-10"
-                      required
-                    />
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full h-11 text-base font-semibold mt-6"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Envoi en cours..." : "Vérifier mon éligibilité"}
-                  </Button>
-                </form>
-
-                <p className="text-center text-xs text-muted-foreground mt-6">
-                  Vos données sont protégées. En savoir plus sur notre{" "}
-                  <Link to="/politique-confidentialite" className="text-primary hover:underline">
-                    politique de confidentialité
-                  </Link>
-                  .
-                </p>
+                </InputStepContainer>
               </div>
             )}
           </Card>
