@@ -194,7 +194,7 @@ const EligibilityFormSection = () => {
           )}>
             {customIcon ? customIcon : Icon && <Icon className="w-8 h-8 md:w-14 md:h-14 text-primary" />}
           </div>
-          <span className="text-base md:text-xl font-bold text-primary">{label}</span>
+          <span className="text-sm md:text-base font-bold text-primary text-center leading-tight">{label}</span>
         </div>
       </button>
     );
@@ -354,7 +354,7 @@ const EligibilityFormSection = () => {
                   <SelectionButton
                     onClick={() => handleInstallationSelect("panneaux-photovoltaiques")}
                     customIcon={<Sun className="w-6 h-6 md:w-10 md:h-10 text-yellow-500" />}
-                    label="Solaire"
+                    label="Panneaux solaires"
                     value="panneaux-photovoltaiques"
                     className="p-2 md:p-4"
                   />
@@ -375,14 +375,14 @@ const EligibilityFormSection = () => {
                   <SelectionButton
                     onClick={() => handleInstallationSelect("renovation")}
                     customIcon={<Hammer className="w-6 h-6 md:w-10 md:h-10 text-orange-500" />}
-                    label="Rénovation"
+                    label="Rénovation globale"
                     value="renovation"
                     className="p-2 md:p-4 col-span-1"
                   />
                   <SelectionButton
                     onClick={() => handleInstallationSelect("ne-sait-pas")}
                     customIcon={<HelpCircle className="w-6 h-6 md:w-10 md:h-10 text-gray-600" />}
-                    label="Ne sais pas"
+                    label="Je ne sais pas"
                     value="ne-sait-pas"
                     className="p-2 md:p-4 col-span-2 md:col-span-1"
                   />
