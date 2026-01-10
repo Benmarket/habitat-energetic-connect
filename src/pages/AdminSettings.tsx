@@ -268,6 +268,7 @@ const AdminSettings = () => {
     installerButtonGradientAngle: 90,
     installerButtonLink: "/#etude",
     showRegionSubHeader: true,
+    showProfileSelector: true,
     // Mini espace membre - éléments du menu
     memberMenuShowAccount: true,
     memberMenuShowDashboard: true,
@@ -706,6 +707,7 @@ const AdminSettings = () => {
           installerButtonGradientAngle: value.installerButtonGradientAngle ?? 90,
           installerButtonLink: value.installerButtonLink || "/#etude",
           showRegionSubHeader: value.showRegionSubHeader ?? true,
+          showProfileSelector: value.showProfileSelector ?? true,
           memberMenuShowAccount: value.memberMenuShowAccount ?? true,
           memberMenuShowDashboard: value.memberMenuShowDashboard ?? true,
           memberMenuShowEconomies: value.memberMenuShowEconomies ?? true,
@@ -1341,6 +1343,25 @@ const AdminSettings = () => {
                       </p>
                     </CardContent>
                   </Card>
+
+                  {/* Profile selector toggle */}
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="showProfileSelector" className="text-base">
+                        Afficher le sélecteur de profil
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Menu déroulant "Particuliers" visible entre le logo et le menu (desktop/tablette)
+                      </p>
+                    </div>
+                    <Switch
+                      id="showProfileSelector"
+                      checked={headerFooterSettings.showProfileSelector}
+                      onCheckedChange={(checked) => 
+                        setHeaderFooterSettings({ ...headerFooterSettings, showProfileSelector: checked })
+                      }
+                    />
+                  </div>
 
                   {/* Region sub-header toggle */}
                   <div className="flex items-center justify-between">
