@@ -10,6 +10,8 @@ type FlowNode = {
   options?: Array<{ label: string; next_node: string }>;
   message?: string;
   is_qualified?: boolean;
+  allow_text_input?: boolean;
+  allow_agent_button?: boolean;
 };
 
 type FlowStructure = {
@@ -22,6 +24,7 @@ type ChatbotFlowRunnerProps = {
   onAnswer: (answer: string, nextNode?: string) => void;
   onRequestAgent?: () => void;
   onComplete?: (isQualified: boolean, conversationHistory: Array<{ question: string; answer: string }>) => void;
+  onNodeChange?: (node: FlowNode | null) => void;
 };
 
 export const ChatbotFlowRunner = ({
@@ -29,6 +32,7 @@ export const ChatbotFlowRunner = ({
   onAnswer,
   onRequestAgent,
   onComplete,
+  onNodeChange,
 }: ChatbotFlowRunnerProps) => {
   const [currentNodeId, setCurrentNodeId] = useState<string>(flowStructure.start_node);
   const [textAnswer, setTextAnswer] = useState("");
@@ -43,6 +47,13 @@ export const ChatbotFlowRunner = ({
     setCurrentNodeId(flowStructure.start_node);
     setConversationHistory([]);
   }, [flowStructure]);
+
+  // Notify parent when current node changes
+  useEffect(() => {
+    if (onNodeChange) {
+      onNodeChange(currentNode || null);
+    }
+  }, [currentNode, onNodeChange]);
 
   const handleButtonClick = (option: { label: string; next_node: string }) => {
     // Save to conversation history
