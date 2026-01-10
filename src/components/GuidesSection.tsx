@@ -112,12 +112,9 @@ const GuidesSection = () => {
               Guides par projet
             </h2>
           </div>
-          <p className="text-muted-foreground text-xs md:text-sm max-w-2xl mx-auto mt-1 md:mt-1.5 leading-snug">
+          <p className="text-muted-foreground text-xs md:text-sm max-w-2xl mx-auto -mt-1 leading-snug">
             Des guides complets pour réussir votre projet d'énergies renouvelables, étape par étape.
           </p>
-          <div className="flex items-center justify-center gap-2 mt-3">
-            <div className="h-1 w-12 bg-gradient-to-r from-transparent via-orange-500 to-transparent rounded-full"></div>
-          </div>
         </div>
 
         <Carousel
