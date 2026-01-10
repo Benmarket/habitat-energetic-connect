@@ -373,24 +373,33 @@ export type Database = {
           assigned_agent_id: string | null
           conversation_id: string
           created_at: string | null
+          expired_at: string | null
           id: string
+          notified_user: boolean | null
           status: string | null
+          timeout_minutes: number | null
         }
         Insert: {
           accepted_at?: string | null
           assigned_agent_id?: string | null
           conversation_id: string
           created_at?: string | null
+          expired_at?: string | null
           id?: string
+          notified_user?: boolean | null
           status?: string | null
+          timeout_minutes?: number | null
         }
         Update: {
           accepted_at?: string | null
           assigned_agent_id?: string | null
           conversation_id?: string
           created_at?: string | null
+          expired_at?: string | null
           id?: string
+          notified_user?: boolean | null
           status?: string | null
+          timeout_minutes?: number | null
         }
         Relationships: [
           {
@@ -404,30 +413,65 @@ export type Database = {
       }
       chat_conversations: {
         Row: {
+          closed_at: string | null
+          closed_reason: string | null
           created_at: string | null
+          flow_id: string | null
+          flow_responses: Json | null
           id: string
+          ip_address: string | null
+          last_seen_at: string | null
+          page_url: string | null
+          referrer: string | null
           status: string | null
           updated_at: string | null
+          user_agent: string | null
           user_id: string | null
           visitor_id: string | null
         }
         Insert: {
+          closed_at?: string | null
+          closed_reason?: string | null
           created_at?: string | null
+          flow_id?: string | null
+          flow_responses?: Json | null
           id?: string
+          ip_address?: string | null
+          last_seen_at?: string | null
+          page_url?: string | null
+          referrer?: string | null
           status?: string | null
           updated_at?: string | null
+          user_agent?: string | null
           user_id?: string | null
           visitor_id?: string | null
         }
         Update: {
+          closed_at?: string | null
+          closed_reason?: string | null
           created_at?: string | null
+          flow_id?: string | null
+          flow_responses?: Json | null
           id?: string
+          ip_address?: string | null
+          last_seen_at?: string | null
+          page_url?: string | null
+          referrer?: string | null
           status?: string | null
           updated_at?: string | null
+          user_agent?: string | null
           user_id?: string | null
           visitor_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "chat_conversations_flow_id_fkey"
+            columns: ["flow_id"]
+            isOneToOne: false
+            referencedRelation: "chatbot_flows"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chat_messages: {
         Row: {
@@ -1503,6 +1547,7 @@ export type Database = {
       check_form_submission_rate: { Args: { p_ip: string }; Returns: boolean }
       check_lead_rate: { Args: { p_email: string }; Returns: boolean }
       check_newsletter_rate: { Args: { p_email: string }; Returns: boolean }
+      expire_stale_agent_requests: { Args: never; Returns: undefined }
       has_permission:
         | {
             Args: { _permission_code: string; _user_id: string }
@@ -1527,6 +1572,7 @@ export type Database = {
             }
             Returns: boolean
           }
+      mark_abandoned_conversations: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "super_admin" | "admin" | "moderator" | "user"

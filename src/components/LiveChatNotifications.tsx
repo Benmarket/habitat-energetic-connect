@@ -55,18 +55,31 @@ export function LiveChatNotifications() {
   }, [user]);
 
   const loadPendingRequests = async () => {
+    // First, call the function to expire stale requests
+    await supabase.rpc('expire_stale_agent_requests');
+    await supabase.rpc('mark_abandoned_conversations');
+
     const { data, error } = await supabase
       .from('chat_agent_requests')
       .select(`
         *,
-        chat_conversations!inner(visitor_id, user_id)
+        chat_conversations!inner(visitor_id, user_id, last_seen_at)
       `)
       .eq('status', 'pending')
       .order('created_at', { ascending: true });
 
     if (!error && data) {
+      // Filter out requests where conversation has no recent heartbeat (> 2 min)
+      const now = new Date();
+      const validRequests = data.filter((req: any) => {
+        if (!req.chat_conversations.last_seen_at) return true; // No heartbeat yet, keep it
+        const lastSeen = new Date(req.chat_conversations.last_seen_at);
+        const diffMinutes = (now.getTime() - lastSeen.getTime()) / 60000;
+        return diffMinutes < 2; // Only show if user was seen in last 2 minutes
+      });
+
       const requestsWithEmails = await Promise.all(
-        data.map(async (req: any) => {
+        validRequests.map(async (req: any) => {
           if (req.chat_conversations.user_id) {
             const { data: profile } = await supabase
               .from('profiles')
