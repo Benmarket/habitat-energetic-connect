@@ -102,7 +102,7 @@ const GuidesSection = () => {
         </svg>
       </div>
 
-      <div className="container mx-auto max-w-7xl relative z-10">
+      <div className="container mx-auto max-w-7xl relative z-10 overflow-visible">
         <div className="text-center mb-8 md:mb-12 animate-fade-in flex flex-col items-center">
           <div className="inline-flex items-center gap-3 mb-4 bg-gradient-to-r from-orange-600/10 to-orange-500/10 px-8 py-4 rounded-full backdrop-blur-sm border-2 border-orange-500/30 shadow-lg shadow-orange-500/20 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300 hover:scale-105">
             <div className="p-2 bg-gradient-to-br from-orange-600 to-orange-700 rounded-lg shadow-lg">
@@ -120,19 +120,21 @@ const GuidesSection = () => {
           </div>
         </div>
 
-        <Carousel
-          opts={{
-            align: "start",
-            loop: true,
-            slidesToScroll: 1,
-          }}
-          className="w-full overflow-visible"
-        >
-          <CarouselContent className="-ml-4 py-6 px-2">
-            {guides.map((guide) => (
-              <CarouselItem key={guide.id} className="pl-4 basis-full md:basis-1/3">
-                <Link to={`/guide/${guide.slug}`} className="group block h-full relative z-0 hover:z-10">
-                  <Card className="h-full transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 hover:scale-[1.02] hover:-translate-y-1 bg-card/80 backdrop-blur-sm border-2 border-orange-500/20 hover:border-orange-500 overflow-hidden">
+        {/* Wrapper avec padding pour permettre le zoom au hover */}
+        <div className="px-4 md:px-6 -mx-4 md:-mx-6">
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+              slidesToScroll: 1,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="py-6">
+              {guides.map((guide) => (
+                <CarouselItem key={guide.id} className="pl-4 basis-full md:basis-1/3 first:pl-0">
+                  <Link to={`/guide/${guide.slug}`} className="group block h-full relative z-0 hover:z-10 px-2">
+                    <Card className="h-full transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 hover:scale-[1.02] hover:-translate-y-1 bg-card/80 backdrop-blur-sm border-2 border-orange-500/20 hover:border-orange-500 overflow-hidden">
                     {guide.featured_image && (
                       <div className="relative h-56 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-orange-950/20 to-transparent z-10" />
@@ -178,12 +180,13 @@ const GuidesSection = () => {
                 </Link>
               </CarouselItem>
             ))}
-          </CarouselContent>
-          
-          {/* Navigation Buttons - Lateral on both mobile and desktop */}
-          <CarouselPrevious className="-left-4 md:-left-12 h-8 w-8 md:h-10 md:w-10 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300" />
-          <CarouselNext className="-right-4 md:-right-12 h-8 w-8 md:h-10 md:w-10 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300" />
-        </Carousel>
+            </CarouselContent>
+            
+            {/* Navigation Buttons - Lateral on both mobile and desktop */}
+            <CarouselPrevious className="-left-2 md:-left-6 h-8 w-8 md:h-10 md:w-10 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300" />
+            <CarouselNext className="-right-2 md:-right-6 h-8 w-8 md:h-10 md:w-10 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300" />
+          </Carousel>
+        </div>
 
         {/* View All Button - Centered */}
         <div className="text-center mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
