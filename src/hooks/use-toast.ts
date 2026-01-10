@@ -3,7 +3,7 @@ import * as React from "react";
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast";
 
 const TOAST_LIMIT = 1;
-const TOAST_REMOVE_DELAY = 1000000;
+const TOAST_REMOVE_DELAY = 300; // Fast removal after dismiss animation
 
 type ToasterToast = ToastProps & {
   id: string;
@@ -134,7 +134,7 @@ function dispatch(action: Action) {
 
 type Toast = Omit<ToasterToast, "id">;
 
-function toast({ ...props }: Toast) {
+function toast({ duration = 2000, ...props }: Toast & { duration?: number }) {
   const id = genId();
 
   const update = (props: ToasterToast) =>
@@ -155,6 +155,11 @@ function toast({ ...props }: Toast) {
       },
     },
   });
+
+  // Auto-dismiss after duration
+  setTimeout(() => {
+    dismiss();
+  }, duration);
 
   return {
     id: id,
