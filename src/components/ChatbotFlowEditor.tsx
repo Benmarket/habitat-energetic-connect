@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 
 type NodeType = "question" | "end" | "agent_handoff";
@@ -39,6 +40,8 @@ type FlowNodeData = {
   options?: Array<{ label: string; next_node: string }>;
   message?: string;
   is_qualified?: boolean;
+  allow_text_input?: boolean;
+  allow_agent_button?: boolean;
 };
 
 type ChatbotFlowEditorProps = {
@@ -66,6 +69,8 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
     options: [{ label: "", next_node: "" }],
     message: "",
     is_qualified: true,
+    allow_text_input: false,
+    allow_agent_button: false,
   });
 
   // Load from initial structure on mount or when it changes
@@ -165,6 +170,8 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
         ...(nodeData.options && { options: nodeData.options }),
         ...(nodeData.message && { message: nodeData.message }),
         ...(nodeData.is_qualified !== undefined && { is_qualified: nodeData.is_qualified }),
+        allow_text_input: nodeData.allow_text_input ?? false,
+        allow_agent_button: nodeData.allow_agent_button ?? false,
       };
     });
 
@@ -187,6 +194,8 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
       options: nodeData.options || [{ label: "", next_node: "" }],
       message: nodeData.message || "",
       is_qualified: nodeData.is_qualified ?? true,
+      allow_text_input: nodeData.allow_text_input ?? false,
+      allow_agent_button: nodeData.allow_agent_button ?? false,
     });
     setIsEditModalOpen(true);
   }, []);
@@ -248,6 +257,8 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
         options: editForm.options,
         message: editForm.message,
         is_qualified: editForm.is_qualified,
+        allow_text_input: editForm.allow_text_input,
+        allow_agent_button: editForm.allow_agent_button,
       },
       style: {
         ...selectedNode.style,
@@ -489,6 +500,37 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave }: ChatbotFlowEdito
                 )}
               </>
             )}
+
+            {/* Options d'affichage pour tous les types de nœuds */}
+            <div className="space-y-4 pt-4 border-t">
+              <Label className="text-sm font-semibold">Options d'affichage</Label>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="allow_text_input"
+                  checked={editForm.allow_text_input ?? false}
+                  onCheckedChange={(checked) =>
+                    setEditForm({ ...editForm, allow_text_input: !!checked })
+                  }
+                />
+                <Label htmlFor="allow_text_input" className="text-sm font-normal">
+                  Afficher la barre de saisie texte libre
+                </Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="allow_agent_button"
+                  checked={editForm.allow_agent_button ?? false}
+                  onCheckedChange={(checked) =>
+                    setEditForm({ ...editForm, allow_agent_button: !!checked })
+                  }
+                />
+                <Label htmlFor="allow_agent_button" className="text-sm font-normal">
+                  Afficher le bouton "Parler à un conseiller"
+                </Label>
+              </div>
+            </div>
           </div>
 
           <DialogFooter>

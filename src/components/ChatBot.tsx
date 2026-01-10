@@ -43,6 +43,7 @@ export const ChatBot = () => {
   const [showFlowRunner, setShowFlowRunner] = useState(true);
   const [flowCompleted, setFlowCompleted] = useState(false);
   const [chatbotEnabled, setChatbotEnabled] = useState<boolean | null>(null);
+  const [currentFlowNode, setCurrentFlowNode] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -235,8 +236,17 @@ export const ChatBot = () => {
 
   const handleFlowRequestAgent = () => {
     setShowFlowRunner(false);
+    setCurrentFlowNode(null);
     requestHumanAgent();
   };
+
+  const handleFlowNodeChange = (node: any) => {
+    setCurrentFlowNode(node);
+  };
+
+  // Determine visibility based on flow node or flow completion state
+  const showTextInput = flowCompleted || (!activeFlow && messages.length > 0) || (currentFlowNode?.allow_text_input === true);
+  const showAgentButton = flowCompleted || (!activeFlow && messages.length > 0) || (currentFlowNode?.allow_agent_button === true);
 
   const saveMessage = async (content: string, senderType: "user" | "bot" | "agent") => {
     if (!conversationId) return;
@@ -469,6 +479,7 @@ export const ChatBot = () => {
                   onAnswer={handleFlowAnswer}
                   onRequestAgent={handleFlowRequestAgent}
                   onComplete={handleFlowComplete}
+                  onNodeChange={handleFlowNodeChange}
                 />
               </div>
             )}
@@ -529,7 +540,7 @@ export const ChatBot = () => {
               </div>
             )}
 
-            {!agentConnected && !hasRequestedAgent && messages.length > 0 && (
+            {showAgentButton && !agentConnected && !hasRequestedAgent && (
               <div className="mt-4">
                 <Button variant="outline" size="sm" onClick={requestHumanAgent} className="w-full gap-2 text-xs">
                   <UserCog className="h-3 w-3" />
@@ -539,32 +550,34 @@ export const ChatBot = () => {
             )}
           </ScrollArea>
 
-          {/* Input */}
-          <div className="p-4 border-t border-border">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSend();
-              }}
-              className="flex gap-2"
-            >
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Posez votre question..."
-                disabled={isLoading}
-                className="flex-1"
-              />
-              <Button
-                type="submit"
-                disabled={isLoading || !input.trim()}
-                size="icon"
-                className="bg-blue-900 hover:bg-blue-800"
+          {/* Input - only show when allowed */}
+          {showTextInput && (
+            <div className="p-4 border-t border-border">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSend();
+                }}
+                className="flex gap-2"
               >
-                <Send className="h-4 w-4" />
-              </Button>
-            </form>
-          </div>
+                <Input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Posez votre question..."
+                  disabled={isLoading}
+                  className="flex-1"
+                />
+                <Button
+                  type="submit"
+                  disabled={isLoading || !input.trim()}
+                  size="icon"
+                  className="bg-blue-900 hover:bg-blue-800"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </form>
+            </div>
+          )}
         </div>
       )}
     </>
