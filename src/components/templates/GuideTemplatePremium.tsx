@@ -236,58 +236,10 @@ export const GuideTemplatePremium = ({
               </div>
             </div>
 
-            {/* Sidebar - 4 columns */}
-            {!isPaywalled && (
-              <aside className="lg:col-span-4">
-                <div className="sticky top-28 space-y-6">
-                  {/* TOC Card with glass effect */}
-                  {toc.length > 0 && (
-                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-amber-100/50">
-                      <h4 className="font-bold text-lg mb-4 flex items-center gap-3 text-gray-900">
-                        <span className="w-8 h-8 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-lg flex items-center justify-center text-white text-sm font-bold shadow">
-                          {toc.length}
-                        </span>
-                        Sommaire
-                      </h4>
-                      <nav className="space-y-1">
-                        {toc.map((item) => (
-                          <button
-                            key={item.id}
-                            onClick={() => scrollToSection(item.id)}
-                            className={`w-full text-left text-sm py-2.5 px-4 rounded-xl transition-all duration-300 block ${
-                              activeId === item.id 
-                                ? 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-900 font-medium shadow-sm' 
-                                : 'text-gray-600 hover:bg-amber-50'
-                            }`}
-                            style={{ paddingLeft: `${16 + (item.level - 2) * 12}px` }}
-                          >
-                            {item.text}
-                          </button>
-                        ))}
-                      </nav>
-                    </div>
-                  )}
-
-                  {/* CTA Card */}
-                  <div className="bg-gradient-to-br from-amber-500 via-yellow-500 to-amber-600 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
-                    <div className="relative z-10">
-                      <Star className="w-8 h-8 mb-4 fill-white/20" />
-                      <h4 className="font-bold text-xl mb-2">Besoin d'aide ?</h4>
-                      <p className="text-white/90 text-sm mb-4">
-                        Nos experts sont là pour vous accompagner.
-                      </p>
-                      <Link 
-                        to="/#contact" 
-                        className="inline-block bg-white text-amber-600 font-bold px-6 py-3 rounded-xl hover:bg-amber-50 transition-colors shadow-lg"
-                      >
-                        Nous contacter
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </aside>
-            )}
+            {/* Espace réservé pour le sommaire sticky global */}
+            <aside className="lg:col-span-4">
+              {/* L'espace est réservé pour le composant GuideStickyNav qui apparaît au scroll */}
+            </aside>
           </div>
         </div>
       </article>
