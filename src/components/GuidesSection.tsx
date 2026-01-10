@@ -168,15 +168,17 @@ const GuidesSection = () => {
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* Header - Orange badge style */}
+        {/* Header - Orange badge style like Aides section */}
         <div className="text-center mb-10 md:mb-14">
-          <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[hsl(24,95%,55%)]/10 border-2 border-[hsl(24,95%,55%)] mb-4">
-            <BookOpen className="w-5 h-5 text-[hsl(24,95%,55%)]" />
-            <span className="text-lg md:text-xl font-bold text-[hsl(24,95%,55%)]">
+          <div className="inline-flex items-center gap-3 px-6 py-3.5 rounded-full bg-white shadow-lg border border-[hsl(24,95%,55%)]/20 mb-5">
+            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-[hsl(24,95%,55%)]/10 border border-[hsl(24,95%,55%)]/30">
+              <BookOpen className="w-5 h-5 text-[hsl(24,95%,55%)]" />
+            </div>
+            <span className="text-xl md:text-2xl font-bold text-[hsl(24,95%,55%)]">
               Guides par projet
             </span>
           </div>
-          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="text-muted-foreground text-base md:text-lg whitespace-nowrap">
             Des guides complets pour réussir votre projet d'énergies renouvelables, étape par étape.
           </p>
         </div>
