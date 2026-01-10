@@ -43,15 +43,25 @@ const ArticleCard = ({
       <Link to={articleUrl} className="group block h-full">
         <Card className="h-full transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 hover:scale-[1.01] hover:-translate-y-1 bg-card/80 backdrop-blur-sm border-2 border-orange-500/20 hover:border-orange-500 overflow-hidden rounded-2xl">
           {featuredImage && (
-            <div className="aspect-video overflow-hidden bg-muted">
+            <div className="aspect-video overflow-hidden bg-muted relative">
               <img
                 src={featuredImage}
                 alt={title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
+              {category && category !== "Guide" && (
+                <Badge className="absolute top-3 left-3 bg-orange-500 text-white hover:bg-orange-600 rounded-full px-3 py-1 text-xs font-semibold shadow-lg">
+                  {category}
+                </Badge>
+              )}
             </div>
           )}
           <CardContent className="p-6 flex flex-col flex-1">
+            {!featuredImage && category && category !== "Guide" && (
+              <Badge className="mb-3 self-start bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 rounded-full px-3 py-1 text-xs font-semibold">
+                {category}
+              </Badge>
+            )}
             <h3 className="text-xl font-bold mb-3 group-hover:text-orange-600 transition-colors duration-300 line-clamp-2 leading-tight text-foreground">
               {title}
             </h3>
