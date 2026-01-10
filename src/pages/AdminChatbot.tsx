@@ -79,12 +79,12 @@ const AdminChatbot = () => {
         .from("site_settings")
         .select("value")
         .eq("key", "chatbot_enabled")
-        .single();
+        .maybeSingle();
 
-      // PGRST116 = no rows found, default to enabled
-      if (error && error.code === "PGRST116") return true;
       if (error) throw error;
-      return data?.value === true;
+      // If no setting exists, default to enabled
+      if (data === null) return true;
+      return data.value === true;
     },
   });
 
