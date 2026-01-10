@@ -1,7 +1,35 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, GitBranch } from "lucide-react";
+import { 
+  MessageCircle, 
+  GitBranch, 
+  Home, 
+  Wallet, 
+  Phone, 
+  HelpCircle,
+  type LucideIcon 
+} from "lucide-react";
+
+// Icon mapping based on keywords in option labels
+const getOptionIcon = (label: string): LucideIcon | null => {
+  const lowerLabel = label.toLowerCase();
+  
+  if (lowerLabel.includes("projet") || lowerLabel.includes("subvention")) {
+    return Home;
+  }
+  if (lowerLabel.includes("aide") || lowerLabel.includes("comprendre") || lowerLabel.includes("démarche")) {
+    return Wallet;
+  }
+  if (lowerLabel.includes("contact") || lowerLabel.includes("prime")) {
+    return Phone;
+  }
+  if (lowerLabel.includes("sais pas") || lowerLabel.includes("encore") || lowerLabel.includes("?")) {
+    return HelpCircle;
+  }
+  
+  return null;
+};
 
 type FlowNode = {
   type: "question" | "end" | "agent_handoff" | "flow_redirect";
@@ -193,16 +221,22 @@ export const ChatbotFlowRunner = ({
 
       {currentNode.answer_type === "buttons" && currentNode.options ? (
         <div className="flex flex-col gap-2 mt-2">
-          {currentNode.options.map((option, index) => (
-            <Button
-              key={index}
-              onClick={() => handleButtonClick(option)}
-              variant="outline"
-              className="w-full justify-center text-center whitespace-normal h-auto py-3 px-4 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-foreground font-normal"
-            >
-              {option.label}
-            </Button>
-          ))}
+          {currentNode.options.map((option, index) => {
+            const Icon = getOptionIcon(option.label);
+            return (
+              <Button
+                key={index}
+                onClick={() => handleButtonClick(option)}
+                variant="outline"
+                className="w-full justify-center text-center whitespace-normal h-auto py-3 px-4 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-foreground font-normal gap-2.5"
+              >
+                {Icon && (
+                  <Icon className="h-4 w-4 text-blue-900 dark:text-blue-100 flex-shrink-0" />
+                )}
+                {option.label}
+              </Button>
+            );
+          })}
         </div>
       ) : (
         <div className="flex gap-2">
