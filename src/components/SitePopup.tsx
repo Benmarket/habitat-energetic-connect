@@ -61,6 +61,7 @@ export default function SitePopup() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [activePopup, setActivePopup] = useState<Popup | null>(null);
+  const [parcoursStep, setParcoursStep] = useState<"main" | "contact-choice">("main");
 
   // Check if we're on an article detail page
   const isArticlePage = location.pathname.startsWith("/actualites/") && location.pathname.split("/").length > 2;
@@ -282,6 +283,7 @@ export default function SitePopup() {
       setIsSuccess(false);
       setFormData({});
       setActivePopup(null);
+      setParcoursStep("main"); // Reset parcours step
     }, 300);
   };
 
@@ -824,6 +826,90 @@ export default function SitePopup() {
         );
       
       case "parcours_projet":
+        // Handle contact type selection
+        const handleContactChoice = (type: "particulier" | "professionnel") => {
+          handleClose();
+          // Dispatch event to preselect account type in contact form
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('contact-preselect', { 
+              detail: { accountType: type, subject: "" } 
+            }));
+            // Navigate to contact section
+            const contactElement = document.getElementById('contact');
+            if (contactElement) {
+              contactElement.scrollIntoView({ behavior: 'smooth' });
+            } else {
+              navigate("/#contact");
+            }
+          }, 100);
+        };
+
+        // Sub-step: Contact choice (Particulier / Professionnel)
+        if (parcoursStep === "contact-choice") {
+          return (
+            <div className="space-y-6">
+              {/* Back button */}
+              <button
+                onClick={() => setParcoursStep("main")}
+                className="flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors text-sm"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Retour
+              </button>
+
+              {/* Header */}
+              <div className="text-center space-y-2">
+                <div className="w-14 h-14 mx-auto rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25 mb-4">
+                  <Mail className="w-7 h-7 text-white" />
+                </div>
+                <h2 className="text-xl font-bold text-slate-800">
+                  Vous êtes...
+                </h2>
+                <p className="text-sm text-slate-500">
+                  Sélectionnez votre profil pour être recontacté
+                </p>
+              </div>
+
+              {/* Two choices */}
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={() => handleContactChoice("particulier")}
+                  className="group p-6 rounded-xl border-2 border-slate-200 hover:border-blue-400 bg-gradient-to-br from-white to-slate-50 hover:from-blue-50 hover:to-white transition-all duration-300 text-center"
+                >
+                  <div className="w-12 h-12 mx-auto rounded-full bg-blue-100 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                    <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-semibold text-slate-800 group-hover:text-blue-700">Particulier</h3>
+                  <p className="text-xs text-slate-500 mt-1">Pour mon logement</p>
+                </button>
+
+                <button
+                  onClick={() => handleContactChoice("professionnel")}
+                  className="group p-6 rounded-xl border-2 border-slate-200 hover:border-emerald-400 bg-gradient-to-br from-white to-slate-50 hover:from-emerald-50 hover:to-white transition-all duration-300 text-center"
+                >
+                  <div className="w-12 h-12 mx-auto rounded-full bg-emerald-100 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                    <svg className="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                  <h3 className="font-semibold text-slate-800 group-hover:text-emerald-700">Professionnel</h3>
+                  <p className="text-xs text-slate-500 mt-1">Pour mon entreprise</p>
+                </button>
+              </div>
+
+              <p className="text-xs text-center text-blue-600 font-medium flex items-center justify-center gap-1">
+                <CheckCircle2 className="w-3 h-3" />
+                Rappel sous 24-48h
+              </p>
+            </div>
+          );
+        }
+
+        // Main step: 4 options
         return (
           <div className="space-y-6">
             {/* Header */}
@@ -857,12 +943,9 @@ export default function SitePopup() {
 
             {/* 4 Options Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Option 1: Demande de contact */}
+              {/* Option 1: Demande de contact - Opens sub-step */}
               <button
-                onClick={() => {
-                  handleClose();
-                  navigate("/#eligibilite");
-                }}
+                onClick={() => setParcoursStep("contact-choice")}
                 className="group relative p-5 rounded-xl border-2 border-slate-200 hover:border-blue-400 bg-gradient-to-br from-white to-slate-50 hover:from-blue-50 hover:to-white transition-all duration-300 text-left"
               >
                 <div className="flex items-start gap-4">
@@ -884,28 +967,24 @@ export default function SitePopup() {
                 </div>
               </button>
 
-              {/* Option 2: Simulation en ligne */}
+              {/* Option 2: Simulation en ligne - Does nothing for now */}
               <button
-                onClick={() => {
-                  handleClose();
-                  navigate("/#eligibilite");
-                }}
-                className="group relative p-5 rounded-xl border-2 border-slate-200 hover:border-emerald-400 bg-gradient-to-br from-white to-slate-50 hover:from-emerald-50 hover:to-white transition-all duration-300 text-left"
+                className="group relative p-5 rounded-xl border-2 border-slate-200 hover:border-emerald-400 bg-gradient-to-br from-white to-slate-50 hover:from-emerald-50 hover:to-white transition-all duration-300 text-left opacity-60 cursor-not-allowed"
+                disabled
               >
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:scale-110 transition-transform">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
                     <Sparkles className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-800 group-hover:text-emerald-700 transition-colors">
+                    <h3 className="font-semibold text-slate-800 transition-colors">
                       Simulation en ligne
                     </h3>
                     <p className="text-xs text-slate-500 mt-0.5">
                       Éligibilité, primes, travaux
                     </p>
-                    <p className="text-xs text-emerald-600 font-medium mt-2 flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" />
-                      Résultats instantanés
+                    <p className="text-xs text-slate-400 font-medium mt-2 flex items-center gap-1">
+                      Bientôt disponible
                     </p>
                   </div>
                 </div>
@@ -938,13 +1017,18 @@ export default function SitePopup() {
                 </div>
               </button>
 
-              {/* Option 4: Chercher un installateur */}
+              {/* Option 4: Chercher un installateur - Scrolls to #installateurs */}
               <button
                 onClick={() => {
                   handleClose();
-                  window.dispatchEvent(new CustomEvent('trigger-popup', { 
-                    detail: { triggerId: 'find-professional-cta' } 
-                  }));
+                  setTimeout(() => {
+                    const installateursElement = document.getElementById('installateurs');
+                    if (installateursElement) {
+                      installateursElement.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                      navigate("/#installateurs");
+                    }
+                  }, 100);
                 }}
                 className="group relative p-5 rounded-xl border-2 border-slate-200 hover:border-amber-400 bg-gradient-to-br from-white to-slate-50 hover:from-amber-50 hover:to-white transition-all duration-300 text-left"
               >
