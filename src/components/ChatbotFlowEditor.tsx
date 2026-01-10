@@ -438,8 +438,8 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave, availableFlows = [
         onNodeClick={handleNodeClick}
         fitView
       >
-        <Controls />
-        <MiniMap />
+        <Controls position="bottom-left" />
+        <MiniMap position="top-left" className="!top-2 !left-2" />
         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
       </ReactFlow>
 
