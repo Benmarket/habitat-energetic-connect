@@ -6,6 +6,8 @@ interface Step {
   title: string;
   description: string;
   icon: React.ReactNode;
+  color: string;
+  bgColor: string;
 }
 
 const steps: Step[] = [
@@ -14,24 +16,32 @@ const steps: Step[] = [
     title: "Comprendre votre situation",
     description: "Nous analysons les caractéristiques de votre logement et votre consommation énergétique actuelle pour identifier les axes d'amélioration.",
     icon: <FileText className="w-6 h-6" />,
+    color: "text-blue-600",
+    bgColor: "bg-blue-50",
   },
   {
     id: 2,
     title: "Identifier les aides disponibles",
     description: "En fonction de votre profil et de votre projet, nous recensons l'ensemble des dispositifs d'aide auxquels vous pouvez prétendre.",
     icon: <CheckCircle2 className="w-6 h-6" />,
+    color: "text-emerald-600",
+    bgColor: "bg-emerald-50",
   },
   {
     id: 3,
     title: "Définir un projet cohérent",
     description: "Nous vous aidons à construire un projet de rénovation adapté à vos besoins, en tenant compte des contraintes techniques et budgétaires.",
     icon: <Users className="w-6 h-6" />,
+    color: "text-violet-600",
+    bgColor: "bg-violet-50",
   },
   {
     id: 4,
     title: "Vous accompagner dans les démarches",
     description: "De la constitution du dossier jusqu'à la réalisation des travaux, nous restons à vos côtés pour un parcours serein et structuré.",
     icon: <Award className="w-6 h-6" />,
+    color: "text-amber-600",
+    bgColor: "bg-amber-50",
   },
 ];
 
@@ -82,107 +92,167 @@ const InstitutionalContextSection = () => {
     <section
       ref={sectionRef}
       id="parcours"
-      className="relative bg-white py-0"
+      className="relative bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-0"
     >
       <div className="max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 min-h-[600px] lg:min-h-[800px]">
+        <div className="grid lg:grid-cols-2 min-h-[700px] lg:min-h-[900px]">
           {/* Left Column - Sticky */}
-          <div className="lg:sticky lg:top-24 lg:h-fit py-12 lg:py-24 px-6 lg:px-12 flex flex-col justify-center">
+          <div className="lg:sticky lg:top-24 lg:h-fit py-16 lg:py-28 px-6 lg:px-12 flex flex-col justify-center">
             <div className="max-w-md">
-              <h2 className="text-3xl lg:text-4xl font-bold text-slate-800 leading-tight mb-4">
-                Votre maison, un choix économique et logique
+              {/* Decorative badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-medium mb-6">
+                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                Votre parcours
+              </div>
+              
+              <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-slate-800 leading-tight mb-4">
+                Votre maison, un choix{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-500">
+                  économique et logique
+                </span>
               </h2>
-              <p className="text-lg text-slate-600 font-medium mb-6">
+              <p className="text-lg lg:text-xl text-slate-600 font-medium mb-6">
                 Des travaux énergétiques subventionnés pour votre habitat
               </p>
-              <p className="text-slate-500 leading-relaxed">
+              <p className="text-slate-500 leading-relaxed text-base lg:text-lg">
                 Prime Énergies vous accompagne dans un parcours simple et structuré, 
                 pour comprendre les aides disponibles et construire votre projet sereinement.
               </p>
 
-              {/* Progress indicator for mobile */}
-              <div className="flex gap-2 mt-8 lg:hidden">
-                {steps.map((_, index) => (
-                  <div
+              {/* Progress indicator */}
+              <div className="flex gap-3 mt-10">
+                {steps.map((step, index) => (
+                  <button
                     key={index}
-                    className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                      index <= activeStep ? "bg-slate-700" : "bg-slate-200"
+                    onClick={() => {
+                      const element = stepsRef.current[index];
+                      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }}
+                    className={`relative h-2 flex-1 rounded-full transition-all duration-500 overflow-hidden ${
+                      index <= activeStep ? "bg-gradient-to-r from-blue-500 to-blue-600" : "bg-slate-200"
                     }`}
-                  />
+                  >
+                    {index === activeStep && (
+                      <span className="absolute inset-0 bg-white/30 animate-pulse" />
+                    )}
+                  </button>
                 ))}
               </div>
+              
+              <p className="text-sm text-slate-400 mt-3">
+                Étape {activeStep + 1} sur {steps.length}
+              </p>
             </div>
           </div>
 
           {/* Right Column - Scrolling Steps */}
-          <div className="relative py-12 lg:py-24 px-6 lg:px-12 bg-slate-50/50">
+          <div className="relative py-16 lg:py-28 px-6 lg:px-12">
             {/* Vertical timeline line - Desktop only */}
-            <div className="hidden lg:block absolute left-12 top-24 bottom-24 w-px bg-slate-200">
+            <div className="hidden lg:block absolute left-12 top-28 bottom-28 w-0.5 bg-gradient-to-b from-slate-200 via-slate-300 to-slate-200 rounded-full">
               <div
-                className="absolute top-0 left-0 w-full bg-slate-400 transition-all duration-500 ease-out"
+                className="absolute top-0 left-0 w-full bg-gradient-to-b from-blue-500 via-emerald-500 to-violet-500 rounded-full transition-all duration-700 ease-out"
                 style={{
                   height: `${((activeStep + 1) / steps.length) * 100}%`,
                 }}
               />
             </div>
 
-            <div className="space-y-8 lg:space-y-16 lg:pl-12">
-              {steps.map((step, index) => (
-                <div
-                  key={step.id}
-                  ref={(el) => (stepsRef.current[index] = el)}
-                  className={`relative transition-all duration-500 ease-out ${
-                    index <= activeStep
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-40 translate-y-4"
-                  }`}
-                >
-                  {/* Step indicator dot */}
-                  <div
-                    className={`hidden lg:flex absolute -left-12 top-0 w-6 h-6 rounded-full border-2 items-center justify-center transition-all duration-300 ${
-                      index <= activeStep
-                        ? "bg-slate-700 border-slate-700 text-white"
-                        : "bg-white border-slate-300 text-slate-400"
-                    }`}
-                  >
-                    <span className="text-xs font-semibold">{step.id}</span>
-                  </div>
+            <div className="space-y-6 lg:space-y-8 lg:pl-16">
+              {steps.map((step, index) => {
+                const isActive = index === activeStep;
+                const isPast = index < activeStep;
+                const isFuture = index > activeStep;
 
-                  {/* Step content */}
+                return (
                   <div
-                    className={`bg-white rounded-xl p-6 shadow-sm border transition-all duration-300 ${
-                      index <= activeStep
-                        ? "border-slate-200 shadow-md"
-                        : "border-slate-100"
+                    key={step.id}
+                    ref={(el) => (stepsRef.current[index] = el)}
+                    className={`relative transition-all duration-700 ease-out ${
+                      isActive
+                        ? "opacity-100 scale-100 translate-y-0"
+                        : isPast
+                        ? "opacity-70 scale-95 -translate-y-1"
+                        : "opacity-40 scale-90 translate-y-2"
                     }`}
                   >
-                    <div className="flex items-start gap-4">
-                      <div
-                        className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center transition-colors duration-300 ${
-                          index <= activeStep
-                            ? "bg-slate-100 text-slate-700"
-                            : "bg-slate-50 text-slate-400"
-                        }`}
-                      >
-                        {step.icon}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-2 lg:hidden">
-                          <span className="text-xs font-semibold text-slate-400">
-                            Étape {step.id}
-                          </span>
+                    {/* Step indicator dot */}
+                    <div
+                      className={`hidden lg:flex absolute -left-16 top-6 w-8 h-8 rounded-full border-2 items-center justify-center transition-all duration-500 shadow-lg ${
+                        isActive
+                          ? "bg-gradient-to-br from-blue-500 to-blue-600 border-blue-400 text-white scale-125"
+                          : isPast
+                          ? "bg-emerald-500 border-emerald-400 text-white"
+                          : "bg-white border-slate-300 text-slate-400"
+                      }`}
+                    >
+                      {isPast ? (
+                        <CheckCircle2 className="w-4 h-4" />
+                      ) : (
+                        <span className="text-xs font-bold">{step.id}</span>
+                      )}
+                    </div>
+
+                    {/* Step content */}
+                    <div
+                      className={`relative overflow-hidden rounded-2xl transition-all duration-500 ${
+                        isActive
+                          ? "bg-white shadow-2xl shadow-blue-500/10 border-2 border-blue-100 p-8"
+                          : "bg-white/80 shadow-md border border-slate-100 p-6"
+                      }`}
+                    >
+                      {/* Active indicator glow */}
+                      {isActive && (
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 to-violet-500" />
+                      )}
+
+                      <div className="flex items-start gap-5">
+                        <div
+                          className={`flex-shrink-0 rounded-xl flex items-center justify-center transition-all duration-500 ${
+                            isActive
+                              ? `w-16 h-16 ${step.bgColor} ${step.color}`
+                              : `w-12 h-12 bg-slate-100 text-slate-400`
+                          }`}
+                        >
+                          <div className={isActive ? "scale-110" : ""}>
+                            {step.icon}
+                          </div>
                         </div>
-                        <h3 className="text-lg font-semibold text-slate-800 mb-2">
-                          {step.title}
-                        </h3>
-                        <p className="text-slate-500 text-sm leading-relaxed">
-                          {step.description}
-                        </p>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2 lg:hidden">
+                            <span
+                              className={`text-xs font-bold px-2 py-1 rounded-full ${
+                                isActive
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "bg-slate-100 text-slate-500"
+                              }`}
+                            >
+                              Étape {step.id}
+                            </span>
+                          </div>
+                          <h3
+                            className={`font-bold mb-3 transition-all duration-500 ${
+                              isActive
+                                ? "text-xl lg:text-2xl text-slate-800"
+                                : "text-lg text-slate-600"
+                            }`}
+                          >
+                            {step.title}
+                          </h3>
+                          <p
+                            className={`leading-relaxed transition-all duration-500 ${
+                              isActive
+                                ? "text-base text-slate-600"
+                                : "text-sm text-slate-400"
+                            }`}
+                          >
+                            {step.description}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
