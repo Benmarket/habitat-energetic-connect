@@ -310,7 +310,7 @@ const GuidesSection = () => {
                 to="/guides" 
                 className="inline-flex items-center gap-3 text-[hsl(24,95%,55%)] font-bold text-lg md:text-xl hover:gap-4 transition-all duration-300 group"
               >
-                Voir tous les guides
+                <span className="underline underline-offset-4 decoration-2">Voir tous les guides</span>
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
