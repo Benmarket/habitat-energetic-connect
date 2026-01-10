@@ -57,16 +57,21 @@ export const ChatBot = () => {
         .from("site_settings")
         .select("value")
         .eq("key", "chatbot_enabled")
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== "PGRST116") {
+      if (error) {
         // Error fetching, default to enabled
         setChatbotEnabled(true);
         return;
       }
 
-      // If no setting exists, default to enabled
-      setChatbotEnabled(data?.value === true || data === null);
+      // If no setting exists (data is null), default to enabled
+      // If setting exists, use its value (true or false)
+      if (data === null) {
+        setChatbotEnabled(true);
+      } else {
+        setChatbotEnabled(data.value === true);
+      }
     };
 
     checkChatbotEnabled();
