@@ -127,21 +127,28 @@ const GuidesSection = () => {
 
   if (loading) {
     return (
-      <section className="py-16 md:py-24 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="mb-10">
-            <Skeleton className="h-4 w-24 mb-3" />
-            <Skeleton className="h-10 w-64 mb-4" />
-            <Skeleton className="h-5 w-full max-w-lg" />
+      <section className="relative py-16 md:py-24 bg-[hsl(30,50%,97%)] overflow-hidden">
+        {/* Wave decoration */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+            <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="hsl(24, 95%, 55%)" fillOpacity="0.15"/>
+          </svg>
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          {/* Header */}
+          <div className="text-center mb-10">
+            <Skeleton className="h-12 w-64 mx-auto mb-4 rounded-full" />
+            <Skeleton className="h-5 w-96 mx-auto" />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-7">
-              <Skeleton className="h-96 w-full rounded-2xl" />
+            <div className="lg:col-span-5">
+              <Skeleton className="h-[450px] w-full rounded-2xl" />
             </div>
-            <div className="lg:col-span-5 space-y-4">
-              <Skeleton className="h-28 w-full rounded-xl" />
-              <Skeleton className="h-28 w-full rounded-xl" />
-              <Skeleton className="h-28 w-full rounded-xl" />
+            <div className="lg:col-span-7 space-y-4">
+              <Skeleton className="h-36 w-full rounded-xl" />
+              <Skeleton className="h-36 w-full rounded-xl" />
+              <Skeleton className="h-36 w-full rounded-xl" />
             </div>
           </div>
         </div>
@@ -152,18 +159,25 @@ const GuidesSection = () => {
   if (!featuredGuide && secondaryGuides.length === 0) return null;
 
   return (
-    <section id="guides" className="py-16 md:py-24 bg-muted/30">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="mb-10 md:mb-14">
-          <span className="text-sm font-semibold text-primary uppercase tracking-wider mb-3 block">
-            Guides & Ressources
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight">
-            Nos guides pratiques
-          </h2>
-          <p className="text-muted-foreground text-base md:text-lg max-w-2xl leading-relaxed">
-            Des ressources complètes pour vous accompagner dans vos projets de rénovation énergétique et d'installation d'énergies renouvelables.
+    <section id="guides" className="relative py-16 md:py-24 bg-[hsl(30,50%,97%)] overflow-hidden">
+      {/* Wave decoration at bottom */}
+      <div className="absolute bottom-0 left-0 right-0">
+        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+          <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="hsl(24, 95%, 55%)" fillOpacity="0.2"/>
+        </svg>
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        {/* Header - Orange badge style */}
+        <div className="text-center mb-10 md:mb-14">
+          <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[hsl(24,95%,55%)]/10 border-2 border-[hsl(24,95%,55%)] mb-4">
+            <BookOpen className="w-5 h-5 text-[hsl(24,95%,55%)]" />
+            <span className="text-lg md:text-xl font-bold text-[hsl(24,95%,55%)]">
+              Guides par projet
+            </span>
+          </div>
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+            Des guides complets pour réussir votre projet d'énergies renouvelables, étape par étape.
           </p>
         </div>
 
@@ -171,53 +185,54 @@ const GuidesSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
           {/* Featured Guide - Left Column */}
           {featuredGuide && (
-            <div className="lg:col-span-7">
+            <div className="lg:col-span-5">
               <Link to={`/guide/${featuredGuide.slug}`} className="group block h-full">
-                <article className="relative h-full bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-primary/20">
+                <article className="relative h-full bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-[hsl(24,95%,55%)]/30">
                   {/* Image */}
-                  <div className="relative h-64 md:h-80 lg:h-[400px] overflow-hidden">
+                  <div className="relative h-56 md:h-64 overflow-hidden">
                     {featuredGuide.featured_image ? (
-                      <>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10" />
-                        <img
-                          src={featuredGuide.featured_image}
-                          alt={featuredGuide.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                      </>
+                      <img
+                        src={featuredGuide.featured_image}
+                        alt={featuredGuide.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                        <BookOpen className="w-20 h-20 text-primary/30" />
+                      <div className="w-full h-full bg-gradient-to-br from-[hsl(24,95%,55%)]/10 to-[hsl(24,95%,55%)]/5 flex items-center justify-center">
+                        <BookOpen className="w-16 h-16 text-[hsl(24,95%,55%)]/30" />
                       </div>
                     )}
                     
-                    {/* Category Badge */}
-                    {featuredGuide.categories && featuredGuide.categories.length > 0 && (
-                      <div className="absolute top-4 left-4 z-20">
-                        <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-primary text-primary-foreground shadow-lg">
-                          {featuredGuide.categories[0].name}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Content overlay on image */}
-                    <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
-                      <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-3 leading-tight group-hover:text-primary-foreground transition-colors line-clamp-2">
-                        {featuredGuide.title}
-                      </h3>
-                      {featuredGuide.excerpt && (
-                        <p className="text-white/80 text-sm md:text-base line-clamp-2 mb-4 leading-relaxed">
-                          {featuredGuide.excerpt}
-                        </p>
-                      )}
-                      <Button 
-                        variant="secondary" 
-                        className="bg-white/95 hover:bg-white text-foreground font-semibold shadow-lg group-hover:shadow-xl transition-all duration-300"
-                      >
-                        Lire le guide
-                        <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-                      </Button>
+                    {/* Badge Guide 2025 */}
+                    <div className="absolute top-4 right-4 z-20">
+                      <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-[hsl(24,95%,55%)] text-white shadow-lg">
+                        Guide 2025
+                      </span>
                     </div>
+                  </div>
+
+                  {/* Content below image */}
+                  <div className="p-5 md:p-6">
+                    {/* Category */}
+                    {featuredGuide.categories && featuredGuide.categories.length > 0 && (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[hsl(24,95%,55%)]/10 text-[hsl(24,95%,55%)] border border-[hsl(24,95%,55%)]/30 mb-3">
+                        {featuredGuide.categories[0].name}
+                      </span>
+                    )}
+                    
+                    <h3 className="text-lg md:text-xl font-bold text-foreground mb-3 leading-tight group-hover:text-[hsl(24,95%,55%)] transition-colors line-clamp-2">
+                      {featuredGuide.title}
+                    </h3>
+                    
+                    {featuredGuide.excerpt && (
+                      <p className="text-muted-foreground text-sm line-clamp-3 mb-4 leading-relaxed">
+                        {featuredGuide.excerpt}
+                      </p>
+                    )}
+                    
+                    <span className="inline-flex items-center gap-1.5 text-[hsl(24,95%,55%)] font-semibold text-sm group-hover:gap-2.5 transition-all duration-300">
+                      Lire le guide
+                      <ArrowRight className="w-4 h-4" />
+                    </span>
                   </div>
                 </article>
               </Link>
@@ -225,7 +240,7 @@ const GuidesSection = () => {
           )}
 
           {/* Secondary Guides - Right Column */}
-          <div className="lg:col-span-5 flex flex-col">
+          <div className="lg:col-span-7 flex flex-col">
             <div className="space-y-4 flex-1">
               {secondaryGuides.map((guide) => (
                 <Link 
@@ -233,64 +248,38 @@ const GuidesSection = () => {
                   to={`/guide/${guide.slug}`} 
                   className="group block"
                 >
-                  <article className="flex gap-4 p-4 bg-card rounded-xl border border-border/50 hover:border-primary/20 hover:shadow-lg transition-all duration-300">
-                    {/* Thumbnail */}
-                    <div className="relative w-24 h-24 md:w-28 md:h-28 flex-shrink-0 rounded-lg overflow-hidden">
-                      {guide.featured_image ? (
-                        <img
-                          src={guide.featured_image}
-                          alt={guide.title}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                          <BookOpen className="w-8 h-8 text-primary/30" />
-                        </div>
-                      )}
-                    </div>
-
+                  <article className="flex gap-5 p-5 bg-card rounded-xl border border-border/50 hover:border-[hsl(24,95%,55%)]/30 hover:shadow-lg transition-all duration-300">
                     {/* Content */}
                     <div className="flex-1 min-w-0 flex flex-col justify-center">
-                      {/* Category */}
-                      {guide.categories && guide.categories.length > 0 && (
-                        <span className="text-xs font-semibold text-primary mb-1.5">
-                          {guide.categories[0].name}
-                        </span>
-                      )}
-                      
-                      {/* Title */}
-                      <h4 className="font-semibold text-foreground text-sm md:text-base leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                      <h4 className="font-bold text-foreground text-base md:text-lg leading-snug line-clamp-2 group-hover:text-[hsl(24,95%,55%)] transition-colors mb-2">
                         {guide.title}
                       </h4>
 
-                      {/* Date */}
-                      {guide.published_at && (
-                        <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
-                          <Calendar className="w-3 h-3" />
-                          <span>
-                            {format(new Date(guide.published_at), "d MMMM yyyy", { locale: fr })}
-                          </span>
-                        </div>
+                      {guide.excerpt && (
+                        <p className="text-muted-foreground text-sm line-clamp-2 mb-3 leading-relaxed">
+                          {guide.excerpt}
+                        </p>
                       )}
-                    </div>
 
-                    {/* Arrow */}
-                    <div className="flex items-center flex-shrink-0">
-                      <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+                      <span className="inline-flex items-center gap-1.5 text-[hsl(24,95%,55%)] font-semibold text-sm group-hover:gap-2.5 transition-all duration-300">
+                        Lire le guide
+                        <ArrowRight className="w-4 h-4" />
+                      </span>
                     </div>
                   </article>
                 </Link>
               ))}
             </div>
 
-            {/* View All Link */}
-            <div className="mt-6 pt-4 border-t border-border/50">
-              <Link 
-                to="/guides" 
-                className="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all duration-200 group"
-              >
-                Voir tous les guides
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            {/* View All Button */}
+            <div className="mt-8 text-center lg:text-left">
+              <Link to="/guides">
+                <Button 
+                  className="bg-[hsl(24,95%,55%)] hover:bg-[hsl(24,95%,50%)] text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  Voir tous les guides
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
               </Link>
             </div>
           </div>
