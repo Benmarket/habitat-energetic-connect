@@ -42,7 +42,16 @@ const ArticleCard = ({
     return (
       <Link to={articleUrl} className="group block h-full">
         <Card className="h-full transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 hover:scale-[1.01] hover:-translate-y-1 bg-card/80 backdrop-blur-sm border-2 border-orange-500/20 hover:border-orange-500 overflow-hidden rounded-2xl">
-          <CardContent className="p-6 flex flex-col h-full">
+          {featuredImage && (
+            <div className="aspect-video overflow-hidden bg-muted">
+              <img
+                src={featuredImage}
+                alt={title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+          )}
+          <CardContent className="p-6 flex flex-col flex-1">
             <h3 className="text-xl font-bold mb-3 group-hover:text-orange-600 transition-colors duration-300 line-clamp-2 leading-tight text-foreground">
               {title}
             </h3>
