@@ -120,21 +120,19 @@ const GuidesSection = () => {
           </div>
         </div>
 
-        {/* Wrapper avec padding pour permettre le zoom au hover */}
-        <div className="px-4 md:px-6 -mx-4 md:-mx-6">
-          <Carousel
-            opts={{
-              align: "start",
-              loop: true,
-              slidesToScroll: 1,
-            }}
-            className="w-full"
-          >
-            <CarouselContent className="py-6">
-              {guides.map((guide) => (
-                <CarouselItem key={guide.id} className="pl-4 basis-full md:basis-1/3 first:pl-0">
-                  <Link to={`/guide/${guide.slug}`} className="group block h-full relative z-0 hover:z-10 px-2">
-                    <Card className="h-full transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 hover:scale-[1.02] hover:-translate-y-1 bg-card/80 backdrop-blur-sm border-2 border-orange-500/20 hover:border-orange-500 overflow-hidden">
+        <Carousel
+          opts={{
+            align: "start",
+            loop: true,
+            slidesToScroll: 1,
+          }}
+          className="w-full mt-6"
+        >
+          <CarouselContent className="py-6 px-4 md:px-6">
+            {guides.map((guide) => (
+              <CarouselItem key={guide.id} className="basis-full md:basis-1/3">
+                <Link to={`/guide/${guide.slug}`} className="group block h-full relative z-0 hover:z-10">
+                  <Card className="h-full transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 hover:-translate-y-1 bg-card/80 backdrop-blur-sm border-2 border-orange-500/20 hover:border-orange-500 overflow-hidden">
                     {guide.featured_image && (
                       <div className="relative h-56 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-orange-950/20 to-transparent z-10" />
@@ -180,13 +178,12 @@ const GuidesSection = () => {
                 </Link>
               </CarouselItem>
             ))}
-            </CarouselContent>
-            
-            {/* Navigation Buttons - Lateral on both mobile and desktop */}
-            <CarouselPrevious className="-left-2 md:-left-6 h-8 w-8 md:h-10 md:w-10 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300" />
-            <CarouselNext className="-right-2 md:-right-6 h-8 w-8 md:h-10 md:w-10 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300" />
-          </Carousel>
-        </div>
+          </CarouselContent>
+
+          {/* Navigation Buttons - overlay (pas d'espace “perdu” à gauche/droite) */}
+          <CarouselPrevious className="left-2 md:left-4 h-8 w-8 md:h-10 md:w-10 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300 z-20" />
+          <CarouselNext className="right-2 md:right-4 h-8 w-8 md:h-10 md:w-10 border-2 border-orange-500/30 hover:border-orange-600 hover:bg-orange-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-orange-500/30 transition-all duration-300 z-20" />
+        </Carousel>
 
         {/* View All Button - Centered */}
         <div className="text-center mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
