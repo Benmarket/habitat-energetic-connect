@@ -14,7 +14,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { Button } from "@/components/ui/button";
-import { Plus, MessageCircle, StopCircle, UserPlus, GitBranch } from "lucide-react";
+import { Plus, MessageCircle, StopCircle, UserPlus, GitBranch, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +23,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -71,6 +81,7 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave, availableFlows = [
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [editForm, setEditForm] = useState<FlowNodeData>({
     label: "",
@@ -404,6 +415,36 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave, availableFlows = [
     });
   };
 
+  // Get connections for a node
+  const getNodeConnections = useCallback((nodeId: string) => {
+    const incomingEdges = edges.filter(e => e.target === nodeId);
+    const outgoingEdges = edges.filter(e => e.source === nodeId);
+    return { incomingEdges, outgoingEdges, total: incomingEdges.length + outgoingEdges.length };
+  }, [edges]);
+
+  // Delete a node
+  const handleDeleteNode = useCallback(() => {
+    if (!selectedNode) return;
+
+    // Remove the node
+    const nextNodes = nodes.filter(n => n.id !== selectedNode.id);
+    setNodes(nextNodes);
+
+    // Remove all edges connected to this node
+    setEdges(eds => eds.filter(e => e.source !== selectedNode.id && e.target !== selectedNode.id));
+
+    onSave(convertToStructure(nextNodes));
+
+    setIsDeleteDialogOpen(false);
+    setIsEditModalOpen(false);
+    setSelectedNode(null);
+
+    toast({
+      title: "Nœud supprimé",
+      description: "Le nœud a été supprimé du parcours.",
+    });
+  }, [selectedNode, nodes, setNodes, setEdges, onSave, convertToStructure, toast]);
+
   return (
     <div className="h-[500px] border rounded-lg bg-background overflow-hidden">
       <div className="bg-muted/30 border-b p-4 flex gap-2 flex-wrap">
@@ -678,20 +719,72 @@ export const ChatbotFlowEditor = ({ initialStructure, onSave, availableFlows = [
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex justify-between sm:justify-between">
             <Button
-              variant="outline"
-              onClick={() => {
-                setIsEditModalOpen(false);
-                setSelectedNode(null);
-              }}
+              variant="destructive"
+              onClick={() => setIsDeleteDialogOpen(true)}
+              className="mr-auto"
             >
-              Annuler
+              <Trash2 className="w-4 h-4 mr-2" />
+              Supprimer
             </Button>
-            <Button onClick={handleUpdateNode}>Enregistrer</Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsEditModalOpen(false);
+                  setSelectedNode(null);
+                }}
+              >
+                Annuler
+              </Button>
+              <Button onClick={handleUpdateNode}>Enregistrer</Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer ce nœud ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {selectedNode && (() => {
+                const connections = getNodeConnections(selectedNode.id);
+                if (connections.total > 0) {
+                  return (
+                    <>
+                      <span className="text-destructive font-medium">
+                        ⚠️ Attention : Ce nœud est connecté à {connections.total} autre(s) nœud(s).
+                      </span>
+                      <br />
+                      {connections.incomingEdges.length > 0 && (
+                        <span>• {connections.incomingEdges.length} connexion(s) entrante(s)<br /></span>
+                      )}
+                      {connections.outgoingEdges.length > 0 && (
+                        <span>• {connections.outgoingEdges.length} connexion(s) sortante(s)<br /></span>
+                      )}
+                      <br />
+                      Toutes ces connexions seront supprimées.
+                    </>
+                  );
+                }
+                return "Cette action est irréversible. Le nœud sera définitivement supprimé du parcours.";
+              })()}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteNode}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
