@@ -223,9 +223,9 @@ const GuidesSection = () => {
                     
                     {/* Topline banner - Green rounded pill at top */}
                     {featuredGuide.topline && (
-                      <div className="absolute top-4 left-4 right-4 z-20 flex justify-center">
+                      <div className="absolute top-3 left-3 right-3 z-20 flex justify-center">
                         <div 
-                          className="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-semibold text-white shadow-lg"
+                          className="inline-flex items-center px-4 py-2 rounded-full text-xs md:text-sm font-semibold text-white shadow-lg"
                           style={{
                             background: 'linear-gradient(135deg, hsl(142, 70%, 45%) 0%, hsl(142, 65%, 40%) 100%)',
                             boxShadow: '0 4px 20px -4px hsla(142, 70%, 45%, 0.5), 0 2px 8px -2px hsla(142, 70%, 45%, 0.3)'
