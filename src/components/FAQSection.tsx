@@ -5,7 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { HelpCircle, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { FAQSchema } from "@/components/SEO/FAQSchema";
 
 const FAQSection = () => {
@@ -29,29 +29,28 @@ const FAQSection = () => {
   ];
 
   return (
-    <section id="faq" className="py-16 md:py-24 bg-background">
+    <section id="faq" className="py-16 md:py-24 bg-muted/30">
       <FAQSchema faqs={faqs} />
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
           {/* Left Column - Sticky */}
           <div className="lg:col-span-4">
             <div className="lg:sticky lg:top-24">
-              <div className="inline-flex items-center gap-2 mb-4 bg-primary/10 px-3 py-1.5 rounded-full">
-                <HelpCircle className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-primary">FAQ</span>
-              </div>
+              <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 block">
+                FAQ
+              </span>
               
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-5 leading-tight">
                 Questions fréquentes
               </h2>
               
-              <p className="text-muted-foreground mb-6 leading-relaxed">
-                Retrouvez les réponses aux questions les plus posées sur les énergies renouvelables et les aides financières disponibles pour vos projets de rénovation.
+              <p className="text-muted-foreground mb-8 leading-relaxed text-base">
+                Une question ? D'autres l'ont peut-être déjà posée ! Retrouvez ici les réponses aux interrogations les plus courantes.
               </p>
               
               <Link 
                 to="/faq" 
-                className="inline-flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all duration-200 group"
+                className="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all duration-200 group"
               >
                 Consulter la FAQ complète
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -61,20 +60,22 @@ const FAQSection = () => {
 
           {/* Right Column - Scrollable Accordion */}
           <div className="lg:col-span-8">
-            <Accordion type="single" collapsible className="space-y-4">
+            <Accordion type="single" collapsible defaultValue="item-0" className="space-y-3">
               {faqs.map((faq, index) => (
                 <AccordionItem 
                   key={index} 
                   value={`item-${index}`}
-                  className="bg-card border border-border rounded-xl px-6 shadow-sm hover:shadow-md transition-all duration-200 data-[state=open]:shadow-md data-[state=open]:border-primary/20"
+                  className="bg-card border-0 rounded-2xl px-6 shadow-sm hover:shadow-md transition-all duration-300 data-[state=open]:shadow-lg"
                 >
-                  <AccordionTrigger className="text-left hover:no-underline py-5 [&[data-state=open]>svg]:text-primary">
-                    <span className="font-semibold text-base md:text-lg pr-4 leading-snug text-foreground">
+                  <AccordionTrigger className="text-left hover:no-underline py-6 [&[data-state=open]>svg]:text-white [&[data-state=open]>svg]:bg-primary [&>svg]:rounded-full [&>svg]:p-1 [&>svg]:w-7 [&>svg]:h-7 [&>svg]:transition-all [&>svg]:duration-300">
+                    <span className="font-semibold text-base md:text-lg pr-4 leading-snug text-foreground data-[state=open]:text-primary">
                       {faq.question}
                     </span>
                   </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground leading-relaxed pb-5 pt-1 text-base animate-fade-in">
-                    {faq.answer}
+                  <AccordionContent className="text-muted-foreground leading-relaxed pb-6 pt-0 text-base">
+                    <div className="border-l-4 border-primary/20 pl-4">
+                      {faq.answer}
+                    </div>
                   </AccordionContent>
                 </AccordionItem>
               ))}
