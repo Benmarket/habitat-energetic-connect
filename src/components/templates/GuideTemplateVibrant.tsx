@@ -228,10 +228,9 @@ export const GuideTemplateVibrant = ({
 
       {/* Content */}
       <article className="py-20 lg:py-28">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row gap-12 max-w-6xl mx-auto">
+        <div className="container mx-auto px-4 lg:pr-80">
+          <div className="max-w-3xl mx-auto lg:ml-0">
             {/* Main Content */}
-            <div className="flex-1 max-w-3xl">
               {/* Tags with 3D hover effect */}
               {guide.post_tags && guide.post_tags.length > 0 && (
                 <div className="flex flex-wrap gap-3 mb-12">
@@ -346,12 +345,6 @@ export const GuideTemplateVibrant = ({
                   </div>
                 </div>
               )}
-            </div>
-
-            {/* Espace réservé pour le sommaire sticky global */}
-            <aside className="hidden lg:block w-80 flex-shrink-0">
-              {/* L'espace est réservé pour le composant GuideStickyNav qui apparaît au scroll */}
-            </aside>
           </div>
         </div>
       </article>
