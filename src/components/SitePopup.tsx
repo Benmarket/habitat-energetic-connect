@@ -1057,6 +1057,156 @@ export default function SitePopup() {
           </div>
         );
       
+      case "newsletter_success":
+        return (
+          <div className="relative overflow-hidden">
+            {/* Confetti animation */}
+            <div className="absolute inset-0 pointer-events-none">
+              {[...Array(20)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute animate-[confetti_3s_ease-out_forwards]"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: '-10px',
+                    animationDelay: `${Math.random() * 0.5}s`,
+                    transform: `rotate(${Math.random() * 360}deg)`,
+                  }}
+                >
+                  <div
+                    className="w-2 h-3 rounded-sm"
+                    style={{
+                      backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6'][Math.floor(Math.random() * 5)],
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Content */}
+            <div className="relative z-10 text-center space-y-5 py-4">
+              {/* Animated checkmark icon */}
+              <div className="relative mx-auto w-20 h-20">
+                {/* Outer ring animation */}
+                <div 
+                  className="absolute inset-0 rounded-full animate-[ping_1s_ease-out]"
+                  style={{ backgroundColor: `${activePopup.accent_color}20` }}
+                />
+                {/* Inner circle with checkmark */}
+                <div 
+                  className="relative w-20 h-20 rounded-full flex items-center justify-center animate-[bounceIn_0.6s_ease-out]"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${activePopup.accent_color}, ${activePopup.accent_color}dd)`,
+                    boxShadow: `0 10px 40px ${activePopup.accent_color}40`
+                  }}
+                >
+                  <svg 
+                    className="w-10 h-10 text-white animate-[checkmark_0.4s_ease-out_0.3s_forwards]" 
+                    style={{ strokeDasharray: 50, strokeDashoffset: 50 }}
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor" 
+                    strokeWidth={3}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Title with gradient */}
+              <div className="space-y-2">
+                <h2 
+                  className="text-2xl font-bold leading-tight"
+                  style={{ color: activePopup.text_color }}
+                >
+                  {activePopup.title || "Bienvenue dans la communauté !"}
+                </h2>
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-2xl">🎉</span>
+                  <span 
+                    className="text-sm font-medium px-3 py-1 rounded-full"
+                    style={{ 
+                      backgroundColor: `${activePopup.accent_color}15`,
+                      color: activePopup.accent_color 
+                    }}
+                  >
+                    Inscription confirmée
+                  </span>
+                  <span className="text-2xl">🎉</span>
+                </div>
+              </div>
+
+              {/* Description */}
+              <p 
+                className="text-sm leading-relaxed max-w-sm mx-auto opacity-80"
+                style={{ color: activePopup.text_color }}
+              >
+                {activePopup.subtitle || "Vous êtes maintenant inscrit à notre newsletter. Préparez-vous à recevoir les meilleures actualités et offres exclusives en énergies renouvelables."}
+              </p>
+
+              {/* Benefits list */}
+              <div className="flex flex-wrap justify-center gap-3 pt-2">
+                {["Actualités", "Offres exclusives", "Guides pratiques"].map((item, idx) => (
+                  <div 
+                    key={idx}
+                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-slate-100 text-slate-700"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                    {item}
+                  </div>
+                ))}
+              </div>
+
+              {/* CTA Button */}
+              <button
+                onClick={handleClose}
+                className="mt-4 px-8 py-3 rounded-full font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                style={{ 
+                  background: `linear-gradient(135deg, ${activePopup.accent_color}, ${activePopup.accent_color}cc)`,
+                  boxShadow: `0 4px 20px ${activePopup.accent_color}30`
+                }}
+              >
+                C'est parti ! 🚀
+              </button>
+            </div>
+
+            {/* CSS for animations */}
+            <style>{`
+              @keyframes confetti {
+                0% {
+                  opacity: 1;
+                  transform: translateY(0) rotate(0deg);
+                }
+                100% {
+                  opacity: 0;
+                  transform: translateY(400px) rotate(720deg);
+                }
+              }
+              @keyframes bounceIn {
+                0% {
+                  opacity: 0;
+                  transform: scale(0.3);
+                }
+                50% {
+                  transform: scale(1.1);
+                }
+                70% {
+                  transform: scale(0.9);
+                }
+                100% {
+                  opacity: 1;
+                  transform: scale(1);
+                }
+              }
+              @keyframes checkmark {
+                to {
+                  stroke-dashoffset: 0;
+                }
+              }
+            `}</style>
+          </div>
+        );
+      
       default:
         return null;
     }
