@@ -71,7 +71,7 @@ const AdminChatbot = () => {
     }
   });
 
-  // Fetch global chatbot enabled status
+  // Fetch global chatbot enabled status (default to true if no setting exists)
   const { data: chatbotEnabled, isLoading: isLoadingEnabled } = useQuery({
     queryKey: ["chatbot-enabled"],
     queryFn: async () => {
@@ -81,7 +81,9 @@ const AdminChatbot = () => {
         .eq("key", "chatbot_enabled")
         .single();
 
-      if (error && error.code !== "PGRST116") throw error;
+      // PGRST116 = no rows found, default to enabled
+      if (error && error.code === "PGRST116") return true;
+      if (error) throw error;
       return data?.value === true;
     },
   });
