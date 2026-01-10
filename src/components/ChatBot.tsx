@@ -606,6 +606,7 @@ export const ChatBot = () => {
                   onRequestAgent={handleFlowRequestAgent}
                   onComplete={handleFlowComplete}
                   onNodeChange={handleFlowNodeChange}
+                  onFlowRedirect={handleFlowRedirectFromRunner}
                 />
               </div>
             )}
