@@ -229,10 +229,12 @@ const GuidesSection = () => {
                       </p>
                     )}
                     
-                    <span className="inline-flex items-center gap-1.5 text-[hsl(24,95%,55%)] font-semibold text-sm group-hover:gap-2.5 transition-all duration-300">
+                    <Button 
+                      className="bg-[hsl(24,95%,55%)] hover:bg-[hsl(24,95%,50%)] text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 w-fit"
+                    >
                       Lire le guide
-                      <ArrowRight className="w-4 h-4" />
-                    </span>
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
                   </div>
                 </article>
               </Link>
@@ -249,6 +251,21 @@ const GuidesSection = () => {
                   className="group block"
                 >
                   <article className="flex gap-5 p-5 bg-card rounded-xl border border-border/50 hover:border-[hsl(24,95%,55%)]/30 hover:shadow-lg transition-all duration-300">
+                    {/* Thumbnail */}
+                    <div className="relative w-24 h-24 md:w-28 md:h-28 flex-shrink-0 rounded-lg overflow-hidden">
+                      {guide.featured_image ? (
+                        <img
+                          src={guide.featured_image}
+                          alt={guide.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[hsl(24,95%,55%)]/10 to-[hsl(24,95%,55%)]/5 flex items-center justify-center">
+                          <BookOpen className="w-8 h-8 text-[hsl(24,95%,55%)]/30" />
+                        </div>
+                      )}
+                    </div>
+
                     {/* Content */}
                     <div className="flex-1 min-w-0 flex flex-col justify-center">
                       <h4 className="font-bold text-foreground text-base md:text-lg leading-snug line-clamp-2 group-hover:text-[hsl(24,95%,55%)] transition-colors mb-2">
@@ -271,15 +288,14 @@ const GuidesSection = () => {
               ))}
             </div>
 
-            {/* View All Button */}
-            <div className="mt-8 text-center lg:text-left">
-              <Link to="/guides">
-                <Button 
-                  className="bg-[hsl(24,95%,55%)] hover:bg-[hsl(24,95%,50%)] text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  Voir tous les guides
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
+            {/* View All Link */}
+            <div className="mt-8 text-center">
+              <Link 
+                to="/guides" 
+                className="inline-flex items-center gap-3 text-[hsl(24,95%,55%)] font-bold text-lg md:text-xl hover:gap-4 transition-all duration-300 group"
+              >
+                Voir tous les guides
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
           </div>
