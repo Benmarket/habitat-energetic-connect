@@ -175,8 +175,8 @@ function transformCustomButtons(doc: Document): void {
       anchor.setAttribute('href', '#');
       anchor.removeAttribute('target');
       anchor.removeAttribute('rel');
-      // Ajouter aussi l'événement onclick pour prévenir la navigation
-      anchor.setAttribute('onclick', 'event.preventDefault();');
+      // Use data attribute for event handling instead of inline onclick (XSS prevention)
+      anchor.setAttribute('data-prevent-default', 'true');
     }
     // Si c'est un lien externe
     else if (destinationType === 'external') {
