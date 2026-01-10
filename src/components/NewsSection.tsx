@@ -90,7 +90,8 @@ const NewsSection = () => {
 
   const fetchRecentNews = async () => {
     try {
-      let query = supabase
+      // Fetch all published articles first, then filter and limit
+      const { data, error } = await supabase
         .from("posts")
         .select(`
           id,
@@ -110,15 +111,13 @@ const NewsSection = () => {
         `)
         .eq("content_type", "actualite")
         .eq("status", "published")
-        .order("published_at", { ascending: false })
-        .limit(3);
-
-      const { data, error } = await query;
+        .order("published_at", { ascending: false });
 
       if (error) throw error;
       
       let filteredPosts = data || [];
       
+      // Filter by category if one is selected
       if (selectedCategory) {
         filteredPosts = filteredPosts.filter((post: any) => 
           post.post_categories?.some((pc: any) => 
@@ -127,7 +126,8 @@ const NewsSection = () => {
         );
       }
       
-      setPosts(filteredPosts);
+      // Limit to 3 posts AFTER filtering
+      setPosts(filteredPosts.slice(0, 3));
     } catch (error) {
       console.error("Error fetching news:", error);
     } finally {
