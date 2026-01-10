@@ -187,12 +187,22 @@ export const ChatBot = () => {
       const visitorId = localStorage.getItem("visitor_id") || crypto.randomUUID();
       localStorage.setItem("visitor_id", visitorId);
 
+      // Collect metadata
+      const pageUrl = window.location.href;
+      const referrer = document.referrer || null;
+      const userAgentStr = navigator.userAgent;
+
       const { data, error } = await supabase
         .from("chat_conversations")
         .insert({
           user_id: user?.id || null,
           visitor_id: user ? null : visitorId,
           status: "active",
+          flow_id: activeFlow?.id || null,
+          page_url: pageUrl,
+          referrer: referrer,
+          user_agent: userAgentStr,
+          last_seen_at: new Date().toISOString(),
         })
         .select()
         .single();
@@ -204,6 +214,64 @@ export const ChatBot = () => {
     }
   };
 
+  // Heartbeat to track user presence (every 30 seconds)
+  useEffect(() => {
+    if (!conversationId || !isOpen) return;
+
+    const updateHeartbeat = async () => {
+      await supabase
+        .from("chat_conversations")
+        .update({ last_seen_at: new Date().toISOString() })
+        .eq("id", conversationId);
+    };
+
+    // Initial heartbeat
+    updateHeartbeat();
+
+    // Set up interval
+    const heartbeatInterval = setInterval(updateHeartbeat, 30000);
+
+    return () => clearInterval(heartbeatInterval);
+  }, [conversationId, isOpen]);
+
+  // Check for expired agent requests and notify user
+  useEffect(() => {
+    if (!conversationId || !hasRequestedAgent) return;
+
+    const checkExpiredRequest = async () => {
+      const { data } = await supabase
+        .from("chat_agent_requests")
+        .select("status, expired_at, notified_user")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (data?.status === "expired" && !data?.notified_user) {
+        // Notify user that no agent was available
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: "Désolé, aucun conseiller n'est disponible pour le moment. Vous pouvez nous contacter via notre formulaire de contact pour être rappelé.",
+          },
+        ]);
+
+        // Mark as notified
+        await supabase
+          .from("chat_agent_requests")
+          .update({ notified_user: true })
+          .eq("conversation_id", conversationId)
+          .eq("status", "expired");
+
+        setHasRequestedAgent(false);
+      }
+    };
+
+    const checkInterval = setInterval(checkExpiredRequest, 10000);
+    return () => clearInterval(checkInterval);
+  }, [conversationId, hasRequestedAgent]);
+
   const handleFlowAnswer = async (answer: string, nextNode?: string) => {
     // Don't add to messages yet - let the flow runner handle the navigation
     // We'll save all the conversation when the flow completes
@@ -212,6 +280,18 @@ export const ChatBot = () => {
   const handleFlowComplete = async (isQualified: boolean, flowHistory: Array<{ question: string; answer: string }>) => {
     setFlowCompleted(true);
     setShowFlowRunner(false);
+    setCurrentFlowNode(null);
+
+    // Save flow responses to conversation
+    if (conversationId) {
+      await supabase
+        .from("chat_conversations")
+        .update({ 
+          flow_responses: flowHistory,
+          status: isQualified ? "qualified" : "completed"
+        })
+        .eq("id", conversationId);
+    }
 
     // Save flow history as messages
     const flowMessages: Message[] = [];

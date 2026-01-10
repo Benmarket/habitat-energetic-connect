@@ -41,6 +41,7 @@ const AdminButtons = lazy(() => import("./pages/AdminButtons"));
 const AdminCtaBanners = lazy(() => import("./pages/AdminCtaBanners"));
 const AdminNewsletter = lazy(() => import("./pages/AdminNewsletter"));
 const AdminChatbot = lazy(() => import("./pages/AdminChatbot"));
+const AdminChatHistory = lazy(() => import("./pages/AdminChatHistory"));
 const AdminForms = lazy(() => import("./pages/AdminForms"));
 const AdminPopups = lazy(() => import("./pages/AdminPopups"));
 const AdminApp = lazy(() => import("./pages/AdminApp"));
@@ -120,6 +121,7 @@ const App = () => (
                 <Route path="/admin/bandeaux-cta" element={<AdminCtaBanners />} />
                 <Route path="/admin/newsletter" element={<AdminNewsletter />} />
                 <Route path="/admin/chatbot" element={<AdminChatbot />} />
+                <Route path="/admin/chat-history" element={<AdminChatHistory />} />
                 <Route path="/admin/formulaires" element={<AdminForms />} />
                 <Route path="/admin/popups" element={<AdminPopups />} />
                 <Route path="/admin/landing-pages" element={<AdminLandingPages />} />

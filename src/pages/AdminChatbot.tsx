@@ -435,10 +435,16 @@ const AdminChatbot = () => {
             Créez et gérez les parcours de questions automatiques du chatbot
           </p>
         </div>
-        <Button onClick={() => setIsCreateModalOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Nouveau parcours
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => navigate('/admin/chat-history')}>
+            <MessageCircle className="w-4 h-4 mr-2" />
+            Historique
+          </Button>
+          <Button onClick={() => setIsCreateModalOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Nouveau parcours
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
