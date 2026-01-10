@@ -10,8 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ChatbotFlowRunner } from "./ChatbotFlowRunner";
 
-// Admin routes where chatbot should be hidden
-const ADMIN_ROUTES = [
+// Routes where chatbot should be hidden
+const HIDDEN_ROUTES = [
   '/administration',
   '/admin/',
   '/creer-contenu',
@@ -19,7 +19,11 @@ const ADMIN_ROUTES = [
   '/gerer-guides',
   '/gerer-aides',
   '/gerer-annonces',
-  '/chat-support'
+  '/chat-support',
+  '/guide/',     // Guides detail pages
+  '/guides',     // Guides list page (for consistency)
+  '/actualites/', // Articles detail pages
+  '/aide/',      // Aides detail pages
 ];
 
 type Message = {
@@ -48,8 +52,8 @@ export const ChatBot = () => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Check if current route is an admin route
-  const isAdminRoute = ADMIN_ROUTES.some(route => location.pathname.startsWith(route));
+  // Check if current route should hide chatbot
+  const shouldHideChatbot = HIDDEN_ROUTES.some(route => location.pathname.startsWith(route));
 
   // Check if chatbot is globally enabled
   useEffect(() => {
@@ -509,8 +513,8 @@ export const ChatBot = () => {
 
   return (
     <>
-      {/* Chatbot button - hidden on admin routes or when globally disabled */}
-      {!isOpen && isButtonVisible && !isAdminRoute && chatbotEnabled && (
+      {/* Chatbot button - hidden on certain routes or when globally disabled */}
+      {!isOpen && isButtonVisible && !shouldHideChatbot && chatbotEnabled && (
         <button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 z-50 flex items-center gap-0 group hover:scale-105 transition-all duration-300 ease-out animate-in fade-in slide-in-from-bottom-4"
