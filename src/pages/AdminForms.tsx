@@ -527,12 +527,33 @@ export default function AdminForms() {
   const totalSubmissionsPages = Math.ceil(sortedSubmissions.length / submissionsPerPage);
 
   // Get all field names from submissions
-  // Get field label from schema
+  // Get field label from schema or default labels
   const getFieldLabel = (fieldName: string): string => {
-    if (!selectedForm?.fields_schema) return fieldName;
+    // Default labels for common fields
+    const defaultLabels: Record<string, string> = {
+      firstName: "Prénom",
+      lastName: "Nom",
+      fullName: "Nom complet",
+      email: "Email",
+      phone: "Téléphone",
+      postalCode: "Code postal",
+      propertyType: "Type de bien",
+      isOwner: "Propriétaire",
+      heatingSystem: "Chauffage",
+      installationType: "Installation",
+      address: "Adresse",
+      city: "Ville",
+      message: "Message",
+      subject: "Sujet",
+      company: "Entreprise",
+    };
+    
+    if (!selectedForm?.fields_schema) {
+      return defaultLabels[fieldName] || fieldName;
+    }
     const schema = selectedForm.fields_schema as Array<{ name: string; label: string }>;
     const field = schema.find((f) => f.name === fieldName);
-    return field?.label || fieldName;
+    return field?.label || defaultLabels[fieldName] || fieldName;
   };
 
   // Format field value for display
