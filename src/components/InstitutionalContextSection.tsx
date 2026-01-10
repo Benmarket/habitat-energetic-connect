@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, FileText, Users, Award } from "lucide-react";
+import { CheckCircle2, FileText, Users, Award, ArrowRight } from "lucide-react";
 import maisonPrimeGif from "@/assets/maison-prime.gif";
 
 interface Step {
@@ -246,6 +246,23 @@ const InstitutionalContextSection = () => {
                   </div>
                 );
               })}
+              
+              {/* CTA Block - "Invisible" step after step 4 */}
+              <div className="mt-8 lg:mt-12 pt-6">
+                <h3 className="text-2xl lg:text-3xl font-bold text-slate-800 leading-tight mb-6">
+                  Et votre maison devient{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">
+                    plus confortable et plus économique
+                  </span>
+                </h3>
+                <a
+                  href="#eligibilite"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold text-lg rounded-full shadow-lg shadow-orange-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/40 hover:scale-105"
+                >
+                  Démarrer mon projet
+                  <ArrowRight className="w-5 h-5" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
