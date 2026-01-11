@@ -211,7 +211,7 @@ const GuidesSection = () => {
           {featuredGuide && (
             <div className="lg:col-span-7">
               <Link to={`/guide/${featuredGuide.slug}`} className="group block h-full">
-                <article className="relative h-full bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500 border-2 border-[hsl(24,95%,55%)]/30 hover:border-[hsl(24,95%,55%)]/50">
+                <article className="relative h-full bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500 border-2 border-gray-200 hover:border-[hsl(24,95%,55%)]/50">
                   {/* Image with topline banner */}
                   <div className="relative h-64 md:h-80 overflow-hidden">
                     {featuredGuide.featured_image ? (
@@ -304,7 +304,7 @@ const GuidesSection = () => {
                   to={`/guide/${guide.slug}`} 
                   className="group block"
                 >
-                  <article className="flex gap-5 p-5 bg-card rounded-xl border-2 border-[hsl(24,95%,55%)]/20 hover:border-[hsl(24,95%,55%)]/40 shadow-sm hover:shadow-lg transition-all duration-300">
+                  <article className="flex gap-5 p-5 bg-card rounded-xl border-2 border-gray-200 hover:border-[hsl(24,95%,55%)]/40 shadow-sm hover:shadow-lg transition-all duration-300">
                     {/* Thumbnail */}
                     <div className="relative w-24 h-24 md:w-28 md:h-28 flex-shrink-0 rounded-lg overflow-hidden">
                       {guide.featured_image ? (
