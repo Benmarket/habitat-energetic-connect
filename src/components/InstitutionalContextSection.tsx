@@ -135,7 +135,7 @@ const InstitutionalContextSection = () => {
               {/* Right Column - Steps */}
               <div className="relative lg:pl-16">
                 {/* Vertical timeline line - Desktop only - positioned to the left */}
-                <div className="hidden lg:block absolute left-2 top-8 bottom-32 w-0.5 bg-gradient-to-b from-slate-200 via-slate-300 to-slate-200 rounded-full">
+                <div className="hidden lg:block absolute -left-2 top-8 bottom-32 w-0.5 bg-gradient-to-b from-slate-200 via-slate-300 to-slate-200 rounded-full">
                   <div
                     className="absolute top-0 left-0 w-full bg-gradient-to-b from-blue-500 via-emerald-500 to-violet-500 rounded-full transition-all duration-700 ease-out"
                     style={{
