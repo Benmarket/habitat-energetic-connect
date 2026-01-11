@@ -60,12 +60,13 @@ const InstitutionalContextSection = () => {
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
 
-      // La section commence quand elle entre dans le viewport
-      const sectionStart = sectionTop - windowHeight * 0.5;
+      // Le sticky commence quand le haut de la section atteint le haut du viewport (avec offset du header)
+      // On démarre les étapes à partir de ce moment
+      const stickyStart = sectionTop - 100; // 100px pour le header sticky
       // La section se termine naturellement à la fin du contenu
       const sectionEnd = sectionTop + sectionHeight - windowHeight;
       
-      if (scrollY < sectionStart) {
+      if (scrollY < stickyStart) {
         setActiveStep(0);
         return;
       }
@@ -75,17 +76,17 @@ const InstitutionalContextSection = () => {
         return;
       }
 
-      // Distribuer les étapes uniformément sur la hauteur de scroll
-      const scrollRange = sectionEnd - sectionStart;
-      const progress = (scrollY - sectionStart) / scrollRange;
+      // Distribuer les étapes uniformément sur la hauteur de scroll à partir du lock
+      const scrollRange = sectionEnd - stickyStart;
+      const progress = (scrollY - stickyStart) / scrollRange;
       
-      // 5 zones: 4 étapes + CTA (chacune ~20% du scroll)
+      // 4 étapes réparties uniformément
       let stepIndex: number;
-      if (progress < 0.18) {
+      if (progress < 0.25) {
         stepIndex = 0;
-      } else if (progress < 0.36) {
+      } else if (progress < 0.50) {
         stepIndex = 1;
-      } else if (progress < 0.54) {
+      } else if (progress < 0.75) {
         stepIndex = 2;
       } else {
         stepIndex = 3;
