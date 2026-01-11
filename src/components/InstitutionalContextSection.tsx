@@ -105,7 +105,7 @@ const InstitutionalContextSection = () => {
     <section
       ref={sectionRef}
       id="parcours"
-      className="relative bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-0"
+      className="relative bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-0 min-h-[300vh]"
     >
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2">
