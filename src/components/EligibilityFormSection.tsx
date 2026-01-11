@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
+import naturePrimeGif from "@/assets/nature-prime.gif";
 
 const formSchema = z.object({
   propertyType: z.enum(["maison", "appartement"]),
@@ -253,8 +254,19 @@ const EligibilityFormSection = () => {
   );
 
   return (
-    <section id="etude" className="pt-16 pb-8 bg-green-50/30">
-      <div className="container mx-auto px-4">
+    <section 
+      id="etude" 
+      className="pt-16 pb-8 relative"
+      style={{
+        backgroundImage: `url(${naturePrimeGif})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Overlay pour lisibilité */}
+      <div className="absolute inset-0 bg-white/70"></div>
+      <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-10">
