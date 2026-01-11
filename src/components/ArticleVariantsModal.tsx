@@ -1,12 +1,12 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Sparkles, Tag, Wand2, Undo2 } from "lucide-react";
+import { Loader2, Sparkles, Tag, Wand2, Undo2, Clock } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { AIEditModal } from "./AIEditModal";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface ArticleVariant {
   id: number;
@@ -44,6 +44,37 @@ export const ArticleVariantsModal = ({
 }: ArticleVariantsModalProps) => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedVariantForEdit, setSelectedVariantForEdit] = useState<number | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Timer pendant le chargement
+  useEffect(() => {
+    if (loading) {
+      setElapsedSeconds(0);
+      timerRef.current = setInterval(() => {
+        setElapsedSeconds((prev) => prev + 1);
+      }, 1000);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [loading]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return mins > 0 
+      ? `${mins}m ${secs.toString().padStart(2, '0')}s` 
+      : `${secs}s`;
+  };
 
   const handleOpenEditModal = (variantId: number) => {
     setSelectedVariantForEdit(variantId);
@@ -75,7 +106,11 @@ export const ArticleVariantsModal = ({
           <div className="flex flex-col items-center justify-center py-16 space-y-4">
             <Loader2 className="w-12 h-12 animate-spin text-primary" />
             <p className="text-muted-foreground">Génération des articles en cours...</p>
-            <p className="text-sm text-muted-foreground">Cela peut prendre quelques instants</p>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-4 py-2 rounded-full">
+              <Clock className="w-4 h-4" />
+              <span className="font-mono font-medium">{formatTime(elapsedSeconds)}</span>
+            </div>
+            <p className="text-xs text-muted-foreground">Cela peut prendre quelques instants</p>
           </div>
         ) : variants && variants.length > 0 ? (
           <ScrollArea className="max-h-[calc(90vh-120px)] px-6">
