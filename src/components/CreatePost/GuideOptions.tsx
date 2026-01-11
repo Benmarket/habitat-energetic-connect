@@ -146,9 +146,9 @@ export function GuideOptions({ formData, setFormData }: GuideOptionsProps) {
       </div>
 
       {/* Champ Topline */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Label htmlFor="topline">
-          Topline (bandeau vert sur l'image)
+          Topline (bandeau sur l'image)
         </Label>
         <Input
           id="topline"
@@ -157,8 +157,69 @@ export function GuideOptions({ formData, setFormData }: GuideOptionsProps) {
           placeholder="Ex: Jusqu'à 63 000€ de subvention pour vos travaux"
           maxLength={100}
         />
+        
+        {/* Couleurs du bandeau topline */}
+        {formData.topline && (
+          <div className="grid grid-cols-2 gap-4 p-3 bg-background rounded-lg border">
+            <div className="space-y-2">
+              <Label htmlFor="topline_bg_color" className="text-xs">
+                Couleur de fond
+              </Label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  id="topline_bg_color"
+                  value={formData.topline_bg_color || "#22c55e"}
+                  onChange={(e) => setFormData({ ...formData, topline_bg_color: e.target.value })}
+                  className="w-10 h-10 rounded-lg border cursor-pointer"
+                />
+                <Input
+                  value={formData.topline_bg_color || "#22c55e"}
+                  onChange={(e) => setFormData({ ...formData, topline_bg_color: e.target.value })}
+                  className="flex-1 font-mono text-xs"
+                  maxLength={7}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="topline_text_color" className="text-xs">
+                Couleur du texte
+              </Label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  id="topline_text_color"
+                  value={formData.topline_text_color || "#ffffff"}
+                  onChange={(e) => setFormData({ ...formData, topline_text_color: e.target.value })}
+                  className="w-10 h-10 rounded-lg border cursor-pointer"
+                />
+                <Input
+                  value={formData.topline_text_color || "#ffffff"}
+                  onChange={(e) => setFormData({ ...formData, topline_text_color: e.target.value })}
+                  className="flex-1 font-mono text-xs"
+                  maxLength={7}
+                />
+              </div>
+            </div>
+            
+            {/* Preview du bandeau */}
+            <div className="col-span-2">
+              <p className="text-xs text-muted-foreground mb-2">Aperçu :</p>
+              <div 
+                className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold shadow-md"
+                style={{
+                  backgroundColor: formData.topline_bg_color || "#22c55e",
+                  color: formData.topline_text_color || "#ffffff",
+                }}
+              >
+                {formData.topline}
+              </div>
+            </div>
+          </div>
+        )}
+        
         <p className="text-xs text-muted-foreground">
-          Ce texte apparaîtra dans un bandeau vert arrondi sur l'image du guide mis en avant.
+          Ce texte apparaîtra dans un bandeau coloré sur l'image du guide.
         </p>
       </div>
 

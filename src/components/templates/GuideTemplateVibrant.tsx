@@ -34,6 +34,9 @@ interface GuideTemplateVibrantProps {
     post_categories?: Array<{ categories: { id: string; name: string; slug: string } }>;
     post_tags?: Array<{ tags: { id: string; name: string; slug: string } }>;
     template_colors?: TemplateColors;
+    topline?: string;
+    topline_bg_color?: string;
+    topline_text_color?: string;
   };
   contentWithIds: string;
   toc: Array<{ id: string; text: string; level: number }>;
@@ -214,9 +217,23 @@ export const GuideTemplateVibrant = ({
       {guide.featured_image && (
         <div className="container mx-auto px-4 max-w-5xl -mt-20 relative z-20">
           <div 
-            className="p-1.5 rounded-3xl shadow-2xl"
+            className="p-1.5 rounded-3xl shadow-2xl relative"
             style={{ background: `linear-gradient(135deg, ${colors.primary}, ${colors.accent}, ${colors.secondary})` }}
           >
+            {/* Topline Banner */}
+            {guide.topline && (
+              <div className="absolute top-6 left-0 right-0 z-30 flex justify-center px-4">
+                <div 
+                  className="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-semibold shadow-lg"
+                  style={{
+                    backgroundColor: guide.topline_bg_color || '#22c55e',
+                    color: guide.topline_text_color || '#ffffff',
+                  }}
+                >
+                  {guide.topline}
+                </div>
+              </div>
+            )}
             <img
               src={guide.featured_image}
               alt={guide.title}

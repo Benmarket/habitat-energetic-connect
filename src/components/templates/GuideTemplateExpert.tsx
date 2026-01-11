@@ -23,6 +23,9 @@ interface GuideTemplateExpertProps {
     post_categories?: Array<{ categories: { id: string; name: string; slug: string } }>;
     post_tags?: Array<{ tags: { id: string; name: string; slug: string } }>;
     is_downloadable?: boolean;
+    topline?: string;
+    topline_bg_color?: string;
+    topline_text_color?: string;
   };
   contentWithIds: string;
   toc: Array<{ id: string; text: string; level: number }>;
@@ -140,8 +143,22 @@ export const GuideTemplateExpert = ({
 
       {/* Hero Image if exists */}
       {guide.featured_image && (
-        <div className="container mx-auto px-4 -mt-8">
-          <div className="max-w-6xl mx-auto">
+        <div className="container mx-auto px-4 -mt-8 relative">
+          <div className="max-w-6xl mx-auto relative">
+            {/* Topline Banner */}
+            {guide.topline && (
+              <div className="absolute top-4 left-0 right-0 z-30 flex justify-center px-4">
+                <div 
+                  className="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-semibold shadow-lg"
+                  style={{
+                    backgroundColor: guide.topline_bg_color || '#22c55e',
+                    color: guide.topline_text_color || '#ffffff',
+                  }}
+                >
+                  {guide.topline}
+                </div>
+              </div>
+            )}
             <img
               src={guide.featured_image}
               alt={guide.title}

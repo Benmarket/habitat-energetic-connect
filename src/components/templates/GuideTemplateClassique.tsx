@@ -20,6 +20,9 @@ interface GuideTemplateClassiqueProps {
     faq?: Array<{ question: string; answer: string }>;
     post_categories?: Array<{ categories: { id: string; name: string; slug: string } }>;
     post_tags?: Array<{ tags: { id: string; name: string; slug: string } }>;
+    topline?: string;
+    topline_bg_color?: string;
+    topline_text_color?: string;
   };
   contentWithIds: string;
   toc: Array<{ id: string; text: string; level: number }>;
@@ -80,6 +83,21 @@ export const GuideTemplateClassique = ({
             />
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
+          
+          {/* Topline Banner */}
+          {guide.topline && (
+            <div className="absolute top-6 left-0 right-0 z-30 flex justify-center px-4">
+              <div 
+                className="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-semibold shadow-lg"
+                style={{
+                  backgroundColor: guide.topline_bg_color || '#22c55e',
+                  color: guide.topline_text_color || '#ffffff',
+                }}
+              >
+                {guide.topline}
+              </div>
+            </div>
+          )}
           
           {/* Decorative shapes */}
           <div className="absolute bottom-0 left-0 right-0">
