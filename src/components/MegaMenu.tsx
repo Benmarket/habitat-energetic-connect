@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Sun, Droplet, Home, FileText, Calculator, Lightbulb, Newspaper } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,15 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+
+// Mapping des liens de clic pour chaque menu
+const MENU_CLICK_LINKS: Record<string, string> = {
+  offres: "/#partner-offers",
+  guides: "/guides",
+  aides: "/aides",
+  actualite: "/actualites",
+  simulateurs: "/#simulators",
+};
 
 interface HomepageSection {
   id: string;
@@ -123,6 +132,7 @@ const megaMenuData = {
 };
 
 export const MegaMenu = () => {
+  const navigate = useNavigate();
   const [sectionVisibility, setSectionVisibility] = useState<Record<string, boolean>>({
     offres: true,
     guides: true,
@@ -130,6 +140,30 @@ export const MegaMenu = () => {
     actualite: true,
     simulateurs: true,
   });
+
+  // Handle click navigation for menu items
+  const handleMenuClick = (menuKey: string) => {
+    const link = MENU_CLICK_LINKS[menuKey];
+    if (!link) return;
+    
+    if (link.includes('#')) {
+      const [path, hash] = link.split('#');
+      const currentPath = window.location.pathname;
+      
+      // If we're already on the target page or it's the home page
+      if (!path || path === '/' || currentPath === path) {
+        const element = document.getElementById(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      } else {
+        // Navigate to the page first, then scroll
+        navigate(link);
+      }
+    } else {
+      navigate(link);
+    }
+  };
 
   useEffect(() => {
     const loadSectionVisibility = async () => {
@@ -179,7 +213,7 @@ export const MegaMenu = () => {
         {/* Offres - Visible if partner-offers section is visible */}
         {sectionVisibility.offres && (
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="px-2 py-1.5 text-sm">Offres</NavigationMenuTrigger>
+            <NavigationMenuTrigger className="px-2 py-1.5 text-sm" onClick={() => handleMenuClick('offres')}>Offres</NavigationMenuTrigger>
             <NavigationMenuContent>
               <div className="w-[700px] p-6 bg-background">
                 <div className="grid grid-cols-3 gap-6">
@@ -212,7 +246,7 @@ export const MegaMenu = () => {
         {/* Guides - Visible if guides section is visible */}
         {sectionVisibility.guides && (
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="px-2 py-1.5 text-sm">Guides</NavigationMenuTrigger>
+            <NavigationMenuTrigger className="px-2 py-1.5 text-sm" onClick={() => handleMenuClick('guides')}>Guides</NavigationMenuTrigger>
             <NavigationMenuContent>
               <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
                 {megaMenuData.guides.categories.map((category, idx) => (
@@ -247,7 +281,7 @@ export const MegaMenu = () => {
         {/* Aides - Always visible (no direct section mapping) */}
         {sectionVisibility.aides && (
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="px-2 py-1.5 text-sm">Aides</NavigationMenuTrigger>
+            <NavigationMenuTrigger className="px-2 py-1.5 text-sm" onClick={() => handleMenuClick('aides')}>Aides</NavigationMenuTrigger>
             <NavigationMenuContent>
               <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
                 {megaMenuData.aides.categories.map((category, idx) => (
@@ -282,7 +316,7 @@ export const MegaMenu = () => {
         {/* Actualité - Visible if news section is visible */}
         {sectionVisibility.actualite && (
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="px-2 py-1.5 text-sm text-foreground hover:text-primary data-[state=open]:text-primary">
+            <NavigationMenuTrigger className="px-2 py-1.5 text-sm text-foreground hover:text-primary data-[state=open]:text-primary" onClick={() => handleMenuClick('actualite')}>
               Actualité
             </NavigationMenuTrigger>
             <NavigationMenuContent>
@@ -319,7 +353,7 @@ export const MegaMenu = () => {
         {/* Simulateurs - Visible if simulators section is visible */}
         {sectionVisibility.simulateurs && (
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="px-2 py-1.5 text-sm text-foreground hover:text-primary data-[state=open]:text-primary">
+            <NavigationMenuTrigger className="px-2 py-1.5 text-sm text-foreground hover:text-primary data-[state=open]:text-primary" onClick={() => handleMenuClick('simulateurs')}>
               Simulateurs
             </NavigationMenuTrigger>
             <NavigationMenuContent>
