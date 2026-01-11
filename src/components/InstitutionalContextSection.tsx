@@ -60,26 +60,25 @@ const InstitutionalContextSection = () => {
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
 
-      // Le sticky commence quand le haut de la section atteint le haut du viewport (avec offset du header)
-      // On démarre les étapes à partir de ce moment
-      const stickyStart = sectionTop - 100; // 100px pour le header sticky
-      // La section se termine naturellement à la fin du contenu
-      const sectionEnd = sectionTop + sectionHeight - windowHeight;
-      
-      if (scrollY < stickyStart) {
+      // Zone de "lock" (scrollytelling) : la grille reste fixe (sticky) et le scroll fait avancer les étapes.
+      // On démarre la progression au moment où la section arrive en haut du viewport.
+      const lockStart = sectionTop;
+      const lockEnd = sectionTop + sectionHeight - windowHeight;
+
+      if (scrollY < lockStart) {
         setActiveStep(0);
         return;
       }
 
-      if (scrollY > sectionEnd) {
+      if (scrollY > lockEnd) {
         setActiveStep(steps.length - 1);
         return;
       }
 
-      // Distribuer les étapes uniformément sur la hauteur de scroll à partir du lock
-      const scrollRange = sectionEnd - stickyStart;
-      const progress = (scrollY - stickyStart) / scrollRange;
-      
+      // Distribuer les étapes uniformément sur la hauteur de scroll pendant le lock
+      const scrollRange = lockEnd - lockStart;
+      const progress = (scrollY - lockStart) / scrollRange;
+
       // 4 étapes réparties uniformément
       let stepIndex: number;
       if (progress < 0.25) {
@@ -105,9 +104,11 @@ const InstitutionalContextSection = () => {
     <section
       ref={sectionRef}
       id="parcours"
-      className="relative bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-0 min-h-[300vh]"
+      className="relative bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-0"
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="lg:sticky lg:top-0 lg:h-screen">
+        <div className="lg:h-full lg:flex lg:items-center lg:py-[15vh]">
+          <div className="max-w-7xl mx-auto w-full">
         <div className="grid lg:grid-cols-2">
           {/* Left Column - Sticky, centered vertically in viewport */}
           <div className="lg:sticky lg:top-[15vh] lg:h-fit lg:self-start py-16 lg:py-12 px-6 lg:px-12 flex flex-col justify-center">
@@ -271,7 +272,12 @@ const InstitutionalContextSection = () => {
             </div>
           </div>
         </div>
+          </div>
+        </div>
       </div>
+
+      {/* Espace de scroll supplémentaire sur desktop pour ralentir le défilement des étapes */}
+      <div aria-hidden className="hidden lg:block h-[400vh]" />
     </section>
   );
 };
