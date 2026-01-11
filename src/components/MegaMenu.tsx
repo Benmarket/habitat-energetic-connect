@@ -149,15 +149,20 @@ export const MegaMenu = () => {
     if (link.includes('#')) {
       const [path, hash] = link.split('#');
       const currentPath = window.location.pathname;
+      const targetPath = path || '/';
       
-      // If we're already on the target page or it's the home page
-      if (!path || path === '/' || currentPath === path) {
+      // Check if we're already on the target page
+      const isOnTargetPage = currentPath === targetPath || 
+        (targetPath === '/' && currentPath === '/');
+      
+      if (isOnTargetPage) {
+        // We're on the right page, just scroll to the element
         const element = document.getElementById(hash);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
         }
       } else {
-        // Navigate to the page first, then scroll
+        // Navigate to the page with the hash - browser will handle scroll
         navigate(link);
       }
     } else {
