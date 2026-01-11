@@ -130,10 +130,15 @@ export function useArticleGeneration(
       focus_keywords: variant.focusKeywords || prev.focus_keywords,
       tldr: variant.tldr || '',
       faq: variant.faq || [],
-      guide_sections: contentType === 'guide' ? guideSections : prev.guide_sections
+      guide_sections: contentType === 'guide' ? guideSections : prev.guide_sections,
+      // Conserver les champs topline et badge_image existants (ne pas écraser avec des valeurs vides)
+      topline: variant.topline || prev.topline,
+      topline_bg_color: variant.topline_bg_color || prev.topline_bg_color,
+      topline_text_color: variant.topline_text_color || prev.topline_text_color,
+      badge_image: variant.badge_image || prev.badge_image,
     }));
 
-    toast.success("Article sélectionné ! Tous les champs ont été remplis.");
+    toast.success(contentType === 'guide' ? "Guide sélectionné ! Tous les champs ont été remplis." : "Article sélectionné ! Tous les champs ont été remplis.");
   };
 
   const handleRegenerateVariant = async (variantId: number, instructions: string) => {

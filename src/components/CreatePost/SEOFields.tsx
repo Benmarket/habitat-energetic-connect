@@ -13,6 +13,7 @@ interface SEOFieldsProps {
   onGenerateArticle: () => void;
   onOpenAiInstructions: () => void;
   generatingArticle: boolean;
+  contentType: string;
 }
 
 export function SEOFields({
@@ -21,7 +22,9 @@ export function SEOFields({
   onGenerateArticle,
   onOpenAiInstructions,
   generatingArticle,
+  contentType,
 }: SEOFieldsProps) {
+  const generateButtonLabel = contentType === 'guide' ? 'Générer le guide' : 'Générer l\'article';
   const [keywordInput, setKeywordInput] = useState("");
 
   return (
@@ -72,7 +75,7 @@ export function SEOFields({
               className="gap-2"
             >
               <Sparkles className="w-4 h-4" />
-              Générer l'article
+              {generateButtonLabel}
             </Button>
           </div>
         </div>

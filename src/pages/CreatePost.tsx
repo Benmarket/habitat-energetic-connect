@@ -149,6 +149,7 @@ const CreatePost = () => {
                     onGenerateArticle={handleGenerateArticle}
                     onOpenAiInstructions={() => setAiInstructionsModalOpen(true)}
                     generatingArticle={generatingArticle}
+                    contentType={contentType}
                   />
 
                   {contentType === "actualite" && (
