@@ -133,9 +133,9 @@ const InstitutionalContextSection = () => {
               </div>
 
               {/* Right Column - Steps */}
-              <div className="relative lg:pl-12">
+              <div className="relative lg:pl-16">
                 {/* Vertical timeline line - Desktop only - positioned to the left */}
-                <div className="hidden lg:block absolute left-4 top-8 bottom-32 w-0.5 bg-gradient-to-b from-slate-200 via-slate-300 to-slate-200 rounded-full">
+                <div className="hidden lg:block absolute left-2 top-8 bottom-32 w-0.5 bg-gradient-to-b from-slate-200 via-slate-300 to-slate-200 rounded-full">
                   <div
                     className="absolute top-0 left-0 w-full bg-gradient-to-b from-blue-500 via-emerald-500 to-violet-500 rounded-full transition-all duration-700 ease-out"
                     style={{
@@ -163,7 +163,7 @@ const InstitutionalContextSection = () => {
                       >
                         {/* Step indicator dot - positioned outside the card to the left */}
                         <div
-                          className={`hidden lg:flex absolute -left-8 top-6 w-8 h-8 rounded-full border-2 items-center justify-center transition-all duration-500 shadow-lg z-10 ${
+                          className={`hidden lg:flex absolute -left-12 top-6 w-8 h-8 rounded-full border-2 items-center justify-center transition-all duration-500 shadow-lg z-10 ${
                             isActive
                               ? "bg-gradient-to-br from-blue-500 to-blue-600 border-blue-400 text-white scale-125"
                               : isPast
