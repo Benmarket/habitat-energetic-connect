@@ -268,8 +268,8 @@ const EligibilityFormSection = () => {
             </div>
           </div>
 
-          {/* Form Content */}
-          <Card className="p-8 shadow-lg overflow-hidden">
+          {/* Form Content - Bump animation only on step 1 */}
+          <Card className={`p-8 shadow-lg overflow-hidden ${step === 1 ? 'animate-attention-bump' : ''}`}>
             {/* Étape 1 : Type de logement */}
             {step === 1 && (
               <div className="space-y-8">
