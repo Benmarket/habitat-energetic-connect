@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, FileText, Users, Award, ArrowRight } from "lucide-react";
+import { CheckCircle2, FileText, Users, ArrowRight } from "lucide-react";
 import maisonPrimeGif from "@/assets/maison-prime.gif";
 
 interface Step {
@@ -36,14 +36,6 @@ const steps: Step[] = [
     color: "text-violet-600",
     bgColor: "bg-violet-50",
   },
-  {
-    id: 4,
-    title: "Vous accompagner dans les démarches",
-    description: "De la constitution du dossier jusqu'à la réalisation des travaux, nous restons à vos côtés pour un parcours serein et structuré.",
-    icon: <Award className="w-6 h-6" />,
-    color: "text-amber-600",
-    bgColor: "bg-amber-50",
-  },
 ];
 
 const InstitutionalContextSection = () => {
@@ -71,7 +63,7 @@ const InstitutionalContextSection = () => {
       }
 
       if (scrollY > lockEnd) {
-        setActiveStep(3);
+        setActiveStep(2);
         return;
       }
 
@@ -79,16 +71,14 @@ const InstitutionalContextSection = () => {
       const scrollRange = lockEnd - lockStart;
       const progress = (scrollY - lockStart) / scrollRange;
 
-      // 4 étapes réparties uniformément
+      // 3 étapes réparties uniformément
       let stepIndex: number;
-      if (progress < 0.25) {
+      if (progress < 0.33) {
         stepIndex = 0;
-      } else if (progress < 0.5) {
+      } else if (progress < 0.66) {
         stepIndex = 1;
-      } else if (progress < 0.75) {
-        stepIndex = 2;
       } else {
-        stepIndex = 3;
+        stepIndex = 2;
       }
       
       setActiveStep(stepIndex);
