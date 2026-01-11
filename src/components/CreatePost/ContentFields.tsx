@@ -54,8 +54,11 @@ export function ContentFields({ formData, setFormData, contentType }: ContentFie
           onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
           placeholder="Court résumé de l'article"
           rows={3}
-          maxLength={500}
+          maxLength={770}
         />
+        <p className="text-xs text-muted-foreground">
+          {formData.excerpt.length}/770 caractères
+        </p>
       </div>
 
       <div className="space-y-2">
