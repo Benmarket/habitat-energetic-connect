@@ -184,8 +184,9 @@ const GuidesSection = () => {
         <div className="absolute bottom-40 left-10 w-80 h-80 bg-[hsl(24,95%,55%)]/10 rounded-full blur-3xl" />
       </div>
       
-      {/* Wave decoration at bottom */}
+      {/* Wave decoration at bottom - with white space above on desktop */}
       <div className="absolute bottom-0 left-0 right-0 z-0">
+        <div className="hidden lg:block h-16 bg-transparent" /> {/* White space before wave on desktop */}
         <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
           <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="hsl(24, 95%, 55%)" fillOpacity="0.2"/>
         </svg>
@@ -242,9 +243,9 @@ const GuidesSection = () => {
                       </div>
                     )}
                     
-                    {/* Topline banner - Customizable colors */}
+                    {/* Topline banner - Positioned to the right */}
                     {featuredGuide.topline && (
-                      <div className="absolute top-3 left-3 right-3 z-20 flex justify-center">
+                      <div className="absolute top-3 left-3 right-3 z-20 flex justify-end lg:justify-end">
                         <div 
                           className="inline-flex items-center px-4 py-2 rounded-full text-xs md:text-sm font-semibold shadow-lg"
                           style={{
