@@ -58,28 +58,39 @@ const InstitutionalContextSection = () => {
       const sectionRect = sectionRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
       
-      // Calculer la progression basée sur la position de la section dans le viewport
-      const sectionCenter = sectionRect.top + sectionRect.height / 2;
-      const viewportCenter = windowHeight / 2;
+      // Le scroll des étapes commence quand le milieu de la section atteint le milieu du viewport
+      const sectionMiddle = sectionRect.top + sectionRect.height / 2;
+      const viewportMiddle = windowHeight / 2;
       
-      // Quand la section n'est pas encore visible
-      if (sectionRect.bottom < 0 || sectionRect.top > windowHeight) {
+      // Quand la section n'est pas encore au milieu, rester sur l'étape 1
+      if (sectionMiddle > viewportMiddle) {
+        setActiveStep(0);
+        return;
+      }
+      
+      // Quand la section est passée, rester sur l'étape 4
+      if (sectionRect.bottom < viewportMiddle) {
+        setActiveStep(3);
         return;
       }
 
-      // Calculer le progress basé sur la position du haut de la section
-      // Plus la section monte, plus on avance dans les étapes
-      const scrollProgress = Math.max(0, Math.min(1, 
-        (windowHeight - sectionRect.top) / (sectionRect.height + windowHeight * 0.3)
-      ));
+      // Calculer le progress à partir du moment où le milieu de la section atteint le milieu du viewport
+      // jusqu'à ce que le bas de la section atteigne le milieu du viewport
+      const startPoint = viewportMiddle; // quand sectionMiddle = viewportMiddle
+      const endPoint = viewportMiddle; // quand sectionRect.bottom = viewportMiddle
+      
+      // Distance parcourue depuis le début du "lock"
+      const totalDistance = sectionRect.height / 2; // de milieu à bas
+      const currentDistance = viewportMiddle - sectionMiddle;
+      const scrollProgress = Math.max(0, Math.min(1, currentDistance / totalDistance));
 
       // 4 étapes réparties sur le scroll
       let stepIndex: number;
-      if (scrollProgress < 0.2) {
+      if (scrollProgress < 0.25) {
         stepIndex = 0;
-      } else if (scrollProgress < 0.4) {
+      } else if (scrollProgress < 0.5) {
         stepIndex = 1;
-      } else if (scrollProgress < 0.6) {
+      } else if (scrollProgress < 0.75) {
         stepIndex = 2;
       } else {
         stepIndex = 3;
