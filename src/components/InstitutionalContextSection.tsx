@@ -106,12 +106,12 @@ const InstitutionalContextSection = () => {
       id="parcours"
       className="relative bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-0"
     >
-      <div className="lg:sticky lg:top-0 lg:h-screen">
-        <div className="lg:h-full lg:flex lg:items-center lg:py-[15vh]">
+      <div className="lg:sticky lg:top-[100px] lg:h-[calc(100vh-100px)]">
+        <div className="lg:h-full lg:flex lg:items-center">
           <div className="max-w-7xl mx-auto w-full">
         <div className="grid lg:grid-cols-2">
-          {/* Left Column - Sticky, centered vertically in viewport */}
-          <div className="lg:sticky lg:top-[15vh] lg:h-fit lg:self-start py-16 lg:py-12 px-6 lg:px-12 flex flex-col justify-center">
+          {/* Left Column - centered vertically */}
+          <div className="py-16 lg:py-12 px-6 lg:px-12 flex flex-col justify-center">
             <div className="max-w-lg lg:max-w-xl">
               <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] xl:text-5xl font-bold text-slate-800 leading-[1.15] mb-5">
                 Votre maison, un choix{" "}
@@ -277,7 +277,7 @@ const InstitutionalContextSection = () => {
       </div>
 
       {/* Espace de scroll supplémentaire sur desktop pour ralentir le défilement des étapes */}
-      <div aria-hidden className="hidden lg:block h-[400vh]" />
+      <div aria-hidden className="hidden lg:block h-[200vh]" />
     </section>
   );
 };
