@@ -967,24 +967,34 @@ export default function SitePopup() {
                 </div>
               </button>
 
-              {/* Option 2: Simulation en ligne - Does nothing for now */}
+              {/* Option 2: Simulation en ligne - Navigue vers #simulateurs */}
               <button
-                className="group relative p-5 rounded-xl border-2 border-slate-200 hover:border-emerald-400 bg-gradient-to-br from-white to-slate-50 hover:from-emerald-50 hover:to-white transition-all duration-300 text-left opacity-60 cursor-not-allowed"
-                disabled
+                onClick={() => {
+                  handleClose();
+                  navigate("/#simulateurs");
+                  setTimeout(() => {
+                    const element = document.getElementById("simulateurs");
+                    if (element) {
+                      element.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }, 100);
+                }}
+                className="group relative p-5 rounded-xl border-2 border-slate-200 hover:border-emerald-400 bg-gradient-to-br from-white to-slate-50 hover:from-emerald-50 hover:to-white transition-all duration-300 text-left"
               >
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
                     <Sparkles className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-800 transition-colors">
+                    <h3 className="font-semibold text-slate-800 group-hover:text-emerald-700 transition-colors">
                       Simulation en ligne
                     </h3>
                     <p className="text-xs text-slate-500 mt-0.5">
                       Éligibilité, primes, travaux
                     </p>
-                    <p className="text-xs text-slate-400 font-medium mt-2 flex items-center gap-1">
-                      Bientôt disponible
+                    <p className="text-xs text-emerald-600 font-medium mt-2 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      Estimer mes aides
                     </p>
                   </div>
                 </div>
