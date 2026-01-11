@@ -55,42 +55,37 @@ const InstitutionalContextSection = () => {
     const handleScroll = () => {
       if (!sectionRef.current) return;
 
-      const sectionRect = sectionRef.current.getBoundingClientRect();
+      const sectionTop = sectionRef.current.offsetTop;
+      const sectionHeight = sectionRef.current.offsetHeight;
+      const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
-      
-      // Le scroll des étapes commence quand le milieu de la section atteint le milieu du viewport
-      const sectionMiddle = sectionRect.top + sectionRect.height / 2;
-      const viewportMiddle = windowHeight / 2;
-      
-      // Quand la section n'est pas encore au milieu, rester sur l'étape 1
-      if (sectionMiddle > viewportMiddle) {
+
+      // Le lock commence quand le haut de la section atteint 120px du haut (sous le header)
+      const lockStart = sectionTop - 120;
+      // Le lock se termine quand on a scrollé toute la hauteur supplémentaire
+      const lockEnd = sectionTop + sectionHeight - windowHeight;
+
+      if (scrollY < lockStart) {
         setActiveStep(0);
         return;
       }
-      
-      // Quand la section est passée, rester sur l'étape 4
-      if (sectionRect.bottom < viewportMiddle) {
+
+      if (scrollY > lockEnd) {
         setActiveStep(3);
         return;
       }
 
-      // Calculer le progress à partir du moment où le milieu de la section atteint le milieu du viewport
-      // jusqu'à ce que le bas de la section atteigne le milieu du viewport
-      const startPoint = viewportMiddle; // quand sectionMiddle = viewportMiddle
-      const endPoint = viewportMiddle; // quand sectionRect.bottom = viewportMiddle
-      
-      // Distance parcourue depuis le début du "lock"
-      const totalDistance = sectionRect.height / 2; // de milieu à bas
-      const currentDistance = viewportMiddle - sectionMiddle;
-      const scrollProgress = Math.max(0, Math.min(1, currentDistance / totalDistance));
+      // Progression dans la zone de lock
+      const scrollRange = lockEnd - lockStart;
+      const progress = (scrollY - lockStart) / scrollRange;
 
-      // 4 étapes réparties sur le scroll
+      // 4 étapes réparties uniformément
       let stepIndex: number;
-      if (scrollProgress < 0.25) {
+      if (progress < 0.25) {
         stepIndex = 0;
-      } else if (scrollProgress < 0.5) {
+      } else if (progress < 0.5) {
         stepIndex = 1;
-      } else if (scrollProgress < 0.75) {
+      } else if (progress < 0.75) {
         stepIndex = 2;
       } else {
         stepIndex = 3;
@@ -109,168 +104,173 @@ const InstitutionalContextSection = () => {
     <section
       ref={sectionRef}
       id="parcours"
-      className="relative bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-16 lg:py-24"
+      className="relative bg-gradient-to-br from-slate-50 via-white to-blue-50/30"
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
-          {/* Left Column */}
-          <div className="flex flex-col justify-center">
-            <div className="max-w-lg lg:max-w-xl">
-              <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] xl:text-5xl font-bold text-slate-800 leading-[1.15] mb-5">
-                Votre maison, un choix{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-500 whitespace-nowrap">
-                  économique et logique
-                </span>
-              </h2>
-              <p className="text-lg lg:text-xl text-slate-600 font-medium mb-6">
-                Des travaux énergétiques subventionnés pour votre habitat
-              </p>
-              <p className="text-slate-500 leading-relaxed text-base lg:text-lg">
-                Prime Énergies vous accompagne dans un parcours simple et structuré, 
-                pour comprendre les aides disponibles et construire votre projet sereinement.
-              </p>
-              
-              {/* Illustration maison - rognage haut/bas pour masquer les bords noirs */}
-              <div className="mt-8 lg:mt-10">
-                <div className="w-full max-w-sm lg:max-w-md rounded-xl overflow-hidden">
-                  <img 
-                    src={maisonPrimeGif} 
-                    alt="Maison avec panneaux solaires, éolienne et pompe à chaleur" 
-                    className="w-full scale-[1.08] object-cover"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column - Steps */}
-          <div className="relative">
-            {/* Vertical timeline line - Desktop only */}
-            <div className="hidden lg:block absolute left-12 top-28 bottom-28 w-0.5 bg-gradient-to-b from-slate-200 via-slate-300 to-slate-200 rounded-full">
-              <div
-                className="absolute top-0 left-0 w-full bg-gradient-to-b from-blue-500 via-emerald-500 to-violet-500 rounded-full transition-all duration-700 ease-out"
-                style={{
-                  height: `${((activeStep + 1) / steps.length) * 100}%`,
-                }}
-              />
-            </div>
-
-            <div className="space-y-6 lg:space-y-8 lg:pl-16">
-              {steps.map((step, index) => {
-                const isActive = index === activeStep;
-                const isPast = index < activeStep;
-                const isFuture = index > activeStep;
-
-                return (
-                  <div
-                    key={step.id}
-                    ref={(el) => (stepsRef.current[index] = el)}
-                    className={`relative transition-all duration-700 ease-out ${
-                      isActive
-                        ? "opacity-100 scale-100 translate-y-0"
-                        : isPast
-                        ? "opacity-70 scale-95 -translate-y-1"
-                        : "opacity-40 scale-90 translate-y-2"
-                    }`}
-                  >
-                    {/* Step indicator dot */}
-                    <div
-                      className={`hidden lg:flex absolute -left-16 top-6 w-8 h-8 rounded-full border-2 items-center justify-center transition-all duration-500 shadow-lg ${
-                        isActive
-                          ? "bg-gradient-to-br from-blue-500 to-blue-600 border-blue-400 text-white scale-125"
-                          : isPast
-                          ? "bg-emerald-500 border-emerald-400 text-white"
-                          : "bg-white border-slate-300 text-slate-400"
-                      }`}
-                    >
-                      {isPast ? (
-                        <CheckCircle2 className="w-4 h-4" />
-                      ) : (
-                        <span className="text-xs font-bold">{step.id}</span>
-                      )}
-                    </div>
-
-                    {/* Step content */}
-                    <div
-                      className={`relative overflow-hidden rounded-2xl transition-all duration-500 ${
-                        isActive
-                          ? "bg-white shadow-2xl shadow-blue-500/10 border-2 border-blue-100 p-8"
-                          : "bg-white/80 shadow-md border border-slate-100 p-6"
-                      }`}
-                    >
-                      {/* Active indicator glow */}
-                      {isActive && (
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 to-violet-500" />
-                      )}
-
-                      <div className="flex items-start gap-5">
-                        <div
-                          className={`flex-shrink-0 rounded-xl flex items-center justify-center transition-all duration-500 ${
-                            isActive
-                              ? `w-16 h-16 ${step.bgColor} ${step.color}`
-                              : `w-12 h-12 bg-slate-100 text-slate-400`
-                          }`}
-                        >
-                          <div className={isActive ? "scale-110" : ""}>
-                            {step.icon}
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2 lg:hidden">
-                            <span
-                              className={`text-xs font-bold px-2 py-1 rounded-full ${
-                                isActive
-                                  ? "bg-blue-100 text-blue-700"
-                                  : "bg-slate-100 text-slate-500"
-                              }`}
-                            >
-                              Étape {step.id}
-                            </span>
-                          </div>
-                          <h3
-                            className={`font-bold mb-3 transition-all duration-500 ${
-                              isActive
-                                ? "text-xl lg:text-2xl text-slate-800"
-                                : "text-lg text-slate-600"
-                            }`}
-                          >
-                            {step.title}
-                          </h3>
-                          <p
-                            className={`leading-relaxed transition-all duration-500 ${
-                              isActive
-                                ? "text-base text-slate-600"
-                                : "text-sm text-slate-400"
-                            }`}
-                          >
-                            {step.description}
-                          </p>
-                        </div>
-                      </div>
+      {/* Container avec hauteur supplémentaire pour le scrollytelling */}
+      <div className="lg:min-h-[180vh]">
+        {/* Contenu sticky qui reste fixe pendant le scroll */}
+        <div className="lg:sticky lg:top-[120px] py-16 lg:py-20">
+          <div className="max-w-7xl mx-auto px-6 lg:px-12">
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
+              {/* Left Column */}
+              <div className="flex flex-col justify-center">
+                <div className="max-w-lg lg:max-w-xl">
+                  <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] xl:text-5xl font-bold text-slate-800 leading-[1.15] mb-5">
+                    Votre maison, un choix{" "}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-500 whitespace-nowrap">
+                      économique et logique
+                    </span>
+                  </h2>
+                  <p className="text-lg lg:text-xl text-slate-600 font-medium mb-6">
+                    Des travaux énergétiques subventionnés pour votre habitat
+                  </p>
+                  <p className="text-slate-500 leading-relaxed text-base lg:text-lg">
+                    Prime Énergies vous accompagne dans un parcours simple et structuré, 
+                    pour comprendre les aides disponibles et construire votre projet sereinement.
+                  </p>
+                  
+                  {/* Illustration maison */}
+                  <div className="mt-8 lg:mt-10">
+                    <div className="w-full max-w-sm lg:max-w-md rounded-xl overflow-hidden">
+                      <img 
+                        src={maisonPrimeGif} 
+                        alt="Maison avec panneaux solaires, éolienne et pompe à chaleur" 
+                        className="w-full scale-[1.08] object-cover"
+                      />
                     </div>
                   </div>
-                );
-              })}
-              
-              {/* CTA Block - "Invisible" step after step 4 */}
-              <div className="mt-8 lg:mt-12 pt-6">
-                <h3 className="text-2xl lg:text-3xl font-bold text-slate-800 leading-tight mb-6">
-                  Et votre maison devient{" "}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">
-                    plus confortable et plus économique
-                  </span>
-                </h3>
-                <button
-                  onClick={() => {
-                    window.dispatchEvent(new CustomEvent('trigger-popup', { 
-                      detail: { triggerId: 'parcours-projet' } 
-                    }));
-                  }}
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold text-lg rounded-full shadow-lg shadow-orange-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/40 hover:scale-105"
-                >
-                  Démarrer mon projet
-                  <ArrowRight className="w-5 h-5" />
-                </button>
+                </div>
+              </div>
+
+              {/* Right Column - Steps */}
+              <div className="relative">
+                {/* Vertical timeline line - Desktop only */}
+                <div className="hidden lg:block absolute left-12 top-28 bottom-28 w-0.5 bg-gradient-to-b from-slate-200 via-slate-300 to-slate-200 rounded-full">
+                  <div
+                    className="absolute top-0 left-0 w-full bg-gradient-to-b from-blue-500 via-emerald-500 to-violet-500 rounded-full transition-all duration-700 ease-out"
+                    style={{
+                      height: `${((activeStep + 1) / steps.length) * 100}%`,
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-6 lg:space-y-8 lg:pl-16">
+                  {steps.map((step, index) => {
+                    const isActive = index === activeStep;
+                    const isPast = index < activeStep;
+
+                    return (
+                      <div
+                        key={step.id}
+                        ref={(el) => (stepsRef.current[index] = el)}
+                        className={`relative transition-all duration-700 ease-out ${
+                          isActive
+                            ? "opacity-100 scale-100 translate-y-0"
+                            : isPast
+                            ? "opacity-70 scale-95 -translate-y-1"
+                            : "opacity-40 scale-90 translate-y-2"
+                        }`}
+                      >
+                        {/* Step indicator dot */}
+                        <div
+                          className={`hidden lg:flex absolute -left-16 top-6 w-8 h-8 rounded-full border-2 items-center justify-center transition-all duration-500 shadow-lg ${
+                            isActive
+                              ? "bg-gradient-to-br from-blue-500 to-blue-600 border-blue-400 text-white scale-125"
+                              : isPast
+                              ? "bg-emerald-500 border-emerald-400 text-white"
+                              : "bg-white border-slate-300 text-slate-400"
+                          }`}
+                        >
+                          {isPast ? (
+                            <CheckCircle2 className="w-4 h-4" />
+                          ) : (
+                            <span className="text-xs font-bold">{step.id}</span>
+                          )}
+                        </div>
+
+                        {/* Step content */}
+                        <div
+                          className={`relative overflow-hidden rounded-2xl transition-all duration-500 ${
+                            isActive
+                              ? "bg-white shadow-2xl shadow-blue-500/10 border-2 border-blue-100 p-8"
+                              : "bg-white/80 shadow-md border border-slate-100 p-6"
+                          }`}
+                        >
+                          {/* Active indicator glow */}
+                          {isActive && (
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 to-violet-500" />
+                          )}
+
+                          <div className="flex items-start gap-5">
+                            <div
+                              className={`flex-shrink-0 rounded-xl flex items-center justify-center transition-all duration-500 ${
+                                isActive
+                                  ? `w-16 h-16 ${step.bgColor} ${step.color}`
+                                  : `w-12 h-12 bg-slate-100 text-slate-400`
+                              }`}
+                            >
+                              <div className={isActive ? "scale-110" : ""}>
+                                {step.icon}
+                              </div>
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2 lg:hidden">
+                                <span
+                                  className={`text-xs font-bold px-2 py-1 rounded-full ${
+                                    isActive
+                                      ? "bg-blue-100 text-blue-700"
+                                      : "bg-slate-100 text-slate-500"
+                                  }`}
+                                >
+                                  Étape {step.id}
+                                </span>
+                              </div>
+                              <h3
+                                className={`font-bold mb-3 transition-all duration-500 ${
+                                  isActive
+                                    ? "text-xl lg:text-2xl text-slate-800"
+                                    : "text-lg text-slate-600"
+                                }`}
+                              >
+                                {step.title}
+                              </h3>
+                              <p
+                                className={`leading-relaxed transition-all duration-500 ${
+                                  isActive
+                                    ? "text-base text-slate-600"
+                                    : "text-sm text-slate-400"
+                                }`}
+                              >
+                                {step.description}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  {/* CTA Block */}
+                  <div className="mt-8 lg:mt-12 pt-6">
+                    <h3 className="text-2xl lg:text-3xl font-bold text-slate-800 leading-tight mb-6">
+                      Et votre maison devient{" "}
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">
+                        plus confortable et plus économique
+                      </span>
+                    </h3>
+                    <button
+                      onClick={() => {
+                        window.dispatchEvent(new CustomEvent('trigger-popup', { 
+                          detail: { triggerId: 'parcours-projet' } 
+                        }));
+                      }}
+                      className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold text-lg rounded-full shadow-lg shadow-orange-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/40 hover:scale-105"
+                    >
+                      Démarrer mon projet
+                      <ArrowRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
