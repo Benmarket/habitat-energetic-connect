@@ -289,7 +289,7 @@ const GuidesSection = () => {
                       </div>
                     )}
                     
-                    <h3 className="text-lg md:text-xl font-bold text-foreground mb-3 leading-tight group-hover:text-[hsl(24,95%,55%)] transition-colors line-clamp-2">
+                    <h3 className="text-xl md:text-2xl font-bold text-foreground mb-3 leading-tight group-hover:text-[hsl(24,95%,55%)] transition-colors line-clamp-2">
                       {featuredGuide.title}
                     </h3>
                     
