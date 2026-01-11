@@ -55,37 +55,31 @@ const InstitutionalContextSection = () => {
     const handleScroll = () => {
       if (!sectionRef.current) return;
 
-      const sectionTop = sectionRef.current.offsetTop;
-      const sectionHeight = sectionRef.current.offsetHeight;
-      const scrollY = window.scrollY;
+      const sectionRect = sectionRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
-
-      // Zone de "lock" (scrollytelling) : la grille reste fixe (sticky) et le scroll fait avancer les étapes.
-      // On démarre la progression au moment où la section arrive en haut du viewport.
-      const lockStart = sectionTop;
-      const lockEnd = sectionTop + sectionHeight - windowHeight;
-
-      if (scrollY < lockStart) {
-        setActiveStep(0);
+      
+      // Calculer la progression basée sur la position de la section dans le viewport
+      const sectionCenter = sectionRect.top + sectionRect.height / 2;
+      const viewportCenter = windowHeight / 2;
+      
+      // Quand la section n'est pas encore visible
+      if (sectionRect.bottom < 0 || sectionRect.top > windowHeight) {
         return;
       }
 
-      if (scrollY > lockEnd) {
-        setActiveStep(steps.length - 1);
-        return;
-      }
+      // Calculer le progress basé sur la position du haut de la section
+      // Plus la section monte, plus on avance dans les étapes
+      const scrollProgress = Math.max(0, Math.min(1, 
+        (windowHeight - sectionRect.top) / (sectionRect.height + windowHeight * 0.3)
+      ));
 
-      // Distribuer les étapes uniformément sur la hauteur de scroll pendant le lock
-      const scrollRange = lockEnd - lockStart;
-      const progress = (scrollY - lockStart) / scrollRange;
-
-      // 4 étapes réparties uniformément
+      // 4 étapes réparties sur le scroll
       let stepIndex: number;
-      if (progress < 0.25) {
+      if (scrollProgress < 0.2) {
         stepIndex = 0;
-      } else if (progress < 0.50) {
+      } else if (scrollProgress < 0.4) {
         stepIndex = 1;
-      } else if (progress < 0.75) {
+      } else if (scrollProgress < 0.6) {
         stepIndex = 2;
       } else {
         stepIndex = 3;
@@ -104,14 +98,12 @@ const InstitutionalContextSection = () => {
     <section
       ref={sectionRef}
       id="parcours"
-      className="relative bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-0"
+      className="relative bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-16 lg:py-24"
     >
-      <div className="lg:sticky lg:top-[100px] lg:h-[calc(100vh-100px)]">
-        <div className="lg:h-full lg:flex lg:items-center">
-          <div className="max-w-7xl mx-auto w-full">
-        <div className="grid lg:grid-cols-2">
-          {/* Left Column - centered vertically */}
-          <div className="py-16 lg:py-12 px-6 lg:px-12 flex flex-col justify-center">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
+          {/* Left Column */}
+          <div className="flex flex-col justify-center">
             <div className="max-w-lg lg:max-w-xl">
               <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] xl:text-5xl font-bold text-slate-800 leading-[1.15] mb-5">
                 Votre maison, un choix{" "}
@@ -140,8 +132,8 @@ const InstitutionalContextSection = () => {
             </div>
           </div>
 
-          {/* Right Column - Scrolling Steps */}
-          <div className="relative py-16 lg:py-28 px-6 lg:px-12">
+          {/* Right Column - Steps */}
+          <div className="relative">
             {/* Vertical timeline line - Desktop only */}
             <div className="hidden lg:block absolute left-12 top-28 bottom-28 w-0.5 bg-gradient-to-b from-slate-200 via-slate-300 to-slate-200 rounded-full">
               <div
@@ -272,12 +264,7 @@ const InstitutionalContextSection = () => {
             </div>
           </div>
         </div>
-          </div>
-        </div>
       </div>
-
-      {/* Espace de scroll supplémentaire sur desktop pour ralentir le défilement des étapes */}
-      <div aria-hidden className="hidden lg:block h-[200vh]" />
     </section>
   );
 };
