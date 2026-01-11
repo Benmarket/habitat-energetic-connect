@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -41,24 +41,20 @@ serve(async (req) => {
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-    // Créer un client Supabase avec le token utilisateur pour valider l'authentification
-    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
+    // ✅ IMPORTANT (verify_jwt=false): on valide le JWT nous-mêmes
+    const token = authHeader.replace('Bearer ', '');
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
+    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
 
-    // SÉCURITÉ: Valider le token en récupérant l'utilisateur
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser();
-    
-    if (userError || !userData?.user) {
-      console.error('Auth error:', userError);
+    if (claimsError || !claimsData?.claims) {
+      console.error('Auth error:', claimsError);
       return new Response(
-        JSON.stringify({ success: false, error: 'Non autorisé - Token invalide', details: userError?.message }),
+        JSON.stringify({ success: false, error: 'Non autorisé - Token invalide', details: claimsError?.message }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // SÉCURITÉ: Extraire le userId du JWT validé
-    const userId = userData.user.id;
+    const userId = claimsData.claims.sub;
     if (!userId) {
       return new Response(
         JSON.stringify({ success: false, error: 'Non autorisé - Utilisateur non identifié' }),

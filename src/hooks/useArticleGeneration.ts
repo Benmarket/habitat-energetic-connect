@@ -77,8 +77,10 @@ export function useArticleGeneration(
               const { data: imagesData, error: imagesError } = await supabase.functions.invoke('generate-images', {
                 body: {
                   imageDescriptions: imageDescriptions,
-                  userId: userId
-                }
+                },
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                },
               });
 
               if (!imagesError && imagesData?.success && imagesData.images) {
@@ -206,11 +208,15 @@ export function useArticleGeneration(
         `Image pour l'article: ${regeneratedVariant.title}`;
       
       const { data: imageData, error: imageError } = await supabase.functions.invoke('generate-images', {
-        body: { descriptions: [imageDescription] }
+        body: { imageDescriptions: [imageDescription] },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
 
-      if (!imageError && imageData?.images?.[0]) {
-        regeneratedVariant.featuredImageUrl = imageData.images[0];
+      const firstOk = imageData?.images?.find?.((img: any) => img?.success);
+      if (!imageError && firstOk?.url) {
+        regeneratedVariant.featuredImageUrl = firstOk.url;
       }
 
       setGeneratedVariants((prev: any) => 
