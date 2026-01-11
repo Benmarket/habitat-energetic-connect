@@ -213,7 +213,7 @@ const GuidesSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
           {/* Featured Guide - Left Column (now 6 cols = +20%) */}
           {featuredGuide && (
-            <div className="lg:col-span-6">
+            <div className="lg:col-span-7">
               <Link to={`/guide/${featuredGuide.slug}`} className="group block h-full">
                 <article className="relative h-full bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-[hsl(24,95%,55%)]/30">
                   {/* Image with topline banner */}
@@ -299,8 +299,8 @@ const GuidesSection = () => {
             </div>
           )}
 
-          {/* Secondary Guides - Right Column (now 6 cols instead of 7) */}
-          <div className="lg:col-span-6 flex flex-col">
+          {/* Secondary Guides - Right Column (5 cols) */}
+          <div className="lg:col-span-5 flex flex-col">
             <div className="space-y-4 flex-1">
               {secondaryGuides.map((guide) => (
                 <Link 
