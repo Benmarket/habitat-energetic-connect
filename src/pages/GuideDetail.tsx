@@ -40,6 +40,9 @@ interface Guide {
   is_members_only: boolean;
   guide_template: string | null;
   is_downloadable: boolean;
+  topline: string | null;
+  topline_bg_color: string | null;
+  topline_text_color: string | null;
   post_categories: {
     categories: {
       id: string;
@@ -98,6 +101,9 @@ const GuideDetail = () => {
           is_members_only: data.is_members_only ?? false,
           guide_template: data.guide_template ?? 'classique',
           is_downloadable: data.is_downloadable ?? true,
+          topline: data.topline ?? null,
+          topline_bg_color: data.topline_bg_color ?? '#22c55e',
+          topline_text_color: data.topline_text_color ?? '#ffffff',
         });
         
         if (data.content) {
@@ -226,6 +232,9 @@ const GuideDetail = () => {
     published_at: guide.published_at || undefined,
     tldr: guide.tldr || undefined,
     faq: guide.faq || undefined,
+    topline: guide.topline || undefined,
+    topline_bg_color: guide.topline_bg_color || '#22c55e',
+    topline_text_color: guide.topline_text_color || '#ffffff',
   };
 
   // Render appropriate template

@@ -49,6 +49,8 @@ export interface CreatePostFormData {
   is_downloadable: boolean;
   guide_sections: GuideSection[];
   topline: string;
+  topline_bg_color: string;
+  topline_text_color: string;
 }
 
 // Validation schema
@@ -154,6 +156,8 @@ const initialFormData: CreatePostFormData = {
   is_downloadable: true,
   guide_sections: [{ id: 'section-initial', title: '', content: '' }],
   topline: "",
+  topline_bg_color: "#22c55e",
+  topline_text_color: "#ffffff",
 };
 
 export function useCreatePost() {
@@ -300,6 +304,8 @@ export function useCreatePost() {
           is_downloadable: post.is_downloadable ?? true,
           guide_sections: guideSections,
           topline: (post as any).topline || "",
+          topline_bg_color: (post as any).topline_bg_color || "#22c55e",
+          topline_text_color: (post as any).topline_text_color || "#ffffff",
         });
       }
     } catch {
@@ -389,6 +395,8 @@ export function useCreatePost() {
         postData.guide_template = formData.guide_template;
         postData.is_downloadable = formData.is_downloadable;
         postData.topline = formData.topline || null;
+        postData.topline_bg_color = formData.topline_bg_color || "#22c55e";
+        postData.topline_text_color = formData.topline_text_color || "#ffffff";
       }
 
       if (validatedData.excerpt) postData.excerpt = validatedData.excerpt;

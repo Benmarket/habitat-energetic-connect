@@ -15,6 +15,8 @@ interface Guide {
   featured_image: string | null;
   published_at: string | null;
   topline: string | null;
+  topline_bg_color: string | null;
+  topline_text_color: string | null;
   categories?: { name: string; slug: string }[];
 }
 
@@ -57,6 +59,8 @@ const GuidesSection = () => {
             featured_image,
             published_at,
             topline,
+            topline_bg_color,
+            topline_text_color,
             post_categories (
               categories (
                 name,
@@ -94,6 +98,8 @@ const GuidesSection = () => {
             featured_image,
             published_at,
             topline,
+            topline_bg_color,
+            topline_text_color,
             post_categories (
               categories (
                 name,
@@ -221,14 +227,15 @@ const GuidesSection = () => {
                       </div>
                     )}
                     
-                    {/* Topline banner - Green rounded pill at top */}
+                    {/* Topline banner - Customizable colors */}
                     {featuredGuide.topline && (
                       <div className="absolute top-3 left-3 right-3 z-20 flex justify-center">
                         <div 
-                          className="inline-flex items-center px-4 py-2 rounded-full text-xs md:text-sm font-semibold text-white shadow-lg"
+                          className="inline-flex items-center px-4 py-2 rounded-full text-xs md:text-sm font-semibold shadow-lg"
                           style={{
-                            background: 'linear-gradient(135deg, hsl(142, 70%, 45%) 0%, hsl(142, 65%, 40%) 100%)',
-                            boxShadow: '0 4px 20px -4px hsla(142, 70%, 45%, 0.5), 0 2px 8px -2px hsla(142, 70%, 45%, 0.3)'
+                            backgroundColor: featuredGuide.topline_bg_color || '#22c55e',
+                            color: featuredGuide.topline_text_color || '#ffffff',
+                            boxShadow: `0 4px 20px -4px ${featuredGuide.topline_bg_color || '#22c55e'}80`
                           }}
                         >
                           {featuredGuide.topline}

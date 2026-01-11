@@ -1281,6 +1281,8 @@ export type Database = {
           title: string
           tldr: string | null
           topline: string | null
+          topline_bg_color: string | null
+          topline_text_color: string | null
           updated_at: string
         }
         Insert: {
@@ -1312,6 +1314,8 @@ export type Database = {
           title: string
           tldr?: string | null
           topline?: string | null
+          topline_bg_color?: string | null
+          topline_text_color?: string | null
           updated_at?: string
         }
         Update: {
@@ -1343,6 +1347,8 @@ export type Database = {
           title?: string
           tldr?: string | null
           topline?: string | null
+          topline_bg_color?: string | null
+          topline_text_color?: string | null
           updated_at?: string
         }
         Relationships: [

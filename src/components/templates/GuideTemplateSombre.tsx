@@ -35,6 +35,9 @@ interface GuideTemplateSombreProps {
     post_categories?: Array<{ categories: { id: string; name: string; slug: string } }>;
     post_tags?: Array<{ tags: { id: string; name: string; slug: string } }>;
     template_colors?: TemplateColors;
+    topline?: string;
+    topline_bg_color?: string;
+    topline_text_color?: string;
   };
   contentWithIds: string;
   toc: Array<{ id: string; text: string; level: number }>;
@@ -198,6 +201,20 @@ export const GuideTemplateSombre = ({
           <div className="absolute inset-0" style={{ 
             background: `linear-gradient(to bottom, ${colors.primary} 0%, transparent 20%, transparent 80%, ${colors.surface} 100%)`
           }} />
+          {/* Topline Banner */}
+          {guide.topline && (
+            <div className="absolute top-6 left-0 right-0 z-30 flex justify-center px-4">
+              <div 
+                className="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-semibold shadow-lg"
+                style={{
+                  backgroundColor: guide.topline_bg_color || '#22c55e',
+                  color: guide.topline_text_color || '#ffffff',
+                }}
+              >
+                {guide.topline}
+              </div>
+            </div>
+          )}
           <img
             src={guide.featured_image}
             alt={guide.title}
