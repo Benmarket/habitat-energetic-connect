@@ -266,7 +266,7 @@ const GuidesSection = () => {
                   </div>
 
                   {/* Content below image */}
-                  <div className="p-5 md:p-6">
+                  <div className="p-5 md:p-6 pb-4 md:pb-5">
                     {/* Category with blue dash */}
                     {featuredGuide.categories && featuredGuide.categories.length > 0 && (
                       <div className="flex items-center gap-2 mb-3">
