@@ -32,6 +32,17 @@ export function useArticleGeneration(
     setVariantsModalOpen(true);
 
     try {
+      // Récupérer la session pour le token d'authentification
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      
+      if (!accessToken) {
+        toast.error("Vous devez être connecté pour générer un article");
+        setGeneratingArticle(false);
+        setVariantsModalOpen(false);
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('generate-article', {
         body: {
           keywords: formData.focus_keywords,
@@ -39,6 +50,9 @@ export function useArticleGeneration(
           customInstructions: currentAiInstructions,
           guideTemplate: contentType === 'guide' ? formData.guide_template : undefined,
           userId: userId
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`
         }
       });
 
@@ -156,6 +170,16 @@ export function useArticleGeneration(
         setPreviousVariantVersions(prev => new Map(prev).set(variantId, { ...currentVariant }));
       }
 
+      // Récupérer la session pour le token d'authentification
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      
+      if (!accessToken) {
+        toast.error("Session expirée, veuillez vous reconnecter");
+        setRegeneratingVariantId(null);
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('generate-article', {
         body: { 
           keywords: formData.focus_keywords.length > 0 ? formData.focus_keywords : ['panneau solaire'],
@@ -165,6 +189,9 @@ export function useArticleGeneration(
           customInstructions: currentAiInstructions,
           guideTemplate: contentType === 'guide' ? formData.guide_template : undefined,
           userId: userId,
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`
         }
       });
 
