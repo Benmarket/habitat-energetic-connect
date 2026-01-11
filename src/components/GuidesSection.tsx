@@ -209,11 +209,11 @@ const GuidesSection = () => {
           </p>
         </div>
 
-        {/* Two-column layout */}
+        {/* Two-column layout - Featured guide wider (6 cols instead of 5) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-          {/* Featured Guide - Left Column */}
+          {/* Featured Guide - Left Column (now 6 cols = +20%) */}
           {featuredGuide && (
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-6">
               <Link to={`/guide/${featuredGuide.slug}`} className="group block h-full">
                 <article className="relative h-full bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-[hsl(24,95%,55%)]/30">
                   {/* Image with topline banner */}
@@ -299,8 +299,8 @@ const GuidesSection = () => {
             </div>
           )}
 
-          {/* Secondary Guides - Right Column */}
-          <div className="lg:col-span-7 flex flex-col">
+          {/* Secondary Guides - Right Column (now 6 cols instead of 7) */}
+          <div className="lg:col-span-6 flex flex-col">
             <div className="space-y-4 flex-1">
               {secondaryGuides.map((guide) => (
                 <Link 
@@ -346,8 +346,8 @@ const GuidesSection = () => {
               ))}
             </div>
 
-            {/* View All Link */}
-            <div className="mt-8 text-center">
+            {/* View All Link - positioned higher with more margin */}
+            <div className="mt-6 mb-12 text-center">
               <Link 
                 to="/guides" 
                 className="inline-flex items-center gap-3 text-[hsl(24,95%,55%)] font-bold text-lg md:text-xl hover:gap-4 transition-all duration-300 group"
