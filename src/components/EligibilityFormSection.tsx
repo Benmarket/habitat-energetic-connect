@@ -253,7 +253,7 @@ const EligibilityFormSection = () => {
   );
 
   return (
-    <section id="etude" className="pt-16 pb-8 bg-emerald-50/50">
+    <section id="etude" className="pt-16 pb-8 bg-green-50/30">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
