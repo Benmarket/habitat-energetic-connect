@@ -71,10 +71,10 @@ const InstitutionalContextSection = () => {
       const scrollRange = lockEnd - lockStart;
       const progress = (scrollY - lockStart) / scrollRange;
 
-      // 3 étapes avec étape 2 x1.25 plus longue
-      // Proportions: étape 1 = 1, étape 2 = 1.25, étape 3 = 1 → total = 3.25
-      const step1End = 1 / 3.25;        // ~0.308
-      const step2End = 2.25 / 3.25;     // ~0.692
+      // 3 étapes avec étape 2 x1.5 plus longue
+      // Proportions: étape 1 = 1, étape 2 = 1.5, étape 3 = 1 → total = 3.5
+      const step1End = 1 / 3.5;         // ~0.286
+      const step2End = 2.5 / 3.5;       // ~0.714
       
       let stepIndex: number;
       if (progress < step1End) {
