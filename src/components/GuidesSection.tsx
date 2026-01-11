@@ -17,6 +17,7 @@ interface Guide {
   topline: string | null;
   topline_bg_color: string | null;
   topline_text_color: string | null;
+  badge_image: string | null;
   categories?: { name: string; slug: string }[];
 }
 
@@ -61,6 +62,7 @@ const GuidesSection = () => {
             topline,
             topline_bg_color,
             topline_text_color,
+            badge_image,
             post_categories (
               categories (
                 name,
@@ -100,6 +102,7 @@ const GuidesSection = () => {
             topline,
             topline_bg_color,
             topline_text_color,
+            badge_image,
             post_categories (
               categories (
                 name,
@@ -249,6 +252,17 @@ const GuidesSection = () => {
                         Guide 2025
                       </span>
                     </div>
+                    
+                    {/* Badge image - Bottom left */}
+                    {featuredGuide.badge_image && (
+                      <div className="absolute bottom-3 left-3 z-20">
+                        <img 
+                          src={featuredGuide.badge_image} 
+                          alt="Badge" 
+                          className="h-12 md:h-16 w-auto object-contain drop-shadow-lg"
+                        />
+                      </div>
+                    )}
                   </div>
 
                   {/* Content below image */}

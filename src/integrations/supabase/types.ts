@@ -1255,6 +1255,7 @@ export type Database = {
         Row: {
           author_display_type: string | null
           author_id: string
+          badge_image: string | null
           content: string
           content_type: Database["public"]["Enums"]["content_type"]
           created_at: string
@@ -1288,6 +1289,7 @@ export type Database = {
         Insert: {
           author_display_type?: string | null
           author_id: string
+          badge_image?: string | null
           content: string
           content_type: Database["public"]["Enums"]["content_type"]
           created_at?: string
@@ -1321,6 +1323,7 @@ export type Database = {
         Update: {
           author_display_type?: string | null
           author_id?: string
+          badge_image?: string | null
           content?: string
           content_type?: Database["public"]["Enums"]["content_type"]
           created_at?: string

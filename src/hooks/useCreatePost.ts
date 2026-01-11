@@ -51,6 +51,7 @@ export interface CreatePostFormData {
   topline: string;
   topline_bg_color: string;
   topline_text_color: string;
+  badge_image: string;
 }
 
 // Validation schema
@@ -158,6 +159,7 @@ const initialFormData: CreatePostFormData = {
   topline: "",
   topline_bg_color: "#22c55e",
   topline_text_color: "#ffffff",
+  badge_image: "",
 };
 
 export function useCreatePost() {
@@ -306,6 +308,7 @@ export function useCreatePost() {
           topline: (post as any).topline || "",
           topline_bg_color: (post as any).topline_bg_color || "#22c55e",
           topline_text_color: (post as any).topline_text_color || "#ffffff",
+          badge_image: (post as any).badge_image || "",
         });
       }
     } catch {
@@ -397,6 +400,7 @@ export function useCreatePost() {
         postData.topline = formData.topline || null;
         postData.topline_bg_color = formData.topline_bg_color || "#22c55e";
         postData.topline_text_color = formData.topline_text_color || "#ffffff";
+        postData.badge_image = formData.badge_image || null;
       }
 
       if (validatedData.excerpt) postData.excerpt = validatedData.excerpt;
