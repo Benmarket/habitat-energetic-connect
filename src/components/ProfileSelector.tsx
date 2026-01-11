@@ -74,7 +74,7 @@ export default function ProfileSelector({ className }: ProfileSelectorProps) {
       <DropdownMenuContent
         align="start"
         sideOffset={8}
-        className="w-72 p-2 bg-white border border-slate-200 shadow-xl rounded-xl z-[100]"
+        className="w-64 p-1.5 bg-white border border-slate-200 shadow-xl rounded-xl z-[100]"
       >
         {profileOptions
           .filter((option) => option.id !== selectedProfile)
@@ -87,19 +87,19 @@ export default function ProfileSelector({ className }: ProfileSelectorProps) {
                   setSelectedProfile(option.id);
                 }
               }}
-              className={`flex flex-col items-start gap-0.5 p-4 rounded-lg cursor-pointer ${
+              className={`flex flex-col items-start gap-0.5 p-3 rounded-lg cursor-pointer ${
                 option.disabled
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-slate-50"
               }`}
             >
-              <div className="flex items-center gap-2">
-                {option.icon}
-                <span className="font-bold text-slate-800 uppercase tracking-wide text-sm">
+              <div className="flex items-center gap-1.5">
+                <span className="w-4 h-4">{option.icon}</span>
+                <span className="font-bold text-slate-800 uppercase tracking-wide text-xs">
                   {option.label}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 ml-6">{option.description}</p>
+              <p className="text-[11px] text-slate-500 ml-5">{option.description}</p>
             </DropdownMenuItem>
           ))}
       </DropdownMenuContent>
