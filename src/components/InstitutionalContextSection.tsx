@@ -97,7 +97,7 @@ const InstitutionalContextSection = () => {
       className="relative bg-gradient-to-br from-slate-50 via-white to-blue-50/30"
     >
       {/* Container avec hauteur supplémentaire pour le scrollytelling */}
-      <div className="lg:min-h-[180vh]">
+      <div className="lg:min-h-[140vh]">
         {/* Contenu sticky qui reste fixe pendant le scroll */}
         <div className="lg:sticky lg:top-[120px] py-16 lg:py-20">
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
