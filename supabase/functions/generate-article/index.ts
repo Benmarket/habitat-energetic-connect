@@ -50,8 +50,9 @@ serve(async (req) => {
     const { data: userData, error: userError } = await supabaseClient.auth.getUser();
     
     if (userError || !userData?.user) {
+      console.error('Auth error:', userError);
       return new Response(
-        JSON.stringify({ success: false, error: 'Non autorisé - Token invalide' }),
+        JSON.stringify({ success: false, error: 'Non autorisé - Token invalide', details: userError?.message }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
