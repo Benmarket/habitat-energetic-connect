@@ -265,13 +265,13 @@ const GuidesSection = () => {
                       </span>
                     </div>
                     
-                    {/* Badge image - Bottom left */}
+                    {/* Badge image - Bottom left - 4x bigger */}
                     {featuredGuide.badge_image && (
-                      <div className="absolute bottom-3 left-3 z-20">
+                      <div className="absolute bottom-4 left-4 z-20">
                         <img 
                           src={featuredGuide.badge_image} 
                           alt="Badge" 
-                          className="h-12 md:h-16 w-auto object-contain drop-shadow-lg"
+                          className="h-48 md:h-64 w-auto object-contain drop-shadow-xl"
                         />
                       </div>
                     )}
