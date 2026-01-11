@@ -223,6 +223,39 @@ export function GuideOptions({ formData, setFormData }: GuideOptionsProps) {
         </p>
       </div>
 
+      {/* Badge Image */}
+      <div className="space-y-3">
+        <Label htmlFor="badge_image">
+          Badge image (PNG/AVIF transparent)
+        </Label>
+        <Input
+          id="badge_image"
+          value={formData.badge_image || ""}
+          onChange={(e) => setFormData({ ...formData, badge_image: e.target.value })}
+          placeholder="URL de l'image du badge (ex: classe énergétique)"
+        />
+        
+        {formData.badge_image && (
+          <div className="p-3 bg-background rounded-lg border">
+            <p className="text-xs text-muted-foreground mb-2">Aperçu du badge :</p>
+            <div className="relative inline-block bg-muted rounded-lg p-4">
+              <img 
+                src={formData.badge_image} 
+                alt="Badge preview"
+                className="h-16 w-auto object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            </div>
+          </div>
+        )}
+        
+        <p className="text-xs text-muted-foreground">
+          Cette image apparaîtra en bas à gauche de l'image principale du guide.
+        </p>
+      </div>
+
       <div className="flex items-center space-x-2">
         <Checkbox
           id="is_members_only"
