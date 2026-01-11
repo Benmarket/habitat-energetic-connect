@@ -59,13 +59,13 @@ export default function ProfileSelector({ className }: ProfileSelectorProps) {
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <button
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all duration-200 ${className}`}
+          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all duration-200 ${className}`}
         >
-          <span className="text-xs font-semibold text-slate-700 tracking-wide uppercase">
+          <span className="text-[13px] font-semibold text-slate-700 tracking-wide uppercase">
             {currentProfile?.label}
           </span>
           <ChevronUp
-            className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
+            className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${
               isOpen ? "" : "rotate-180"
             }`}
           />
