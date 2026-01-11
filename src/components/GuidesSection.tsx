@@ -177,7 +177,7 @@ const GuidesSection = () => {
   if (!featuredGuide && secondaryGuides.length === 0) return null;
 
   return (
-    <section id="guides" className="relative py-16 md:py-24 bg-gradient-to-b from-orange-50/50 via-background to-background overflow-hidden">
+    <section id="guides" className="relative py-16 md:py-24 pb-40 lg:pb-52 bg-gradient-to-b from-orange-50/50 via-background to-background overflow-hidden">
       {/* Decorative gradient blur elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 right-10 w-64 h-64 bg-[hsl(24,95%,55%)]/10 rounded-full blur-3xl" />
