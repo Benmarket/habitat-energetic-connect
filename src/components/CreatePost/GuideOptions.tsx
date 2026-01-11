@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import { CreatePostFormData } from "@/hooks/useCreatePost";
+import { MediaLibrary } from "@/components/MediaLibrary";
+import { ImagePlus, X } from "lucide-react";
 
 interface GuideOptionsProps {
   formData: CreatePostFormData;
@@ -62,6 +66,7 @@ const templateColors: Record<string, { name: string; colors: { label: string; va
 };
 
 export function GuideOptions({ formData, setFormData }: GuideOptionsProps) {
+  const [badgeMediaLibraryOpen, setBadgeMediaLibraryOpen] = useState(false);
   const selectedTemplateColors = formData.guide_template ? templateColors[formData.guide_template] : null;
 
   return (
@@ -225,17 +230,9 @@ export function GuideOptions({ formData, setFormData }: GuideOptionsProps) {
 
       {/* Badge Image */}
       <div className="space-y-3">
-        <Label htmlFor="badge_image">
-          Badge image (PNG/AVIF transparent)
-        </Label>
-        <Input
-          id="badge_image"
-          value={formData.badge_image || ""}
-          onChange={(e) => setFormData({ ...formData, badge_image: e.target.value })}
-          placeholder="URL de l'image du badge (ex: classe énergétique)"
-        />
+        <Label>Badge image (PNG/AVIF transparent)</Label>
         
-        {formData.badge_image && (
+        {formData.badge_image ? (
           <div className="p-3 bg-background rounded-lg border">
             <p className="text-xs text-muted-foreground mb-2">Aperçu du badge :</p>
             <div className="relative inline-block bg-muted rounded-lg p-4">
@@ -247,9 +244,47 @@ export function GuideOptions({ formData, setFormData }: GuideOptionsProps) {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
+              <Button
+                type="button"
+                variant="destructive"
+                size="icon"
+                className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                onClick={() => setFormData({ ...formData, badge_image: "" })}
+              >
+                <X className="h-3 w-3" />
+              </Button>
             </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-2"
+              onClick={() => setBadgeMediaLibraryOpen(true)}
+            >
+              <ImagePlus className="h-4 w-4 mr-2" />
+              Changer l'image
+            </Button>
           </div>
+        ) : (
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full h-20 border-dashed"
+            onClick={() => setBadgeMediaLibraryOpen(true)}
+          >
+            <ImagePlus className="h-5 w-5 mr-2" />
+            Choisir une image de badge
+          </Button>
         )}
+        
+        <MediaLibrary
+          open={badgeMediaLibraryOpen}
+          onOpenChange={setBadgeMediaLibraryOpen}
+          onSelect={(url) => {
+            setFormData({ ...formData, badge_image: url });
+            setBadgeMediaLibraryOpen(false);
+          }}
+        />
         
         <p className="text-xs text-muted-foreground">
           Cette image apparaîtra en bas à gauche de l'image principale du guide.
