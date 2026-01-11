@@ -125,13 +125,15 @@ const InstitutionalContextSection = () => {
                 pour comprendre les aides disponibles et construire votre projet sereinement.
               </p>
               
-              {/* Illustration maison */}
+              {/* Illustration maison - rognage haut/bas pour masquer les bords noirs */}
               <div className="mt-8 lg:mt-10">
-                <img 
-                  src={maisonPrimeGif} 
-                  alt="Maison avec panneaux solaires, éolienne et pompe à chaleur" 
-                  className="w-full max-w-sm lg:max-w-md rounded-xl"
-                />
+                <div className="w-full max-w-sm lg:max-w-md rounded-xl overflow-hidden">
+                  <img 
+                    src={maisonPrimeGif} 
+                    alt="Maison avec panneaux solaires, éolienne et pompe à chaleur" 
+                    className="w-full scale-[1.08] object-cover"
+                  />
+                </div>
               </div>
             </div>
           </div>
