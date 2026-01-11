@@ -30,7 +30,7 @@ const WhySolarSection = () => {
   ];
 
   return (
-    <section id="pourquoi-solaire" className="relative py-8 md:py-12 lg:py-20 bg-gradient-to-b from-indigo-50/50 via-violet-50/30 to-background overflow-hidden">
+    <section id="pourquoi-solaire" className="relative py-8 md:py-12 lg:py-20 bg-white overflow-hidden">
       <div className="container mx-auto px-4">
         {/* Title */}
         <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-center mb-8 md:mb-12 lg:mb-16">
@@ -116,20 +116,6 @@ const WhySolarSection = () => {
         </div>
       </div>
 
-      {/* Wave decoration at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-24 lg:h-32">
-        <svg
-          viewBox="0 0 1200 120"
-          preserveAspectRatio="none"
-          className="w-full h-full"
-        >
-          <path
-            d="M0,60 C300,100 600,20 900,60 C1050,80 1150,90 1200,60 L1200,120 L0,120 Z"
-            fill="hsl(var(--primary))"
-            opacity="0.3"
-          />
-        </svg>
-      </div>
     </section>
   );
 };
