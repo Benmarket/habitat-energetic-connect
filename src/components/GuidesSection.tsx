@@ -139,7 +139,7 @@ const GuidesSection = () => {
 
   if (loading) {
     return (
-      <section className="relative py-16 md:py-24 bg-[hsl(30,50%,97%)] overflow-hidden">
+      <section className="relative py-16 md:py-24 bg-white overflow-hidden">
         {/* Wave decoration */}
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
@@ -171,7 +171,7 @@ const GuidesSection = () => {
   if (!featuredGuide && secondaryGuides.length === 0) return null;
 
   return (
-    <section id="guides" className="relative py-16 md:py-24 bg-[hsl(30,50%,97%)] overflow-hidden">
+    <section id="guides" className="relative py-16 md:py-24 bg-white overflow-hidden">
       {/* Wave decoration at bottom */}
       <div className="absolute bottom-0 left-0 right-0">
         <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
