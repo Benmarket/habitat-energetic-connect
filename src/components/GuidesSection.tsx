@@ -177,9 +177,12 @@ const GuidesSection = () => {
 
   return (
     <section id="guides" className="relative py-16 md:py-24 pb-32 lg:pb-40 bg-white overflow-hidden">
-      {/* Decorative gradient blur element - right side only */}
+      {/* Decorative gradient blur elements */}
       <div className="absolute inset-0 pointer-events-none">
+        {/* Right side effect */}
         <div className="absolute top-20 right-10 w-64 h-64 bg-[hsl(24,95%,55%)]/10 rounded-full blur-3xl" />
+        {/* Center effect - between columns */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/4 w-80 h-80 bg-[hsl(24,95%,55%)]/8 rounded-full blur-3xl" />
       </div>
       
       {/* Wave decoration at bottom - with white space above on desktop */}
@@ -208,7 +211,7 @@ const GuidesSection = () => {
           {featuredGuide && (
             <div className="lg:col-span-7">
               <Link to={`/guide/${featuredGuide.slug}`} className="group block h-full">
-                <article className="relative h-full bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-[hsl(24,95%,55%)]/30">
+                <article className="relative h-full bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500 border-2 border-[hsl(24,95%,55%)]/30 hover:border-[hsl(24,95%,55%)]/50">
                   {/* Image with topline banner */}
                   <div className="relative h-64 md:h-80 overflow-hidden">
                     {featuredGuide.featured_image ? (
@@ -301,7 +304,7 @@ const GuidesSection = () => {
                   to={`/guide/${guide.slug}`} 
                   className="group block"
                 >
-                  <article className="flex gap-5 p-5 bg-card rounded-xl border border-border/50 hover:border-[hsl(24,95%,55%)]/30 hover:shadow-lg transition-all duration-300">
+                  <article className="flex gap-5 p-5 bg-card rounded-xl border-2 border-[hsl(24,95%,55%)]/20 hover:border-[hsl(24,95%,55%)]/40 shadow-sm hover:shadow-lg transition-all duration-300">
                     {/* Thumbnail */}
                     <div className="relative w-24 h-24 md:w-28 md:h-28 flex-shrink-0 rounded-lg overflow-hidden">
                       {guide.featured_image ? (
