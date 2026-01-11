@@ -139,11 +139,10 @@ const GuidesSection = () => {
 
   if (loading) {
     return (
-      <section className="relative py-16 md:py-24 bg-gradient-to-b from-orange-50/50 via-background to-background overflow-hidden">
-        {/* Decorative gradient blur elements */}
+      <section className="relative py-16 md:py-24 bg-white overflow-hidden">
+        {/* Decorative gradient blur element - right side only */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-20 right-10 w-64 h-64 bg-[hsl(24,95%,55%)]/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-40 left-10 w-80 h-80 bg-[hsl(24,95%,55%)]/10 rounded-full blur-3xl" />
         </div>
         
         {/* Wave decoration */}
@@ -177,11 +176,10 @@ const GuidesSection = () => {
   if (!featuredGuide && secondaryGuides.length === 0) return null;
 
   return (
-    <section id="guides" className="relative py-16 md:py-24 pb-32 lg:pb-40 bg-gradient-to-b from-orange-50/50 via-background to-background overflow-hidden">
-      {/* Decorative gradient blur elements */}
+    <section id="guides" className="relative py-16 md:py-24 pb-32 lg:pb-40 bg-white overflow-hidden">
+      {/* Decorative gradient blur element - right side only */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 right-10 w-64 h-64 bg-[hsl(24,95%,55%)]/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-40 left-10 w-80 h-80 bg-[hsl(24,95%,55%)]/10 rounded-full blur-3xl" />
       </div>
       
       {/* Wave decoration at bottom - with white space above on desktop */}
@@ -195,7 +193,7 @@ const GuidesSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         {/* Header - Style like NewsSection with green dash */}
         <div className="max-w-3xl mx-auto mb-8 md:mb-12">
-          <div className="w-16 h-1 bg-green-500 mb-4"></div>
+          <div className="w-16 h-1 bg-red-500 mb-4"></div>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Guides par projet
           </h2>
