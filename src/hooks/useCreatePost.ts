@@ -56,19 +56,47 @@ export interface CreatePostFormData {
 
 // Validation schema
 export const postSchema = z.object({
-  title: z.string().trim().min(5, "Le titre doit contenir au moins 5 caractères").max(200, "Le titre ne peut pas dépasser 200 caractères"),
-  slug: z.string().trim().min(3, "Le slug doit contenir au moins 3 caractères").max(200, "Le slug ne peut pas dépasser 200 caractères"),
-  excerpt: z.string().trim().max(500, "L'extrait ne peut pas dépasser 500 caractères").optional(),
+  title: z
+    .string()
+    .trim()
+    .min(5, "Le titre doit contenir au moins 5 caractères")
+    .max(200, "Le titre ne peut pas dépasser 200 caractères"),
+  slug: z
+    .string()
+    .trim()
+    .min(3, "Le slug doit contenir au moins 3 caractères")
+    .max(200, "Le slug ne peut pas dépasser 200 caractères"),
+  excerpt: z
+    .string()
+    .trim()
+    .max(770, "L'extrait ne peut pas dépasser 770 caractères")
+    .optional(),
   content: z.string().trim().min(50, "Le contenu doit contenir au moins 50 caractères"),
   featured_image: z.string().url("URL d'image invalide").optional().or(z.literal("")),
-  meta_title: z.string().trim().max(60, "Le titre SEO ne peut pas dépasser 60 caractères").optional(),
-  meta_description: z.string().trim().max(160, "La description SEO ne peut pas dépasser 160 caractères").optional(),
+  meta_title: z
+    .string()
+    .trim()
+    .max(60, "Le titre SEO ne peut pas dépasser 60 caractères")
+    .optional(),
+  meta_description: z
+    .string()
+    .trim()
+    .max(160, "La description SEO ne peut pas dépasser 160 caractères")
+    .optional(),
   focus_keywords: z.array(z.string()).optional(),
-  tldr: z.string().trim().max(500, "Le résumé TL;DR ne peut pas dépasser 500 caractères").optional(),
-  faq: z.array(z.object({
-    question: z.string().trim().min(5, "La question doit contenir au moins 5 caractères"),
-    answer: z.string().trim().min(10, "La réponse doit contenir au moins 10 caractères")
-  })).optional(),
+  tldr: z
+    .string()
+    .trim()
+    .max(500, "Le résumé TL;DR ne peut pas dépasser 500 caractères")
+    .optional(),
+  faq: z
+    .array(
+      z.object({
+        question: z.string().trim().min(5, "La question doit contenir au moins 5 caractères"),
+        answer: z.string().trim().min(10, "La réponse doit contenir au moins 10 caractères"),
+      })
+    )
+    .optional(),
 });
 
 // Helper functions
