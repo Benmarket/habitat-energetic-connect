@@ -134,8 +134,8 @@ const InstitutionalContextSection = () => {
 
               {/* Right Column - Steps */}
               <div className="relative">
-                {/* Vertical timeline line - Desktop only */}
-                <div className="hidden lg:block absolute left-12 top-28 bottom-28 w-0.5 bg-gradient-to-b from-slate-200 via-slate-300 to-slate-200 rounded-full">
+                {/* Vertical timeline line - Desktop only - positioned under the step circles */}
+                <div className="hidden lg:block absolute left-0 top-28 bottom-28 w-0.5 bg-gradient-to-b from-slate-200 via-slate-300 to-slate-200 rounded-full">
                   <div
                     className="absolute top-0 left-0 w-full bg-gradient-to-b from-blue-500 via-emerald-500 to-violet-500 rounded-full transition-all duration-700 ease-out"
                     style={{
@@ -144,7 +144,7 @@ const InstitutionalContextSection = () => {
                   />
                 </div>
 
-                <div className="space-y-6 lg:space-y-8 lg:pl-16">
+                <div className="space-y-6 lg:space-y-8 lg:pl-8">
                   {steps.map((step, index) => {
                     const isActive = index === activeStep;
                     const isPast = index < activeStep;
@@ -161,9 +161,9 @@ const InstitutionalContextSection = () => {
                             : "opacity-40 scale-90 translate-y-2"
                         }`}
                       >
-                        {/* Step indicator dot */}
+                        {/* Step indicator dot - positioned at left edge over the timeline */}
                         <div
-                          className={`hidden lg:flex absolute -left-16 top-6 w-8 h-8 rounded-full border-2 items-center justify-center transition-all duration-500 shadow-lg ${
+                          className={`hidden lg:flex absolute -left-4 top-6 w-8 h-8 rounded-full border-2 items-center justify-center transition-all duration-500 shadow-lg ${
                             isActive
                               ? "bg-gradient-to-br from-blue-500 to-blue-600 border-blue-400 text-white scale-125"
                               : isPast
