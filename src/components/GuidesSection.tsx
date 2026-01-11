@@ -217,7 +217,7 @@ const GuidesSection = () => {
               <Link to={`/guide/${featuredGuide.slug}`} className="group block h-full">
                 <article className="relative h-full bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-[hsl(24,95%,55%)]/30">
                   {/* Image with topline banner */}
-                  <div className="relative h-56 md:h-64 overflow-hidden">
+                  <div className="relative h-64 md:h-80 overflow-hidden">
                     {featuredGuide.featured_image ? (
                       <img
                         src={featuredGuide.featured_image}
@@ -282,13 +282,13 @@ const GuidesSection = () => {
                     </h3>
                     
                     {featuredGuide.excerpt && (
-                      <p className="text-muted-foreground text-sm line-clamp-3 mb-4 leading-relaxed">
+                      <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
                         {featuredGuide.excerpt}
                       </p>
                     )}
                     
                     <Button 
-                      className="bg-[hsl(24,95%,55%)] hover:bg-[hsl(24,95%,50%)] text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 w-fit"
+                      className="bg-[hsl(24,95%,55%)] hover:bg-[hsl(24,95%,50%)] text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 w-fit"
                     >
                       Lire le guide
                       <ArrowRight className="w-4 h-4 ml-2" />
