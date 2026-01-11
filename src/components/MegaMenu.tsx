@@ -11,13 +11,13 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 
-// Mapping des liens de clic pour chaque menu
+// Mapping des liens de clic pour chaque menu (ancres correspondant aux IDs réels des sections)
 const MENU_CLICK_LINKS: Record<string, string> = {
-  offres: "/#partner-offers",
-  guides: "/guides",
-  aides: "/aides",
-  actualite: "/actualites",
-  simulateurs: "/#simulators",
+  offres: "/#offres",           // Section "Offres partenaires" a l'id="offres"
+  guides: "/guides",            // Page guides
+  aides: "/aides",              // Page aides
+  actualite: "/actualites",     // Page actualités
+  simulateurs: "/#simulateurs", // Section simulateurs a l'id="simulateurs"
 };
 
 interface HomepageSection {
