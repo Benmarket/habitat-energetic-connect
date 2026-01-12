@@ -9,11 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, CheckCircle2, Lightbulb, Calculator, Zap, ArrowRight } from "lucide-react";
+import { Loader2, CheckCircle2, Lightbulb, Calculator, Zap, ArrowRight, User, Briefcase } from "lucide-react";
 
 const Aides = () => {
   const [searchParams] = useSearchParams();
   const [activeFilter, setActiveFilter] = useState(searchParams.get("category") || "toutes");
+  const [audienceFilter, setAudienceFilter] = useState(searchParams.get("audience") || "toutes");
   const [posts, setPosts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,12 +22,16 @@ const Aides = () => {
   useEffect(() => {
     fetchCategories();
     fetchPosts();
-  }, [activeFilter]);
+  }, [activeFilter, audienceFilter]);
 
   useEffect(() => {
     const category = searchParams.get("category");
+    const audience = searchParams.get("audience");
     if (category) {
       setActiveFilter(category);
+    }
+    if (audience) {
+      setAudienceFilter(audience);
     }
   }, [searchParams]);
 
@@ -61,11 +66,20 @@ const Aides = () => {
       
       if (data) {
         let filteredData = data;
+        
+        // Filter by category
         if (activeFilter !== "toutes") {
-          filteredData = data.filter((post: any) => 
+          filteredData = filteredData.filter((post: any) => 
             post.post_categories?.some((pc: any) => 
               pc.categories?.slug === activeFilter
             )
+          );
+        }
+        
+        // Filter by audience
+        if (audienceFilter !== "toutes") {
+          filteredData = filteredData.filter((post: any) => 
+            post.target_audience?.includes(audienceFilter)
           );
         }
 
@@ -175,11 +189,49 @@ const Aides = () => {
             </div>
           </section>
 
-          <section className="py-8 border-b border-border">
+          {/* Audience Filter */}
+          <section className="py-6 border-b border-border bg-muted/30">
             <div className="container mx-auto px-4">
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-sm font-medium text-muted-foreground">Public cible :</span>
+                <Button
+                  variant={audienceFilter === "toutes" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setAudienceFilter("toutes")}
+                  className="gap-2"
+                >
+                  Toutes
+                </Button>
+                <Button
+                  variant={audienceFilter === "particulier" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setAudienceFilter("particulier")}
+                  className="gap-2"
+                >
+                  <User className="w-4 h-4" />
+                  Particuliers
+                </Button>
+                <Button
+                  variant={audienceFilter === "professionnel" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setAudienceFilter("professionnel")}
+                  className="gap-2"
+                >
+                  <Briefcase className="w-4 h-4" />
+                  Professionnels
+                </Button>
+              </div>
+            </div>
+          </section>
+
+          {/* Category Filter */}
+          <section className="py-6 border-b border-border">
+            <div className="container mx-auto px-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-sm font-medium text-muted-foreground">Catégorie :</span>
                 <Button
                   variant={activeFilter === "toutes" ? "default" : "outline"}
+                  size="sm"
                   onClick={() => setActiveFilter("toutes")}
                 >
                   Toutes
@@ -188,6 +240,7 @@ const Aides = () => {
                   <Button
                     key={category.id}
                     variant={activeFilter === category.slug ? "default" : "outline"}
+                    size="sm"
                     onClick={() => setActiveFilter(category.slug)}
                   >
                     {category.name}
@@ -236,16 +289,34 @@ const Aides = () => {
                               <CardTitle className="text-base md:text-lg mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors font-bold leading-tight">
                                 {post.title}
                               </CardTitle>
-                              {category && (
-                                <div className="mb-1.5">
+                              <div className="flex flex-wrap gap-1.5 mb-1.5">
+                                {category && (
                                   <Badge
                                     variant="outline"
                                     className="text-[10px] bg-blue-500/10 text-blue-700 border-blue-500/30 font-semibold px-2 py-0.5"
                                   >
                                     {category.name}
                                   </Badge>
-                                </div>
-                              )}
+                                )}
+                                {post.target_audience?.includes('particulier') && (
+                                  <Badge
+                                    variant="outline"
+                                    className="text-[10px] bg-green-500/10 text-green-700 border-green-500/30 font-semibold px-2 py-0.5"
+                                  >
+                                    <User className="w-2.5 h-2.5 mr-1" />
+                                    Particulier
+                                  </Badge>
+                                )}
+                                {post.target_audience?.includes('professionnel') && (
+                                  <Badge
+                                    variant="outline"
+                                    className="text-[10px] bg-amber-500/10 text-amber-700 border-amber-500/30 font-semibold px-2 py-0.5"
+                                  >
+                                    <Briefcase className="w-2.5 h-2.5 mr-1" />
+                                    Professionnel
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
                           </div>
                           <CardDescription className="text-xs md:text-sm line-clamp-2 leading-snug">

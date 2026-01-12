@@ -1278,6 +1278,7 @@ export type Database = {
           slug: string
           source: string | null
           status: Database["public"]["Enums"]["post_status"]
+          target_audience: string[] | null
           template_colors: Json | null
           title: string
           tldr: string | null
@@ -1312,6 +1313,7 @@ export type Database = {
           slug: string
           source?: string | null
           status?: Database["public"]["Enums"]["post_status"]
+          target_audience?: string[] | null
           template_colors?: Json | null
           title: string
           tldr?: string | null
@@ -1346,6 +1348,7 @@ export type Database = {
           slug?: string
           source?: string | null
           status?: Database["public"]["Enums"]["post_status"]
+          target_audience?: string[] | null
           template_colors?: Json | null
           title?: string
           tldr?: string | null
