@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
-import naturePrimeGif from "@/assets/nature-prime.gif";
+import naturePrimeGif from "@/assets/nature-prime-energies.gif";
 
 const formSchema = z.object({
   propertyType: z.enum(["maison", "appartement"]),
