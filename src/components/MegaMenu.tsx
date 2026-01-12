@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Sun, Droplet, Home, FileText, Calculator, Lightbulb, Newspaper } from "lucide-react";
+import { Sun, Droplet, Home, FileText, Calculator, Lightbulb, Newspaper, User, Briefcase } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -88,13 +88,22 @@ const megaMenuData = {
     title: "Aides",
     categories: [
       {
-        icon: Lightbulb,
-        title: "AIDES & SUBVENTIONS",
+        icon: User,
+        title: "PARTICULIERS",
         items: [
-          { label: "MaPrimeRénov'", href: "/aides/maprimorenov" },
-          { label: "CEE", href: "/aides/cee" },
-          { label: "Éco-PTZ", href: "/aides/eco-ptz" },
-          { label: "TVA réduite", href: "/aides/tva-reduite" },
+          { label: "Toutes les aides particuliers", href: "/aides?audience=particulier" },
+          { label: "MaPrimeRénov'", href: "/aides?audience=particulier" },
+          { label: "CEE", href: "/aides?audience=particulier" },
+          { label: "Éco-PTZ", href: "/aides?audience=particulier" },
+        ],
+      },
+      {
+        icon: Briefcase,
+        title: "PROFESSIONNELS",
+        items: [
+          { label: "Toutes les aides professionnels", href: "/aides?audience=professionnel" },
+          { label: "Aides entreprises", href: "/aides?audience=professionnel" },
+          { label: "Subventions pros", href: "/aides?audience=professionnel" },
         ],
       },
     ],
@@ -283,12 +292,12 @@ export const MegaMenu = () => {
           </NavigationMenuItem>
         )}
 
-        {/* Aides - Always visible (no direct section mapping) */}
+        {/* Aides - Two columns: Particuliers and Professionnels */}
         {sectionVisibility.aides && (
           <NavigationMenuItem>
             <NavigationMenuTrigger className="px-2 py-1.5 text-sm" onClick={() => handleMenuClick('aides')}>Aides</NavigationMenuTrigger>
             <NavigationMenuContent>
-              <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
+              <div className="grid grid-cols-2 gap-6 p-6 w-[500px] bg-background">
                 {megaMenuData.aides.categories.map((category, idx) => (
                   <div key={idx}>
                     <div className="flex items-center gap-2 mb-3">
