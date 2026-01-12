@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
+import { useRegionContext, regionNameToCode, RegionCode } from "@/hooks/useRegionContext";
 
 // Import region images
 import franceImg from "@/assets/regions/france.png";
@@ -8,14 +9,21 @@ import reunionImg from "@/assets/regions/reunion.png";
 import martiniqueImg from "@/assets/regions/martinique.png";
 import guadeloupeImg from "@/assets/regions/guadeloupe.png";
 import guyaneImg from "@/assets/regions/guyane.png";
+import { useState } from "react";
 
-const regions = [
-  { name: "France", image: franceImg },
-  { name: "Corse", image: corseImg },
-  { name: "Réunion", image: reunionImg },
-  { name: "Martinique", image: martiniqueImg },
-  { name: "Guadeloupe", image: guadeloupeImg },
-  { name: "Guyane", image: guyaneImg },
+interface RegionData {
+  name: string;
+  code: RegionCode;
+  image: string;
+}
+
+const regions: RegionData[] = [
+  { name: "France", code: "fr", image: franceImg },
+  { name: "Corse", code: "corse", image: corseImg },
+  { name: "Réunion", code: "reunion", image: reunionImg },
+  { name: "Martinique", code: "martinique", image: martiniqueImg },
+  { name: "Guadeloupe", code: "guadeloupe", image: guadeloupeImg },
+  { name: "Guyane", code: "guyane", image: guyaneImg },
 ];
 
 interface RegionSubHeaderProps {
@@ -23,7 +31,7 @@ interface RegionSubHeaderProps {
 }
 
 const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
-  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+  const { activeRegion, setActiveRegion } = useRegionContext();
   // Manual override: null = follow auto, true = force closed, false = force open
   const [manualOverride, setManualOverride] = useState<boolean | null>(null);
   const prevIsScrolled = useRef(isScrolled);
@@ -40,8 +48,8 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
   // Determine collapsed state
   const isCollapsed = manualOverride !== null ? manualOverride : isScrolled;
 
-  const handleRegionClick = (regionName: string) => {
-    setSelectedRegion(regionName);
+  const handleRegionClick = (regionCode: RegionCode) => {
+    setActiveRegion(regionCode);
   };
 
   const handleToggle = () => {
@@ -65,26 +73,53 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
       >
         <div className="container mx-auto px-1 md:px-8 lg:px-12">
           <div className="flex items-center justify-between pt-4 pb-3 md:pt-5 md:pb-4 gap-0.5 md:gap-2">
-            {regions.map((region) => (
-              <button
-                key={region.name}
-                onClick={() => handleRegionClick(region.name)}
-                className={`group flex flex-col items-center gap-1 flex-1 transition-all duration-200 hover:scale-110 focus:outline-none ${
-                  selectedRegion === region.name ? "scale-105" : ""
-                }`}
-              >
-                <div className="relative w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center">
-                  <img
-                    src={region.image}
-                    alt={region.name}
-                    className="w-full h-full object-contain transition-transform duration-200 group-hover:scale-115"
-                  />
-                </div>
-                <span className="text-[10px] md:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors whitespace-nowrap">
-                  {region.name}
-                </span>
-              </button>
-            ))}
+            {regions.map((region) => {
+              const isActive = activeRegion === region.code;
+              
+              return (
+                <button
+                  key={region.code}
+                  onClick={() => handleRegionClick(region.code)}
+                  className={`group flex flex-col items-center gap-1 flex-1 transition-all duration-200 focus:outline-none cursor-pointer ${
+                    isActive 
+                      ? "scale-105" 
+                      : "opacity-60 hover:opacity-90 hover:scale-105"
+                  }`}
+                  aria-pressed={isActive}
+                  aria-label={`Sélectionner la région ${region.name}`}
+                >
+                  {/* Image container with conditional glow */}
+                  <div 
+                    className={`relative w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center transition-all duration-300 ${
+                      isActive 
+                        ? "drop-shadow-[0_0_8px_hsl(var(--primary)/0.4)]" 
+                        : ""
+                    }`}
+                  >
+                    <img
+                      src={region.image}
+                      alt={region.name}
+                      className={`w-full h-full object-contain transition-all duration-200 ${
+                        isActive 
+                          ? "brightness-110" 
+                          : "group-hover:brightness-105"
+                      }`}
+                    />
+                  </div>
+                  
+                  {/* Region name with enhanced styling for active state */}
+                  <span 
+                    className={`text-[10px] md:text-sm whitespace-nowrap transition-all duration-200 ${
+                      isActive 
+                        ? "font-semibold text-primary" 
+                        : "font-medium text-muted-foreground group-hover:text-foreground"
+                    }`}
+                  >
+                    {region.name}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
