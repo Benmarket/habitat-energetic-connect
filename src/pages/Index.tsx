@@ -21,6 +21,7 @@ import ReviewsSection from "@/components/ReviewsSection";
 import ContactSection from "@/components/ContactSection";
 import AppDownloadSection from "@/components/AppDownloadSection";
 import { supabase } from "@/integrations/supabase/client";
+import { useRegionContext, RegionCode } from "@/hooks/useRegionContext";
 
 interface HomepageSection {
   id: string;
@@ -28,26 +29,27 @@ interface HomepageSection {
   anchor: string;
   visible: boolean;
   order: number;
+  regionVisibility?: RegionCode[]; // Liste des régions où la section est visible (vide = toutes)
 }
 
 const DEFAULT_SECTIONS: HomepageSection[] = [
-  { id: 'hero', name: 'Hero Principal', anchor: '#hero', visible: true, order: 0 },
-  { id: 'institutional-context', name: 'Parcours Institutionnel', anchor: '#parcours', visible: true, order: 1 },
-  { id: 'solar-banner', name: 'Bannière Solaire', anchor: '#solaire', visible: true, order: 2 },
-  { id: 'why-solar', name: 'Pourquoi le Solaire', anchor: '#pourquoi-solaire', visible: true, order: 3 },
-  { id: 'renovation', name: 'Programme Rénovation', anchor: '#renovation', visible: true, order: 4 },
-  { id: 'news', name: 'Actualités', anchor: '#actualites', visible: true, order: 5 },
-  { id: 'aides', name: 'Aides disponibles', anchor: '#aides', visible: true, order: 6 },
-  { id: 'guides', name: 'Guides par projet', anchor: '#guides', visible: true, order: 7 },
-  { id: 'eligibility', name: 'Étude gratuite (formulaire)', anchor: '#etude', visible: true, order: 8 },
-  { id: 'simulators', name: 'Simulateurs', anchor: '#simulateurs', visible: true, order: 9 },
-  { id: 'installers', name: 'Trouver un installateur', anchor: '#installateurs', visible: true, order: 10 },
-  { id: 'partner-offers', name: 'Offres partenaires', anchor: '#offres', visible: true, order: 11 },
-  { id: 'cta-partner', name: 'Devenir partenaire', anchor: '#devenir-partenaire', visible: true, order: 12 },
-  { id: 'faq', name: 'FAQ', anchor: '#faq', visible: true, order: 13 },
-  { id: 'reviews', name: 'Avis clients', anchor: '#avis', visible: true, order: 14 },
-  { id: 'contact', name: 'Contact', anchor: '#contact', visible: true, order: 15 },
-  { id: 'app-download', name: 'Télécharger l\'app', anchor: '#app', visible: true, order: 16 },
+  { id: 'hero', name: 'Hero Principal', anchor: '#hero', visible: true, order: 0, regionVisibility: [] },
+  { id: 'institutional-context', name: 'Parcours Institutionnel', anchor: '#parcours', visible: true, order: 1, regionVisibility: [] },
+  { id: 'solar-banner', name: 'Bannière Solaire', anchor: '#solaire', visible: true, order: 2, regionVisibility: [] },
+  { id: 'why-solar', name: 'Pourquoi le Solaire', anchor: '#pourquoi-solaire', visible: true, order: 3, regionVisibility: [] },
+  { id: 'renovation', name: 'Programme Rénovation', anchor: '#renovation', visible: true, order: 4, regionVisibility: [] },
+  { id: 'news', name: 'Actualités', anchor: '#actualites', visible: true, order: 5, regionVisibility: [] },
+  { id: 'aides', name: 'Aides disponibles', anchor: '#aides', visible: true, order: 6, regionVisibility: [] },
+  { id: 'guides', name: 'Guides par projet', anchor: '#guides', visible: true, order: 7, regionVisibility: [] },
+  { id: 'eligibility', name: 'Étude gratuite (formulaire)', anchor: '#etude', visible: true, order: 8, regionVisibility: [] },
+  { id: 'simulators', name: 'Simulateurs', anchor: '#simulateurs', visible: true, order: 9, regionVisibility: [] },
+  { id: 'installers', name: 'Trouver un installateur', anchor: '#installateurs', visible: true, order: 10, regionVisibility: [] },
+  { id: 'partner-offers', name: 'Offres partenaires', anchor: '#offres', visible: true, order: 11, regionVisibility: [] },
+  { id: 'cta-partner', name: 'Devenir partenaire', anchor: '#devenir-partenaire', visible: true, order: 12, regionVisibility: [] },
+  { id: 'faq', name: 'FAQ', anchor: '#faq', visible: true, order: 13, regionVisibility: [] },
+  { id: 'reviews', name: 'Avis clients', anchor: '#avis', visible: true, order: 14, regionVisibility: [] },
+  { id: 'contact', name: 'Contact', anchor: '#contact', visible: true, order: 15, regionVisibility: [] },
+  { id: 'app-download', name: 'Télécharger l\'app', anchor: '#app', visible: true, order: 16, regionVisibility: [] },
 ];
 
 const SECTION_COMPONENTS: Record<string, React.FC> = {
@@ -72,6 +74,7 @@ const SECTION_COMPONENTS: Record<string, React.FC> = {
 
 const Index = () => {
   const [sections, setSections] = useState<HomepageSection[]>(DEFAULT_SECTIONS);
+  const { activeRegion } = useRegionContext();
 
   useEffect(() => {
     const loadSections = async () => {
@@ -99,7 +102,9 @@ const Index = () => {
               ...section,
               // Ensure visible is properly cast to boolean
               visible: Boolean(section.visible),
-              order: typeof section.order === 'number' ? section.order : 0
+              order: typeof section.order === 'number' ? section.order : 0,
+              // Ensure regionVisibility is an array
+              regionVisibility: Array.isArray(section.regionVisibility) ? section.regionVisibility : [],
             }))
             .sort((a, b) => a.order - b.order);
           
@@ -112,6 +117,21 @@ const Index = () => {
 
     loadSections();
   }, []);
+
+  // Filter sections based on visibility and region
+  const visibleSections = sections.filter(section => {
+    // First check global visibility
+    if (!section.visible) return false;
+    
+    // Then check region visibility
+    const regionVisibility = section.regionVisibility || [];
+    
+    // If no regions specified, visible everywhere
+    if (regionVisibility.length === 0) return true;
+    
+    // Otherwise, check if current region is in the list
+    return regionVisibility.includes(activeRegion);
+  });
 
   return (
     <>
@@ -136,12 +156,10 @@ const Index = () => {
 
       <div className="min-h-screen bg-background">
         <Header />
-        {sections
-          .filter(section => section.visible)
-          .map(section => {
-            const Component = SECTION_COMPONENTS[section.id];
-            return Component ? <Component key={section.id} /> : null;
-          })}
+        {visibleSections.map(section => {
+          const Component = SECTION_COMPONENTS[section.id];
+          return Component ? <Component key={section.id} /> : null;
+        })}
         <Footer />
       </div>
     </>
