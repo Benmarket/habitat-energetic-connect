@@ -1,10 +1,14 @@
-import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
+  Gauge, 
+  Sun, 
+  Flame, 
+  ShieldCheck, 
+  Wind, 
+  TrendingUp,
   ArrowRight,
-  Zap,
-  CheckCircle2
+  Zap
 } from "lucide-react";
 import {
   Carousel,
@@ -12,7 +16,6 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-  type CarouselApi,
 } from "@/components/ui/carousel";
 import classeEnergetiqueImg from "@/assets/simulators/classe-energetique.png";
 import maisonSolaireImg from "@/assets/simulators/maison-solaire.png";
@@ -25,32 +28,15 @@ interface Simulator {
   id: string;
   title: string;
   description: string;
+  icon?: React.ElementType;
   image?: string;
   gradient: string;
   iconBg: string;
   ctaText: string;
-  features: string[];
 }
 
 const SimulatorsSection = () => {
-  const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
-
   const simulators: Simulator[] = [
-    {
-      id: "solaire",
-      title: "Économies avec le solaire",
-      description: "Projetez vos économies potentielles grâce à l'installation photovoltaïque.",
-      image: maisonSolaireImg,
-      gradient: "from-orange-500 to-yellow-500",
-      iconBg: "bg-orange-50",
-      ctaText: "Simuler le solaire",
-      features: [
-        "Estimation de production annuelle",
-        "Calcul des économies sur 25 ans",
-        "Aides et subventions disponibles"
-      ]
-    },
     {
       id: "classe-energetique",
       title: "Classe énergétique",
@@ -58,12 +44,16 @@ const SimulatorsSection = () => {
       image: classeEnergetiqueImg,
       gradient: "from-blue-500 to-cyan-500",
       iconBg: "bg-blue-50",
-      ctaText: "Simuler ma classe",
-      features: [
-        "Diagnostic rapide en 2 minutes",
-        "Score DPE estimé de A à G",
-        "Recommandations personnalisées"
-      ]
+      ctaText: "Simuler ma classe"
+    },
+    {
+      id: "solaire",
+      title: "Économies avec le solaire",
+      description: "Projetez vos économies potentielles grâce à l'installation photovoltaïque.",
+      image: maisonSolaireImg,
+      gradient: "from-orange-500 to-yellow-500",
+      iconBg: "bg-orange-50",
+      ctaText: "Simuler le solaire"
     },
     {
       id: "pompe-chaleur",
@@ -72,12 +62,7 @@ const SimulatorsSection = () => {
       image: pompeChaleurImg,
       gradient: "from-red-500 to-orange-500",
       iconBg: "bg-red-50",
-      ctaText: "Simuler la PAC",
-      features: [
-        "Comparatif coûts gaz/fioul/PAC",
-        "Économies annuelles estimées",
-        "Montant des aides MaPrimeRénov'"
-      ]
+      ctaText: "Simuler la PAC"
     },
     {
       id: "isolation",
@@ -86,12 +71,7 @@ const SimulatorsSection = () => {
       image: isolationImg,
       gradient: "from-purple-500 to-pink-500",
       iconBg: "bg-purple-50",
-      ctaText: "Simuler l'isolation",
-      features: [
-        "Analyse des déperditions thermiques",
-        "Priorité des travaux à réaliser",
-        "Budget et retour sur investissement"
-      ]
+      ctaText: "Simuler l'isolation"
     },
     {
       id: "eolienne",
@@ -100,12 +80,7 @@ const SimulatorsSection = () => {
       image: eolienneImg,
       gradient: "from-teal-500 to-cyan-500",
       iconBg: "bg-teal-50",
-      ctaText: "Simuler l'éolien",
-      features: [
-        "Potentiel éolien de votre zone",
-        "Production estimée en kWh/an",
-        "Rentabilité sur 20 ans"
-      ]
+      ctaText: "Simuler l'éolien"
     },
     {
       id: "global",
@@ -114,24 +89,9 @@ const SimulatorsSection = () => {
       image: simulateurSubventionsImg,
       gradient: "from-indigo-500 to-purple-600",
       iconBg: "bg-indigo-50",
-      ctaText: "Lancer le simulateur",
-      features: [
-        "Toutes les aides en un seul calcul",
-        "Cumul MaPrimeRénov' + CEE",
-        "Reste à charge personnalisé"
-      ]
+      ctaText: "Lancer le simulateur"
     }
   ];
-
-  useEffect(() => {
-    if (!api) return;
-
-    setCurrent(api.selectedScrollSnap());
-
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap());
-    });
-  }, [api]);
 
   return (
     <section id="simulateurs" className="pt-6 pb-12 md:py-16 lg:py-20 bg-white relative overflow-hidden">
@@ -156,85 +116,62 @@ const SimulatorsSection = () => {
         {/* Simulators Carousel */}
         <div className="max-w-7xl mx-auto mt-6">
           <Carousel
-            setApi={setApi}
             opts={{
               align: "start",
               loop: true,
             }}
             className="w-full"
           >
-            <CarouselContent className="-ml-2 md:-ml-4">
-              {simulators.map((simulator, index) => {
-                const isActive = index === current;
-                
+            <CarouselContent className="-ml-4">
+              {simulators.map((simulator) => {
+                const IconComponent = simulator.icon;
                 return (
-                  <CarouselItem 
-                    key={simulator.id} 
-                    className={`pl-2 md:pl-4 basis-[85%] sm:basis-1/2 ${
-                      isActive 
-                        ? 'md:basis-[45%] lg:basis-[35%]' 
-                        : 'md:basis-[22%] lg:basis-[16%]'
-                    }`}
-                  >
-                    <Card className={`group relative overflow-hidden border-2 transition-all duration-300 ease-out bg-card/50 backdrop-blur-sm h-full ${
-                      isActive 
-                        ? 'border-primary/50 shadow-2xl' 
-                        : 'hover:border-primary/30 hover:shadow-xl hover:-translate-y-1'
-                    }`}>
-                      {/* Gradient overlay */}
-                      <div className={`absolute inset-0 bg-gradient-to-br ${simulator.gradient} ${isActive ? 'opacity-5' : 'opacity-0 group-hover:opacity-10'} transition-opacity duration-300`}></div>
+                  <CarouselItem key={simulator.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                    <Card className="group relative overflow-hidden border-2 hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 bg-card/50 backdrop-blur-sm h-full">
+                      {/* Gradient overlay on hover */}
+                      <div className={`absolute inset-0 bg-gradient-to-br ${simulator.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
                       
-                      <CardContent className={`relative z-10 flex flex-col h-full transition-all duration-300 ${isActive ? 'p-5 md:p-6' : 'p-4'}`}>
+                      {/* Animated border gradient */}
+                      <div className={`absolute inset-0 bg-gradient-to-br ${simulator.gradient} opacity-0 group-hover:opacity-20 blur-xl transition-all duration-500`}></div>
+                      
+                      <CardContent className="p-8 relative z-10 flex flex-col h-full">
                         {/* Icon or Image */}
-                        <div className={`${simulator.iconBg} ${isActive ? 'w-16 h-16 md:w-18 md:h-18' : 'w-12 h-12'} rounded-xl flex items-center justify-center mb-3 md:mb-4 group-hover:scale-105 transition-all duration-300 shadow-md relative overflow-hidden`}>
-                          <div className={`absolute inset-0 bg-gradient-to-br ${simulator.gradient} opacity-0 group-hover:opacity-20 rounded-xl transition-opacity duration-300`}></div>
-                          {simulator.image && (
+                        <div className={`${simulator.iconBg} w-20 h-20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-500 shadow-lg group-hover:shadow-xl relative overflow-hidden`}>
+                          <div className={`absolute inset-0 bg-gradient-to-br ${simulator.gradient} opacity-0 group-hover:opacity-20 rounded-2xl transition-opacity duration-500`}></div>
+                          {simulator.image ? (
                             <img 
                               src={simulator.image} 
                               alt={simulator.title}
-                              className={`${isActive ? 'w-10 h-10 md:w-12 md:h-12' : 'w-8 h-8'} ${simulator.id === 'classe-energetique' ? (isActive ? 'w-8 h-8 md:w-10 md:h-10' : 'w-6 h-6') : ''} object-contain group-hover:scale-105 transition-transform duration-300`}
+                              className={`${simulator.id === 'classe-energetique' ? 'w-10 h-10' : 'w-14 h-14'} object-contain group-hover:scale-110 transition-transform duration-500`}
                             />
-                          )}
+                          ) : IconComponent ? (
+                            <IconComponent className={`w-10 h-10 bg-gradient-to-br ${simulator.gradient} bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500`} strokeWidth={2.5} />
+                          ) : null}
                         </div>
 
                         {/* Title */}
-                        <h3 className={`font-bold mb-2 group-hover:text-primary transition-colors duration-300 ${
-                          isActive ? 'text-lg md:text-xl' : 'text-sm md:text-base'
-                        }`}>
+                        <h3 className="text-2xl font-bold mb-4 group-hover:text-primary transition-colors duration-300">
                           {simulator.title}
                         </h3>
 
                         {/* Description */}
-                        <p className={`text-muted-foreground leading-relaxed mb-3 flex-grow ${
-                          isActive ? 'text-sm md:text-base' : 'text-xs line-clamp-2'
-                        }`}>
+                        <p className="text-muted-foreground leading-relaxed mb-6 flex-grow">
                           {simulator.description}
                         </p>
 
-                        {/* Features - Only for active card */}
-                        {isActive && (
-                          <div className="space-y-1.5 mb-4 border-t border-border/50 pt-3">
-                            {simulator.features.map((feature, idx) => (
-                              <div key={idx} className="flex items-center gap-2">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                                <span className="text-xs md:text-sm text-foreground">{feature}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
                         {/* CTA Button */}
                         <Button 
-                          className={`w-full bg-gradient-to-r ${simulator.gradient} hover:shadow-lg hover:scale-[1.02] transition-all duration-300 text-white font-semibold group/btn relative overflow-hidden ${
-                            isActive ? 'py-5 text-sm md:text-base' : 'py-3 text-xs'
-                          }`}
+                          className={`w-full bg-gradient-to-r ${simulator.gradient} hover:shadow-xl hover:scale-105 transition-all duration-300 text-white font-semibold py-6 text-base group/btn relative overflow-hidden`}
                         >
-                          <span className="relative z-10 flex items-center justify-center gap-1.5">
+                          <span className="relative z-10 flex items-center justify-center gap-2">
                             {simulator.ctaText}
-                            <ArrowRight className={`${isActive ? 'w-4 h-4' : 'w-3 h-3'} group-hover/btn:translate-x-0.5 transition-transform duration-300`} />
+                            <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform duration-300" />
                           </span>
-                          <div className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-500"></div>
+                          <div className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700"></div>
                         </Button>
+
+                        {/* Decorative corner element */}
+                        <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${simulator.gradient} opacity-0 group-hover:opacity-10 rounded-bl-full transition-all duration-500 transform translate-x-16 -translate-y-16 group-hover:translate-x-0 group-hover:translate-y-0`}></div>
                       </CardContent>
                     </Card>
                   </CarouselItem>
@@ -243,9 +180,9 @@ const SimulatorsSection = () => {
             </CarouselContent>
             
             {/* Navigation Buttons */}
-            <div className="flex justify-center gap-3 mt-6">
-              <CarouselPrevious className="relative inset-0 translate-y-0 h-10 w-10 bg-primary/10 hover:bg-primary hover:text-white border-2 border-primary/30 hover:border-primary transition-all duration-300 shadow-md" />
-              <CarouselNext className="relative inset-0 translate-y-0 h-10 w-10 bg-primary/10 hover:bg-primary hover:text-white border-2 border-primary/30 hover:border-primary transition-all duration-300 shadow-md" />
+            <div className="flex justify-center gap-4 mt-6">
+              <CarouselPrevious className="relative inset-0 translate-y-0 h-11 w-11 bg-primary/10 hover:bg-primary hover:text-white border-2 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-110 shadow-lg" />
+              <CarouselNext className="relative inset-0 translate-y-0 h-11 w-11 bg-primary/10 hover:bg-primary hover:text-white border-2 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-110 shadow-lg" />
             </div>
           </Carousel>
         </div>
