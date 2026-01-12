@@ -163,59 +163,61 @@ const SimulatorsSection = () => {
             }}
             className="w-full"
           >
-            <CarouselContent className="-ml-4">
+            <CarouselContent className="-ml-2 md:-ml-4">
               {simulators.map((simulator, index) => {
                 const isActive = index === current;
                 
                 return (
                   <CarouselItem 
                     key={simulator.id} 
-                    className={`pl-4 transition-all duration-500 ${
-                      isActive ? 'md:basis-1/2 lg:basis-2/5' : 'md:basis-1/3 lg:basis-1/5'
+                    className={`pl-2 md:pl-4 basis-[85%] sm:basis-1/2 ${
+                      isActive 
+                        ? 'md:basis-[45%] lg:basis-[35%]' 
+                        : 'md:basis-[22%] lg:basis-[16%]'
                     }`}
                   >
-                    <Card className={`group relative overflow-hidden border-2 transition-all duration-500 bg-card/50 backdrop-blur-sm h-full ${
+                    <Card className={`group relative overflow-hidden border-2 transition-all duration-300 ease-out bg-card/50 backdrop-blur-sm h-full ${
                       isActive 
-                        ? 'border-primary/50 shadow-2xl scale-100' 
-                        : 'hover:border-primary/30 hover:shadow-xl hover:-translate-y-2'
+                        ? 'border-primary/50 shadow-2xl' 
+                        : 'hover:border-primary/30 hover:shadow-xl hover:-translate-y-1'
                     }`}>
                       {/* Gradient overlay */}
-                      <div className={`absolute inset-0 bg-gradient-to-br ${simulator.gradient} ${isActive ? 'opacity-5' : 'opacity-0 group-hover:opacity-10'} transition-opacity duration-500`}></div>
+                      <div className={`absolute inset-0 bg-gradient-to-br ${simulator.gradient} ${isActive ? 'opacity-5' : 'opacity-0 group-hover:opacity-10'} transition-opacity duration-300`}></div>
                       
-                      <CardContent className={`relative z-10 flex flex-col h-full ${isActive ? 'p-6 md:p-8' : 'p-5'}`}>
+                      <CardContent className={`relative z-10 flex flex-col h-full transition-all duration-300 ${isActive ? 'p-5 md:p-6' : 'p-4'}`}>
                         {/* Icon or Image */}
-                        <div className={`${simulator.iconBg} ${isActive ? 'w-20 h-20' : 'w-14 h-14'} rounded-2xl flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 transition-all duration-500 shadow-lg relative overflow-hidden`}>
-                          <div className={`absolute inset-0 bg-gradient-to-br ${simulator.gradient} opacity-0 group-hover:opacity-20 rounded-2xl transition-opacity duration-500`}></div>
+                        <div className={`${simulator.iconBg} ${isActive ? 'w-16 h-16 md:w-18 md:h-18' : 'w-12 h-12'} rounded-xl flex items-center justify-center mb-3 md:mb-4 group-hover:scale-105 transition-all duration-300 shadow-md relative overflow-hidden`}>
+                          <div className={`absolute inset-0 bg-gradient-to-br ${simulator.gradient} opacity-0 group-hover:opacity-20 rounded-xl transition-opacity duration-300`}></div>
                           {simulator.image && (
                             <img 
                               src={simulator.image} 
                               alt={simulator.title}
-                              className={`${isActive ? 'w-14 h-14' : 'w-10 h-10'} ${simulator.id === 'classe-energetique' ? (isActive ? 'w-10 h-10' : 'w-7 h-7') : ''} object-contain group-hover:scale-110 transition-transform duration-500`}
+                              className={`${isActive ? 'w-10 h-10 md:w-12 md:h-12' : 'w-8 h-8'} ${simulator.id === 'classe-energetique' ? (isActive ? 'w-8 h-8 md:w-10 md:h-10' : 'w-6 h-6') : ''} object-contain group-hover:scale-105 transition-transform duration-300`}
                             />
                           )}
                         </div>
 
                         {/* Title */}
-                        <h3 className={`font-bold mb-3 group-hover:text-primary transition-colors duration-300 ${
-                          isActive ? 'text-xl md:text-2xl' : 'text-base md:text-lg'
+                        <h3 className={`font-bold mb-2 group-hover:text-primary transition-colors duration-300 ${
+                          isActive ? 'text-lg md:text-xl' : 'text-sm md:text-base'
                         }`}>
                           {simulator.title}
                         </h3>
 
                         {/* Description */}
-                        <p className={`text-muted-foreground leading-relaxed mb-4 flex-grow ${
-                          isActive ? 'text-base' : 'text-sm line-clamp-2'
+                        <p className={`text-muted-foreground leading-relaxed mb-3 flex-grow ${
+                          isActive ? 'text-sm md:text-base' : 'text-xs line-clamp-2'
                         }`}>
                           {simulator.description}
                         </p>
 
                         {/* Features - Only for active card */}
                         {isActive && (
-                          <div className="space-y-2 mb-5 border-t border-border/50 pt-4">
+                          <div className="space-y-1.5 mb-4 border-t border-border/50 pt-3">
                             {simulator.features.map((feature, idx) => (
                               <div key={idx} className="flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                                <span className="text-sm text-foreground">{feature}</span>
+                                <CheckCircle2 className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                                <span className="text-xs md:text-sm text-foreground">{feature}</span>
                               </div>
                             ))}
                           </div>
@@ -223,15 +225,15 @@ const SimulatorsSection = () => {
 
                         {/* CTA Button */}
                         <Button 
-                          className={`w-full bg-gradient-to-r ${simulator.gradient} hover:shadow-xl hover:scale-105 transition-all duration-300 text-white font-semibold group/btn relative overflow-hidden ${
-                            isActive ? 'py-6 text-base' : 'py-4 text-sm'
+                          className={`w-full bg-gradient-to-r ${simulator.gradient} hover:shadow-lg hover:scale-[1.02] transition-all duration-300 text-white font-semibold group/btn relative overflow-hidden ${
+                            isActive ? 'py-5 text-sm md:text-base' : 'py-3 text-xs'
                           }`}
                         >
-                          <span className="relative z-10 flex items-center justify-center gap-2">
+                          <span className="relative z-10 flex items-center justify-center gap-1.5">
                             {simulator.ctaText}
-                            <ArrowRight className={`${isActive ? 'w-5 h-5' : 'w-4 h-4'} group-hover/btn:translate-x-1 transition-transform duration-300`} />
+                            <ArrowRight className={`${isActive ? 'w-4 h-4' : 'w-3 h-3'} group-hover/btn:translate-x-0.5 transition-transform duration-300`} />
                           </span>
-                          <div className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700"></div>
+                          <div className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-500"></div>
                         </Button>
                       </CardContent>
                     </Card>
@@ -241,9 +243,9 @@ const SimulatorsSection = () => {
             </CarouselContent>
             
             {/* Navigation Buttons */}
-            <div className="flex justify-center gap-4 mt-6">
-              <CarouselPrevious className="relative inset-0 translate-y-0 h-11 w-11 bg-primary/10 hover:bg-primary hover:text-white border-2 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-110 shadow-lg" />
-              <CarouselNext className="relative inset-0 translate-y-0 h-11 w-11 bg-primary/10 hover:bg-primary hover:text-white border-2 border-primary/30 hover:border-primary transition-all duration-300 hover:scale-110 shadow-lg" />
+            <div className="flex justify-center gap-3 mt-6">
+              <CarouselPrevious className="relative inset-0 translate-y-0 h-10 w-10 bg-primary/10 hover:bg-primary hover:text-white border-2 border-primary/30 hover:border-primary transition-all duration-300 shadow-md" />
+              <CarouselNext className="relative inset-0 translate-y-0 h-10 w-10 bg-primary/10 hover:bg-primary hover:text-white border-2 border-primary/30 hover:border-primary transition-all duration-300 shadow-md" />
             </div>
           </Carousel>
         </div>
