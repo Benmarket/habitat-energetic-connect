@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { RegionProvider } from "@/hooks/useRegionContext";
 import MaintenanceMode from "@/components/MaintenanceMode";
 import CookieBanner from "@/components/CookieBanner";
 import { ScrollToTop } from "@/components/ScrollToTop";
@@ -75,91 +76,93 @@ const PageLoader = () => (
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <ScrollToTop />
-          <MaintenanceMode>
-            <Suspense fallback={null}>
-              <ChatBot />
-              <SitePopup />
-            </Suspense>
-            <CookieBanner />
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                {/* Public pages - eagerly loaded */}
-                <Route path="/" element={<Index />} />
-                <Route path="/actualites" element={<Actualites />} />
-                <Route path="/actualites/:categorySlug/:slug" element={<ArticleDetail />} />
-                <Route path="/aides" element={<Aides />} />
-                <Route path="/aide/:slug" element={<ArticleDetail />} />
-                <Route path="/guides" element={<Guides />} />
-                <Route path="/guide/:slug" element={<GuideDetail />} />
-                <Route path="/connexion" element={<Auth />} />
+      <RegionProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <ScrollToTop />
+            <MaintenanceMode>
+              <Suspense fallback={null}>
+                <ChatBot />
+                <SitePopup />
+              </Suspense>
+              <CookieBanner />
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  {/* Public pages - eagerly loaded */}
+                  <Route path="/" element={<Index />} />
+                  <Route path="/actualites" element={<Actualites />} />
+                  <Route path="/actualites/:categorySlug/:slug" element={<ArticleDetail />} />
+                  <Route path="/aides" element={<Aides />} />
+                  <Route path="/aide/:slug" element={<ArticleDetail />} />
+                  <Route path="/guides" element={<Guides />} />
+                  <Route path="/guide/:slug" element={<GuideDetail />} />
+                  <Route path="/connexion" element={<Auth />} />
 
-                {/* Authenticated pages - lazy loaded */}
-                <Route path="/tableau-de-bord" element={<Dashboard />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profil" element={<Profil />} />
-                <Route path="/creer-contenu" element={<CreatePost />} />
+                  {/* Authenticated pages - lazy loaded */}
+                  <Route path="/tableau-de-bord" element={<Dashboard />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/profil" element={<Profil />} />
+                  <Route path="/creer-contenu" element={<CreatePost />} />
 
-                {/* Management pages - lazy loaded */}
-                <Route path="/gerer-actualites" element={<ManageActualites />} />
-                <Route path="/gerer-guides" element={<ManageGuides />} />
-                <Route path="/gerer-aides" element={<ManageAides />} />
-                <Route path="/gerer-annonces" element={<ManageAnnonces />} />
+                  {/* Management pages - lazy loaded */}
+                  <Route path="/gerer-actualites" element={<ManageActualites />} />
+                  <Route path="/gerer-guides" element={<ManageGuides />} />
+                  <Route path="/gerer-aides" element={<ManageAides />} />
+                  <Route path="/gerer-annonces" element={<ManageAnnonces />} />
 
-                {/* Admin pages - lazy loaded */}
-                <Route path="/admin/annonceurs" element={<ManageAdvertisers />} />
-                <Route path="/chat-support" element={<ChatSupport />} />
-                <Route path="/administration" element={<Administration />} />
-                <Route path="/admin/utilisateurs" element={<AdminUsers />} />
-                <Route path="/admin/categories" element={<AdminCategories />} />
-                <Route path="/admin/etiquettes" element={<AdminTags />} />
-                <Route path="/admin/parametres" element={<AdminSettings />} />
-                <Route path="/admin/boutons" element={<AdminButtons />} />
-                <Route path="/admin/bandeaux-cta" element={<AdminCtaBanners />} />
-                <Route path="/admin/newsletter" element={<AdminNewsletter />} />
-                <Route path="/admin/chatbot" element={<AdminChatbot />} />
-                <Route path="/admin/chat-history" element={<AdminChatHistory />} />
-                <Route path="/admin/formulaires" element={<AdminForms />} />
-                <Route path="/admin/popups" element={<AdminPopups />} />
-                <Route path="/admin/landing-pages" element={<AdminLandingPages />} />
-                <Route path="/admin/app" element={<AdminApp />} />
+                  {/* Admin pages - lazy loaded */}
+                  <Route path="/admin/annonceurs" element={<ManageAdvertisers />} />
+                  <Route path="/chat-support" element={<ChatSupport />} />
+                  <Route path="/administration" element={<Administration />} />
+                  <Route path="/admin/utilisateurs" element={<AdminUsers />} />
+                  <Route path="/admin/categories" element={<AdminCategories />} />
+                  <Route path="/admin/etiquettes" element={<AdminTags />} />
+                  <Route path="/admin/parametres" element={<AdminSettings />} />
+                  <Route path="/admin/boutons" element={<AdminButtons />} />
+                  <Route path="/admin/bandeaux-cta" element={<AdminCtaBanners />} />
+                  <Route path="/admin/newsletter" element={<AdminNewsletter />} />
+                  <Route path="/admin/chatbot" element={<AdminChatbot />} />
+                  <Route path="/admin/chat-history" element={<AdminChatHistory />} />
+                  <Route path="/admin/formulaires" element={<AdminForms />} />
+                  <Route path="/admin/popups" element={<AdminPopups />} />
+                  <Route path="/admin/landing-pages" element={<AdminLandingPages />} />
+                  <Route path="/admin/app" element={<AdminApp />} />
 
-                {/* Utility pages - lazy loaded */}
-                <Route path="/installer-app" element={<InstallApp />} />
-                <Route path="/offre-partenaire/:advertiserSlug/:id" element={<OffrePartenaire />} />
+                  {/* Utility pages - lazy loaded */}
+                  <Route path="/installer-app" element={<InstallApp />} />
+                  <Route path="/offre-partenaire/:advertiserSlug/:id" element={<OffrePartenaire />} />
 
-                {/* Landing pages - lazy loaded */}
-                <Route path="/landing/solaire" element={<LandingSolaire />} />
-                <Route path="/landing/isolation" element={<LandingIsolation />} />
-                <Route path="/landing/pompe-a-chaleur" element={<LandingPompeAChaleur />} />
-                <Route path="/landing/renovation-globale" element={<LandingRenovationGlobale />} />
+                  {/* Landing pages - lazy loaded */}
+                  <Route path="/landing/solaire" element={<LandingSolaire />} />
+                  <Route path="/landing/isolation" element={<LandingIsolation />} />
+                  <Route path="/landing/pompe-a-chaleur" element={<LandingPompeAChaleur />} />
+                  <Route path="/landing/renovation-globale" element={<LandingRenovationGlobale />} />
 
-                {/* Forum pages - lazy loaded */}
-                <Route path="/forum" element={<Forum />} />
-                <Route path="/forum/categorie/:slug" element={<ForumCategory />} />
-                <Route path="/forum/categorie/:slug/nouveau" element={<NewTopic />} />
-                <Route path="/forum/sujet/:slug" element={<ForumTopic />} />
-                <Route path="/forum/nouveau-sujet" element={<NewTopic />} />
+                  {/* Forum pages - lazy loaded */}
+                  <Route path="/forum" element={<Forum />} />
+                  <Route path="/forum/categorie/:slug" element={<ForumCategory />} />
+                  <Route path="/forum/categorie/:slug/nouveau" element={<NewTopic />} />
+                  <Route path="/forum/sujet/:slug" element={<ForumTopic />} />
+                  <Route path="/forum/nouveau-sujet" element={<NewTopic />} />
 
-                {/* Legal & sitemap - lazy loaded */}
-                <Route path="/sitemap.xml" element={<Sitemap />} />
-                <Route path="/mentions-legales" element={<MentionsLegales />} />
-                <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
-                <Route path="/conditions-utilisation" element={<ConditionsUtilisation />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/merci" element={<Merci />} />
+                  {/* Legal & sitemap - lazy loaded */}
+                  <Route path="/sitemap.xml" element={<Sitemap />} />
+                  <Route path="/mentions-legales" element={<MentionsLegales />} />
+                  <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+                  <Route path="/conditions-utilisation" element={<ConditionsUtilisation />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="/merci" element={<Merci />} />
 
-                {/* Catch-all */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </MaintenanceMode>
-        </BrowserRouter>
-      </TooltipProvider>
+                  {/* Catch-all */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </MaintenanceMode>
+          </BrowserRouter>
+        </TooltipProvider>
+      </RegionProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
