@@ -224,6 +224,20 @@ export const MegaMenu = () => {
   return (
     <NavigationMenu>
       <NavigationMenuList className="space-x-1">
+        {/* Actualité - Simple link without dropdown - FIRST */}
+        {sectionVisibility.actualite && (
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild>
+              <Link
+                to="/actualites"
+                className="px-2 py-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                Actualité
+              </Link>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+        )}
+
         {/* Offres - Visible if partner-offers section is visible */}
         {sectionVisibility.offres && (
           <NavigationMenuItem>
@@ -327,20 +341,6 @@ export const MegaMenu = () => {
                 ))}
               </div>
             </NavigationMenuContent>
-          </NavigationMenuItem>
-        )}
-
-        {/* Actualité - Simple link without dropdown */}
-        {sectionVisibility.actualite && (
-          <NavigationMenuItem>
-            <NavigationMenuLink asChild>
-              <Link
-                to="/actualites"
-                className="px-2 py-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
-              >
-                Actualité
-              </Link>
-            </NavigationMenuLink>
           </NavigationMenuItem>
         )}
 
