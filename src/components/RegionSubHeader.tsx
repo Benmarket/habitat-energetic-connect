@@ -80,39 +80,39 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
                 <button
                   key={region.code}
                   onClick={() => handleRegionClick(region.code)}
-                  className={`group flex flex-col items-center gap-1 flex-1 transition-all duration-200 focus:outline-none cursor-pointer ${
+                  className={`group flex flex-col items-center gap-1.5 flex-1 focus:outline-none cursor-pointer transition-opacity duration-200 ${
                     isActive 
-                      ? "scale-105" 
-                      : "opacity-60 hover:opacity-90 hover:scale-105"
+                      ? "" 
+                      : "opacity-[0.72] hover:opacity-100"
                   }`}
                   aria-pressed={isActive}
                   aria-label={`Sélectionner la région ${region.name}`}
                 >
-                  {/* Image container with conditional glow */}
+                  {/* Image container with tight aura for active state */}
                   <div 
-                    className={`relative w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center transition-all duration-300 ${
+                    className={`relative w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center rounded-lg ${
                       isActive 
-                        ? "drop-shadow-[0_0_8px_hsl(var(--primary)/0.4)]" 
+                        ? "shadow-[0_0_0_2px_hsl(var(--primary)/0.25),0_2px_8px_-2px_hsl(var(--primary)/0.35)]" 
                         : ""
                     }`}
                   >
                     <img
                       src={region.image}
                       alt={region.name}
-                      className={`w-full h-full object-contain transition-all duration-200 ${
+                      className={`w-full h-full object-contain ${
                         isActive 
-                          ? "brightness-110" 
-                          : "group-hover:brightness-105"
+                          ? "contrast-[1.05]" 
+                          : "grayscale-[0.15] group-hover:grayscale-0"
                       }`}
                     />
                   </div>
                   
-                  {/* Region name with enhanced styling for active state */}
+                  {/* Region name with clear hierarchy */}
                   <span 
-                    className={`text-[10px] md:text-sm whitespace-nowrap transition-all duration-200 ${
+                    className={`text-[10px] md:text-sm whitespace-nowrap pb-0.5 ${
                       isActive 
-                        ? "font-semibold text-primary" 
-                        : "font-medium text-muted-foreground group-hover:text-foreground"
+                        ? "font-bold text-foreground tracking-tight" 
+                        : "font-medium text-muted-foreground/80 group-hover:text-foreground"
                     }`}
                   >
                     {region.name}
