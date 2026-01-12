@@ -55,7 +55,7 @@ const megaMenuData = {
         items: [
           { label: "Pompe à chaleur air/eau", href: "/offres/pac-air-eau" },
           { label: "Pompe à chaleur air/air", href: "/offres/pac-air-air" },
-          { label: "Chauffe-eau thermodynamique", href: "/offres/chauffe-eau" },
+          { label: "Poêle à granulés", href: "/offres/poele-granules" },
         ],
       },
       {
@@ -64,7 +64,7 @@ const megaMenuData = {
         items: [
           { label: "Isolation des combles", href: "/offres/isolation-combles" },
           { label: "Isolation extérieure", href: "/offres/isolation-exterieure" },
-          { label: "Planchers bas", href: "/offres/planchers-bas" },
+          { label: "Isolation intérieure", href: "/offres/isolation-interieure" },
         ],
       },
     ],
