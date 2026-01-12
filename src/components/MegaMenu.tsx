@@ -14,9 +14,9 @@ import {
 // Mapping des liens de clic pour chaque menu (ancres correspondant aux IDs réels des sections)
 const MENU_CLICK_LINKS: Record<string, string> = {
   offres: "/#offres",           // Section "Offres partenaires" a l'id="offres"
-  guides: "/guides",            // Page guides
-  aides: "/aides",              // Page aides
-  actualite: "/actualites",     // Page actualités
+  guides: "/#guides",           // Section guides sur la homepage
+  aides: "/#aides",             // Section aides sur la homepage
+  actualite: "/#actualites",    // Section actualités sur la homepage
   simulateurs: "/#simulateurs", // Section simulateurs a l'id="simulateurs"
 };
 
@@ -75,6 +75,7 @@ const megaMenuData = {
       {
         icon: FileText,
         title: "GUIDES PRATIQUES",
+        href: "/guides",
         items: [
           { label: "Guide énergie solaire", href: "/guides/energie-solaire" },
           { label: "Guide isolation", href: "/guides/isolation" },
@@ -224,17 +225,15 @@ export const MegaMenu = () => {
   return (
     <NavigationMenu>
       <NavigationMenuList className="space-x-1">
-        {/* Actualité - Simple link without dropdown - FIRST */}
+        {/* Actualité - Simple link to homepage section - FIRST */}
         {sectionVisibility.actualite && (
           <NavigationMenuItem>
-            <NavigationMenuLink asChild>
-              <Link
-                to="/actualites"
-                className="px-2 py-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
-              >
-                Actualité
-              </Link>
-            </NavigationMenuLink>
+            <button
+              onClick={() => handleMenuClick('actualite')}
+              className="px-2 py-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer"
+            >
+              Actualité
+            </button>
           </NavigationMenuItem>
         )}
 
@@ -279,12 +278,15 @@ export const MegaMenu = () => {
               <div className="grid grid-cols-1 gap-6 p-6 w-[300px] bg-background">
                 {megaMenuData.guides.categories.map((category, idx) => (
                   <div key={idx}>
-                    <div className="flex items-center gap-2 mb-3">
+                    <Link 
+                      to={(category as any).href || "/guides"} 
+                      className="flex items-center gap-2 mb-3 hover:opacity-80 transition-opacity"
+                    >
                       <category.icon className="w-5 h-5 text-primary" />
-                      <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">
+                      <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide hover:text-primary transition-colors">
                         {category.title}
                       </h3>
-                    </div>
+                    </Link>
                     <ul className="space-y-2">
                       {category.items.map((item, itemIdx) => (
                         <li key={itemIdx}>
