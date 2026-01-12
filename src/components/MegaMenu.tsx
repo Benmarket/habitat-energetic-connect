@@ -90,8 +90,8 @@ const megaMenuData = {
       {
         icon: User,
         title: "PARTICULIERS",
+        href: "/aides?audience=particulier",
         items: [
-          { label: "Toutes les aides particuliers", href: "/aides?audience=particulier" },
           { label: "MaPrimeRénov'", href: "/aides?audience=particulier" },
           { label: "CEE", href: "/aides?audience=particulier" },
           { label: "Éco-PTZ", href: "/aides?audience=particulier" },
@@ -100,8 +100,8 @@ const megaMenuData = {
       {
         icon: Briefcase,
         title: "PROFESSIONNELS",
+        href: "/aides?audience=professionnel",
         items: [
-          { label: "Toutes les aides professionnels", href: "/aides?audience=professionnel" },
           { label: "Aides entreprises", href: "/aides?audience=professionnel" },
           { label: "Subventions pros", href: "/aides?audience=professionnel" },
         ],
@@ -300,12 +300,15 @@ export const MegaMenu = () => {
               <div className="grid grid-cols-2 gap-6 p-6 w-[500px] bg-background">
                 {megaMenuData.aides.categories.map((category, idx) => (
                   <div key={idx}>
-                    <div className="flex items-center gap-2 mb-3">
+                    <Link 
+                      to={(category as any).href || "/aides"} 
+                      className="flex items-center gap-2 mb-3 hover:opacity-80 transition-opacity"
+                    >
                       <category.icon className="w-5 h-5 text-primary" />
-                      <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">
+                      <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide hover:text-primary transition-colors">
                         {category.title}
                       </h3>
-                    </div>
+                    </Link>
                     <ul className="space-y-2">
                       {category.items.map((item, itemIdx) => (
                         <li key={itemIdx}>
