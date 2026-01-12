@@ -11,7 +11,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical, Eye, EyeOff, LayoutList, Sun, Zap, Home, Newspaper, HelpCircle, BookOpen, FileText, Calculator, MapPin, Gift, Handshake, MessageSquare, Star, Phone, Smartphone, Search, Palette, User, Settings, BarChart3, MessageCircle, RotateCcw, Undo2 } from "lucide-react";
+import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical, Eye, EyeOff, LayoutList, Sun, Zap, Home, Newspaper, HelpCircle, BookOpen, FileText, Calculator, MapPin, Gift, Handshake, MessageSquare, Star, Phone, Smartphone, Search, Palette, User, Settings, BarChart3, MessageCircle, RotateCcw, Undo2, Globe, ChevronDown } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import SectionPreviewModal from "@/components/SectionPreviewModal";
 import ButtonPresetSelector from "@/components/ButtonPresetSelector";
@@ -23,6 +25,18 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+// Types pour les régions
+type RegionCode = "fr" | "corse" | "reunion" | "martinique" | "guadeloupe" | "guyane";
+const ALL_REGIONS: RegionCode[] = ["fr", "corse", "reunion", "martinique", "guadeloupe", "guyane"];
+const REGION_LABELS: Record<RegionCode, string> = {
+  fr: "France",
+  corse: "Corse",
+  reunion: "Réunion",
+  martinique: "Martinique",
+  guadeloupe: "Guadeloupe",
+  guyane: "Guyane",
+};
+
 interface HomepageSection {
   id: string;
   name: string;
@@ -32,26 +46,27 @@ interface HomepageSection {
   description: string;
   icon: string;
   color: string;
+  regionVisibility?: RegionCode[]; // Liste des régions où la section est visible (vide = toutes)
 }
 
 const DEFAULT_HOMEPAGE_SECTIONS: HomepageSection[] = [
-  { id: 'hero', name: 'Hero Principal', anchor: '#hero', visible: true, order: 0, description: 'Bannière principale avec slider d\'images et CTA', icon: 'home', color: '#7c3aed' },
-  { id: 'institutional-context', name: 'Parcours Institutionnel', anchor: '#parcours', visible: true, order: 1, description: 'Bande contextuelle avec parcours en étapes (sticky + scroll)', icon: 'layout', color: '#475569' },
-  { id: 'solar-banner', name: 'Bannière Solaire', anchor: '#solaire', visible: true, order: 2, description: 'Bandeau promotionnel panneaux solaires avec garantie 25 ans', icon: 'sun', color: '#f59e0b' },
-  { id: 'why-solar', name: 'Pourquoi le Solaire', anchor: '#pourquoi-solaire', visible: true, order: 3, description: '3 avantages du solaire avec visuels (facture, app, écologie)', icon: 'zap', color: '#eab308' },
-  { id: 'renovation', name: 'Programme Rénovation', anchor: '#renovation', visible: true, order: 4, description: 'Section rénovation d\'ampleur avec image maison', icon: 'home', color: '#22c55e' },
-  { id: 'news', name: 'Actualités', anchor: '#actualites', visible: true, order: 5, description: 'Carrousel des dernières actualités du site', icon: 'newspaper', color: '#3b82f6' },
-  { id: 'aides', name: 'Aides disponibles', anchor: '#aides', visible: true, order: 6, description: 'Section des aides financières disponibles', icon: 'help', color: '#8b5cf6' },
-  { id: 'guides', name: 'Guides par projet', anchor: '#guides', visible: true, order: 7, description: 'Grille des guides pratiques par thématique', icon: 'book', color: '#06b6d4' },
-  { id: 'eligibility', name: 'Étude gratuite', anchor: '#etude', visible: true, order: 8, description: 'Formulaire principal de demande d\'étude énergétique', icon: 'file', color: '#10b981' },
-  { id: 'simulators', name: 'Simulateurs', anchor: '#simulateurs', visible: true, order: 9, description: 'Grille des simulateurs (économies, aides, etc.)', icon: 'calculator', color: '#f97316' },
-  { id: 'installers', name: 'Trouver un installateur', anchor: '#installateurs', visible: true, order: 10, description: 'Carte de France interactive des régions', icon: 'map', color: '#ec4899' },
-  { id: 'partner-offers', name: 'Offres partenaires', anchor: '#offres', visible: true, order: 11, description: 'Carrousel des offres promotionnelles partenaires', icon: 'gift', color: '#ef4444' },
-  { id: 'cta-partner', name: 'Devenir partenaire', anchor: '#devenir-partenaire', visible: true, order: 12, description: 'Appel à l\'action pour les professionnels', icon: 'handshake', color: '#14b8a6' },
-  { id: 'faq', name: 'FAQ', anchor: '#faq', visible: true, order: 13, description: 'Questions fréquentes en accordéon', icon: 'message', color: '#6366f1' },
-  { id: 'reviews', name: 'Avis clients', anchor: '#avis', visible: true, order: 14, description: 'Carrousel des témoignages clients avec photos', icon: 'star', color: '#fbbf24' },
-  { id: 'contact', name: 'Contact', anchor: '#contact', visible: true, order: 15, description: 'Formulaire de contact et coordonnées', icon: 'phone', color: '#64748b' },
-  { id: 'app-download', name: 'Télécharger l\'app', anchor: '#app', visible: true, order: 16, description: 'Section téléchargement application mobile', icon: 'smartphone', color: '#0ea5e9' },
+  { id: 'hero', name: 'Hero Principal', anchor: '#hero', visible: true, order: 0, description: 'Bannière principale avec slider d\'images et CTA', icon: 'home', color: '#7c3aed', regionVisibility: [] },
+  { id: 'institutional-context', name: 'Parcours Institutionnel', anchor: '#parcours', visible: true, order: 1, description: 'Bande contextuelle avec parcours en étapes (sticky + scroll)', icon: 'layout', color: '#475569', regionVisibility: [] },
+  { id: 'solar-banner', name: 'Bannière Solaire', anchor: '#solaire', visible: true, order: 2, description: 'Bandeau promotionnel panneaux solaires avec garantie 25 ans', icon: 'sun', color: '#f59e0b', regionVisibility: [] },
+  { id: 'why-solar', name: 'Pourquoi le Solaire', anchor: '#pourquoi-solaire', visible: true, order: 3, description: '3 avantages du solaire avec visuels (facture, app, écologie)', icon: 'zap', color: '#eab308', regionVisibility: [] },
+  { id: 'renovation', name: 'Programme Rénovation', anchor: '#renovation', visible: true, order: 4, description: 'Section rénovation d\'ampleur avec image maison', icon: 'home', color: '#22c55e', regionVisibility: [] },
+  { id: 'news', name: 'Actualités', anchor: '#actualites', visible: true, order: 5, description: 'Carrousel des dernières actualités du site', icon: 'newspaper', color: '#3b82f6', regionVisibility: [] },
+  { id: 'aides', name: 'Aides disponibles', anchor: '#aides', visible: true, order: 6, description: 'Section des aides financières disponibles', icon: 'help', color: '#8b5cf6', regionVisibility: [] },
+  { id: 'guides', name: 'Guides par projet', anchor: '#guides', visible: true, order: 7, description: 'Grille des guides pratiques par thématique', icon: 'book', color: '#06b6d4', regionVisibility: [] },
+  { id: 'eligibility', name: 'Étude gratuite', anchor: '#etude', visible: true, order: 8, description: 'Formulaire principal de demande d\'étude énergétique', icon: 'file', color: '#10b981', regionVisibility: [] },
+  { id: 'simulators', name: 'Simulateurs', anchor: '#simulateurs', visible: true, order: 9, description: 'Grille des simulateurs (économies, aides, etc.)', icon: 'calculator', color: '#f97316', regionVisibility: [] },
+  { id: 'installers', name: 'Trouver un installateur', anchor: '#installateurs', visible: true, order: 10, description: 'Carte de France interactive des régions', icon: 'map', color: '#ec4899', regionVisibility: [] },
+  { id: 'partner-offers', name: 'Offres partenaires', anchor: '#offres', visible: true, order: 11, description: 'Carrousel des offres promotionnelles partenaires', icon: 'gift', color: '#ef4444', regionVisibility: [] },
+  { id: 'cta-partner', name: 'Devenir partenaire', anchor: '#devenir-partenaire', visible: true, order: 12, description: 'Appel à l\'action pour les professionnels', icon: 'handshake', color: '#14b8a6', regionVisibility: [] },
+  { id: 'faq', name: 'FAQ', anchor: '#faq', visible: true, order: 13, description: 'Questions fréquentes en accordéon', icon: 'message', color: '#6366f1', regionVisibility: [] },
+  { id: 'reviews', name: 'Avis clients', anchor: '#avis', visible: true, order: 14, description: 'Carrousel des témoignages clients avec photos', icon: 'star', color: '#fbbf24', regionVisibility: [] },
+  { id: 'contact', name: 'Contact', anchor: '#contact', visible: true, order: 15, description: 'Formulaire de contact et coordonnées', icon: 'phone', color: '#64748b', regionVisibility: [] },
+  { id: 'app-download', name: 'Télécharger l\'app', anchor: '#app', visible: true, order: 16, description: 'Section téléchargement application mobile', icon: 'smartphone', color: '#0ea5e9', regionVisibility: [] },
 ];
 
 const SECTION_ICONS: Record<string, React.ReactNode> = {
@@ -76,9 +91,10 @@ interface SortableSectionItemProps {
   section: HomepageSection;
   onToggleVisibility: (id: string) => void;
   onPreview: (section: HomepageSection) => void;
+  onToggleRegion: (sectionId: string, region: RegionCode) => void;
 }
 
-const SortableSectionItem = ({ section, onToggleVisibility, onPreview }: SortableSectionItemProps) => {
+const SortableSectionItem = ({ section, onToggleVisibility, onPreview, onToggleRegion }: SortableSectionItemProps) => {
   const {
     attributes,
     listeners,
@@ -93,6 +109,9 @@ const SortableSectionItem = ({ section, onToggleVisibility, onPreview }: Sortabl
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
+
+  const regionVisibility = section.regionVisibility || [];
+  const hasRegionRestriction = regionVisibility.length > 0;
 
   return (
     <div
@@ -123,8 +142,70 @@ const SortableSectionItem = ({ section, onToggleVisibility, onPreview }: Sortabl
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium">{section.name}</p>
         <p className="text-xs text-muted-foreground line-clamp-1">{section.description}</p>
-        <p className="text-xs text-primary/60 mt-0.5">{section.anchor}</p>
+        <div className="flex items-center gap-2 mt-0.5">
+          <p className="text-xs text-primary/60">{section.anchor}</p>
+          {hasRegionRestriction && (
+            <span className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 rounded">
+              {regionVisibility.length} région{regionVisibility.length > 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
       </div>
+
+      {/* Region visibility popover */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant={hasRegionRestriction ? "default" : "ghost"}
+            size="icon"
+            className="flex-shrink-0"
+            title="Configurer la visibilité régionale"
+          >
+            <Globe className="w-4 h-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-64" align="end">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium text-sm">Visibilité par région</h4>
+              {hasRegionRestriction && (
+                <Badge variant="secondary" className="text-xs">
+                  {regionVisibility.length}/{ALL_REGIONS.length}
+                </Badge>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {hasRegionRestriction 
+                ? "Visible uniquement dans les régions sélectionnées" 
+                : "Visible dans toutes les régions (aucune restriction)"}
+            </p>
+            <div className="space-y-2 pt-2 border-t">
+              {ALL_REGIONS.map(region => {
+                const isChecked = regionVisibility.includes(region);
+                return (
+                  <div key={region} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`${section.id}-${region}`}
+                      checked={isChecked}
+                      onCheckedChange={() => onToggleRegion(section.id, region)}
+                    />
+                    <label
+                      htmlFor={`${section.id}-${region}`}
+                      className="text-sm cursor-pointer flex-1"
+                    >
+                      {REGION_LABELS[region]}
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-xs text-muted-foreground pt-2 border-t">
+              💡 Si aucune région n'est cochée, la bande est visible partout.
+            </p>
+          </div>
+        </PopoverContent>
+      </Popover>
       
       <Button
         type="button"
@@ -595,6 +676,28 @@ const AdminSettings = () => {
           ? { ...section, visible: !section.visible } 
           : { ...section }
       )
+    );
+  };
+
+  const toggleRegionVisibility = (sectionId: string, region: RegionCode) => {
+    setHomepageSections(prev => 
+      prev.map(section => {
+        if (section.id !== sectionId) return section;
+        
+        const currentRegions = section.regionVisibility || [];
+        const hasRegion = currentRegions.includes(region);
+        
+        let newRegions: RegionCode[];
+        if (hasRegion) {
+          // Remove region
+          newRegions = currentRegions.filter(r => r !== region);
+        } else {
+          // Add region
+          newRegions = [...currentRegions, region];
+        }
+        
+        return { ...section, regionVisibility: newRegions };
+      })
     );
   };
 
@@ -1802,6 +1905,7 @@ const AdminSettings = () => {
                             section={section}
                             onToggleVisibility={toggleSectionVisibility}
                             onPreview={(s) => setPreviewSection(s)}
+                            onToggleRegion={toggleRegionVisibility}
                           />
                         ))}
                       </div>

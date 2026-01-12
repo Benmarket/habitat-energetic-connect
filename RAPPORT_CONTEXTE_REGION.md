@@ -120,12 +120,58 @@ import {
 - [x] Feedback visuel premium
 - [x] France active par défaut
 
-### 🔜 Phase 2 : Variantes de contenu (À VENIR)
+### ✅ Phase 2 : Visibilité régionale des bandes (TERMINÉE)
+
+- [x] Champ `regionVisibility` ajouté à chaque section
+- [x] Interface d'administration avec popover de sélection des régions
+- [x] Filtrage dynamique des sections selon la région active
+- [x] Documentation dans Admin > Paramètres généraux > Bandes accueil
+
+### 🔜 Phase 3 : Variantes de contenu (À VENIR)
 
 - [ ] Contenu hero adapté par région
 - [ ] Offres partenaires filtrées par région
 - [ ] Témoignages régionaux
 - [ ] Aides spécifiques aux DOM-TOM
+
+---
+
+## Configuration admin des bandes
+
+### Accès
+**Administration > Paramètres généraux > Bandes accueil**
+
+### Fonctionnalités
+
+| Action | Description |
+|--------|-------------|
+| 🔘 Visible/Masqué | Active ou désactive la section globalement |
+| 🌍 Globe (icône) | Configure la visibilité par région |
+| 👁️ Aperçu | Prévisualise la section |
+| ↕️ Drag & Drop | Réordonne les sections |
+
+### Logique de visibilité régionale
+
+```
+Si regionVisibility = [] (vide)
+  → Section visible dans TOUTES les régions
+
+Si regionVisibility = ["reunion", "martinique"]
+  → Section visible UNIQUEMENT pour Réunion et Martinique
+  
+Si region active = "fr" et regionVisibility = ["reunion"]
+  → Section MASQUÉE pour France métropolitaine
+```
+
+### Exemple d'utilisation
+
+Pour afficher une section "Aides DOM-TOM" uniquement pour les régions d'outre-mer :
+
+1. Créer la section dans les bandes d'accueil
+2. Cliquer sur l'icône 🌍 (Globe)
+3. Cocher : Réunion, Martinique, Guadeloupe, Guyane
+4. NE PAS cocher : France, Corse
+5. Enregistrer
 
 ---
 
