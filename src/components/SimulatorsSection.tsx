@@ -94,34 +94,23 @@ const SimulatorsSection = () => {
   ];
 
   return (
-    <section id="simulateurs" className="pt-6 pb-12 md:py-16 lg:py-20 bg-gradient-to-br from-background via-primary/5 to-accent/10 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-10 left-10 w-72 h-72 bg-primary rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-secondary rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-      </div>
-
+    <section id="simulateurs" className="pt-6 pb-12 md:py-16 lg:py-20 bg-white relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
-        {/* Section Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-1.5 md:gap-2 lg:gap-3 mb-4 bg-gradient-to-r from-primary/20 to-accent/20 px-4 md:px-6 lg:px-8 py-2.5 md:py-3 lg:py-4 rounded-full backdrop-blur-sm border border-primary/20 shadow-lg max-w-full hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-default">
-            <Zap className="w-4 h-4 md:w-5 md:h-5 lg:w-7 lg:h-7 text-primary animate-pulse flex-shrink-0" />
-            <h2 className="text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-5xl flex items-center gap-1 flex-wrap justify-center">
-              <span className="font-extrabold uppercase tracking-tight whitespace-nowrap bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600 bg-clip-text text-transparent">Simulateurs</span>
-              <span className="text-primary font-extrabold whitespace-nowrap">Prime</span>
-              <span className="text-foreground font-extrabold whitespace-nowrap">énergies</span>
-            </h2>
-            <Zap className="w-4 h-4 md:w-5 md:h-5 lg:w-7 lg:h-7 text-primary animate-pulse flex-shrink-0" />
-          </div>
-          <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-muted-foreground font-medium max-w-3xl mx-auto mt-2 px-4">
-            Choisissez un simulateur pour estimer vos gains et aides en quelques clics
+        {/* Section Header - Style Guides */}
+        <div className="mb-12">
+          {/* Green accent line */}
+          <div className="w-16 h-1.5 bg-primary rounded-full mb-4"></div>
+          
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground mb-3 flex items-center gap-2 flex-wrap">
+            <span>Simulateurs</span>
+            <span className="text-primary">Prime</span>
+            <span>énergies</span>
+            <Zap className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+          </h2>
+          
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl">
+            Choisissez un simulateur pour estimer vos gains et aides en quelques clics.
           </p>
-          <div className="mt-3 flex justify-center gap-2">
-            <div className="w-20 h-1 bg-gradient-to-r from-primary to-transparent rounded-full"></div>
-            <div className="w-20 h-1 bg-gradient-to-r from-accent to-transparent rounded-full"></div>
-            <div className="w-20 h-1 bg-gradient-to-r from-primary to-transparent rounded-full"></div>
-          </div>
         </div>
 
         {/* Simulators Carousel */}
