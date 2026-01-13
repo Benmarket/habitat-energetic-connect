@@ -47,6 +47,7 @@ const AdminForms = lazy(() => import("./pages/AdminForms"));
 const AdminPopups = lazy(() => import("./pages/AdminPopups"));
 const AdminApp = lazy(() => import("./pages/AdminApp"));
 const AdminLandingPages = lazy(() => import("./pages/AdminLandingPages"));
+const AdminAdvertising = lazy(() => import("./pages/AdminAdvertising"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentialite"));
 const ConditionsUtilisation = lazy(() => import("./pages/ConditionsUtilisation"));
@@ -113,7 +114,8 @@ const App = () => (
                   <Route path="/gerer-annonces" element={<ManageAnnonces />} />
 
                   {/* Admin pages - lazy loaded */}
-                  <Route path="/admin/annonceurs" element={<ManageAdvertisers />} />
+                  <Route path="/admin/annonceurs" element={<AdminAdvertising />} />
+                  <Route path="/admin/annonces" element={<AdminAdvertising />} />
                   <Route path="/chat-support" element={<ChatSupport />} />
                   <Route path="/administration" element={<Administration />} />
                   <Route path="/admin/utilisateurs" element={<AdminUsers />} />
