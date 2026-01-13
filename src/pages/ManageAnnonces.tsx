@@ -15,13 +15,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
-import { Plus, Edit, Trash2, Megaphone, Star, Check, X, Eye, BarChart3, MousePointerClick, UserCheck, ArrowUpDown } from "lucide-react";
+import { Plus, Edit, Trash2, Megaphone, Star, Check, X, Eye, BarChart3, MousePointerClick, UserCheck, ArrowUpDown, Filter, Globe } from "lucide-react";
 import AdvertisementPreview from "@/components/AdvertisementPreview";
 import AdStatsModal from "@/components/AdStatsModal";
 import { Helmet } from "react-helmet";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+
+type RegionCode = 'fr' | 'corse' | 'guadeloupe' | 'martinique' | 'guyane' | 'reunion';
+
+const ALL_REGIONS: { code: RegionCode; label: string }[] = [
+  { code: 'fr', label: 'France métropolitaine' },
+  { code: 'corse', label: 'Corse' },
+  { code: 'guadeloupe', label: 'Guadeloupe' },
+  { code: 'martinique', label: 'Martinique' },
+  { code: 'guyane', label: 'Guyane' },
+  { code: 'reunion', label: 'La Réunion' },
+];
 interface Advertisement {
   id: string;
   advertiser_id: string;
@@ -42,6 +54,7 @@ interface Advertisement {
   views_count: number;
   clicks_count: number;
   conversions_count: number;
+  target_regions: string[] | null;
   advertiser: {
     id: string;
     name: string;
@@ -68,6 +81,12 @@ const ManageAnnonces = () => {
   const [statsAd, setStatsAd] = useState<Advertisement | null>(null);
   const [currentFeature, setCurrentFeature] = useState("");
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  
+  // Filter states
+  const [filterAdvertiserId, setFilterAdvertiserId] = useState<string | null>(null);
+  const [filterRegion, setFilterRegion] = useState<RegionCode | null>(null);
+  const [filterFeatured, setFilterFeatured] = useState<boolean | null>(null);
+  
   const [formData, setFormData] = useState({
     advertiser_id: "",
     title: "",
@@ -199,11 +218,41 @@ const ManageAnnonces = () => {
     setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
   };
 
-  const sortedAdvertisements = [...advertisements].sort((a, b) => {
+  // Filter and sort advertisements
+  const filteredAdvertisements = advertisements.filter(ad => {
+    // Filter by advertiser
+    if (filterAdvertiserId && ad.advertiser_id !== filterAdvertiserId) return false;
+    
+    // Filter by featured
+    if (filterFeatured !== null && ad.is_featured !== filterFeatured) return false;
+    
+    // Filter by region - if ad has no target_regions, it's for all regions
+    // We don't filter it out. If it has target_regions, check if filterRegion is in there.
+    if (filterRegion) {
+      // Check target_regions - note: we need to fetch this from somewhere
+      // For now we'll use the ad's target_regions if available
+      const adRegions = (ad as any).target_regions;
+      if (adRegions && adRegions.length > 0 && !adRegions.includes(filterRegion)) {
+        return false;
+      }
+    }
+    
+    return true;
+  });
+
+  const sortedAdvertisements = [...filteredAdvertisements].sort((a, b) => {
     const dateA = new Date(a.created_at).getTime();
     const dateB = new Date(b.created_at).getTime();
     return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
   });
+
+  const activeFiltersCount = [filterAdvertiserId, filterRegion, filterFeatured].filter(f => f !== null).length;
+
+  const clearFilters = () => {
+    setFilterAdvertiserId(null);
+    setFilterRegion(null);
+    setFilterFeatured(null);
+  };
 
   const handleEdit = (ad: Advertisement) => {
     setEditingAd(ad);
@@ -333,6 +382,91 @@ const ManageAnnonces = () => {
             </div>
             
             <div className="flex gap-3">
+              {/* Filter button */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="lg" className="gap-2">
+                    <Filter className="w-4 h-4" />
+                    Filtres
+                    {activeFiltersCount > 0 && (
+                      <Badge variant="secondary" className="ml-1">{activeFiltersCount}</Badge>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80" align="end">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium">Filtres</h4>
+                      {activeFiltersCount > 0 && (
+                        <Button variant="ghost" size="sm" onClick={clearFilters}>
+                          Réinitialiser
+                        </Button>
+                      )}
+                    </div>
+                    
+                    {/* Filter by advertiser */}
+                    <div className="space-y-2">
+                      <Label className="text-sm">Annonceur</Label>
+                      <Select 
+                        value={filterAdvertiserId || "all"} 
+                        onValueChange={(v) => setFilterAdvertiserId(v === "all" ? null : v)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Tous les annonceurs" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Tous les annonceurs</SelectItem>
+                          {advertisers.map((a) => (
+                            <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    {/* Filter by region */}
+                    <div className="space-y-2">
+                      <Label className="text-sm">Région</Label>
+                      <Select 
+                        value={filterRegion || "all"} 
+                        onValueChange={(v) => setFilterRegion(v === "all" ? null : v as RegionCode)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Toutes les régions" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Toutes les régions</SelectItem>
+                          {ALL_REGIONS.map((r) => (
+                            <SelectItem key={r.code} value={r.code}>{r.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    {/* Filter by featured */}
+                    <div className="space-y-2">
+                      <Label className="text-sm">Mise en avant</Label>
+                      <Select 
+                        value={filterFeatured === null ? "all" : filterFeatured ? "featured" : "not_featured"} 
+                        onValueChange={(v) => {
+                          if (v === "all") setFilterFeatured(null);
+                          else if (v === "featured") setFilterFeatured(true);
+                          else setFilterFeatured(false);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Toutes" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Toutes</SelectItem>
+                          <SelectItem value="featured">En vedette</SelectItem>
+                          <SelectItem value="not_featured">Non vedette</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+              
               <Button
                 variant="outline"
                 size="lg"
