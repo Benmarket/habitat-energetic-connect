@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { 
   Plus, Edit, Trash2, Building2, Megaphone, Star, Check, X, Eye, 
   Search, Calendar, ArrowLeft, Globe, MapPin, Power, PowerOff, AlertCircle,
-  ArrowUpDown, MousePointerClick, Users
+  ArrowUpDown, MousePointerClick, Users, Filter
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import AdvertisementPreview from "@/components/AdvertisementPreview";
@@ -121,6 +121,7 @@ const AdminAdvertising = () => {
   const [adDialogOpen, setAdDialogOpen] = useState(false);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [regionFeaturedOpen, setRegionFeaturedOpen] = useState(false);
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [selectedRegionForFeatured, setSelectedRegionForFeatured] = useState<{ code: RegionCode; label: string } | null>(null);
   
   // Editing states
@@ -608,15 +609,98 @@ const AdminAdvertising = () => {
           {/* Toolbar: Search, Date, Tabs */}
           <div className="bg-card border rounded-lg p-4 mb-6">
             <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-              {/* Search */}
-              <div className="relative w-full lg:w-96">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Rechercher par nom, ID ou indicateur..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
+              {/* Search + Filters Button */}
+              <div className="flex items-center gap-3 w-full lg:w-auto">
+                <div className="relative flex-1 lg:w-96">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Rechercher par nom, ID ou indicateur..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                
+                {/* Filters button - only visible on ads tab */}
+                {activeTab === 'ads' && (
+                  <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="gap-2 shrink-0">
+                        <Filter className="w-4 h-4" />
+                        Filtres
+                        {(selectedAdvertiserFilter || selectedRegionFilter) && (
+                          <Badge variant="secondary" className="ml-1">
+                            {[selectedAdvertiserFilter, selectedRegionFilter].filter(Boolean).length}
+                          </Badge>
+                        )}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Filtrer les annonces</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-6 pt-4">
+                        {/* Filter by advertiser */}
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Annonceur</Label>
+                          <Select 
+                            value={selectedAdvertiserFilter || "all"} 
+                            onValueChange={(v) => setSelectedAdvertiserFilter(v === "all" ? null : v)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Tous les annonceurs" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">Tous les annonceurs</SelectItem>
+                              {advertisers.filter(a => a.is_active).map((a) => (
+                                <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        {/* Filter by region */}
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Région</Label>
+                          <Select 
+                            value={selectedRegionFilter || "all"} 
+                            onValueChange={(v) => setSelectedRegionFilter(v === "all" ? null : v as RegionCode)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Toutes les régions" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">Toutes les régions</SelectItem>
+                              {ALL_REGIONS.map((r) => (
+                                <SelectItem key={r.code} value={r.code}>{r.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="flex gap-3 pt-2">
+                          <Button 
+                            variant="outline" 
+                            onClick={() => {
+                              setSelectedAdvertiserFilter(null);
+                              setSelectedRegionFilter(null);
+                            }}
+                            className="flex-1"
+                            disabled={!selectedAdvertiserFilter && !selectedRegionFilter}
+                          >
+                            Réinitialiser
+                          </Button>
+                          <Button 
+                            onClick={() => setFilterDialogOpen(false)}
+                            className="flex-1"
+                          >
+                            Appliquer
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
               </div>
 
               {/* Date picker with presets */}
