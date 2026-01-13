@@ -14,6 +14,7 @@ import { fr } from "date-fns/locale";
 import { getOfferUrl } from "@/utils/slugify";
 import LeadOfferModal from "@/components/LeadOfferModal";
 import { useAdTracking } from "@/hooks/useAdTracking";
+import { useRegionContext } from "@/hooks/useRegionContext";
 
 interface Advertisement {
   id: string;
@@ -46,6 +47,7 @@ interface Advertisement {
 
 const OffrePartenaire = () => {
   const { id, advertiserSlug } = useParams<{ id: string; advertiserSlug: string }>();
+  const { activeRegion } = useRegionContext();
   const [offer, setOffer] = useState<Advertisement | null>(null);
   const [otherOffers, setOtherOffers] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -424,7 +426,7 @@ const OffrePartenaire = () => {
                         asChild
                         className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white"
                       >
-                        <Link to={getOfferUrl(otherOffer.advertiser.name, otherOffer.id)}>
+                        <Link to={getOfferUrl(otherOffer.advertiser.name, otherOffer.id, activeRegion)}>
                           Voir l'offre
                         </Link>
                       </Button>
@@ -449,6 +451,7 @@ const OffrePartenaire = () => {
             advertiserName: offer.advertiser.name,
             advertiserId: offer.advertiser.id,
             productType: offer.product_type || "Non spécifié",
+            regionCode: activeRegion,
           }}
           onSuccess={() => trackConversion(offer.id)}
         />
