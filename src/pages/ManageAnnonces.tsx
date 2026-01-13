@@ -67,6 +67,11 @@ interface Advertiser {
   is_active: boolean;
 }
 
+interface FeaturedAdInfo {
+  advertisement_id: string;
+  region_code: string;
+}
+
 const ManageAnnonces = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
@@ -81,6 +86,10 @@ const ManageAnnonces = () => {
   const [statsAd, setStatsAd] = useState<Advertisement | null>(null);
   const [currentFeature, setCurrentFeature] = useState("");
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  
+  // Featured ads by region
+  const [featuredByRegion, setFeaturedByRegion] = useState<FeaturedAdInfo[]>([]);
+  const [regionSelectAdId, setRegionSelectAdId] = useState<string | null>(null);
   
   // Filter states
   const [filterAdvertiserId, setFilterAdvertiserId] = useState<string | null>(null);
@@ -114,8 +123,22 @@ const ManageAnnonces = () => {
     if (user) {
       fetchAdvertisements();
       fetchAdvertisers();
+      fetchFeaturedByRegion();
     }
   }, [user]);
+
+  const fetchFeaturedByRegion = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("ad_region_featured")
+        .select("advertisement_id, region_code");
+
+      if (error) throw error;
+      setFeaturedByRegion(data || []);
+    } catch (error) {
+      console.error("Error fetching featured by region:", error);
+    }
+  };
 
   const fetchAdvertisements = async () => {
     try {
@@ -293,26 +316,69 @@ const ManageAnnonces = () => {
     }
   };
 
-  const toggleFeatured = async (id: string, currentStatus: boolean) => {
-    // Check if we already have 3 featured ads
-    const featuredCount = advertisements.filter(ad => ad.is_featured).length;
-    if (!currentStatus && featuredCount >= 3) {
-      toast.error("Vous ne pouvez mettre en avant que 3 annonces maximum");
-      return;
-    }
+  // Get regions where an ad is featured
+  const getAdFeaturedRegions = (adId: string): RegionCode[] => {
+    return featuredByRegion
+      .filter(f => f.advertisement_id === adId)
+      .map(f => f.region_code as RegionCode);
+  };
 
+  // Toggle featured for a specific region
+  const toggleFeaturedForRegion = async (adId: string, regionCode: RegionCode, isCurrentlyFeatured: boolean) => {
     try {
-      const { error } = await supabase
-        .from("advertisements")
-        .update({ is_featured: !currentStatus })
-        .eq("id", id);
+      if (isCurrentlyFeatured) {
+        // Remove from featured
+        const { error } = await supabase
+          .from("ad_region_featured")
+          .delete()
+          .eq("advertisement_id", adId)
+          .eq("region_code", regionCode);
 
-      if (error) throw error;
-      toast.success(currentStatus ? "Annonce retirée de la mise en avant" : "Annonce mise en avant");
-      fetchAdvertisements();
+        if (error) throw error;
+        toast.success(`Annonce retirée des vedettes pour ${ALL_REGIONS.find(r => r.code === regionCode)?.label}`);
+      } else {
+        // Check count for this region
+        const regionFeaturedCount = featuredByRegion.filter(f => f.region_code === regionCode).length;
+        if (regionFeaturedCount >= 3) {
+          toast.error(`Maximum 3 vedettes atteint pour ${ALL_REGIONS.find(r => r.code === regionCode)?.label}`);
+          return;
+        }
+
+        // Add to featured
+        const { error } = await supabase
+          .from("ad_region_featured")
+          .insert({
+            advertisement_id: adId,
+            region_code: regionCode,
+            display_order: regionFeaturedCount + 1
+          });
+
+        if (error) throw error;
+        toast.success(`Annonce mise en vedette pour ${ALL_REGIONS.find(r => r.code === regionCode)?.label}`);
+      }
+      
+      fetchFeaturedByRegion();
+      setRegionSelectAdId(null);
     } catch (error) {
       console.error("Error toggling featured:", error);
       toast.error("Erreur lors de la mise à jour");
+    }
+  };
+
+  // Handle click on featured button
+  const handleFeaturedClick = (adId: string) => {
+    const adFeaturedRegions = getAdFeaturedRegions(adId);
+    
+    if (filterRegion) {
+      // If a region filter is active, toggle directly for that region
+      const isCurrentlyFeatured = adFeaturedRegions.includes(filterRegion);
+      toggleFeaturedForRegion(adId, filterRegion, isCurrentlyFeatured);
+    } else if (adFeaturedRegions.length > 0) {
+      // If ad is featured somewhere and no filter, show region selector to remove
+      setRegionSelectAdId(regionSelectAdId === adId ? null : adId);
+    } else {
+      // If not featured anywhere and no filter, show region selector to add
+      setRegionSelectAdId(regionSelectAdId === adId ? null : adId);
     }
   };
 
@@ -361,7 +427,9 @@ const ManageAnnonces = () => {
     );
   }
 
-  const featuredCount = advertisements.filter(ad => ad.is_featured).length;
+  // Count featured ads (total unique ads featured across regions)
+  const uniqueFeaturedAds = new Set(featuredByRegion.map(f => f.advertisement_id));
+  const featuredCount = uniqueFeaturedAds.size;
 
   return (
     <>
@@ -834,14 +902,58 @@ const ManageAnnonces = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Button
-                          variant={ad.is_featured ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => toggleFeatured(ad.id, ad.is_featured)}
-                          disabled={!ad.is_featured && featuredCount >= 3}
-                        >
-                          <Star className={`w-4 h-4 ${ad.is_featured ? 'fill-current' : ''}`} />
-                        </Button>
+                        <div className="relative">
+                          <Popover 
+                            open={regionSelectAdId === ad.id} 
+                            onOpenChange={(open) => !open && setRegionSelectAdId(null)}
+                          >
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant={getAdFeaturedRegions(ad.id).length > 0 ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => handleFeaturedClick(ad.id)}
+                                className="gap-1"
+                              >
+                                <Star className={`w-4 h-4 ${getAdFeaturedRegions(ad.id).length > 0 ? 'fill-current' : ''}`} />
+                                {getAdFeaturedRegions(ad.id).length > 0 && (
+                                  <span className="text-xs">{getAdFeaturedRegions(ad.id).length}</span>
+                                )}
+                              </Button>
+                            </PopoverTrigger>
+                            {!filterRegion && (
+                              <PopoverContent className="w-64 p-2" align="start">
+                                <div className="space-y-1">
+                                  <p className="text-sm font-medium mb-2 px-2">
+                                    {getAdFeaturedRegions(ad.id).length > 0 ? "Retirer des régions" : "Ajouter pour une région"}
+                                  </p>
+                                  {ALL_REGIONS.map((region) => {
+                                    const isFeaturedInRegion = getAdFeaturedRegions(ad.id).includes(region.code);
+                                    const regionCount = featuredByRegion.filter(f => f.region_code === region.code).length;
+                                    const isDisabled = !isFeaturedInRegion && regionCount >= 3;
+                                    
+                                    return (
+                                      <Button
+                                        key={region.code}
+                                        variant={isFeaturedInRegion ? "default" : "ghost"}
+                                        size="sm"
+                                        className="w-full justify-between"
+                                        disabled={isDisabled}
+                                        onClick={() => toggleFeaturedForRegion(ad.id, region.code, isFeaturedInRegion)}
+                                      >
+                                        <span className="flex items-center gap-2">
+                                          <Globe className="w-3 h-3" />
+                                          {region.label}
+                                        </span>
+                                        {isFeaturedInRegion && <Check className="w-4 h-4" />}
+                                        {isDisabled && <span className="text-xs text-muted-foreground">3/3</span>}
+                                      </Button>
+                                    );
+                                  })}
+                                </div>
+                              </PopoverContent>
+                            )}
+                          </Popover>
+                        </div>
                       </TableCell>
                        <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
