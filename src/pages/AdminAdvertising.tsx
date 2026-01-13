@@ -24,6 +24,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import AdvertisementPreview from "@/components/AdvertisementPreview";
 import RegionFeaturedModal from "@/components/RegionFeaturedModal";
+import AdvertiserLogoUpload from "@/components/AdvertiserLogoUpload";
 import { Helmet } from "react-helmet";
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -847,8 +848,11 @@ const AdminAdvertising = () => {
                           <Input value={advertiserForm.name} onChange={(e) => setAdvertiserForm({ ...advertiserForm, name: e.target.value })} required placeholder="Nom de l'entreprise" />
                         </div>
                         <div>
-                          <Label>URL du logo</Label>
-                          <Input type="url" value={advertiserForm.logo} onChange={(e) => setAdvertiserForm({ ...advertiserForm, logo: e.target.value })} placeholder="https://..." />
+                          <Label>Logo</Label>
+                          <AdvertiserLogoUpload
+                            currentLogo={advertiserForm.logo}
+                            onLogoChange={(url) => setAdvertiserForm({ ...advertiserForm, logo: url })}
+                          />
                         </div>
                         <div>
                           <Label>Description</Label>
