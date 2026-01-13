@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,7 @@ import { format, differenceInDays, isPast } from "date-fns";
 import { fr } from "date-fns/locale";
 import { getOfferUrl } from "@/utils/slugify";
 import LeadOfferModal from "@/components/LeadOfferModal";
+import { useAdTracking } from "@/hooks/useAdTracking";
 
 interface Advertisement {
   id: string;
@@ -49,6 +50,8 @@ const OffrePartenaire = () => {
   const [otherOffers, setOtherOffers] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
+  const { trackView, trackClick, trackConversion } = useAdTracking();
+  const hasTrackedView = useRef(false);
 
   useEffect(() => {
     if (id) {
@@ -69,6 +72,12 @@ const OffrePartenaire = () => {
 
       if (error) throw error;
       setOffer(data);
+      
+      // Track view for this offer
+      if (data && !hasTrackedView.current) {
+        trackView(data.id);
+        hasTrackedView.current = true;
+      }
 
       // Fetch other offers from the same advertiser
       if (data?.advertiser_id) {
@@ -272,7 +281,10 @@ const OffrePartenaire = () => {
 
                   {/* CTA */}
                   <Button 
-                    onClick={() => setIsLeadModalOpen(true)}
+                    onClick={() => {
+                      trackClick(offer.id);
+                      setIsLeadModalOpen(true);
+                    }}
                     size="lg"
                     className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-bold py-6 text-lg shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 transition-all duration-300"
                   >
@@ -438,6 +450,7 @@ const OffrePartenaire = () => {
             advertiserId: offer.advertiser.id,
             productType: offer.product_type || "Non spécifié",
           }}
+          onSuccess={() => trackConversion(offer.id)}
         />
       )}
     </>

@@ -48,12 +48,14 @@ interface LeadOfferModalProps {
     advertiserId: string;
     productType: string;
   };
+  onSuccess?: () => void;
 }
 
 export default function LeadOfferModal({
   isOpen,
   onClose,
   offerData,
+  onSuccess,
 }: LeadOfferModalProps) {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -109,6 +111,9 @@ export default function LeadOfferModal({
 
       reset();
       onClose();
+      
+      // Call onSuccess callback for tracking
+      onSuccess?.();
       
       // Rediriger avec paramètres personnalisés
       const params = new URLSearchParams({
