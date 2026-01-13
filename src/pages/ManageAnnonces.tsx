@@ -16,8 +16,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { Plus, Edit, Trash2, Megaphone, Star, Check, X, Eye, BarChart3, MousePointerClick, UserCheck, ArrowUpDown, Filter, Globe } from "lucide-react";
+import { Plus, Edit, Trash2, Megaphone, Star, Check, X, Eye, BarChart3, MousePointerClick, UserCheck, ArrowUpDown, Filter, Globe, AlertCircle, MapPin } from "lucide-react";
 import AdvertisementPreview from "@/components/AdvertisementPreview";
 import AdStatsModal from "@/components/AdStatsModal";
 import { Helmet } from "react-helmet";
@@ -111,6 +112,7 @@ const ManageAnnonces = () => {
     is_featured: false,
     status: "active",
     expires_at: "",
+    target_regions: [] as string[], // New field for target regions
   });
 
   useEffect(() => {
@@ -175,6 +177,49 @@ const ManageAnnonces = () => {
     }
   };
 
+  // Remove featured ads from regions that are no longer targeted
+  const syncFeaturedWithTargetRegions = async (adId: string, newTargetRegions: string[]) => {
+    const currentFeaturedRegions = getAdFeaturedRegions(adId);
+    
+    // If newTargetRegions is empty, it means all regions are targeted - no need to remove anything
+    if (newTargetRegions.length === 0) return;
+    
+    // Find regions where the ad is featured but no longer targeted
+    const regionsToRemove = currentFeaturedRegions.filter(
+      region => !newTargetRegions.includes(region)
+    );
+    
+    if (regionsToRemove.length > 0) {
+      try {
+        const { error } = await supabase
+          .from("ad_region_featured")
+          .delete()
+          .eq("advertisement_id", adId)
+          .in("region_code", regionsToRemove);
+        
+        if (error) throw error;
+        
+        toast.info(`Vedettes retirées des régions non ciblées: ${regionsToRemove.length}`);
+      } catch (error) {
+        console.error("Error syncing featured regions:", error);
+      }
+    }
+  };
+
+  // Remove all featured ads when ad becomes inactive
+  const removeAllFeaturedForAd = async (adId: string) => {
+    try {
+      const { error } = await supabase
+        .from("ad_region_featured")
+        .delete()
+        .eq("advertisement_id", adId);
+      
+      if (error) throw error;
+    } catch (error) {
+      console.error("Error removing featured for inactive ad:", error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -198,10 +243,20 @@ const ManageAnnonces = () => {
       is_featured: formData.is_featured,
       status: formData.status,
       expires_at: formData.expires_at ? new Date(formData.expires_at).toISOString() : null,
+      target_regions: formData.target_regions.length > 0 ? formData.target_regions : null,
     };
 
     try {
       if (editingAd) {
+        // Check if status changed to inactive
+        if (editingAd.status === 'active' && formData.status !== 'active') {
+          await removeAllFeaturedForAd(editingAd.id);
+          toast.info("Vedettes retirées car l'annonce est inactive");
+        }
+        
+        // Sync featured regions with new target regions
+        await syncFeaturedWithTargetRegions(editingAd.id, formData.target_regions);
+        
         const { error } = await supabase
           .from("advertisements")
           .update(adData)
@@ -221,6 +276,7 @@ const ManageAnnonces = () => {
       setDialogOpen(false);
       resetForm();
       fetchAdvertisements();
+      fetchFeaturedByRegion();
     } catch (error) {
       console.error("Error saving advertisement:", error);
       toast.error("Erreur lors de l'enregistrement");
@@ -246,15 +302,17 @@ const ManageAnnonces = () => {
     // Filter by advertiser
     if (filterAdvertiserId && ad.advertiser_id !== filterAdvertiserId) return false;
     
-    // Filter by featured
-    if (filterFeatured !== null && ad.is_featured !== filterFeatured) return false;
+    // Filter by featured - use featuredByRegion instead of is_featured
+    if (filterFeatured !== null) {
+      const adFeaturedRegions = getAdFeaturedRegions(ad.id);
+      const isFeatured = adFeaturedRegions.length > 0;
+      if (filterFeatured && !isFeatured) return false;
+      if (!filterFeatured && isFeatured) return false;
+    }
     
     // Filter by region - if ad has no target_regions, it's for all regions
-    // We don't filter it out. If it has target_regions, check if filterRegion is in there.
     if (filterRegion) {
-      // Check target_regions - note: we need to fetch this from somewhere
-      // For now we'll use the ad's target_regions if available
-      const adRegions = (ad as any).target_regions;
+      const adRegions = ad.target_regions;
       if (adRegions && adRegions.length > 0 && !adRegions.includes(filterRegion)) {
         return false;
       }
@@ -294,6 +352,7 @@ const ManageAnnonces = () => {
       is_featured: ad.is_featured,
       status: ad.status,
       expires_at: ad.expires_at ? ad.expires_at.split('T')[0] : "",
+      target_regions: ad.target_regions || [],
     });
     setDialogOpen(true);
   };
@@ -302,6 +361,12 @@ const ManageAnnonces = () => {
     if (!confirm("Êtes-vous sûr de vouloir supprimer cette annonce ?")) return;
 
     try {
+      // First remove all featured entries
+      await supabase
+        .from("ad_region_featured")
+        .delete()
+        .eq("advertisement_id", id);
+      
       const { error } = await supabase
         .from("advertisements")
         .delete()
@@ -310,6 +375,7 @@ const ManageAnnonces = () => {
       if (error) throw error;
       toast.success("Annonce supprimée avec succès");
       fetchAdvertisements();
+      fetchFeaturedByRegion();
     } catch (error) {
       console.error("Error deleting advertisement:", error);
       toast.error("Erreur lors de la suppression");
@@ -323,8 +389,32 @@ const ManageAnnonces = () => {
       .map(f => f.region_code as RegionCode);
   };
 
+  // Get available regions for featuring (based on target_regions)
+  const getAvailableRegionsForFeaturing = (ad: Advertisement): RegionCode[] => {
+    // If no target_regions or empty, all regions are available
+    if (!ad.target_regions || ad.target_regions.length === 0) {
+      return ALL_REGIONS.map(r => r.code);
+    }
+    // Otherwise, only return the targeted regions
+    return ad.target_regions as RegionCode[];
+  };
+
   // Toggle featured for a specific region
   const toggleFeaturedForRegion = async (adId: string, regionCode: RegionCode, isCurrentlyFeatured: boolean) => {
+    const ad = advertisements.find(a => a.id === adId);
+    
+    // Check if ad is active
+    if (ad && ad.status !== 'active') {
+      toast.error("Impossible de mettre en vedette une annonce inactive");
+      return;
+    }
+    
+    // Check if region is in target_regions (if target_regions is set)
+    if (ad && ad.target_regions && ad.target_regions.length > 0 && !ad.target_regions.includes(regionCode)) {
+      toast.error("Cette région n'est pas ciblée par l'annonce");
+      return;
+    }
+    
     try {
       if (isCurrentlyFeatured) {
         // Remove from featured
@@ -366,20 +456,48 @@ const ManageAnnonces = () => {
   };
 
   // Handle click on featured button
-  const handleFeaturedClick = (adId: string) => {
-    const adFeaturedRegions = getAdFeaturedRegions(adId);
+  const handleFeaturedClick = (ad: Advertisement) => {
+    // Block if inactive
+    if (ad.status !== 'active') {
+      toast.error("Activez l'annonce avant de la mettre en vedette");
+      return;
+    }
+    
+    const adFeaturedRegions = getAdFeaturedRegions(ad.id);
     
     if (filterRegion) {
+      // Check if region is available for this ad
+      const availableRegions = getAvailableRegionsForFeaturing(ad);
+      if (!availableRegions.includes(filterRegion)) {
+        toast.error("Cette annonce ne cible pas cette région");
+        return;
+      }
+      
       // If a region filter is active, toggle directly for that region
       const isCurrentlyFeatured = adFeaturedRegions.includes(filterRegion);
-      toggleFeaturedForRegion(adId, filterRegion, isCurrentlyFeatured);
-    } else if (adFeaturedRegions.length > 0) {
-      // If ad is featured somewhere and no filter, show region selector to remove
-      setRegionSelectAdId(regionSelectAdId === adId ? null : adId);
+      toggleFeaturedForRegion(ad.id, filterRegion, isCurrentlyFeatured);
     } else {
-      // If not featured anywhere and no filter, show region selector to add
-      setRegionSelectAdId(regionSelectAdId === adId ? null : adId);
+      // Show region selector
+      setRegionSelectAdId(regionSelectAdId === ad.id ? null : ad.id);
     }
+  };
+
+  // Toggle target region in form
+  const toggleTargetRegion = (regionCode: string) => {
+    setFormData(prev => {
+      const newRegions = prev.target_regions.includes(regionCode)
+        ? prev.target_regions.filter(r => r !== regionCode)
+        : [...prev.target_regions, regionCode];
+      return { ...prev, target_regions: newRegions };
+    });
+  };
+
+  // Select all regions
+  const selectAllRegions = () => {
+    setFormData(prev => ({
+      ...prev,
+      target_regions: [] // Empty means all regions
+    }));
   };
 
   const addFeature = () => {
@@ -415,8 +533,16 @@ const ManageAnnonces = () => {
       is_featured: false,
       status: "active",
       expires_at: "",
+      target_regions: [],
     });
     setCurrentFeature("");
+  };
+
+  // Get display text for target regions
+  const getTargetRegionsDisplay = (targetRegions: string[] | null): string => {
+    if (!targetRegions || targetRegions.length === 0) return "Toutes";
+    if (targetRegions.length === 6) return "Toutes";
+    return targetRegions.length.toString();
   };
 
   if (authLoading || loading) {
@@ -445,7 +571,7 @@ const ManageAnnonces = () => {
             <div>
               <h1 className="text-4xl font-bold mb-2">Gestion des Annonces</h1>
               <p className="text-muted-foreground">
-                Gérez vos annonces publicitaires • {featuredCount}/3 en vedette
+                Gérez vos annonces publicitaires • {featuredCount} annonce(s) en vedette
               </p>
             </div>
             
@@ -639,6 +765,60 @@ const ManageAnnonces = () => {
                       />
                     </div>
 
+                    {/* Target Regions Section */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4" />
+                          Régions ciblées
+                        </Label>
+                        <Button 
+                          type="button" 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={selectAllRegions}
+                          className="text-xs"
+                        >
+                          {formData.target_regions.length === 0 ? "✓ Toutes sélectionnées" : "Sélectionner toutes"}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {formData.target_regions.length === 0 
+                          ? "L'annonce sera visible dans toutes les régions"
+                          : `L'annonce sera visible dans ${formData.target_regions.length} région(s)`
+                        }
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {ALL_REGIONS.map((region) => (
+                          <div 
+                            key={region.code}
+                            className={`flex items-center space-x-2 p-2 rounded border cursor-pointer transition-colors ${
+                              formData.target_regions.length === 0 || formData.target_regions.includes(region.code)
+                                ? 'bg-primary/10 border-primary'
+                                : 'bg-muted/30 border-border hover:bg-muted/50'
+                            }`}
+                            onClick={() => {
+                              if (formData.target_regions.length === 0) {
+                                // If "all" is selected, switch to specific selection
+                                setFormData(prev => ({
+                                  ...prev,
+                                  target_regions: ALL_REGIONS.filter(r => r.code !== region.code).map(r => r.code)
+                                }));
+                              } else {
+                                toggleTargetRegion(region.code);
+                              }
+                            }}
+                          >
+                            <Checkbox 
+                              checked={formData.target_regions.length === 0 || formData.target_regions.includes(region.code)}
+                              className="pointer-events-none"
+                            />
+                            <span className="text-sm">{region.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
                     <div>
                       <Label>Avantages inclus</Label>
                       <div className="flex gap-2 mb-2">
@@ -753,17 +933,15 @@ const ManageAnnonces = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="is_featured"
-                        checked={formData.is_featured}
-                        onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
-                        disabled={!editingAd && featuredCount >= 3}
-                      />
-                      <Label htmlFor="is_featured">
-                        Mettre en avant sur l'accueil {!editingAd && featuredCount >= 3 && "(max atteint)"}
-                      </Label>
-                    </div>
+                    {/* Info about featured ads */}
+                    {formData.status !== 'active' && (
+                      <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 rounded-lg">
+                        <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                        <p className="text-sm">
+                          Une annonce inactive ne peut pas être mise en vedette. La mise en vedette se fait depuis le tableau après création.
+                        </p>
+                      </div>
+                    )}
 
                     <div className="flex gap-3 pt-4">
                       <Button type="submit" className="flex-1">
@@ -799,6 +977,16 @@ const ManageAnnonces = () => {
                     <TableHead>Titre</TableHead>
                     <TableHead>Annonceur</TableHead>
                     <TableHead>Prix</TableHead>
+                    <TableHead>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="flex items-center gap-1">
+                            <MapPin className="w-3 h-3" /> Régions
+                          </TooltipTrigger>
+                          <TooltipContent>Régions ciblées par l'annonce</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableHead>
                     <TableHead 
                       className="cursor-pointer hover:bg-muted/50 transition-colors"
                       onClick={toggleSortOrder}
@@ -844,156 +1032,191 @@ const ManageAnnonces = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sortedAdvertisements.map((ad) => (
-                    <TableRow key={ad.id}>
-                      <TableCell>
-                        {ad.image ? (
-                          <img 
-                            src={ad.image} 
-                            alt={ad.title}
-                            className="w-16 h-16 object-cover rounded"
-                          />
-                        ) : (
-                          <div className="w-16 h-16 bg-muted rounded flex items-center justify-center">
-                            <Megaphone className="w-6 h-6 text-muted-foreground" />
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{ad.title}</p>
-                          {ad.badge_text && (
-                            <Badge variant="secondary" className="mt-1">
-                              {ad.badge_text}
-                            </Badge>
+                  {sortedAdvertisements.map((ad) => {
+                    const adFeaturedRegions = getAdFeaturedRegions(ad.id);
+                    const availableRegions = getAvailableRegionsForFeaturing(ad);
+                    const isInactive = ad.status !== 'active';
+                    
+                    return (
+                      <TableRow key={ad.id}>
+                        <TableCell>
+                          {ad.image ? (
+                            <img 
+                              src={ad.image} 
+                              alt={ad.title}
+                              className="w-16 h-16 object-cover rounded"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 bg-muted rounded flex items-center justify-center">
+                              <Megaphone className="w-6 h-6 text-muted-foreground" />
+                            </div>
                           )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{ad.advertiser.name}</TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-bold text-green-600">
-                            {ad.price.toLocaleString('fr-FR')}€
-                          </p>
-                          {ad.original_price && (
-                            <p className="text-sm text-muted-foreground line-through">
-                              {ad.original_price.toLocaleString('fr-FR')}€
-                            </p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm text-muted-foreground">
-                          {format(new Date(ad.created_at), "dd/MM/yy", { locale: fr })}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center font-medium">
-                        {ad.views_count || 0}
-                      </TableCell>
-                      <TableCell className="text-center font-medium">
-                        {ad.clicks_count || 0}
-                      </TableCell>
-                      <TableCell className="text-center font-medium">
-                        {ad.conversions_count || 0}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={ad.status === 'active' ? 'default' : 'secondary'}>
-                          {ad.status === 'active' ? 'Active' : ad.status === 'inactive' ? 'Inactive' : 'Archivée'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="relative">
-                          <Popover 
-                            open={regionSelectAdId === ad.id} 
-                            onOpenChange={(open) => !open && setRegionSelectAdId(null)}
-                          >
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant={getAdFeaturedRegions(ad.id).length > 0 ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => handleFeaturedClick(ad.id)}
-                                className="gap-1"
-                              >
-                                <Star className={`w-4 h-4 ${getAdFeaturedRegions(ad.id).length > 0 ? 'fill-current' : ''}`} />
-                                {getAdFeaturedRegions(ad.id).length > 0 && (
-                                  <span className="text-xs">{getAdFeaturedRegions(ad.id).length}</span>
-                                )}
-                              </Button>
-                            </PopoverTrigger>
-                            {!filterRegion && (
-                              <PopoverContent className="w-64 p-2" align="start">
-                                <div className="space-y-1">
-                                  <p className="text-sm font-medium mb-2 px-2">
-                                    {getAdFeaturedRegions(ad.id).length > 0 ? "Retirer des régions" : "Ajouter pour une région"}
-                                  </p>
-                                  {ALL_REGIONS.map((region) => {
-                                    const isFeaturedInRegion = getAdFeaturedRegions(ad.id).includes(region.code);
-                                    const regionCount = featuredByRegion.filter(f => f.region_code === region.code).length;
-                                    const isDisabled = !isFeaturedInRegion && regionCount >= 3;
-                                    
-                                    return (
-                                      <Button
-                                        key={region.code}
-                                        variant={isFeaturedInRegion ? "default" : "ghost"}
-                                        size="sm"
-                                        className="w-full justify-between"
-                                        disabled={isDisabled}
-                                        onClick={() => toggleFeaturedForRegion(ad.id, region.code, isFeaturedInRegion)}
-                                      >
-                                        <span className="flex items-center gap-2">
-                                          <Globe className="w-3 h-3" />
-                                          {region.label}
-                                        </span>
-                                        {isFeaturedInRegion && <Check className="w-4 h-4" />}
-                                        {isDisabled && <span className="text-xs text-muted-foreground">3/3</span>}
-                                      </Button>
-                                    );
-                                  })}
-                                </div>
-                              </PopoverContent>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">{ad.title}</p>
+                            {ad.badge_text && (
+                              <Badge variant="secondary" className="mt-1">
+                                {ad.badge_text}
+                              </Badge>
                             )}
-                          </Popover>
-                        </div>
-                      </TableCell>
-                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleStats(ad)}
-                            title="Statistiques"
-                            className="text-primary hover:text-primary"
-                          >
-                            <BarChart3 className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => handlePreview(ad)}
-                            title="Prévisualiser"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEdit(ad)}
-                            title="Modifier"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => handleDelete(ad.id)}
-                            title="Supprimer"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                          </div>
+                        </TableCell>
+                        <TableCell>{ad.advertiser.name}</TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-bold text-green-600">
+                              {ad.price.toLocaleString('fr-FR')}€
+                            </p>
+                            {ad.original_price && (
+                              <p className="text-sm text-muted-foreground line-through">
+                                {ad.original_price.toLocaleString('fr-FR')}€
+                              </p>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <Badge variant="outline" className="gap-1">
+                                  <Globe className="w-3 h-3" />
+                                  {getTargetRegionsDisplay(ad.target_regions)}
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {!ad.target_regions || ad.target_regions.length === 0 
+                                  ? "Toutes les régions"
+                                  : ad.target_regions.map(r => ALL_REGIONS.find(reg => reg.code === r)?.label).join(", ")
+                                }
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm text-muted-foreground">
+                            {format(new Date(ad.created_at), "dd/MM/yy", { locale: fr })}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center font-medium">
+                          {ad.views_count || 0}
+                        </TableCell>
+                        <TableCell className="text-center font-medium">
+                          {ad.clicks_count || 0}
+                        </TableCell>
+                        <TableCell className="text-center font-medium">
+                          {ad.conversions_count || 0}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={ad.status === 'active' ? 'default' : 'secondary'}>
+                            {ad.status === 'active' ? 'Active' : ad.status === 'inactive' ? 'Inactive' : 'Archivée'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="relative">
+                            <Popover 
+                              open={regionSelectAdId === ad.id} 
+                              onOpenChange={(open) => !open && setRegionSelectAdId(null)}
+                            >
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant={adFeaturedRegions.length > 0 ? "default" : "outline"}
+                                  size="sm"
+                                  onClick={() => handleFeaturedClick(ad)}
+                                  className={`gap-1 ${isInactive ? 'opacity-50' : ''}`}
+                                  disabled={isInactive && adFeaturedRegions.length === 0}
+                                >
+                                  {isInactive ? (
+                                    <AlertCircle className="w-4 h-4" />
+                                  ) : (
+                                    <Star className={`w-4 h-4 ${adFeaturedRegions.length > 0 ? 'fill-current' : ''}`} />
+                                  )}
+                                  {adFeaturedRegions.length > 0 && (
+                                    <span className="text-xs">{adFeaturedRegions.length}</span>
+                                  )}
+                                </Button>
+                              </PopoverTrigger>
+                              {!filterRegion && !isInactive && (
+                                <PopoverContent className="w-64 p-2" align="start">
+                                  <div className="space-y-1">
+                                    <p className="text-sm font-medium mb-2 px-2">
+                                      {adFeaturedRegions.length > 0 ? "Gérer les vedettes" : "Mettre en vedette"}
+                                    </p>
+                                    {availableRegions.length === 0 ? (
+                                      <p className="text-sm text-muted-foreground px-2">
+                                        Aucune région ciblée
+                                      </p>
+                                    ) : (
+                                      ALL_REGIONS.filter(r => availableRegions.includes(r.code)).map((region) => {
+                                        const isFeaturedInRegion = adFeaturedRegions.includes(region.code);
+                                        const regionCount = featuredByRegion.filter(f => f.region_code === region.code).length;
+                                        const isDisabled = !isFeaturedInRegion && regionCount >= 3;
+                                        
+                                        return (
+                                          <Button
+                                            key={region.code}
+                                            variant={isFeaturedInRegion ? "default" : "ghost"}
+                                            size="sm"
+                                            className="w-full justify-between"
+                                            disabled={isDisabled}
+                                            onClick={() => toggleFeaturedForRegion(ad.id, region.code, isFeaturedInRegion)}
+                                          >
+                                            <span className="flex items-center gap-2">
+                                              <Globe className="w-3 h-3" />
+                                              {region.label}
+                                            </span>
+                                            {isFeaturedInRegion && <Check className="w-4 h-4" />}
+                                            {isDisabled && <span className="text-xs text-muted-foreground">3/3</span>}
+                                          </Button>
+                                        );
+                                      })
+                                    )}
+                                  </div>
+                                </PopoverContent>
+                              )}
+                            </Popover>
+                          </div>
+                        </TableCell>
+                         <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleStats(ad)}
+                              title="Statistiques"
+                              className="text-primary hover:text-primary"
+                            >
+                              <BarChart3 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => handlePreview(ad)}
+                              title="Prévisualiser"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit(ad)}
+                              title="Modifier"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleDelete(ad.id)}
+                              title="Supprimer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </CardContent>
