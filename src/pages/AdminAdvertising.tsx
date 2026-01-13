@@ -728,14 +728,23 @@ const AdminAdvertising = () => {
                           </Button>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-3">
+                          <div 
+                            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={() => { setSelectedAdvertiserFilter(advertiser.id); setActiveTab('ads'); }}
+                          >
                             {advertiser.logo && (
                               <img src={advertiser.logo} alt={advertiser.name} className="w-10 h-10 rounded-lg object-cover" />
                             )}
                             <div>
-                              <div className="font-medium">{advertiser.name}</div>
+                              <div className="font-medium hover:text-primary transition-colors">{advertiser.name}</div>
                               {advertiser.website && (
-                                <a href={advertiser.website} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:underline">
+                                <a 
+                                  href={advertiser.website} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer" 
+                                  className="text-xs text-muted-foreground hover:underline"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
                                   {advertiser.website}
                                 </a>
                               )}
