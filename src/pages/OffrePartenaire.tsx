@@ -166,7 +166,7 @@ const OffrePartenaire = () => {
             <h1 className="text-2xl font-bold mb-4">Offre non trouvée</h1>
             <p className="text-muted-foreground mb-8">Cette offre n'existe pas ou n'est plus disponible.</p>
             <Button asChild>
-              <Link to="/offres-partenaires">Voir toutes les offres</Link>
+              <Link to="/">Retour à l'accueil</Link>
             </Button>
           </div>
         </main>
@@ -190,9 +190,9 @@ const OffrePartenaire = () => {
             variant="ghost" 
             className="mb-6 hover:bg-amber-100/50"
           >
-            <Link to="/offres-partenaires" className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2">
               <ArrowLeft className="w-4 h-4" />
-              Retour aux offres
+              Retour à l'accueil
             </Link>
           </Button>
 

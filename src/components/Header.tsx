@@ -539,7 +539,7 @@ const Header = () => {
                 </div>
               )}
               <Link
-                to="/offres"
+                to="/#offres"
                 className="text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
