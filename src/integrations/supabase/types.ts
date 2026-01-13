@@ -88,6 +88,38 @@ export type Database = {
           },
         ]
       }
+      ad_region_featured: {
+        Row: {
+          advertisement_id: string
+          created_at: string
+          display_order: number
+          id: string
+          region_code: string
+        }
+        Insert: {
+          advertisement_id: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          region_code: string
+        }
+        Update: {
+          advertisement_id?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          region_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_region_featured_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       advertisements: {
         Row: {
           advertiser_id: string
