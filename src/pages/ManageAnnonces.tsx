@@ -14,11 +14,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { Plus, Edit, Trash2, Megaphone, Star, Check, X, Eye } from "lucide-react";
+import { Plus, Edit, Trash2, Megaphone, Star, Check, X, Eye, BarChart3, MousePointerClick, UserCheck, ArrowUpDown } from "lucide-react";
 import AdvertisementPreview from "@/components/AdvertisementPreview";
+import AdStatsModal from "@/components/AdStatsModal";
 import { Helmet } from "react-helmet";
-
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 interface Advertisement {
   id: string;
   advertiser_id: string;
@@ -36,6 +39,9 @@ interface Advertisement {
   status: string;
   expires_at: string | null;
   created_at: string;
+  views_count: number;
+  clicks_count: number;
+  conversions_count: number;
   advertiser: {
     id: string;
     name: string;
@@ -56,9 +62,12 @@ const ManageAnnonces = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [statsDialogOpen, setStatsDialogOpen] = useState(false);
   const [editingAd, setEditingAd] = useState<Advertisement | null>(null);
   const [previewingAd, setPreviewingAd] = useState<Advertisement | null>(null);
+  const [statsAd, setStatsAd] = useState<Advertisement | null>(null);
   const [currentFeature, setCurrentFeature] = useState("");
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [formData, setFormData] = useState({
     advertiser_id: "",
     title: "",
@@ -180,6 +189,21 @@ const ManageAnnonces = () => {
     setPreviewingAd(ad);
     setPreviewDialogOpen(true);
   };
+
+  const handleStats = (ad: Advertisement) => {
+    setStatsAd(ad);
+    setStatsDialogOpen(true);
+  };
+
+  const toggleSortOrder = () => {
+    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+  };
+
+  const sortedAdvertisements = [...advertisements].sort((a, b) => {
+    const dateA = new Date(a.created_at).getTime();
+    const dateB = new Date(b.created_at).getTime();
+    return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+  });
 
   const handleEdit = (ad: Advertisement) => {
     setEditingAd(ad);
@@ -573,13 +597,52 @@ const ManageAnnonces = () => {
                     <TableHead>Titre</TableHead>
                     <TableHead>Annonceur</TableHead>
                     <TableHead>Prix</TableHead>
+                    <TableHead 
+                      className="cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={toggleSortOrder}
+                    >
+                      <div className="flex items-center gap-1">
+                        Date
+                        <ArrowUpDown className="w-3 h-3" />
+                      </div>
+                    </TableHead>
+                    <TableHead className="text-center">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="flex items-center gap-1 mx-auto">
+                            <Eye className="w-3 h-3" /> Vues
+                          </TooltipTrigger>
+                          <TooltipContent>Nombre de vues</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableHead>
+                    <TableHead className="text-center">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="flex items-center gap-1 mx-auto">
+                            <MousePointerClick className="w-3 h-3" /> Clics
+                          </TooltipTrigger>
+                          <TooltipContent>Clics sur "Voir l'offre"</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableHead>
+                    <TableHead className="text-center">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="flex items-center gap-1 mx-auto">
+                            <UserCheck className="w-3 h-3" /> Leads
+                          </TooltipTrigger>
+                          <TooltipContent>Formulaires soumis</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableHead>
                     <TableHead>Statut</TableHead>
                     <TableHead>Vedette</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {advertisements.map((ad) => (
+                  {sortedAdvertisements.map((ad) => (
                     <TableRow key={ad.id}>
                       <TableCell>
                         {ad.image ? (
@@ -618,6 +681,20 @@ const ManageAnnonces = () => {
                         </div>
                       </TableCell>
                       <TableCell>
+                        <span className="text-sm text-muted-foreground">
+                          {format(new Date(ad.created_at), "dd/MM/yy", { locale: fr })}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center font-medium">
+                        {ad.views_count || 0}
+                      </TableCell>
+                      <TableCell className="text-center font-medium">
+                        {ad.clicks_count || 0}
+                      </TableCell>
+                      <TableCell className="text-center font-medium">
+                        {ad.conversions_count || 0}
+                      </TableCell>
+                      <TableCell>
                         <Badge variant={ad.status === 'active' ? 'default' : 'secondary'}>
                           {ad.status === 'active' ? 'Active' : ad.status === 'inactive' ? 'Inactive' : 'Archivée'}
                         </Badge>
@@ -634,6 +711,15 @@ const ManageAnnonces = () => {
                       </TableCell>
                        <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleStats(ad)}
+                            title="Statistiques"
+                            className="text-primary hover:text-primary"
+                          >
+                            <BarChart3 className="w-4 h-4" />
+                          </Button>
                           <Button
                             variant="secondary"
                             size="sm"
@@ -691,6 +777,13 @@ const ManageAnnonces = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Stats Modal */}
+        <AdStatsModal
+          open={statsDialogOpen}
+          onOpenChange={setStatsDialogOpen}
+          advertisement={statsAd}
+        />
 
         <Footer />
       </div>
