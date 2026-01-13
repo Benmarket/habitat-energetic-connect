@@ -126,6 +126,11 @@ const AdminAdvertising = () => {
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [selectedRegionForFeatured, setSelectedRegionForFeatured] = useState<{ code: RegionCode; label: string } | null>(null);
   
+  // Unfeaturing modal state
+  const [unfeatureModalOpen, setUnfeatureModalOpen] = useState(false);
+  const [adToUnfeature, setAdToUnfeature] = useState<Advertisement | null>(null);
+  const [regionsToUnfeature, setRegionsToUnfeature] = useState<RegionCode[]>([]);
+  
   // Editing states
   const [editingAdvertiser, setEditingAdvertiser] = useState<Advertiser | null>(null);
   const [editingAd, setEditingAd] = useState<Advertisement | null>(null);
@@ -504,15 +509,36 @@ const AdminAdvertising = () => {
   };
 
   const toggleAdFeatured = async (ad: Advertisement) => {
+    // If already featured, open modal to select regions to unfeature
+    if (ad.is_featured) {
+      setAdToUnfeature(ad);
+      // Get regions where this ad is featured
+      const adRegions = ad.target_regions || [];
+      const allFeaturedRegions = Array.from(featuredByRegion.entries())
+        .filter(([_, adIds]) => adIds.includes(ad.id))
+        .map(([region]) => region);
+      
+      // If ad has no specific regions or is featured in some regions
+      if (adRegions.length === 0) {
+        // Ad targets all regions - show all regions as options
+        setRegionsToUnfeature(ALL_REGIONS.map(r => r.code));
+      } else {
+        setRegionsToUnfeature(allFeaturedRegions.length > 0 ? allFeaturedRegions : adRegions as RegionCode[]);
+      }
+      setUnfeatureModalOpen(true);
+      return;
+    }
+    
+    // Adding to featured
     const featuredCount = advertisements.filter(a => a.is_featured).length;
-    if (!ad.is_featured && featuredCount >= 3) {
+    if (featuredCount >= 3) {
       toast.error("Maximum 3 annonces en vedette");
       return;
     }
     try {
-      const { error } = await supabase.from("advertisements").update({ is_featured: !ad.is_featured }).eq("id", ad.id);
+      const { error } = await supabase.from("advertisements").update({ is_featured: true }).eq("id", ad.id);
       if (error) throw error;
-      toast.success(ad.is_featured ? "Retirée de la vedette" : "Mise en vedette");
+      toast.success("Mise en vedette");
       fetchData();
     } catch (error) {
       console.error("Error:", error);
@@ -520,6 +546,54 @@ const AdminAdvertising = () => {
     }
   };
 
+  const handleConfirmUnfeature = async () => {
+    if (!adToUnfeature) return;
+    
+    try {
+      // Remove from ad_region_featured for selected regions
+      if (regionsToUnfeature.length > 0) {
+        const { error: deleteFeaturedError } = await supabase
+          .from("ad_region_featured")
+          .delete()
+          .eq("advertisement_id", adToUnfeature.id)
+          .in("region_code", regionsToUnfeature);
+        
+        if (deleteFeaturedError) throw deleteFeaturedError;
+      }
+      
+      // Check if there are still featured entries for this ad
+      const { data: remainingFeatured } = await supabase
+        .from("ad_region_featured")
+        .select("id")
+        .eq("advertisement_id", adToUnfeature.id);
+      
+      // If no more featured entries, set is_featured to false
+      if (!remainingFeatured || remainingFeatured.length === 0) {
+        const { error } = await supabase
+          .from("advertisements")
+          .update({ is_featured: false })
+          .eq("id", adToUnfeature.id);
+        if (error) throw error;
+      }
+      
+      toast.success(`Annonce retirée de ${regionsToUnfeature.length} région(s)`);
+      setUnfeatureModalOpen(false);
+      setAdToUnfeature(null);
+      setRegionsToUnfeature([]);
+      fetchData();
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Erreur lors du retrait");
+    }
+  };
+
+  const toggleUnfeatureRegion = (region: RegionCode) => {
+    setRegionsToUnfeature(prev => 
+      prev.includes(region) 
+        ? prev.filter(r => r !== region)
+        : [...prev, region]
+    );
+  };
   const toggleAdStatus = async (ad: Advertisement) => {
     const newStatus = ad.status === 'active' ? 'paused' : 'active';
     try {
@@ -1108,12 +1182,24 @@ const AdminAdvertising = () => {
                             </Badge>
                           </div>
                           
-                          {/* Featured indicator */}
-                          <div className="flex items-center gap-2 mb-4 p-2 bg-amber-50 dark:bg-amber-950/30 rounded-lg">
-                            <Star className={`w-4 h-4 ${featuredCount > 0 ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground'}`} />
-                            <span className="text-sm">
-                              <span className="font-medium">{featuredCount}</span>/3 en vedette
-                            </span>
+                          {/* Featured indicator with free slots */}
+                          <div className={cn(
+                            "flex items-center justify-between mb-4 p-2 rounded-lg",
+                            featuredCount < 3 
+                              ? "bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800" 
+                              : "bg-amber-50 dark:bg-amber-950/30"
+                          )}>
+                            <div className="flex items-center gap-2">
+                              <Star className={`w-4 h-4 ${featuredCount > 0 ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground'}`} />
+                              <span className="text-sm">
+                                <span className="font-medium">{featuredCount}</span>/3 en vedette
+                              </span>
+                            </div>
+                            {featuredCount < 3 && (
+                              <Badge variant="outline" className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 border-green-300">
+                                {3 - featuredCount} place{3 - featuredCount > 1 ? 's' : ''} libre{3 - featuredCount > 1 ? 's' : ''}
+                              </Badge>
+                            )}
                           </div>
                           
                           <p className="text-xs text-muted-foreground mb-4">
@@ -1490,17 +1576,81 @@ const AdminAdvertising = () => {
             </DialogContent>
           </Dialog>
 
-          {/* Region Featured Modal */}
-          {selectedRegionForFeatured && (
-            <RegionFeaturedModal
-              open={regionFeaturedOpen}
-              onOpenChange={setRegionFeaturedOpen}
-              regionCode={selectedRegionForFeatured.code}
-              regionLabel={selectedRegionForFeatured.label}
-              advertisements={advertisements}
-              onSave={fetchData}
-            />
-          )}
+          {/* Unfeature Confirmation Modal */}
+          <Dialog open={unfeatureModalOpen} onOpenChange={(open) => {
+            setUnfeatureModalOpen(open);
+            if (!open) {
+              setAdToUnfeature(null);
+              setRegionsToUnfeature([]);
+            }
+          }}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Star className="w-5 h-5 text-yellow-500" />
+                  Retirer des vedettes
+                </DialogTitle>
+              </DialogHeader>
+              
+              {adToUnfeature && (
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Sélectionnez les régions où vous souhaitez retirer "<span className="font-medium">{adToUnfeature.title}</span>" des vedettes.
+                  </p>
+                  
+                  {(!adToUnfeature.target_regions || adToUnfeature.target_regions.length === 0) && (
+                    <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800">
+                      <p className="text-sm text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4" />
+                        Cette annonce cible <strong>toutes les régions</strong>. Elle sera retirée des vedettes partout si vous confirmez.
+                      </p>
+                    </div>
+                  )}
+                  
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Régions à retirer :</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {ALL_REGIONS.map((region) => {
+                        const isFeaturedInRegion = featuredByRegion.get(region.code)?.includes(adToUnfeature.id) || false;
+                        const isTargetedRegion = !adToUnfeature.target_regions || 
+                          adToUnfeature.target_regions.length === 0 || 
+                          adToUnfeature.target_regions.includes(region.code);
+                        
+                        if (!isTargetedRegion && !isFeaturedInRegion) return null;
+                        
+                        return (
+                          <div key={region.code} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`unfeature-${region.code}`}
+                              checked={regionsToUnfeature.includes(region.code)}
+                              onCheckedChange={() => toggleUnfeatureRegion(region.code)}
+                            />
+                            <Label htmlFor={`unfeature-${region.code}`} className="text-sm cursor-pointer flex items-center gap-1">
+                              {region.label}
+                              {isFeaturedInRegion && <Star className="w-3 h-3 text-amber-500 fill-amber-500" />}
+                            </Label>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end gap-2 pt-4">
+                    <Button variant="outline" onClick={() => setUnfeatureModalOpen(false)}>
+                      Annuler
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      onClick={handleConfirmUnfeature}
+                      disabled={regionsToUnfeature.length === 0}
+                    >
+                      Confirmer le retrait
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
         </main>
 
         <Footer />
