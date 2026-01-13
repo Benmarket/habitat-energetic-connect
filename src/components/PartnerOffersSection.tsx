@@ -300,19 +300,6 @@ const PartnerOffersSection = () => {
           </Carousel>
         </div>
 
-        {/* View All Button - Centered */}
-        <div className="text-center animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          <Button 
-            asChild
-            size="lg"
-            variant="outline"
-            className="bg-amber-50/50 hover:bg-amber-100 text-amber-700 hover:text-amber-800 border-2 border-amber-400/40 hover:border-amber-500 font-semibold px-10 py-6 text-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
-          >
-            <Link to="/offres-partenaires">
-              Voir toutes les offres partenaires
-            </Link>
-          </Button>
-        </div>
       </div>
     </section>
   );
