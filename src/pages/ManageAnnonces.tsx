@@ -924,16 +924,26 @@ const ManageAnnonces = () => {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <Label className="text-sm font-medium">Annonceurs</Label>
-                        {filterAdvertiserIds.length > 0 && (
+                        <div className="flex gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 text-xs"
+                            onClick={() => setFilterAdvertiserIds(advertisers.map(a => a.id))}
+                            disabled={filterAdvertiserIds.length === advertisers.length}
+                          >
+                            Tout sélectionner
+                          </Button>
                           <Button 
                             variant="ghost" 
                             size="sm" 
                             className="h-6 text-xs"
                             onClick={() => setFilterAdvertiserIds([])}
+                            disabled={filterAdvertiserIds.length === 0}
                           >
                             Tout désélectionner
                           </Button>
-                        )}
+                        </div>
                       </div>
                       <div className="max-h-40 overflow-y-auto space-y-1 border rounded-lg p-2">
                         <div 
@@ -980,16 +990,26 @@ const ManageAnnonces = () => {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <Label className="text-sm font-medium">Régions</Label>
-                        {filterRegions.length > 0 && (
+                        <div className="flex gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 text-xs"
+                            onClick={() => setFilterRegions(ALL_REGIONS.map(r => r.code))}
+                            disabled={filterRegions.length === ALL_REGIONS.length}
+                          >
+                            Tout sélectionner
+                          </Button>
                           <Button 
                             variant="ghost" 
                             size="sm" 
                             className="h-6 text-xs"
                             onClick={() => setFilterRegions([])}
+                            disabled={filterRegions.length === 0}
                           >
                             Tout désélectionner
                           </Button>
-                        )}
+                        </div>
                       </div>
                       <div className="space-y-1 border rounded-lg p-2">
                         <div 
