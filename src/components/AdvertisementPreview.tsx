@@ -80,7 +80,7 @@ const AdvertisementPreview = ({
         <CardContent className="p-6 space-y-4">
           {/* Title & Advertiser */}
           <div>
-            <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
+            <h3 className="text-2xl font-bold mb-2 text-foreground">
               {title || "Titre de l'offre"}
             </h3>
             <p className="text-sm text-muted-foreground">
@@ -90,7 +90,7 @@ const AdvertisementPreview = ({
 
           {/* Price */}
           <div className="flex items-baseline gap-3">
-            <span className="text-4xl font-bold text-green-600">
+            <span className="text-4xl font-bold text-amber-500">
               {price ? price.toLocaleString('fr-FR') : '0'}€
             </span>
             {original_price && (
@@ -112,7 +112,7 @@ const AdvertisementPreview = ({
               <ul className="space-y-2">
                 {features.map((feature, index) => (
                   <li key={index} className="flex items-start gap-2 text-sm">
-                    <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <Check className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -123,7 +123,7 @@ const AdvertisementPreview = ({
           {/* CTA Button */}
           <Button 
             disabled
-            className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white font-semibold py-6 text-lg shadow-lg"
+            className="w-full mt-6 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-6 text-lg shadow-lg"
           >
             {cta_text || "Voir l'offre"}
           </Button>
