@@ -44,11 +44,57 @@ export type Database = {
         }
         Relationships: []
       }
+      ad_analytics: {
+        Row: {
+          advertisement_id: string
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          referrer: string | null
+          region_code: string | null
+          user_agent: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          advertisement_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          referrer?: string | null
+          region_code?: string | null
+          user_agent?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          advertisement_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          referrer?: string | null
+          region_code?: string | null
+          user_agent?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_analytics_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       advertisements: {
         Row: {
           advertiser_id: string
           badge_text: string | null
           badge_type: string | null
+          clicks_count: number
+          conversions_count: number
           created_at: string
           cta_text: string
           cta_url: string
@@ -65,11 +111,14 @@ export type Database = {
           target_regions: string[] | null
           title: string
           updated_at: string
+          views_count: number
         }
         Insert: {
           advertiser_id: string
           badge_text?: string | null
           badge_type?: string | null
+          clicks_count?: number
+          conversions_count?: number
           created_at?: string
           cta_text?: string
           cta_url: string
@@ -86,11 +135,14 @@ export type Database = {
           target_regions?: string[] | null
           title: string
           updated_at?: string
+          views_count?: number
         }
         Update: {
           advertiser_id?: string
           badge_text?: string | null
           badge_type?: string | null
+          clicks_count?: number
+          conversions_count?: number
           created_at?: string
           cta_text?: string
           cta_url?: string
@@ -107,6 +159,7 @@ export type Database = {
           target_regions?: string[] | null
           title?: string
           updated_at?: string
+          views_count?: number
         }
         Relationships: [
           {

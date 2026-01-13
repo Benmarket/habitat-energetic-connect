@@ -18,7 +18,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { 
   Plus, Edit, Trash2, Building2, Megaphone, Star, Check, X, Eye, 
-  Search, Calendar, ArrowLeft, Globe, MapPin, Power, PowerOff, AlertCircle
+  Search, Calendar, ArrowLeft, Globe, MapPin, Power, PowerOff, AlertCircle,
+  ArrowUpDown, MousePointerClick, Users
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import AdvertisementPreview from "@/components/AdvertisementPreview";
@@ -68,6 +69,9 @@ interface Advertisement {
   expires_at: string | null;
   created_at: string;
   target_regions: string[] | null;
+  views_count: number;
+  clicks_count: number;
+  conversions_count: number;
   advertiser?: {
     id: string;
     name: string;
@@ -107,6 +111,7 @@ const AdminAdvertising = () => {
     from: undefined,
     to: undefined
   });
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   
   // Dialogs
   const [advertiserDialogOpen, setAdvertiserDialogOpen] = useState(false);
@@ -230,7 +235,7 @@ const AdminAdvertising = () => {
   }, [advertisers, searchQuery, dateRange]);
   
   const filteredAds = useMemo(() => {
-    return advertisements
+    const filtered = advertisements
       .filter(ad => {
         const matchesSearch = !searchQuery ||
           ad.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -249,7 +254,14 @@ const AdminAdvertising = () => {
         ...ad,
         isActiveInPeriod: isActiveInDateRange(ad.created_at, ad.expires_at)
       }));
-  }, [advertisements, searchQuery, dateRange, selectedAdvertiserFilter, selectedRegionFilter]);
+    
+    // Sort by date
+    return filtered.sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+    });
+  }, [advertisements, searchQuery, dateRange, selectedAdvertiserFilter, selectedRegionFilter, sortOrder]);
 
   // ====== ADVERTISER HANDLERS ======
   
@@ -1120,7 +1132,47 @@ const AdminAdvertising = () => {
                       <TableHead>Statut</TableHead>
                       <TableHead>Annonce</TableHead>
                       <TableHead>Annonceur</TableHead>
-                      <TableHead>Audiences</TableHead>
+                      <TableHead>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1 h-8 px-2 -ml-2 font-medium"
+                          onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
+                        >
+                          Date
+                          <ArrowUpDown className="w-3 h-3" />
+                        </Button>
+                      </TableHead>
+                      <TableHead className="text-center">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="flex items-center justify-center gap-1 cursor-help">
+                              <Eye className="w-3 h-3" /> Vues
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>Nombre de fois où l'annonce a été affichée</TooltipContent>
+                        </Tooltip>
+                      </TableHead>
+                      <TableHead className="text-center">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="flex items-center justify-center gap-1 cursor-help">
+                              <MousePointerClick className="w-3 h-3" /> Clics
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>Nombre de clics sur "Voir l'offre"</TooltipContent>
+                        </Tooltip>
+                      </TableHead>
+                      <TableHead className="text-center">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="flex items-center justify-center gap-1 cursor-help">
+                              <Users className="w-3 h-3" /> Conv.
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>Nombre de prospects (formulaires remplis)</TooltipContent>
+                        </Tooltip>
+                      </TableHead>
                       <TableHead className="text-center">Prix</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -1179,18 +1231,18 @@ const AdminAdvertising = () => {
                               </div>
                             </TableCell>
                             <TableCell>
-                              <div className="flex flex-wrap gap-1">
-                                {(!ad.target_regions || ad.target_regions.length === 0) ? (
-                                  <Badge variant="outline">Toutes</Badge>
-                                ) : (
-                                  ad.target_regions.slice(0, 2).map(r => (
-                                    <Badge key={r} variant="secondary" className="text-xs">{r.toUpperCase()}</Badge>
-                                  ))
-                                )}
-                                {ad.target_regions && ad.target_regions.length > 2 && (
-                                  <Badge variant="secondary" className="text-xs">+{ad.target_regions.length - 2}</Badge>
-                                )}
+                              <div className="text-sm text-muted-foreground">
+                                {format(new Date(ad.created_at), "d MMM yyyy", { locale: fr })}
                               </div>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <span className="font-medium">{ad.views_count || 0}</span>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <span className="font-medium">{ad.clicks_count || 0}</span>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <span className="font-medium">{ad.conversions_count || 0}</span>
                             </TableCell>
                             <TableCell className="text-center">
                               <div className="font-medium">{ad.price?.toLocaleString('fr-FR')} €</div>
