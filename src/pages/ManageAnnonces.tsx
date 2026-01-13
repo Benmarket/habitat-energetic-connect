@@ -18,7 +18,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { Plus, Edit, Trash2, Megaphone, Star, Check, X, Eye, BarChart3, MousePointerClick, UserCheck, ArrowUpDown, Filter, Globe, AlertCircle, MapPin } from "lucide-react";
+import { Plus, Edit, Trash2, Megaphone, Star, Check, X, Eye, BarChart3, MousePointerClick, UserCheck, ArrowUpDown, Filter, Globe, AlertCircle, MapPin, Search } from "lucide-react";
 import AdvertisementPreview from "@/components/AdvertisementPreview";
 import AdStatsModal from "@/components/AdStatsModal";
 import { Helmet } from "react-helmet";
@@ -82,11 +82,13 @@ const ManageAnnonces = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [statsDialogOpen, setStatsDialogOpen] = useState(false);
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [editingAd, setEditingAd] = useState<Advertisement | null>(null);
   const [previewingAd, setPreviewingAd] = useState<Advertisement | null>(null);
   const [statsAd, setStatsAd] = useState<Advertisement | null>(null);
   const [currentFeature, setCurrentFeature] = useState("");
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [searchQuery, setSearchQuery] = useState("");
   
   // Featured ads by region
   const [featuredByRegion, setFeaturedByRegion] = useState<FeaturedAdInfo[]>([]);
@@ -299,6 +301,14 @@ const ManageAnnonces = () => {
 
   // Filter and sort advertisements
   const filteredAdvertisements = advertisements.filter(ad => {
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesTitle = ad.title.toLowerCase().includes(query);
+      const matchesAdvertiser = ad.advertiser?.name?.toLowerCase().includes(query);
+      if (!matchesTitle && !matchesAdvertiser) return false;
+    }
+    
     // Filter by advertiser
     if (filterAdvertiserId && ad.advertiser_id !== filterAdvertiserId) return false;
     
@@ -567,117 +577,34 @@ const ManageAnnonces = () => {
         <Header />
         
         <main className="container mx-auto px-4 pt-32 pb-8">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">Gestion des Annonces</h1>
-              <p className="text-muted-foreground">
-                Gérez vos annonces publicitaires • {featuredCount} annonce(s) en vedette
-              </p>
-            </div>
-            
-            <div className="flex gap-3">
-              {/* Filter button */}
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="lg" className="gap-2">
-                    <Filter className="w-4 h-4" />
-                    Filtres
-                    {activeFiltersCount > 0 && (
-                      <Badge variant="secondary" className="ml-1">{activeFiltersCount}</Badge>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80" align="end">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-medium">Filtres</h4>
-                      {activeFiltersCount > 0 && (
-                        <Button variant="ghost" size="sm" onClick={clearFilters}>
-                          Réinitialiser
-                        </Button>
-                      )}
-                    </div>
-                    
-                    {/* Filter by advertiser */}
-                    <div className="space-y-2">
-                      <Label className="text-sm">Annonceur</Label>
-                      <Select 
-                        value={filterAdvertiserId || "all"} 
-                        onValueChange={(v) => setFilterAdvertiserId(v === "all" ? null : v)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Tous les annonceurs" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Tous les annonceurs</SelectItem>
-                          {advertisers.map((a) => (
-                            <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    {/* Filter by region */}
-                    <div className="space-y-2">
-                      <Label className="text-sm">Région</Label>
-                      <Select 
-                        value={filterRegion || "all"} 
-                        onValueChange={(v) => setFilterRegion(v === "all" ? null : v as RegionCode)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Toutes les régions" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Toutes les régions</SelectItem>
-                          {ALL_REGIONS.map((r) => (
-                            <SelectItem key={r.code} value={r.code}>{r.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    {/* Filter by featured */}
-                    <div className="space-y-2">
-                      <Label className="text-sm">Mise en avant</Label>
-                      <Select 
-                        value={filterFeatured === null ? "all" : filterFeatured ? "featured" : "not_featured"} 
-                        onValueChange={(v) => {
-                          if (v === "all") setFilterFeatured(null);
-                          else if (v === "featured") setFilterFeatured(true);
-                          else setFilterFeatured(false);
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Toutes" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Toutes</SelectItem>
-                          <SelectItem value="featured">En vedette</SelectItem>
-                          <SelectItem value="not_featured">Non vedette</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h1 className="text-4xl font-bold mb-2">Gestion des Annonces</h1>
+                <p className="text-muted-foreground">
+                  {advertisers.filter(a => a.is_active).length} annonceurs actifs • {featuredCount}/{advertisements.length} annonces en vedette
+                </p>
+              </div>
               
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => navigate("/admin/annonceurs")}
-              >
-                Gérer les annonceurs
-              </Button>
-              <Dialog open={dialogOpen} onOpenChange={(open) => {
-                setDialogOpen(open);
-                if (!open) resetForm();
-              }}>
-                <DialogTrigger asChild>
-                  <Button size="lg" className="gap-2">
-                    <Plus className="w-5 h-5" />
-                    Nouvelle Annonce
-                  </Button>
-                </DialogTrigger>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate("/admin/annonceurs")}
+                >
+                  Gérer les annonceurs
+                </Button>
+                <Dialog open={dialogOpen} onOpenChange={(open) => {
+                  setDialogOpen(open);
+                  if (!open) resetForm();
+                }}>
+                  <DialogTrigger asChild>
+                    <Button size="lg" className="gap-2">
+                      <Plus className="w-5 h-5" />
+                      Nouvelle Annonce
+                    </Button>
+                  </DialogTrigger>
                 <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>
@@ -959,92 +886,154 @@ const ManageAnnonces = () => {
                   </form>
                 </DialogContent>
               </Dialog>
+              </div>
             </div>
+            
+            {/* Search bar and Filters button */}
+            <div className="flex items-center gap-4 mt-6">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Rechercher par nom, ID ou indicateur..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              
+              <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <Filter className="w-4 h-4" />
+                    Filtres
+                    {activeFiltersCount > 0 && (
+                      <Badge variant="secondary" className="ml-1">{activeFiltersCount}</Badge>
+                    )}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Filtrer les annonces</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-6 pt-4">
+                    {/* Filter by advertiser */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Annonceur</Label>
+                      <Select 
+                        value={filterAdvertiserId || "all"} 
+                        onValueChange={(v) => setFilterAdvertiserId(v === "all" ? null : v)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Tous les annonceurs" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Tous les annonceurs</SelectItem>
+                          {advertisers.map((a) => (
+                            <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    {/* Filter by region */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Région</Label>
+                      <Select 
+                        value={filterRegion || "all"} 
+                        onValueChange={(v) => setFilterRegion(v === "all" ? null : v as RegionCode)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Toutes les régions" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Toutes les régions</SelectItem>
+                          {ALL_REGIONS.map((r) => (
+                            <SelectItem key={r.code} value={r.code}>{r.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    {/* Filter by featured */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Mise en avant</Label>
+                      <Select 
+                        value={filterFeatured === null ? "all" : filterFeatured ? "featured" : "not_featured"} 
+                        onValueChange={(v) => {
+                          if (v === "all") setFilterFeatured(null);
+                          else if (v === "featured") setFilterFeatured(true);
+                          else setFilterFeatured(false);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Toutes" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Toutes</SelectItem>
+                          <SelectItem value="featured">En vedette</SelectItem>
+                          <SelectItem value="not_featured">Non vedette</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="flex gap-3 pt-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={clearFilters}
+                        className="flex-1"
+                        disabled={activeFiltersCount === 0}
+                      >
+                        Réinitialiser
+                      </Button>
+                      <Button 
+                        onClick={() => setFilterDialogOpen(false)}
+                        className="flex-1"
+                      >
+                        Appliquer
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+            
+            {/* Active filters as tags */}
+            {activeFiltersCount > 0 && (
+              <div className="flex flex-wrap gap-2 mt-4">
+                {filterAdvertiserId && (
+                  <Badge variant="outline" className="gap-1 py-1.5 px-3">
+                    Annonceur: {advertisers.find(a => a.id === filterAdvertiserId)?.name}
+                    <button onClick={() => setFilterAdvertiserId(null)} className="ml-1 hover:text-destructive">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </Badge>
+                )}
+                {filterRegion && (
+                  <Badge variant="outline" className="gap-1 py-1.5 px-3">
+                    Région: {ALL_REGIONS.find(r => r.code === filterRegion)?.label}
+                    <button onClick={() => setFilterRegion(null)} className="ml-1 hover:text-destructive">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </Badge>
+                )}
+                {filterFeatured !== null && (
+                  <Badge variant="outline" className="gap-1 py-1.5 px-3">
+                    {filterFeatured ? "En vedette" : "Non vedette"}
+                    <button onClick={() => setFilterFeatured(null)} className="ml-1 hover:text-destructive">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </Badge>
+                )}
+              </div>
+            )}
           </div>
 
           <Card>
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2">
                 <Megaphone className="w-5 h-5" />
-                Liste des Annonces
+                Liste des Annonces ({sortedAdvertisements.length})
               </CardTitle>
-              
-              {/* Quick Filter Chips */}
-              <div className="flex flex-wrap items-center gap-2 mt-4">
-                {/* Region filter chips */}
-                <div className="flex items-center gap-1 mr-2">
-                  <MapPin className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Région:</span>
-                </div>
-                <Button 
-                  variant={filterRegion === null ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setFilterRegion(null)}
-                  className="h-7 text-xs"
-                >
-                  Toutes
-                </Button>
-                {ALL_REGIONS.map((region) => (
-                  <Button
-                    key={region.code}
-                    variant={filterRegion === region.code ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setFilterRegion(filterRegion === region.code ? null : region.code)}
-                    className="h-7 text-xs"
-                  >
-                    {region.label.replace('France métropolitaine', 'Métropole')}
-                  </Button>
-                ))}
-                
-                {/* Separator */}
-                <div className="h-6 w-px bg-border mx-2" />
-                
-                {/* Advertiser filter */}
-                <div className="flex items-center gap-2">
-                  <Select 
-                    value={filterAdvertiserId || "all"} 
-                    onValueChange={(v) => setFilterAdvertiserId(v === "all" ? null : v)}
-                  >
-                    <SelectTrigger className="h-7 w-[180px] text-xs">
-                      <SelectValue placeholder="Annonceur" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Tous les annonceurs</SelectItem>
-                      {advertisers.map((a) => (
-                        <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                {/* Featured filter */}
-                <Select 
-                  value={filterFeatured === null ? "all" : filterFeatured ? "featured" : "not_featured"} 
-                  onValueChange={(v) => {
-                    if (v === "all") setFilterFeatured(null);
-                    else if (v === "featured") setFilterFeatured(true);
-                    else setFilterFeatured(false);
-                  }}
-                >
-                  <SelectTrigger className="h-7 w-[130px] text-xs">
-                    <Star className="w-3 h-3 mr-1" />
-                    <SelectValue placeholder="Vedette" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Toutes</SelectItem>
-                    <SelectItem value="featured">En vedette</SelectItem>
-                    <SelectItem value="not_featured">Non vedette</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                {/* Clear filters button */}
-                {activeFiltersCount > 0 && (
-                  <Button variant="ghost" size="sm" onClick={clearFilters} className="h-7 text-xs text-muted-foreground">
-                    <X className="w-3 h-3 mr-1" />
-                    Réinitialiser ({activeFiltersCount})
-                  </Button>
-                )}
-              </div>
             </CardHeader>
             <CardContent>
               <Table>
