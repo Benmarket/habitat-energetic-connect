@@ -94,9 +94,9 @@ const ManageAnnonces = () => {
   const [featuredByRegion, setFeaturedByRegion] = useState<FeaturedAdInfo[]>([]);
   const [regionSelectAdId, setRegionSelectAdId] = useState<string | null>(null);
   
-  // Filter states
-  const [filterAdvertiserId, setFilterAdvertiserId] = useState<string | null>(null);
-  const [filterRegion, setFilterRegion] = useState<RegionCode | null>(null);
+  // Filter states - now arrays for multiple selection
+  const [filterAdvertiserIds, setFilterAdvertiserIds] = useState<string[]>([]);
+  const [filterRegions, setFilterRegions] = useState<RegionCode[]>([]);
   const [filterFeatured, setFilterFeatured] = useState<boolean | null>(null);
   
   const [formData, setFormData] = useState({
@@ -309,8 +309,8 @@ const ManageAnnonces = () => {
       if (!matchesTitle && !matchesAdvertiser) return false;
     }
     
-    // Filter by advertiser
-    if (filterAdvertiserId && ad.advertiser_id !== filterAdvertiserId) return false;
+    // Filter by advertisers (multiple selection)
+    if (filterAdvertiserIds.length > 0 && !filterAdvertiserIds.includes(ad.advertiser_id)) return false;
     
     // Filter by featured - use featuredByRegion instead of is_featured
     if (filterFeatured !== null) {
@@ -320,11 +320,14 @@ const ManageAnnonces = () => {
       if (!filterFeatured && isFeatured) return false;
     }
     
-    // Filter by region - if ad has no target_regions, it's for all regions
-    if (filterRegion) {
+    // Filter by regions (multiple selection) - if ad has no target_regions, it's for all regions
+    if (filterRegions.length > 0) {
       const adRegions = ad.target_regions;
-      if (adRegions && adRegions.length > 0 && !adRegions.includes(filterRegion)) {
-        return false;
+      // Ad with no target_regions targets all regions, so it matches any filter
+      if (adRegions && adRegions.length > 0) {
+        // Check if any of the filter regions match the ad's target regions
+        const hasMatchingRegion = filterRegions.some(r => adRegions.includes(r));
+        if (!hasMatchingRegion) return false;
       }
     }
     
@@ -337,11 +340,11 @@ const ManageAnnonces = () => {
     return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
   });
 
-  const activeFiltersCount = [filterAdvertiserId, filterRegion, filterFeatured].filter(f => f !== null).length;
+  const activeFiltersCount = (filterAdvertiserIds.length > 0 ? 1 : 0) + (filterRegions.length > 0 ? 1 : 0) + (filterFeatured !== null ? 1 : 0);
 
   const clearFilters = () => {
-    setFilterAdvertiserId(null);
-    setFilterRegion(null);
+    setFilterAdvertiserIds([]);
+    setFilterRegions([]);
     setFilterFeatured(null);
   };
 
@@ -475,17 +478,18 @@ const ManageAnnonces = () => {
     
     const adFeaturedRegions = getAdFeaturedRegions(ad.id);
     
-    if (filterRegion) {
+    if (filterRegions.length === 1) {
       // Check if region is available for this ad
       const availableRegions = getAvailableRegionsForFeaturing(ad);
-      if (!availableRegions.includes(filterRegion)) {
+      const singleRegion = filterRegions[0];
+      if (!availableRegions.includes(singleRegion)) {
         toast.error("Cette annonce ne cible pas cette région");
         return;
       }
       
-      // If a region filter is active, toggle directly for that region
-      const isCurrentlyFeatured = adFeaturedRegions.includes(filterRegion);
-      toggleFeaturedForRegion(ad.id, filterRegion, isCurrentlyFeatured);
+      // If a single region filter is active, toggle directly for that region
+      const isCurrentlyFeatured = adFeaturedRegions.includes(singleRegion);
+      toggleFeaturedForRegion(ad.id, singleRegion, isCurrentlyFeatured);
     } else {
       // Show region selector
       setRegionSelectAdId(regionSelectAdId === ad.id ? null : ad.id);
@@ -916,42 +920,116 @@ const ManageAnnonces = () => {
                     <DialogTitle>Filtrer les annonces</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-6 pt-4">
-                    {/* Filter by advertiser */}
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">Annonceur</Label>
-                      <Select 
-                        value={filterAdvertiserId || "all"} 
-                        onValueChange={(v) => setFilterAdvertiserId(v === "all" ? null : v)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Tous les annonceurs" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Tous les annonceurs</SelectItem>
-                          {advertisers.map((a) => (
-                            <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    {/* Filter by advertisers - multi-select with checkboxes */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">Annonceurs</Label>
+                        {filterAdvertiserIds.length > 0 && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 text-xs"
+                            onClick={() => setFilterAdvertiserIds([])}
+                          >
+                            Tout désélectionner
+                          </Button>
+                        )}
+                      </div>
+                      <div className="max-h-40 overflow-y-auto space-y-1 border rounded-lg p-2">
+                        <div 
+                          className={`flex items-center space-x-2 p-2 rounded cursor-pointer transition-colors ${
+                            filterAdvertiserIds.length === 0
+                              ? 'bg-primary/10 border border-primary'
+                              : 'hover:bg-muted/50'
+                          }`}
+                          onClick={() => setFilterAdvertiserIds([])}
+                        >
+                          <Checkbox 
+                            checked={filterAdvertiserIds.length === 0}
+                            className="pointer-events-none"
+                          />
+                          <span className="text-sm font-medium">Tous les annonceurs</span>
+                        </div>
+                        {advertisers.map((a) => (
+                          <div 
+                            key={a.id}
+                            className={`flex items-center space-x-2 p-2 rounded cursor-pointer transition-colors ${
+                              filterAdvertiserIds.includes(a.id)
+                                ? 'bg-primary/10 border border-primary'
+                                : 'hover:bg-muted/50'
+                            }`}
+                            onClick={() => {
+                              setFilterAdvertiserIds(prev => 
+                                prev.includes(a.id) 
+                                  ? prev.filter(id => id !== a.id)
+                                  : [...prev, a.id]
+                              );
+                            }}
+                          >
+                            <Checkbox 
+                              checked={filterAdvertiserIds.includes(a.id)}
+                              className="pointer-events-none"
+                            />
+                            <span className="text-sm">{a.name}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                     
-                    {/* Filter by region */}
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">Région</Label>
-                      <Select 
-                        value={filterRegion || "all"} 
-                        onValueChange={(v) => setFilterRegion(v === "all" ? null : v as RegionCode)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Toutes les régions" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Toutes les régions</SelectItem>
-                          {ALL_REGIONS.map((r) => (
-                            <SelectItem key={r.code} value={r.code}>{r.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    {/* Filter by regions - multi-select with checkboxes */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">Régions</Label>
+                        {filterRegions.length > 0 && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 text-xs"
+                            onClick={() => setFilterRegions([])}
+                          >
+                            Tout désélectionner
+                          </Button>
+                        )}
+                      </div>
+                      <div className="space-y-1 border rounded-lg p-2">
+                        <div 
+                          className={`flex items-center space-x-2 p-2 rounded cursor-pointer transition-colors ${
+                            filterRegions.length === 0
+                              ? 'bg-primary/10 border border-primary'
+                              : 'hover:bg-muted/50'
+                          }`}
+                          onClick={() => setFilterRegions([])}
+                        >
+                          <Checkbox 
+                            checked={filterRegions.length === 0}
+                            className="pointer-events-none"
+                          />
+                          <span className="text-sm font-medium">Toutes les régions</span>
+                        </div>
+                        {ALL_REGIONS.map((r) => (
+                          <div 
+                            key={r.code}
+                            className={`flex items-center space-x-2 p-2 rounded cursor-pointer transition-colors ${
+                              filterRegions.includes(r.code)
+                                ? 'bg-primary/10 border border-primary'
+                                : 'hover:bg-muted/50'
+                            }`}
+                            onClick={() => {
+                              setFilterRegions(prev => 
+                                prev.includes(r.code) 
+                                  ? prev.filter(code => code !== r.code)
+                                  : [...prev, r.code]
+                              );
+                            }}
+                          >
+                            <Checkbox 
+                              checked={filterRegions.includes(r.code)}
+                              className="pointer-events-none"
+                            />
+                            <span className="text-sm">{r.label}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                     
                     {/* Filter by featured */}
@@ -1000,18 +1078,22 @@ const ManageAnnonces = () => {
             {/* Active filters as tags */}
             {activeFiltersCount > 0 && (
               <div className="flex flex-wrap gap-2 mt-4">
-                {filterAdvertiserId && (
+                {filterAdvertiserIds.length > 0 && (
                   <Badge variant="outline" className="gap-1 py-1.5 px-3">
-                    Annonceur: {advertisers.find(a => a.id === filterAdvertiserId)?.name}
-                    <button onClick={() => setFilterAdvertiserId(null)} className="ml-1 hover:text-destructive">
+                    Annonceurs: {filterAdvertiserIds.length === 1 
+                      ? advertisers.find(a => a.id === filterAdvertiserIds[0])?.name 
+                      : `${filterAdvertiserIds.length} sélectionnés`}
+                    <button onClick={() => setFilterAdvertiserIds([])} className="ml-1 hover:text-destructive">
                       <X className="w-3 h-3" />
                     </button>
                   </Badge>
                 )}
-                {filterRegion && (
+                {filterRegions.length > 0 && (
                   <Badge variant="outline" className="gap-1 py-1.5 px-3">
-                    Région: {ALL_REGIONS.find(r => r.code === filterRegion)?.label}
-                    <button onClick={() => setFilterRegion(null)} className="ml-1 hover:text-destructive">
+                    Régions: {filterRegions.length === 1 
+                      ? ALL_REGIONS.find(r => r.code === filterRegions[0])?.label 
+                      : `${filterRegions.length} sélectionnées`}
+                    <button onClick={() => setFilterRegions([])} className="ml-1 hover:text-destructive">
                       <X className="w-3 h-3" />
                     </button>
                   </Badge>
@@ -1233,7 +1315,7 @@ const ManageAnnonces = () => {
                                   )}
                                 </Button>
                               </PopoverTrigger>
-                              {!filterRegion && !isInactive && (
+                              {filterRegions.length !== 1 && !isInactive && (
                                 <PopoverContent className="w-64 p-2" align="start">
                                   <div className="space-y-1">
                                     <p className="text-sm font-medium mb-2 px-2">
