@@ -9,6 +9,7 @@ import { RegionProvider } from "@/hooks/useRegionContext";
 import MaintenanceMode from "@/components/MaintenanceMode";
 import CookieBanner from "@/components/CookieBanner";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import PageViewTracker from "@/components/PageViewTracker";
 import { Loader2 } from "lucide-react";
 
 // Eagerly loaded pages (public, frequently accessed)
@@ -83,6 +84,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <ScrollToTop />
+            <PageViewTracker />
             <MaintenanceMode>
               <Suspense fallback={null}>
                 <ChatBot />

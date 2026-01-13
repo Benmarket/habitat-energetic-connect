@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PageDetailsModal from "./PageDetailsModal";
 import LiveVisitorsModal from "./LiveVisitorsModal";
+import RegionsStatsBlock from "./RegionsStatsBlock";
 import { useOnlinePresence } from "@/hooks/useOnlinePresence";
 
 const TrafficDashboard = () => {
@@ -261,6 +262,9 @@ const TrafficDashboard = () => {
                   </button>
                 </div>
               </div>
+
+              {/* Regions Stats Block */}
+              <RegionsStatsBlock />
             </div>
           </div>
         </CardContent>

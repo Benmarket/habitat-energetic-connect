@@ -8,9 +8,18 @@ interface PresenceState {
     user_id?: string;
     user_name?: string;
     account_type?: string;
+    region_code?: string;
     online_at?: string;
   }>;
 }
+
+// Get region from localStorage (same source as useRegionContext)
+const getActiveRegion = (): string => {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("activeRegion") || "fr";
+  }
+  return "fr";
+};
 
 export const useOnlinePresence = () => {
   const [presenceState, setPresenceState] = useState<PresenceState>({});
@@ -47,9 +56,11 @@ export const useOnlinePresence = () => {
                   ? `${user.user_metadata.first_name} ${user.user_metadata.last_name || ''}`.trim()
                   : user.email,
                 account_type: user.user_metadata?.account_type || 'particulier',
+                region_code: getActiveRegion(),
                 online_at: new Date().toISOString(),
               }
             : {
+                region_code: getActiveRegion(),
                 online_at: new Date().toISOString(),
               };
 
