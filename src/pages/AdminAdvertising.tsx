@@ -113,6 +113,8 @@ const AdminAdvertising = () => {
     to: undefined
   });
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [advertiserSortField, setAdvertiserSortField] = useState<'name' | 'ads'>('name');
+  const [advertiserSortOrder, setAdvertiserSortOrder] = useState<'asc' | 'desc'>('asc');
   
   // Dialogs
   const [advertiserDialogOpen, setAdvertiserDialogOpen] = useState(false);
@@ -235,6 +237,13 @@ const AdminAdvertising = () => {
   };
 
   const filteredAdvertisers = useMemo(() => {
+    // Count ads per advertiser
+    const adCountByAdvertiser = new Map<string, number>();
+    advertisements.forEach(ad => {
+      const count = adCountByAdvertiser.get(ad.advertiser_id) || 0;
+      adCountByAdvertiser.set(ad.advertiser_id, count + 1);
+    });
+
     return advertisers
       .filter(a => {
         const matchesSearch = !searchQuery || 
@@ -246,9 +255,29 @@ const AdminAdvertising = () => {
       })
       .map(a => ({
         ...a,
-        isActiveInPeriod: isActiveInDateRange(a.created_at)
-      }));
-  }, [advertisers, searchQuery, dateRange]);
+        isActiveInPeriod: isActiveInDateRange(a.created_at),
+        adCount: adCountByAdvertiser.get(a.id) || 0
+      }))
+      .sort((a, b) => {
+        if (advertiserSortField === 'name') {
+          const comparison = a.name.localeCompare(b.name, 'fr');
+          return advertiserSortOrder === 'asc' ? comparison : -comparison;
+        } else {
+          // Sort by ad count
+          const comparison = a.adCount - b.adCount;
+          return advertiserSortOrder === 'asc' ? comparison : -comparison;
+        }
+      });
+  }, [advertisers, advertisements, searchQuery, dateRange, advertiserSortField, advertiserSortOrder]);
+
+  const toggleAdvertiserSort = (field: 'name' | 'ads') => {
+    if (advertiserSortField === field) {
+      setAdvertiserSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setAdvertiserSortField(field);
+      setAdvertiserSortOrder('asc');
+    }
+  };
   
   const filteredAds = useMemo(() => {
     const filtered = advertisements
@@ -826,9 +855,31 @@ const AdminAdvertising = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Statut</TableHead>
-                      <TableHead>Annonceur</TableHead>
+                      <TableHead 
+                        className="cursor-pointer hover:bg-muted/50 transition-colors"
+                        onClick={() => toggleAdvertiserSort('name')}
+                      >
+                        <div className="flex items-center gap-1">
+                          Annonceur
+                          <ArrowUpDown className={cn(
+                            "w-3 h-3",
+                            advertiserSortField === 'name' && "text-primary"
+                          )} />
+                        </div>
+                      </TableHead>
                       <TableHead>Localisation</TableHead>
-                      <TableHead className="text-center">Annonces</TableHead>
+                      <TableHead 
+                        className="text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                        onClick={() => toggleAdvertiserSort('ads')}
+                      >
+                        <div className="flex items-center justify-center gap-1">
+                          Annonces
+                          <ArrowUpDown className={cn(
+                            "w-3 h-3",
+                            advertiserSortField === 'ads' && "text-primary"
+                          )} />
+                        </div>
+                      </TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
