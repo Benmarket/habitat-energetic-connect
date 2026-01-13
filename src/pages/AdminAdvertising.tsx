@@ -24,7 +24,8 @@ import AdvertisementPreview from "@/components/AdvertisementPreview";
 import { Helmet } from "react-helmet";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { format } from "date-fns";
+import { format, startOfDay, endOfDay, subDays, startOfMonth, endOfMonth, subMonths, startOfYear, subYears } from "date-fns";
+import { cn } from "@/lib/utils";
 import { fr } from "date-fns/locale";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -539,28 +540,75 @@ const AdminAdvertising = () => {
                 />
               </div>
 
-              {/* Date picker */}
+              {/* Date picker with presets */}
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="gap-2">
+                  <Button variant="outline" className="gap-2 min-w-[180px] justify-start">
                     <Calendar className="w-4 h-4" />
-                    {dateRange.from ? format(dateRange.from, "d MMM yyyy", { locale: fr }) : "Sélectionner dates"}
+                    {dateRange.from ? (
+                      dateRange.to ? (
+                        `${format(dateRange.from, "d MMM", { locale: fr })} - ${format(dateRange.to, "d MMM yyyy", { locale: fr })}`
+                      ) : (
+                        format(dateRange.from, "d MMM yyyy", { locale: fr })
+                      )
+                    ) : (
+                      "Toutes les dates"
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="end">
-                  <CalendarComponent
-                    mode="range"
-                    selected={{ from: dateRange.from, to: dateRange.to }}
-                    onSelect={(range) => setDateRange({ from: range?.from, to: range?.to })}
-                    locale={fr}
-                  />
-                  {dateRange.from && (
-                    <div className="p-2 border-t">
-                      <Button variant="ghost" size="sm" onClick={() => setDateRange({ from: undefined, to: undefined })}>
-                        Effacer
-                      </Button>
+                  <div className="flex">
+                    {/* Presets */}
+                    <div className="border-r p-2 space-y-1 min-w-[140px]">
+                      {[
+                        { label: "Aujourd'hui", getValue: () => ({ from: startOfDay(new Date()), to: endOfDay(new Date()) }) },
+                        { label: "Hier", getValue: () => ({ from: startOfDay(subDays(new Date(), 1)), to: endOfDay(subDays(new Date(), 1)) }) },
+                        { label: "7 jours", getValue: () => ({ from: startOfDay(subDays(new Date(), 6)), to: endOfDay(new Date()) }) },
+                        { label: "30 jours", getValue: () => ({ from: startOfDay(subDays(new Date(), 29)), to: endOfDay(new Date()) }) },
+                        { label: "Ce mois", getValue: () => ({ from: startOfMonth(new Date()), to: endOfDay(new Date()) }) },
+                        { label: "Mois dernier", getValue: () => ({ from: startOfMonth(subMonths(new Date(), 1)), to: endOfMonth(subMonths(new Date(), 1)) }) },
+                        { label: "L'an dernier", getValue: () => ({ from: startOfYear(subYears(new Date(), 1)), to: endOfDay(new Date()) }) },
+                        { label: "Maximum", getValue: () => ({ from: undefined, to: undefined }) },
+                      ].map((preset) => (
+                        <Button
+                          key={preset.label}
+                          variant="ghost"
+                          size="sm"
+                          className={cn(
+                            "w-full justify-start font-normal",
+                            preset.label === "Maximum" && !dateRange.from && "bg-primary text-primary-foreground hover:bg-primary/90"
+                          )}
+                          onClick={() => {
+                            const value = preset.getValue();
+                            setDateRange(value);
+                          }}
+                        >
+                          {preset.label}
+                        </Button>
+                      ))}
                     </div>
-                  )}
+                    {/* Calendar */}
+                    <div className="p-0">
+                      <CalendarComponent
+                        mode="range"
+                        selected={{ from: dateRange.from, to: dateRange.to }}
+                        onSelect={(range) => setDateRange({ from: range?.from, to: range?.to })}
+                        locale={fr}
+                        numberOfMonths={1}
+                        className="pointer-events-auto"
+                      />
+                      <div className="p-2 border-t flex justify-between items-center">
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="text-primary p-0 h-auto"
+                          onClick={() => setDateRange({ from: undefined, to: undefined })}
+                        >
+                          Effacer
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </PopoverContent>
               </Popover>
             </div>
