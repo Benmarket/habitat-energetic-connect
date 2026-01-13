@@ -18,8 +18,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { 
   Plus, Edit, Trash2, Building2, Megaphone, Star, Check, X, Eye, 
-  Search, Calendar, ArrowLeft, Globe, MapPin, Power, PowerOff
+  Search, Calendar, ArrowLeft, Globe, MapPin, Power, PowerOff, AlertCircle
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import AdvertisementPreview from "@/components/AdvertisementPreview";
 import { Helmet } from "react-helmet";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -195,38 +196,59 @@ const AdminAdvertising = () => {
   }, [advertisements]);
   
   // Filter based on search and date
+  // Helper to check if an item was active during the selected date range
+  const isActiveInDateRange = (createdAt: string, expiresAt?: string | null) => {
+    if (!dateRange.from) return true;
+    
+    const created = new Date(createdAt);
+    const expires = expiresAt ? new Date(expiresAt) : null;
+    const rangeEnd = dateRange.to || dateRange.from;
+    
+    // Item was created after the range ends
+    if (created > rangeEnd) return false;
+    
+    // Item expired before the range starts
+    if (expires && expires < dateRange.from) return false;
+    
+    return true;
+  };
+
   const filteredAdvertisers = useMemo(() => {
-    return advertisers.filter(a => {
-      const matchesSearch = !searchQuery || 
-        a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        a.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        a.region?.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesDate = !dateRange.from || 
-        new Date(a.created_at) >= dateRange.from;
+    return advertisers
+      .filter(a => {
+        const matchesSearch = !searchQuery || 
+          a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          a.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          a.region?.toLowerCase().includes(searchQuery.toLowerCase());
         
-      return matchesSearch && matchesDate;
-    });
+        return matchesSearch;
+      })
+      .map(a => ({
+        ...a,
+        isActiveInPeriod: isActiveInDateRange(a.created_at)
+      }));
   }, [advertisers, searchQuery, dateRange]);
   
   const filteredAds = useMemo(() => {
-    return advertisements.filter(ad => {
-      const matchesSearch = !searchQuery ||
-        ad.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ad.advertiser?.name?.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesDate = !dateRange.from ||
-        new Date(ad.created_at) >= dateRange.from;
-      
-      const matchesAdvertiser = !selectedAdvertiserFilter ||
-        ad.advertiser_id === selectedAdvertiserFilter;
-      
-      const matchesRegion = !selectedRegionFilter ||
-        !ad.target_regions || ad.target_regions.length === 0 ||
-        ad.target_regions.includes(selectedRegionFilter);
-      
-      return matchesSearch && matchesDate && matchesAdvertiser && matchesRegion;
-    });
+    return advertisements
+      .filter(ad => {
+        const matchesSearch = !searchQuery ||
+          ad.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          ad.advertiser?.name?.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        const matchesAdvertiser = !selectedAdvertiserFilter ||
+          ad.advertiser_id === selectedAdvertiserFilter;
+        
+        const matchesRegion = !selectedRegionFilter ||
+          !ad.target_regions || ad.target_regions.length === 0 ||
+          ad.target_regions.includes(selectedRegionFilter);
+        
+        return matchesSearch && matchesAdvertiser && matchesRegion;
+      })
+      .map(ad => ({
+        ...ad,
+        isActiveInPeriod: isActiveInDateRange(ad.created_at, ad.expires_at)
+      }));
   }, [advertisements, searchQuery, dateRange, selectedAdvertiserFilter, selectedRegionFilter]);
 
   // ====== ADVERTISER HANDLERS ======
@@ -763,69 +785,90 @@ const AdminAdvertising = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredAdvertisers.map((advertiser) => (
-                      <TableRow key={advertiser.id} className={!advertiser.is_active ? "opacity-50" : ""}>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => toggleAdvertiserActive(advertiser)}
-                            className={advertiser.is_active ? "text-green-600 hover:text-green-700" : "text-muted-foreground hover:text-foreground"}
-                          >
-                            {advertiser.is_active ? <Power className="w-5 h-5" /> : <PowerOff className="w-5 h-5" />}
-                          </Button>
-                        </TableCell>
-                        <TableCell>
-                          <div 
-                            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
-                            onClick={() => { setSelectedAdvertiserFilter(advertiser.id); setActiveTab('ads'); }}
-                          >
-                            {advertiser.logo && (
-                              <img src={advertiser.logo} alt={advertiser.name} className="w-10 h-10 rounded-lg object-cover" />
-                            )}
-                            <div>
-                              <div className="font-medium hover:text-primary transition-colors">{advertiser.name}</div>
-                              {advertiser.website && (
-                                <a 
-                                  href={advertiser.website} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer" 
-                                  className="text-xs text-muted-foreground hover:underline"
-                                  onClick={(e) => e.stopPropagation()}
+                    {filteredAdvertisers.map((advertiser) => {
+                      const isGrayed = !advertiser.is_active || !advertiser.isActiveInPeriod;
+                      
+                      return (
+                        <TooltipProvider key={advertiser.id}>
+                          <TableRow className={cn(
+                            isGrayed && "opacity-50 bg-muted/30",
+                            !advertiser.isActiveInPeriod && dateRange.from && "border-l-2 border-l-muted-foreground"
+                          )}>
+                            <TableCell>
+                              <div className="flex items-center gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => toggleAdvertiserActive(advertiser)}
+                                  className={advertiser.is_active ? "text-green-600 hover:text-green-700" : "text-muted-foreground hover:text-foreground"}
                                 >
-                                  {advertiser.website}
-                                </a>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            {advertiser.city && <span>{advertiser.city}</span>}
-                            {advertiser.region && <span className="text-muted-foreground"> • {advertiser.region}</span>}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex flex-col items-center">
-                            <span className="font-medium">{getActiveAdsCount(advertiser.id)}</span>
-                            <span className="text-xs text-muted-foreground">/ {getAdvertiserAdsCount(advertiser.id)} total</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="icon" onClick={() => { setSelectedAdvertiserFilter(advertiser.id); setActiveTab('ads'); }}>
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" onClick={() => handleEditAdvertiser(advertiser)}>
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" onClick={() => handleDeleteAdvertiser(advertiser.id)} className="text-destructive hover:text-destructive">
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                                  {advertiser.is_active ? <Power className="w-5 h-5" /> : <PowerOff className="w-5 h-5" />}
+                                </Button>
+                                {!advertiser.isActiveInPeriod && dateRange.from && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <AlertCircle className="w-4 h-4 text-muted-foreground" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Cet annonceur n'a pas diffusé pendant la période sélectionnée</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div 
+                                className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => { setSelectedAdvertiserFilter(advertiser.id); setActiveTab('ads'); }}
+                              >
+                                {advertiser.logo && (
+                                  <img src={advertiser.logo} alt={advertiser.name} className="w-10 h-10 rounded-lg object-cover" />
+                                )}
+                                <div>
+                                  <div className="font-medium hover:text-primary transition-colors">{advertiser.name}</div>
+                                  {advertiser.website && (
+                                    <a 
+                                      href={advertiser.website} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer" 
+                                      className="text-xs text-muted-foreground hover:underline"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      {advertiser.website}
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="text-sm">
+                                {advertiser.city && <span>{advertiser.city}</span>}
+                                {advertiser.region && <span className="text-muted-foreground"> • {advertiser.region}</span>}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <div className="flex flex-col items-center">
+                                <span className="font-medium">{getActiveAdsCount(advertiser.id)}</span>
+                                <span className="text-xs text-muted-foreground">/ {getAdvertiserAdsCount(advertiser.id)} total</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex justify-end gap-2">
+                                <Button variant="ghost" size="icon" onClick={() => { setSelectedAdvertiserFilter(advertiser.id); setActiveTab('ads'); }}>
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" onClick={() => handleEditAdvertiser(advertiser)}>
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" onClick={() => handleDeleteAdvertiser(advertiser.id)} className="text-destructive hover:text-destructive">
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        </TooltipProvider>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -1066,77 +1109,93 @@ const AdminAdvertising = () => {
                     {filteredAds.map((ad) => {
                       const isAdvertiserInactive = ad.advertiser?.is_active === false;
                       const isEffectivelyDisabled = isAdvertiserInactive || ad.status !== 'active';
+                      const isGrayedByDate = !ad.isActiveInPeriod && dateRange.from;
                       
                       return (
-                        <TableRow key={ad.id} className={isEffectivelyDisabled ? "opacity-50" : ""}>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => toggleAdStatus(ad)}
-                                disabled={isAdvertiserInactive}
-                                className={ad.status === 'active' && !isAdvertiserInactive ? "text-green-600 hover:text-green-700" : "text-muted-foreground hover:text-foreground"}
-                              >
-                                {ad.status === 'active' && !isAdvertiserInactive ? <Power className="w-5 h-5" /> : <PowerOff className="w-5 h-5" />}
-                              </Button>
-                              {ad.is_featured && <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              {ad.image && <img src={ad.image} alt="" className="w-12 h-12 rounded-lg object-cover" />}
-                              <div>
-                                <div className="font-medium">{ad.title}</div>
-                                <div className="text-xs text-muted-foreground truncate max-w-[200px]">{ad.description}</div>
+                        <TooltipProvider key={ad.id}>
+                          <TableRow className={cn(
+                            (isEffectivelyDisabled || isGrayedByDate) && "opacity-50 bg-muted/30",
+                            isGrayedByDate && "border-l-2 border-l-muted-foreground"
+                          )}>
+                            <TableCell>
+                              <div className="flex items-center gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => toggleAdStatus(ad)}
+                                  disabled={isAdvertiserInactive}
+                                  className={ad.status === 'active' && !isAdvertiserInactive ? "text-green-600 hover:text-green-700" : "text-muted-foreground hover:text-foreground"}
+                                >
+                                  {ad.status === 'active' && !isAdvertiserInactive ? <Power className="w-5 h-5" /> : <PowerOff className="w-5 h-5" />}
+                                </Button>
+                                {ad.is_featured && <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />}
+                                {isGrayedByDate && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <AlertCircle className="w-4 h-4 text-muted-foreground" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Cette annonce n'a pas diffusé pendant la période sélectionnée</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
                               </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <span>{ad.advertiser?.name}</span>
-                              {isAdvertiserInactive && (
-                                <Badge variant="destructive" className="text-xs">Inactif</Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                {ad.image && <img src={ad.image} alt="" className="w-12 h-12 rounded-lg object-cover" />}
+                                <div>
+                                  <div className="font-medium">{ad.title}</div>
+                                  <div className="text-xs text-muted-foreground truncate max-w-[200px]">{ad.description}</div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <span>{ad.advertiser?.name}</span>
+                                {isAdvertiserInactive && (
+                                  <Badge variant="destructive" className="text-xs">Inactif</Badge>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                {(!ad.target_regions || ad.target_regions.length === 0) ? (
+                                  <Badge variant="outline">Toutes</Badge>
+                                ) : (
+                                  ad.target_regions.slice(0, 2).map(r => (
+                                    <Badge key={r} variant="secondary" className="text-xs">{r.toUpperCase()}</Badge>
+                                  ))
+                                )}
+                                {ad.target_regions && ad.target_regions.length > 2 && (
+                                  <Badge variant="secondary" className="text-xs">+{ad.target_regions.length - 2}</Badge>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <div className="font-medium">{ad.price?.toLocaleString('fr-FR')} €</div>
+                              {ad.original_price && (
+                                <div className="text-xs text-muted-foreground line-through">{ad.original_price?.toLocaleString('fr-FR')} €</div>
                               )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-wrap gap-1">
-                              {(!ad.target_regions || ad.target_regions.length === 0) ? (
-                                <Badge variant="outline">Toutes</Badge>
-                              ) : (
-                                ad.target_regions.slice(0, 2).map(r => (
-                                  <Badge key={r} variant="secondary" className="text-xs">{r.toUpperCase()}</Badge>
-                                ))
-                              )}
-                              {ad.target_regions && ad.target_regions.length > 2 && (
-                                <Badge variant="secondary" className="text-xs">+{ad.target_regions.length - 2}</Badge>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <div className="font-medium">{ad.price?.toLocaleString('fr-FR')} €</div>
-                            {ad.original_price && (
-                              <div className="text-xs text-muted-foreground line-through">{ad.original_price?.toLocaleString('fr-FR')} €</div>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex justify-end gap-2">
-                              <Button variant="ghost" size="icon" onClick={() => { setPreviewingAd(ad); setPreviewDialogOpen(true); }}>
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                              <Button variant="ghost" size="icon" onClick={() => toggleAdFeatured(ad)}>
-                                <Star className={`w-4 h-4 ${ad.is_featured ? "text-yellow-500 fill-yellow-500" : ""}`} />
-                              </Button>
-                              <Button variant="ghost" size="icon" onClick={() => handleEditAd(ad)}>
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button variant="ghost" size="icon" onClick={() => handleDeleteAd(ad.id)} className="text-destructive hover:text-destructive">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex justify-end gap-2">
+                                <Button variant="ghost" size="icon" onClick={() => { setPreviewingAd(ad); setPreviewDialogOpen(true); }}>
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" onClick={() => toggleAdFeatured(ad)}>
+                                  <Star className={`w-4 h-4 ${ad.is_featured ? "text-yellow-500 fill-yellow-500" : ""}`} />
+                                </Button>
+                                <Button variant="ghost" size="icon" onClick={() => handleEditAd(ad)}>
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" onClick={() => handleDeleteAd(ad.id)} className="text-destructive hover:text-destructive">
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        </TooltipProvider>
                       );
                     })}
                   </TableBody>
