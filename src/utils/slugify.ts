@@ -21,8 +21,13 @@ export const slugify = (text: string): string => {
  * Generates the URL for a partner offer
  * @param advertiserName - The advertiser's company name
  * @param offerId - The offer's unique ID
+ * @param regionCode - Optional region code to pass context
  * @returns The full path for the offer
  */
-export const getOfferUrl = (advertiserName: string, offerId: string): string => {
-  return `/offre-partenaire/${slugify(advertiserName)}/${offerId}`;
+export const getOfferUrl = (advertiserName: string, offerId: string, regionCode?: string): string => {
+  const basePath = `/offre-partenaire/${slugify(advertiserName)}/${offerId}`;
+  if (regionCode && regionCode !== 'fr') {
+    return `${basePath}?region=${regionCode}`;
+  }
+  return basePath;
 };

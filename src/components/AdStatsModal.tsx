@@ -56,12 +56,12 @@ interface DailyStats {
 }
 
 const REGION_NAMES: Record<string, string> = {
-  "FR": "France métropolitaine",
-  "GP": "Guadeloupe",
-  "MQ": "Martinique",
-  "GF": "Guyane",
-  "RE": "La Réunion",
-  "CO": "Corse",
+  "fr": "France métropolitaine",
+  "guadeloupe": "Guadeloupe",
+  "martinique": "Martinique",
+  "guyane": "Guyane",
+  "reunion": "La Réunion",
+  "corse": "Corse",
   "": "Non spécifié",
 };
 

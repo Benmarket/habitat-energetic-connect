@@ -47,6 +47,7 @@ interface LeadOfferModalProps {
     advertiserName: string;
     advertiserId: string;
     productType: string;
+    regionCode?: string;
   };
   onSuccess?: () => void;
 }
@@ -103,6 +104,7 @@ export default function LeadOfferModal({
             advertiserName: offerData.advertiserName,
             advertiserId: offerData.advertiserId,
             productType: offerData.productType,
+            regionCode: offerData.regionCode || 'fr',
             submittedAt: new Date().toISOString(),
           },
         });
