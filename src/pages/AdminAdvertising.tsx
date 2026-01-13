@@ -23,7 +23,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import AdvertisementPreview from "@/components/AdvertisementPreview";
 import { Helmet } from "react-helmet";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format, startOfDay, endOfDay, subDays, startOfMonth, endOfMonth, subMonths, startOfYear, subYears } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -565,7 +565,7 @@ const AdminAdvertising = () => {
               {/* Date picker with presets */}
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="gap-2 min-w-[180px] justify-start">
+                  <Button variant="outline" className="gap-2 min-w-[200px] justify-start">
                     <Calendar className="w-4 h-4" />
                     {dateRange.from ? (
                       dateRange.to ? (
@@ -578,10 +578,14 @@ const AdminAdvertising = () => {
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <div className="flex">
+                <PopoverContent 
+                  className="w-auto p-0 bg-popover border border-border rounded-xl shadow-xl z-50" 
+                  align="end"
+                  sideOffset={8}
+                >
+                  <div className="flex rounded-xl overflow-hidden">
                     {/* Presets */}
-                    <div className="border-r p-2 space-y-1 min-w-[140px]">
+                    <div className="border-r border-border py-3 px-2 space-y-0.5 min-w-[130px] bg-muted/30">
                       {[
                         { label: "Aujourd'hui", getValue: () => ({ from: startOfDay(new Date()), to: endOfDay(new Date()) }) },
                         { label: "Hier", getValue: () => ({ from: startOfDay(subDays(new Date(), 1)), to: endOfDay(subDays(new Date(), 1)) }) },
@@ -591,26 +595,37 @@ const AdminAdvertising = () => {
                         { label: "Mois dernier", getValue: () => ({ from: startOfMonth(subMonths(new Date(), 1)), to: endOfMonth(subMonths(new Date(), 1)) }) },
                         { label: "L'an dernier", getValue: () => ({ from: startOfYear(subYears(new Date(), 1)), to: endOfDay(new Date()) }) },
                         { label: "Maximum", getValue: () => ({ from: undefined, to: undefined }) },
-                      ].map((preset) => (
-                        <Button
-                          key={preset.label}
-                          variant="ghost"
-                          size="sm"
-                          className={cn(
-                            "w-full justify-start font-normal",
-                            preset.label === "Maximum" && !dateRange.from && "bg-primary text-primary-foreground hover:bg-primary/90"
-                          )}
-                          onClick={() => {
-                            const value = preset.getValue();
-                            setDateRange(value);
-                          }}
-                        >
-                          {preset.label}
-                        </Button>
-                      ))}
+                      ].map((preset) => {
+                        // Detect active preset
+                        const presetValue = preset.getValue();
+                        const isActive = preset.label === "Maximum" 
+                          ? !dateRange.from 
+                          : (dateRange.from && presetValue.from && 
+                             dateRange.from.getTime() === presetValue.from.getTime() &&
+                             dateRange.to && presetValue.to &&
+                             dateRange.to.getTime() === presetValue.to.getTime());
+                        
+                        return (
+                          <Button
+                            key={preset.label}
+                            variant="ghost"
+                            size="sm"
+                            className={cn(
+                              "w-full justify-start font-normal h-8 px-3 text-sm rounded-md",
+                              isActive && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                            )}
+                            onClick={() => {
+                              const value = preset.getValue();
+                              setDateRange(value);
+                            }}
+                          >
+                            {preset.label}
+                          </Button>
+                        );
+                      })}
                     </div>
                     {/* Calendar */}
-                    <div className="p-0">
+                    <div className="p-3">
                       <CalendarComponent
                         mode="range"
                         selected={{ from: dateRange.from, to: dateRange.to }}
@@ -619,15 +634,20 @@ const AdminAdvertising = () => {
                         numberOfMonths={1}
                         className="pointer-events-auto"
                       />
-                      <div className="p-2 border-t flex justify-between items-center">
+                      <div className="pt-3 border-t border-border flex justify-between items-center mt-2">
                         <Button
                           variant="link"
                           size="sm"
-                          className="text-primary p-0 h-auto"
+                          className="text-primary p-0 h-auto text-sm"
                           onClick={() => setDateRange({ from: undefined, to: undefined })}
                         >
                           Effacer
                         </Button>
+                        <PopoverClose asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-muted hover:bg-muted/80">
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </PopoverClose>
                       </div>
                     </div>
                   </div>
