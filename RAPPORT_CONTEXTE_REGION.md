@@ -200,8 +200,24 @@ const MonComposant = () => {
 
 - ❌ Pas de sous-domaines régionaux
 - ❌ Pas de landing pages régionales séparées
-- ❌ Pas de modification de l'ordre des bandes
-- ❌ Pas de conditionnement d'affichage des sections (Phase 1)
 - ✅ URL propre avec query param
-- ✅ Persistance entre sessions
+- ✅ Persistance entre sessions (localStorage)
 - ✅ Navigation fluide sans rechargement
+- ✅ Conditionnement d'affichage des sections par région (Phase 2)
+- ✅ Interface admin intuitive pour gérer les visibilités
+
+---
+
+## Fichiers concernés
+
+| Fichier | Rôle |
+|---------|------|
+| `src/hooks/useRegionContext.tsx` | Context React, Provider, Hook et helpers |
+| `src/components/RegionSubHeader.tsx` | UI du sélecteur de région |
+| `src/pages/Index.tsx` | Filtrage des sections par région active |
+| `src/pages/AdminSettings.tsx` | Configuration admin des visibilités régionales |
+| `src/App.tsx` | Intégration du RegionProvider |
+
+---
+
+*Dernière mise à jour : Janvier 2026*
