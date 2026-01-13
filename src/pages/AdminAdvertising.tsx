@@ -25,6 +25,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import AdvertisementPreview from "@/components/AdvertisementPreview";
 import RegionFeaturedModal from "@/components/RegionFeaturedModal";
 import AdvertiserLogoUpload from "@/components/AdvertiserLogoUpload";
+import { AdImageUpload } from "@/components/AdImageUpload";
 import { Helmet } from "react-helmet";
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -1224,10 +1225,10 @@ const AdminAdvertising = () => {
                         </div>
                       </div>
 
-                      <div>
-                        <Label>URL de l'image</Label>
-                        <Input type="url" value={adForm.image} onChange={(e) => setAdForm({ ...adForm, image: e.target.value })} />
-                      </div>
+                      <AdImageUpload
+                        currentImage={adForm.image}
+                        onImageChange={(url) => setAdForm({ ...adForm, image: url })}
+                      />
 
                       <div>
                         <Label>Avantages</Label>
