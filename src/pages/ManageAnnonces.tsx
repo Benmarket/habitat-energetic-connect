@@ -963,11 +963,88 @@ const ManageAnnonces = () => {
           </div>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2">
                 <Megaphone className="w-5 h-5" />
                 Liste des Annonces
               </CardTitle>
+              
+              {/* Quick Filter Chips */}
+              <div className="flex flex-wrap items-center gap-2 mt-4">
+                {/* Region filter chips */}
+                <div className="flex items-center gap-1 mr-2">
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Région:</span>
+                </div>
+                <Button 
+                  variant={filterRegion === null ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setFilterRegion(null)}
+                  className="h-7 text-xs"
+                >
+                  Toutes
+                </Button>
+                {ALL_REGIONS.map((region) => (
+                  <Button
+                    key={region.code}
+                    variant={filterRegion === region.code ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setFilterRegion(filterRegion === region.code ? null : region.code)}
+                    className="h-7 text-xs"
+                  >
+                    {region.label.replace('France métropolitaine', 'Métropole')}
+                  </Button>
+                ))}
+                
+                {/* Separator */}
+                <div className="h-6 w-px bg-border mx-2" />
+                
+                {/* Advertiser filter */}
+                <div className="flex items-center gap-2">
+                  <Select 
+                    value={filterAdvertiserId || "all"} 
+                    onValueChange={(v) => setFilterAdvertiserId(v === "all" ? null : v)}
+                  >
+                    <SelectTrigger className="h-7 w-[180px] text-xs">
+                      <SelectValue placeholder="Annonceur" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tous les annonceurs</SelectItem>
+                      {advertisers.map((a) => (
+                        <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {/* Featured filter */}
+                <Select 
+                  value={filterFeatured === null ? "all" : filterFeatured ? "featured" : "not_featured"} 
+                  onValueChange={(v) => {
+                    if (v === "all") setFilterFeatured(null);
+                    else if (v === "featured") setFilterFeatured(true);
+                    else setFilterFeatured(false);
+                  }}
+                >
+                  <SelectTrigger className="h-7 w-[130px] text-xs">
+                    <Star className="w-3 h-3 mr-1" />
+                    <SelectValue placeholder="Vedette" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes</SelectItem>
+                    <SelectItem value="featured">En vedette</SelectItem>
+                    <SelectItem value="not_featured">Non vedette</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                {/* Clear filters button */}
+                {activeFiltersCount > 0 && (
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="h-7 text-xs text-muted-foreground">
+                    <X className="w-3 h-3 mr-1" />
+                    Réinitialiser ({activeFiltersCount})
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -1113,26 +1190,57 @@ const ManageAnnonces = () => {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <div className="relative">
+                          <div className="space-y-2">
+                            {/* Featured regions badges */}
+                            {adFeaturedRegions.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mb-2">
+                                {adFeaturedRegions.map((regionCode) => {
+                                  const regionLabel = ALL_REGIONS.find(r => r.code === regionCode)?.label || regionCode;
+                                  const shortLabel = regionLabel.replace('France métropolitaine', 'FR').replace('La Réunion', 'Réunion');
+                                  return (
+                                    <Badge 
+                                      key={regionCode}
+                                      variant="default"
+                                      className="text-[10px] px-1.5 py-0.5 cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                                      onClick={() => toggleFeaturedForRegion(ad.id, regionCode, true)}
+                                      title={`Retirer de ${regionLabel}`}
+                                    >
+                                      {shortLabel}
+                                      <X className="w-2.5 h-2.5 ml-0.5" />
+                                    </Badge>
+                                  );
+                                })}
+                              </div>
+                            )}
+                            
+                            {/* Add featured button */}
                             <Popover 
                               open={regionSelectAdId === ad.id} 
                               onOpenChange={(open) => !open && setRegionSelectAdId(null)}
                             >
                               <PopoverTrigger asChild>
                                 <Button
-                                  variant={adFeaturedRegions.length > 0 ? "default" : "outline"}
+                                  variant={adFeaturedRegions.length > 0 ? "outline" : "ghost"}
                                   size="sm"
                                   onClick={() => handleFeaturedClick(ad)}
-                                  className={`gap-1 ${isInactive ? 'opacity-50' : ''}`}
+                                  className={`gap-1 h-7 text-xs ${isInactive ? 'opacity-50' : ''}`}
                                   disabled={isInactive && adFeaturedRegions.length === 0}
                                 >
                                   {isInactive ? (
-                                    <AlertCircle className="w-4 h-4" />
+                                    <>
+                                      <AlertCircle className="w-3 h-3" />
+                                      Inactive
+                                    </>
+                                  ) : adFeaturedRegions.length > 0 ? (
+                                    <>
+                                      <Plus className="w-3 h-3" />
+                                      Ajouter
+                                    </>
                                   ) : (
-                                    <Star className={`w-4 h-4 ${adFeaturedRegions.length > 0 ? 'fill-current' : ''}`} />
-                                  )}
-                                  {adFeaturedRegions.length > 0 && (
-                                    <span className="text-xs">{adFeaturedRegions.length}</span>
+                                    <>
+                                      <Star className="w-3 h-3" />
+                                      Mettre en vedette
+                                    </>
                                   )}
                                 </Button>
                               </PopoverTrigger>
@@ -1140,7 +1248,7 @@ const ManageAnnonces = () => {
                                 <PopoverContent className="w-64 p-2" align="start">
                                   <div className="space-y-1">
                                     <p className="text-sm font-medium mb-2 px-2">
-                                      {adFeaturedRegions.length > 0 ? "Gérer les vedettes" : "Mettre en vedette"}
+                                      {adFeaturedRegions.length > 0 ? "Ajouter à une région" : "Mettre en vedette"}
                                     </p>
                                     {availableRegions.length === 0 ? (
                                       <p className="text-sm text-muted-foreground px-2">
@@ -1155,18 +1263,18 @@ const ManageAnnonces = () => {
                                         return (
                                           <Button
                                             key={region.code}
-                                            variant={isFeaturedInRegion ? "default" : "ghost"}
+                                            variant={isFeaturedInRegion ? "secondary" : "ghost"}
                                             size="sm"
                                             className="w-full justify-between"
-                                            disabled={isDisabled}
+                                            disabled={isDisabled || isFeaturedInRegion}
                                             onClick={() => toggleFeaturedForRegion(ad.id, region.code, isFeaturedInRegion)}
                                           >
                                             <span className="flex items-center gap-2">
                                               <Globe className="w-3 h-3" />
                                               {region.label}
                                             </span>
-                                            {isFeaturedInRegion && <Check className="w-4 h-4" />}
-                                            {isDisabled && <span className="text-xs text-muted-foreground">3/3</span>}
+                                            {isFeaturedInRegion && <Check className="w-4 h-4 text-primary" />}
+                                            {isDisabled && !isFeaturedInRegion && <span className="text-xs text-muted-foreground">3/3</span>}
                                           </Button>
                                         );
                                       })
