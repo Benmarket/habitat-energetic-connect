@@ -583,9 +583,9 @@ const AdminAdvertising = () => {
                   align="end"
                   sideOffset={8}
                 >
-                  <div className="flex rounded-xl overflow-hidden">
+                  <div className="flex rounded-xl overflow-hidden w-fit">
                     {/* Presets */}
-                    <div className="border-r border-border py-3 px-2 space-y-0.5 min-w-[130px] bg-muted/30">
+                    <div className="border-r border-border py-3 px-2 space-y-0.5 w-[120px] bg-muted/30 shrink-0">
                       {[
                         { label: "Aujourd'hui", getValue: () => ({ from: startOfDay(new Date()), to: endOfDay(new Date()) }) },
                         { label: "Hier", getValue: () => ({ from: startOfDay(subDays(new Date(), 1)), to: endOfDay(subDays(new Date(), 1)) }) },
