@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import AdvertisementPreview from "@/components/AdvertisementPreview";
+import RegionFeaturedModal from "@/components/RegionFeaturedModal";
 import { Helmet } from "react-helmet";
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -117,6 +118,8 @@ const AdminAdvertising = () => {
   const [advertiserDialogOpen, setAdvertiserDialogOpen] = useState(false);
   const [adDialogOpen, setAdDialogOpen] = useState(false);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [regionFeaturedOpen, setRegionFeaturedOpen] = useState(false);
+  const [selectedRegionForFeatured, setSelectedRegionForFeatured] = useState<{ code: RegionCode; label: string } | null>(null);
   
   // Editing states
   const [editingAdvertiser, setEditingAdvertiser] = useState<Advertiser | null>(null);
@@ -143,6 +146,9 @@ const AdminAdvertising = () => {
   // Filter states
   const [selectedAdvertiserFilter, setSelectedAdvertiserFilter] = useState<string | null>(null);
   const [selectedRegionFilter, setSelectedRegionFilter] = useState<RegionCode | null>(null);
+  
+  // Featured ads per region
+  const [featuredByRegion, setFeaturedByRegion] = useState<Map<RegionCode, string[]>>(new Map());
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -159,9 +165,10 @@ const AdminAdvertising = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [advertisersRes, adsRes] = await Promise.all([
+      const [advertisersRes, adsRes, featuredRes] = await Promise.all([
         supabase.from("advertisers").select("*").order("created_at", { ascending: false }),
-        supabase.from("advertisements").select(`*, advertiser:advertisers(id, name, is_active)`).order("created_at", { ascending: false })
+        supabase.from("advertisements").select(`*, advertiser:advertisers(id, name, is_active)`).order("created_at", { ascending: false }),
+        supabase.from("ad_region_featured").select("*").order("display_order")
       ]);
       
       if (advertisersRes.error) throw advertisersRes.error;
@@ -169,6 +176,15 @@ const AdminAdvertising = () => {
       
       setAdvertisers(advertisersRes.data || []);
       setAdvertisements(adsRes.data || []);
+      
+      // Build featured map by region
+      const featuredMap = new Map<RegionCode, string[]>();
+      ALL_REGIONS.forEach(r => featuredMap.set(r.code, []));
+      (featuredRes.data || []).forEach(f => {
+        const current = featuredMap.get(f.region_code as RegionCode) || [];
+        featuredMap.set(f.region_code as RegionCode, [...current, f.advertisement_id]);
+      });
+      setFeaturedByRegion(featuredMap);
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error("Erreur lors du chargement des données");
@@ -921,12 +937,12 @@ const AdminAdvertising = () => {
                     const data = adsByRegion.get(region.code);
                     const adsCount = data?.ads.length || 0;
                     const activeCount = data?.activeCount || 0;
+                    const featuredCount = featuredByRegion.get(region.code)?.length || 0;
                     
                     return (
                       <Card 
                         key={region.code} 
-                        className="cursor-pointer hover:shadow-md transition-shadow"
-                        onClick={() => { setSelectedRegionFilter(region.code); setActiveTab('ads'); }}
+                        className="hover:shadow-md transition-shadow"
                       >
                         <CardContent className="pt-6">
                           <div className="flex items-center justify-between mb-4">
@@ -940,7 +956,9 @@ const AdminAdvertising = () => {
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center justify-between">
+                          
+                          {/* Stats row */}
+                          <div className="flex items-center justify-between mb-4">
                             <div>
                               <span className="text-2xl font-bold">{activeCount}</span>
                               <span className="text-muted-foreground text-sm ml-1">/ {adsCount}</span>
@@ -949,9 +967,42 @@ const AdminAdvertising = () => {
                               {activeCount > 0 ? "Actif" : "Inactif"}
                             </Badge>
                           </div>
-                          <p className="text-xs text-muted-foreground mt-2">
+                          
+                          {/* Featured indicator */}
+                          <div className="flex items-center gap-2 mb-4 p-2 bg-amber-50 dark:bg-amber-950/30 rounded-lg">
+                            <Star className={`w-4 h-4 ${featuredCount > 0 ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground'}`} />
+                            <span className="text-sm">
+                              <span className="font-medium">{featuredCount}</span>/3 en vedette
+                            </span>
+                          </div>
+                          
+                          <p className="text-xs text-muted-foreground mb-4">
                             {activeCount} annonce{activeCount > 1 ? 's' : ''} active{activeCount > 1 ? 's' : ''} sur {adsCount} total
                           </p>
+                          
+                          {/* Actions */}
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="flex-1"
+                              onClick={() => { setSelectedRegionFilter(region.code); setActiveTab('ads'); }}
+                            >
+                              Voir les annonces
+                            </Button>
+                            <Button 
+                              variant="default" 
+                              size="sm"
+                              className="gap-1"
+                              onClick={() => {
+                                setSelectedRegionForFeatured(region);
+                                setRegionFeaturedOpen(true);
+                              }}
+                            >
+                              <Star className="w-3 h-3" />
+                              Vedettes
+                            </Button>
+                          </div>
                         </CardContent>
                       </Card>
                     );
@@ -1298,6 +1349,18 @@ const AdminAdvertising = () => {
               )}
             </DialogContent>
           </Dialog>
+
+          {/* Region Featured Modal */}
+          {selectedRegionForFeatured && (
+            <RegionFeaturedModal
+              open={regionFeaturedOpen}
+              onOpenChange={setRegionFeaturedOpen}
+              regionCode={selectedRegionForFeatured.code}
+              regionLabel={selectedRegionForFeatured.label}
+              advertisements={advertisements}
+              onSave={fetchData}
+            />
+          )}
         </main>
 
         <Footer />

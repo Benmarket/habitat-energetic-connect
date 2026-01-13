@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { useAdTracking } from "@/hooks/useAdTracking";
+import { useRegionContext } from "@/hooks/useRegionContext";
 
 interface Advertisement {
   id: string;
@@ -41,40 +42,72 @@ const PartnerOffersSection = () => {
   const [offers, setOffers] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState(true);
   const { trackView, trackClick } = useAdTracking();
+  const { activeRegion } = useRegionContext();
   const trackedViews = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     fetchFeaturedOffers();
-  }, []);
+  }, [activeRegion]);
 
   const fetchFeaturedOffers = async () => {
     try {
-      const { data, error } = await supabase
+      // First, get featured ads for this region from ad_region_featured
+      const { data: featuredData, error: featuredError } = await supabase
+        .from("ad_region_featured")
+        .select("advertisement_id, display_order")
+        .eq("region_code", activeRegion)
+        .order("display_order");
+
+      if (featuredError) throw featuredError;
+
+      const featuredIds = (featuredData || []).map(f => f.advertisement_id);
+
+      // Fetch active advertisements
+      const { data: adsData, error: adsError } = await supabase
         .from("advertisements")
         .select(`
           *,
           advertiser:advertisers(name, logo)
         `)
         .eq("status", "active")
-        .eq("is_featured", true)
-        .order("created_at", { ascending: false })
-        .limit(6);
+        .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (adsError) throw adsError;
+
+      // Filter ads for this region
+      const regionAds = (adsData || []).filter(ad => {
+        if (!ad.target_regions || ad.target_regions.length === 0) return true;
+        return ad.target_regions.includes(activeRegion);
+      });
+
+      // Sort: featured first (in display_order), then others
+      const sortedAds = regionAds.sort((a, b) => {
+        const aFeaturedIndex = featuredIds.indexOf(a.id);
+        const bFeaturedIndex = featuredIds.indexOf(b.id);
+        
+        // Both featured: sort by display_order
+        if (aFeaturedIndex !== -1 && bFeaturedIndex !== -1) {
+          return aFeaturedIndex - bFeaturedIndex;
+        }
+        // Only a is featured
+        if (aFeaturedIndex !== -1) return -1;
+        // Only b is featured
+        if (bFeaturedIndex !== -1) return 1;
+        // Neither featured: sort by date
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+
+      setOffers(sortedAds);
       
-      // Take first 3 offers (expired or not)
-      const displayOffers = (data || []).slice(0, 3);
-      setOffers(displayOffers);
-      
-      // Track views for displayed offers
-      displayOffers.forEach(offer => {
+      // Track views for first 3 offers (visible ones)
+      sortedAds.slice(0, 3).forEach(offer => {
         if (!trackedViews.current.has(offer.id)) {
           trackView(offer.id);
           trackedViews.current.add(offer.id);
         }
       });
     } catch (error) {
-      // Silent fail - offers section is optional
+      console.error("Error fetching offers:", error);
     } finally {
       setLoading(false);
     }
