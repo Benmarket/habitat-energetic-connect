@@ -105,6 +105,7 @@ const AdminAdvertising = () => {
   // Data states
   const [advertisers, setAdvertisers] = useState<Advertiser[]>([]);
   const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
+  const [filteredStats, setFilteredStats] = useState<Map<string, { views: number; clicks: number; conversions: number }>>(new Map());
   const [loading, setLoading] = useState(true);
   
   // UI states
@@ -172,6 +173,56 @@ const AdminAdvertising = () => {
       fetchData();
     }
   }, [user]);
+
+  // Fetch filtered stats when date range changes
+  useEffect(() => {
+    if (dateRange.from || dateRange.to) {
+      fetchFilteredStats();
+    } else {
+      // Clear filtered stats when no date filter
+      setFilteredStats(new Map());
+    }
+  }, [dateRange.from, dateRange.to]);
+
+  const fetchFilteredStats = async () => {
+    try {
+      let query = supabase
+        .from('ad_analytics')
+        .select('advertisement_id, event_type');
+      
+      if (dateRange.from) {
+        query = query.gte('created_at', startOfDay(dateRange.from).toISOString());
+      }
+      if (dateRange.to) {
+        query = query.lte('created_at', endOfDay(dateRange.to).toISOString());
+      }
+      
+      const { data, error } = await query;
+      
+      if (error) throw error;
+      
+      // Aggregate stats by advertisement
+      const statsMap = new Map<string, { views: number; clicks: number; conversions: number }>();
+      
+      (data || []).forEach(event => {
+        const current = statsMap.get(event.advertisement_id) || { views: 0, clicks: 0, conversions: 0 };
+        
+        if (event.event_type === 'view') {
+          current.views++;
+        } else if (event.event_type === 'click') {
+          current.clicks++;
+        } else if (event.event_type === 'conversion') {
+          current.conversions++;
+        }
+        
+        statsMap.set(event.advertisement_id, current);
+      });
+      
+      setFilteredStats(statsMap);
+    } catch (error) {
+      console.error('Error fetching filtered stats:', error);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -1527,13 +1578,19 @@ const AdminAdvertising = () => {
                               </div>
                             </TableCell>
                             <TableCell className="text-center">
-                              <span className="font-medium">{ad.views_count || 0}</span>
+                              <span className="font-medium">
+                                {dateRange.from ? (filteredStats.get(ad.id)?.views || 0) : (ad.views_count || 0)}
+                              </span>
                             </TableCell>
                             <TableCell className="text-center">
-                              <span className="font-medium">{ad.clicks_count || 0}</span>
+                              <span className="font-medium">
+                                {dateRange.from ? (filteredStats.get(ad.id)?.clicks || 0) : (ad.clicks_count || 0)}
+                              </span>
                             </TableCell>
                             <TableCell className="text-center">
-                              <span className="font-medium">{ad.conversions_count || 0}</span>
+                              <span className="font-medium">
+                                {dateRange.from ? (filteredStats.get(ad.id)?.conversions || 0) : (ad.conversions_count || 0)}
+                              </span>
                             </TableCell>
                             <TableCell className="text-center">
                               <div className="font-medium">{ad.price?.toLocaleString('fr-FR')} €</div>
