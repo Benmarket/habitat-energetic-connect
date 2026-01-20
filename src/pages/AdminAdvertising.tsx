@@ -115,6 +115,7 @@ const AdminAdvertising = () => {
     to: undefined
   });
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [advertiserSortField, setAdvertiserSortField] = useState<'name' | 'ads'>('name');
   const [advertiserSortOrder, setAdvertiserSortOrder] = useState<'asc' | 'desc'>('asc');
   
@@ -780,7 +781,7 @@ const AdminAdvertising = () => {
               </div>
 
               {/* Date picker with presets */}
-              <Popover>
+              <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="gap-2 min-w-[200px] justify-start">
                     <Calendar className="w-4 h-4" />
@@ -834,6 +835,7 @@ const AdminAdvertising = () => {
                             onClick={() => {
                               const value = preset.getValue();
                               setDateRange(value);
+                              setDatePickerOpen(false);
                             }}
                           >
                             {preset.label}
@@ -846,7 +848,13 @@ const AdminAdvertising = () => {
                       <CalendarComponent
                         mode="range"
                         selected={{ from: dateRange.from, to: dateRange.to }}
-                        onSelect={(range) => setDateRange({ from: range?.from, to: range?.to })}
+                        onSelect={(range) => {
+                          setDateRange({ from: range?.from, to: range?.to });
+                          // Close popover when both dates are selected
+                          if (range?.from && range?.to) {
+                            setDatePickerOpen(false);
+                          }
+                        }}
                         locale={fr}
                         numberOfMonths={1}
                         className="pointer-events-auto"
@@ -856,15 +864,21 @@ const AdminAdvertising = () => {
                           variant="link"
                           size="sm"
                           className="text-primary p-0 h-auto text-sm"
-                          onClick={() => setDateRange({ from: undefined, to: undefined })}
+                          onClick={() => {
+                            setDateRange({ from: undefined, to: undefined });
+                            setDatePickerOpen(false);
+                          }}
                         >
                           Effacer
                         </Button>
-                        <PopoverClose asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-muted hover:bg-muted/80">
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </PopoverClose>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 rounded-full bg-muted hover:bg-muted/80"
+                          onClick={() => setDatePickerOpen(false)}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>
