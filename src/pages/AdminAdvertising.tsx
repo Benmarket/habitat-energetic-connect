@@ -901,8 +901,8 @@ const AdminAdvertising = () => {
                         selected={{ from: dateRange.from, to: dateRange.to }}
                         onSelect={(range) => {
                           setDateRange({ from: range?.from, to: range?.to });
-                          // Close popover when both dates are selected
-                          if (range?.from && range?.to) {
+                          // Close popover when both dates are selected (range complete)
+                          if (range?.from && range?.to && range.from.getTime() !== range.to.getTime()) {
                             setDatePickerOpen(false);
                           }
                         }}
@@ -910,26 +910,50 @@ const AdminAdvertising = () => {
                         numberOfMonths={1}
                         className="pointer-events-auto"
                       />
-                      <div className="pt-3 border-t border-border flex justify-between items-center mt-2">
-                        <Button
-                          variant="link"
-                          size="sm"
-                          className="text-primary p-0 h-auto text-sm"
-                          onClick={() => {
-                            setDateRange({ from: undefined, to: undefined });
-                            setDatePickerOpen(false);
-                          }}
-                        >
-                          Effacer
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 rounded-full bg-muted hover:bg-muted/80"
-                          onClick={() => setDatePickerOpen(false)}
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
+                      <div className="pt-3 border-t border-border flex flex-col gap-2 mt-2">
+                        {/* Info text when only one date selected */}
+                        {dateRange.from && !dateRange.to && (
+                          <p className="text-xs text-muted-foreground text-center">
+                            Cliquez sur une 2ème date pour une période, ou appliquez pour ce jour
+                          </p>
+                        )}
+                        <div className="flex justify-between items-center">
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="text-primary p-0 h-auto text-sm"
+                            onClick={() => {
+                              setDateRange({ from: undefined, to: undefined });
+                              setDatePickerOpen(false);
+                            }}
+                          >
+                            Effacer
+                          </Button>
+                          <div className="flex items-center gap-2">
+                            {/* Show "Appliquer" button when only from is selected (single day) */}
+                            {dateRange.from && !dateRange.to && (
+                              <Button 
+                                size="sm"
+                                className="h-8"
+                                onClick={() => {
+                                  // Set both from and to to the same day for single day selection
+                                  setDateRange({ from: dateRange.from, to: endOfDay(dateRange.from!) });
+                                  setDatePickerOpen(false);
+                                }}
+                              >
+                                Appliquer
+                              </Button>
+                            )}
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 rounded-full bg-muted hover:bg-muted/80"
+                              onClick={() => setDatePickerOpen(false)}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
