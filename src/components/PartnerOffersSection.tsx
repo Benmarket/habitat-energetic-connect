@@ -64,21 +64,28 @@ const PartnerOffersSection = () => {
 
       const featuredIds = (featuredData || []).map(f => f.advertisement_id);
 
-      // Fetch active advertisements
+      // Fetch active advertisements with active advertisers only
       const { data: adsData, error: adsError } = await supabase
         .from("advertisements")
         .select(`
           *,
-          advertiser:advertisers(name, logo)
+          advertiser:advertisers!inner(name, logo, is_active)
         `)
         .eq("status", "active")
         .order("created_at", { ascending: false });
 
       if (adsError) throw adsError;
 
-      // Filter ads for this region
+      // Filter ads:
+      // 1. Only from active advertisers
+      // 2. Only if target_regions includes current region (ads without target_regions are excluded)
       const regionAds = (adsData || []).filter(ad => {
-        if (!ad.target_regions || ad.target_regions.length === 0) return true;
+        // Check if advertiser is active
+        if (!ad.advertiser?.is_active) return false;
+        
+        // Check if ad targets the current region
+        // An ad MUST have target_regions to be displayed
+        if (!ad.target_regions || ad.target_regions.length === 0) return false;
         return ad.target_regions.includes(activeRegion);
       });
 
