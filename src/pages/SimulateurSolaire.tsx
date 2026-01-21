@@ -63,6 +63,7 @@ const SimulateurSolaire = () => {
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const [lastEditedField, setLastEditedField] = useState<'facture' | 'consommation' | null>(null);
   
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
@@ -232,7 +233,36 @@ const SimulateurSolaire = () => {
     if (field === 'fullAddress') {
       fetchAddressSuggestions(value);
     }
+    
+    // Track which energy field was last edited for auto-calculation
+    if (field === 'factureAnnuelle') {
+      setLastEditedField('facture');
+    } else if (field === 'consommationAnnuelle') {
+      setLastEditedField('consommation');
+    }
   };
+
+  // Auto-calculate facture/consommation based on the field that was NOT just edited
+  useEffect(() => {
+    const tarif = parseFloat(formData.tarifKwh);
+    if (isNaN(tarif) || tarif <= 0) return;
+
+    if (lastEditedField === 'consommation' && formData.consommationAnnuelle) {
+      // User edited consommation → calculate facture
+      const conso = parseFloat(formData.consommationAnnuelle);
+      if (!isNaN(conso) && conso > 0) {
+        const calculatedFacture = (conso * tarif).toFixed(2);
+        setFormData(prev => ({ ...prev, factureAnnuelle: calculatedFacture }));
+      }
+    } else if (lastEditedField === 'facture' && formData.factureAnnuelle) {
+      // User edited facture → calculate consommation
+      const facture = parseFloat(formData.factureAnnuelle);
+      if (!isNaN(facture) && facture > 0) {
+        const calculatedConso = Math.round(facture / tarif).toString();
+        setFormData(prev => ({ ...prev, consommationAnnuelle: calculatedConso }));
+      }
+    }
+  }, [formData.consommationAnnuelle, formData.factureAnnuelle, formData.tarifKwh, lastEditedField]);
 
   const handleValidateAddress = async () => {
     if (!formData.address || !formData.postalCode || !formData.city) return;
@@ -294,18 +324,6 @@ const SimulateurSolaire = () => {
       }
     }
   }, [currentStep, formData.detectedRegion, formData.tarifKwh, regions]);
-
-  // Calculate consumption when "use default" is checked or consommation changes
-  useEffect(() => {
-    if (formData.useDefaultFacture && formData.consommationAnnuelle && formData.tarifKwh) {
-      const conso = parseFloat(formData.consommationAnnuelle);
-      const tarif = parseFloat(formData.tarifKwh);
-      if (!isNaN(conso) && !isNaN(tarif)) {
-        const facture = (conso * tarif).toFixed(2);
-        setFormData(prev => ({ ...prev, factureAnnuelle: facture }));
-      }
-    }
-  }, [formData.useDefaultFacture, formData.consommationAnnuelle, formData.tarifKwh]);
 
   // Consumption analysis calculations
   const getConsumptionAnalysis = () => {
