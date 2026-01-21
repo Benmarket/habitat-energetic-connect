@@ -30,6 +30,7 @@ interface SolarRegion {
   prime_37_100: number;
   prime_101_500: number;
   display_order: number;
+  postal_prefixes: string[];
 }
 
 interface GlobalParams {
@@ -228,7 +229,7 @@ const AdminSimulators = () => {
     }
   };
 
-  const handleUpdateRegion = async (regionId: string, field: keyof SolarRegion, value: number | string) => {
+  const handleUpdateRegion = async (regionId: string, field: keyof SolarRegion, value: number | string | string[]) => {
     // Update local state immediately
     setRegions(prev => prev.map(r => 
       r.id === regionId ? { ...r, [field]: value } : r
@@ -257,6 +258,7 @@ const AdminSimulators = () => {
             prime_10_36: region.prime_10_36,
             prime_37_100: region.prime_37_100,
             prime_101_500: region.prime_101_500,
+            postal_prefixes: region.postal_prefixes,
           })
           .eq('id', region.id);
 
@@ -505,7 +507,30 @@ const AdminSimulators = () => {
           </div>
         </div>
 
-        {/* Tarifs de rachat EDF */}
+        {/* Codes postaux pour détection automatique */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b">
+            <MapPin className="w-5 h-5 text-blue-500" />
+            <h4 className="font-semibold text-foreground">Préfixes de codes postaux</h4>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-sm text-muted-foreground">
+              Entrez les préfixes de codes postaux séparés par des virgules (ex: 20, 2A, 2B pour la Corse). 
+              Laissez vide pour utiliser cette région par défaut.
+            </Label>
+            <Input
+              placeholder="Ex: 20, 2A, 2B"
+              value={region.postal_prefixes?.join(', ') || ''}
+              onChange={(e) => {
+                const prefixes = e.target.value
+                  .split(',')
+                  .map(p => p.trim())
+                  .filter(p => p !== '');
+                handleUpdateRegion(region.id, 'postal_prefixes', prefixes);
+              }}
+            />
+          </div>
+        </div>
         <div className="space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b">
             <Zap className="w-5 h-5 text-amber-500" />
