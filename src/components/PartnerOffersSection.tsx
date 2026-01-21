@@ -196,23 +196,32 @@ const PartnerOffersSection = () => {
         </div>
 
         {/* Offers Carousel */}
-        <div className="relative px-12 md:px-16">
+        <div className={`relative ${offers.length > 3 ? 'px-12 md:px-16' : 'px-4'}`}>
           <Carousel
             opts={{
               align: "start",
-              loop: true,
+              loop: offers.length > 3,
               slidesToScroll: 1,
             }}
-            plugins={[
+            plugins={offers.length > 3 ? [
               Autoplay({
                 delay: 5000,
               }),
-            ]}
+            ] : []}
             className="w-full mt-6 mb-8 md:mb-12"
           >
             <CarouselContent className="-ml-4">
-              {offers.map((offer) => (
-                <CarouselItem key={offer.id} className="pl-4 basis-full md:basis-1/2 lg:basis-1/3">
+              {offers.map((offer) => {
+                // Determine card width based on total offers count
+                // 1 offer: full width, 2 offers: half, 3+: third
+                const basisClass = offers.length === 1 
+                  ? "basis-full" 
+                  : offers.length === 2 
+                    ? "basis-full md:basis-1/2" 
+                    : "basis-full md:basis-1/2 lg:basis-1/3";
+                
+                return (
+                <CarouselItem key={offer.id} className={`pl-4 ${basisClass}`}>
                   <Card 
                     className="group relative overflow-hidden hover:shadow-2xl hover:shadow-amber-500/20 transition-all duration-500 border-2 border-amber-500/20 hover:border-amber-500/50 hover:-translate-y-2 bg-card/80 backdrop-blur-sm h-full"
                   >
@@ -312,10 +321,14 @@ const PartnerOffersSection = () => {
                   </CardContent>
                   </Card>
                 </CarouselItem>
-              ))}
+              )})}
             </CarouselContent>
-            <CarouselPrevious className="flex -left-12 border-2 border-amber-500/30 hover:border-amber-600 hover:bg-amber-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-amber-500/30 transition-all duration-300" />
-            <CarouselNext className="flex -right-12 border-2 border-amber-500/30 hover:border-amber-600 hover:bg-amber-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-amber-500/30 transition-all duration-300" />
+            {offers.length > 3 && (
+              <>
+                <CarouselPrevious className="flex -left-12 border-2 border-amber-500/30 hover:border-amber-600 hover:bg-amber-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-amber-500/30 transition-all duration-300" />
+                <CarouselNext className="flex -right-12 border-2 border-amber-500/30 hover:border-amber-600 hover:bg-amber-600 hover:text-white bg-background/80 backdrop-blur-sm shadow-lg hover:shadow-amber-500/30 transition-all duration-300" />
+              </>
+            )}
           </Carousel>
         </div>
 
