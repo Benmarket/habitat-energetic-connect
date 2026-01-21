@@ -20,6 +20,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Plus, Edit, Trash2, Megaphone, Star, Check, X, Eye, BarChart3, MousePointerClick, UserCheck, ArrowUpDown, Filter, Globe, AlertCircle, MapPin, Search } from "lucide-react";
 import AdvertisementPreview from "@/components/AdvertisementPreview";
+import { AIDescriptionButton } from "@/components/AIDescriptionButton";
 import AdStatsModal from "@/components/AdStatsModal";
 import { Helmet } from "react-helmet";
 import { format } from "date-fns";
@@ -648,7 +649,17 @@ const ManageAnnonces = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="description">Description *</Label>
+                      <div className="flex items-center justify-between mb-2">
+                        <Label htmlFor="description">Description *</Label>
+                        <AIDescriptionButton
+                          title={formData.title}
+                          advertiserName={advertisers.find(a => a.id === formData.advertiser_id)?.name}
+                          price={formData.price}
+                          features={formData.features}
+                          currentDescription={formData.description}
+                          onDescriptionGenerated={(desc) => setFormData({ ...formData, description: desc })}
+                        />
+                      </div>
                       <Textarea
                         id="description"
                         value={formData.description}

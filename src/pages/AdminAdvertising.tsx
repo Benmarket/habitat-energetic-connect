@@ -26,6 +26,7 @@ import AdvertisementPreview from "@/components/AdvertisementPreview";
 import RegionFeaturedModal from "@/components/RegionFeaturedModal";
 import AdvertiserLogoUpload from "@/components/AdvertiserLogoUpload";
 import { AdImageUpload } from "@/components/AdImageUpload";
+import { AIDescriptionButton } from "@/components/AIDescriptionButton";
 import { Helmet } from "react-helmet";
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -1385,8 +1386,18 @@ const AdminAdvertising = () => {
                       </div>
 
                       <div>
-                        <Label>Description *</Label>
-                        <Textarea value={adForm.description} onChange={(e) => setAdForm({ ...adForm, description: e.target.value })} required rows={3} />
+                        <div className="flex items-center justify-between mb-2">
+                          <Label>Description *</Label>
+                          <AIDescriptionButton
+                            title={adForm.title}
+                            advertiserName={advertisers.find(a => a.id === adForm.advertiser_id)?.name}
+                            price={adForm.price}
+                            features={adForm.features}
+                            currentDescription={adForm.description}
+                            onDescriptionGenerated={(desc) => setAdForm({ ...adForm, description: desc })}
+                          />
+                        </div>
+                        <Textarea value={adForm.description} onChange={(e) => setAdForm({ ...adForm, description: e.target.value })} required rows={3} placeholder="Description de l'offre..." />
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
