@@ -27,6 +27,7 @@ import RegionFeaturedModal from "@/components/RegionFeaturedModal";
 import AdvertiserLogoUpload from "@/components/AdvertiserLogoUpload";
 import { AdImageUpload } from "@/components/AdImageUpload";
 import { AIDescriptionButton } from "@/components/AIDescriptionButton";
+import { FeatureEditor } from "@/components/FeatureEditor";
 import { Helmet } from "react-helmet";
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -1418,21 +1419,10 @@ const AdminAdvertising = () => {
 
                       <div>
                         <Label>Avantages</Label>
-                        <div className="flex gap-2 mb-2">
-                          <Input value={currentFeature} onChange={(e) => setCurrentFeature(e.target.value)} placeholder="Ajouter un avantage" onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())} />
-                          <Button type="button" onClick={addFeature}><Plus className="w-4 h-4" /></Button>
-                        </div>
-                        {adForm.features.length > 0 && (
-                          <div className="space-y-2">
-                            {adForm.features.map((f, i) => (
-                              <div key={i} className="flex items-center gap-2 p-2 bg-muted rounded">
-                                <Check className="w-4 h-4 text-green-600" />
-                                <span className="flex-1">{f}</span>
-                                <Button type="button" variant="ghost" size="sm" onClick={() => removeFeature(i)}><X className="w-4 h-4" /></Button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        <FeatureEditor
+                          features={adForm.features}
+                          onFeaturesChange={(features) => setAdForm({ ...adForm, features })}
+                        />
                       </div>
 
                       <div>

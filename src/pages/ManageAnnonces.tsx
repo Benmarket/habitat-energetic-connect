@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { Plus, Edit, Trash2, Megaphone, Star, Check, X, Eye, BarChart3, MousePointerClick, UserCheck, ArrowUpDown, Filter, Globe, AlertCircle, MapPin, Search } from "lucide-react";
 import AdvertisementPreview from "@/components/AdvertisementPreview";
 import { AIDescriptionButton } from "@/components/AIDescriptionButton";
+import { FeatureEditor } from "@/components/FeatureEditor";
 import AdStatsModal from "@/components/AdStatsModal";
 import { Helmet } from "react-helmet";
 import { format } from "date-fns";
@@ -763,33 +764,10 @@ const ManageAnnonces = () => {
 
                     <div>
                       <Label>Avantages inclus</Label>
-                      <div className="flex gap-2 mb-2">
-                        <Input
-                          value={currentFeature}
-                          onChange={(e) => setCurrentFeature(e.target.value)}
-                          placeholder="Ex: Installation par professionnel RGE"
-                          onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
-                        />
-                        <Button type="button" onClick={addFeature}>
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      <div className="space-y-2">
-                        {formData.features.map((feature, index) => (
-                          <div key={index} className="flex items-center gap-2 p-2 bg-muted rounded">
-                            <Check className="w-4 h-4 text-green-600" />
-                            <span className="flex-1">{feature}</span>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeFeature(index)}
-                            >
-                              <X className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
+                      <FeatureEditor
+                        features={formData.features}
+                        onFeaturesChange={(features) => setFormData({ ...formData, features })}
+                      />
                     </div>
 
                     <div>
