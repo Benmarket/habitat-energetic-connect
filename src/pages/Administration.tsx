@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
@@ -6,19 +6,65 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle, Bot, FileCheck, FileText, Mail, Newspaper, BookOpen, HandCoins, Megaphone, Send, MessageSquare, Shield, Calculator, Smartphone, Layers, MousePointerClick, LayoutTemplate } from "lucide-react";
+import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle, Bot, FileCheck, FileText, Mail, Newspaper, BookOpen, HandCoins, Megaphone, Send, MessageSquare, Shield, Calculator, Smartphone, Layers, MousePointerClick, LayoutTemplate, BarChart3 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import TrafficDashboard from "@/components/TrafficDashboard";
 
 const Administration = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [activeSection, setActiveSection] = useState<string>("");
+
+  const sections = [
+    { id: "utilisateurs", label: "Utilisateurs", icon: Users, color: "bg-red-500" },
+    { id: "contenus", label: "Contenus", icon: Newspaper, color: "bg-sky-500" },
+    { id: "leads-parcours", label: "Leads & Parcours", icon: Bot, color: "bg-orange-500" },
+    { id: "support", label: "Support", icon: MessageCircle, color: "bg-green-500" },
+    { id: "communication", label: "Communication", icon: Mail, color: "bg-purple-500" },
+    { id: "annonces", label: "Annonces", icon: Megaphone, color: "bg-amber-500" },
+    { id: "landing-pages", label: "Landing Pages", icon: FileText, color: "bg-cyan-500" },
+    { id: "app", label: "App", icon: Smartphone, color: "bg-primary" },
+    { id: "parametres", label: "Paramètres", icon: Settings, color: "bg-slate-700" },
+    { id: "logs", label: "Logs", icon: Shield, color: "bg-slate-500" },
+  ];
 
   useEffect(() => {
     if (!loading && !user) {
       navigate("/connexion");
     }
   }, [user, loading, navigate]);
+
+  // Track active section on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const sectionElements = sections.map(s => ({
+        id: s.id,
+        element: document.getElementById(s.id)
+      }));
+
+      for (const section of sectionElements.reverse()) {
+        if (section.element) {
+          const rect = section.element.getBoundingClientRect();
+          if (rect.top <= 150) {
+            setActiveSection(section.id);
+            return;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   if (loading || !user) {
     return (
@@ -37,8 +83,42 @@ const Administration = () => {
       <div className="min-h-screen bg-background">
         <Header />
         
+        {/* Mini Navigation Sidebar - Desktop Only */}
+        <TooltipProvider delayDuration={100}>
+          <div className="fixed left-4 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col gap-2 p-2 bg-background/80 backdrop-blur-md border rounded-2xl shadow-lg">
+            {sections.map((section) => {
+              const Icon = section.icon;
+              const isActive = activeSection === section.id;
+              return (
+                <Tooltip key={section.id}>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => scrollToSection(section.id)}
+                      className={`
+                        relative p-2.5 rounded-xl transition-all duration-300 group
+                        ${isActive 
+                          ? `${section.color} text-white shadow-lg` 
+                          : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+                        }
+                      `}
+                    >
+                      <Icon className="w-5 h-5" />
+                      {isActive && (
+                        <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-1 h-4 bg-white rounded-full" />
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="font-medium">
+                    {section.label}
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+          </div>
+        </TooltipProvider>
+
         <main className="pt-20">
-          <div className="container mx-auto px-4 py-6 md:py-8">
+          <div className="container mx-auto px-4 py-6 md:py-8 lg:pl-20">
             <Link 
               to="/tableau-de-bord"
               className="inline-flex items-center gap-2 text-sm md:text-base text-muted-foreground hover:text-foreground mb-6 transition-colors"
@@ -61,7 +141,7 @@ const Administration = () => {
             <TrafficDashboard />
 
             {/* 1. Gestion des Utilisateurs - ROUGE */}
-            <div className="mt-8 md:mt-12 animate-fade-in">
+            <div id="utilisateurs" className="mt-8 md:mt-12 animate-fade-in scroll-mt-24">
               <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
                 <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-red-500 to-red-600 rounded-full"></div>
                 <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Gestion des Utilisateurs</h2>
@@ -91,7 +171,7 @@ const Administration = () => {
             </div>
 
             {/* 2. Gestion des Contenus - BLEU CLAIR */}
-            <div className="mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <div id="contenus" className="mt-8 md:mt-12 animate-fade-in scroll-mt-24" style={{ animationDelay: '0.1s' }}>
               <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
                 <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-sky-500 to-sky-600 rounded-full"></div>
                 <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Gestion des Contenus</h2>
@@ -205,7 +285,7 @@ const Administration = () => {
             </div>
 
             {/* 3. Leads & Parcours - ORANGE */}
-            <div className="mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <div id="leads-parcours" className="mt-8 md:mt-12 animate-fade-in scroll-mt-24" style={{ animationDelay: '0.2s' }}>
               <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
                 <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full"></div>
                 <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Leads & Parcours</h2>
@@ -300,7 +380,7 @@ const Administration = () => {
             </div>
 
             {/* 4. Support - VERT */}
-            <div className="mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <div id="support" className="mt-8 md:mt-12 animate-fade-in scroll-mt-24" style={{ animationDelay: '0.3s' }}>
               <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
                 <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-green-500 to-green-600 rounded-full"></div>
                 <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Support</h2>
@@ -330,7 +410,7 @@ const Administration = () => {
             </div>
 
             {/* 5. Communication - VIOLET */}
-            <div className="mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <div id="communication" className="mt-8 md:mt-12 animate-fade-in scroll-mt-24" style={{ animationDelay: '0.4s' }}>
               <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
                 <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full"></div>
                 <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Communication</h2>
@@ -406,7 +486,7 @@ const Administration = () => {
             </div>
 
             {/* 6. Gestion des Annonces - JAUNE */}
-            <div className="mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+            <div id="annonces" className="mt-8 md:mt-12 animate-fade-in scroll-mt-24" style={{ animationDelay: '0.5s' }}>
               <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
                 <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full"></div>
                 <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Gestion des Annonces</h2>
@@ -436,7 +516,7 @@ const Administration = () => {
             </div>
 
             {/* 7. Gestion des Landing Pages - TURQUOISE */}
-            <div className="mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <div id="landing-pages" className="mt-8 md:mt-12 animate-fade-in scroll-mt-24" style={{ animationDelay: '0.6s' }}>
               <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
                 <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-full"></div>
                 <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Gestion des Landing Pages</h2>
@@ -466,7 +546,7 @@ const Administration = () => {
             </div>
 
             {/* 8. Gestion de l'App Prime énergies - VERT PRIME */}
-            <div className="mt-8 md:mt-12 animate-fade-in" style={{ animationDelay: '0.65s' }}>
+            <div id="app" className="mt-8 md:mt-12 animate-fade-in scroll-mt-24" style={{ animationDelay: '0.65s' }}>
               <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
                 <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-primary to-primary/80 rounded-full"></div>
                 <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Gestion de l'App</h2>
@@ -501,7 +581,7 @@ const Administration = () => {
             </div>
 
             {/* 9. Paramètres généraux - GRIS FONCÉ */}
-            <div className="mt-8 md:mt-12 mb-8 md:mb-12 animate-fade-in" style={{ animationDelay: '0.7s' }}>
+            <div id="parametres" className="mt-8 md:mt-12 mb-8 md:mb-12 animate-fade-in scroll-mt-24" style={{ animationDelay: '0.7s' }}>
               <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
                 <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-slate-700 to-slate-800 rounded-full"></div>
                 <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Paramètres généraux</h2>
@@ -573,7 +653,7 @@ const Administration = () => {
             </div>
 
             {/* 10. Gestion des Logs */}
-            <div className="mt-12 mb-12 animate-fade-in" style={{ animationDelay: '0.85s' }}>
+            <div id="logs" className="mt-12 mb-12 animate-fade-in scroll-mt-24" style={{ animationDelay: '0.85s' }}>
               <div className="flex items-center gap-3 mb-6">
                 <div className="h-1 w-12 bg-gradient-to-r from-slate-500 to-slate-600 rounded-full"></div>
                 <h2 className="text-2xl font-bold">Gestion des Logs</h2>
