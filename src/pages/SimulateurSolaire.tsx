@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, ArrowLeft, User, MapPin, Sun, Check, Loader2, Search, Zap, Flame, Droplets, Home } from "lucide-react";
+import { ArrowRight, ArrowLeft, User, MapPin, Sun, Check, Loader2, Search, Zap, Flame, Droplets, Home, Car, Waves, Wind, Thermometer, UtensilsCrossed, Shirt, SkipForward, Wrench, Info } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -49,10 +49,13 @@ interface FormData {
   typeChauffageEau: string;
   surfaceHabitat: string;
   useDefaultFacture: boolean;
+  // Step 3b: Equipment
+  equipments: string[];
 }
 
 const SimulateurSolaire = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [consumptionSubStep, setConsumptionSubStep] = useState<'profile' | 'equipments'>('profile');
   const [regions, setRegions] = useState<SolarRegion[]>([]);
   const [loading, setLoading] = useState(true);
   const [addressValidated, setAddressValidated] = useState(false);
@@ -81,7 +84,19 @@ const SimulateurSolaire = () => {
     typeChauffageEau: "",
     surfaceHabitat: "",
     useDefaultFacture: false,
+    // Step 3b: Equipment
+    equipments: [],
   });
+
+  // Equipment options
+  const equipmentOptions = [
+    { id: 'vehicule-electrique', label: 'Véhicule électrique', icon: Car },
+    { id: 'piscine-jacuzzi', label: 'Piscine ou Jacuzzi', icon: Waves },
+    { id: 'climatisation', label: 'Climatisation', icon: Wind },
+    { id: 'ballon-electrique', label: "Ballon d'eau chaude électrique", icon: Zap },
+    { id: 'lave-vaisselle', label: 'Lave vaisselle', icon: UtensilsCrossed },
+    { id: 'seche-linge', label: 'Sèche linge', icon: Shirt },
+  ];
 
   const totalSteps = 7;
 
@@ -307,15 +322,46 @@ const SimulateurSolaire = () => {
   };
 
   const handleNext = () => {
+    // Handle sub-steps within step 3
+    if (currentStep === 3 && consumptionSubStep === 'profile' && canProceedToNextStep()) {
+      setConsumptionSubStep('equipments');
+      return;
+    }
+    
     if (currentStep < totalSteps && canProceedToNextStep()) {
       setCurrentStep(prev => prev + 1);
+      // Reset consumption sub-step when leaving step 3
+      if (currentStep === 3) {
+        setConsumptionSubStep('profile');
+      }
     }
   };
 
   const handlePrevious = () => {
+    // Handle sub-steps within step 3
+    if (currentStep === 3 && consumptionSubStep === 'equipments') {
+      setConsumptionSubStep('profile');
+      return;
+    }
+    
     if (currentStep > 1) {
       setCurrentStep(prev => prev - 1);
     }
+  };
+
+  const toggleEquipment = (equipmentId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      equipments: prev.equipments.includes(equipmentId)
+        ? prev.equipments.filter(e => e !== equipmentId)
+        : [...prev.equipments, equipmentId]
+    }));
+  };
+
+  const skipEquipmentStep = () => {
+    setFormData(prev => ({ ...prev, equipments: [] }));
+    setCurrentStep(prev => prev + 1);
+    setConsumptionSubStep('profile');
   };
 
   const progressValue = (currentStep / totalSteps) * 100;
@@ -653,186 +699,279 @@ const SimulateurSolaire = () => {
           {currentStep === 3 && (
             <div className="grid gap-6 lg:grid-cols-5">
               {/* Left Column - Form */}
-              <Card className="shadow-xl border-0 lg:col-span-3">
-                <CardHeader className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-t-lg">
-                  <div className="flex items-center gap-3">
-                    <Zap className="w-6 h-6" />
+              {consumptionSubStep === 'profile' ? (
+                <Card className="shadow-xl border-0 lg:col-span-3">
+                  <CardHeader className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-t-lg">
+                    <div className="flex items-center gap-3">
+                      <Zap className="w-6 h-6" />
+                      <div>
+                        <CardTitle className="text-xl">Profil de consommation</CardTitle>
+                        <CardDescription className="text-white/80">
+                          Informations sur votre consommation électrique
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-5">
+                    {/* Tarif kWh - auto-filled from region */}
+                    <div className="space-y-2">
+                      <Label htmlFor="tarifKwh" className="text-sm font-semibold">
+                        Tarif actuel (€/kWh) <span className="text-destructive">*</span>
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="tarifKwh"
+                          type="number"
+                          step="0.001"
+                          placeholder="0.174"
+                          value={formData.tarifKwh}
+                          onChange={(e) => handleInputChange("tarifKwh", e.target.value)}
+                          className="h-12 bg-green-50 border-green-200"
+                        />
+                        {formData.tarifKwh && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <Check className="w-4 h-4 text-green-600" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Tarif pré-rempli selon votre région ({formData.detectedRegion})
+                      </p>
+                    </div>
+
+                    {/* Facture annuelle & Consommation annuelle */}
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="factureAnnuelle" className="text-sm font-semibold">
+                          Facture annuelle (€) <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="factureAnnuelle"
+                          type="number"
+                          placeholder="1400"
+                          value={formData.factureAnnuelle}
+                          onChange={(e) => handleInputChange("factureAnnuelle", e.target.value)}
+                          className="h-12"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="consommationAnnuelle" className="text-sm font-semibold">
+                          Consommation annuelle (kWh) <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="consommationAnnuelle"
+                          type="number"
+                          placeholder="8000"
+                          value={formData.consommationAnnuelle}
+                          onChange={(e) => handleInputChange("consommationAnnuelle", e.target.value)}
+                          className="h-12"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Info box for auto-calculation - Always visible */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
+                      <Zap className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+                      <p className="text-xs text-blue-700">
+                        <strong>Calcul automatique :</strong> Facture annuelle = Consommation × Tarif kWh
+                      </p>
+                    </div>
+
+                    {/* Compteur & Mono/Tri */}
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold">
+                          Compteur <span className="text-destructive">*</span>
+                        </Label>
+                        <Select 
+                          value={formData.compteur} 
+                          onValueChange={(value) => handleInputChange("compteur", value)}
+                        >
+                          <SelectTrigger className="h-12">
+                            <SelectValue placeholder="Sélectionnez le compteur" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="linky">Linky</SelectItem>
+                            <SelectItem value="electronique">Électronique</SelectItem>
+                            <SelectItem value="electromecanique">Électromécanique</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold">
+                          Mono/Tri <span className="text-destructive">*</span>
+                        </Label>
+                        <Select 
+                          value={formData.monoTri} 
+                          onValueChange={(value) => handleInputChange("monoTri", value)}
+                        >
+                          <SelectTrigger className="h-12">
+                            <SelectValue placeholder="Sélectionnez le type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="monophase">Monophasé</SelectItem>
+                            <SelectItem value="triphase">Triphasé</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Type de chauffage (optional) */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">
+                        Type de chauffage <span className="text-muted-foreground text-xs">(facultatif)</span>
+                      </Label>
+                      <Select 
+                        value={formData.typeChauffage} 
+                        onValueChange={(value) => handleInputChange("typeChauffage", value)}
+                      >
+                        <SelectTrigger className="h-12">
+                          <SelectValue placeholder="Sélectionnez un type de chauffage" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="electrique">Électrique</SelectItem>
+                          <SelectItem value="gaz">Gaz</SelectItem>
+                          <SelectItem value="fioul">Fioul</SelectItem>
+                          <SelectItem value="bois">Bois / Granulés</SelectItem>
+                          <SelectItem value="pompe-chaleur">Pompe à chaleur</SelectItem>
+                          <SelectItem value="autre">Autre</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Type de chauffage eau (optional) */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">
+                        Type de chauffage de l'eau <span className="text-muted-foreground text-xs">(facultatif)</span>
+                      </Label>
+                      <Select 
+                        value={formData.typeChauffageEau} 
+                        onValueChange={(value) => handleInputChange("typeChauffageEau", value)}
+                      >
+                        <SelectTrigger className="h-12">
+                          <SelectValue placeholder="Sélectionnez un type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="electrique">Ballon électrique</SelectItem>
+                          <SelectItem value="gaz">Chauffe-eau gaz</SelectItem>
+                          <SelectItem value="thermodynamique">Thermodynamique</SelectItem>
+                          <SelectItem value="solaire">Chauffe-eau solaire</SelectItem>
+                          <SelectItem value="autre">Autre</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Surface habitat (optional) */}
+                    <div className="space-y-2">
+                      <Label htmlFor="surfaceHabitat" className="text-sm font-semibold">
+                        Surface habitat (m²) <span className="text-muted-foreground text-xs">(facultatif)</span>
+                      </Label>
+                      <Input
+                        id="surfaceHabitat"
+                        type="number"
+                        placeholder="120"
+                        value={formData.surfaceHabitat}
+                        onChange={(e) => handleInputChange("surfaceHabitat", e.target.value)}
+                        className="h-12"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Surface habitable de votre logement en mètres carrés
+                      </p>
+                    </div>
+
+                    <div className="flex justify-between pt-4">
+                      <Button
+                        variant="outline"
+                        onClick={handlePrevious}
+                        className="px-6 py-6"
+                      >
+                        <ArrowLeft className="w-5 h-5 mr-2" />
+                        Précédent
+                      </Button>
+                      <Button
+                        onClick={handleNext}
+                        disabled={!canProceedToNextStep()}
+                        className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-8 py-6 text-base"
+                      >
+                        Suivant
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                /* Equipment Selection Sub-Step */
+                <div className="lg:col-span-3 space-y-6">
+                  <div className="text-center space-y-2">
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      Quels équipements possédez-vous dans la liste suivante ?
+                    </h2>
+                    <p className="text-muted-foreground">
+                      Cette étape est facultative et nous aide à mieux estimer vos besoins énergétiques.
+                    </p>
+                  </div>
+
+                  {/* Skip Button */}
+                  <div className="flex justify-center">
+                    <Button
+                      variant="secondary"
+                      onClick={skipEquipmentStep}
+                      className="bg-gray-800 hover:bg-gray-700 text-white px-6 py-3"
+                    >
+                      <SkipForward className="w-4 h-4 mr-2" />
+                      Ne souhaite pas renseigner
+                    </Button>
+                  </div>
+
+                  {/* Equipment Grid */}
+                  <div className="grid grid-cols-2 gap-4">
+                    {equipmentOptions.map((equipment) => {
+                      const isSelected = formData.equipments.includes(equipment.id);
+                      const IconComponent = equipment.icon;
+                      
+                      return (
+                        <button
+                          key={equipment.id}
+                          onClick={() => toggleEquipment(equipment.id)}
+                          className={`relative p-6 rounded-xl border-2 transition-all duration-200 text-center hover:shadow-md ${
+                            isSelected 
+                              ? 'border-orange-500 bg-orange-50' 
+                              : 'border-gray-200 bg-white hover:border-gray-300'
+                          }`}
+                        >
+                          <div className={`w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center ${
+                            isSelected ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-500'
+                          }`}>
+                            <IconComponent className="w-7 h-7" />
+                          </div>
+                          <span className={`font-medium ${isSelected ? 'text-gray-900' : 'text-gray-600'}`}>
+                            {equipment.label}
+                          </span>
+                          {isSelected && (
+                            <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
+                              <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center">
+                                <Check className="w-3 h-3 text-white" />
+                              </div>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Info Box */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+                    <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                     <div>
-                      <CardTitle className="text-xl">Profil de consommation</CardTitle>
-                      <CardDescription className="text-white/80">
-                        Informations sur votre consommation électrique
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6 space-y-5">
-                  {/* Tarif kWh - auto-filled from region */}
-                  <div className="space-y-2">
-                    <Label htmlFor="tarifKwh" className="text-sm font-semibold">
-                      Tarif actuel (€/kWh) <span className="text-destructive">*</span>
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="tarifKwh"
-                        type="number"
-                        step="0.001"
-                        placeholder="0.174"
-                        value={formData.tarifKwh}
-                        onChange={(e) => handleInputChange("tarifKwh", e.target.value)}
-                        className="h-12 bg-green-50 border-green-200"
-                      />
-                      {formData.tarifKwh && (
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                          <Check className="w-4 h-4 text-green-600" />
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Tarif pré-rempli selon votre région ({formData.detectedRegion})
-                    </p>
-                  </div>
-
-                  {/* Facture annuelle & Consommation annuelle */}
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="factureAnnuelle" className="text-sm font-semibold">
-                        Facture annuelle (€) <span className="text-destructive">*</span>
-                      </Label>
-                      <Input
-                        id="factureAnnuelle"
-                        type="number"
-                        placeholder="1400"
-                        value={formData.factureAnnuelle}
-                        onChange={(e) => handleInputChange("factureAnnuelle", e.target.value)}
-                        className="h-12"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="consommationAnnuelle" className="text-sm font-semibold">
-                        Consommation annuelle (kWh) <span className="text-destructive">*</span>
-                      </Label>
-                      <Input
-                        id="consommationAnnuelle"
-                        type="number"
-                        placeholder="8000"
-                        value={formData.consommationAnnuelle}
-                        onChange={(e) => handleInputChange("consommationAnnuelle", e.target.value)}
-                        className="h-12"
-                      />
+                      <p className="font-semibold text-blue-800 text-sm">Information</p>
+                      <p className="text-sm text-blue-700">
+                        Sélectionnez les équipements que vous possédez. Plusieurs choix possibles.
+                      </p>
                     </div>
                   </div>
 
-                  {/* Info box for auto-calculation - Always visible */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
-                    <Zap className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
-                    <p className="text-xs text-blue-700">
-                      <strong>Calcul automatique :</strong> Facture annuelle = Consommation × Tarif kWh
-                    </p>
-                  </div>
-
-                  {/* Compteur & Mono/Tri */}
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold">
-                        Compteur <span className="text-destructive">*</span>
-                      </Label>
-                      <Select 
-                        value={formData.compteur} 
-                        onValueChange={(value) => handleInputChange("compteur", value)}
-                      >
-                        <SelectTrigger className="h-12">
-                          <SelectValue placeholder="Sélectionnez le compteur" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="linky">Linky</SelectItem>
-                          <SelectItem value="electronique">Électronique</SelectItem>
-                          <SelectItem value="electromecanique">Électromécanique</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold">
-                        Mono/Tri <span className="text-destructive">*</span>
-                      </Label>
-                      <Select 
-                        value={formData.monoTri} 
-                        onValueChange={(value) => handleInputChange("monoTri", value)}
-                      >
-                        <SelectTrigger className="h-12">
-                          <SelectValue placeholder="Sélectionnez le type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="monophase">Monophasé</SelectItem>
-                          <SelectItem value="triphase">Triphasé</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  {/* Type de chauffage (optional) */}
-                  <div className="space-y-2">
-                    <Label className="text-sm font-semibold">
-                      Type de chauffage <span className="text-muted-foreground text-xs">(facultatif)</span>
-                    </Label>
-                    <Select 
-                      value={formData.typeChauffage} 
-                      onValueChange={(value) => handleInputChange("typeChauffage", value)}
-                    >
-                      <SelectTrigger className="h-12">
-                        <SelectValue placeholder="Sélectionnez un type de chauffage" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="electrique">Électrique</SelectItem>
-                        <SelectItem value="gaz">Gaz</SelectItem>
-                        <SelectItem value="fioul">Fioul</SelectItem>
-                        <SelectItem value="bois">Bois / Granulés</SelectItem>
-                        <SelectItem value="pompe-chaleur">Pompe à chaleur</SelectItem>
-                        <SelectItem value="autre">Autre</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Type de chauffage eau (optional) */}
-                  <div className="space-y-2">
-                    <Label className="text-sm font-semibold">
-                      Type de chauffage de l'eau <span className="text-muted-foreground text-xs">(facultatif)</span>
-                    </Label>
-                    <Select 
-                      value={formData.typeChauffageEau} 
-                      onValueChange={(value) => handleInputChange("typeChauffageEau", value)}
-                    >
-                      <SelectTrigger className="h-12">
-                        <SelectValue placeholder="Sélectionnez un type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="electrique">Ballon électrique</SelectItem>
-                        <SelectItem value="gaz">Chauffe-eau gaz</SelectItem>
-                        <SelectItem value="thermodynamique">Thermodynamique</SelectItem>
-                        <SelectItem value="solaire">Chauffe-eau solaire</SelectItem>
-                        <SelectItem value="autre">Autre</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Surface habitat (optional) */}
-                  <div className="space-y-2">
-                    <Label htmlFor="surfaceHabitat" className="text-sm font-semibold">
-                      Surface habitat (m²) <span className="text-muted-foreground text-xs">(facultatif)</span>
-                    </Label>
-                    <Input
-                      id="surfaceHabitat"
-                      type="number"
-                      placeholder="120"
-                      value={formData.surfaceHabitat}
-                      onChange={(e) => handleInputChange("surfaceHabitat", e.target.value)}
-                      className="h-12"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Surface habitable de votre logement en mètres carrés
-                    </p>
-                  </div>
-
-                  <div className="flex justify-between pt-4">
+                  {/* Navigation Buttons */}
+                  <div className="flex justify-between pt-2">
                     <Button
                       variant="outline"
                       onClick={handlePrevious}
@@ -843,175 +982,260 @@ const SimulateurSolaire = () => {
                     </Button>
                     <Button
                       onClick={handleNext}
-                      disabled={!canProceedToNextStep()}
                       className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-8 py-6 text-base"
                     >
                       Suivant
                       <ArrowRight className="w-5 h-5 ml-2" />
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              )}
 
               {/* Right Column - Summary Panel */}
               <div className="lg:col-span-2 space-y-4">
-                {/* Header Card */}
-                <Card className="overflow-hidden border-0 shadow-lg">
-                  <div className="bg-gradient-to-br from-orange-500 to-yellow-500 p-6 text-white text-center">
-                    <div className="w-12 h-12 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
-                      <Zap className="w-6 h-6" />
+                {consumptionSubStep === 'profile' ? (
+                  <>
+                    {/* Header Card - Profile */}
+                    <Card className="overflow-hidden border-0 shadow-lg">
+                      <div className="bg-gradient-to-br from-orange-500 to-yellow-500 p-6 text-white text-center">
+                        <div className="w-12 h-12 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
+                          <Zap className="w-6 h-6" />
+                        </div>
+                        <h3 className="font-bold text-lg">Profil de consommation</h3>
+                        <p className="text-sm text-white/80 mt-1">
+                          {canProceedToNextStep() ? (
+                            <span className="flex items-center justify-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-green-400" />
+                              Profil complet
+                            </span>
+                          ) : (
+                            <span className="flex items-center justify-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-yellow-300" />
+                              En cours de saisie
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    </Card>
+
+                    {/* Raccordement électrique */}
+                    <Card className="border shadow-sm">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-semibold text-sm">Raccordement électrique</h4>
+                          {formData.compteur && formData.monoTri ? (
+                            <span className="text-xs text-green-600 flex items-center gap-1">
+                              <Check className="w-3 h-3" /> Renseigné
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">À compléter</span>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className={`p-3 rounded-lg border ${formData.compteur ? 'bg-green-50 border-green-200' : 'bg-muted/50'}`}>
+                            <p className="text-xs text-muted-foreground uppercase">Compteur</p>
+                            <p className="font-semibold text-sm">
+                              {formData.compteur === 'linky' ? 'Linky' : 
+                               formData.compteur === 'electronique' ? 'Électronique' :
+                               formData.compteur === 'electromecanique' ? 'Électromécanique' : 
+                               'Non renseigné'}
+                            </p>
+                          </div>
+                          <div className={`p-3 rounded-lg border ${formData.monoTri ? 'bg-green-50 border-green-200' : 'bg-muted/50'}`}>
+                            <p className="text-xs text-muted-foreground uppercase">Mono / Tri</p>
+                            <p className="font-semibold text-sm">
+                              {formData.monoTri === 'monophase' ? 'Monophasé' : 
+                               formData.monoTri === 'triphase' ? 'Triphasé' : 
+                               'Non renseigné'}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Data Summary Cards */}
+                    <div className="space-y-2">
+                      {/* Tarif */}
+                      <div className={`p-3 rounded-lg border flex items-center gap-3 ${formData.tarifKwh ? 'bg-orange-50 border-orange-200' : 'bg-muted/30'}`}>
+                        <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center shrink-0">
+                          <span className="text-white text-xs font-bold">€</span>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                            Tarif actuel {formData.tarifKwh && <Check className="w-3 h-3 text-green-600" />}
+                          </p>
+                          <p className="font-bold">{formData.tarifKwh ? `${formData.tarifKwh} €/kWh` : 'Non renseigné'}</p>
+                        </div>
+                      </div>
+
+                      {/* Facture annuelle */}
+                      <div className={`p-3 rounded-lg border flex items-center gap-3 ${formData.factureAnnuelle ? 'bg-blue-50 border-blue-200' : 'bg-muted/30'}`}>
+                        <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
+                          <Home className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                            Facture annuelle {formData.factureAnnuelle && <Check className="w-3 h-3 text-green-600" />}
+                          </p>
+                          <p className="font-bold">{formData.factureAnnuelle ? `${formData.factureAnnuelle} €` : 'Non renseigné'}</p>
+                        </div>
+                      </div>
+
+                      {/* Consommation annuelle */}
+                      <div className={`p-3 rounded-lg border flex items-center gap-3 ${formData.consommationAnnuelle ? 'bg-green-50 border-green-200' : 'bg-muted/30'}`}>
+                        <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+                          <Zap className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                            Consommation annuelle {formData.consommationAnnuelle && <Check className="w-3 h-3 text-green-600" />}
+                          </p>
+                          <p className="font-bold">{formData.consommationAnnuelle ? `${formData.consommationAnnuelle} kWh` : 'Non renseigné'}</p>
+                        </div>
+                      </div>
+
+                      {/* Type de chauffage */}
+                      {formData.typeChauffage && (
+                        <div className="p-3 rounded-lg border bg-amber-50 border-amber-200 flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center shrink-0">
+                            <Flame className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                              Type de chauffage <Check className="w-3 h-3 text-green-600" />
+                            </p>
+                            <p className="font-bold capitalize">{formData.typeChauffage}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Chauffage eau */}
+                      {formData.typeChauffageEau && (
+                        <div className="p-3 rounded-lg border bg-cyan-50 border-cyan-200 flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center shrink-0">
+                            <Droplets className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                              Chauffage de l'eau <Check className="w-3 h-3 text-green-600" />
+                            </p>
+                            <p className="font-bold capitalize">
+                              {formData.typeChauffageEau === 'solaire' ? 'Solaire' : formData.typeChauffageEau}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <h3 className="font-bold text-lg">Profil de consommation</h3>
-                    <p className="text-sm text-white/80 mt-1">
-                      {canProceedToNextStep() ? (
-                        <span className="flex items-center justify-center gap-2">
+
+                    {/* Consumption Analysis */}
+                    {formData.consommationAnnuelle && formData.factureAnnuelle && (
+                      <Card className="border shadow-sm">
+                        <CardContent className="p-4">
+                          <h4 className="font-semibold text-sm text-center mb-3">Analyse de consommation</h4>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="text-center">
+                              <p className="text-lg font-bold text-blue-600">≈ {getConsumptionAnalysis().consoMensuelle} kWh</p>
+                              <p className="text-xs text-muted-foreground">/ mois</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-lg font-bold text-orange-600">≈ {getConsumptionAnalysis().coutMensuel} €</p>
+                              <p className="text-xs text-muted-foreground">/ mois</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-lg font-bold text-blue-600">≈ {getConsumptionAnalysis().consoJournaliere} kWh</p>
+                              <p className="text-xs text-muted-foreground">/ jour</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-lg font-bold text-orange-600">≈ {getConsumptionAnalysis().coutJournalier} €</p>
+                              <p className="text-xs text-muted-foreground">/ jour</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {/* Header Card - Equipment */}
+                    <Card className="overflow-hidden border-0 shadow-lg">
+                      <div className="bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500 p-6 text-white text-center relative">
+                        <div className="absolute top-4 right-4 w-12 h-12 rounded-full border-4 border-white/30 flex items-center justify-center">
+                          <span className="text-xs font-bold">100%</span>
+                        </div>
+                        <div className="w-12 h-12 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
+                          <Wrench className="w-6 h-6" />
+                        </div>
+                        <h3 className="font-bold text-lg">Équipements sélectionnés</h3>
+                        <p className="text-sm text-white/80 mt-1 flex items-center justify-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-green-400" />
-                          Profil complet
-                        </span>
-                      ) : (
-                        <span className="flex items-center justify-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-yellow-300" />
-                          En cours de saisie
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                </Card>
-
-                {/* Raccordement électrique */}
-                <Card className="border shadow-sm">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold text-sm">Raccordement électrique</h4>
-                      {formData.compteur && formData.monoTri ? (
-                        <span className="text-xs text-green-600 flex items-center gap-1">
-                          <Check className="w-3 h-3" /> Renseigné
-                        </span>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">À compléter</span>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className={`p-3 rounded-lg border ${formData.compteur ? 'bg-green-50 border-green-200' : 'bg-muted/50'}`}>
-                        <p className="text-xs text-muted-foreground uppercase">Compteur</p>
-                        <p className="font-semibold text-sm">
-                          {formData.compteur === 'linky' ? 'Linky' : 
-                           formData.compteur === 'electronique' ? 'Électronique' :
-                           formData.compteur === 'electromecanique' ? 'Électromécanique' : 
-                           'Non renseigné'}
+                          {formData.equipments.length} équipement(s)
                         </p>
                       </div>
-                      <div className={`p-3 rounded-lg border ${formData.monoTri ? 'bg-green-50 border-green-200' : 'bg-muted/50'}`}>
-                        <p className="text-xs text-muted-foreground uppercase">Mono / Tri</p>
-                        <p className="font-semibold text-sm">
-                          {formData.monoTri === 'monophase' ? 'Monophasé' : 
-                           formData.monoTri === 'triphase' ? 'Triphasé' : 
-                           'Non renseigné'}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </Card>
 
-                {/* Data Summary Cards */}
-                <div className="space-y-2">
-                  {/* Tarif */}
-                  <div className={`p-3 rounded-lg border flex items-center gap-3 ${formData.tarifKwh ? 'bg-orange-50 border-orange-200' : 'bg-muted/30'}`}>
-                    <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center shrink-0">
-                      <span className="text-white text-xs font-bold">€</span>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
-                        Tarif actuel {formData.tarifKwh && <Check className="w-3 h-3 text-green-600" />}
-                      </p>
-                      <p className="font-bold">{formData.tarifKwh ? `${formData.tarifKwh} €/kWh` : 'Non renseigné'}</p>
-                    </div>
-                  </div>
-
-                  {/* Facture annuelle */}
-                  <div className={`p-3 rounded-lg border flex items-center gap-3 ${formData.factureAnnuelle ? 'bg-blue-50 border-blue-200' : 'bg-muted/30'}`}>
-                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
-                      <Home className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
-                        Facture annuelle {formData.factureAnnuelle && <Check className="w-3 h-3 text-green-600" />}
-                      </p>
-                      <p className="font-bold">{formData.factureAnnuelle ? `${formData.factureAnnuelle} €` : 'Non renseigné'}</p>
-                    </div>
-                  </div>
-
-                  {/* Consommation annuelle */}
-                  <div className={`p-3 rounded-lg border flex items-center gap-3 ${formData.consommationAnnuelle ? 'bg-green-50 border-green-200' : 'bg-muted/30'}`}>
-                    <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
-                      <Zap className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
-                        Consommation annuelle {formData.consommationAnnuelle && <Check className="w-3 h-3 text-green-600" />}
-                      </p>
-                      <p className="font-bold">{formData.consommationAnnuelle ? `${formData.consommationAnnuelle} kWh` : 'Non renseigné'}</p>
-                    </div>
-                  </div>
-
-                  {/* Type de chauffage */}
-                  {formData.typeChauffage && (
-                    <div className="p-3 rounded-lg border bg-amber-50 border-amber-200 flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center shrink-0">
-                        <Flame className="w-5 h-5 text-white" />
+                    {/* Selected Equipment List */}
+                    {formData.equipments.length === 0 ? (
+                      <Card className="border shadow-sm">
+                        <CardContent className="p-6 text-center">
+                          <Wrench className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
+                          <p className="font-medium text-gray-600">Aucun équipement sélectionné</p>
+                          <p className="text-sm text-muted-foreground">Cette étape est facultative</p>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <div className="space-y-2">
+                        {formData.equipments.map((equipId) => {
+                          const equipment = equipmentOptions.find(e => e.id === equipId);
+                          if (!equipment) return null;
+                          const IconComponent = equipment.icon;
+                          
+                          return (
+                            <div key={equipId} className="p-3 rounded-lg border bg-white shadow-sm flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
+                                  <IconComponent className="w-5 h-5 text-orange-600" />
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-sm">{equipment.label}</p>
+                                  <p className="text-xs text-orange-600 uppercase">Équipement détecté</p>
+                                </div>
+                              </div>
+                              <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                                <Check className="w-4 h-4 text-white" />
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
-                          Type de chauffage <Check className="w-3 h-3 text-green-600" />
-                        </p>
-                        <p className="font-bold capitalize">{formData.typeChauffage}</p>
-                      </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Chauffage eau */}
-                  {formData.typeChauffageEau && (
-                    <div className="p-3 rounded-lg border bg-cyan-50 border-cyan-200 flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center shrink-0">
-                        <Droplets className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
-                          Chauffage de l'eau <Check className="w-3 h-3 text-green-600" />
-                        </p>
-                        <p className="font-bold capitalize">
-                          {formData.typeChauffageEau === 'solaire' ? 'Solaire' : formData.typeChauffageEau}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Consumption Analysis */}
-                {formData.consommationAnnuelle && formData.factureAnnuelle && (
-                  <Card className="border shadow-sm">
-                    <CardContent className="p-4">
-                      <h4 className="font-semibold text-sm text-center mb-3">Analyse de consommation</h4>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="text-center">
-                          <p className="text-lg font-bold text-blue-600">≈ {getConsumptionAnalysis().consoMensuelle} kWh</p>
-                          <p className="text-xs text-muted-foreground">/ mois</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-lg font-bold text-orange-600">≈ {getConsumptionAnalysis().coutMensuel} €</p>
-                          <p className="text-xs text-muted-foreground">/ mois</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-lg font-bold text-blue-600">≈ {getConsumptionAnalysis().consoJournaliere} kWh</p>
-                          <p className="text-xs text-muted-foreground">/ jour</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-lg font-bold text-orange-600">≈ {getConsumptionAnalysis().coutJournalier} €</p>
-                          <p className="text-xs text-muted-foreground">/ jour</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    {/* Consumption Analysis */}
+                    {formData.consommationAnnuelle && formData.factureAnnuelle && (
+                      <Card className="border shadow-sm">
+                        <CardContent className="p-4">
+                          <h4 className="font-semibold text-sm text-center mb-3">Analyse de consommation</h4>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="text-center">
+                              <p className="text-lg font-bold text-blue-600">≈ {getConsumptionAnalysis().consoMensuelle} kWh</p>
+                              <p className="text-xs text-muted-foreground">/ mois</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-lg font-bold text-orange-600">≈ {getConsumptionAnalysis().coutMensuel} €</p>
+                              <p className="text-xs text-muted-foreground">/ mois</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-lg font-bold text-blue-600">≈ {getConsumptionAnalysis().consoJournaliere} kWh</p>
+                              <p className="text-xs text-muted-foreground">/ jour</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-lg font-bold text-orange-600">≈ {getConsumptionAnalysis().coutJournalier} €</p>
+                              <p className="text-xs text-muted-foreground">/ jour</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </>
                 )}
               </div>
             </div>
