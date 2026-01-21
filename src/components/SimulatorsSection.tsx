@@ -38,15 +38,6 @@ interface Simulator {
 const SimulatorsSection = () => {
   const simulators: Simulator[] = [
     {
-      id: "classe-energetique",
-      title: "Classe énergétique",
-      description: "Estimez la classe énergétique de votre logement pour connaître vos aides éligibles.",
-      image: classeEnergetiqueImg,
-      gradient: "from-blue-500 to-cyan-500",
-      iconBg: "bg-blue-50",
-      ctaText: "Simuler ma classe"
-    },
-    {
       id: "solaire",
       title: "Économies avec le solaire",
       description: "Projetez vos économies potentielles grâce à l'installation photovoltaïque.",
@@ -54,6 +45,15 @@ const SimulatorsSection = () => {
       gradient: "from-orange-500 to-yellow-500",
       iconBg: "bg-orange-50",
       ctaText: "Simuler le solaire"
+    },
+    {
+      id: "classe-energetique",
+      title: "Classe énergétique",
+      description: "Estimez la classe énergétique de votre logement pour connaître vos aides éligibles.",
+      image: classeEnergetiqueImg,
+      gradient: "from-blue-500 to-cyan-500",
+      iconBg: "bg-blue-50",
+      ctaText: "Simuler ma classe"
     },
     {
       id: "pompe-chaleur",
