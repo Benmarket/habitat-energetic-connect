@@ -1,0 +1,36 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface LandingPageSEO {
+  seoStatus: "seo" | "hidden" | "disabled";
+  loading: boolean;
+}
+
+export const useLandingPageSEO = (slug: string): LandingPageSEO => {
+  const [seoStatus, setSeoStatus] = useState<"seo" | "hidden" | "disabled">("seo");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSEOStatus = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("landing_pages")
+          .select("seo_status")
+          .eq("slug", slug)
+          .single();
+
+        if (!error && data) {
+          setSeoStatus(data.seo_status as "seo" | "hidden" | "disabled");
+        }
+      } catch (err) {
+        console.error("Error fetching landing page SEO status:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSEOStatus();
+  }, [slug]);
+
+  return { seoStatus, loading };
+};

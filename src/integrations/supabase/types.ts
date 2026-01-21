@@ -953,6 +953,48 @@ export type Database = {
           },
         ]
       }
+      landing_pages: {
+        Row: {
+          bg_color: string
+          color: string
+          created_at: string
+          description: string | null
+          icon: string
+          id: string
+          path: string
+          seo_status: string
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bg_color?: string
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          path: string
+          seo_status?: string
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bg_color?: string
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          path?: string
+          seo_status?: string
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           address: string

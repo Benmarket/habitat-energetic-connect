@@ -3,13 +3,18 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Thermometer, ArrowRight } from "lucide-react";
+import LandingPageGuard from "@/components/LandingPageGuard";
+import { useLandingPageSEO } from "@/hooks/useLandingPageSEO";
 
-const LandingPompeAChaleur = () => {
+const LandingPompeAChaleurContent = () => {
+  const { seoStatus } = useLandingPageSEO("pompe-a-chaleur");
+
   return (
     <>
       <Helmet>
         <title>Installation Pompe à Chaleur | Prime Énergies</title>
         <meta name="description" content="Installez une pompe à chaleur performante et écologique. Chauffage et climatisation réversible avec des économies jusqu'à 75% sur vos factures." />
+        {seoStatus === "hidden" && <meta name="robots" content="noindex, nofollow" />}
       </Helmet>
 
       <div className="min-h-screen bg-background">
@@ -89,6 +94,14 @@ const LandingPompeAChaleur = () => {
         <Footer />
       </div>
     </>
+  );
+};
+
+const LandingPompeAChaleur = () => {
+  return (
+    <LandingPageGuard slug="pompe-a-chaleur">
+      <LandingPompeAChaleurContent />
+    </LandingPageGuard>
   );
 };
 
