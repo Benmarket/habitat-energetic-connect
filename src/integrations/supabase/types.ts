@@ -136,9 +136,11 @@ export type Database = {
           id: string
           image: string | null
           is_featured: boolean
+          is_rge_certified: boolean
           original_price: number | null
           price: number | null
           product_type: string | null
+          rge_certification_text: string | null
           status: string
           target_regions: string[] | null
           title: string
@@ -160,9 +162,11 @@ export type Database = {
           id?: string
           image?: string | null
           is_featured?: boolean
+          is_rge_certified?: boolean
           original_price?: number | null
           price?: number | null
           product_type?: string | null
+          rge_certification_text?: string | null
           status?: string
           target_regions?: string[] | null
           title: string
@@ -184,9 +188,11 @@ export type Database = {
           id?: string
           image?: string | null
           is_featured?: boolean
+          is_rge_certified?: boolean
           original_price?: number | null
           price?: number | null
           product_type?: string | null
+          rge_certification_text?: string | null
           status?: string
           target_regions?: string[] | null
           title?: string

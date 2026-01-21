@@ -77,6 +77,8 @@ interface Advertisement {
   views_count: number;
   clicks_count: number;
   conversions_count: number;
+  is_rge_certified: boolean;
+  rge_certification_text: string | null;
   advertiser?: {
     id: string;
     name: string;
@@ -155,6 +157,7 @@ const AdminAdvertising = () => {
     price: "", original_price: "", features: [] as string[],
     cta_text: "Voir l'offre", cta_url: "", badge_text: "", badge_type: "sponsored",
     is_featured: false, status: "active", expires_at: "", target_regions: [] as RegionCode[],
+    is_rge_certified: false, rge_certification_text: "",
   });
   
   // Filter states
@@ -506,6 +509,8 @@ const AdminAdvertising = () => {
       status: adForm.status,
       expires_at: adForm.expires_at ? new Date(adForm.expires_at).toISOString() : null,
       target_regions: adForm.target_regions.length > 0 ? adForm.target_regions : null,
+      is_rge_certified: adForm.is_rge_certified,
+      rge_certification_text: adForm.is_rge_certified && adForm.rge_certification_text ? adForm.rge_certification_text : null,
     };
 
     try {
@@ -545,6 +550,8 @@ const AdminAdvertising = () => {
       status: ad.status,
       expires_at: ad.expires_at ? ad.expires_at.split('T')[0] : "",
       target_regions: (ad.target_regions || []) as RegionCode[],
+      is_rge_certified: ad.is_rge_certified || false,
+      rge_certification_text: ad.rge_certification_text || "",
     });
     setAdDialogOpen(true);
   };
@@ -669,6 +676,7 @@ const AdminAdvertising = () => {
       price: "", original_price: "", features: [],
       cta_text: "Voir l'offre", cta_url: "", badge_text: "", badge_type: "sponsored",
       is_featured: false, status: "active", expires_at: "", target_regions: [],
+      is_rge_certified: false, rge_certification_text: "",
     });
   };
 
@@ -1484,6 +1492,30 @@ const AdminAdvertising = () => {
                           <Label>Date d'expiration</Label>
                           <Input type="date" value={adForm.expires_at} onChange={(e) => setAdForm({ ...adForm, expires_at: e.target.value })} />
                         </div>
+                      </div>
+
+                      {/* RGE Certification */}
+                      <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox 
+                            id="is_rge_certified" 
+                            checked={adForm.is_rge_certified} 
+                            onCheckedChange={(v) => setAdForm({ ...adForm, is_rge_certified: !!v })} 
+                          />
+                          <Label htmlFor="is_rge_certified" className="font-medium">Certifié RGE</Label>
+                        </div>
+                        {adForm.is_rge_certified && (
+                          <div>
+                            <Label htmlFor="rge_text" className="text-sm text-muted-foreground">Précision certification (optionnel)</Label>
+                            <Input 
+                              id="rge_text"
+                              value={adForm.rge_certification_text} 
+                              onChange={(e) => setAdForm({ ...adForm, rge_certification_text: e.target.value })} 
+                              placeholder="Ex: QualiPV 2026, QualiPAC..."
+                              className="mt-1"
+                            />
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-center space-x-2">
