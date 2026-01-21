@@ -41,6 +41,13 @@ interface GlobalParams {
   periode_calcul: number;
 }
 
+interface SolarPower {
+  id: string;
+  puissance_kwc: number;
+  prix_euros: number;
+  display_order: number;
+}
+
 const SIMULATOR_LIST = [
   { id: "solaire", title: "Économies avec le solaire", icon: Sun, color: "from-orange-500 to-yellow-500", enabled: true },
   { id: "classe-energetique", title: "Classe énergétique", icon: Home, color: "from-blue-500 to-cyan-500", enabled: false },
@@ -76,6 +83,7 @@ const AdminSimulators = () => {
   // Solar simulator data from DB
   const [regions, setRegions] = useState<SolarRegion[]>([]);
   const [globalParams, setGlobalParams] = useState<GlobalParams | null>(null);
+  const [powers, setPowers] = useState<SolarPower[]>([]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -112,6 +120,19 @@ const AdminSimulators = () => {
         }
         if (paramsData) {
           setGlobalParams(paramsData);
+        }
+
+        // Load powers
+        const { data: powersData, error: powersError } = await supabase
+          .from('solar_simulator_powers')
+          .select('*')
+          .order('display_order', { ascending: true });
+
+        if (powersError) {
+          console.error('Error loading powers:', powersError);
+        }
+        if (powersData) {
+          setPowers(powersData);
         }
       } catch (err) {
         console.error('Error loading data:', err);
@@ -251,6 +272,112 @@ const AdminSimulators = () => {
       toast({
         title: "Erreur",
         description: "Impossible d'enregistrer les paramètres.",
+        variant: "destructive"
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Powers handlers
+  const handleAddPower = async () => {
+    setSaving(true);
+    try {
+      const maxOrder = powers.length > 0 ? Math.max(...powers.map(p => p.display_order)) + 1 : 0;
+      
+      const { data, error } = await supabase
+        .from('solar_simulator_powers')
+        .insert([{ puissance_kwc: 0, prix_euros: 0, display_order: maxOrder }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      setPowers(prev => [...prev, data]);
+      
+      toast({
+        title: "Puissance ajoutée",
+        description: "Une nouvelle puissance a été créée.",
+      });
+    } catch (err) {
+      console.error('Error adding power:', err);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'ajouter la puissance.",
+        variant: "destructive"
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeletePower = async (powerId: string) => {
+    if (powers.length <= 1) {
+      toast({
+        title: "Action impossible",
+        description: "Vous devez conserver au moins une puissance.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('solar_simulator_powers')
+        .delete()
+        .eq('id', powerId);
+
+      if (error) throw error;
+      
+      setPowers(prev => prev.filter(p => p.id !== powerId));
+      
+      toast({
+        title: "Puissance supprimée",
+        description: "La puissance a été supprimée.",
+      });
+    } catch (err) {
+      console.error('Error deleting power:', err);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer la puissance.",
+        variant: "destructive"
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleUpdatePower = (powerId: string, field: keyof SolarPower, value: number) => {
+    setPowers(prev => prev.map(p => 
+      p.id === powerId ? { ...p, [field]: value } : p
+    ));
+  };
+
+  const handleSavePowers = async () => {
+    setSaving(true);
+    try {
+      for (const power of powers) {
+        const { error } = await supabase
+          .from('solar_simulator_powers')
+          .update({
+            puissance_kwc: power.puissance_kwc,
+            prix_euros: power.prix_euros,
+          })
+          .eq('id', power.id);
+
+        if (error) throw error;
+      }
+      
+      toast({
+        title: "Paramètres enregistrés",
+        description: "Les puissances ont été mises à jour avec succès.",
+      });
+    } catch (err) {
+      console.error('Error saving powers:', err);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'enregistrer les puissances.",
         variant: "destructive"
       });
     } finally {
@@ -491,10 +618,99 @@ const AdminSimulators = () => {
 
   const renderPuissancesTab = () => (
     <div className="space-y-6">
-      <div className="border border-dashed rounded-lg p-8 text-center text-muted-foreground">
-        <Gauge className="w-12 h-12 mx-auto mb-4 opacity-50" />
-        <p className="font-medium">Paramètres de puissance</p>
-        <p className="text-sm mt-1">Cette section sera bientôt disponible</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">Liste des puissances disponibles</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Vous pouvez modifier, ajouter ou supprimer des puissances ci-dessous. Ces puissances seront disponibles dans le formulaire de simulation.
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleAddPower}
+          disabled={saving}
+          className="gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          Ajouter une puissance
+        </Button>
+      </div>
+
+      {/* Power blocks */}
+      <div className="space-y-4">
+        {powers.map((power) => (
+          <Card key={power.id} className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+            <div className="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                  <Gauge className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="text-base font-bold text-white">
+                  Module {power.puissance_kwc} kWc
+                </h3>
+              </div>
+            </div>
+            <CardContent className="p-6">
+              <div className="flex items-end gap-6">
+                <div className="flex-1 space-y-2">
+                  <Label className="text-sm font-semibold text-foreground">Puissance (kWc)</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={power.puissance_kwc}
+                    onChange={(e) => handleUpdatePower(power.id, 'puissance_kwc', Number(e.target.value))}
+                  />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <Label className="text-sm font-semibold text-foreground">Prix (€)</Label>
+                  <Input
+                    type="number"
+                    step="100"
+                    min="0"
+                    value={power.prix_euros}
+                    onChange={(e) => handleUpdatePower(power.id, 'prix_euros', Number(e.target.value))}
+                  />
+                </div>
+                {powers.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDeletePower(power.id)}
+                    disabled={saving}
+                    className="gap-1"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Supprimer
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Save button */}
+      <div className="pt-4 border-t">
+        <Button
+          onClick={handleSavePowers}
+          disabled={saving}
+          className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600"
+        >
+          {saving ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Enregistrement...
+            </>
+          ) : (
+            <>
+              <Save className="w-4 h-4 mr-2" />
+              Enregistrer
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );

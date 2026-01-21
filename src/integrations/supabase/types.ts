@@ -1659,6 +1659,33 @@ export type Database = {
         }
         Relationships: []
       }
+      solar_simulator_powers: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          prix_euros: number
+          puissance_kwc: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          prix_euros: number
+          puissance_kwc: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          prix_euros?: number
+          puissance_kwc?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       solar_simulator_regions: {
         Row: {
           created_at: string
