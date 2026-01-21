@@ -1424,15 +1424,22 @@ const AdminAdvertising = () => {
                         )}
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label>Texte du bouton *</Label>
-                          <Input value={adForm.cta_text} onChange={(e) => setAdForm({ ...adForm, cta_text: e.target.value })} required />
-                        </div>
-                        <div>
-                          <Label>URL du bouton *</Label>
-                          <Input type="url" value={adForm.cta_url} onChange={(e) => setAdForm({ ...adForm, cta_url: e.target.value })} required />
-                        </div>
+                      <div>
+                        <Label>Texte du bouton *</Label>
+                        <Input value={adForm.cta_text} onChange={(e) => setAdForm({ ...adForm, cta_text: e.target.value })} required />
+                      </div>
+
+                      <div>
+                        <Label>Lien de l'offre (optionnel)</Label>
+                        <Input 
+                          type="url" 
+                          value={adForm.cta_url} 
+                          onChange={(e) => setAdForm({ ...adForm, cta_url: e.target.value })} 
+                          placeholder="https://... (laisser vide si aucun lien externe)"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Si renseigné, un bouton vers ce lien sera affiché sur la page de l'offre
+                        </p>
                       </div>
 
                       {/* Audiences (Régions) */}

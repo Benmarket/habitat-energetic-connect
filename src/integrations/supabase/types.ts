@@ -129,7 +129,7 @@ export type Database = {
           conversions_count: number
           created_at: string
           cta_text: string
-          cta_url: string
+          cta_url: string | null
           description: string
           expires_at: string | null
           features: string[] | null
@@ -153,7 +153,7 @@ export type Database = {
           conversions_count?: number
           created_at?: string
           cta_text?: string
-          cta_url: string
+          cta_url?: string | null
           description: string
           expires_at?: string | null
           features?: string[] | null
@@ -177,7 +177,7 @@ export type Database = {
           conversions_count?: number
           created_at?: string
           cta_text?: string
-          cta_url?: string
+          cta_url?: string | null
           description?: string
           expires_at?: string | null
           features?: string[] | null
