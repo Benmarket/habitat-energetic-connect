@@ -38,7 +38,9 @@ const CTAPartner = () => {
             </div>
             <div className="text-center md:text-left">
               <span className="font-bold text-lg md:text-xl">Vous êtes un professionnel ?</span>
-              <span className="hidden md:inline text-white/90 ml-2">Proposez vos offres sur notre site.</span>
+              <span className="hidden md:inline text-white/90 ml-2">
+                Proposez votre offre sur notre site. *respect obligatoire du cahier des charges prime energies
+              </span>
             </div>
           </div>
 
