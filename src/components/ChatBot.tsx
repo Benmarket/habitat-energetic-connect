@@ -396,6 +396,31 @@ export const ChatBot = () => {
     handleFlowRedirect(flowId, conversationHistory);
   };
 
+  // Restart chat from scratch - reset everything as if user just arrived
+  const handleRestartChat = async () => {
+    // Reset all state
+    setMessages([]);
+    setFlowCompleted(false);
+    setShowFlowRunner(true);
+    setCurrentFlowNode(null);
+    setHasRequestedAgent(false);
+    setAgentConnected(false);
+    setFlowHistory([]);
+    
+    // Reset to main flow if available
+    if (mainFlow) {
+      setActiveFlow(mainFlow);
+    }
+    
+    // Create a new conversation
+    setConversationId(null);
+    
+    // Initialize new conversation after state reset
+    setTimeout(() => {
+      initConversation();
+    }, 100);
+  };
+
   // Determine visibility based on flow node or flow completion state
   const showTextInput = flowCompleted || (!activeFlow && messages.length > 0) || (currentFlowNode?.allow_text_input === true);
   const showAgentButton = flowCompleted || (!activeFlow && messages.length > 0) || (currentFlowNode?.allow_agent_button === true);
@@ -644,6 +669,7 @@ export const ChatBot = () => {
                   onComplete={handleFlowComplete}
                   onNodeChange={handleFlowNodeChange}
                   onFlowRedirect={handleFlowRedirectFromRunner}
+                  onRestart={handleRestartChat}
                 />
               </div>
             )}
