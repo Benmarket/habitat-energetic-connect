@@ -10,7 +10,7 @@ interface AIDescriptionButtonProps {
   price?: string;
   features?: string[];
   currentDescription: string;
-  onDescriptionGenerated: (description: string) => void;
+  onContentGenerated: (data: { description: string; features: string[] }) => void;
 }
 
 export const AIDescriptionButton = ({
@@ -19,11 +19,11 @@ export const AIDescriptionButton = ({
   price,
   features,
   currentDescription,
-  onDescriptionGenerated,
+  onContentGenerated,
 }: AIDescriptionButtonProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const generateDescription = async (regenerate: boolean) => {
+  const generateContent = async (regenerate: boolean) => {
     if (!title.trim()) {
       toast.error("Veuillez d'abord renseigner un titre");
       return;
@@ -37,14 +37,14 @@ export const AIDescriptionButton = ({
           title,
           advertiserName,
           price,
-          features,
+          features: regenerate ? features : undefined,
           currentDescription: regenerate ? currentDescription : undefined,
           regenerate,
         },
       });
 
       if (error) {
-        console.error("Error generating description:", error);
+        console.error("Error generating content:", error);
         throw new Error(error.message || "Erreur lors de la génération");
       }
 
@@ -53,10 +53,13 @@ export const AIDescriptionButton = ({
       }
 
       if (data?.description) {
-        onDescriptionGenerated(data.description);
-        toast.success(regenerate ? "Nouvelle description générée !" : "Description générée avec succès !");
+        onContentGenerated({
+          description: data.description,
+          features: data.features || []
+        });
+        toast.success(regenerate ? "Nouveau contenu généré !" : "Description et avantages générés !");
       } else {
-        throw new Error("Aucune description reçue");
+        throw new Error("Aucun contenu reçu");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -67,16 +70,16 @@ export const AIDescriptionButton = ({
     }
   };
 
-  const hasDescription = currentDescription.trim().length > 0;
+  const hasContent = currentDescription.trim().length > 0;
 
   return (
     <div className="flex gap-2">
-      {!hasDescription ? (
+      {!hasContent ? (
         <Button
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => generateDescription(false)}
+          onClick={() => generateContent(false)}
           disabled={isGenerating || !title.trim()}
           className="gap-2"
         >
@@ -92,7 +95,7 @@ export const AIDescriptionButton = ({
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => generateDescription(true)}
+          onClick={() => generateContent(true)}
           disabled={isGenerating || !title.trim()}
           className="gap-2"
         >

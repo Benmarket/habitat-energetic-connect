@@ -657,7 +657,7 @@ const ManageAnnonces = () => {
                           price={formData.price}
                           features={formData.features}
                           currentDescription={formData.description}
-                          onDescriptionGenerated={(desc) => setFormData({ ...formData, description: desc })}
+                          onContentGenerated={(data) => setFormData({ ...formData, description: data.description, features: data.features.length > 0 ? data.features : formData.features })}
                         />
                       </div>
                       <Textarea

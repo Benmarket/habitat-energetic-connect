@@ -1394,7 +1394,7 @@ const AdminAdvertising = () => {
                             price={adForm.price}
                             features={adForm.features}
                             currentDescription={adForm.description}
-                            onDescriptionGenerated={(desc) => setAdForm({ ...adForm, description: desc })}
+                            onContentGenerated={(data) => setAdForm({ ...adForm, description: data.description, features: data.features.length > 0 ? data.features : adForm.features })}
                           />
                         </div>
                         <Textarea value={adForm.description} onChange={(e) => setAdForm({ ...adForm, description: e.target.value })} required rows={3} placeholder="Description de l'offre..." />
