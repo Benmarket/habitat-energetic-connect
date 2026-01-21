@@ -60,18 +60,20 @@ serve(async (req) => {
     const contextParts: string[] = [];
     if (advertiserName) contextParts.push(`Annonceur: ${advertiserName}`);
     if (price) contextParts.push(`Prix: ${price}€`);
-    if (features && features.length > 0) contextParts.push(`Avantages: ${features.join(", ")}`);
     if (currentDescription && regenerate) {
       contextParts.push(`Description actuelle à réécrire différemment: ${currentDescription}`);
+    }
+    if (features && features.length > 0 && regenerate) {
+      contextParts.push(`Avantages actuels à réécrire différemment: ${features.join(", ")}`);
     }
 
     const contextInfo = contextParts.length > 0 ? `\n\nInformations disponibles:\n${contextParts.join("\n")}` : "";
 
     const systemPrompt = `Tu es un expert en rédaction marketing pour le secteur des énergies renouvelables en France (panneaux solaires, pompes à chaleur, isolation thermique, etc.).
 
-Ta mission: Rédiger une description d'offre commerciale percutante et professionnelle.
+Ta mission: Rédiger une description d'offre commerciale ET une liste d'avantages percutants et professionnels.
 
-Règles:
+Règles pour la DESCRIPTION:
 - 2 à 4 phrases maximum (environ 150-250 caractères)
 - Ton professionnel mais accessible
 - Mettre en avant les bénéfices client (économies, confort, écologie)
@@ -79,13 +81,25 @@ Règles:
 - Pas de phrases trop longues ni de jargon technique excessif
 - Pas d'emojis
 - Pas de prix dans la description (il est affiché séparément)
-${regenerate ? "\nIMPORTANT: Propose un style et une approche DIFFÉRENTS de la description actuelle." : ""}
 
-Réponds UNIQUEMENT avec la description, sans guillemets ni explication.`;
+Règles pour les AVANTAGES:
+- Exactement 4 à 6 avantages courts et percutants
+- Chaque avantage doit être une phrase courte (5-10 mots max)
+- Commencer par un verbe d'action ou un bénéfice concret
+- Exemples: "Installation garantie 10 ans", "Économies jusqu'à 70% sur la facture", "Certification RGE", "Accompagnement démarches administratives"
+- Pas d'emojis
 
-    const userPrompt = `Rédige une description pour cette offre: "${title}"${contextInfo}`;
+${regenerate ? "IMPORTANT: Propose un style et une approche DIFFÉRENTS du contenu actuel." : ""}
 
-    console.log("Generating ad description for:", title);
+Réponds UNIQUEMENT au format JSON suivant (pas de texte avant ou après):
+{
+  "description": "La description ici",
+  "features": ["Avantage 1", "Avantage 2", "Avantage 3", "Avantage 4"]
+}`;
+
+    const userPrompt = `Génère une description et des avantages pour cette offre: "${title}"${contextInfo}`;
+
+    console.log("Generating ad content for:", title);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -126,23 +140,44 @@ Réponds UNIQUEMENT avec la description, sans guillemets ni explication.`;
     }
 
     const data = await response.json();
-    const generatedDescription = data.choices?.[0]?.message?.content?.trim() || "";
+    const rawContent = data.choices?.[0]?.message?.content?.trim() || "";
 
-    if (!generatedDescription) {
-      return new Response(JSON.stringify({ error: "Aucune description générée" }), {
+    if (!rawContent) {
+      return new Response(JSON.stringify({ error: "Aucun contenu généré" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log("Generated description:", generatedDescription.substring(0, 100) + "...");
+    // Parse JSON response
+    let parsedContent: { description: string; features: string[] };
+    try {
+      // Remove markdown code blocks if present
+      const cleanedContent = rawContent.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      parsedContent = JSON.parse(cleanedContent);
+    } catch (parseError) {
+      console.error("Failed to parse AI response:", rawContent);
+      // Fallback: use raw content as description with empty features
+      parsedContent = {
+        description: rawContent,
+        features: []
+      };
+    }
 
-    return new Response(JSON.stringify({ description: generatedDescription }), {
+    console.log("Generated content:", {
+      description: parsedContent.description?.substring(0, 100) + "...",
+      featuresCount: parsedContent.features?.length || 0
+    });
+
+    return new Response(JSON.stringify({
+      description: parsedContent.description || "",
+      features: parsedContent.features || []
+    }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error generating ad description:", error);
+    console.error("Error generating ad content:", error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Erreur inconnue" }),
       {
