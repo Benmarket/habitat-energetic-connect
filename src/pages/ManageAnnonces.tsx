@@ -781,27 +781,28 @@ const ManageAnnonces = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="cta_text">Texte du bouton *</Label>
-                        <Input
-                          id="cta_text"
-                          value={formData.cta_text}
-                          onChange={(e) => setFormData({ ...formData, cta_text: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="cta_url">URL du bouton *</Label>
-                        <Input
-                          id="cta_url"
-                          type="url"
-                          value={formData.cta_url}
-                          onChange={(e) => setFormData({ ...formData, cta_url: e.target.value })}
-                          required
-                          placeholder="https://..."
-                        />
-                      </div>
+                    <div>
+                      <Label htmlFor="cta_text">Texte du bouton *</Label>
+                      <Input
+                        id="cta_text"
+                        value={formData.cta_text}
+                        onChange={(e) => setFormData({ ...formData, cta_text: e.target.value })}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="cta_url">Lien de l'offre (optionnel)</Label>
+                      <Input
+                        id="cta_url"
+                        type="url"
+                        value={formData.cta_url}
+                        onChange={(e) => setFormData({ ...formData, cta_url: e.target.value })}
+                        placeholder="https://... (laisser vide si aucun lien externe)"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Si renseigné, un bouton vers ce lien sera affiché sur la page de l'offre
+                      </p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
