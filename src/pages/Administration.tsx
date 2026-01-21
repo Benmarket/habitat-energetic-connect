@@ -42,7 +42,8 @@ const Administration = () => {
       const firstSection = document.getElementById(sections[0].id);
       if (firstSection) {
         const rect = firstSection.getBoundingClientRect();
-        setShowSidebar(rect.top <= 150);
+        // Show sidebar earlier - when first section is within 400px of viewport top
+        setShowSidebar(rect.top <= 400);
       }
 
       const sectionElements = sections.map(s => ({
