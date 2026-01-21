@@ -293,20 +293,6 @@ const OffrePartenaire = () => {
                     En savoir plus sur cette offre
                   </Button>
 
-                  {/* External link - only show if cta_url is provided */}
-                  {offer.cta_url && offer.cta_url.trim() !== '' && (
-                    <Button 
-                      asChild
-                      variant="outline"
-                      size="lg"
-                      className="w-full border-2 border-primary/50 hover:border-primary hover:bg-primary/5 font-semibold py-6 text-lg"
-                    >
-                      <a href={offer.cta_url} target="_blank" rel="noopener noreferrer">
-                        <Globe className="w-5 h-5 mr-2" />
-                        {offer.cta_text || "Voir le site du partenaire"}
-                      </a>
-                    </Button>
-                  )}
                 </CardContent>
               </Card>
             </div>
@@ -361,16 +347,16 @@ const OffrePartenaire = () => {
                         </a>
                       </div>
                     )}
-                    {offer.advertiser.website && (
+                    {offer.cta_url && offer.cta_url.trim() !== '' && (
                       <div className="flex items-center gap-2 text-sm">
                         <Globe className="w-4 h-4 text-muted-foreground" />
                         <a 
-                          href={offer.advertiser.website}
+                          href={offer.cta_url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-primary hover:underline"
                         >
-                          Visiter le site web
+                          Visiter la page de l'offre
                         </a>
                       </div>
                     )}
