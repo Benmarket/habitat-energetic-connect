@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -8,12 +8,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, ArrowLeft, User, MapPin, Sun, Check, Loader2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, User, MapPin, Sun, Check, Loader2, Search } from "lucide-react";
 
 interface SolarRegion {
   id: string;
   name: string;
   postal_prefixes: string[] | null;
+}
+
+interface AddressSuggestion {
+  label: string;
+  name: string;
+  postcode: string;
+  city: string;
+  context: string;
+  x: number; // longitude
+  y: number; // latitude
 }
 
 interface FormData {
@@ -32,6 +42,12 @@ const SimulateurSolaire = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [regions, setRegions] = useState<SolarRegion[]>([]);
   const [loading, setLoading] = useState(true);
+  const [addressValidated, setAddressValidated] = useState(false);
+  const [validating, setValidating] = useState(false);
+  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+  
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -75,7 +91,6 @@ const SimulateurSolaire = () => {
       return;
     }
 
-    // Find matching region
     let matchedRegion = "";
     
     for (const region of regions) {
@@ -90,7 +105,6 @@ const SimulateurSolaire = () => {
       }
     }
 
-    // If no match found, use default (France Métropolitaine or first with empty prefixes)
     if (!matchedRegion) {
       const defaultRegion = regions.find(r => !r.postal_prefixes || r.postal_prefixes.length === 0);
       if (defaultRegion) {
@@ -101,8 +115,103 @@ const SimulateurSolaire = () => {
     setFormData(prev => ({ ...prev, detectedRegion: matchedRegion }));
   }, [formData.postalCode, regions]);
 
+  // Fetch address suggestions from API adresse.data.gouv.fr
+  const fetchAddressSuggestions = async (query: string) => {
+    if (query.length < 3) {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`
+      );
+      const data = await response.json();
+      
+      const mappedSuggestions: AddressSuggestion[] = data.features.map((feature: any) => ({
+        label: feature.properties.label,
+        name: feature.properties.name,
+        postcode: feature.properties.postcode,
+        city: feature.properties.city,
+        context: feature.properties.context,
+        x: feature.geometry.coordinates[0],
+        y: feature.geometry.coordinates[1],
+      }));
+      
+      setSuggestions(mappedSuggestions);
+      setShowSuggestions(true);
+    } catch (err) {
+      console.error("Error fetching address suggestions:", err);
+      setSuggestions([]);
+    }
+  };
+
+  // Handle click outside suggestions
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelectSuggestion = (suggestion: AddressSuggestion) => {
+    setFormData(prev => ({
+      ...prev,
+      fullAddress: suggestion.label,
+      address: suggestion.name,
+      postalCode: suggestion.postcode,
+      city: suggestion.city,
+      latitude: suggestion.y.toFixed(6),
+      longitude: suggestion.x.toFixed(6),
+    }));
+    setShowSuggestions(false);
+    setSuggestions([]);
+  };
+
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Reset validation when address fields change
+    if (['address', 'postalCode', 'city'].includes(field)) {
+      setAddressValidated(false);
+    }
+    
+    // Fetch suggestions for full address
+    if (field === 'fullAddress') {
+      fetchAddressSuggestions(value);
+    }
+  };
+
+  const handleValidateAddress = async () => {
+    if (!formData.address || !formData.postalCode || !formData.city) return;
+    
+    setValidating(true);
+    
+    try {
+      const query = `${formData.address} ${formData.postalCode} ${formData.city}`;
+      const response = await fetch(
+        `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=1`
+      );
+      const data = await response.json();
+      
+      if (data.features && data.features.length > 0) {
+        const feature = data.features[0];
+        setFormData(prev => ({
+          ...prev,
+          latitude: feature.geometry.coordinates[1].toFixed(6),
+          longitude: feature.geometry.coordinates[0].toFixed(6),
+        }));
+        setAddressValidated(true);
+      }
+    } catch (err) {
+      console.error("Error validating address:", err);
+    } finally {
+      setValidating(false);
+    }
   };
 
   const canProceedToNextStep = () => {
@@ -113,7 +222,8 @@ const SimulateurSolaire = () => {
       return (
         formData.address.trim() !== "" &&
         formData.postalCode.trim() !== "" &&
-        formData.city.trim() !== ""
+        formData.city.trim() !== "" &&
+        addressValidated
       );
     }
     return true;
@@ -242,24 +352,41 @@ const SimulateurSolaire = () => {
                 </div>
               </CardHeader>
               <CardContent className="p-6 space-y-6">
-                {/* Full address helper */}
-                <div className="space-y-2">
+                {/* Full address search with autocomplete */}
+                <div className="space-y-2 relative" ref={suggestionsRef}>
                   <Label htmlFor="fullAddress" className="text-sm font-semibold">
-                    Adresse complète <span className="text-muted-foreground">(facultatif, pour auto-remplir)</span>
+                    Rechercher une adresse <span className="text-muted-foreground">(auto-remplissage)</span>
                   </Label>
-                  <Input
-                    id="fullAddress"
-                    placeholder="Ex: 25 rue du bourget batiment B, 75015 Paris"
-                    value={formData.fullAddress}
-                    onChange={(e) => handleInputChange("fullAddress", e.target.value)}
-                    className="h-12"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Remplissez ce champ pour pré-remplir automatiquement l'adresse, le code postal et la ville.
-                  </p>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      id="fullAddress"
+                      placeholder="Tapez une adresse pour la rechercher..."
+                      value={formData.fullAddress}
+                      onChange={(e) => handleInputChange("fullAddress", e.target.value)}
+                      className="h-12 pl-10"
+                    />
+                  </div>
+                  
+                  {/* Suggestions dropdown */}
+                  {showSuggestions && suggestions.length > 0 && (
+                    <div className="absolute z-50 w-full mt-1 bg-background border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {suggestions.map((suggestion, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => handleSelectSuggestion(suggestion)}
+                          className="w-full px-4 py-3 text-left hover:bg-muted transition-colors border-b last:border-b-0"
+                        >
+                          <div className="font-medium text-sm">{suggestion.label}</div>
+                          <div className="text-xs text-muted-foreground">{suggestion.context}</div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Address */}
+                {/* Address fields */}
                 <div className="space-y-2">
                   <Label htmlFor="address" className="text-sm font-semibold">
                     Adresse <span className="text-destructive">*</span>
@@ -273,7 +400,6 @@ const SimulateurSolaire = () => {
                   />
                 </div>
 
-                {/* Postal Code & City */}
                 <div className="grid gap-6 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="postalCode" className="text-sm font-semibold">
@@ -317,29 +443,38 @@ const SimulateurSolaire = () => {
                   </div>
                 </div>
 
-                {/* Latitude & Longitude */}
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="latitude" className="text-sm font-semibold">Latitude</Label>
-                    <Input
-                      id="latitude"
-                      placeholder="Ex: 48.8566"
-                      value={formData.latitude}
-                      onChange={(e) => handleInputChange("latitude", e.target.value)}
-                      className="h-12"
-                    />
+                {/* Coordinates & Map (shown after validation) */}
+                {addressValidated && formData.latitude && formData.longitude && (
+                  <div className="space-y-4">
+                    {/* Coordinates read-only */}
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold text-muted-foreground">Latitude</Label>
+                        <div className="h-12 px-4 rounded-md border border-input bg-muted/50 flex items-center text-muted-foreground">
+                          {formData.latitude}
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold text-muted-foreground">Longitude</Label>
+                        <div className="h-12 px-4 rounded-md border border-input bg-muted/50 flex items-center text-muted-foreground">
+                          {formData.longitude}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Mini Map */}
+                    <div className="rounded-lg overflow-hidden border shadow-sm">
+                      <iframe
+                        title="Localisation"
+                        width="100%"
+                        height="200"
+                        style={{ border: 0 }}
+                        loading="lazy"
+                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(formData.longitude) - 0.01}%2C${Number(formData.latitude) - 0.01}%2C${Number(formData.longitude) + 0.01}%2C${Number(formData.latitude) + 0.01}&layer=mapnik&marker=${formData.latitude}%2C${formData.longitude}`}
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="longitude" className="text-sm font-semibold">Longitude</Label>
-                    <Input
-                      id="longitude"
-                      placeholder="Ex: 2.3522"
-                      value={formData.longitude}
-                      onChange={(e) => handleInputChange("longitude", e.target.value)}
-                      className="h-12"
-                    />
-                  </div>
-                </div>
+                )}
 
                 <div className="flex justify-between pt-4">
                   <Button
@@ -350,14 +485,34 @@ const SimulateurSolaire = () => {
                     <ArrowLeft className="w-5 h-5 mr-2" />
                     Retour
                   </Button>
-                  <Button
-                    onClick={handleNext}
-                    disabled={!canProceedToNextStep()}
-                    className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-8 py-6 text-base"
-                  >
-                    Continuer
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
+                  
+                  {!addressValidated ? (
+                    <Button
+                      onClick={handleValidateAddress}
+                      disabled={!formData.address || !formData.postalCode || !formData.city || validating}
+                      className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-8 py-6 text-base"
+                    >
+                      {validating ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Validation...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-5 h-5 mr-2" />
+                          Valider l'adresse
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleNext}
+                      className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-8 py-6 text-base animate-subtle-bounce"
+                    >
+                      Continuer
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
