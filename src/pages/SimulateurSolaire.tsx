@@ -343,59 +343,34 @@ const SimulateurSolaire = () => {
       <main className="min-h-screen bg-gradient-to-br from-orange-50 via-background to-yellow-50 py-12">
         <div className={`container mx-auto px-4 ${currentStep === 3 ? 'max-w-5xl' : 'max-w-2xl'}`}>
           {/* Step Breadcrumb Navigation */}
-          <div className="mb-8 bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/50">
-            {/* Steps with connecting lines */}
+          <div className="mb-8 bg-white/80 backdrop-blur-sm rounded-xl py-4 px-6 shadow-lg border border-white/50">
             <div className="flex items-center justify-between">
               {steps.map((step, index) => {
                 const stepNumber = index + 1;
                 const isCompleted = currentStep > stepNumber;
                 const isCurrent = currentStep === stepNumber;
-                const isPending = currentStep < stepNumber;
                 
                 return (
                   <div key={step.id} className="flex items-center flex-1 last:flex-none">
-                    {/* Step circle and label */}
-                    <div className="flex flex-col items-center">
-                      {/* Connecting line before (except first) */}
-                      <div className="flex items-center w-full">
-                        {index > 0 && (
-                          <div 
-                            className={`h-1 flex-1 -mr-2 rounded-full transition-colors ${
-                              isCompleted || isCurrent ? 'bg-blue-500' : 'bg-gray-200'
-                            }`}
-                          />
-                        )}
-                        
-                        {/* Step circle */}
-                        <div 
-                          className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all ${
-                            isCompleted 
-                              ? 'bg-blue-500 text-white' 
-                              : isCurrent 
-                                ? 'bg-blue-500 text-white ring-4 ring-blue-100' 
-                                : 'bg-gray-100 text-gray-400 border-2 border-gray-200'
-                          }`}
-                        >
-                          {isCompleted ? (
-                            <Check className="w-5 h-5" />
-                          ) : (
-                            <span className="text-sm font-semibold">{stepNumber}</span>
-                          )}
-                        </div>
-                        
-                        {/* Connecting line after (except last) */}
-                        {index < steps.length - 1 && (
-                          <div 
-                            className={`h-1 flex-1 -ml-2 rounded-full transition-colors ${
-                              isCompleted ? 'bg-blue-500' : 'bg-gray-200'
-                            }`}
-                          />
+                    {/* Step circle */}
+                    <div className="flex flex-col items-center relative z-10">
+                      <div 
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
+                          isCompleted 
+                            ? 'bg-blue-500 text-white' 
+                            : isCurrent 
+                              ? 'bg-blue-500 text-white ring-2 ring-blue-200 ring-offset-2' 
+                              : 'bg-white text-gray-400 border-2 border-gray-200'
+                        }`}
+                      >
+                        {isCompleted ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          stepNumber
                         )}
                       </div>
-                      
-                      {/* Step label */}
                       <span 
-                        className={`mt-2 text-xs font-medium whitespace-nowrap ${
+                        className={`mt-2 text-[11px] font-medium ${
                           isCurrent 
                             ? 'text-blue-600 font-semibold' 
                             : isCompleted 
@@ -403,9 +378,20 @@ const SimulateurSolaire = () => {
                               : 'text-gray-400'
                         }`}
                       >
-                        {stepNumber}. {step.label}
+                        {step.label}
                       </span>
                     </div>
+                    
+                    {/* Connecting line */}
+                    {index < steps.length - 1 && (
+                      <div className="flex-1 h-0.5 mx-2 relative -top-3">
+                        <div 
+                          className={`h-full rounded-full transition-colors ${
+                            isCompleted ? 'bg-blue-500' : 'bg-gray-200'
+                          }`}
+                        />
+                      </div>
+                    )}
                   </div>
                 );
               })}
