@@ -437,7 +437,10 @@ const AdminSimulators = () => {
     { id: 'parametres' as SolarTab, label: 'Paramètres globaux', icon: Settings },
   ];
 
-  const renderRegionBlock = (region: SolarRegion) => (
+  const renderRegionBlock = (region: SolarRegion) => {
+    const isDefaultRegion = region.name.toLowerCase().includes('france métropolitaine') || region.name.toLowerCase().includes('france metropolitaine');
+    
+    return (
     <Card key={region.id} className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
       {/* Header avec gradient */}
       <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-4">
@@ -446,9 +449,14 @@ const AdminSimulators = () => {
             <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
               <MapPin className="w-5 h-5 text-white" />
             </div>
-            <h3 className="text-lg font-bold text-white">{region.name}</h3>
+            <div>
+              <h3 className="text-lg font-bold text-white">{region.name}</h3>
+              {isDefaultRegion && (
+                <span className="text-xs text-white/70">Région par défaut</span>
+              )}
+            </div>
           </div>
-          {regions.length > 1 && (
+          {!isDefaultRegion && (
             <Button
               type="button"
               variant="ghost"
@@ -507,30 +515,31 @@ const AdminSimulators = () => {
           </div>
         </div>
 
-        {/* Codes postaux pour détection automatique */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b">
-            <MapPin className="w-5 h-5 text-blue-500" />
-            <h4 className="font-semibold text-foreground">Préfixes de codes postaux</h4>
+        {/* Codes postaux pour détection automatique - uniquement pour les régions non-par-défaut */}
+        {!isDefaultRegion && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b">
+              <MapPin className="w-5 h-5 text-blue-500" />
+              <h4 className="font-semibold text-foreground">Préfixes de codes postaux</h4>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm text-muted-foreground">
+                Entrez les préfixes de codes postaux séparés par des virgules (ex: 20, 2A, 2B pour la Corse).
+              </Label>
+              <Input
+                placeholder="Ex: 20, 2A, 2B"
+                value={region.postal_prefixes?.join(', ') || ''}
+                onChange={(e) => {
+                  const prefixes = e.target.value
+                    .split(',')
+                    .map(p => p.trim())
+                    .filter(p => p !== '');
+                  handleUpdateRegion(region.id, 'postal_prefixes', prefixes);
+                }}
+              />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label className="text-sm text-muted-foreground">
-              Entrez les préfixes de codes postaux séparés par des virgules (ex: 20, 2A, 2B pour la Corse). 
-              Laissez vide pour utiliser cette région par défaut.
-            </Label>
-            <Input
-              placeholder="Ex: 20, 2A, 2B"
-              value={region.postal_prefixes?.join(', ') || ''}
-              onChange={(e) => {
-                const prefixes = e.target.value
-                  .split(',')
-                  .map(p => p.trim())
-                  .filter(p => p !== '');
-                handleUpdateRegion(region.id, 'postal_prefixes', prefixes);
-              }}
-            />
-          </div>
-        </div>
+        )}
         <div className="space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b">
             <Zap className="w-5 h-5 text-amber-500" />
@@ -594,6 +603,7 @@ const AdminSimulators = () => {
       </CardContent>
     </Card>
   );
+  };
 
   const renderRegionsTab = () => (
     <div className="space-y-6">
