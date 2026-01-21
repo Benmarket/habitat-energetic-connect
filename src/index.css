@@ -162,3 +162,26 @@ All colors MUST be HSL.
 .animate-attention-bump {
   animation: attention-bump 3s ease-in-out infinite;
 }
+
+/* Subtle double bounce animation for CTA buttons */
+@keyframes subtle-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  15% {
+    transform: translateY(-4px);
+  }
+  25% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(-2px);
+  }
+  45% {
+    transform: translateY(0);
+  }
+}
+
+.animate-subtle-bounce {
+  animation: subtle-bounce 2s ease-in-out infinite;
+}
