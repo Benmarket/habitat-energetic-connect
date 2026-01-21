@@ -462,15 +462,15 @@ const SimulateurSolaire = () => {
                       </div>
                     </div>
 
-                    {/* Mini Map */}
+                    {/* Mini Map - zoom level 18-19 for street/house view */}
                     <div className="rounded-lg overflow-hidden border shadow-sm">
                       <iframe
                         title="Localisation"
                         width="100%"
-                        height="200"
+                        height="250"
                         style={{ border: 0 }}
                         loading="lazy"
-                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(formData.longitude) - 0.01}%2C${Number(formData.latitude) - 0.01}%2C${Number(formData.longitude) + 0.01}%2C${Number(formData.latitude) + 0.01}&layer=mapnik&marker=${formData.latitude}%2C${formData.longitude}`}
+                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(formData.longitude) - 0.0015}%2C${Number(formData.latitude) - 0.001}%2C${Number(formData.longitude) + 0.0015}%2C${Number(formData.latitude) + 0.001}&layer=mapnik&marker=${formData.latitude}%2C${formData.longitude}`}
                       />
                     </div>
                   </div>
