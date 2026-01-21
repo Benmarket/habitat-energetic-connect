@@ -331,7 +331,7 @@ const SimulateurSolaire = () => {
       <Header />
 
       <main className="min-h-screen bg-gradient-to-br from-orange-50 via-background to-yellow-50 py-12">
-        <div className="container mx-auto px-4 max-w-2xl">
+        <div className={`container mx-auto px-4 ${currentStep === 3 ? 'max-w-5xl' : 'max-w-2xl'}`}>
           {/* Progress Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
@@ -599,252 +599,372 @@ const SimulateurSolaire = () => {
             </Card>
           )}
 
-          {/* Step 3: Consumption Profile */}
+          {/* Step 3: Consumption Profile - Two Column Layout */}
           {currentStep === 3 && (
-            <Card className="shadow-xl border-0">
-              <CardHeader className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-t-lg">
-                <div className="flex items-center gap-3">
-                  <Zap className="w-6 h-6" />
-                  <div>
-                    <CardTitle className="text-xl">Profil de consommation</CardTitle>
-                    <CardDescription className="text-white/80">
-                      Informations sur votre consommation électrique
-                    </CardDescription>
+            <div className="grid gap-6 lg:grid-cols-5">
+              {/* Left Column - Form */}
+              <Card className="shadow-xl border-0 lg:col-span-3">
+                <CardHeader className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-t-lg">
+                  <div className="flex items-center gap-3">
+                    <Zap className="w-6 h-6" />
+                    <div>
+                      <CardTitle className="text-xl">Profil de consommation</CardTitle>
+                      <CardDescription className="text-white/80">
+                        Informations sur votre consommation électrique
+                      </CardDescription>
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6 space-y-6">
-                {/* Tarif kWh - auto-filled from region */}
-                <div className="space-y-2">
-                  <Label htmlFor="tarifKwh" className="text-sm font-semibold">
-                    Tarif actuel (€/kWh) <span className="text-destructive">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="tarifKwh"
-                      type="number"
-                      step="0.001"
-                      placeholder="0.174"
-                      value={formData.tarifKwh}
-                      onChange={(e) => handleInputChange("tarifKwh", e.target.value)}
-                      className="h-12 bg-green-50 border-green-200"
-                    />
-                    {formData.tarifKwh && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <Check className="w-4 h-4 text-green-600" />
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Tarif pré-rempli selon votre région ({formData.detectedRegion})
-                  </p>
-                </div>
-
-                {/* Facture annuelle & Consommation annuelle */}
-                <div className="grid gap-4 md:grid-cols-2">
+                </CardHeader>
+                <CardContent className="p-6 space-y-5">
+                  {/* Tarif kWh - auto-filled from region */}
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
+                    <Label htmlFor="tarifKwh" className="text-sm font-semibold">
+                      Tarif actuel (€/kWh) <span className="text-destructive">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="tarifKwh"
+                        type="number"
+                        step="0.001"
+                        placeholder="0.174"
+                        value={formData.tarifKwh}
+                        onChange={(e) => handleInputChange("tarifKwh", e.target.value)}
+                        className="h-12 bg-green-50 border-green-200"
+                      />
+                      {formData.tarifKwh && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <Check className="w-4 h-4 text-green-600" />
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Tarif pré-rempli selon votre région ({formData.detectedRegion})
+                    </p>
+                  </div>
+
+                  {/* Facture annuelle & Consommation annuelle */}
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
                       <Label htmlFor="factureAnnuelle" className="text-sm font-semibold">
                         Facture annuelle (€) <span className="text-destructive">*</span>
                       </Label>
-                      <div className="flex items-center gap-2">
-                        <Checkbox 
-                          id="useDefault" 
-                          checked={formData.useDefaultFacture}
-                          onCheckedChange={(checked) => 
-                            setFormData(prev => ({ ...prev, useDefaultFacture: checked as boolean }))
-                          }
-                        />
-                        <Label htmlFor="useDefault" className="text-xs text-muted-foreground cursor-pointer">
-                          Valeur par défaut
-                        </Label>
-                      </div>
+                      <Input
+                        id="factureAnnuelle"
+                        type="number"
+                        placeholder="1400"
+                        value={formData.factureAnnuelle}
+                        onChange={(e) => handleInputChange("factureAnnuelle", e.target.value)}
+                        className="h-12"
+                      />
                     </div>
-                    <Input
-                      id="factureAnnuelle"
-                      type="number"
-                      placeholder="1400"
-                      value={formData.factureAnnuelle}
-                      onChange={(e) => handleInputChange("factureAnnuelle", e.target.value)}
-                      className="h-12"
-                      disabled={formData.useDefaultFacture}
-                    />
+                    <div className="space-y-2">
+                      <Label htmlFor="consommationAnnuelle" className="text-sm font-semibold">
+                        Consommation annuelle (kWh) <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="consommationAnnuelle"
+                        type="number"
+                        placeholder="8000"
+                        value={formData.consommationAnnuelle}
+                        onChange={(e) => handleInputChange("consommationAnnuelle", e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="consommationAnnuelle" className="text-sm font-semibold">
-                      Consommation annuelle (kWh) <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="consommationAnnuelle"
-                      type="number"
-                      placeholder="8000"
-                      value={formData.consommationAnnuelle}
-                      onChange={(e) => handleInputChange("consommationAnnuelle", e.target.value)}
-                      className="h-12"
-                    />
-                  </div>
-                </div>
 
-                {/* Info box for auto-calculation */}
-                {formData.useDefaultFacture && (
+                  {/* Info box for auto-calculation - Always visible */}
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
                     <Zap className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
                     <p className="text-xs text-blue-700">
                       <strong>Calcul automatique :</strong> Facture annuelle = Consommation × Tarif kWh
                     </p>
                   </div>
-                )}
 
-                {/* Compteur & Mono/Tri */}
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-semibold">
-                      Compteur <span className="text-destructive">*</span>
-                    </Label>
-                    <Select 
-                      value={formData.compteur} 
-                      onValueChange={(value) => handleInputChange("compteur", value)}
-                    >
-                      <SelectTrigger className="h-12">
-                        <SelectValue placeholder="Sélectionnez le type de compteur" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="linky">Linky</SelectItem>
-                        <SelectItem value="electronique">Électronique</SelectItem>
-                        <SelectItem value="electromecanique">Électromécanique</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-semibold">
-                      Mono/Tri <span className="text-destructive">*</span>
-                    </Label>
-                    <Select 
-                      value={formData.monoTri} 
-                      onValueChange={(value) => handleInputChange("monoTri", value)}
-                    >
-                      <SelectTrigger className="h-12">
-                        <SelectValue placeholder="Sélectionnez le type de phase" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="monophase">Monophasé</SelectItem>
-                        <SelectItem value="triphase">Triphasé</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                {/* Type de chauffage (optional) */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold">
-                    Type de chauffage <span className="text-muted-foreground text-xs">(facultatif)</span>
-                  </Label>
-                  <Select 
-                    value={formData.typeChauffage} 
-                    onValueChange={(value) => handleInputChange("typeChauffage", value)}
-                  >
-                    <SelectTrigger className="h-12">
-                      <SelectValue placeholder="Sélectionnez un type de chauffage" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="electrique">Électrique</SelectItem>
-                      <SelectItem value="gaz">Gaz</SelectItem>
-                      <SelectItem value="fioul">Fioul</SelectItem>
-                      <SelectItem value="bois">Bois / Granulés</SelectItem>
-                      <SelectItem value="pompe-chaleur">Pompe à chaleur</SelectItem>
-                      <SelectItem value="autre">Autre</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Type de chauffage eau (optional) */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold">
-                    Type de chauffage de l'eau <span className="text-muted-foreground text-xs">(facultatif)</span>
-                  </Label>
-                  <Select 
-                    value={formData.typeChauffageEau} 
-                    onValueChange={(value) => handleInputChange("typeChauffageEau", value)}
-                  >
-                    <SelectTrigger className="h-12">
-                      <SelectValue placeholder="Sélectionnez un type de chauffage de l'eau" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="electrique">Ballon électrique</SelectItem>
-                      <SelectItem value="gaz">Chauffe-eau gaz</SelectItem>
-                      <SelectItem value="thermodynamique">Thermodynamique</SelectItem>
-                      <SelectItem value="solaire">Chauffe-eau solaire</SelectItem>
-                      <SelectItem value="autre">Autre</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Surface habitat (optional) */}
-                <div className="space-y-2">
-                  <Label htmlFor="surfaceHabitat" className="text-sm font-semibold">
-                    Surface habitat (m²) <span className="text-muted-foreground text-xs">(facultatif)</span>
-                  </Label>
-                  <Input
-                    id="surfaceHabitat"
-                    type="number"
-                    placeholder="120"
-                    value={formData.surfaceHabitat}
-                    onChange={(e) => handleInputChange("surfaceHabitat", e.target.value)}
-                    className="h-12"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Surface habitable de votre logement en mètres carrés
-                  </p>
-                </div>
-
-                {/* Consumption Analysis Summary */}
-                {formData.consommationAnnuelle && formData.factureAnnuelle && (
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4 space-y-3">
-                    <h4 className="font-semibold text-green-800 flex items-center gap-2">
-                      <Zap className="w-4 h-4" />
-                      Analyse de consommation
-                    </h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center">
-                        <p className="text-xl font-bold text-blue-600">≈ {getConsumptionAnalysis().consoMensuelle} kWh</p>
-                        <p className="text-xs text-muted-foreground">Consommation mensuelle</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-xl font-bold text-orange-600">≈ {getConsumptionAnalysis().coutMensuel} €</p>
-                        <p className="text-xs text-muted-foreground">Coût mensuel</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-xl font-bold text-blue-600">≈ {getConsumptionAnalysis().consoJournaliere} kWh</p>
-                        <p className="text-xs text-muted-foreground">Consommation journalière</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-xl font-bold text-orange-600">≈ {getConsumptionAnalysis().coutJournalier} €</p>
-                        <p className="text-xs text-muted-foreground">Coût journalier</p>
-                      </div>
+                  {/* Compteur & Mono/Tri */}
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">
+                        Compteur <span className="text-destructive">*</span>
+                      </Label>
+                      <Select 
+                        value={formData.compteur} 
+                        onValueChange={(value) => handleInputChange("compteur", value)}
+                      >
+                        <SelectTrigger className="h-12">
+                          <SelectValue placeholder="Sélectionnez le compteur" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="linky">Linky</SelectItem>
+                          <SelectItem value="electronique">Électronique</SelectItem>
+                          <SelectItem value="electromecanique">Électromécanique</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">
+                        Mono/Tri <span className="text-destructive">*</span>
+                      </Label>
+                      <Select 
+                        value={formData.monoTri} 
+                        onValueChange={(value) => handleInputChange("monoTri", value)}
+                      >
+                        <SelectTrigger className="h-12">
+                          <SelectValue placeholder="Sélectionnez le type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="monophase">Monophasé</SelectItem>
+                          <SelectItem value="triphase">Triphasé</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
-                )}
 
-                <div className="flex justify-between pt-4">
-                  <Button
-                    variant="outline"
-                    onClick={handlePrevious}
-                    className="px-6 py-6"
-                  >
-                    <ArrowLeft className="w-5 h-5 mr-2" />
-                    Précédent
-                  </Button>
-                  <Button
-                    onClick={handleNext}
-                    disabled={!canProceedToNextStep()}
-                    className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-8 py-6 text-base"
-                  >
-                    Suivant
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
+                  {/* Type de chauffage (optional) */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold">
+                      Type de chauffage <span className="text-muted-foreground text-xs">(facultatif)</span>
+                    </Label>
+                    <Select 
+                      value={formData.typeChauffage} 
+                      onValueChange={(value) => handleInputChange("typeChauffage", value)}
+                    >
+                      <SelectTrigger className="h-12">
+                        <SelectValue placeholder="Sélectionnez un type de chauffage" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="electrique">Électrique</SelectItem>
+                        <SelectItem value="gaz">Gaz</SelectItem>
+                        <SelectItem value="fioul">Fioul</SelectItem>
+                        <SelectItem value="bois">Bois / Granulés</SelectItem>
+                        <SelectItem value="pompe-chaleur">Pompe à chaleur</SelectItem>
+                        <SelectItem value="autre">Autre</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Type de chauffage eau (optional) */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold">
+                      Type de chauffage de l'eau <span className="text-muted-foreground text-xs">(facultatif)</span>
+                    </Label>
+                    <Select 
+                      value={formData.typeChauffageEau} 
+                      onValueChange={(value) => handleInputChange("typeChauffageEau", value)}
+                    >
+                      <SelectTrigger className="h-12">
+                        <SelectValue placeholder="Sélectionnez un type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="electrique">Ballon électrique</SelectItem>
+                        <SelectItem value="gaz">Chauffe-eau gaz</SelectItem>
+                        <SelectItem value="thermodynamique">Thermodynamique</SelectItem>
+                        <SelectItem value="solaire">Chauffe-eau solaire</SelectItem>
+                        <SelectItem value="autre">Autre</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Surface habitat (optional) */}
+                  <div className="space-y-2">
+                    <Label htmlFor="surfaceHabitat" className="text-sm font-semibold">
+                      Surface habitat (m²) <span className="text-muted-foreground text-xs">(facultatif)</span>
+                    </Label>
+                    <Input
+                      id="surfaceHabitat"
+                      type="number"
+                      placeholder="120"
+                      value={formData.surfaceHabitat}
+                      onChange={(e) => handleInputChange("surfaceHabitat", e.target.value)}
+                      className="h-12"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Surface habitable de votre logement en mètres carrés
+                    </p>
+                  </div>
+
+                  <div className="flex justify-between pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={handlePrevious}
+                      className="px-6 py-6"
+                    >
+                      <ArrowLeft className="w-5 h-5 mr-2" />
+                      Précédent
+                    </Button>
+                    <Button
+                      onClick={handleNext}
+                      disabled={!canProceedToNextStep()}
+                      className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-8 py-6 text-base"
+                    >
+                      Suivant
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Right Column - Summary Panel */}
+              <div className="lg:col-span-2 space-y-4">
+                {/* Header Card */}
+                <Card className="overflow-hidden border-0 shadow-lg">
+                  <div className="bg-gradient-to-br from-orange-500 to-yellow-500 p-6 text-white text-center">
+                    <div className="w-12 h-12 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
+                      <Zap className="w-6 h-6" />
+                    </div>
+                    <h3 className="font-bold text-lg">Profil de consommation</h3>
+                    <p className="text-sm text-white/80 mt-1">
+                      {canProceedToNextStep() ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-green-400" />
+                          Profil complet
+                        </span>
+                      ) : (
+                        <span className="flex items-center justify-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-yellow-300" />
+                          En cours de saisie
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </Card>
+
+                {/* Raccordement électrique */}
+                <Card className="border shadow-sm">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold text-sm">Raccordement électrique</h4>
+                      {formData.compteur && formData.monoTri ? (
+                        <span className="text-xs text-green-600 flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Renseigné
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">À compléter</span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className={`p-3 rounded-lg border ${formData.compteur ? 'bg-green-50 border-green-200' : 'bg-muted/50'}`}>
+                        <p className="text-xs text-muted-foreground uppercase">Compteur</p>
+                        <p className="font-semibold text-sm">
+                          {formData.compteur === 'linky' ? 'Linky' : 
+                           formData.compteur === 'electronique' ? 'Électronique' :
+                           formData.compteur === 'electromecanique' ? 'Électromécanique' : 
+                           'Non renseigné'}
+                        </p>
+                      </div>
+                      <div className={`p-3 rounded-lg border ${formData.monoTri ? 'bg-green-50 border-green-200' : 'bg-muted/50'}`}>
+                        <p className="text-xs text-muted-foreground uppercase">Mono / Tri</p>
+                        <p className="font-semibold text-sm">
+                          {formData.monoTri === 'monophase' ? 'Monophasé' : 
+                           formData.monoTri === 'triphase' ? 'Triphasé' : 
+                           'Non renseigné'}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Data Summary Cards */}
+                <div className="space-y-2">
+                  {/* Tarif */}
+                  <div className={`p-3 rounded-lg border flex items-center gap-3 ${formData.tarifKwh ? 'bg-orange-50 border-orange-200' : 'bg-muted/30'}`}>
+                    <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center shrink-0">
+                      <span className="text-white text-xs font-bold">€</span>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                        Tarif actuel {formData.tarifKwh && <Check className="w-3 h-3 text-green-600" />}
+                      </p>
+                      <p className="font-bold">{formData.tarifKwh ? `${formData.tarifKwh} €/kWh` : 'Non renseigné'}</p>
+                    </div>
+                  </div>
+
+                  {/* Facture annuelle */}
+                  <div className={`p-3 rounded-lg border flex items-center gap-3 ${formData.factureAnnuelle ? 'bg-blue-50 border-blue-200' : 'bg-muted/30'}`}>
+                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
+                      <Home className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                        Facture annuelle {formData.factureAnnuelle && <Check className="w-3 h-3 text-green-600" />}
+                      </p>
+                      <p className="font-bold">{formData.factureAnnuelle ? `${formData.factureAnnuelle} €` : 'Non renseigné'}</p>
+                    </div>
+                  </div>
+
+                  {/* Consommation annuelle */}
+                  <div className={`p-3 rounded-lg border flex items-center gap-3 ${formData.consommationAnnuelle ? 'bg-green-50 border-green-200' : 'bg-muted/30'}`}>
+                    <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+                      <Zap className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                        Consommation annuelle {formData.consommationAnnuelle && <Check className="w-3 h-3 text-green-600" />}
+                      </p>
+                      <p className="font-bold">{formData.consommationAnnuelle ? `${formData.consommationAnnuelle} kWh` : 'Non renseigné'}</p>
+                    </div>
+                  </div>
+
+                  {/* Type de chauffage */}
+                  {formData.typeChauffage && (
+                    <div className="p-3 rounded-lg border bg-amber-50 border-amber-200 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center shrink-0">
+                        <Flame className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                          Type de chauffage <Check className="w-3 h-3 text-green-600" />
+                        </p>
+                        <p className="font-bold capitalize">{formData.typeChauffage}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Chauffage eau */}
+                  {formData.typeChauffageEau && (
+                    <div className="p-3 rounded-lg border bg-cyan-50 border-cyan-200 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center shrink-0">
+                        <Droplets className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                          Chauffage de l'eau <Check className="w-3 h-3 text-green-600" />
+                        </p>
+                        <p className="font-bold capitalize">
+                          {formData.typeChauffageEau === 'solaire' ? 'Solaire' : formData.typeChauffageEau}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
+
+                {/* Consumption Analysis */}
+                {formData.consommationAnnuelle && formData.factureAnnuelle && (
+                  <Card className="border shadow-sm">
+                    <CardContent className="p-4">
+                      <h4 className="font-semibold text-sm text-center mb-3">Analyse de consommation</h4>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="text-center">
+                          <p className="text-lg font-bold text-blue-600">≈ {getConsumptionAnalysis().consoMensuelle} kWh</p>
+                          <p className="text-xs text-muted-foreground">/ mois</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-lg font-bold text-orange-600">≈ {getConsumptionAnalysis().coutMensuel} €</p>
+                          <p className="text-xs text-muted-foreground">/ mois</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-lg font-bold text-blue-600">≈ {getConsumptionAnalysis().consoJournaliere} kWh</p>
+                          <p className="text-xs text-muted-foreground">/ jour</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-lg font-bold text-orange-600">≈ {getConsumptionAnalysis().coutJournalier} €</p>
+                          <p className="text-xs text-muted-foreground">/ jour</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </div>
           )}
 
           {/* Steps indicator */}
