@@ -83,7 +83,17 @@ const SimulateurSolaire = () => {
     useDefaultFacture: false,
   });
 
-  const totalSteps = 3;
+  const totalSteps = 7;
+
+  const steps = [
+    { id: 1, label: 'Client' },
+    { id: 2, label: 'Adresse' },
+    { id: 3, label: 'Consommation' },
+    { id: 4, label: 'Installation' },
+    { id: 5, label: 'Modules' },
+    { id: 6, label: 'Financement' },
+    { id: 7, label: 'Résultats' },
+  ];
 
   useEffect(() => {
     const loadRegions = async () => {
@@ -332,20 +342,74 @@ const SimulateurSolaire = () => {
 
       <main className="min-h-screen bg-gradient-to-br from-orange-50 via-background to-yellow-50 py-12">
         <div className={`container mx-auto px-4 ${currentStep === 3 ? 'max-w-5xl' : 'max-w-2xl'}`}>
-          {/* Progress Header */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-yellow-500 flex items-center justify-center">
-                  <Sun className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-foreground">Simulateur Solaire</h1>
-                  <p className="text-sm text-muted-foreground">Étape {currentStep} sur {totalSteps}</p>
-                </div>
-              </div>
+          {/* Step Breadcrumb Navigation */}
+          <div className="mb-8 bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-white/50">
+            {/* Steps with connecting lines */}
+            <div className="flex items-center justify-between">
+              {steps.map((step, index) => {
+                const stepNumber = index + 1;
+                const isCompleted = currentStep > stepNumber;
+                const isCurrent = currentStep === stepNumber;
+                const isPending = currentStep < stepNumber;
+                
+                return (
+                  <div key={step.id} className="flex items-center flex-1 last:flex-none">
+                    {/* Step circle and label */}
+                    <div className="flex flex-col items-center">
+                      {/* Connecting line before (except first) */}
+                      <div className="flex items-center w-full">
+                        {index > 0 && (
+                          <div 
+                            className={`h-1 flex-1 -mr-2 rounded-full transition-colors ${
+                              isCompleted || isCurrent ? 'bg-blue-500' : 'bg-gray-200'
+                            }`}
+                          />
+                        )}
+                        
+                        {/* Step circle */}
+                        <div 
+                          className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all ${
+                            isCompleted 
+                              ? 'bg-blue-500 text-white' 
+                              : isCurrent 
+                                ? 'bg-blue-500 text-white ring-4 ring-blue-100' 
+                                : 'bg-gray-100 text-gray-400 border-2 border-gray-200'
+                          }`}
+                        >
+                          {isCompleted ? (
+                            <Check className="w-5 h-5" />
+                          ) : (
+                            <span className="text-sm font-semibold">{stepNumber}</span>
+                          )}
+                        </div>
+                        
+                        {/* Connecting line after (except last) */}
+                        {index < steps.length - 1 && (
+                          <div 
+                            className={`h-1 flex-1 -ml-2 rounded-full transition-colors ${
+                              isCompleted ? 'bg-blue-500' : 'bg-gray-200'
+                            }`}
+                          />
+                        )}
+                      </div>
+                      
+                      {/* Step label */}
+                      <span 
+                        className={`mt-2 text-xs font-medium whitespace-nowrap ${
+                          isCurrent 
+                            ? 'text-blue-600 font-semibold' 
+                            : isCompleted 
+                              ? 'text-gray-600' 
+                              : 'text-gray-400'
+                        }`}
+                      >
+                        {stepNumber}. {step.label}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <Progress value={progressValue} className="h-2" />
           </div>
 
           {/* Step 1: Name */}
@@ -967,21 +1031,6 @@ const SimulateurSolaire = () => {
             </div>
           )}
 
-          {/* Steps indicator */}
-          <div className="flex justify-center gap-3 mt-8">
-            {[1, 2, 3].map((step) => (
-              <div
-                key={step}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  step === currentStep
-                    ? "bg-gradient-to-r from-orange-500 to-yellow-500 scale-125"
-                    : step < currentStep
-                    ? "bg-green-500"
-                    : "bg-muted"
-                }`}
-              />
-            ))}
-          </div>
         </div>
       </main>
 
