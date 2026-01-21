@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ArrowLeft, Eye, Sun, Home, Thermometer, Building2, TrendingUp, FileText, Users, MousePointerClick, EyeOff, Ban, Globe, Clock, CheckCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, Eye, Sun, Home, Thermometer, Building2, TrendingUp, FileText, Users, MousePointerClick, EyeOff, Ban, Globe, Clock, CheckCircle, Loader2, ExternalLink } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -252,18 +252,39 @@ const AdminLandingPages = () => {
               return (
                 <Card 
                   key={landing.id} 
-                  className={`hover:shadow-lg transition-all cursor-pointer border-2 hover:border-primary/50 ${
+                  className={`hover:shadow-lg transition-all cursor-pointer border-2 hover:border-primary/50 relative ${
                     landing.seo_status === "disabled" ? "opacity-60" : ""
                   }`}
                   onClick={() => handleCardClick(landing)}
                 >
+                  {/* External Link Button */}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <a
+                          href={landing.path}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="absolute top-3 right-3 p-2 rounded-lg bg-muted/80 hover:bg-primary hover:text-primary-foreground transition-colors z-10"
+                          aria-label={`Ouvrir ${landing.title} dans un nouvel onglet`}
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      </TooltipTrigger>
+                      <TooltipContent side="left">
+                        <p>Ouvrir dans un nouvel onglet</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <div className={`w-12 h-12 rounded-lg ${landing.bg_color} flex items-center justify-center flex-shrink-0`}>
                           <Icon className={`w-6 h-6 ${landing.color}`} />
                         </div>
-                        <div>
+                        <div className="pr-8">
                           <div className="flex items-center gap-2 mb-1">
                             <CardTitle className="text-xl">{landing.title}</CardTitle>
                             {getSeoStatusBadge(landing.seo_status)}
