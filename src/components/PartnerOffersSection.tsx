@@ -78,14 +78,16 @@ const PartnerOffersSection = () => {
 
       // Filter ads:
       // 1. Only from active advertisers
-      // 2. Only if target_regions includes current region (ads without target_regions are excluded)
+      // 2. Ads without target_regions are shown everywhere (national ads)
+      // 3. Ads with target_regions must include current region
       const regionAds = (adsData || []).filter(ad => {
         // Check if advertiser is active
         if (!ad.advertiser?.is_active) return false;
         
-        // Check if ad targets the current region
-        // An ad MUST have target_regions to be displayed
-        if (!ad.target_regions || ad.target_regions.length === 0) return false;
+        // Ads without target_regions = national, show everywhere
+        if (!ad.target_regions || ad.target_regions.length === 0) return true;
+        
+        // Ads with target_regions must include current region
         return ad.target_regions.includes(activeRegion);
       });
 
