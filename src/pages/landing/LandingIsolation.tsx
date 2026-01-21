@@ -7,13 +7,14 @@ import LandingPageGuard from "@/components/LandingPageGuard";
 import { useLandingPageSEO } from "@/hooks/useLandingPageSEO";
 
 const LandingIsolationContent = () => {
-  const { seoStatus } = useLandingPageSEO("isolation");
+  const { seoStatus, canonicalUrl } = useLandingPageSEO("isolation");
 
   return (
     <>
       <Helmet>
         <title>Isolation Thermique de votre Logement | Prime Énergies</title>
         <meta name="description" content="Améliorez le confort de votre maison avec une isolation thermique performante. Profitez des aides pour isoler vos combles, murs et planchers." />
+        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
         {seoStatus === "hidden" && <meta name="robots" content="noindex, nofollow" />}
       </Helmet>
 

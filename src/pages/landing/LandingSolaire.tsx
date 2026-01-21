@@ -7,13 +7,14 @@ import LandingPageGuard from "@/components/LandingPageGuard";
 import { useLandingPageSEO } from "@/hooks/useLandingPageSEO";
 
 const LandingSolaireContent = () => {
-  const { seoStatus } = useLandingPageSEO("solaire");
+  const { seoStatus, canonicalUrl } = useLandingPageSEO("solaire");
   
   return (
     <>
       <Helmet>
         <title>Installation Panneaux Solaires Photovoltaïques | Prime Énergies</title>
         <meta name="description" content="Profitez des aides pour installer vos panneaux solaires photovoltaïques. Réduisez vos factures d'électricité et produisez votre propre énergie verte." />
+        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
         {seoStatus === "hidden" && <meta name="robots" content="noindex, nofollow" />}
       </Helmet>
 
