@@ -1629,6 +1629,99 @@ export type Database = {
         }
         Relationships: []
       }
+      solar_simulator_global_params: {
+        Row: {
+          angle_inclinaison: number
+          hausse_electricite: number
+          hausse_electricite_graph: number
+          id: string
+          periode_calcul: number
+          ratio_jour: number
+          updated_at: string
+        }
+        Insert: {
+          angle_inclinaison?: number
+          hausse_electricite?: number
+          hausse_electricite_graph?: number
+          id?: string
+          periode_calcul?: number
+          ratio_jour?: number
+          updated_at?: string
+        }
+        Update: {
+          angle_inclinaison?: number
+          hausse_electricite?: number
+          hausse_electricite_graph?: number
+          id?: string
+          periode_calcul?: number
+          ratio_jour?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      solar_simulator_regions: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          module_puissance_defaut: string
+          name: string
+          prime_0_3: number
+          prime_10_36: number
+          prime_101_500: number
+          prime_37_100: number
+          prime_4_9: number
+          tarif_kwh: number
+          tarif_rachat_0_3: number
+          tarif_rachat_10_36: number
+          tarif_rachat_101_500: number
+          tarif_rachat_37_100: number
+          tarif_rachat_4_9: number
+          updated_at: string
+          variation_prix_installation: number
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          module_puissance_defaut?: string
+          name: string
+          prime_0_3?: number
+          prime_10_36?: number
+          prime_101_500?: number
+          prime_37_100?: number
+          prime_4_9?: number
+          tarif_kwh?: number
+          tarif_rachat_0_3?: number
+          tarif_rachat_10_36?: number
+          tarif_rachat_101_500?: number
+          tarif_rachat_37_100?: number
+          tarif_rachat_4_9?: number
+          updated_at?: string
+          variation_prix_installation?: number
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          module_puissance_defaut?: string
+          name?: string
+          prime_0_3?: number
+          prime_10_36?: number
+          prime_101_500?: number
+          prime_37_100?: number
+          prime_4_9?: number
+          tarif_kwh?: number
+          tarif_rachat_0_3?: number
+          tarif_rachat_10_36?: number
+          tarif_rachat_101_500?: number
+          tarif_rachat_37_100?: number
+          tarif_rachat_4_9?: number
+          updated_at?: string
+          variation_prix_installation?: number
+        }
+        Relationships: []
+      }
       tags: {
         Row: {
           content_type: Database["public"]["Enums"]["content_type"]
