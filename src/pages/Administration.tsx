@@ -15,6 +15,7 @@ const Administration = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<string>("");
+  const [showSidebar, setShowSidebar] = useState(false);
 
   const sections = [
     { id: "utilisateurs", label: "Utilisateurs", icon: Users, color: "bg-red-500" },
@@ -35,9 +36,15 @@ const Administration = () => {
     }
   }, [user, loading, navigate]);
 
-  // Track active section on scroll
+  // Track active section on scroll and show/hide sidebar
   useEffect(() => {
     const handleScroll = () => {
+      const firstSection = document.getElementById(sections[0].id);
+      if (firstSection) {
+        const rect = firstSection.getBoundingClientRect();
+        setShowSidebar(rect.top <= 150);
+      }
+
       const sectionElements = sections.map(s => ({
         id: s.id,
         element: document.getElementById(s.id)
@@ -52,6 +59,7 @@ const Administration = () => {
           }
         }
       }
+      setActiveSection("");
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -83,12 +91,19 @@ const Administration = () => {
       <div className="min-h-screen bg-background">
         <Header />
         
-        {/* Mini Navigation Sidebar - Desktop Only */}
+        {/* Mini Navigation Sidebar - Desktop Only - appears only when viewing sections */}
         <TooltipProvider delayDuration={100}>
-          <div className="fixed left-4 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col gap-2 p-2 bg-background/80 backdrop-blur-md border rounded-2xl shadow-lg">
+          <div 
+            className={`fixed top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col gap-2 p-2 bg-background/80 backdrop-blur-md border rounded-2xl shadow-lg transition-all duration-300 ${
+              showSidebar ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 pointer-events-none'
+            }`}
+            style={{ left: 'max(1rem, calc((100vw - 1280px) / 2 - 70px))' }}
+          >
             {sections.map((section) => {
               const Icon = section.icon;
               const isActive = activeSection === section.id;
+              // Get the color class for the icon
+              const iconColorClass = section.color.replace('bg-', 'text-');
               return (
                 <Tooltip key={section.id}>
                   <TooltipTrigger asChild>
@@ -98,11 +113,11 @@ const Administration = () => {
                         relative p-2.5 rounded-xl transition-all duration-300 group
                         ${isActive 
                           ? `${section.color} text-white shadow-lg` 
-                          : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+                          : 'hover:bg-muted'
                         }
                       `}
                     >
-                      <Icon className="w-5 h-5" />
+                      <Icon className={`w-5 h-5 ${isActive ? 'text-white' : iconColorClass}`} />
                       {isActive && (
                         <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-1 h-4 bg-white rounded-full" />
                       )}
