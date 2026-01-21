@@ -50,6 +50,7 @@ export const ChatBot = () => {
   const [flowCompleted, setFlowCompleted] = useState(false);
   const [chatbotEnabled, setChatbotEnabled] = useState<boolean | null>(null);
   const [currentFlowNode, setCurrentFlowNode] = useState<any>(null);
+  const [endSettings, setEndSettings] = useState<{ showAgentButton: boolean; showTextInput: boolean }>({ showAgentButton: true, showTextInput: true });
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -82,6 +83,20 @@ export const ChatBot = () => {
     };
 
     checkChatbotEnabled();
+
+    // Also fetch end settings
+    const fetchEndSettings = async () => {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "chatbot_end_settings")
+        .maybeSingle();
+
+      if (!error && data) {
+        setEndSettings(data.value as { showAgentButton: boolean; showTextInput: boolean });
+      }
+    };
+    fetchEndSettings();
   }, []);
 
   // Load active flow on mount (prioritize main flow)
@@ -421,9 +436,9 @@ export const ChatBot = () => {
     }, 100);
   };
 
-  // Determine visibility based on flow node or flow completion state
-  const showTextInput = flowCompleted || (!activeFlow && messages.length > 0) || (currentFlowNode?.allow_text_input === true);
-  const showAgentButton = flowCompleted || (!activeFlow && messages.length > 0) || (currentFlowNode?.allow_agent_button === true);
+  // Determine visibility based on flow node, flow completion state, and end settings
+  const showTextInput = (flowCompleted && endSettings.showTextInput) || (!activeFlow && messages.length > 0) || (currentFlowNode?.allow_text_input === true);
+  const showAgentButton = (flowCompleted && endSettings.showAgentButton) || (!activeFlow && messages.length > 0) || (currentFlowNode?.allow_agent_button === true);
 
   const saveMessage = async (content: string, senderType: "user" | "bot" | "agent") => {
     if (!conversationId) return;
