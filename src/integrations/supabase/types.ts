@@ -1693,6 +1693,7 @@ export type Database = {
           id: string
           module_puissance_defaut: string
           name: string
+          postal_prefixes: string[] | null
           prime_0_3: number
           prime_10_36: number
           prime_101_500: number
@@ -1713,6 +1714,7 @@ export type Database = {
           id?: string
           module_puissance_defaut?: string
           name: string
+          postal_prefixes?: string[] | null
           prime_0_3?: number
           prime_10_36?: number
           prime_101_500?: number
@@ -1733,6 +1735,7 @@ export type Database = {
           id?: string
           module_puissance_defaut?: string
           name?: string
+          postal_prefixes?: string[] | null
           prime_0_3?: number
           prime_10_36?: number
           prime_101_500?: number

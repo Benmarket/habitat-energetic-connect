@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { 
   Gauge, 
   Sun, 
@@ -33,9 +34,12 @@ interface Simulator {
   gradient: string;
   iconBg: string;
   ctaText: string;
+  link?: string;
 }
 
 const SimulatorsSection = () => {
+  const navigate = useNavigate();
+  
   const simulators: Simulator[] = [
     {
       id: "solaire",
@@ -44,7 +48,8 @@ const SimulatorsSection = () => {
       image: maisonSolaireImg,
       gradient: "from-orange-500 to-yellow-500",
       iconBg: "bg-orange-50",
-      ctaText: "Simuler le solaire"
+      ctaText: "Simuler le solaire",
+      link: "/simulateur-solaire"
     },
     {
       id: "classe-energetique",
@@ -162,6 +167,7 @@ const SimulatorsSection = () => {
                         {/* CTA Button */}
                         <Button 
                           className={`w-full bg-gradient-to-r ${simulator.gradient} hover:shadow-xl hover:scale-105 transition-all duration-300 text-white font-semibold py-6 text-base group/btn relative overflow-hidden`}
+                          onClick={() => simulator.link && navigate(simulator.link)}
                         >
                           <span className="relative z-10 flex items-center justify-center gap-2">
                             {simulator.ctaText}

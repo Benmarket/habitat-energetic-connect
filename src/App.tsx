@@ -66,6 +66,7 @@ const InstallApp = lazy(() => import("./pages/InstallApp"));
 const OffrePartenaire = lazy(() => import("./pages/OffrePartenaire"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Merci = lazy(() => import("./pages/Merci"));
+const SimulateurSolaire = lazy(() => import("./pages/SimulateurSolaire"));
 
 const queryClient = new QueryClient();
 
@@ -160,6 +161,7 @@ const App = () => (
                   <Route path="/conditions-utilisation" element={<ConditionsUtilisation />} />
                   <Route path="/faq" element={<FAQ />} />
                   <Route path="/merci" element={<Merci />} />
+                  <Route path="/simulateur-solaire" element={<SimulateurSolaire />} />
 
                   {/* Catch-all */}
                   <Route path="*" element={<NotFound />} />
