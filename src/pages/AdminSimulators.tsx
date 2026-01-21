@@ -12,14 +12,33 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, ArrowLeft, Sun, Zap, Home, Thermometer, Wind, Calculator, Plus, Trash2, Lock, MapPin, Settings, Gauge } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-interface RegionRate {
-  region: string;
-  rate: number;
+interface TarifsTranches {
+  tranche_0_3: number;
+  tranche_4_9: number;
+  tranche_10_36: number;
+  tranche_37_100: number;
+  tranche_101_500: number;
 }
 
-interface SolarRatesSettings {
-  france: number;
-  regions: RegionRate[];
+interface PrimesTranches {
+  tranche_0_3: number;
+  tranche_4_9: number;
+  tranche_10_36: number;
+  tranche_37_100: number;
+  tranche_101_500: number;
+}
+
+interface RegionSettings {
+  region: string;
+  tarifKwh: number;
+  variationPrixInstallation: number;
+  modulePuissanceDefaut: string;
+  tarifsRachatEdf: TarifsTranches;
+  primes: PrimesTranches;
+}
+
+interface SolarRegionsSettings {
+  regions: RegionSettings[];
 }
 
 interface GlobalParams {
@@ -40,12 +59,40 @@ const SIMULATOR_LIST = [
 ];
 
 const REGION_OPTIONS = [
+  { code: "france_metropolitaine", label: "France métropolitaine" },
   { code: "corse", label: "Corse" },
   { code: "reunion", label: "Réunion" },
   { code: "martinique", label: "Martinique" },
   { code: "guadeloupe", label: "Guadeloupe" },
   { code: "guyane", label: "Guyane" },
 ];
+
+const MODULE_PUISSANCE_OPTIONS = [
+  { value: "aucun", label: "Aucun" },
+  { value: "3kwc", label: "3 kWc" },
+  { value: "6kwc", label: "6 kWc" },
+  { value: "9kwc", label: "9 kWc" },
+];
+
+const DEFAULT_REGION_SETTINGS: Omit<RegionSettings, 'region'> = {
+  tarifKwh: 0.248,
+  variationPrixInstallation: 0,
+  modulePuissanceDefaut: "aucun",
+  tarifsRachatEdf: {
+    tranche_0_3: 0.04,
+    tranche_4_9: 0.04,
+    tranche_10_36: 0.0761,
+    tranche_37_100: 0.0761,
+    tranche_101_500: 0.0761,
+  },
+  primes: {
+    tranche_0_3: 0.08,
+    tranche_4_9: 0.08,
+    tranche_10_36: 0.19,
+    tranche_37_100: 0.10,
+    tranche_101_500: 0.00,
+  }
+};
 
 type SolarTab = 'regions' | 'puissances' | 'parametres';
 
@@ -60,9 +107,8 @@ const AdminSimulators = () => {
   const [loading, setLoading] = useState(true);
   
   // Solar simulator settings - Regions
-  const [solarRates, setSolarRates] = useState<SolarRatesSettings>({
-    france: 0.13,
-    regions: []
+  const [solarRegions, setSolarRegions] = useState<SolarRegionsSettings>({
+    regions: [{ region: "france_metropolitaine", ...DEFAULT_REGION_SETTINGS }]
   });
 
   // Solar simulator settings - Global params
@@ -86,24 +132,23 @@ const AdminSimulators = () => {
       if (!user) return;
       
       try {
-        // Load rates settings
-        const { data: ratesData, error: ratesError } = await supabase
+        // Load regions settings
+        const { data: regionsData, error: regionsError } = await supabase
           .from('simulator_settings')
           .select('*')
           .eq('simulator_id', 'solaire')
-          .eq('setting_key', 'tarifs_rachat_kwh')
+          .eq('setting_key', 'regions_settings')
           .maybeSingle();
 
-        if (ratesError && ratesError.code !== 'PGRST116') {
-          console.error('Error loading rates settings:', ratesError);
+        if (regionsError && regionsError.code !== 'PGRST116') {
+          console.error('Error loading regions settings:', regionsError);
         }
 
-        if (ratesData?.setting_value) {
-          const value = ratesData.setting_value as unknown as SolarRatesSettings;
-          setSolarRates({
-            france: value.france ?? 0.13,
-            regions: value.regions ?? []
-          });
+        if (regionsData?.setting_value) {
+          const value = regionsData.setting_value as unknown as SolarRegionsSettings;
+          if (value.regions && value.regions.length > 0) {
+            setSolarRegions(value);
+          }
         }
 
         // Load global params
@@ -164,13 +209,13 @@ const AdminSimulators = () => {
     }
   };
 
-  const handleSaveRates = async () => {
+  const handleSaveRegions = async () => {
     setSaving(true);
     try {
-      await saveSettingToDb('tarifs_rachat_kwh', solarRates);
+      await saveSettingToDb('regions_settings', solarRegions);
       toast({
         title: "Paramètres enregistrés",
-        description: "Les tarifs de rachat ont été mis à jour avec succès.",
+        description: "Les paramètres régionaux ont été mis à jour avec succès.",
       });
     } catch (err) {
       console.error('Error saving settings:', err);
@@ -205,13 +250,13 @@ const AdminSimulators = () => {
   };
 
   const addRegion = () => {
-    const usedRegions = solarRates.regions.map(r => r.region);
+    const usedRegions = solarRegions.regions.map(r => r.region);
     const availableRegion = REGION_OPTIONS.find(r => !usedRegions.includes(r.code));
     
     if (availableRegion) {
-      setSolarRates(prev => ({
+      setSolarRegions(prev => ({
         ...prev,
-        regions: [...prev.regions, { region: availableRegion.code, rate: 0.13 }]
+        regions: [...prev.regions, { region: availableRegion.code, ...DEFAULT_REGION_SETTINGS }]
       }));
     } else {
       toast({
@@ -223,17 +268,55 @@ const AdminSimulators = () => {
   };
 
   const removeRegion = (index: number) => {
-    setSolarRates(prev => ({
+    if (solarRegions.regions.length <= 1) {
+      toast({
+        title: "Action impossible",
+        description: "Vous devez conserver au moins une région.",
+        variant: "destructive"
+      });
+      return;
+    }
+    setSolarRegions(prev => ({
       ...prev,
       regions: prev.regions.filter((_, i) => i !== index)
     }));
   };
 
-  const updateRegion = (index: number, field: 'region' | 'rate', value: string | number) => {
-    setSolarRates(prev => ({
+  const updateRegionField = <K extends keyof RegionSettings>(
+    index: number, 
+    field: K, 
+    value: RegionSettings[K]
+  ) => {
+    setSolarRegions(prev => ({
       ...prev,
       regions: prev.regions.map((r, i) => 
-        i === index ? { ...r, [field]: field === 'rate' ? Number(value) : value } : r
+        i === index ? { ...r, [field]: value } : r
+      )
+    }));
+  };
+
+  const updateTarifRachat = (
+    index: number, 
+    tranche: keyof TarifsTranches, 
+    value: number
+  ) => {
+    setSolarRegions(prev => ({
+      ...prev,
+      regions: prev.regions.map((r, i) => 
+        i === index ? { ...r, tarifsRachatEdf: { ...r.tarifsRachatEdf, [tranche]: value } } : r
+      )
+    }));
+  };
+
+  const updatePrime = (
+    index: number, 
+    tranche: keyof PrimesTranches, 
+    value: number
+  ) => {
+    setSolarRegions(prev => ({
+      ...prev,
+      regions: prev.regions.map((r, i) => 
+        i === index ? { ...r, primes: { ...r.primes, [tranche]: value } } : r
       )
     }));
   };
@@ -254,99 +337,166 @@ const AdminSimulators = () => {
     { id: 'parametres' as SolarTab, label: 'Paramètres globaux', icon: Settings },
   ];
 
-  const renderRegionsTab = () => (
-    <div className="space-y-6">
-      {/* France rate */}
-      <div className="space-y-2">
-        <Label htmlFor="france-rate" className="flex items-center gap-2">
-          <MapPin className="w-4 h-4 text-blue-600" />
-          Tarif rachat kWh France
-        </Label>
-        <div className="flex items-center gap-2">
-          <Input
-            id="france-rate"
-            type="number"
-            step="0.01"
-            min="0"
-            value={solarRates.france}
-            onChange={(e) => setSolarRates(prev => ({ ...prev, france: Number(e.target.value) }))}
-            className="max-w-xs"
-          />
-          <span className="text-muted-foreground">€/kWh</span>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Tarif de rachat par défaut pour la France métropolitaine
-        </p>
-      </div>
-
-      {/* Regional rates */}
-      <div className="space-y-4">
+  const renderRegionBlock = (region: RegionSettings, index: number) => {
+    const regionLabel = REGION_OPTIONS.find(r => r.code === region.region)?.label || region.region;
+    
+    return (
+      <div key={index} className="border-l-4 border-green-500 bg-muted/30 rounded-lg p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <Label className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-orange-500" />
-            Tarifs régionaux spécifiques
-          </Label>
+          <h3 className="text-lg font-semibold text-green-700">{regionLabel}</h3>
           <Button
             type="button"
-            variant="outline"
+            variant="ghost"
             size="sm"
-            onClick={addRegion}
-            className="gap-1"
+            onClick={() => removeRegion(index)}
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
           >
-            <Plus className="w-4 h-4" />
-            Ajouter une région
+            <Trash2 className="w-4 h-4 mr-1" />
+            Supprimer
           </Button>
         </div>
 
-        {solarRates.regions.length === 0 ? (
-          <div className="border border-dashed rounded-lg p-6 text-center text-muted-foreground">
-            <MapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Aucune région spécifique configurée</p>
-            <p className="text-xs mt-1">Le tarif France sera appliqué à toutes les régions</p>
+        {/* Basic settings */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="space-y-2">
+            <Label className="font-medium">Tarif kWh par défaut</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                step="0.001"
+                min="0.1"
+                max="0.999"
+                placeholder="Ex: 0.248"
+                value={region.tarifKwh}
+                onChange={(e) => updateRegionField(index, 'tarifKwh', Number(e.target.value))}
+                className="max-w-[140px]"
+              />
+              <span className="text-xs text-muted-foreground">Valeur comprise entre 0.1 et 0.999</span>
+            </div>
           </div>
-        ) : (
-          <div className="space-y-3">
-            {solarRates.regions.map((regionRate, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                <select
-                  value={regionRate.region}
-                  onChange={(e) => updateRegion(index, 'region', e.target.value)}
-                  className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                >
-                  {REGION_OPTIONS.map(opt => (
-                    <option key={opt.code} value={opt.code}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={regionRate.rate}
-                  onChange={(e) => updateRegion(index, 'rate', e.target.value)}
-                  className="max-w-[120px]"
-                />
-                <span className="text-sm text-muted-foreground">€/kWh</span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeRegion(index)}
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10 ml-auto"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+
+          <div className="space-y-2">
+            <Label className="font-medium">Variation du prix de l'installation (%)</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                placeholder="Ex: 0"
+                value={region.variationPrixInstallation}
+                onChange={(e) => updateRegionField(index, 'variationPrixInstallation', Number(e.target.value))}
+                className="max-w-[140px]"
+              />
+              <span className="text-xs text-muted-foreground">Valeur comprise entre 0 et 100</span>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="font-medium">Module de puissance par défaut</Label>
+            <select
+              value={region.modulePuissanceDefaut}
+              onChange={(e) => updateRegionField(index, 'modulePuissanceDefaut', e.target.value)}
+              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            >
+              {MODULE_PUISSANCE_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Tarifs de rachat EDF */}
+        <div className="space-y-3">
+          <Label className="font-medium text-base">Tarifs de rachat EDF</Label>
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              { key: 'tranche_0_3', label: 'Tranche 0-3 kWc' },
+              { key: 'tranche_4_9', label: 'Tranche 4-9 kWc' },
+              { key: 'tranche_10_36', label: 'Tranche 10-36 kWc' },
+              { key: 'tranche_37_100', label: 'Tranche 37-100 kWc' },
+              { key: 'tranche_101_500', label: 'Tranche 101-500 kWc' },
+            ].map(({ key, label }) => (
+              <div key={key} className="space-y-1">
+                <Label className="text-sm font-normal">{label}</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    step="0.0001"
+                    min="0"
+                    max="1"
+                    placeholder={`Ex: ${region.tarifsRachatEdf[key as keyof TarifsTranches]}`}
+                    value={region.tarifsRachatEdf[key as keyof TarifsTranches]}
+                    onChange={(e) => updateTarifRachat(index, key as keyof TarifsTranches, Number(e.target.value))}
+                    className="max-w-[120px]"
+                  />
+                  <span className="text-xs text-muted-foreground">Valeur comprise entre 0 et 1</span>
+                </div>
               </div>
             ))}
           </div>
-        )}
+        </div>
+
+        {/* Primes */}
+        <div className="space-y-3">
+          <Label className="font-medium text-base">Primes (€/Wc)</Label>
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              { key: 'tranche_0_3', label: 'Tranche 0-3 kWc' },
+              { key: 'tranche_4_9', label: 'Tranche 4-9 kWc' },
+              { key: 'tranche_10_36', label: 'Tranche 10-36 kWc' },
+              { key: 'tranche_37_100', label: 'Tranche 37-100 kWc' },
+              { key: 'tranche_101_500', label: 'Tranche 101-500 kWc' },
+            ].map(({ key, label }) => (
+              <div key={key} className="space-y-1">
+                <Label className="text-sm font-normal">{label}</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="5"
+                    placeholder={`Ex: ${region.primes[key as keyof PrimesTranches]}`}
+                    value={region.primes[key as keyof PrimesTranches]}
+                    onChange={(e) => updatePrime(index, key as keyof PrimesTranches, Number(e.target.value))}
+                    className="max-w-[120px]"
+                  />
+                  <span className="text-xs text-muted-foreground">Valeur comprise entre 0 et 5</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderRegionsTab = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">Administration des tarifs et primes par défaut</h2>
+          <p className="text-sm text-muted-foreground mt-1">Configurez les tarifs pour chaque région</p>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={addRegion}
+          className="gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          Ajouter une région
+        </Button>
+      </div>
+
+      {/* Region blocks */}
+      <div className="space-y-6">
+        {solarRegions.regions.map((region, index) => renderRegionBlock(region, index))}
       </div>
 
       {/* Save button */}
       <div className="pt-4 border-t">
         <Button
-          onClick={handleSaveRates}
+          onClick={handleSaveRegions}
           disabled={saving}
           className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600"
         >
