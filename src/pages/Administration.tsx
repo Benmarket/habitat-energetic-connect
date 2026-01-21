@@ -370,26 +370,24 @@ const Administration = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="group relative overflow-hidden border-l-4 border-l-orange-300 hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300">
-                  <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-orange-100/30"></div>
-                  <CardHeader className="relative">
+                <Card className="group hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 border-l-4 border-l-orange-500 hover:scale-[1.02] hover:-translate-y-1">
+                  <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-orange-500/10 rounded-xl">
-                        <Calculator className="w-6 h-6 text-orange-400" />
+                      <div className="p-3 bg-gradient-to-br from-orange-500/10 to-orange-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <Calculator className="w-6 h-6 text-orange-600" />
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <CardTitle className="text-orange-400">Simulateurs</CardTitle>
-                      <Badge className="text-xs bg-orange-100 text-orange-700 hover:bg-orange-100">Bientôt</Badge>
-                    </div>
-                    <CardDescription className="text-muted-foreground/70">
+                    <CardTitle className="group-hover:text-orange-600 transition-colors">Simulateurs</CardTitle>
+                    <CardDescription>
                       Gérez et configurez les simulateurs interactifs
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="relative">
-                    <Button className="w-full bg-orange-200 text-orange-700 cursor-not-allowed" disabled>
-                      Prochainement
-                    </Button>
+                  <CardContent>
+                    <Link to="/admin/simulateurs">
+                      <Button className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 shadow-lg shadow-orange-500/30">
+                        Accéder
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
               </div>
