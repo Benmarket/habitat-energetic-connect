@@ -963,6 +963,7 @@ export type Database = {
           id: string
           path: string
           seo_status: string
+          seo_status_changed_at: string | null
           slug: string
           title: string
           updated_at: string
@@ -976,6 +977,7 @@ export type Database = {
           id?: string
           path: string
           seo_status?: string
+          seo_status_changed_at?: string | null
           slug: string
           title: string
           updated_at?: string
@@ -989,6 +991,7 @@ export type Database = {
           id?: string
           path?: string
           seo_status?: string
+          seo_status_changed_at?: string | null
           slug?: string
           title?: string
           updated_at?: string

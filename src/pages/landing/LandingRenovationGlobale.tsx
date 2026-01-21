@@ -7,13 +7,14 @@ import LandingPageGuard from "@/components/LandingPageGuard";
 import { useLandingPageSEO } from "@/hooks/useLandingPageSEO";
 
 const LandingRenovationGlobaleContent = () => {
-  const { seoStatus } = useLandingPageSEO("renovation-globale");
+  const { seoStatus, canonicalUrl } = useLandingPageSEO("renovation-globale");
 
   return (
     <>
       <Helmet>
         <title>Rénovation Globale d'Ampleur | Prime Énergies</title>
         <meta name="description" content="Rénovez votre logement en profondeur avec un projet de rénovation globale. Aides renforcées pour un gain énergétique minimum de 55%." />
+        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
         {seoStatus === "hidden" && <meta name="robots" content="noindex, nofollow" />}
       </Helmet>
 

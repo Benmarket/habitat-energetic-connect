@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Eye, Sun, Home, Thermometer, Building2, TrendingUp, FileText, Users, MousePointerClick, Search, EyeOff, Ban, Globe } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ArrowLeft, Eye, Sun, Home, Thermometer, Building2, TrendingUp, FileText, Users, MousePointerClick, EyeOff, Ban, Globe, Clock, CheckCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,8 +32,49 @@ type LandingPage = {
   color: string;
   bg_color: string;
   seo_status: "seo" | "hidden" | "disabled";
+  seo_status_changed_at: string | null;
   created_at: string;
   updated_at: string;
+};
+
+// Helper function to calculate deindexation estimate
+const getDeindexationEstimate = (landing: LandingPage) => {
+  if (landing.seo_status === "seo") return null;
+  
+  const changedAt = landing.seo_status_changed_at 
+    ? new Date(landing.seo_status_changed_at) 
+    : new Date(landing.updated_at);
+  const now = new Date();
+  const daysSinceChange = Math.floor((now.getTime() - changedAt.getTime()) / (1000 * 60 * 60 * 24));
+  
+  if (daysSinceChange < 7) {
+    return {
+      status: "pending" as const,
+      text: `Dé-indexation en cours (~${7 - daysSinceChange} jours restants)`,
+      shortText: `~${7 - daysSinceChange}j`,
+      icon: Loader2,
+      color: "text-orange-600",
+      bgColor: "bg-orange-100",
+    };
+  } else if (daysSinceChange < 28) {
+    return {
+      status: "processing" as const,
+      text: `En cours de dé-indexation par Google (jour ${daysSinceChange}/28)`,
+      shortText: `${daysSinceChange}j`,
+      icon: Clock,
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-100",
+    };
+  } else {
+    return {
+      status: "complete" as const,
+      text: `Probablement dé-indexée (${daysSinceChange} jours)`,
+      shortText: "OK",
+      icon: CheckCircle,
+      color: "text-green-600",
+      bgColor: "bg-green-100",
+    };
+  }
 };
 
 const AdminLandingPages = () => {
@@ -277,9 +319,40 @@ const AdminLandingPages = () => {
                         </Select>
                       </div>
 
-                      <p className="text-xs text-muted-foreground">
-                        {getSeoStatusDescription(landing.seo_status)}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-muted-foreground">
+                          {getSeoStatusDescription(landing.seo_status)}
+                        </p>
+                        
+                        {/* Deindexation Indicator */}
+                        {(() => {
+                          const estimate = getDeindexationEstimate(landing);
+                          if (!estimate) return null;
+                          
+                          const IconComponent = estimate.icon;
+                          
+                          return (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${estimate.bgColor} cursor-help`}>
+                                    <IconComponent className={`w-3 h-3 ${estimate.color} ${estimate.status === 'pending' ? 'animate-spin' : ''}`} />
+                                    <span className={`text-xs font-medium ${estimate.color}`}>
+                                      {estimate.shortText}
+                                    </span>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom" className="max-w-xs">
+                                  <p className="text-sm">{estimate.text}</p>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    Google met généralement 1 à 4 semaines pour dé-indexer une page.
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          );
+                        })()}
+                      </div>
 
                       {/* Stats Grid */}
                       <div className="grid grid-cols-2 gap-3 pt-3 border-t">

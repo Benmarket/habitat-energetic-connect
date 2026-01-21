@@ -7,13 +7,14 @@ import LandingPageGuard from "@/components/LandingPageGuard";
 import { useLandingPageSEO } from "@/hooks/useLandingPageSEO";
 
 const LandingPompeAChaleurContent = () => {
-  const { seoStatus } = useLandingPageSEO("pompe-a-chaleur");
+  const { seoStatus, canonicalUrl } = useLandingPageSEO("pompe-a-chaleur");
 
   return (
     <>
       <Helmet>
         <title>Installation Pompe à Chaleur | Prime Énergies</title>
         <meta name="description" content="Installez une pompe à chaleur performante et écologique. Chauffage et climatisation réversible avec des économies jusqu'à 75% sur vos factures." />
+        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
         {seoStatus === "hidden" && <meta name="robots" content="noindex, nofollow" />}
       </Helmet>
 

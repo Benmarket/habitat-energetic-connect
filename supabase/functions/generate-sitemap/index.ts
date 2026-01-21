@@ -56,6 +56,16 @@ serve(async (req) => {
 
     if (error) throw error;
 
+    // Fetch landing pages with SEO status = 'seo' (exclude hidden and disabled)
+    const { data: landingPages, error: lpError } = await supabase
+      .from("landing_pages")
+      .select("path, updated_at, slug")
+      .eq("seo_status", "seo");
+
+    if (lpError) {
+      console.error("Error fetching landing pages:", lpError);
+    }
+
     const baseUrl = "https://prime-energies.fr";
     const currentDate = new Date().toISOString();
 
@@ -104,6 +114,16 @@ serve(async (req) => {
     <lastmod>${post.updated_at || post.published_at}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
+  </url>\n`;
+    });
+
+    // Add landing pages with SEO status
+    landingPages?.forEach((lp) => {
+      sitemap += `  <url>
+    <loc>${baseUrl}${lp.path}</loc>
+    <lastmod>${lp.updated_at || currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>\n`;
     });
 
