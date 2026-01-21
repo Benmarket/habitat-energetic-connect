@@ -412,21 +412,21 @@ const Administration = () => {
                 <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Gestion des Annonces</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                <Card className="group hover:shadow-2xl hover:shadow-yellow-500/10 transition-all duration-300 border-l-4 border-l-yellow-500 hover:scale-[1.02] hover:-translate-y-1">
+                <Card className="group hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 border-l-4 border-l-amber-500 hover:scale-[1.02] hover:-translate-y-1">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-gradient-to-br from-yellow-500/10 to-yellow-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                        <Megaphone className="w-6 h-6 text-yellow-600" />
+                      <div className="p-3 bg-gradient-to-br from-amber-500/10 to-amber-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <Megaphone className="w-6 h-6 text-amber-600" />
                       </div>
                     </div>
-                    <CardTitle className="group-hover:text-yellow-600 transition-colors">Annonces & Annonceurs</CardTitle>
+                    <CardTitle className="group-hover:text-amber-600 transition-colors">Annonces & Annonceurs</CardTitle>
                     <CardDescription>
                       Gérez vos campagnes publicitaires partenaires
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Link to="/admin/annonces">
-                      <Button className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 shadow-lg shadow-yellow-500/30">
+                      <Button className="w-full bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-600 shadow-lg shadow-amber-500/30">
                         Accéder
                       </Button>
                     </Link>
