@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, ArrowLeft, MessageCircle, Link2, Link2Off, Crown, CrownIcon } from "lucide-react";
+import { Plus, Edit, Trash2, ArrowLeft, MessageCircle, Link2, Link2Off, Crown, CrownIcon, Settings } from "lucide-react";
 import { ChatbotFlowEditor } from "@/components/ChatbotFlowEditor";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -53,6 +53,7 @@ const AdminChatbot = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isLinkConfirmDialogOpen, setIsLinkConfirmDialogOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [flowToLink, setFlowToLink] = useState<ChatbotFlow | null>(null);
   const [selectedFlow, setSelectedFlow] = useState<ChatbotFlow | null>(null);
   const [formData, setFormData] = useState({
@@ -102,6 +103,58 @@ const AdminChatbot = () => {
       // If no setting exists, default to enabled
       if (data === null) return true;
       return data.value === true;
+    },
+  });
+
+  // Fetch chatbot end-of-flow settings
+  const { data: chatbotEndSettings, isLoading: isLoadingEndSettings } = useQuery({
+    queryKey: ["chatbot-end-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "chatbot_end_settings")
+        .maybeSingle();
+
+      if (error) throw error;
+      // Default values if no setting exists
+      if (data === null) return { showAgentButton: true, showTextInput: true };
+      return data.value as { showAgentButton: boolean; showTextInput: boolean };
+    },
+  });
+
+  // Update chatbot end settings mutation
+  const updateEndSettingsMutation = useMutation({
+    mutationFn: async (settings: { showAgentButton: boolean; showTextInput: boolean }) => {
+      const { data: existing } = await supabase
+        .from("site_settings")
+        .select("id")
+        .eq("key", "chatbot_end_settings")
+        .single();
+
+      if (existing) {
+        const { error } = await supabase
+          .from("site_settings")
+          .update({ value: settings, updated_at: new Date().toISOString() })
+          .eq("key", "chatbot_end_settings");
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("site_settings")
+          .insert({ key: "chatbot_end_settings", value: settings, is_public: true });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatbot-end-settings"] });
+      toast({ title: "Paramètres enregistrés" });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -544,6 +597,14 @@ const AdminChatbot = () => {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setIsSettingsModalOpen(true)}
+            className="gap-2"
+          >
+            <Settings className="w-4 h-4" />
+            Paramètres
+          </Button>
           <Button variant="outline" onClick={() => navigate('/admin/chat-history')}>
             <MessageCircle className="w-4 h-4 mr-2" />
             Historique
@@ -896,6 +957,79 @@ const AdminChatbot = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Settings Modal */}
+      <Dialog open={isSettingsModalOpen} onOpenChange={setIsSettingsModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              Paramètres du chatbot
+            </DialogTitle>
+            <DialogDescription>
+              Configuration du comportement en fin de parcours
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium text-muted-foreground">
+                En fin de parcours, que se passe-t-il ?
+              </h4>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="show-agent-button" className="text-base">
+                  Bouton "Parler à un agent humain"
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Afficher le bouton pour demander un conseiller
+                </p>
+              </div>
+              <Switch
+                id="show-agent-button"
+                checked={chatbotEndSettings?.showAgentButton ?? true}
+                onCheckedChange={(checked) => {
+                  updateEndSettingsMutation.mutate({
+                    showAgentButton: checked,
+                    showTextInput: chatbotEndSettings?.showTextInput ?? true,
+                  });
+                }}
+                disabled={isLoadingEndSettings || updateEndSettingsMutation.isPending}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="show-text-input" className="text-base">
+                  Barre de saisie
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Afficher "Posez votre question..." pour écrire librement
+                </p>
+              </div>
+              <Switch
+                id="show-text-input"
+                checked={chatbotEndSettings?.showTextInput ?? true}
+                onCheckedChange={(checked) => {
+                  updateEndSettingsMutation.mutate({
+                    showAgentButton: chatbotEndSettings?.showAgentButton ?? true,
+                    showTextInput: checked,
+                  });
+                }}
+                disabled={isLoadingEndSettings || updateEndSettingsMutation.isPending}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsSettingsModalOpen(false)}>
+              Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
           </div>
         </main>
         <Footer />
