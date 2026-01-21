@@ -389,55 +389,66 @@ const SimulateurSolaire = () => {
       <main className="min-h-screen bg-gradient-to-br from-orange-50 via-background to-yellow-50 py-12">
         <div className={`container mx-auto px-4 ${currentStep === 3 ? 'max-w-5xl' : 'max-w-2xl'}`}>
           {/* Step Breadcrumb Navigation */}
-          <div className="mb-8 bg-white/80 backdrop-blur-sm rounded-xl py-4 px-6 shadow-lg border border-white/50">
-            <div className="flex items-center justify-between">
+          <div className="mb-8 bg-white/90 backdrop-blur-sm rounded-xl py-5 px-8 shadow-lg border border-white/50">
+            {/* Progress lines row */}
+            <div className="flex items-center mb-3 px-4">
               {steps.map((step, index) => {
                 const stepNumber = index + 1;
                 const isCompleted = currentStep > stepNumber;
                 const isCurrent = currentStep === stepNumber;
                 
                 return (
-                  <div key={step.id} className="flex items-center flex-1 last:flex-none">
+                  <div key={`line-${step.id}`} className="flex-1 flex items-center">
+                    {/* Line segment */}
+                    <div 
+                      className={`h-1 flex-1 rounded-full transition-colors ${
+                        isCompleted ? 'bg-blue-500' : isCurrent ? 'bg-blue-500' : 'bg-gray-200'
+                      }`}
+                    />
+                    {/* Gap for circle alignment - except last */}
+                    {index < steps.length - 1 && <div className="w-8" />}
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Circles and labels row */}
+            <div className="flex items-start justify-between">
+              {steps.map((step, index) => {
+                const stepNumber = index + 1;
+                const isCompleted = currentStep > stepNumber;
+                const isCurrent = currentStep === stepNumber;
+                
+                return (
+                  <div key={step.id} className="flex flex-col items-center" style={{ width: '100px' }}>
                     {/* Step circle */}
-                    <div className="flex flex-col items-center relative z-10">
-                      <div 
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
-                          isCompleted 
+                    <div 
+                      className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
+                        isCompleted 
+                          ? 'bg-blue-500 text-white' 
+                          : isCurrent 
                             ? 'bg-blue-500 text-white' 
-                            : isCurrent 
-                              ? 'bg-blue-500 text-white ring-2 ring-blue-200 ring-offset-2' 
-                              : 'bg-white text-gray-400 border-2 border-gray-200'
-                        }`}
-                      >
-                        {isCompleted ? (
-                          <Check className="w-4 h-4" />
-                        ) : (
-                          stepNumber
-                        )}
-                      </div>
-                      <span 
-                        className={`mt-2 text-[11px] font-medium ${
-                          isCurrent 
-                            ? 'text-blue-600 font-semibold' 
-                            : isCompleted 
-                              ? 'text-gray-600' 
-                              : 'text-gray-400'
-                        }`}
-                      >
-                        {step.label}
-                      </span>
+                            : 'bg-gray-100 text-gray-400 border-2 border-gray-200'
+                      }`}
+                    >
+                      {isCompleted ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        stepNumber
+                      )}
                     </div>
-                    
-                    {/* Connecting line */}
-                    {index < steps.length - 1 && (
-                      <div className="flex-1 h-0.5 mx-2 relative -top-3">
-                        <div 
-                          className={`h-full rounded-full transition-colors ${
-                            isCompleted ? 'bg-blue-500' : 'bg-gray-200'
-                          }`}
-                        />
-                      </div>
-                    )}
+                    {/* Step label */}
+                    <span 
+                      className={`mt-2 text-xs text-center whitespace-nowrap ${
+                        isCurrent 
+                          ? 'text-blue-600 font-bold' 
+                          : isCompleted 
+                            ? 'text-gray-600 font-medium' 
+                            : 'text-gray-400'
+                      }`}
+                    >
+                      {stepNumber}. {step.label}
+                    </span>
                   </div>
                 );
               })}
