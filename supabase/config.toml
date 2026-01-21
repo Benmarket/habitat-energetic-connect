@@ -8,3 +8,9 @@ verify_jwt = false
 
 [functions.generate-sitemap]
 verify_jwt = false
+
+[functions.chat-bot]
+verify_jwt = false
+
+[functions.generate-ad-description]
+verify_jwt = false
