@@ -102,6 +102,7 @@ const ManageAnnonces = () => {
   const [filterAdvertiserIds, setFilterAdvertiserIds] = useState<string[]>([]);
   const [filterRegions, setFilterRegions] = useState<RegionCode[]>([]);
   const [filterFeatured, setFilterFeatured] = useState<boolean | null>(null);
+  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
   
   const [formData, setFormData] = useState({
     advertiser_id: "",
@@ -317,6 +318,10 @@ const ManageAnnonces = () => {
       if (!matchesTitle && !matchesAdvertiser) return false;
     }
     
+    // Filter by status (active/inactive/all)
+    if (filterStatus === 'active' && ad.status !== 'active') return false;
+    if (filterStatus === 'inactive' && ad.status === 'active') return false;
+    
     // Filter by advertisers (multiple selection)
     if (filterAdvertiserIds.length > 0 && !filterAdvertiserIds.includes(ad.advertiser_id)) return false;
     
@@ -348,12 +353,13 @@ const ManageAnnonces = () => {
     return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
   });
 
-  const activeFiltersCount = (filterAdvertiserIds.length > 0 ? 1 : 0) + (filterRegions.length > 0 ? 1 : 0) + (filterFeatured !== null ? 1 : 0);
+  const activeFiltersCount = (filterAdvertiserIds.length > 0 ? 1 : 0) + (filterRegions.length > 0 ? 1 : 0) + (filterFeatured !== null ? 1 : 0) + (filterStatus !== 'all' ? 1 : 0);
 
   const clearFilters = () => {
     setFilterAdvertiserIds([]);
     setFilterRegions([]);
     setFilterFeatured(null);
+    setFilterStatus('all');
   };
 
   const handleEdit = (ad: Advertisement) => {
@@ -1076,6 +1082,24 @@ const ManageAnnonces = () => {
                       </div>
                     </div>
                     
+                    {/* Filter by status */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Statut</Label>
+                      <Select 
+                        value={filterStatus} 
+                        onValueChange={(v: 'all' | 'active' | 'inactive') => setFilterStatus(v)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Toutes les annonces" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Toutes les annonces</SelectItem>
+                          <SelectItem value="active">Actives uniquement</SelectItem>
+                          <SelectItem value="inactive">Inactives uniquement</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
                     {/* Filter by featured */}
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">Mise en avant</Label>
@@ -1138,6 +1162,14 @@ const ManageAnnonces = () => {
                       ? ALL_REGIONS.find(r => r.code === filterRegions[0])?.label 
                       : `${filterRegions.length} sélectionnées`}
                     <button onClick={() => setFilterRegions([])} className="ml-1 hover:text-destructive">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </Badge>
+                )}
+                {filterStatus !== 'all' && (
+                  <Badge variant="outline" className="gap-1 py-1.5 px-3">
+                    {filterStatus === 'active' ? "Actives" : "Inactives"}
+                    <button onClick={() => setFilterStatus('all')} className="ml-1 hover:text-destructive">
                       <X className="w-3 h-3" />
                     </button>
                   </Badge>
