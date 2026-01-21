@@ -341,26 +341,36 @@ const AdminSimulators = () => {
     const regionLabel = REGION_OPTIONS.find(r => r.code === region.region)?.label || region.region;
     
     return (
-      <div key={index} className="border-l-4 border-green-500 bg-muted/30 rounded-lg p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-green-700">{regionLabel}</h3>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => removeRegion(index)}
-            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-          >
-            <Trash2 className="w-4 h-4 mr-1" />
-            Supprimer
-          </Button>
+      <Card key={index} className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+        {/* Header avec gradient */}
+        <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                <MapPin className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-white">{regionLabel}</h3>
+            </div>
+            {solarRegions.regions.length > 1 && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => removeRegion(index)}
+                className="text-white/80 hover:text-white hover:bg-white/20"
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                Supprimer
+              </Button>
+            )}
+          </div>
         </div>
 
-        {/* Basic settings */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="space-y-2">
-            <Label className="font-medium">Tarif kWh par défaut</Label>
-            <div className="flex items-center gap-2">
+        <CardContent className="p-6 space-y-8">
+          {/* Paramètres de base */}
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-foreground">Tarif kWh par défaut</Label>
               <Input
                 type="number"
                 step="0.001"
@@ -369,15 +379,12 @@ const AdminSimulators = () => {
                 placeholder="Ex: 0.248"
                 value={region.tarifKwh}
                 onChange={(e) => updateRegionField(index, 'tarifKwh', Number(e.target.value))}
-                className="max-w-[140px]"
               />
-              <span className="text-xs text-muted-foreground">Valeur comprise entre 0.1 et 0.999</span>
+              <p className="text-xs text-muted-foreground">Valeur comprise entre 0.1 et 0.999</p>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label className="font-medium">Variation du prix de l'installation (%)</Label>
-            <div className="flex items-center gap-2">
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-foreground">Variation du prix de l'installation (%)</Label>
               <Input
                 type="number"
                 min="0"
@@ -385,88 +392,87 @@ const AdminSimulators = () => {
                 placeholder="Ex: 0"
                 value={region.variationPrixInstallation}
                 onChange={(e) => updateRegionField(index, 'variationPrixInstallation', Number(e.target.value))}
-                className="max-w-[140px]"
               />
-              <span className="text-xs text-muted-foreground">Valeur comprise entre 0 et 100</span>
+              <p className="text-xs text-muted-foreground">Valeur comprise entre 0 et 100</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-foreground">Module de puissance par défaut</Label>
+              <select
+                value={region.modulePuissanceDefaut}
+                onChange={(e) => updateRegionField(index, 'modulePuissanceDefaut', e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                {MODULE_PUISSANCE_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label className="font-medium">Module de puissance par défaut</Label>
-            <select
-              value={region.modulePuissanceDefaut}
-              onChange={(e) => updateRegionField(index, 'modulePuissanceDefaut', e.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              {MODULE_PUISSANCE_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Tarifs de rachat EDF */}
-        <div className="space-y-3">
-          <Label className="font-medium text-base">Tarifs de rachat EDF</Label>
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {[
-              { key: 'tranche_0_3', label: 'Tranche 0-3 kWc' },
-              { key: 'tranche_4_9', label: 'Tranche 4-9 kWc' },
-              { key: 'tranche_10_36', label: 'Tranche 10-36 kWc' },
-              { key: 'tranche_37_100', label: 'Tranche 37-100 kWc' },
-              { key: 'tranche_101_500', label: 'Tranche 101-500 kWc' },
-            ].map(({ key, label }) => (
-              <div key={key} className="space-y-1">
-                <Label className="text-sm font-normal">{label}</Label>
-                <div className="flex items-center gap-2">
+          {/* Tarifs de rachat EDF */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b">
+              <Zap className="w-5 h-5 text-amber-500" />
+              <h4 className="font-semibold text-foreground">Tarifs de rachat EDF</h4>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {[
+                { key: 'tranche_0_3', label: 'Tranche 0-3 kWc' },
+                { key: 'tranche_4_9', label: 'Tranche 4-9 kWc' },
+                { key: 'tranche_10_36', label: 'Tranche 10-36 kWc' },
+                { key: 'tranche_37_100', label: 'Tranche 37-100 kWc' },
+                { key: 'tranche_101_500', label: 'Tranche 101-500 kWc' },
+              ].map(({ key, label }) => (
+                <div key={key} className="space-y-2 p-3 bg-muted/30 rounded-lg">
+                  <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
                   <Input
                     type="number"
                     step="0.0001"
                     min="0"
                     max="1"
-                    placeholder={`Ex: ${region.tarifsRachatEdf[key as keyof TarifsTranches]}`}
                     value={region.tarifsRachatEdf[key as keyof TarifsTranches]}
                     onChange={(e) => updateTarifRachat(index, key as keyof TarifsTranches, Number(e.target.value))}
-                    className="max-w-[120px]"
+                    className="bg-background"
                   />
-                  <span className="text-xs text-muted-foreground">Valeur comprise entre 0 et 1</span>
+                  <p className="text-[10px] text-muted-foreground">Entre 0 et 1</p>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Primes */}
-        <div className="space-y-3">
-          <Label className="font-medium text-base">Primes (€/Wc)</Label>
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {[
-              { key: 'tranche_0_3', label: 'Tranche 0-3 kWc' },
-              { key: 'tranche_4_9', label: 'Tranche 4-9 kWc' },
-              { key: 'tranche_10_36', label: 'Tranche 10-36 kWc' },
-              { key: 'tranche_37_100', label: 'Tranche 37-100 kWc' },
-              { key: 'tranche_101_500', label: 'Tranche 101-500 kWc' },
-            ].map(({ key, label }) => (
-              <div key={key} className="space-y-1">
-                <Label className="text-sm font-normal">{label}</Label>
-                <div className="flex items-center gap-2">
+          {/* Primes */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b">
+              <Calculator className="w-5 h-5 text-green-500" />
+              <h4 className="font-semibold text-foreground">Primes (€/Wc)</h4>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {[
+                { key: 'tranche_0_3', label: 'Tranche 0-3 kWc' },
+                { key: 'tranche_4_9', label: 'Tranche 4-9 kWc' },
+                { key: 'tranche_10_36', label: 'Tranche 10-36 kWc' },
+                { key: 'tranche_37_100', label: 'Tranche 37-100 kWc' },
+                { key: 'tranche_101_500', label: 'Tranche 101-500 kWc' },
+              ].map(({ key, label }) => (
+                <div key={key} className="space-y-2 p-3 bg-muted/30 rounded-lg">
+                  <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
                   <Input
                     type="number"
                     step="0.01"
                     min="0"
                     max="5"
-                    placeholder={`Ex: ${region.primes[key as keyof PrimesTranches]}`}
                     value={region.primes[key as keyof PrimesTranches]}
                     onChange={(e) => updatePrime(index, key as keyof PrimesTranches, Number(e.target.value))}
-                    className="max-w-[120px]"
+                    className="bg-background"
                   />
-                  <span className="text-xs text-muted-foreground">Valeur comprise entre 0 et 5</span>
+                  <p className="text-[10px] text-muted-foreground">Entre 0 et 5</p>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   };
 
