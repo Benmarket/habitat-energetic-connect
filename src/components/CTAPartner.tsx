@@ -19,7 +19,7 @@ const CTAPartner = () => {
   };
 
   return (
-    <section id="devenir-partenaire" className="py-6 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 relative overflow-hidden">
+    <section id="devenir-partenaire" className="py-6 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 relative overflow-hidden">
       {/* Subtle pattern overlay */}
       <div className="absolute inset-0 opacity-10 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,white_1px,transparent_1px)] bg-[length:20px_20px]"></div>
