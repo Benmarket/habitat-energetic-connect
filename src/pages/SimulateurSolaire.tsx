@@ -428,15 +428,29 @@ const SimulateurSolaire = () => {
                   </div>
                 </div>
 
-                {/* Detected Region (read-only) */}
+                {/* Detected Region (read-only) with aids indicator */}
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold">Région détectée</Label>
-                  <div className="flex items-center gap-2 h-12 px-4 rounded-md border border-input bg-muted">
+                  <div className="flex items-center gap-2 min-h-12 px-4 py-3 rounded-md border border-input bg-muted">
                     {formData.detectedRegion ? (
-                      <>
-                        <Check className="w-4 h-4 text-green-600" />
-                        <span className="text-foreground font-medium">{formData.detectedRegion}</span>
-                      </>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
+                        <div className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-green-600 shrink-0" />
+                          <span className="text-foreground font-medium">{formData.detectedRegion}</span>
+                        </div>
+                        {/* Aids/subsidies availability indicator */}
+                        {regions.some(r => r.name === formData.detectedRegion) ? (
+                          <div className="flex items-center gap-2 text-xs sm:ml-auto">
+                            <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
+                            <span className="text-green-700">Aides disponibles — continuez pour en connaître le montant</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 text-xs sm:ml-auto">
+                            <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                            <span className="text-red-600">Pas d'aides spécifiques pour cette région</span>
+                          </div>
+                        )}
+                      </div>
                     ) : (
                       <span className="text-muted-foreground">Entrez un code postal pour détecter la région</span>
                     )}
