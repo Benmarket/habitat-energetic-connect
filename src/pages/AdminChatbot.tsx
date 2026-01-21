@@ -118,14 +118,14 @@ const AdminChatbot = () => {
 
       if (error) throw error;
       // Default values if no setting exists
-      if (data === null) return { showAgentButton: true, showTextInput: true };
-      return data.value as { showAgentButton: boolean; showTextInput: boolean };
+      if (data === null) return { showAgentButton: true, showTextInput: true, showRestartButton: true };
+      return data.value as { showAgentButton: boolean; showTextInput: boolean; showRestartButton: boolean };
     },
   });
 
   // Update chatbot end settings mutation
   const updateEndSettingsMutation = useMutation({
-    mutationFn: async (settings: { showAgentButton: boolean; showTextInput: boolean }) => {
+    mutationFn: async (settings: { showAgentButton: boolean; showTextInput: boolean; showRestartButton: boolean }) => {
       const { data: existing } = await supabase
         .from("site_settings")
         .select("id")
@@ -994,6 +994,7 @@ const AdminChatbot = () => {
                   updateEndSettingsMutation.mutate({
                     showAgentButton: checked,
                     showTextInput: chatbotEndSettings?.showTextInput ?? true,
+                    showRestartButton: chatbotEndSettings?.showRestartButton ?? true,
                   });
                 }}
                 disabled={isLoadingEndSettings || updateEndSettingsMutation.isPending}
@@ -1016,6 +1017,30 @@ const AdminChatbot = () => {
                   updateEndSettingsMutation.mutate({
                     showAgentButton: chatbotEndSettings?.showAgentButton ?? true,
                     showTextInput: checked,
+                    showRestartButton: chatbotEndSettings?.showRestartButton ?? true,
+                  });
+                }}
+                disabled={isLoadingEndSettings || updateEndSettingsMutation.isPending}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="show-restart-button" className="text-base">
+                  Bouton "Nouveau chat"
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Afficher le bouton pour recommencer une nouvelle conversation
+                </p>
+              </div>
+              <Switch
+                id="show-restart-button"
+                checked={chatbotEndSettings?.showRestartButton ?? true}
+                onCheckedChange={(checked) => {
+                  updateEndSettingsMutation.mutate({
+                    showAgentButton: chatbotEndSettings?.showAgentButton ?? true,
+                    showTextInput: chatbotEndSettings?.showTextInput ?? true,
+                    showRestartButton: checked,
                   });
                 }}
                 disabled={isLoadingEndSettings || updateEndSettingsMutation.isPending}
