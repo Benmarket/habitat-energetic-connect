@@ -3,13 +3,18 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Home, ArrowRight } from "lucide-react";
+import LandingPageGuard from "@/components/LandingPageGuard";
+import { useLandingPageSEO } from "@/hooks/useLandingPageSEO";
 
-const LandingIsolation = () => {
+const LandingIsolationContent = () => {
+  const { seoStatus } = useLandingPageSEO("isolation");
+
   return (
     <>
       <Helmet>
         <title>Isolation Thermique de votre Logement | Prime Énergies</title>
         <meta name="description" content="Améliorez le confort de votre maison avec une isolation thermique performante. Profitez des aides pour isoler vos combles, murs et planchers." />
+        {seoStatus === "hidden" && <meta name="robots" content="noindex, nofollow" />}
       </Helmet>
 
       <div className="min-h-screen bg-background">
@@ -89,6 +94,14 @@ const LandingIsolation = () => {
         <Footer />
       </div>
     </>
+  );
+};
+
+const LandingIsolation = () => {
+  return (
+    <LandingPageGuard slug="isolation">
+      <LandingIsolationContent />
+    </LandingPageGuard>
   );
 };
 

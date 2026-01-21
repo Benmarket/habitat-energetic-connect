@@ -3,13 +3,18 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Building2, ArrowRight } from "lucide-react";
+import LandingPageGuard from "@/components/LandingPageGuard";
+import { useLandingPageSEO } from "@/hooks/useLandingPageSEO";
 
-const LandingRenovationGlobale = () => {
+const LandingRenovationGlobaleContent = () => {
+  const { seoStatus } = useLandingPageSEO("renovation-globale");
+
   return (
     <>
       <Helmet>
         <title>Rénovation Globale d'Ampleur | Prime Énergies</title>
         <meta name="description" content="Rénovez votre logement en profondeur avec un projet de rénovation globale. Aides renforcées pour un gain énergétique minimum de 55%." />
+        {seoStatus === "hidden" && <meta name="robots" content="noindex, nofollow" />}
       </Helmet>
 
       <div className="min-h-screen bg-background">
@@ -89,6 +94,14 @@ const LandingRenovationGlobale = () => {
         <Footer />
       </div>
     </>
+  );
+};
+
+const LandingRenovationGlobale = () => {
+  return (
+    <LandingPageGuard slug="renovation-globale">
+      <LandingRenovationGlobaleContent />
+    </LandingPageGuard>
   );
 };
 

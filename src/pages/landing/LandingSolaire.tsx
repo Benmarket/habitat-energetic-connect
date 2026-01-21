@@ -3,13 +3,18 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Sun, ArrowRight } from "lucide-react";
+import LandingPageGuard from "@/components/LandingPageGuard";
+import { useLandingPageSEO } from "@/hooks/useLandingPageSEO";
 
-const LandingSolaire = () => {
+const LandingSolaireContent = () => {
+  const { seoStatus } = useLandingPageSEO("solaire");
+  
   return (
     <>
       <Helmet>
         <title>Installation Panneaux Solaires Photovoltaïques | Prime Énergies</title>
         <meta name="description" content="Profitez des aides pour installer vos panneaux solaires photovoltaïques. Réduisez vos factures d'électricité et produisez votre propre énergie verte." />
+        {seoStatus === "hidden" && <meta name="robots" content="noindex, nofollow" />}
       </Helmet>
 
       <div className="min-h-screen bg-background">
@@ -89,6 +94,14 @@ const LandingSolaire = () => {
         <Footer />
       </div>
     </>
+  );
+};
+
+const LandingSolaire = () => {
+  return (
+    <LandingPageGuard slug="solaire">
+      <LandingSolaireContent />
+    </LandingPageGuard>
   );
 };
 
