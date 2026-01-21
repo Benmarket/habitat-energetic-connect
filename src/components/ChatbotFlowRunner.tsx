@@ -8,9 +8,9 @@ import {
   Wallet, 
   Phone, 
   HelpCircle,
+  RotateCcw,
   type LucideIcon 
 } from "lucide-react";
-
 // Icon mapping based on keywords in option labels
 const getOptionIcon = (label: string): LucideIcon | null => {
   const lowerLabel = label.toLowerCase();
@@ -55,6 +55,7 @@ type ChatbotFlowRunnerProps = {
   onComplete?: (isQualified: boolean, conversationHistory: Array<{ question: string; answer: string }>) => void;
   onNodeChange?: (node: FlowNode | null) => void;
   onFlowRedirect?: (flowId: string, conversationHistory: Array<{ question: string; answer: string }>) => void;
+  onRestart?: () => void;
 };
 
 export const ChatbotFlowRunner = ({
@@ -64,6 +65,7 @@ export const ChatbotFlowRunner = ({
   onComplete,
   onNodeChange,
   onFlowRedirect,
+  onRestart,
 }: ChatbotFlowRunnerProps) => {
   const [currentNodeId, setCurrentNodeId] = useState<string>(flowStructure.start_node);
   const [textAnswer, setTextAnswer] = useState("");
@@ -184,12 +186,22 @@ export const ChatbotFlowRunner = ({
   if (currentNode.type === "end") {
     return (
       <div className="flex flex-col gap-4 p-4">
-      <div className="bg-blue-900/10 dark:bg-blue-100/10 border border-blue-900/20 dark:border-blue-100/20 rounded-xl px-5 py-4">
+        <div className="bg-blue-900/10 dark:bg-blue-100/10 border border-blue-900/20 dark:border-blue-100/20 rounded-xl px-5 py-4">
           <p className="text-sm font-medium text-blue-900 dark:text-blue-100 text-center">{currentNode.message}</p>
         </div>
         {onComplete && (
           <Button onClick={handleEnd} className="w-full">
             Terminer
+          </Button>
+        )}
+        {onRestart && (
+          <Button 
+            onClick={onRestart} 
+            variant="outline" 
+            className="w-full gap-2 border-blue-900/30 text-blue-900 hover:bg-blue-900/5 dark:border-blue-100/30 dark:text-blue-100 dark:hover:bg-blue-100/5"
+          >
+            <RotateCcw className="h-4 w-4" />
+            Nouveau chat
           </Button>
         )}
       </div>
