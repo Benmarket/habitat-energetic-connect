@@ -58,6 +58,8 @@ interface Advertisement {
   clicks_count: number;
   conversions_count: number;
   target_regions: string[] | null;
+  is_rge_certified: boolean;
+  rge_certification_text: string | null;
   advertiser: {
     id: string;
     name: string;
@@ -116,7 +118,9 @@ const ManageAnnonces = () => {
     is_featured: false,
     status: "active",
     expires_at: "",
-    target_regions: [] as string[], // New field for target regions
+    target_regions: [] as string[],
+    is_rge_certified: false,
+    rge_certification_text: "",
   });
 
   useEffect(() => {
@@ -248,6 +252,8 @@ const ManageAnnonces = () => {
       status: formData.status,
       expires_at: formData.expires_at ? new Date(formData.expires_at).toISOString() : null,
       target_regions: formData.target_regions.length > 0 ? formData.target_regions : null,
+      is_rge_certified: formData.is_rge_certified,
+      rge_certification_text: formData.is_rge_certified && formData.rge_certification_text ? formData.rge_certification_text : null,
     };
 
     try {
@@ -368,6 +374,8 @@ const ManageAnnonces = () => {
       status: ad.status,
       expires_at: ad.expires_at ? ad.expires_at.split('T')[0] : "",
       target_regions: ad.target_regions || [],
+      is_rge_certified: ad.is_rge_certified || false,
+      rge_certification_text: ad.rge_certification_text || "",
     });
     setDialogOpen(true);
   };
@@ -550,6 +558,8 @@ const ManageAnnonces = () => {
       status: "active",
       expires_at: "",
       target_regions: [],
+      is_rge_certified: false,
+      rge_certification_text: "",
     });
     setCurrentFeature("");
   };
@@ -852,6 +862,30 @@ const ManageAnnonces = () => {
                           Laisser vide pour une offre sans expiration
                         </p>
                       </div>
+                    </div>
+
+                    {/* RGE Certification */}
+                    <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="is_rge_certified" 
+                          checked={formData.is_rge_certified} 
+                          onCheckedChange={(v) => setFormData({ ...formData, is_rge_certified: !!v })} 
+                        />
+                        <Label htmlFor="is_rge_certified" className="font-medium">Certifié RGE</Label>
+                      </div>
+                      {formData.is_rge_certified && (
+                        <div>
+                          <Label htmlFor="rge_text" className="text-sm text-muted-foreground">Précision certification (optionnel)</Label>
+                          <Input 
+                            id="rge_text"
+                            value={formData.rge_certification_text} 
+                            onChange={(e) => setFormData({ ...formData, rge_certification_text: e.target.value })} 
+                            placeholder="Ex: QualiPV 2026, QualiPAC..."
+                            className="mt-1"
+                          />
+                        </div>
+                      )}
                     </div>
 
                     {/* Info about featured ads */}

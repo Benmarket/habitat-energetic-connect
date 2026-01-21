@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check, ArrowLeft, MapPin, Mail, Globe, Tag, Building2, Clock } from "lucide-react";
+import { Check, ArrowLeft, MapPin, Mail, Globe, Tag, Building2, Clock, Award } from "lucide-react";
 import { format, differenceInDays, isPast } from "date-fns";
 import { fr } from "date-fns/locale";
 import { getOfferUrl } from "@/utils/slugify";
@@ -31,6 +31,8 @@ interface Advertisement {
   advertiser_id: string;
   expires_at: string | null;
   product_type: string | null;
+  is_rge_certified: boolean;
+  rge_certification_text: string | null;
   advertiser: {
     id: string;
     name: string;
@@ -318,6 +320,19 @@ const OffrePartenaire = () => {
                       <p className="text-sm text-muted-foreground">Partenaire certifié</p>
                     </div>
                   </div>
+
+                  {/* RGE Certification Badge */}
+                  {offer.is_rge_certified && (
+                    <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
+                      <Award className="w-5 h-5 text-green-600 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-green-700 dark:text-green-400">Certifié RGE</p>
+                        {offer.rge_certification_text && (
+                          <p className="text-xs text-green-600 dark:text-green-500">{offer.rge_certification_text}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   {offer.advertiser.description && (
                     <p className="text-sm text-muted-foreground leading-relaxed">

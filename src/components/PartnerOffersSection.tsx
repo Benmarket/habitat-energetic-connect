@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, Tag, Clock } from "lucide-react";
+import { Check, Tag, Clock, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import { format, differenceInDays, isPast } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -32,6 +32,8 @@ interface Advertisement {
   badge_text: string | null;
   badge_type: string;
   expires_at: string | null;
+  is_rge_certified: boolean;
+  rge_certification_text: string | null;
   advertiser: {
     name: string;
     logo: string | null;
@@ -237,9 +239,17 @@ const PartnerOffersSection = () => {
                       <h3 className="text-xl md:text-2xl font-bold mb-2 group-hover:text-amber-600 transition-colors">
                         {offer.title}
                       </h3>
-                      <p className="text-xs md:text-sm text-muted-foreground font-medium">
-                        {offer.advertiser.name}
-                      </p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-xs md:text-sm text-muted-foreground font-medium">
+                          {offer.advertiser.name}
+                        </p>
+                        {offer.is_rge_certified && (
+                          <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-300 dark:bg-green-950/50 dark:text-green-400 dark:border-green-700">
+                            <Award className="w-3 h-3 mr-1" />
+                            RGE {offer.rge_certification_text ? `• ${offer.rge_certification_text}` : ''}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
 
                     {/* Price */}
