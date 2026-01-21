@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { MessageCircle, X, Send, UserCog, Bot, User, ArrowLeft } from "lucide-react";
+import { MessageCircle, X, Send, UserCog, Bot, User, ArrowLeft, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -50,7 +50,7 @@ export const ChatBot = () => {
   const [flowCompleted, setFlowCompleted] = useState(false);
   const [chatbotEnabled, setChatbotEnabled] = useState<boolean | null>(null);
   const [currentFlowNode, setCurrentFlowNode] = useState<any>(null);
-  const [endSettings, setEndSettings] = useState<{ showAgentButton: boolean; showTextInput: boolean }>({ showAgentButton: true, showTextInput: true });
+  const [endSettings, setEndSettings] = useState<{ showAgentButton: boolean; showTextInput: boolean; showRestartButton: boolean }>({ showAgentButton: true, showTextInput: true, showRestartButton: true });
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -93,7 +93,7 @@ export const ChatBot = () => {
         .maybeSingle();
 
       if (!error && data) {
-        setEndSettings(data.value as { showAgentButton: boolean; showTextInput: boolean });
+        setEndSettings(data.value as { showAgentButton: boolean; showTextInput: boolean; showRestartButton: boolean });
       }
     };
     fetchEndSettings();
@@ -750,6 +750,21 @@ export const ChatBot = () => {
                 <Button variant="outline" size="sm" onClick={requestHumanAgent} className="w-full gap-2 text-xs">
                   <UserCog className="h-3 w-3" />
                   Parler à un agent humain
+                </Button>
+              </div>
+            )}
+
+            {/* Restart button - always at the bottom when flow is completed */}
+            {flowCompleted && endSettings.showRestartButton && (
+              <div className="mt-3">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleRestartChat} 
+                  className="w-full gap-2 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                  Nouveau chat
                 </Button>
               </div>
             )}
