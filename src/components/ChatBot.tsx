@@ -437,8 +437,15 @@ export const ChatBot = () => {
   };
 
   // Determine visibility based on flow node, flow completion state, and end settings
-  const showTextInput = (flowCompleted && endSettings.showTextInput) || (!activeFlow && messages.length > 0) || (currentFlowNode?.allow_text_input === true);
-  const showAgentButton = (flowCompleted && endSettings.showAgentButton) || (!activeFlow && messages.length > 0) || (currentFlowNode?.allow_agent_button === true);
+  // For nodes in flows: show if explicitly enabled via allow_text_input/allow_agent_button
+  // For flow completed: use end settings
+  // For no active flow: show if messages exist
+  const showTextInput = (flowCompleted && endSettings.showTextInput) || 
+    (!activeFlow && messages.length > 0) || 
+    (showFlowRunner && currentFlowNode?.allow_text_input === true);
+  const showAgentButton = (flowCompleted && endSettings.showAgentButton) || 
+    (!activeFlow && messages.length > 0) || 
+    (showFlowRunner && currentFlowNode?.allow_agent_button === true);
 
   const saveMessage = async (content: string, senderType: "user" | "bot" | "agent") => {
     if (!conversationId) return;
