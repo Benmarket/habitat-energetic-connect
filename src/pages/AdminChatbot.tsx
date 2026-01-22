@@ -200,13 +200,63 @@ const AdminChatbot = () => {
       const { data, error } = await supabase
         .from("chatbot_flows")
         .select("*")
-        .order("is_main", { ascending: false })
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true });
 
       if (error) throw error;
       return data as ChatbotFlow[];
     },
   });
+
+  // Sort flows: main first, then in order of main menu options, then others
+  const sortedFlows = (() => {
+    if (!flows) return [];
+    
+    const mainFlow = flows.find(f => f.is_main);
+    if (!mainFlow) return flows;
+    
+    // Get the order of redirect_flow_ids from main menu options
+    const mainMenuOptions = mainFlow.tree_structure?.nodes?.menu_principal?.options || [];
+    const orderedFlowIds: string[] = mainMenuOptions
+      .map((opt: any) => opt.redirect_flow_id)
+      .filter((id: string) => id);
+    
+    // Create order map: main flow = 0, then options in order, then rest
+    const orderMap = new Map<string, number>();
+    orderMap.set(mainFlow.id, 0);
+    orderedFlowIds.forEach((id: string, index: number) => {
+      orderMap.set(id, index + 1);
+    });
+    
+    return [...flows].sort((a, b) => {
+      const orderA = orderMap.get(a.id) ?? 999;
+      const orderB = orderMap.get(b.id) ?? 999;
+      return orderA - orderB;
+    });
+  })();
+
+  // Build a map of which flows reference each flow
+  const flowReferencesMap = (() => {
+    const map = new Map<string, string[]>();
+    if (!flows) return map;
+    
+    flows.forEach(flow => {
+      const nodes = flow.tree_structure?.nodes || {};
+      Object.values(nodes).forEach((node: any) => {
+        const options = node.options || [];
+        options.forEach((opt: any) => {
+          if (opt.redirect_flow_id) {
+            const refs = map.get(opt.redirect_flow_id) || [];
+            if (!refs.includes(flow.name)) {
+              refs.push(flow.name);
+            }
+            map.set(opt.redirect_flow_id, refs);
+          }
+        });
+      });
+    });
+    
+    return map;
+  })();
 
   // Get available flows for editor (for linking options to other flows)
   const availableFlowsForEditor = flows?.map(f => ({ id: f.id, name: f.name })) || [];
@@ -625,7 +675,7 @@ const AdminChatbot = () => {
         <div className="text-center py-12">Chargement...</div>
       ) : (
         <div className="grid gap-4">
-          {flows?.map((flow) => (
+          {sortedFlows?.map((flow) => (
             <Card 
               key={flow.id} 
               className={`${flow.is_main ? "border-amber-500 border-2 bg-amber-50/30 dark:bg-amber-900/10" : flow.is_active ? "border-green-500 border-2" : ""}`}
@@ -646,6 +696,11 @@ const AdminChatbot = () => {
                         <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full dark:bg-green-900 dark:text-green-300">
                           <Link2 className="w-3 h-3 mr-1" />
                           Lié au chatbot
+                        </span>
+                      ) : flowReferencesMap.get(flow.id)?.length ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full dark:bg-green-900 dark:text-green-300">
+                          <Link2 className="w-3 h-3" />
+                          Lié à : {flowReferencesMap.get(flow.id)?.join(", ")}
                         </span>
                       ) : (
                         <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-500 bg-gray-100 rounded-full dark:bg-gray-800 dark:text-gray-400">
