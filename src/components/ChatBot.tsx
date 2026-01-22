@@ -641,7 +641,7 @@ export const ChatBot = () => {
 
       {/* Chatbot window */}
       {isOpen && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:right-6 md:translate-x-0 w-[calc(100vw-3rem)] max-w-96 h-[500px] bg-background border border-border rounded-lg shadow-2xl flex flex-col z-50 animate-scale-in">
+        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:right-6 md:translate-x-0 w-[calc(100vw-3rem)] max-w-96 bg-background border border-border rounded-lg shadow-2xl flex flex-col z-50 animate-scale-in ${showTextInput ? 'h-[500px]' : 'max-h-[500px]'}`}>
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border bg-blue-900 text-white rounded-t-lg">
             <div className="flex items-center gap-3">
@@ -659,7 +659,7 @@ export const ChatBot = () => {
           </div>
 
           {/* Messages */}
-          <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+          <ScrollArea className={`p-4 ${showTextInput ? 'flex-1' : ''}`} ref={scrollRef}>
             {/* Back button for secondary flows */}
             {showBackButton && showFlowRunner && !flowCompleted && (
               <button
