@@ -195,17 +195,31 @@ const SimulateurSolaire = () => {
     }
   };
 
+  // Handle blur on address input - auto-select first suggestion
+  const handleAddressBlur = () => {
+    // Small delay to allow click on suggestion to be processed first
+    setTimeout(() => {
+      if (suggestions.length > 0 && showSuggestions) {
+        // Auto-select first suggestion
+        handleSelectSuggestion(suggestions[0]);
+      }
+      setShowSuggestions(false);
+    }, 150);
+  };
+
   // Handle click outside suggestions
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
-        setShowSuggestions(false);
+        // Don't auto-fill here, let blur handler do it
+        // Just hide suggestions after a delay
+        setTimeout(() => setShowSuggestions(false), 200);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [suggestions, showSuggestions]);
 
   const handleSelectSuggestion = (suggestion: AddressSuggestion) => {
     setFormData(prev => ({
@@ -562,6 +576,7 @@ const SimulateurSolaire = () => {
                         placeholder="Tapez une adresse pour la rechercher..."
                         value={formData.fullAddress}
                         onChange={(e) => handleInputChange("fullAddress", e.target.value)}
+                        onBlur={handleAddressBlur}
                         className="h-12 pl-10"
                       />
                     </div>
