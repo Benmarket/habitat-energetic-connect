@@ -170,11 +170,21 @@ export const ChatbotFlowRunner = ({
 
   if (!currentNode) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 text-center">
-        <MessageCircle className="w-12 h-12 text-muted-foreground mb-4" />
+      <div className="flex flex-col items-center justify-center p-8 text-center gap-4">
+        <MessageCircle className="w-12 h-12 text-muted-foreground" />
         <p className="text-muted-foreground">
           Configuration du parcours incomplète. Veuillez vérifier les nœuds.
         </p>
+        {onRestart && endSettings.showRestartButton && (
+          <Button 
+            onClick={onRestart} 
+            variant="outline" 
+            className="gap-2 border-blue-900/30 text-blue-900 hover:bg-blue-900/5 dark:border-blue-100/30 dark:text-blue-100 dark:hover:bg-blue-100/5"
+          >
+            <RotateCcw className="h-4 w-4" />
+            Nouveau chat
+          </Button>
+        )}
       </div>
     );
   }
