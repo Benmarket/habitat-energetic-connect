@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { OrganizationSchema } from "@/components/SEO/OrganizationSchema";
 import Header from "@/components/Header";
@@ -75,6 +76,22 @@ const SECTION_COMPONENTS: Record<string, React.FC> = {
 const Index = () => {
   const [sections, setSections] = useState<HomepageSection[]>(DEFAULT_SECTIONS);
   const { activeRegion } = useRegionContext();
+  const location = useLocation();
+
+  // Handle scrolling to anchor after navigation
+  useEffect(() => {
+    if (location.hash) {
+      // Small delay to ensure the page is rendered
+      const timeoutId = setTimeout(() => {
+        const elementId = location.hash.replace('#', '');
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [location.hash]);
 
   useEffect(() => {
     const loadSections = async () => {

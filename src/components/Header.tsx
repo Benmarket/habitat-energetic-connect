@@ -258,16 +258,22 @@ const Header = () => {
                   onClick={() => {
                     const link = headerFooterSettings.installerButtonLink;
                     if (link.includes('#')) {
-                      const [path, hash] = link.split('#');
+                      const hashIndex = link.indexOf('#');
+                      const path = link.substring(0, hashIndex) || '/';
+                      const hash = link.substring(hashIndex + 1);
                       const currentPath = window.location.pathname;
-                      // If we're already on the target page or it's the home page
-                      if (!path || path === '/' || currentPath === path) {
+                      
+                      // Check if we're on the target page (or it's home page anchor and we're on home)
+                      const isTargetPage = currentPath === path || (path === '/' && currentPath === '/');
+                      
+                      if (isTargetPage) {
+                        // Already on the page, just scroll to anchor
                         const element = document.getElementById(hash);
                         if (element) {
                           element.scrollIntoView({ behavior: 'smooth' });
                         }
                       } else {
-                        // Navigate to the page first, then scroll
+                        // Navigate to the page with hash - the page will handle scrolling
                         navigate(link);
                       }
                     } else {
