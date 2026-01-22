@@ -9,6 +9,9 @@ import {
   Phone, 
   HelpCircle,
   RotateCcw,
+  Flame,
+  Sun,
+  Layers,
   type LucideIcon 
 } from "lucide-react";
 // Icon mapping based on keywords in option labels
@@ -19,6 +22,17 @@ const getOptionIcon = (label: string): LucideIcon | null => {
   if (lowerLabel.includes("sais pas") || lowerLabel.includes("ne sait pas") || lowerLabel.includes("?")) {
     return HelpCircle;
   }
+  // Specific project types
+  if (lowerLabel.includes("isolation")) {
+    return Layers;
+  }
+  if (lowerLabel.includes("chauffage") || lowerLabel.includes("pompe à chaleur")) {
+    return Flame;
+  }
+  if (lowerLabel.includes("solaire") || lowerLabel.includes("panneaux")) {
+    return Sun;
+  }
+  // General categories
   if (lowerLabel.includes("projet") || lowerLabel.includes("subvention")) {
     return Home;
   }
