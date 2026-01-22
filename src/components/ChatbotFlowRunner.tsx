@@ -276,8 +276,8 @@ export const ChatbotFlowRunner = ({
   // Question node
   return (
     <div className="flex flex-col gap-4">
-      <div className="bg-blue-900/10 dark:bg-blue-100/10 border border-blue-900/20 dark:border-blue-100/20 rounded-xl px-5 py-4 flex items-center gap-3">
-        <MessageCircle className="h-5 w-5 text-blue-900/50 dark:text-blue-100/50 flex-shrink-0" />
+      <div className="bg-blue-900/10 dark:bg-blue-100/10 border border-blue-900/20 dark:border-blue-100/20 rounded-xl px-5 py-4 flex items-center gap-2">
+        <MessageCircle className="h-4 w-4 text-blue-900/50 dark:text-blue-100/50 flex-shrink-0" />
         <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 leading-relaxed">{currentNode.question}</p>
       </div>
 
