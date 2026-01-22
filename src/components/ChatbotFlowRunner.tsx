@@ -243,16 +243,6 @@ export const ChatbotFlowRunner = ({
             Terminer
           </Button>
         )}
-        {onRestart && endSettings.showRestartButton && (
-          <Button 
-            onClick={onRestart} 
-            variant="outline" 
-            className="w-full gap-2 border-blue-900/30 text-blue-900 hover:bg-blue-900/5 dark:border-blue-100/30 dark:text-blue-100 dark:hover:bg-blue-100/5"
-          >
-            <RotateCcw className="h-4 w-4" />
-            Nouveau chat
-          </Button>
-        )}
       </div>
     );
   }
