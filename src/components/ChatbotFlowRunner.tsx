@@ -12,6 +12,9 @@ import {
   Flame,
   Sun,
   Layers,
+  PhoneCall,
+  Mail,
+  Headphones,
   type LucideIcon 
 } from "lucide-react";
 // Icon mapping based on keywords in option labels
@@ -22,6 +25,18 @@ const getOptionIcon = (label: string): LucideIcon | null => {
   if (lowerLabel.includes("sais pas") || lowerLabel.includes("ne sait pas") || lowerLabel.includes("?")) {
     return HelpCircle;
   }
+  
+  // Contact options - specific ones first
+  if (lowerLabel.includes("rappelé") || lowerLabel.includes("rappel")) {
+    return PhoneCall;
+  }
+  if (lowerLabel.includes("coordonnées") || lowerLabel.includes("mail") || lowerLabel.includes("téléphone")) {
+    return Mail;
+  }
+  if (lowerLabel.includes("agent") || lowerLabel.includes("parler")) {
+    return Headphones;
+  }
+  
   // Specific project types
   if (lowerLabel.includes("isolation")) {
     return Layers;
@@ -32,6 +47,7 @@ const getOptionIcon = (label: string): LucideIcon | null => {
   if (lowerLabel.includes("solaire") || lowerLabel.includes("panneaux")) {
     return Sun;
   }
+  
   // General categories
   if (lowerLabel.includes("projet") || lowerLabel.includes("subvention")) {
     return Home;
