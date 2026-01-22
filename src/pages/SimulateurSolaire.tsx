@@ -405,7 +405,7 @@ const SimulateurSolaire = () => {
       <Header />
 
       <main className="min-h-screen bg-gradient-to-br from-orange-50 via-background to-yellow-50 py-12">
-        <div className={`container mx-auto px-4 ${currentStep === 3 ? 'max-w-5xl' : 'max-w-2xl'}`}>
+        <div className={`container mx-auto px-4 ${currentStep === 2 || currentStep === 3 ? 'max-w-5xl' : 'max-w-2xl'}`}>
           {/* Step Breadcrumb Navigation */}
           <div className="mb-8 bg-white/90 backdrop-blur-sm rounded-xl py-5 px-8 shadow-lg border border-white/50">
             {/* Progress lines row */}
