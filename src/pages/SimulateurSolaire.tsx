@@ -864,7 +864,7 @@ const SimulateurSolaire = () => {
                       </div>
                       <div className="space-y-2">
                         <Label className="text-sm font-semibold">
-                          Mono/Tri <span className="text-destructive">*</span>
+                          Mono/Tri <span className="text-muted-foreground text-xs">(facultatif)</span>
                         </Label>
                         <Select 
                           value={formData.monoTri} 
