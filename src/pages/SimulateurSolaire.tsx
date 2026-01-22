@@ -529,199 +529,231 @@ const SimulateurSolaire = () => {
             </Card>
           )}
 
-          {/* Step 2: Address */}
+          {/* Step 2: Address - Two Column Layout */}
           {currentStep === 2 && (
-            <Card className="shadow-xl border-0">
-              <CardHeader className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-t-lg">
-                <div className="flex items-center gap-3">
-                  <MapPin className="w-6 h-6" />
-                  <div>
-                    <CardTitle className="text-xl">Votre adresse</CardTitle>
-                    <CardDescription className="text-white/80">
-                      Localisation de votre projet solaire
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6 space-y-6">
-                {/* Full address search with autocomplete */}
-                <div className="space-y-2 relative" ref={suggestionsRef}>
-                  <Label htmlFor="fullAddress" className="text-sm font-semibold">
-                    Rechercher une adresse <span className="text-muted-foreground">(auto-remplissage)</span>
-                  </Label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                      id="fullAddress"
-                      placeholder="Tapez une adresse pour la rechercher..."
-                      value={formData.fullAddress}
-                      onChange={(e) => handleInputChange("fullAddress", e.target.value)}
-                      className="h-12 pl-10"
-                    />
-                  </div>
-                  
-                  {/* Suggestions dropdown */}
-                  {showSuggestions && suggestions.length > 0 && (
-                    <div className="absolute z-50 w-full mt-1 bg-background border rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                      {suggestions.map((suggestion, index) => (
-                        <button
-                          key={index}
-                          type="button"
-                          onClick={() => handleSelectSuggestion(suggestion)}
-                          className="w-full px-4 py-3 text-left hover:bg-muted transition-colors border-b last:border-b-0"
-                        >
-                          <div className="font-medium text-sm">{suggestion.label}</div>
-                          <div className="text-xs text-muted-foreground">{suggestion.context}</div>
-                        </button>
-                      ))}
+            <div className="grid gap-6 lg:grid-cols-5">
+              {/* Left Column - Form */}
+              <Card className="shadow-xl border-0 lg:col-span-3">
+                <CardHeader className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-t-lg">
+                  <div className="flex items-center gap-3">
+                    <MapPin className="w-6 h-6" />
+                    <div>
+                      <CardTitle className="text-xl">Votre adresse</CardTitle>
+                      <CardDescription className="text-white/80">
+                        Localisation de votre projet solaire
+                      </CardDescription>
                     </div>
-                  )}
-                </div>
-
-                {/* Address fields */}
-                <div className="space-y-2">
-                  <Label htmlFor="address" className="text-sm font-semibold">
-                    Adresse <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="address"
-                    placeholder="Ex: 25 rue du Bourget"
-                    value={formData.address}
-                    onChange={(e) => handleInputChange("address", e.target.value)}
-                    className="h-12"
-                  />
-                </div>
-
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="postalCode" className="text-sm font-semibold">
-                      Code Postal <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="postalCode"
-                      placeholder="Ex: 75015"
-                      value={formData.postalCode}
-                      onChange={(e) => handleInputChange("postalCode", e.target.value)}
-                      className="h-12"
-                      maxLength={5}
-                    />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="city" className="text-sm font-semibold">
-                      Ville <span className="text-destructive">*</span>
+                </CardHeader>
+                <CardContent className="p-6 space-y-6">
+                  {/* Full address search with autocomplete */}
+                  <div className="space-y-2 relative" ref={suggestionsRef}>
+                    <Label htmlFor="fullAddress" className="text-sm font-semibold">
+                      Rechercher une adresse <span className="text-muted-foreground">(auto-remplissage)</span>
                     </Label>
-                    <Input
-                      id="city"
-                      placeholder="Ex: Paris"
-                      value={formData.city}
-                      onChange={(e) => handleInputChange("city", e.target.value)}
-                      className="h-12"
-                    />
-                  </div>
-                </div>
-
-                {/* Detected Region (read-only) with aids indicator */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold">Région détectée</Label>
-                  <div className="flex items-center gap-2 min-h-12 px-4 py-3 rounded-md border border-input bg-muted">
-                    {formData.detectedRegion ? (
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
-                        <div className="flex items-center gap-2">
-                          <Check className="w-4 h-4 text-green-600 shrink-0" />
-                          <span className="text-foreground font-medium">{formData.detectedRegion}</span>
-                        </div>
-                        {/* Aids/subsidies availability indicator */}
-                        {regions.some(r => r.name === formData.detectedRegion) ? (
-                          <div className="flex items-center gap-2 text-xs sm:ml-auto">
-                            <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
-                            <span className="text-green-700">Aides disponibles — continuez pour en connaître le montant</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2 text-xs sm:ml-auto">
-                            <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
-                            <span className="text-red-600">Pas d'aides spécifiques pour cette région</span>
-                          </div>
-                        )}
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                      <Input
+                        id="fullAddress"
+                        placeholder="Tapez une adresse pour la rechercher..."
+                        value={formData.fullAddress}
+                        onChange={(e) => handleInputChange("fullAddress", e.target.value)}
+                        className="h-12 pl-10"
+                      />
+                    </div>
+                    
+                    {/* Suggestions dropdown */}
+                    {showSuggestions && suggestions.length > 0 && (
+                      <div className="absolute z-50 w-full mt-1 bg-background border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {suggestions.map((suggestion, index) => (
+                          <button
+                            key={index}
+                            type="button"
+                            onClick={() => handleSelectSuggestion(suggestion)}
+                            className="w-full px-4 py-3 text-left hover:bg-muted transition-colors border-b last:border-b-0"
+                          >
+                            <div className="font-medium text-sm">{suggestion.label}</div>
+                            <div className="text-xs text-muted-foreground">{suggestion.context}</div>
+                          </button>
+                        ))}
                       </div>
-                    ) : (
-                      <span className="text-muted-foreground">Entrez un code postal pour détecter la région</span>
                     )}
                   </div>
-                </div>
 
-                {/* Coordinates & Map (shown after validation) */}
-                {addressValidated && formData.latitude && formData.longitude && (
-                  <div className="space-y-4">
-                    {/* Coordinates read-only */}
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label className="text-sm font-semibold text-muted-foreground">Latitude</Label>
-                        <div className="h-12 px-4 rounded-md border border-input bg-muted/50 flex items-center text-muted-foreground">
-                          {formData.latitude}
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm font-semibold text-muted-foreground">Longitude</Label>
-                        <div className="h-12 px-4 rounded-md border border-input bg-muted/50 flex items-center text-muted-foreground">
-                          {formData.longitude}
-                        </div>
-                      </div>
+                  {/* Address fields */}
+                  <div className="space-y-2">
+                    <Label htmlFor="address" className="text-sm font-semibold">
+                      Adresse <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="address"
+                      placeholder="Ex: 25 rue du Bourget"
+                      value={formData.address}
+                      onChange={(e) => handleInputChange("address", e.target.value)}
+                      className="h-12"
+                    />
+                  </div>
+
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="postalCode" className="text-sm font-semibold">
+                        Code Postal <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="postalCode"
+                        placeholder="Ex: 75015"
+                        value={formData.postalCode}
+                        onChange={(e) => handleInputChange("postalCode", e.target.value)}
+                        className="h-12"
+                        maxLength={5}
+                      />
                     </div>
-
-                    {/* Mini Map - zoom level 18-19 for street/house view */}
-                    <div className="rounded-lg overflow-hidden border shadow-sm">
-                      <iframe
-                        title="Localisation"
-                        width="100%"
-                        height="250"
-                        style={{ border: 0 }}
-                        loading="lazy"
-                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(formData.longitude) - 0.0015}%2C${Number(formData.latitude) - 0.001}%2C${Number(formData.longitude) + 0.0015}%2C${Number(formData.latitude) + 0.001}&layer=mapnik&marker=${formData.latitude}%2C${formData.longitude}`}
+                    <div className="space-y-2">
+                      <Label htmlFor="city" className="text-sm font-semibold">
+                        Ville <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="city"
+                        placeholder="Ex: Paris"
+                        value={formData.city}
+                        onChange={(e) => handleInputChange("city", e.target.value)}
+                        className="h-12"
                       />
                     </div>
                   </div>
-                )}
 
-                <div className="flex justify-between pt-4">
-                  <Button
-                    variant="outline"
-                    onClick={handlePrevious}
-                    className="px-6 py-6"
-                  >
-                    <ArrowLeft className="w-5 h-5 mr-2" />
-                    Retour
-                  </Button>
-                  
-                  {!addressValidated ? (
-                    <Button
-                      onClick={handleValidateAddress}
-                      disabled={!formData.address || !formData.postalCode || !formData.city || validating}
-                      className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-8 py-6 text-base"
-                    >
-                      {validating ? (
-                        <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Validation...
-                        </>
+                  {/* Detected Region (read-only) with aids indicator */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold">Région détectée</Label>
+                    <div className="flex items-center gap-2 min-h-12 px-4 py-3 rounded-md border border-input bg-muted">
+                      {formData.detectedRegion ? (
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
+                          <div className="flex items-center gap-2">
+                            <Check className="w-4 h-4 text-green-600 shrink-0" />
+                            <span className="text-foreground font-medium">{formData.detectedRegion}</span>
+                          </div>
+                          {/* Aids/subsidies availability indicator */}
+                          {regions.some(r => r.name === formData.detectedRegion) ? (
+                            <div className="flex items-center gap-2 text-xs sm:ml-auto">
+                              <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
+                              <span className="text-green-700">Aides disponibles — continuez pour en connaître le montant</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2 text-xs sm:ml-auto">
+                              <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                              <span className="text-red-600">Pas d'aides spécifiques pour cette région</span>
+                            </div>
+                          )}
+                        </div>
                       ) : (
-                        <>
-                          <Check className="w-5 h-5 mr-2" />
-                          Valider l'adresse
-                        </>
+                        <span className="text-muted-foreground">Entrez un code postal pour détecter la région</span>
                       )}
-                    </Button>
-                  ) : (
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between pt-4">
                     <Button
-                      onClick={handleNext}
-                      className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-8 py-6 text-base animate-subtle-bounce"
+                      variant="outline"
+                      onClick={handlePrevious}
+                      className="px-6 py-6"
                     >
-                      Continuer
-                      <ArrowRight className="w-5 h-5 ml-2" />
+                      <ArrowLeft className="w-5 h-5 mr-2" />
+                      Retour
                     </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                    
+                    {!addressValidated ? (
+                      <Button
+                        onClick={handleValidateAddress}
+                        disabled={!formData.address || !formData.postalCode || !formData.city || validating}
+                        className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-8 py-6 text-base"
+                      >
+                        {validating ? (
+                          <>
+                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                            Validation...
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-5 h-5 mr-2" />
+                            Valider l'adresse
+                          </>
+                        )}
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={handleNext}
+                        className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-8 py-6 text-base animate-subtle-bounce"
+                      >
+                        Continuer
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Right Column - Map & Coordinates Summary */}
+              <div className="lg:col-span-2 space-y-4">
+                {/* Summary Card Header */}
+                <Card className="shadow-lg border-0 overflow-hidden">
+                  <div className="bg-gradient-to-br from-orange-500 to-yellow-500 p-6 text-white text-center">
+                    <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <MapPin className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-lg font-bold">Localisation</h3>
+                    <p className="text-sm text-white/80 mt-1">
+                      {addressValidated ? 'Adresse validée' : 'En attente de validation'}
+                    </p>
+                  </div>
+                  
+                  <CardContent className="p-4 space-y-4">
+                    {/* Map Display */}
+                    {addressValidated && formData.latitude && formData.longitude ? (
+                      <>
+                        <div className="rounded-lg overflow-hidden border shadow-sm">
+                          <iframe
+                            title="Localisation"
+                            width="100%"
+                            height="200"
+                            style={{ border: 0 }}
+                            loading="lazy"
+                            src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(formData.longitude) - 0.0015}%2C${Number(formData.latitude) - 0.001}%2C${Number(formData.longitude) + 0.0015}%2C${Number(formData.latitude) + 0.001}&layer=mapnik&marker=${formData.latitude}%2C${formData.longitude}`}
+                          />
+                        </div>
+
+                        {/* Coordinates */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-muted/50 rounded-lg p-3 text-center">
+                            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Latitude</p>
+                            <p className="font-semibold text-sm">{formData.latitude}</p>
+                          </div>
+                          <div className="bg-muted/50 rounded-lg p-3 text-center">
+                            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Longitude</p>
+                            <p className="font-semibold text-sm">{formData.longitude}</p>
+                          </div>
+                        </div>
+
+                        {/* Address summary */}
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                          <div className="flex items-start gap-2">
+                            <Check className="w-4 h-4 text-green-600 mt-0.5 shrink-0" />
+                            <div className="text-sm">
+                              <p className="font-medium text-green-800">{formData.address}</p>
+                              <p className="text-green-700">{formData.postalCode} {formData.city}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <MapPin className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                        <p className="text-sm">La carte apparaîtra après validation de l'adresse</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           )}
 
           {/* Step 3: Consumption Profile - Two Column Layout */}
