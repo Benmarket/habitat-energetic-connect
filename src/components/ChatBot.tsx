@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { MessageCircle, X, Send, UserCog, Bot, User, ArrowLeft, RotateCcw } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, ArrowLeft, RotateCcw, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -747,9 +747,13 @@ export const ChatBot = () => {
             )}
 
             {showAgentButton && !agentConnected && !hasRequestedAgent && (
-              <div className="mt-4">
-                <Button variant="outline" size="sm" onClick={requestHumanAgent} className="w-full gap-2 text-xs">
-                  <UserCog className="h-3 w-3" />
+              <div className="mt-2">
+                <Button 
+                  variant="outline" 
+                  onClick={requestHumanAgent} 
+                  className="w-full justify-center text-center whitespace-normal h-auto py-3 px-4 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-foreground font-normal gap-2.5"
+                >
+                  <Headphones className="h-4 w-4 text-blue-900 dark:text-blue-100 flex-shrink-0" />
                   Parler à un agent humain
                 </Button>
               </div>
