@@ -24,6 +24,7 @@ const Dashboard = () => {
   // New states for user sections
   const [aides, setAides] = useState<any[]>([]);
   const [articles, setArticles] = useState<any[]>([]);
+  const [isForumEnabled, setIsForumEnabled] = useState(true);
   const [forumStats, setForumStats] = useState({ topicsCount: 0, postsCount: 0, recentTopics: [] as any[] });
 
   useEffect(() => {
@@ -41,8 +42,22 @@ const Dashboard = () => {
       fetchAides();
       fetchArticles();
       fetchForumActivity();
+      fetchForumEnabledSetting();
     }
   }, [user]);
+
+  const fetchForumEnabledSetting = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "header_footer")
+      .maybeSingle();
+    
+    if (data?.value) {
+      const value = data.value as any;
+      setIsForumEnabled(value.memberMenuShowForum ?? true);
+    }
+  };
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -559,61 +574,63 @@ const Dashboard = () => {
             </div>
 
             {/* Forum & Simulations Row */}
-            <div className="grid md:grid-cols-2 gap-6 mt-8">
+            <div className={`grid gap-6 mt-8 ${isForumEnabled ? 'md:grid-cols-2' : 'grid-cols-1'}`}>
               {/* Forum Activity Section */}
-              <Card className="group hover:shadow-2xl hover:shadow-teal-500/10 transition-all duration-300 border-l-4 border-l-teal-500 animate-fade-in" style={{ animationDelay: '0.6s' }}>
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-3 bg-gradient-to-br from-teal-500/10 to-teal-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                      <MessageSquare className="w-6 h-6 text-teal-600" />
-                    </div>
-                  </div>
-                  <CardTitle className="group-hover:text-teal-600 transition-colors">Mon activité Forum</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {forumStats.topicsCount > 0 || forumStats.postsCount > 0 ? (
-                    <>
-                      <div className="flex gap-4">
-                        <div className="flex-1 p-3 bg-teal-50 rounded-lg text-center">
-                          <p className="text-2xl font-bold text-teal-600">{forumStats.topicsCount}</p>
-                          <p className="text-xs text-muted-foreground">Sujets créés</p>
-                        </div>
-                        <div className="flex-1 p-3 bg-teal-50 rounded-lg text-center">
-                          <p className="text-2xl font-bold text-teal-600">{forumStats.postsCount}</p>
-                          <p className="text-xs text-muted-foreground">Réponses postées</p>
-                        </div>
+              {isForumEnabled && (
+                <Card className="group hover:shadow-2xl hover:shadow-teal-500/10 transition-all duration-300 border-l-4 border-l-teal-500 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-gradient-to-br from-teal-500/10 to-teal-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <MessageSquare className="w-6 h-6 text-teal-600" />
                       </div>
-                      
-                      {forumStats.recentTopics.length > 0 && (
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground mb-2">Derniers sujets :</p>
-                          <div className="space-y-2">
-                            {forumStats.recentTopics.map((topic) => (
-                              <Link
-                                key={topic.id}
-                                to={`/forum/topic/${topic.slug}`}
-                                className="block p-2 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors text-sm truncate"
-                              >
-                                {topic.title}
-                              </Link>
-                            ))}
+                    </div>
+                    <CardTitle className="group-hover:text-teal-600 transition-colors">Mon activité Forum</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {forumStats.topicsCount > 0 || forumStats.postsCount > 0 ? (
+                      <>
+                        <div className="flex gap-4">
+                          <div className="flex-1 p-3 bg-teal-50 rounded-lg text-center">
+                            <p className="text-2xl font-bold text-teal-600">{forumStats.topicsCount}</p>
+                            <p className="text-xs text-muted-foreground">Sujets créés</p>
+                          </div>
+                          <div className="flex-1 p-3 bg-teal-50 rounded-lg text-center">
+                            <p className="text-2xl font-bold text-teal-600">{forumStats.postsCount}</p>
+                            <p className="text-xs text-muted-foreground">Réponses postées</p>
                           </div>
                         </div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="text-center py-4">
-                      <p className="text-muted-foreground mb-2">Vous n'avez pas encore participé au forum</p>
-                    </div>
-                  )}
-                  
-                  <Link to="/forum">
-                    <Button className="w-full bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 shadow-lg shadow-teal-500/30">
-                      {forumStats.topicsCount > 0 || forumStats.postsCount > 0 ? 'Accéder au forum' : 'Découvrir le forum'}
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                        
+                        {forumStats.recentTopics.length > 0 && (
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground mb-2">Derniers sujets :</p>
+                            <div className="space-y-2">
+                              {forumStats.recentTopics.map((topic) => (
+                                <Link
+                                  key={topic.id}
+                                  to={`/forum/topic/${topic.slug}`}
+                                  className="block p-2 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors text-sm truncate"
+                                >
+                                  {topic.title}
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="text-center py-4">
+                        <p className="text-muted-foreground mb-2">Vous n'avez pas encore participé au forum</p>
+                      </div>
+                    )}
+                    
+                    <Link to="/forum">
+                      <Button className="w-full bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 shadow-lg shadow-teal-500/30">
+                        {forumStats.topicsCount > 0 || forumStats.postsCount > 0 ? 'Accéder au forum' : 'Découvrir le forum'}
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Simulations Placeholder Section */}
               <Card className="group relative overflow-hidden border-l-4 border-l-emerald-500 animate-fade-in" style={{ animationDelay: '0.7s' }}>
