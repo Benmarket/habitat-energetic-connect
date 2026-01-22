@@ -48,6 +48,12 @@ type FlowStructure = {
   nodes: { [key: string]: FlowNode };
 };
 
+type EndSettings = {
+  showAgentButton: boolean;
+  showTextInput: boolean;
+  showRestartButton: boolean;
+};
+
 type ChatbotFlowRunnerProps = {
   flowStructure: FlowStructure;
   onAnswer: (answer: string, nextNode?: string) => void;
@@ -56,6 +62,7 @@ type ChatbotFlowRunnerProps = {
   onNodeChange?: (node: FlowNode | null) => void;
   onFlowRedirect?: (flowId: string, conversationHistory: Array<{ question: string; answer: string }>) => void;
   onRestart?: () => void;
+  endSettings?: EndSettings;
 };
 
 export const ChatbotFlowRunner = ({
@@ -66,6 +73,7 @@ export const ChatbotFlowRunner = ({
   onNodeChange,
   onFlowRedirect,
   onRestart,
+  endSettings = { showAgentButton: true, showTextInput: true, showRestartButton: true },
 }: ChatbotFlowRunnerProps) => {
   const [currentNodeId, setCurrentNodeId] = useState<string>(flowStructure.start_node);
   const [textAnswer, setTextAnswer] = useState("");
@@ -194,7 +202,7 @@ export const ChatbotFlowRunner = ({
             Terminer
           </Button>
         )}
-        {onRestart && (
+        {onRestart && endSettings.showRestartButton && (
           <Button 
             onClick={onRestart} 
             variant="outline" 

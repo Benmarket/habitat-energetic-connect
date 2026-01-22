@@ -685,6 +685,7 @@ export const ChatBot = () => {
                   onNodeChange={handleFlowNodeChange}
                   onFlowRedirect={handleFlowRedirectFromRunner}
                   onRestart={handleRestartChat}
+                  endSettings={endSettings}
                 />
               </div>
             )}
