@@ -48,6 +48,7 @@ const AdminForms = lazy(() => import("./pages/AdminForms"));
 const AdminPopups = lazy(() => import("./pages/AdminPopups"));
 const AdminApp = lazy(() => import("./pages/AdminApp"));
 const AdminLandingPages = lazy(() => import("./pages/AdminLandingPages"));
+const AdminPagesAnchors = lazy(() => import("./pages/AdminPagesAnchors"));
 const AdminSimulators = lazy(() => import("./pages/AdminSimulators"));
 const AdminAdvertising = lazy(() => import("./pages/AdminAdvertising"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
@@ -134,6 +135,7 @@ const App = () => (
                   <Route path="/admin/formulaires" element={<AdminForms />} />
                   <Route path="/admin/popups" element={<AdminPopups />} />
                   <Route path="/admin/landing-pages" element={<AdminLandingPages />} />
+                  <Route path="/admin/pages-ancres" element={<AdminPagesAnchors />} />
                   <Route path="/admin/simulateurs" element={<AdminSimulators />} />
                   <Route path="/admin/app" element={<AdminApp />} />
 
