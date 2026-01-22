@@ -405,9 +405,9 @@ const SimulateurSolaire = () => {
       <Header />
 
       <main className="min-h-screen bg-gradient-to-br from-orange-50 via-background to-yellow-50 py-12">
-        <div className={`container mx-auto px-4 ${[2, 3].includes(currentStep) ? 'max-w-6xl' : 'max-w-2xl'}`}>
-          {/* Step Breadcrumb Navigation */}
-          <div className="mb-8 bg-white/90 backdrop-blur-sm rounded-xl py-5 px-8 shadow-lg border border-white/50">
+        {/* Step Breadcrumb Navigation - Always narrow */}
+        <div className="container mx-auto px-4 max-w-2xl mb-8">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl py-5 px-8 shadow-lg border border-white/50">
             {/* Progress lines row */}
             <div className="flex items-center mb-3 px-4">
               {steps.map((step, index) => {
@@ -472,6 +472,10 @@ const SimulateurSolaire = () => {
               })}
             </div>
           </div>
+        </div>
+
+        {/* Content area - wider for steps 2 and 3 */}
+        <div className={`container mx-auto px-4 ${[2, 3].includes(currentStep) ? 'max-w-6xl' : 'max-w-2xl'}`}>
 
           {/* Step 1: Name */}
           {currentStep === 1 && (
