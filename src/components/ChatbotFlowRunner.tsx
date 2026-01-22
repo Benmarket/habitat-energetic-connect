@@ -15,6 +15,10 @@ import {
 const getOptionIcon = (label: string): LucideIcon | null => {
   const lowerLabel = label.toLowerCase();
   
+  // Check "sais pas" / "encore" / uncertainty FIRST (before "projet" check)
+  if (lowerLabel.includes("sais pas") || lowerLabel.includes("ne sait pas") || lowerLabel.includes("?")) {
+    return HelpCircle;
+  }
   if (lowerLabel.includes("projet") || lowerLabel.includes("subvention")) {
     return Home;
   }
@@ -23,9 +27,6 @@ const getOptionIcon = (label: string): LucideIcon | null => {
   }
   if (lowerLabel.includes("contact") || lowerLabel.includes("prime")) {
     return Phone;
-  }
-  if (lowerLabel.includes("sais pas") || lowerLabel.includes("encore") || lowerLabel.includes("?")) {
-    return HelpCircle;
   }
   
   return null;
