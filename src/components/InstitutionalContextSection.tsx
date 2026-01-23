@@ -34,7 +34,7 @@ const steps: Step[] = [
     id: 3,
     title: "Définir un projet cohérent",
     description:
-      "Nous vous aidons à construire votre projet, et, si vous le souhaitez, un installateur de référence pourra vous être suggéré pour étudier votre demande. ",
+      "Nous vous aidons à construire votre projet, et, si vous le souhaitez, un installateur de référence de votre région pourra vous être suggéré pour étudier votre demande. ",
     icon: <Users className="w-6 h-6" />,
     color: "text-violet-600",
     bgColor: "bg-violet-50",
