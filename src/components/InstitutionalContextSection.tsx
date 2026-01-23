@@ -122,9 +122,9 @@ const InstitutionalContextSection = () => {
                     Des travaux énergétiques subventionnés pour votre habitat
                   </p>
                   <p className="text-slate-500 leading-relaxed text-base lg:text-lg">
-                    Prime Énergies vous accompagne dans un parcours simple et structuré, pour comprendre les aides
-                    disponibles et les installateurs agréés sur votre régions afin de construire votre projet
-                    sereinement.
+                    Prime Énergies vous propose un parcours simple et structuré pour comprendre les aides mobilisables
+                    dans votre région et être orienté, si vous le souhaitez, vers des installateurs agréés et reconnus,
+                    afin de concrétiser votre projet en toute sérénité.
                   </p>
 
                   {/* Illustration maison */}
