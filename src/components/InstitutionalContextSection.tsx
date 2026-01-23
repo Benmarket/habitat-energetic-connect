@@ -25,7 +25,7 @@ const steps: Step[] = [
     id: 2,
     title: "Identifier les aides disponibles",
     description:
-      "En fonction de votre profil et de votre projet, nous identifions les dispositifs d’aide pertinents pour orienter votre démarche.",
+      "En fonction de votre profil, de votre projet et de votre région, nous identifions les dispositifs d’aide pertinents pour orienter votre démarche.",
     icon: <CheckCircle2 className="w-6 h-6" />,
     color: "text-emerald-600",
     bgColor: "bg-emerald-50",
