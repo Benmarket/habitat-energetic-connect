@@ -123,7 +123,8 @@ const InstitutionalContextSection = () => {
                   </p>
                   <p className="text-slate-500 leading-relaxed text-base lg:text-lg">
                     Prime Énergies vous accompagne dans un parcours simple et structuré, pour comprendre les aides
-                    disponibles et construire votre projet sereinement.
+                    disponibles et les installateurs agréés sur votre régions afin de construire votre projet
+                    sereinement.
                   </p>
 
                   {/* Illustration maison */}
