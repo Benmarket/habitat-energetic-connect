@@ -1197,7 +1197,11 @@ export default function SitePopup() {
       {/* Popup */}
       <div
         className={`fixed ${getPositionClasses()} ${getSizeClasses()} ${getAnimationClasses()} 
-          ${activePopup.size !== "fullscreen" ? "rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 mx-2 sm:mx-0 max-h-[90vh] overflow-y-auto" : ""} overflow-hidden transition-all duration-300`}
+          ${
+            activePopup.size !== "fullscreen"
+              ? "rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 mx-2 sm:mx-0 max-h-[90vh] overflow-hidden overflow-y-auto"
+              : "overflow-hidden"
+          } transition-all duration-300`}
         style={{
           backgroundColor: activePopup.background_color,
           backgroundImage: activePopup.background_image ? `url(${activePopup.background_image})` : undefined,
@@ -1217,7 +1221,7 @@ export default function SitePopup() {
         {activePopup.show_close_button && (
           <button
             onClick={handleClose}
-            className="absolute top-4 right-4 p-2 rounded-full bg-black/5 hover:bg-black/10 transition-colors z-10"
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 rounded-full bg-black/5 hover:bg-black/10 transition-colors z-10"
             style={{ color: activePopup.text_color }}
           >
             <X className="w-5 h-5" />
@@ -1225,7 +1229,12 @@ export default function SitePopup() {
         )}
 
         {/* Content */}
-        <div className={`relative ${activePopup.size === "fullscreen" ? "h-full" : ""}`}>
+        <div
+          className={
+            `relative ${activePopup.size === "fullscreen" ? "h-full" : ""} ` +
+            (activePopup.show_close_button && activePopup.size !== "fullscreen" ? "pt-8 sm:pt-0" : "")
+          }
+        >
           {renderContent()}
         </div>
       </div>
