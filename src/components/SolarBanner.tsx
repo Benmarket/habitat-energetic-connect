@@ -162,7 +162,7 @@ const SolarBanner = () => {
                 <Link to="/landing/solaire">
                   <Button 
                     size="lg"
-                    className="bg-primary hover:bg-primary/90 text-white shadow-xl font-semibold gap-2"
+                    className="bg-primary hover:bg-primary/90 text-white shadow-xl font-semibold gap-2 transition-transform duration-200 hover:scale-105"
                   >
                     Ça m'intéresse
                     <ArrowRight className="w-4 h-4" />
