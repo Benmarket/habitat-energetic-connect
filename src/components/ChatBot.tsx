@@ -135,8 +135,19 @@ export const ChatBot = () => {
     loadActiveFlow();
   }, []);
 
+  // IMPORTANT: when switching flows (redirect/menu), reset node-driven UI so
+  // the input bar / agent button is recalculated from the NEW flow's first node.
+  useEffect(() => {
+    setCurrentFlowNode(null);
+  }, [activeFlow?.id]);
+
   // Handle flow redirect (switch to another flow)
   const handleFlowRedirect = async (flowId: string, conversationHistory: Array<{ question: string; answer: string }>) => {
+    // Ensure we stay in "flow mode" when redirecting to a new flow
+    setFlowCompleted(false);
+    setShowFlowRunner(true);
+    setCurrentFlowNode(null);
+
     // Save current flow to history for back navigation
     if (activeFlow) {
       setFlowHistory(prev => [...prev, activeFlow]);
@@ -682,6 +693,7 @@ export const ChatBot = () => {
             {activeFlow && showFlowRunner && !flowCompleted && (
               <div>
                 <ChatbotFlowRunner
+                  key={activeFlow.id}
                   flowStructure={activeFlow.tree_structure}
                   onAnswer={handleFlowAnswer}
                   onRequestAgent={handleFlowRequestAgent}
