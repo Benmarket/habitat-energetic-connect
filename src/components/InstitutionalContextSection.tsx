@@ -15,7 +15,8 @@ const steps: Step[] = [
   {
     id: 1,
     title: "Comprendre votre situation",
-    description: "Nous analysons les caractéristiques de votre logement et votre consommation énergétique actuelle pour identifier les axes d'amélioration.",
+    description:
+      "Nous analysons les caractéristiques de votre logement et votre consommation énergétique actuelle pour identifier les axes d'amélioration.",
     icon: <FileText className="w-6 h-6" />,
     color: "text-blue-600",
     bgColor: "bg-blue-50",
@@ -23,7 +24,8 @@ const steps: Step[] = [
   {
     id: 2,
     title: "Identifier les aides disponibles",
-    description: "En fonction de votre profil et de votre projet, nous recensons l'ensemble des dispositifs d'aide auxquels vous pouvez prétendre.",
+    description:
+      "En fonction de votre profil et de votre projet, nous identifions les dispositifs d’aide pertinents pour orienter votre démarche.",
     icon: <CheckCircle2 className="w-6 h-6" />,
     color: "text-emerald-600",
     bgColor: "bg-emerald-50",
@@ -31,7 +33,8 @@ const steps: Step[] = [
   {
     id: 3,
     title: "Définir un projet cohérent",
-    description: "Nous vous aidons à construire un projet de rénovation adapté à vos besoins, en tenant compte des contraintes techniques et budgétaires.",
+    description:
+      "Nous vous aidons à construire un projet de rénovation adapté à vos besoins, en tenant compte des contraintes techniques et budgétaires.",
     icon: <Users className="w-6 h-6" />,
     color: "text-violet-600",
     bgColor: "bg-violet-50",
@@ -73,9 +76,9 @@ const InstitutionalContextSection = () => {
 
       // 3 étapes avec étape 2 x1.5 plus longue
       // Proportions: étape 1 = 1, étape 2 = 1.5, étape 3 = 1 → total = 3.5
-      const step1End = 1 / 3.5;         // ~0.286
-      const step2End = 2.5 / 3.5;       // ~0.714
-      
+      const step1End = 1 / 3.5; // ~0.286
+      const step2End = 2.5 / 3.5; // ~0.714
+
       let stepIndex: number;
       if (progress < step1End) {
         stepIndex = 0;
@@ -84,7 +87,7 @@ const InstitutionalContextSection = () => {
       } else {
         stepIndex = 2;
       }
-      
+
       setActiveStep(stepIndex);
     };
 
@@ -119,16 +122,16 @@ const InstitutionalContextSection = () => {
                     Des travaux énergétiques subventionnés pour votre habitat
                   </p>
                   <p className="text-slate-500 leading-relaxed text-base lg:text-lg">
-                    Prime Énergies vous accompagne dans un parcours simple et structuré, 
-                    pour comprendre les aides disponibles et construire votre projet sereinement.
+                    Prime Énergies vous accompagne dans un parcours simple et structuré, pour comprendre les aides
+                    disponibles et construire votre projet sereinement.
                   </p>
-                  
+
                   {/* Illustration maison */}
                   <div className="mt-8 lg:mt-10">
                     <div className="w-full max-w-sm lg:max-w-md rounded-xl overflow-hidden">
-                      <img 
-                        src={maisonPrimeGif} 
-                        alt="Maison avec panneaux solaires, éolienne et pompe à chaleur" 
+                      <img
+                        src={maisonPrimeGif}
+                        alt="Maison avec panneaux solaires, éolienne et pompe à chaleur"
                         className="w-full scale-[1.08] object-cover"
                       />
                     </div>
@@ -161,8 +164,8 @@ const InstitutionalContextSection = () => {
                           isActive
                             ? "opacity-100 scale-100 translate-y-0"
                             : isPast
-                            ? "opacity-70 scale-95 -translate-y-1"
-                            : "opacity-40 scale-90 translate-y-2"
+                              ? "opacity-70 scale-95 -translate-y-1"
+                              : "opacity-40 scale-90 translate-y-2"
                         }`}
                       >
                         {/* Step indicator dot - positioned outside the card to the left */}
@@ -171,8 +174,8 @@ const InstitutionalContextSection = () => {
                             isActive
                               ? "bg-gradient-to-br from-blue-500 to-blue-600 border-blue-400 text-white scale-125"
                               : isPast
-                              ? "bg-emerald-500 border-emerald-400 text-white"
-                              : "bg-white border-slate-300 text-slate-400"
+                                ? "bg-emerald-500 border-emerald-400 text-white"
+                                : "bg-white border-slate-300 text-slate-400"
                           }`}
                         >
                           {isPast ? (
@@ -203,17 +206,13 @@ const InstitutionalContextSection = () => {
                                   : `w-12 h-12 bg-slate-100 text-slate-400`
                               }`}
                             >
-                              <div className={isActive ? "scale-110" : ""}>
-                                {step.icon}
-                              </div>
+                              <div className={isActive ? "scale-110" : ""}>{step.icon}</div>
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-2 lg:hidden">
                                 <span
                                   className={`text-xs font-bold px-2 py-1 rounded-full ${
-                                    isActive
-                                      ? "bg-blue-100 text-blue-700"
-                                      : "bg-slate-100 text-slate-500"
+                                    isActive ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500"
                                   }`}
                                 >
                                   Étape {step.id}
@@ -221,18 +220,14 @@ const InstitutionalContextSection = () => {
                               </div>
                               <h3
                                 className={`font-bold mb-3 transition-all duration-500 ${
-                                  isActive
-                                    ? "text-xl lg:text-2xl text-slate-800"
-                                    : "text-lg text-slate-600"
+                                  isActive ? "text-xl lg:text-2xl text-slate-800" : "text-lg text-slate-600"
                                 }`}
                               >
                                 {step.title}
                               </h3>
                               <p
                                 className={`leading-relaxed transition-all duration-500 ${
-                                  isActive
-                                    ? "text-base text-slate-600"
-                                    : "text-sm text-slate-400"
+                                  isActive ? "text-base text-slate-600" : "text-sm text-slate-400"
                                 }`}
                               >
                                 {step.description}
@@ -243,7 +238,7 @@ const InstitutionalContextSection = () => {
                       </div>
                     );
                   })}
-                  
+
                   {/* CTA Block */}
                   <div className="mt-8 lg:mt-12 pt-6">
                     <h3 className="text-2xl lg:text-3xl font-bold text-slate-800 leading-tight mb-6">
@@ -254,9 +249,11 @@ const InstitutionalContextSection = () => {
                     </h3>
                     <button
                       onClick={() => {
-                        window.dispatchEvent(new CustomEvent('trigger-popup', { 
-                          detail: { triggerId: 'parcours-projet' } 
-                        }));
+                        window.dispatchEvent(
+                          new CustomEvent("trigger-popup", {
+                            detail: { triggerId: "parcours-projet" },
+                          }),
+                        );
                       }}
                       className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold text-lg rounded-full shadow-lg shadow-orange-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/40 hover:scale-105"
                     >
