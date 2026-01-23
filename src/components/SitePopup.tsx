@@ -941,27 +941,27 @@ export default function SitePopup() {
               )}
             </div>
 
-            {/* 4 Options Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 md:gap-4">
+            {/* 4 Options Grid - Always 2 columns, compact on mobile */}
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
               {/* Option 1: Demande de contact - Opens sub-step */}
               <button
                 onClick={() => setParcoursStep("contact-choice")}
-                className="group relative p-3 sm:p-4 md:p-5 rounded-lg sm:rounded-xl border-2 border-slate-200 hover:border-blue-400 bg-gradient-to-br from-white to-slate-50 hover:from-blue-50 hover:to-white transition-all duration-300 text-left"
+                className="group relative p-2.5 sm:p-4 md:p-5 rounded-xl border-2 border-slate-200 hover:border-blue-400 bg-gradient-to-br from-white to-slate-50 hover:from-blue-50 hover:to-white transition-all duration-300 text-left"
               >
-                <div className="flex items-start gap-2.5 sm:gap-3 md:gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform">
-                    <Mail className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
+                <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3 md:gap-4">
+                  <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform">
+                    <Mail className="w-5 h-5 md:w-6 md:h-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-800 group-hover:text-blue-700 transition-colors text-sm sm:text-base">
+                    <h3 className="font-semibold text-slate-800 group-hover:text-blue-700 transition-colors text-xs sm:text-sm md:text-base leading-tight">
                       Demande de contact
                     </h3>
-                    <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">
+                    <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 hidden sm:block">
                       Particulier ou professionnel
                     </p>
-                    <p className="text-[10px] sm:text-xs text-blue-600 font-medium mt-1 sm:mt-2 flex items-center gap-1">
-                      <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                      Rappel sous 24-48h
+                    <p className="text-[10px] sm:text-xs text-blue-600 font-medium mt-1 flex items-center gap-1">
+                      <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
+                      <span className="truncate">Rappel 24-48h</span>
                     </p>
                   </div>
                 </div>
@@ -979,22 +979,22 @@ export default function SitePopup() {
                     }
                   }, 100);
                 }}
-                className="group relative p-3 sm:p-4 md:p-5 rounded-lg sm:rounded-xl border-2 border-slate-200 hover:border-emerald-400 bg-gradient-to-br from-white to-slate-50 hover:from-emerald-50 hover:to-white transition-all duration-300 text-left"
+                className="group relative p-2.5 sm:p-4 md:p-5 rounded-xl border-2 border-slate-200 hover:border-emerald-400 bg-gradient-to-br from-white to-slate-50 hover:from-emerald-50 hover:to-white transition-all duration-300 text-left"
               >
-                <div className="flex items-start gap-2.5 sm:gap-3 md:gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
-                    <Sparkles className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
+                <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3 md:gap-4">
+                  <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:scale-110 transition-transform">
+                    <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-800 group-hover:text-emerald-700 transition-colors text-sm sm:text-base">
+                    <h3 className="font-semibold text-slate-800 group-hover:text-emerald-700 transition-colors text-xs sm:text-sm md:text-base leading-tight">
                       Simulation en ligne
                     </h3>
-                    <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">
+                    <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 hidden sm:block">
                       Éligibilité, primes, travaux
                     </p>
-                    <p className="text-[10px] sm:text-xs text-emerald-600 font-medium mt-1 sm:mt-2 flex items-center gap-1">
-                      <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-emerald-500"></span>
-                      Estimer mes aides
+                    <p className="text-[10px] sm:text-xs text-emerald-600 font-medium mt-1 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"></span>
+                      <span className="truncate">Estimer mes aides</span>
                     </p>
                   </div>
                 </div>
@@ -1006,22 +1006,22 @@ export default function SitePopup() {
                   handleClose();
                   navigate("/guides");
                 }}
-                className="group relative p-3 sm:p-4 md:p-5 rounded-lg sm:rounded-xl border-2 border-slate-200 hover:border-violet-400 bg-gradient-to-br from-white to-slate-50 hover:from-violet-50 hover:to-white transition-all duration-300 text-left"
+                className="group relative p-2.5 sm:p-4 md:p-5 rounded-xl border-2 border-slate-200 hover:border-violet-400 bg-gradient-to-br from-white to-slate-50 hover:from-violet-50 hover:to-white transition-all duration-300 text-left"
               >
-                <div className="flex items-start gap-2.5 sm:gap-3 md:gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/25 group-hover:scale-110 transition-transform">
-                    <FileText className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
+                <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3 md:gap-4">
+                  <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/25 group-hover:scale-110 transition-transform">
+                    <FileText className="w-5 h-5 md:w-6 md:h-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-800 group-hover:text-violet-700 transition-colors text-sm sm:text-base">
+                    <h3 className="font-semibold text-slate-800 group-hover:text-violet-700 transition-colors text-xs sm:text-sm md:text-base leading-tight">
                       Lire les guides
                     </h3>
-                    <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">
+                    <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 hidden sm:block">
                       Solaire, chauffage, isolation...
                     </p>
-                    <p className="text-[10px] sm:text-xs text-violet-600 font-medium mt-1 sm:mt-2 flex items-center gap-1">
-                      <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                      Se projeter pour mieux comprendre
+                    <p className="text-[10px] sm:text-xs text-violet-600 font-medium mt-1 flex items-center gap-1">
+                      <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
+                      <span className="truncate">Mieux comprendre</span>
                     </p>
                   </div>
                 </div>
@@ -1040,25 +1040,25 @@ export default function SitePopup() {
                     }
                   }, 100);
                 }}
-                className="group relative p-3 sm:p-4 md:p-5 rounded-lg sm:rounded-xl border-2 border-slate-200 hover:border-amber-400 bg-gradient-to-br from-white to-slate-50 hover:from-amber-50 hover:to-white transition-all duration-300 text-left"
+                className="group relative p-2.5 sm:p-4 md:p-5 rounded-xl border-2 border-slate-200 hover:border-amber-400 bg-gradient-to-br from-white to-slate-50 hover:from-amber-50 hover:to-white transition-all duration-300 text-left"
               >
-                <div className="flex items-start gap-2.5 sm:gap-3 md:gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25 group-hover:scale-110 transition-transform">
-                    <svg className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3 md:gap-4">
+                  <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25 group-hover:scale-110 transition-transform">
+                    <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-800 group-hover:text-amber-700 transition-colors text-sm sm:text-base">
-                      Chercher un installateur
+                    <h3 className="font-semibold text-slate-800 group-hover:text-amber-700 transition-colors text-xs sm:text-sm md:text-base leading-tight">
+                      Trouver un installateur
                     </h3>
-                    <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">
+                    <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 hidden sm:block">
                       Près de chez moi
                     </p>
-                    <p className="text-[10px] sm:text-xs text-amber-600 font-medium mt-1 sm:mt-2 flex items-center gap-1">
-                      <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                      Consultez les offres
+                    <p className="text-[10px] sm:text-xs text-amber-600 font-medium mt-1 flex items-center gap-1">
+                      <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
+                      <span className="truncate">Voir les offres</span>
                     </p>
                   </div>
                 </div>
