@@ -847,62 +847,62 @@ export default function SitePopup() {
         // Sub-step: Contact choice (Particulier / Professionnel)
         if (parcoursStep === "contact-choice") {
           return (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Back button */}
               <button
                 onClick={() => setParcoursStep("main")}
-                className="flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors text-sm"
+                className="flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors text-xs sm:text-sm"
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
                 Retour
               </button>
 
               {/* Header */}
-              <div className="text-center space-y-2">
-                <div className="w-14 h-14 mx-auto rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25 mb-4">
-                  <Mail className="w-7 h-7 text-white" />
+              <div className="text-center space-y-1.5 sm:space-y-2">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25 mb-3 sm:mb-4">
+                  <Mail className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                 </div>
-                <h2 className="text-xl font-bold text-slate-800">
+                <h2 className="text-lg sm:text-xl font-bold text-slate-800">
                   Vous êtes...
                 </h2>
-                <p className="text-sm text-slate-500">
+                <p className="text-xs sm:text-sm text-slate-500">
                   Sélectionnez votre profil pour être recontacté
                 </p>
               </div>
 
               {/* Two choices */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
                 <button
                   onClick={() => handleContactChoice("particulier")}
-                  className="group p-6 rounded-xl border-2 border-slate-200 hover:border-blue-400 bg-gradient-to-br from-white to-slate-50 hover:from-blue-50 hover:to-white transition-all duration-300 text-center"
+                  className="group p-4 sm:p-6 rounded-lg sm:rounded-xl border-2 border-slate-200 hover:border-blue-400 bg-gradient-to-br from-white to-slate-50 hover:from-blue-50 hover:to-white transition-all duration-300 text-center"
                 >
-                  <div className="w-12 h-12 mx-auto rounded-full bg-blue-100 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                    <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto rounded-full bg-blue-100 flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
-                  <h3 className="font-semibold text-slate-800 group-hover:text-blue-700">Particulier</h3>
-                  <p className="text-xs text-slate-500 mt-1">Pour mon logement</p>
+                  <h3 className="font-semibold text-slate-800 group-hover:text-blue-700 text-sm sm:text-base">Particulier</h3>
+                  <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1">Pour mon logement</p>
                 </button>
 
                 <button
                   onClick={() => handleContactChoice("professionnel")}
-                  className="group p-6 rounded-xl border-2 border-slate-200 hover:border-emerald-400 bg-gradient-to-br from-white to-slate-50 hover:from-emerald-50 hover:to-white transition-all duration-300 text-center"
+                  className="group p-4 sm:p-6 rounded-lg sm:rounded-xl border-2 border-slate-200 hover:border-emerald-400 bg-gradient-to-br from-white to-slate-50 hover:from-emerald-50 hover:to-white transition-all duration-300 text-center"
                 >
-                  <div className="w-12 h-12 mx-auto rounded-full bg-emerald-100 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                    <svg className="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto rounded-full bg-emerald-100 flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
                   </div>
-                  <h3 className="font-semibold text-slate-800 group-hover:text-emerald-700">Professionnel</h3>
-                  <p className="text-xs text-slate-500 mt-1">Pour mon entreprise</p>
+                  <h3 className="font-semibold text-slate-800 group-hover:text-emerald-700 text-sm sm:text-base">Professionnel</h3>
+                  <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1">Pour mon entreprise</p>
                 </button>
               </div>
 
-              <p className="text-xs text-center text-blue-600 font-medium flex items-center justify-center gap-1">
-                <CheckCircle2 className="w-3 h-3" />
+              <p className="text-[10px] sm:text-xs text-center text-blue-600 font-medium flex items-center justify-center gap-1">
+                <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                 Rappel sous 24-48h
               </p>
             </div>
@@ -911,21 +911,21 @@ export default function SitePopup() {
 
         // Main step: 4 options
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Header */}
-            <div className="text-center space-y-2">
+            <div className="text-center space-y-1.5 sm:space-y-2">
               {activePopup.badge_text && (
                 <Badge 
-                  className="text-white font-medium px-3 py-1 text-xs"
+                  className="text-white font-medium px-2.5 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-xs"
                   style={{ backgroundColor: activePopup.accent_color }}
                 >
-                  <Sparkles className="w-3 h-3 mr-1" />
+                  <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />
                   {activePopup.badge_text}
                 </Badge>
               )}
               {activePopup.title && (
                 <h2 
-                  className="text-2xl font-bold leading-tight" 
+                  className="text-lg sm:text-xl md:text-2xl font-bold leading-tight" 
                   style={{ color: activePopup.text_color }}
                 >
                   {activePopup.title}
@@ -933,7 +933,7 @@ export default function SitePopup() {
               )}
               {activePopup.subtitle && (
                 <p 
-                  className="text-sm opacity-70" 
+                  className="text-xs sm:text-sm opacity-70" 
                   style={{ color: activePopup.text_color }}
                 >
                   {activePopup.subtitle}
@@ -942,25 +942,25 @@ export default function SitePopup() {
             </div>
 
             {/* 4 Options Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 md:gap-4">
               {/* Option 1: Demande de contact - Opens sub-step */}
               <button
                 onClick={() => setParcoursStep("contact-choice")}
-                className="group relative p-5 rounded-xl border-2 border-slate-200 hover:border-blue-400 bg-gradient-to-br from-white to-slate-50 hover:from-blue-50 hover:to-white transition-all duration-300 text-left"
+                className="group relative p-3 sm:p-4 md:p-5 rounded-lg sm:rounded-xl border-2 border-slate-200 hover:border-blue-400 bg-gradient-to-br from-white to-slate-50 hover:from-blue-50 hover:to-white transition-all duration-300 text-left"
               >
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform">
-                    <Mail className="w-6 h-6 text-white" />
+                <div className="flex items-start gap-2.5 sm:gap-3 md:gap-4">
+                  <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform">
+                    <Mail className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-800 group-hover:text-blue-700 transition-colors">
+                    <h3 className="font-semibold text-slate-800 group-hover:text-blue-700 transition-colors text-sm sm:text-base">
                       Demande de contact
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">
                       Particulier ou professionnel
                     </p>
-                    <p className="text-xs text-blue-600 font-medium mt-2 flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" />
+                    <p className="text-[10px] sm:text-xs text-blue-600 font-medium mt-1 sm:mt-2 flex items-center gap-1">
+                      <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       Rappel sous 24-48h
                     </p>
                   </div>
@@ -979,21 +979,21 @@ export default function SitePopup() {
                     }
                   }, 100);
                 }}
-                className="group relative p-5 rounded-xl border-2 border-slate-200 hover:border-emerald-400 bg-gradient-to-br from-white to-slate-50 hover:from-emerald-50 hover:to-white transition-all duration-300 text-left"
+                className="group relative p-3 sm:p-4 md:p-5 rounded-lg sm:rounded-xl border-2 border-slate-200 hover:border-emerald-400 bg-gradient-to-br from-white to-slate-50 hover:from-emerald-50 hover:to-white transition-all duration-300 text-left"
               >
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
-                    <Sparkles className="w-6 h-6 text-white" />
+                <div className="flex items-start gap-2.5 sm:gap-3 md:gap-4">
+                  <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                    <Sparkles className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-800 group-hover:text-emerald-700 transition-colors">
+                    <h3 className="font-semibold text-slate-800 group-hover:text-emerald-700 transition-colors text-sm sm:text-base">
                       Simulation en ligne
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">
                       Éligibilité, primes, travaux
                     </p>
-                    <p className="text-xs text-emerald-600 font-medium mt-2 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <p className="text-[10px] sm:text-xs text-emerald-600 font-medium mt-1 sm:mt-2 flex items-center gap-1">
+                      <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-emerald-500"></span>
                       Estimer mes aides
                     </p>
                   </div>
@@ -1006,21 +1006,21 @@ export default function SitePopup() {
                   handleClose();
                   navigate("/guides");
                 }}
-                className="group relative p-5 rounded-xl border-2 border-slate-200 hover:border-violet-400 bg-gradient-to-br from-white to-slate-50 hover:from-violet-50 hover:to-white transition-all duration-300 text-left"
+                className="group relative p-3 sm:p-4 md:p-5 rounded-lg sm:rounded-xl border-2 border-slate-200 hover:border-violet-400 bg-gradient-to-br from-white to-slate-50 hover:from-violet-50 hover:to-white transition-all duration-300 text-left"
               >
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/25 group-hover:scale-110 transition-transform">
-                    <FileText className="w-6 h-6 text-white" />
+                <div className="flex items-start gap-2.5 sm:gap-3 md:gap-4">
+                  <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/25 group-hover:scale-110 transition-transform">
+                    <FileText className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-800 group-hover:text-violet-700 transition-colors">
+                    <h3 className="font-semibold text-slate-800 group-hover:text-violet-700 transition-colors text-sm sm:text-base">
                       Lire les guides
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">
                       Solaire, chauffage, isolation...
                     </p>
-                    <p className="text-xs text-violet-600 font-medium mt-2 flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" />
+                    <p className="text-[10px] sm:text-xs text-violet-600 font-medium mt-1 sm:mt-2 flex items-center gap-1">
+                      <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       Se projeter pour mieux comprendre
                     </p>
                   </div>
@@ -1040,24 +1040,24 @@ export default function SitePopup() {
                     }
                   }, 100);
                 }}
-                className="group relative p-5 rounded-xl border-2 border-slate-200 hover:border-amber-400 bg-gradient-to-br from-white to-slate-50 hover:from-amber-50 hover:to-white transition-all duration-300 text-left"
+                className="group relative p-3 sm:p-4 md:p-5 rounded-lg sm:rounded-xl border-2 border-slate-200 hover:border-amber-400 bg-gradient-to-br from-white to-slate-50 hover:from-amber-50 hover:to-white transition-all duration-300 text-left"
               >
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25 group-hover:scale-110 transition-transform">
-                    <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex items-start gap-2.5 sm:gap-3 md:gap-4">
+                  <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25 group-hover:scale-110 transition-transform">
+                    <svg className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-800 group-hover:text-amber-700 transition-colors">
+                    <h3 className="font-semibold text-slate-800 group-hover:text-amber-700 transition-colors text-sm sm:text-base">
                       Chercher un installateur
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">
                       Près de chez moi
                     </p>
-                    <p className="text-xs text-amber-600 font-medium mt-2 flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" />
+                    <p className="text-[10px] sm:text-xs text-amber-600 font-medium mt-1 sm:mt-2 flex items-center gap-1">
+                      <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       Consultez les offres
                     </p>
                   </div>
@@ -1234,7 +1234,7 @@ export default function SitePopup() {
       {/* Popup */}
       <div
         className={`fixed ${getPositionClasses()} ${getSizeClasses()} ${getAnimationClasses()} 
-          ${activePopup.size !== "fullscreen" ? "rounded-2xl shadow-2xl p-8" : ""} overflow-hidden transition-all duration-300`}
+          ${activePopup.size !== "fullscreen" ? "rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 mx-2 sm:mx-0 max-h-[90vh] overflow-y-auto" : ""} overflow-hidden transition-all duration-300`}
         style={{
           backgroundColor: activePopup.background_color,
           backgroundImage: activePopup.background_image ? `url(${activePopup.background_image})` : undefined,
