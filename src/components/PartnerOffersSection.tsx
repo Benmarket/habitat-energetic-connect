@@ -169,7 +169,7 @@ const PartnerOffersSection = () => {
   };
 
   return (
-    <section id="offres" className="py-12 md:py-16 pb-8 md:pb-12 bg-gradient-to-b from-background via-amber-50/30 to-background relative overflow-hidden">
+    <section className="py-12 md:py-16 pb-8 md:pb-12 bg-gradient-to-b from-background via-amber-50/30 to-background relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute inset-0 opacity-20 pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-amber-500/20 rounded-full blur-3xl animate-pulse"></div>

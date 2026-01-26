@@ -255,7 +255,6 @@ const EligibilityFormSection = () => {
 
   return (
     <section 
-      id="etude" 
       className="pt-16 pb-8 relative"
       style={{
         backgroundImage: `url(${naturePrimeGif})`,
