@@ -116,7 +116,7 @@ const Merci = () => {
                     Nos conseillers sont là pour vous accompagner gratuitement.
                   </p>
                   <Button asChild className="w-full gap-2">
-                    <Link to="/?open-project=true">
+                    <Link to="/#contact">
                       <Phone className="w-4 h-4" />
                       Demander à être rappelé
                     </Link>
