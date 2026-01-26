@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { OrganizationSchema } from "@/components/SEO/OrganizationSchema";
@@ -78,20 +78,8 @@ const Index = () => {
   const { activeRegion } = useRegionContext();
   const location = useLocation();
 
-  // Handle scrolling to anchor after navigation
-  useEffect(() => {
-    if (location.hash) {
-      // Small delay to ensure the page is rendered
-      const timeoutId = setTimeout(() => {
-        const elementId = location.hash.replace('#', '');
-        const element = document.getElementById(elementId);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [location.hash]);
+  // Permet de (re)scroller après hydratation des bandes (ex: réordonnancement chargé depuis la BDD)
+  const [sectionsHydrated, setSectionsHydrated] = useState(false);
 
   useEffect(() => {
     const loadSections = async () => {
@@ -129,6 +117,8 @@ const Index = () => {
         }
       } catch (error) {
         // Silent fail - use default sections
+      } finally {
+        setSectionsHydrated(true);
       }
     };
 
@@ -136,7 +126,7 @@ const Index = () => {
   }, []);
 
   // Filter sections based on visibility and region
-  const visibleSections = sections.filter(section => {
+  const visibleSections = useMemo(() => sections.filter(section => {
     // First check global visibility
     if (!section.visible) return false;
     
@@ -148,7 +138,44 @@ const Index = () => {
     
     // Otherwise, check if current region is in the list
     return regionVisibility.includes(activeRegion);
-  });
+  }), [sections, activeRegion]);
+
+  const visibleSectionsSignature = useMemo(
+    () => visibleSections.map((s) => `${s.id}:${s.order}:${s.visible}`).join("|"),
+    [visibleSections]
+  );
+
+  // Scroll hash -> bande correspondante (fiable même après réordonnancement/hydratation)
+  useEffect(() => {
+    if (!location.hash) return;
+    if (!sectionsHydrated) return;
+
+    const id = decodeURIComponent(location.hash.replace(/^#/, ""));
+    let cancelled = false;
+
+    const scrollToElement = (attempt = 0) => {
+      if (cancelled) return;
+
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+
+      // Si la bande n'est pas encore présente (ou vient d'être réordonnée), on retente
+      if (attempt < 40) {
+        setTimeout(() => scrollToElement(attempt + 1), 100);
+      }
+    };
+
+    requestAnimationFrame(() => {
+      setTimeout(() => scrollToElement(0), 50);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [location.hash, sectionsHydrated, visibleSectionsSignature]);
 
   return (
     <>
@@ -178,7 +205,7 @@ const Index = () => {
           // Extraire l'ID d'ancre (sans le #) de la configuration
           const anchorId = section.anchor.replace('#', '');
           return Component ? (
-            <div key={section.id} id={anchorId}>
+            <div key={section.id} id={anchorId} className="scroll-mt-24">
               <Component />
             </div>
           ) : null;
