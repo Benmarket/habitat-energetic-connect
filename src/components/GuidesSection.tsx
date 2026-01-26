@@ -311,7 +311,7 @@ const GuidesSection = () => {
                         <img
                           src={guide.featured_image}
                           alt={guide.title}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          className="w-full h-full object-cover rounded-lg transition-transform duration-500 group-hover:scale-110"
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-[hsl(24,95%,55%)]/10 to-[hsl(24,95%,55%)]/5 flex items-center justify-center">
