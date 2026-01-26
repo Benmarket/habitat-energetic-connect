@@ -159,7 +159,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section id="hero" className="relative min-h-[90vh] flex items-center overflow-hidden">
+    <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       {/* Background images with crossfade */}
       <div className="absolute inset-0 z-0">
         {sliderSettings.images.length > 0 ? (

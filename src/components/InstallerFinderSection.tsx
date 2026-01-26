@@ -135,7 +135,7 @@ const InstallerFinderSection = () => {
   };
 
   return (
-    <section id="installateurs" className="relative py-16 md:py-20 lg:py-24 pb-12 md:pb-16 overflow-hidden">
+    <section className="relative py-16 md:py-20 lg:py-24 pb-12 md:pb-16 overflow-hidden">
       {/* Background Image with Overlay */}
       <div 
         className="absolute inset-0 bg-cover bg-center"

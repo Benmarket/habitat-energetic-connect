@@ -22,7 +22,6 @@ const CTAPartner = () => {
 
   return (
     <section
-      id="devenir-partenaire"
       className="py-6 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 relative overflow-hidden"
     >
       {/* Subtle pattern overlay */}

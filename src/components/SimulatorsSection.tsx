@@ -99,7 +99,7 @@ const SimulatorsSection = () => {
   ];
 
   return (
-    <section id="simulateurs" className="pt-6 pb-12 md:py-16 lg:py-20 bg-white relative overflow-hidden">
+    <section className="pt-6 pb-12 md:py-16 lg:py-20 bg-white relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header - Style Guides */}
         <div className="mb-12">

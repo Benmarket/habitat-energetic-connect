@@ -157,7 +157,7 @@ const ReviewsSection = () => {
   };
 
   return (
-    <section id="avis" className="bg-muted py-16">
+    <section className="bg-muted py-16">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="flex flex-col items-center gap-4 mb-12">

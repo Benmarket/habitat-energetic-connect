@@ -100,7 +100,6 @@ const InstitutionalContextSection = () => {
   return (
     <section
       ref={sectionRef}
-      id="parcours"
       className="relative bg-gradient-to-br from-slate-50 via-white to-blue-50/30"
     >
       {/* Container avec hauteur supplémentaire pour le scrollytelling */}

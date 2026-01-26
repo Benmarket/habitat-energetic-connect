@@ -6,7 +6,7 @@ const AppDownloadSection = () => {
   const navigate = useNavigate();
 
   return (
-    <section id="app" className="py-12 md:py-16 lg:py-12 bg-gradient-to-br from-primary/5 via-background to-primary/10 relative overflow-hidden">
+    <section className="py-12 md:py-16 lg:py-12 bg-gradient-to-br from-primary/5 via-background to-primary/10 relative overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute inset-0 bg-grid-pattern opacity-5" />
       <div className="absolute top-10 -right-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />

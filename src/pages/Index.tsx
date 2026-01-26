@@ -175,7 +175,13 @@ const Index = () => {
         <Header />
         {visibleSections.map(section => {
           const Component = SECTION_COMPONENTS[section.id];
-          return Component ? <Component key={section.id} /> : null;
+          // Extraire l'ID d'ancre (sans le #) de la configuration
+          const anchorId = section.anchor.replace('#', '');
+          return Component ? (
+            <div key={section.id} id={anchorId}>
+              <Component />
+            </div>
+          ) : null;
         })}
         <Footer />
       </div>

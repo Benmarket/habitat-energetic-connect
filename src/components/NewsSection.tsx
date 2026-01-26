@@ -146,7 +146,7 @@ const NewsSection = () => {
   }
 
   return (
-    <section id="actualites" className="pt-2 md:pt-4 lg:pt-6 pb-8 md:pb-12 lg:pb-20 bg-background">
+    <section className="pt-2 md:pt-4 lg:pt-6 pb-8 md:pb-12 lg:pb-20 bg-background">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="max-w-3xl mx-auto mb-8 md:mb-12">
