@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail } from "lucide-react";
@@ -14,6 +15,7 @@ const emailSchema = z.string()
   .max(255, "L'email est trop long");
 
 export const NewsletterForm = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -67,12 +69,9 @@ export const NewsletterForm = () => {
         throw error;
       }
 
-      // Trigger success popup instead of toast
-      window.dispatchEvent(new CustomEvent('trigger-popup', { 
-        detail: { triggerId: 'newsletter-success' } 
-      }));
-      
+      // Redirect to thank you page for newsletter
       setEmail("");
+      navigate(`/merci?type=newsletter&email=${encodeURIComponent(validatedEmail)}`);
     } catch {
       toast.error("Une erreur est survenue. Veuillez réessayer.");
     } finally {
