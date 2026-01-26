@@ -11,6 +11,14 @@ const Footer = () => {
     showWhatsapp: false,
     whatsappLink: "",
     showMemberSpace: true,
+    showFacebook: true,
+    facebookLink: "",
+    showTwitter: true,
+    twitterLink: "",
+    showLinkedin: true,
+    linkedinLink: "",
+    showYoutube: true,
+    youtubeLink: "",
   });
 
   // Génère le lien WhatsApp à partir du paramètre configuré
@@ -41,6 +49,14 @@ const Footer = () => {
             showWhatsapp: value.showWhatsapp ?? false,
             whatsappLink: value.whatsappLink || "",
             showMemberSpace: value.showMemberSpace ?? true,
+            showFacebook: value.showFacebook ?? true,
+            facebookLink: value.facebookLink || "",
+            showTwitter: value.showTwitter ?? true,
+            twitterLink: value.twitterLink || "",
+            showLinkedin: value.showLinkedin ?? true,
+            linkedinLink: value.linkedinLink || "",
+            showYoutube: value.showYoutube ?? true,
+            youtubeLink: value.youtubeLink || "",
           });
         }
       });
@@ -161,18 +177,26 @@ const Footer = () => {
           )}
 
           <div className="flex gap-3">
-            <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="Facebook">
-              <Facebook className="w-4 h-4" />
-            </a>
-            <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="Twitter">
-              <Twitter className="w-4 h-4" />
-            </a>
-            <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="LinkedIn">
-              <Linkedin className="w-4 h-4" />
-            </a>
-            <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="YouTube">
-              <Youtube className="w-4 h-4" />
-            </a>
+            {headerFooterSettings.showFacebook && (
+              <a href={headerFooterSettings.facebookLink || "#"} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="Facebook">
+                <Facebook className="w-4 h-4" />
+              </a>
+            )}
+            {headerFooterSettings.showTwitter && (
+              <a href={headerFooterSettings.twitterLink || "#"} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="Twitter">
+                <Twitter className="w-4 h-4" />
+              </a>
+            )}
+            {headerFooterSettings.showLinkedin && (
+              <a href={headerFooterSettings.linkedinLink || "#"} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="LinkedIn">
+                <Linkedin className="w-4 h-4" />
+              </a>
+            )}
+            {headerFooterSettings.showYoutube && (
+              <a href={headerFooterSettings.youtubeLink || "#"} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="YouTube">
+                <Youtube className="w-4 h-4" />
+              </a>
+            )}
             {headerFooterSettings.showWhatsapp && (
               <a href={getWhatsappUrl()} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="WhatsApp">
                 <MessageCircle className="w-4 h-4" />

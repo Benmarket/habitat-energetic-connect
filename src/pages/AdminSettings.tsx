@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical, Eye, EyeOff, LayoutList, Sun, Zap, Home, Newspaper, HelpCircle, BookOpen, FileText, Calculator, MapPin, Gift, Handshake, MessageSquare, Star, Phone, Smartphone, Search, Palette, User, Settings, BarChart3, MessageCircle, RotateCcw, Undo2, Globe, ChevronDown } from "lucide-react";
+import { Loader2, Save, ArrowLeft, Upload, X, Image as ImageIcon, GripVertical, Eye, EyeOff, LayoutList, Sun, Zap, Home, Newspaper, HelpCircle, BookOpen, FileText, Calculator, MapPin, Gift, Handshake, MessageSquare, Star, Phone, Smartphone, Search, Palette, User, Settings, BarChart3, MessageCircle, RotateCcw, Undo2, Globe, ChevronDown, Share2, Facebook, Twitter, Linkedin, Youtube } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
@@ -355,6 +355,15 @@ const AdminSettings = () => {
     memberMenuShowDashboard: true,
     memberMenuShowEconomies: true,
     memberMenuShowForum: true,
+    // Réseaux sociaux footer
+    showFacebook: true,
+    facebookLink: "",
+    showTwitter: true,
+    twitterLink: "",
+    showLinkedin: true,
+    linkedinLink: "",
+    showYoutube: true,
+    youtubeLink: "",
   });
   
   const [buttonSelectorOpen, setButtonSelectorOpen] = useState(false);
@@ -815,6 +824,14 @@ const AdminSettings = () => {
           memberMenuShowDashboard: value.memberMenuShowDashboard ?? true,
           memberMenuShowEconomies: value.memberMenuShowEconomies ?? true,
           memberMenuShowForum: value.memberMenuShowForum ?? true,
+          showFacebook: value.showFacebook ?? true,
+          facebookLink: value.facebookLink || "",
+          showTwitter: value.showTwitter ?? true,
+          twitterLink: value.twitterLink || "",
+          showLinkedin: value.showLinkedin ?? true,
+          linkedinLink: value.linkedinLink || "",
+          showYoutube: value.showYoutube ?? true,
+          youtubeLink: value.youtubeLink || "",
         };
         setHeaderFooterSettings(loadedSettings);
         setInitialHeaderFooterSettings(JSON.parse(JSON.stringify(loadedSettings)));
@@ -1336,6 +1353,124 @@ const AdminSettings = () => {
                       </div>
                     )}
                   </div>
+
+                  {/* Social Media settings */}
+                  <Card className="bg-muted/30">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Share2 className="w-4 h-4" />
+                        Réseaux sociaux (Footer)
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Activez/désactivez et configurez les liens des réseaux sociaux affichés dans le pied de page.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {/* Facebook */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Facebook className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-sm font-medium">Facebook</span>
+                          </div>
+                          <Switch
+                            checked={headerFooterSettings.showFacebook}
+                            onCheckedChange={(checked) => 
+                              setHeaderFooterSettings({ ...headerFooterSettings, showFacebook: checked })
+                            }
+                          />
+                        </div>
+                        {headerFooterSettings.showFacebook && (
+                          <Input
+                            value={headerFooterSettings.facebookLink}
+                            onChange={(e) => 
+                              setHeaderFooterSettings({ ...headerFooterSettings, facebookLink: e.target.value })
+                            }
+                            placeholder="https://facebook.com/votre-page"
+                            className="text-sm"
+                          />
+                        )}
+                      </div>
+
+                      {/* Twitter/X */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Twitter className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-sm font-medium">Twitter / X</span>
+                          </div>
+                          <Switch
+                            checked={headerFooterSettings.showTwitter}
+                            onCheckedChange={(checked) => 
+                              setHeaderFooterSettings({ ...headerFooterSettings, showTwitter: checked })
+                            }
+                          />
+                        </div>
+                        {headerFooterSettings.showTwitter && (
+                          <Input
+                            value={headerFooterSettings.twitterLink}
+                            onChange={(e) => 
+                              setHeaderFooterSettings({ ...headerFooterSettings, twitterLink: e.target.value })
+                            }
+                            placeholder="https://twitter.com/votre-compte"
+                            className="text-sm"
+                          />
+                        )}
+                      </div>
+
+                      {/* LinkedIn */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Linkedin className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-sm font-medium">LinkedIn</span>
+                          </div>
+                          <Switch
+                            checked={headerFooterSettings.showLinkedin}
+                            onCheckedChange={(checked) => 
+                              setHeaderFooterSettings({ ...headerFooterSettings, showLinkedin: checked })
+                            }
+                          />
+                        </div>
+                        {headerFooterSettings.showLinkedin && (
+                          <Input
+                            value={headerFooterSettings.linkedinLink}
+                            onChange={(e) => 
+                              setHeaderFooterSettings({ ...headerFooterSettings, linkedinLink: e.target.value })
+                            }
+                            placeholder="https://linkedin.com/company/votre-entreprise"
+                            className="text-sm"
+                          />
+                        )}
+                      </div>
+
+                      {/* YouTube */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Youtube className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-sm font-medium">YouTube</span>
+                          </div>
+                          <Switch
+                            checked={headerFooterSettings.showYoutube}
+                            onCheckedChange={(checked) => 
+                              setHeaderFooterSettings({ ...headerFooterSettings, showYoutube: checked })
+                            }
+                          />
+                        </div>
+                        {headerFooterSettings.showYoutube && (
+                          <Input
+                            value={headerFooterSettings.youtubeLink}
+                            onChange={(e) => 
+                              setHeaderFooterSettings({ ...headerFooterSettings, youtubeLink: e.target.value })
+                            }
+                            placeholder="https://youtube.com/@votre-chaine"
+                            className="text-sm"
+                          />
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
 
                   {/* Member space settings */}
                   <div className="flex items-center justify-between">
