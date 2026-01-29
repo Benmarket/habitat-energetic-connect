@@ -1826,6 +1826,30 @@ export type Database = {
         }
         Relationships: []
       }
+      visitor_sessions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          token_hash: string
+          visitor_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          token_hash: string
+          visitor_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          token_hash?: string
+          visitor_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       forum_images_safe: {
@@ -1890,6 +1914,7 @@ export type Database = {
       check_form_submission_rate: { Args: { p_ip: string }; Returns: boolean }
       check_lead_rate: { Args: { p_email: string }; Returns: boolean }
       check_newsletter_rate: { Args: { p_email: string }; Returns: boolean }
+      current_visitor_id: { Args: never; Returns: string }
       expire_stale_agent_requests: { Args: never; Returns: undefined }
       has_permission:
         | {
@@ -1915,6 +1940,10 @@ export type Database = {
             }
             Returns: boolean
           }
+      issue_visitor_session: {
+        Args: { p_expires_in_seconds?: number }
+        Returns: Json
+      }
       mark_abandoned_conversations: { Args: never; Returns: undefined }
     }
     Enums: {
