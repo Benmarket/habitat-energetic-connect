@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { MessageCircle, X, Send, Bot, User, ArrowLeft, RotateCcw, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@supabase/supabase-js";
 import { useAuth } from "@/hooks/useAuth";
+import { useVisitorSession } from "@/hooks/useVisitorSession";
 import { ChatbotFlowRunner } from "./ChatbotFlowRunner";
 
 // Routes where chatbot should be hidden
@@ -54,6 +56,33 @@ export const ChatBot = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { 
+    getVisitorToken, 
+    getVisitorId, 
+    isLoading: isSessionLoading,
+    isAuthenticated,
+  } = useVisitorSession();
+
+  // Create a Supabase client with visitor token header for anonymous users
+  const chatSupabase = useMemo(() => {
+    const token = getVisitorToken();
+    if (!token) {
+      // Authenticated user - use normal client
+      return supabase;
+    }
+    // Anonymous user - create client with x-visitor-token header
+    return createClient(
+      import.meta.env.VITE_SUPABASE_URL,
+      import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      {
+        global: {
+          headers: {
+            "x-visitor-token": token,
+          },
+        },
+      }
+    );
+  }, [getVisitorToken]);
 
   // Check if current route should hide chatbot
   const shouldHideChatbot = HIDDEN_ROUTES.some(route => location.pathname.startsWith(route));
@@ -191,12 +220,12 @@ export const ChatBot = () => {
     activeFlow.show_back_button !== false && 
     (flowHistory.length > 0 || mainFlow);
 
-  // Initialize conversation on open
+  // Initialize conversation on open (wait for session if anonymous)
   useEffect(() => {
-    if (isOpen && !conversationId) {
+    if (isOpen && !conversationId && !isSessionLoading) {
       initConversation();
     }
-  }, [isOpen]);
+  }, [isOpen, isSessionLoading]);
 
   // Listen for new messages from agents
   useEffect(() => {
@@ -275,17 +304,21 @@ export const ChatBot = () => {
   }, [isOpen]);
 
   const initConversation = async () => {
+    // Wait for session to be ready if anonymous
+    if (!isAuthenticated && isSessionLoading) {
+      return;
+    }
+
     try {
-      // Use crypto.randomUUID for secure visitor ID generation
-      const visitorId = localStorage.getItem("visitor_id") || crypto.randomUUID();
-      localStorage.setItem("visitor_id", visitorId);
+      const visitorId = getVisitorId();
 
       // Collect metadata
       const pageUrl = window.location.href;
       const referrer = document.referrer || null;
       const userAgentStr = navigator.userAgent;
 
-      const { data, error } = await supabase
+      // Use the chat-specific Supabase client with visitor token header
+      const { data, error } = await chatSupabase
         .from("chat_conversations")
         .insert({
           user_id: user?.id || null,
@@ -303,6 +336,7 @@ export const ChatBot = () => {
       if (error) throw error;
       setConversationId(data.id);
     } catch (error) {
+      console.error("Error initializing conversation:", error);
       // Silent fail - conversation will be retried on next message
     }
   };
@@ -312,7 +346,7 @@ export const ChatBot = () => {
     if (!conversationId || !isOpen) return;
 
     const updateHeartbeat = async () => {
-      await supabase
+      await chatSupabase
         .from("chat_conversations")
         .update({ last_seen_at: new Date().toISOString() })
         .eq("id", conversationId);
@@ -325,14 +359,14 @@ export const ChatBot = () => {
     const heartbeatInterval = setInterval(updateHeartbeat, 30000);
 
     return () => clearInterval(heartbeatInterval);
-  }, [conversationId, isOpen]);
+  }, [conversationId, isOpen, chatSupabase]);
 
   // Check for expired agent requests and notify user
   useEffect(() => {
     if (!conversationId || !hasRequestedAgent) return;
 
     const checkExpiredRequest = async () => {
-      const { data } = await supabase
+      const { data } = await chatSupabase
         .from("chat_agent_requests")
         .select("status, expired_at, notified_user")
         .eq("conversation_id", conversationId)
@@ -351,7 +385,7 @@ export const ChatBot = () => {
         ]);
 
         // Mark as notified
-        await supabase
+        await chatSupabase
           .from("chat_agent_requests")
           .update({ notified_user: true })
           .eq("conversation_id", conversationId)
@@ -363,7 +397,7 @@ export const ChatBot = () => {
 
     const checkInterval = setInterval(checkExpiredRequest, 10000);
     return () => clearInterval(checkInterval);
-  }, [conversationId, hasRequestedAgent]);
+  }, [conversationId, hasRequestedAgent, chatSupabase]);
 
   const handleFlowAnswer = async (answer: string, nextNode?: string) => {
     // Don't add to messages yet - let the flow runner handle the navigation
@@ -377,7 +411,7 @@ export const ChatBot = () => {
 
     // Save flow responses to conversation
     if (conversationId) {
-      await supabase
+      await chatSupabase
         .from("chat_conversations")
         .update({ 
           flow_responses: flowHistory,
@@ -462,7 +496,7 @@ export const ChatBot = () => {
     if (!conversationId) return;
 
     try {
-      await supabase.from("chat_messages").insert({
+      await chatSupabase.from("chat_messages").insert({
         conversation_id: conversationId,
         sender_type: senderType,
         content: content,
@@ -476,7 +510,7 @@ export const ChatBot = () => {
     if (!conversationId || hasRequestedAgent) return;
 
     try {
-      const { data: existing } = await supabase
+      const { data: existing } = await chatSupabase
         .from("chat_agent_requests")
         .select("id")
         .eq("conversation_id", conversationId)
@@ -491,9 +525,9 @@ export const ChatBot = () => {
         return;
       }
 
-      await supabase.from("chat_conversations").update({ status: "awaiting_agent" }).eq("id", conversationId);
+      await chatSupabase.from("chat_conversations").update({ status: "awaiting_agent" }).eq("id", conversationId);
 
-      await supabase.from("chat_agent_requests").insert({
+      await chatSupabase.from("chat_agent_requests").insert({
         conversation_id: conversationId,
         status: "pending",
       });
