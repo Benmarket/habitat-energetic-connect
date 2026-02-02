@@ -263,6 +263,27 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_rate_limits: {
+        Row: {
+          called_at: string
+          endpoint: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          called_at?: string
+          endpoint: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          called_at?: string
+          endpoint?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       article_automations: {
         Row: {
           created_at: string | null
@@ -1911,9 +1932,21 @@ export type Database = {
       }
     }
     Functions: {
+      check_ad_analytics_rate: {
+        Args: { p_visitor_id: string }
+        Returns: boolean
+      }
+      check_ai_rate_limit: {
+        Args: { p_endpoint: string; p_max_per_hour?: number; p_user_id: string }
+        Returns: boolean
+      }
       check_form_submission_rate: { Args: { p_ip: string }; Returns: boolean }
       check_lead_rate: { Args: { p_email: string }; Returns: boolean }
       check_newsletter_rate: { Args: { p_email: string }; Returns: boolean }
+      check_page_view_rate: {
+        Args: { p_ip: string; p_visitor_id: string }
+        Returns: boolean
+      }
       current_visitor_id: { Args: never; Returns: string }
       expire_stale_agent_requests: { Args: never; Returns: undefined }
       has_permission:
@@ -1945,6 +1978,10 @@ export type Database = {
         Returns: Json
       }
       mark_abandoned_conversations: { Args: never; Returns: undefined }
+      record_ai_call: {
+        Args: { p_endpoint: string; p_user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "super_admin" | "admin" | "moderator" | "user"
