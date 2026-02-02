@@ -62,9 +62,44 @@ serve(async (req) => {
       );
     }
 
+    // ============================================
+    // RATE LIMITING: Max 10 appels par heure par utilisateur
+    // ============================================
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
+    
+    // Vérifier le rate limit via la fonction SQL
+    const { data: canProceed, error: rateLimitError } = await supabaseAdmin
+      .rpc('check_ai_rate_limit', { 
+        p_user_id: userId, 
+        p_endpoint: 'generate-article',
+        p_max_per_hour: 10 
+      });
+    
+    if (rateLimitError) {
+      console.error('Rate limit check error:', rateLimitError);
+      // En cas d'erreur, on continue mais on log
+    } else if (canProceed === false) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Limite atteinte : 10 générations maximum par heure. Réessayez plus tard.' 
+        }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Enregistrer cet appel
+    await supabaseAdmin.rpc('record_ai_call', { 
+      p_user_id: userId, 
+      p_endpoint: 'generate-article' 
+    });
+
     const { 
       keywords, 
-      contentType, 
+      contentType,
       baseContent, 
       additionalInstructions, 
       customInstructions,
