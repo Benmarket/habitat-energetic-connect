@@ -230,20 +230,28 @@ export const GuideTemplateClassique = ({
               )}
 
               {/* Content */}
-              <div className={`relative ${isPaywalled ? 'max-h-[600px] overflow-hidden' : ''}`}>
-                <div
-                  className="prose prose-lg max-w-none prose-slate
-                    prose-headings:font-bold prose-headings:text-slate-900
-                    prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-6 prose-h2:scroll-mt-28
-                    prose-p:leading-relaxed
-                    prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
-                    prose-strong:text-slate-900
-                    prose-li:marker:text-blue-500
-                    prose-img:rounded-xl prose-img:shadow-lg"
-                  dangerouslySetInnerHTML={{ __html: transformedContent }}
-                />
+              <div className="relative">
+                {/* Content wrapper - limited height when paywalled */}
+                <div className={isPaywalled ? 'max-h-[400px] overflow-hidden' : ''}>
+                  <div
+                    className="prose prose-lg max-w-none prose-slate
+                      prose-headings:font-bold prose-headings:text-slate-900
+                      prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-6 prose-h2:scroll-mt-28
+                      prose-p:leading-relaxed
+                      prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
+                      prose-strong:text-slate-900
+                      prose-li:marker:text-blue-500
+                      prose-img:rounded-xl prose-img:shadow-lg"
+                    dangerouslySetInnerHTML={{ __html: transformedContent }}
+                  />
+                </div>
                 
-                {isPaywalled && children}
+                {/* Paywall overlay - positioned OUTSIDE the overflow-hidden div */}
+                {isPaywalled && (
+                  <div className="relative -mt-32">
+                    {children}
+                  </div>
+                )}
               </div>
 
               {/* FAQ Section */}

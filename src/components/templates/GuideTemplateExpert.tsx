@@ -200,23 +200,29 @@ export const GuideTemplateExpert = ({
               )}
 
               {/* Content */}
-              <div className={`relative ${isPaywalled ? 'max-h-[600px] overflow-hidden' : ''}`}>
-                <div
-                  className="prose prose-lg max-w-none
-                    prose-headings:font-bold prose-headings:text-slate-900
-                    prose-h2:text-2xl prose-h2:mt-16 prose-h2:mb-6 prose-h2:flex prose-h2:items-center prose-h2:gap-3 prose-h2:scroll-mt-40
-                    prose-h2:before:content-['#'] prose-h2:before:text-emerald-400 prose-h2:before:font-mono prose-h2:before:font-normal
-                    prose-h3:text-xl prose-h3:mt-10 prose-h3:mb-4
-                    prose-p:text-slate-700 prose-p:leading-relaxed
-                    prose-a:text-emerald-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline
-                    prose-code:bg-slate-100 prose-code:text-emerald-700 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm
-                    prose-li:marker:text-emerald-500
-                    prose-img:rounded-xl prose-img:shadow-lg prose-img:border prose-img:border-slate-200
-                    prose-blockquote:border-l-emerald-500 prose-blockquote:bg-emerald-50 prose-blockquote:py-4 prose-blockquote:rounded-r-lg"
-                  dangerouslySetInnerHTML={{ __html: transformedContent }}
-                />
+              <div className="relative">
+                <div className={isPaywalled ? 'max-h-[400px] overflow-hidden' : ''}>
+                  <div
+                    className="prose prose-lg max-w-none
+                      prose-headings:font-bold prose-headings:text-slate-900
+                      prose-h2:text-2xl prose-h2:mt-16 prose-h2:mb-6 prose-h2:flex prose-h2:items-center prose-h2:gap-3 prose-h2:scroll-mt-40
+                      prose-h2:before:content-['#'] prose-h2:before:text-emerald-400 prose-h2:before:font-mono prose-h2:before:font-normal
+                      prose-h3:text-xl prose-h3:mt-10 prose-h3:mb-4
+                      prose-p:text-slate-700 prose-p:leading-relaxed
+                      prose-a:text-emerald-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline
+                      prose-code:bg-slate-100 prose-code:text-emerald-700 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm
+                      prose-li:marker:text-emerald-500
+                      prose-img:rounded-xl prose-img:shadow-lg prose-img:border prose-img:border-slate-200
+                      prose-blockquote:border-l-emerald-500 prose-blockquote:bg-emerald-50 prose-blockquote:py-4 prose-blockquote:rounded-r-lg"
+                    dangerouslySetInnerHTML={{ __html: transformedContent }}
+                  />
+                </div>
                 
-                {isPaywalled && children}
+                {isPaywalled && (
+                  <div className="relative -mt-32">
+                    {children}
+                  </div>
+                )}
               </div>
 
               {/* FAQ Section */}

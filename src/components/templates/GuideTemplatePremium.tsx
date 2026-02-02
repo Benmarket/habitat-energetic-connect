@@ -212,20 +212,26 @@ export const GuideTemplatePremium = ({
                 )}
 
                 {/* Content */}
-                <div className={`relative ${isPaywalled ? 'max-h-[600px] overflow-hidden' : ''}`}>
-                  <div
-                    className="prose prose-lg max-w-none
-                      prose-headings:text-gray-900 prose-headings:font-bold
-                      prose-h2:text-2xl prose-h2:mt-14 prose-h2:mb-6 prose-h2:pb-4 prose-h2:border-b-2 prose-h2:border-amber-200 prose-h2:scroll-mt-28
-                      prose-p:text-gray-700 prose-p:leading-relaxed
-                      prose-a:text-amber-600 prose-a:font-semibold prose-a:no-underline hover:prose-a:text-amber-700
-                      prose-strong:text-amber-700
-                      prose-li:marker:text-amber-500
-                      prose-img:rounded-2xl prose-img:shadow-xl prose-img:border prose-img:border-amber-100"
-                    dangerouslySetInnerHTML={{ __html: transformedContent }}
-                  />
+                <div className="relative">
+                  <div className={isPaywalled ? 'max-h-[400px] overflow-hidden' : ''}>
+                    <div
+                      className="prose prose-lg max-w-none
+                        prose-headings:text-gray-900 prose-headings:font-bold
+                        prose-h2:text-2xl prose-h2:mt-14 prose-h2:mb-6 prose-h2:pb-4 prose-h2:border-b-2 prose-h2:border-amber-200 prose-h2:scroll-mt-28
+                        prose-p:text-gray-700 prose-p:leading-relaxed
+                        prose-a:text-amber-600 prose-a:font-semibold prose-a:no-underline hover:prose-a:text-amber-700
+                        prose-strong:text-amber-700
+                        prose-li:marker:text-amber-500
+                        prose-img:rounded-2xl prose-img:shadow-xl prose-img:border prose-img:border-amber-100"
+                      dangerouslySetInnerHTML={{ __html: transformedContent }}
+                    />
+                  </div>
                   
-                  {isPaywalled && children}
+                  {isPaywalled && (
+                    <div className="relative -mt-32">
+                      {children}
+                    </div>
+                  )}
                 </div>
 
                 {/* FAQ Section */}

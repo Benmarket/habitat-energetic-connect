@@ -26,18 +26,18 @@ export const PaywallOverlay = ({
   return (
     <>
       <div className="relative">
-        {/* Gradient blur overlay */}
+        {/* Gradient blur overlay - positioned to overlap the cut content */}
         <div 
-          className="absolute inset-0 z-10"
+          className="absolute inset-x-0 -top-48 h-72 z-10"
           style={{
-            background: 'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.8) 30%, rgba(255,255,255,0.95) 50%, white 70%)',
-            backdropFilter: 'blur(4px)',
-            WebkitBackdropFilter: 'blur(4px)',
+            background: 'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.95) 60%, white 100%)',
+            backdropFilter: 'blur(2px)',
+            WebkitBackdropFilter: 'blur(2px)',
           }}
         />
         
         {/* Content overlay card */}
-        <div className="absolute inset-0 z-20 flex items-center justify-center pt-16">
+        <div className="relative z-20 flex items-center justify-center pt-8 pb-16">
           <div className="bg-white border-2 border-primary/20 rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center animate-fade-in">
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <Lock className="w-8 h-8 text-primary" />

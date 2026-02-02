@@ -302,27 +302,33 @@ export const GuideTemplateVibrant = ({
               )}
 
               {/* Content */}
-              <div className={`relative ${isPaywalled ? 'max-h-[600px] overflow-hidden' : ''}`}>
-                <div
-                  className="prose prose-lg max-w-none
-                    prose-headings:font-bold
-                    prose-h2:text-3xl prose-h2:mt-20 prose-h2:mb-8 prose-h2:scroll-mt-28
-                    prose-h3:text-2xl prose-h3:mt-12 prose-h3:mb-5
-                    prose-p:leading-[1.8] prose-p:text-gray-600
-                    prose-a:font-bold prose-a:no-underline prose-a:bg-gradient-to-r prose-a:from-transparent prose-a:to-transparent prose-a:bg-[length:100%_2px] prose-a:bg-bottom prose-a:bg-no-repeat hover:prose-a:bg-[length:100%_100%] prose-a:transition-all
-                    prose-strong:font-bold
-                    prose-ul:my-8 prose-ol:my-8
-                    prose-li:my-2
-                    prose-img:rounded-3xl prose-img:shadow-2xl"
-                  style={{
-                    '--tw-prose-links': colors.primary,
-                    '--tw-prose-headings': colors.primary,
-                    '--tw-prose-bullets': colors.accent,
-                  } as React.CSSProperties}
-                  dangerouslySetInnerHTML={{ __html: transformedContent }}
-                />
+              <div className="relative">
+                <div className={isPaywalled ? 'max-h-[400px] overflow-hidden' : ''}>
+                  <div
+                    className="prose prose-lg max-w-none
+                      prose-headings:font-bold
+                      prose-h2:text-3xl prose-h2:mt-20 prose-h2:mb-8 prose-h2:scroll-mt-28
+                      prose-h3:text-2xl prose-h3:mt-12 prose-h3:mb-5
+                      prose-p:leading-[1.8] prose-p:text-gray-600
+                      prose-a:font-bold prose-a:no-underline prose-a:bg-gradient-to-r prose-a:from-transparent prose-a:to-transparent prose-a:bg-[length:100%_2px] prose-a:bg-bottom prose-a:bg-no-repeat hover:prose-a:bg-[length:100%_100%] prose-a:transition-all
+                      prose-strong:font-bold
+                      prose-ul:my-8 prose-ol:my-8
+                      prose-li:my-2
+                      prose-img:rounded-3xl prose-img:shadow-2xl"
+                    style={{
+                      '--tw-prose-links': colors.primary,
+                      '--tw-prose-headings': colors.primary,
+                      '--tw-prose-bullets': colors.accent,
+                    } as React.CSSProperties}
+                    dangerouslySetInnerHTML={{ __html: transformedContent }}
+                  />
+                </div>
                 
-                {isPaywalled && children}
+                {isPaywalled && (
+                  <div className="relative -mt-32">
+                    {children}
+                  </div>
+                )}
               </div>
 
               {/* FAQ with cards */}
