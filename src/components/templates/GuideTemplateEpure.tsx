@@ -200,25 +200,31 @@ export const GuideTemplateEpure = ({
             )}
 
             {/* Content */}
-            <div className={`relative ${isPaywalled ? 'max-h-[600px] overflow-hidden' : ''}`}>
-              <div
-                className="prose prose-lg lg:prose-xl max-w-none
-                  prose-headings:font-light prose-headings:tracking-tight
-                  prose-h2:text-4xl prose-h2:mt-24 prose-h2:mb-8 prose-h2:scroll-mt-28
-                  prose-h3:text-2xl prose-h3:mt-16 prose-h3:mb-6
-                  prose-p:leading-[1.9] prose-p:text-gray-600 prose-p:font-light
-                  prose-a:no-underline prose-a:border-b prose-a:border-current prose-a:pb-0.5
-                  prose-strong:font-medium prose-strong:text-gray-900
-                  prose-blockquote:border-l-0 prose-blockquote:pl-0 prose-blockquote:text-2xl prose-blockquote:font-light prose-blockquote:italic
-                  prose-img:rounded-none prose-img:shadow-none prose-img:my-16"
-                style={{
-                  '--tw-prose-links': colors.accent,
-                  '--tw-prose-headings': colors.primary,
-                } as React.CSSProperties}
-                dangerouslySetInnerHTML={{ __html: transformedContent }}
-              />
+            <div className="relative">
+              <div className={isPaywalled ? 'max-h-[400px] overflow-hidden' : ''}>
+                <div
+                  className="prose prose-lg lg:prose-xl max-w-none
+                    prose-headings:font-light prose-headings:tracking-tight
+                    prose-h2:text-4xl prose-h2:mt-24 prose-h2:mb-8 prose-h2:scroll-mt-28
+                    prose-h3:text-2xl prose-h3:mt-16 prose-h3:mb-6
+                    prose-p:leading-[1.9] prose-p:text-gray-600 prose-p:font-light
+                    prose-a:no-underline prose-a:border-b prose-a:border-current prose-a:pb-0.5
+                    prose-strong:font-medium prose-strong:text-gray-900
+                    prose-blockquote:border-l-0 prose-blockquote:pl-0 prose-blockquote:text-2xl prose-blockquote:font-light prose-blockquote:italic
+                    prose-img:rounded-none prose-img:shadow-none prose-img:my-16"
+                  style={{
+                    '--tw-prose-links': colors.accent,
+                    '--tw-prose-headings': colors.primary,
+                  } as React.CSSProperties}
+                  dangerouslySetInnerHTML={{ __html: transformedContent }}
+                />
+              </div>
               
-              {isPaywalled && children}
+              {isPaywalled && (
+                <div className="relative -mt-32">
+                  {children}
+                </div>
+              )}
             </div>
 
             {/* FAQ - Accordion minimal */}

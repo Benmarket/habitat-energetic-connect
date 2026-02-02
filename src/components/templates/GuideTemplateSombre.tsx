@@ -278,26 +278,32 @@ export const GuideTemplateSombre = ({
             )}
 
             {/* Content */}
-            <div className={`relative ${isPaywalled ? 'max-h-[600px] overflow-hidden' : ''}`}>
-              <div
-                className="prose prose-lg prose-invert max-w-none
-                  prose-headings:font-bold prose-headings:text-white
-                  prose-h2:text-2xl prose-h2:mt-16 prose-h2:mb-6 prose-h2:scroll-mt-28
-                  prose-h3:text-xl prose-h3:mt-10 prose-h3:mb-4
-                  prose-p:leading-relaxed prose-p:text-gray-400
-                  prose-a:font-semibold prose-a:no-underline prose-a:border-b-2 prose-a:pb-0.5
-                  prose-strong:font-bold prose-strong:text-white
-                  prose-ul:text-gray-400 prose-ol:text-gray-400
-                  prose-li:my-1.5
-                  prose-img:rounded-2xl prose-img:border prose-img:border-gray-800"
-                style={{
-                  '--tw-prose-links': colors.accent,
-                  '--tw-prose-bullets': colors.accent,
-                } as React.CSSProperties}
-                dangerouslySetInnerHTML={{ __html: transformedContent }}
-              />
+            <div className="relative">
+              <div className={isPaywalled ? 'max-h-[400px] overflow-hidden' : ''}>
+                <div
+                  className="prose prose-lg prose-invert max-w-none
+                    prose-headings:font-bold prose-headings:text-white
+                    prose-h2:text-2xl prose-h2:mt-16 prose-h2:mb-6 prose-h2:scroll-mt-28
+                    prose-h3:text-xl prose-h3:mt-10 prose-h3:mb-4
+                    prose-p:leading-relaxed prose-p:text-gray-400
+                    prose-a:font-semibold prose-a:no-underline prose-a:border-b-2 prose-a:pb-0.5
+                    prose-strong:font-bold prose-strong:text-white
+                    prose-ul:text-gray-400 prose-ol:text-gray-400
+                    prose-li:my-1.5
+                    prose-img:rounded-2xl prose-img:border prose-img:border-gray-800"
+                  style={{
+                    '--tw-prose-links': colors.accent,
+                    '--tw-prose-bullets': colors.accent,
+                  } as React.CSSProperties}
+                  dangerouslySetInnerHTML={{ __html: transformedContent }}
+                />
+              </div>
               
-              {isPaywalled && children}
+              {isPaywalled && (
+                <div className="relative -mt-32">
+                  {children}
+                </div>
+              )}
             </div>
 
             {/* FAQ Accordion with glow */}
