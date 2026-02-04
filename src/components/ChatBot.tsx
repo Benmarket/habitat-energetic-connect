@@ -570,14 +570,50 @@ export const ChatBot = () => {
     let assistantContent = "";
 
     try {
+      // Build headers with visitor token for rate limiting
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      };
+      
+      // Add visitor token for anonymous rate limiting
+      const visitorToken = getVisitorToken();
+      if (visitorToken) {
+        headers["x-visitor-token"] = visitorToken;
+      }
+
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-bot`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
+        headers,
         body: JSON.stringify({ messages: newMessages }),
       });
+
+      // Handle rate limiting specifically
+      if (response.status === 429) {
+        const errorData = await response.json();
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: errorData.error || "Vous envoyez trop de messages. Veuillez patienter quelques instants.",
+          },
+        ]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Handle payment required (API credits exhausted)
+      if (response.status === 402) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: "Le service est temporairement indisponible. Veuillez réessayer plus tard.",
+          },
+        ]);
+        setIsLoading(false);
+        return;
+      }
 
       if (!response.ok || !response.body) {
         throw new Error("Erreur lors de la communication avec le chatbot");
