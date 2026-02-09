@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { MessageCircle, X, Send, Bot, User, ArrowLeft, RotateCcw, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +37,7 @@ type Message = {
 
 export const ChatBot = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -404,7 +405,7 @@ export const ChatBot = () => {
     // We'll save all the conversation when the flow completes
   };
 
-  const handleFlowComplete = async (isQualified: boolean, flowHistory: Array<{ question: string; answer: string }>) => {
+  const handleFlowComplete = async (isQualified: boolean, flowHistory: Array<{ question: string; answer: string }>, collectedData?: Record<string, string>) => {
     setFlowCompleted(true);
     setShowFlowRunner(false);
     setCurrentFlowNode(null);
@@ -420,6 +421,25 @@ export const ChatBot = () => {
         .eq("id", conversationId);
     }
 
+    // If we have collected contact data, save as lead
+    if (collectedData && collectedData.email) {
+      try {
+        await supabase.from("leads").insert({
+          first_name: collectedData.first_name || "",
+          last_name: collectedData.last_name || "",
+          email: collectedData.email,
+          phone: collectedData.phone || null,
+          postal_code: collectedData.postal_code || "",
+          address: "",
+          city: "",
+          needs: flowHistory.filter(h => h.question.includes("type de projet")).map(h => h.answer),
+          notes: `Chatbot - ${flowHistory.map(h => `${h.question}: ${h.answer}`).join(" | ")}`,
+        });
+      } catch (err) {
+        console.error("Error saving lead:", err);
+      }
+    }
+
     // Save flow history as messages
     const flowMessages: Message[] = [];
     flowHistory.forEach(({ question, answer }) => {
@@ -428,7 +448,7 @@ export const ChatBot = () => {
     });
 
     const completionMessage = isQualified
-      ? "Merci pour vos réponses ! Un conseiller va prendre contact avec vous prochainement."
+      ? "✅ Merci pour vos informations ! Votre demande a bien été enregistrée. Un conseiller Prime Énergies va vous recontacter très prochainement."
       : "Merci de votre intérêt. N'hésitez pas à consulter nos guides pour plus d'informations.";
 
     flowMessages.push({ role: "assistant", content: completionMessage });
@@ -438,6 +458,14 @@ export const ChatBot = () => {
     // Save to database
     for (const msg of flowMessages) {
       await saveMessage(msg.content, msg.role === "user" ? "user" : "bot");
+    }
+
+    // Redirect to /merci if lead was saved
+    if (collectedData && collectedData.email) {
+      setTimeout(() => {
+        setIsOpen(false);
+        navigate("/merci");
+      }, 2000);
     }
   };
 
