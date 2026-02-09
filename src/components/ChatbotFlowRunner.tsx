@@ -18,6 +18,7 @@ import {
   Headphones,
   BookOpen,
   Wrench,
+  HardHat,
   type LucideIcon 
 } from "lucide-react";
 // Icon mapping based on keywords in option labels
@@ -50,6 +51,9 @@ const getOptionIcon = (label: string): LucideIcon | null => {
   if (lowerLabel.includes("solaire") || lowerLabel.includes("panneaux")) {
     return Sun;
   }
+  if (lowerLabel.includes("rénovation") || lowerLabel.includes("globale")) {
+    return Wrench;
+  }
   
   // General categories
   if (lowerLabel.includes("projet") || lowerLabel.includes("subvention")) {
@@ -62,7 +66,7 @@ const getOptionIcon = (label: string): LucideIcon | null => {
     return BookOpen;
   }
   if (lowerLabel.includes("installateur")) {
-    return Wrench;
+    return HardHat;
   }
   if (lowerLabel.includes("contact") || lowerLabel.includes("prime")) {
     return Phone;
