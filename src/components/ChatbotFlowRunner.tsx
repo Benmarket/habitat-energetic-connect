@@ -16,6 +16,8 @@ import {
   PhoneCall,
   Mail,
   Headphones,
+  BookOpen,
+  Wrench,
   type LucideIcon 
 } from "lucide-react";
 // Icon mapping based on keywords in option labels
@@ -55,6 +57,12 @@ const getOptionIcon = (label: string): LucideIcon | null => {
   }
   if (lowerLabel.includes("aide") || lowerLabel.includes("comprendre") || lowerLabel.includes("démarche")) {
     return Wallet;
+  }
+  if (lowerLabel.includes("guide") || lowerLabel.includes("lire")) {
+    return BookOpen;
+  }
+  if (lowerLabel.includes("installateur")) {
+    return Wrench;
   }
   if (lowerLabel.includes("contact") || lowerLabel.includes("prime")) {
     return Phone;
