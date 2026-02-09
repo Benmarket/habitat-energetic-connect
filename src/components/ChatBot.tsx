@@ -421,9 +421,13 @@ export const ChatBot = () => {
         .eq("id", conversationId);
     }
 
-    // If we have collected contact data, save as lead
+    // If we have collected contact data, save as lead + form submission
     if (collectedData && collectedData.email) {
+      // Detect project type from flow history
+      const projectAnswer = flowHistory.find(h => h.question.includes("type de projet"))?.answer || "";
+
       try {
+        // Save to leads table
         await supabase.from("leads").insert({
           first_name: collectedData.first_name || "",
           last_name: collectedData.last_name || "",
@@ -437,6 +441,34 @@ export const ChatBot = () => {
         });
       } catch (err) {
         console.error("Error saving lead:", err);
+      }
+
+      try {
+        // Also save to form_submissions for admin tracking
+        const { data: formConfig } = await supabase
+          .from("form_configurations")
+          .select("id")
+          .eq("form_identifier", "chatbot_projet_subvention")
+          .single();
+
+        if (formConfig) {
+          await supabase.from("form_submissions").insert({
+            form_id: formConfig.id,
+            data: {
+              first_name: collectedData.first_name || "",
+              last_name: collectedData.last_name || "",
+              email: collectedData.email,
+              phone: collectedData.phone || "",
+              postal_code: collectedData.postal_code || "",
+              project_type: projectAnswer,
+              parcours: "Projet et subvention",
+              historique: flowHistory.map(h => `${h.question}: ${h.answer}`).join(" | "),
+            },
+            status: "new",
+          });
+        }
+      } catch (err) {
+        console.error("Error saving form submission:", err);
       }
     }
 
