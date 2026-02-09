@@ -462,9 +462,25 @@ export const ChatBot = () => {
 
     // Redirect to /merci if lead was saved
     if (collectedData && collectedData.email) {
+      // Find the work type from flow history
+      const projectAnswer = flowHistory.find(h => h.question.includes("type de projet"))?.answer || "";
+      const nameParam = collectedData.first_name ? `${collectedData.first_name} ${collectedData.last_name || ""}`.trim() : "";
+      
+      // Map project answer to workType slug
+      let workTypeSlug = "autre";
+      const lower = projectAnswer.toLowerCase();
+      if (lower.includes("solaire") || lower.includes("panneaux")) workTypeSlug = "energie-solaire";
+      else if (lower.includes("isolation")) workTypeSlug = "isolation";
+      else if (lower.includes("chauffage") || lower.includes("pompe")) workTypeSlug = "chauffage";
+      else if (lower.includes("rénovation")) workTypeSlug = "renovation-globale";
+
+      const params = new URLSearchParams();
+      if (nameParam) params.set("name", nameParam);
+      params.set("workType", workTypeSlug);
+
       setTimeout(() => {
         setIsOpen(false);
-        navigate("/merci");
+        navigate(`/merci?${params.toString()}`);
       }, 2000);
     }
   };
