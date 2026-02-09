@@ -385,15 +385,21 @@ export const ChatbotFlowRunner = ({
         <div className="flex gap-2">
           <Input
             value={textAnswer}
-            onChange={(e) => setTextAnswer(e.target.value)}
-            placeholder="Votre réponse..."
+            onChange={(e) => {
+              const val = e.target.value.replace(/\D/g, "").slice(0, 5);
+              setTextAnswer(val);
+            }}
+            placeholder="Ex: 75016"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={5}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 handleTextSubmit();
               }
             }}
           />
-          <Button onClick={handleTextSubmit}>Envoyer</Button>
+          <Button onClick={handleTextSubmit} disabled={textAnswer.length < 2}>Envoyer</Button>
         </div>
       )}
     </div>
