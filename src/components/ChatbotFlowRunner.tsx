@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   MessageCircle, 
   GitBranch, 
@@ -62,16 +63,28 @@ const getOptionIcon = (label: string): LucideIcon | null => {
   return null;
 };
 
+type FormField = {
+  name: string;
+  label: string;
+  type: string;
+  placeholder?: string;
+  required?: boolean;
+};
+
 type FlowNode = {
   type: "question" | "end" | "agent_handoff" | "flow_redirect";
   question?: string;
-  answer_type?: "buttons" | "text";
+  answer_type?: "buttons" | "text" | "form";
   options?: Array<{ label: string; next_node: string; redirect_flow_id?: string }>;
+  fields?: FormField[];
   message?: string;
   is_qualified?: boolean;
   allow_text_input?: boolean;
   allow_agent_button?: boolean;
   redirect_flow_id?: string;
+  redirect_url?: string;
+  save_as_lead?: boolean;
+  next_node?: string;
 };
 
 type FlowStructure = {
@@ -89,7 +102,7 @@ type ChatbotFlowRunnerProps = {
   flowStructure: FlowStructure;
   onAnswer: (answer: string, nextNode?: string) => void;
   onRequestAgent?: () => void;
-  onComplete?: (isQualified: boolean, conversationHistory: Array<{ question: string; answer: string }>) => void;
+  onComplete?: (isQualified: boolean, conversationHistory: Array<{ question: string; answer: string }>, collectedData?: Record<string, string>) => void;
   onNodeChange?: (node: FlowNode | null) => void;
   onFlowRedirect?: (flowId: string, conversationHistory: Array<{ question: string; answer: string }>) => void;
   onRestart?: () => void;
@@ -108,6 +121,8 @@ export const ChatbotFlowRunner = ({
 }: ChatbotFlowRunnerProps) => {
   const [currentNodeId, setCurrentNodeId] = useState<string>(flowStructure.start_node);
   const [textAnswer, setTextAnswer] = useState("");
+  const [formData, setFormData] = useState<Record<string, string>>({});
+  const [collectedData, setCollectedData] = useState<Record<string, string>>({});
   const [conversationHistory, setConversationHistory] = useState<
     Array<{ question: string; answer: string }>
   >([]);
@@ -118,7 +133,15 @@ export const ChatbotFlowRunner = ({
     // Reset when flow structure changes
     setCurrentNodeId(flowStructure.start_node);
     setConversationHistory([]);
+    setCollectedData({});
+    setFormData({});
   }, [flowStructure]);
+
+  // Reset form data when node changes
+  useEffect(() => {
+    setFormData({});
+    setTextAnswer("");
+  }, [currentNodeId]);
 
   // Notify parent when current node changes
   useEffect(() => {
@@ -133,6 +156,13 @@ export const ChatbotFlowRunner = ({
       onFlowRedirect(currentNode.redirect_flow_id, conversationHistory);
     }
   }, [currentNode, conversationHistory, onFlowRedirect]);
+
+  // Auto-trigger completion when reaching an end node
+  useEffect(() => {
+    if (currentNode?.type === "end" && onComplete) {
+      onComplete(currentNode.is_qualified ?? false, conversationHistory, collectedData);
+    }
+  }, [currentNodeId]);
 
   const handleButtonClick = (option: { label: string; next_node: string; redirect_flow_id?: string }) => {
     // Save to conversation history
@@ -165,6 +195,10 @@ export const ChatbotFlowRunner = ({
   const handleTextSubmit = () => {
     if (!textAnswer.trim()) return;
 
+    // Collect text data (e.g. postal_code from node_3)
+    const updatedCollected = { ...collectedData, postal_code: textAnswer.trim() };
+    setCollectedData(updatedCollected);
+
     // Save to conversation history
     setConversationHistory((prev) => [
       ...prev,
@@ -174,16 +208,48 @@ export const ChatbotFlowRunner = ({
       },
     ]);
 
-    // Notify parent
     onAnswer(textAnswer);
 
-    // For text questions, we need a next_node in the node itself
-    const nextNodeId = (currentNode as any).next_node;
+    const nextNodeId = currentNode.next_node;
     if (nextNodeId && flowStructure.nodes[nextNodeId]) {
       setCurrentNodeId(nextNodeId);
     }
 
     setTextAnswer("");
+  };
+
+  const handleFormSubmit = () => {
+    if (!currentNode.fields) return;
+    
+    // Validate required fields
+    for (const field of currentNode.fields) {
+      if (field.required && !formData[field.name]?.trim()) {
+        return;
+      }
+    }
+
+    // Merge form data into collected data
+    const updatedCollected = { ...collectedData, ...formData };
+    setCollectedData(updatedCollected);
+
+    // Build answer summary for history
+    const answerParts = currentNode.fields.map(f => `${f.label}: ${formData[f.name] || ""}`);
+    const answerSummary = answerParts.join(", ");
+
+    setConversationHistory((prev) => [
+      ...prev,
+      {
+        question: currentNode.question || "",
+        answer: answerSummary,
+      },
+    ]);
+
+    onAnswer(answerSummary);
+
+    const nextNodeId = currentNode.next_node;
+    if (nextNodeId && flowStructure.nodes[nextNodeId]) {
+      setCurrentNodeId(nextNodeId);
+    }
   };
 
   const handleAgentRequest = () => {
@@ -194,7 +260,7 @@ export const ChatbotFlowRunner = ({
 
   const handleEnd = () => {
     if (onComplete && currentNode.type === "end") {
-      onComplete(currentNode.is_qualified ?? false, conversationHistory);
+      onComplete(currentNode.is_qualified ?? false, conversationHistory, collectedData);
     }
   };
 
@@ -238,11 +304,6 @@ export const ChatbotFlowRunner = ({
         <div className="bg-blue-900/10 dark:bg-blue-100/10 border border-blue-900/20 dark:border-blue-100/20 rounded-xl px-5 py-4">
           <p className="text-sm font-medium text-blue-900 dark:text-blue-100 text-center">{currentNode.message}</p>
         </div>
-        {onComplete && (
-          <Button onClick={handleEnd} className="w-full">
-            Terminer
-          </Button>
-        )}
       </div>
     );
   }
@@ -290,13 +351,43 @@ export const ChatbotFlowRunner = ({
             );
           })}
         </div>
+      ) : currentNode.answer_type === "form" && currentNode.fields ? (
+        <div className="flex flex-col gap-3 mt-2">
+          {currentNode.fields.map((field) => (
+            <div key={field.name} className="flex flex-col gap-1.5">
+              <Label htmlFor={field.name} className="text-xs font-medium text-muted-foreground">
+                {field.label} {field.required && <span className="text-red-500">*</span>}
+              </Label>
+              <Input
+                id={field.name}
+                type={field.type || "text"}
+                value={formData[field.name] || ""}
+                onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.value }))}
+                placeholder={field.placeholder || ""}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleFormSubmit();
+                  }
+                }}
+              />
+            </div>
+          ))}
+          <Button 
+            onClick={handleFormSubmit} 
+            className="w-full mt-1"
+            disabled={currentNode.fields.some(f => f.required && !formData[f.name]?.trim())}
+          >
+            Valider
+          </Button>
+        </div>
       ) : (
         <div className="flex gap-2">
           <Input
             value={textAnswer}
             onChange={(e) => setTextAnswer(e.target.value)}
             placeholder="Votre réponse..."
-            onKeyPress={(e) => {
+            onKeyDown={(e) => {
               if (e.key === "Enter") {
                 handleTextSubmit();
               }
