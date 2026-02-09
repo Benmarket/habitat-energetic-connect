@@ -448,7 +448,7 @@ export const ChatBot = () => {
         const { data: formConfig } = await supabase
           .from("form_configurations")
           .select("id")
-          .eq("form_identifier", "chatbot_projet_subvention")
+          .eq("form_identifier", "chatbot_contacter_prime_energies")
           .single();
 
         if (formConfig) {
