@@ -336,7 +336,7 @@ export const ChatbotFlowRunner = ({
     <div className="flex flex-col gap-4 px-1">
       <div className="bg-blue-900/10 dark:bg-blue-100/10 border border-blue-900/20 dark:border-blue-100/20 rounded-xl px-4 py-3 flex items-center gap-2">
         <MessageCircle className="h-3.5 w-3.5 text-blue-900/40 dark:text-blue-100/40 flex-shrink-0" />
-        <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 leading-relaxed">{currentNode.question}</p>
+        <p className="text-[13px] font-semibold text-blue-900 dark:text-blue-100 leading-snug">{currentNode.question}</p>
       </div>
 
       {currentNode.answer_type === "buttons" && currentNode.options ? (
