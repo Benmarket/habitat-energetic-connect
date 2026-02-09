@@ -226,6 +226,13 @@ export const ChatbotFlowRunner = ({
       if (field.required && !formData[field.name]?.trim()) {
         return;
       }
+      // Validate email format
+      if (field.name === "email" && formData[field.name]) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData[field.name])) {
+          return;
+        }
+      }
     }
 
     // Merge form data into collected data
@@ -360,9 +367,15 @@ export const ChatbotFlowRunner = ({
               </Label>
               <Input
                 id={field.name}
-                type={field.type || "text"}
+                type={field.name === "email" ? "email" : field.type || "text"}
                 value={formData[field.name] || ""}
-                onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.value }))}
+                onChange={(e) => {
+                  let val = e.target.value;
+                  if (field.name === "phone") {
+                    val = val.replace(/[^\d+\s()-]/g, "").slice(0, 15);
+                  }
+                  setFormData(prev => ({ ...prev, [field.name]: val }));
+                }}
                 placeholder={field.placeholder || ""}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
