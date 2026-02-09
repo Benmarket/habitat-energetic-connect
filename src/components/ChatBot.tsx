@@ -903,6 +903,9 @@ export const ChatBot = () => {
                 </Button>
               </div>
             )}
+
+            {/* Bottom spacer to prevent last message from being cut off */}
+            <div className="pb-4" />
           </ScrollArea>
 
           {/* Input - only show when allowed */}
