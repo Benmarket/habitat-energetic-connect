@@ -423,8 +423,8 @@ export const ChatBot = () => {
 
     // If we have collected contact data, save as lead + form submission
     if (collectedData && collectedData.email) {
-      // Detect project type from flow history
-      const projectAnswer = flowHistory.find(h => h.question.includes("type de projet"))?.answer || "";
+      // Detect project type from collectedData or flow history
+      const projectAnswer = collectedData.project_type || flowHistory.find(h => h.question.toLowerCase().includes("type de projet"))?.answer || "";
 
       try {
         // Save to leads table
@@ -436,7 +436,7 @@ export const ChatBot = () => {
           postal_code: collectedData.postal_code || "",
           address: "",
           city: "",
-          needs: flowHistory.filter(h => h.question.includes("type de projet")).map(h => h.answer),
+          needs: projectAnswer ? [projectAnswer] : flowHistory.filter(h => h.question.toLowerCase().includes("type de projet")).map(h => h.answer),
           notes: `Chatbot - ${flowHistory.map(h => `${h.question}: ${h.answer}`).join(" | ")}`,
         });
       } catch (err) {
@@ -461,7 +461,7 @@ export const ChatBot = () => {
               phone: collectedData.phone || "",
               postal_code: collectedData.postal_code || "",
               project_type: projectAnswer,
-              parcours: "Projet et subvention",
+              parcours: "Demande de rappel",
               historique: flowHistory.map(h => `${h.question}: ${h.answer}`).join(" | "),
             },
             status: "new",
@@ -494,13 +494,13 @@ export const ChatBot = () => {
 
     // Redirect to /merci if lead was saved
     if (collectedData && collectedData.email) {
-      // Find the work type from flow history
-      const projectAnswer = flowHistory.find(h => h.question.includes("type de projet"))?.answer || "";
+      // Find the work type from collectedData or flow history
+      const projectAnswer2 = collectedData.project_type || flowHistory.find(h => h.question.toLowerCase().includes("type de projet"))?.answer || "";
       const nameParam = collectedData.first_name ? `${collectedData.first_name} ${collectedData.last_name || ""}`.trim() : "";
       
       // Map project answer to workType slug
       let workTypeSlug = "autre";
-      const lower = projectAnswer.toLowerCase();
+      const lower = projectAnswer2.toLowerCase();
       if (lower.includes("solaire") || lower.includes("panneaux")) workTypeSlug = "energie-solaire";
       else if (lower.includes("isolation")) workTypeSlug = "isolation";
       else if (lower.includes("chauffage") || lower.includes("pompe")) workTypeSlug = "chauffage";

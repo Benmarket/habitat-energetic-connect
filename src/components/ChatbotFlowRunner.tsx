@@ -175,6 +175,14 @@ export const ChatbotFlowRunner = ({
     ];
     setConversationHistory(newHistory);
 
+    // Save button answer to collectedData (useful for project type, etc.)
+    if (currentNode.question) {
+      const questionKey = currentNode.question.toLowerCase();
+      if (questionKey.includes("type de projet")) {
+        setCollectedData(prev => ({ ...prev, project_type: option.label }));
+      }
+    }
+
     // Notify parent
     onAnswer(option.label, option.next_node);
 
@@ -230,6 +238,13 @@ export const ChatbotFlowRunner = ({
       if (field.name === "email" && formData[field.name]) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData[field.name])) {
+          return;
+        }
+      }
+      // Validate postal code: numeric only, 2-5 digits
+      if (field.name === "postal_code" && formData[field.name]) {
+        const val = formData[field.name].trim();
+        if (!/^\d{2,5}$/.test(val)) {
           return;
         }
       }
@@ -367,12 +382,17 @@ export const ChatbotFlowRunner = ({
               </Label>
               <Input
                 id={field.name}
-                type={field.name === "email" ? "email" : field.type || "text"}
+                type={field.name === "email" ? "email" : field.name === "phone" ? "tel" : field.type || "text"}
+                inputMode={field.name === "postal_code" ? "numeric" : undefined}
+                maxLength={field.name === "postal_code" ? 5 : undefined}
                 value={formData[field.name] || ""}
                 onChange={(e) => {
                   let val = e.target.value;
                   if (field.name === "phone") {
                     val = val.replace(/[^\d+\s()-]/g, "").slice(0, 15);
+                  }
+                  if (field.name === "postal_code") {
+                    val = val.replace(/\D/g, "").slice(0, 5);
                   }
                   setFormData(prev => ({ ...prev, [field.name]: val }));
                 }}
@@ -389,7 +409,13 @@ export const ChatbotFlowRunner = ({
           <Button 
             onClick={handleFormSubmit} 
             className="w-full mt-1"
-            disabled={currentNode.fields.some(f => f.required && !formData[f.name]?.trim())}
+            disabled={currentNode.fields.some(f => {
+              if (f.required && !formData[f.name]?.trim()) return true;
+              if (f.name === "email" && formData[f.name] && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData[f.name])) return true;
+              if (f.name === "postal_code" && formData[f.name] && !/^\d{2,5}$/.test(formData[f.name].trim())) return true;
+              if (f.name === "postal_code" && f.required && (!formData[f.name] || formData[f.name].trim().length < 2)) return true;
+              return false;
+            })}
           >
             Valider
           </Button>
