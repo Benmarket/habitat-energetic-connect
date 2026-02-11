@@ -452,10 +452,10 @@ const LandingSolaireContent = () => {
                     <div className="flex flex-col items-start gap-3">
                       <img src={guarantee25Years} alt="Garantie 25 ans" className="w-16 h-16 lg:w-20 lg:h-20" />
                       <img src={marqueFrancaise} alt="Marque Française" className="h-12 lg:h-14 object-contain" />
-                      {/* Solar panels + inverter */}
-                      <div className="flex items-end gap-3 mt-1">
-                        <img src={panneauxSolaires} alt="Panneaux solaires" className="h-36 lg:h-48 object-contain" />
-                        <img src={onduleur} alt="Onduleur Hoymiles" className="h-16 lg:h-24 object-contain" />
+                      {/* Solar panels + inverter overlapping */}
+                      <div className="relative mt-1">
+                        <img src={panneauxSolaires} alt="Panneaux solaires" className="h-48 lg:h-64 object-contain" />
+                        <img src={onduleur} alt="Onduleur Hoymiles" className="absolute bottom-0 right-0 translate-x-1/4 h-16 lg:h-24 object-contain" />
                       </div>
                     </div>
 
