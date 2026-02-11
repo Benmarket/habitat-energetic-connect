@@ -32,6 +32,10 @@ import ecologiqueImg from "@/assets/why-solar/ecologique.png";
 import factureEdfImg from "@/assets/why-solar/facture-edf-new.png";
 import appliPvImg from "@/assets/why-solar/appli-pv.jpg";
 import smartphoneImg from "@/assets/why-solar/utilise-smartphone.png";
+import fondGris from "@/assets/landing/fond-gris.png";
+import panneauxSolaires from "@/assets/landing/panneaux-solaires.png";
+import onduleur from "@/assets/landing/onduleur.png";
+import marqueFrancaise from "@/assets/landing/marque-francaise.png";
 
 // ─── Band 4: Critères d'éligibilité image ───
 import solarPanelsImg from "@/assets/solar-panels.jpg";
@@ -429,8 +433,12 @@ const LandingSolaireContent = () => {
         <main className="pt-20">
 
           {/* ═══ BAND 1: Hero Banner ═══ */}
-          <section className="relative py-12 lg:py-20 px-4 bg-gradient-to-br from-muted via-background to-muted overflow-hidden">
-            <div className="container mx-auto max-w-7xl">
+          <section className="relative py-12 lg:py-20 px-4 overflow-hidden">
+            {/* Background image */}
+            <img src={fondGris} alt="" className="absolute inset-0 w-full h-full object-cover" aria-hidden="true" />
+            <div className="absolute inset-0 bg-background/30" aria-hidden="true" />
+            
+            <div className="container mx-auto max-w-7xl relative z-10">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-center mb-8 text-primary">
                 Faites installer vos panneaux solaires
               </h1>
@@ -445,9 +453,7 @@ const LandingSolaireContent = () => {
                   
                   <div className="flex items-center gap-4">
                     <img src={guarantee25Years} alt="Garantie 25 ans" className="w-16 h-16 lg:w-20 lg:h-20" />
-                    <div className="flex items-center gap-2 border-2 border-foreground/20 rounded-full px-4 py-2">
-                      <span className="text-sm font-bold">🇫🇷 MARQUE FRANÇAISE</span>
-                    </div>
+                    <img src={marqueFrancaise} alt="Marque Française" className="h-12 lg:h-14 object-contain" />
                   </div>
 
                   <div className="bg-primary/5 border-2 border-primary/20 rounded-2xl p-4 inline-block">
@@ -461,6 +467,12 @@ const LandingSolaireContent = () => {
                     <p className="text-base text-muted-foreground leading-relaxed">
                       Passez <strong className="text-foreground">à l'énergie solaire</strong> et faites d'importantes économies sur votre <strong className="text-foreground">facture électrique.</strong>
                     </p>
+                  </div>
+
+                  {/* Solar panels + inverter images */}
+                  <div className="flex items-end gap-4">
+                    <img src={panneauxSolaires} alt="Panneaux solaires" className="h-40 lg:h-52 object-contain" />
+                    <img src={onduleur} alt="Onduleur Hoymiles" className="h-20 lg:h-28 object-contain" />
                   </div>
                 </div>
 
