@@ -440,9 +440,12 @@ const LandingSolaireContent = () => {
             <div className="absolute inset-0 bg-background/30" aria-hidden="true" />
             
             <div className="container mx-auto max-w-7xl relative z-10">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-center mb-8 text-primary">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-center mb-2 text-primary">
                 Faites installer vos panneaux solaires
               </h1>
+              <p className="text-center text-base lg:text-lg text-foreground mb-8">
+                Faites jusqu'à 70% d'économie sur 30 ans avec une centrale solaire en autoconsommation.
+              </p>
               
               <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
                 {/* Left: Product info */}
