@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { 
-  Sun, ArrowRight, Home, Plug, Quote, ChevronLeft, ChevronRight,
+  Sun, ArrowRight, Home, Building2, Quote, ChevronLeft, ChevronRight,
   Truck, Wrench, Power, CheckCircle2
 } from "lucide-react";
 import LandingPageGuard from "@/components/LandingPageGuard";
@@ -92,7 +92,7 @@ const LandingSolaireContent = () => {
 
   // ─── Wizard state ───
   const navigate = useNavigate();
-  const [wizardStep, setWizardStep] = useState(0); // 0=intro, 1=choice, 2=details, 3=contact
+  const [wizardStep, setWizardStep] = useState(1); // 1=choice, 2=details, 3=contact
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bounceKey, setBounceKey] = useState(0);
   const formRef = useRef<HTMLDivElement>(null);
@@ -116,7 +116,7 @@ const LandingSolaireContent = () => {
   const handlePropertyChoice = (choice: string) => {
     setWizardData(d => ({ ...d, propertyType: choice }));
     triggerBounce();
-    setTimeout(() => setWizardStep(2), 400);
+    setTimeout(() => setWizardStep(2), 500);
   };
 
   const handleStep2Continue = () => {
@@ -198,70 +198,70 @@ const LandingSolaireContent = () => {
     }
   };
 
-  const progressValue = wizardStep === 0 ? 0 : wizardStep === 1 ? 10 : wizardStep === 2 ? 55 : 90;
+  const progressValue = wizardStep === 1 ? 10 : wizardStep === 2 ? 55 : 90;
 
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
+  const dataFooter = (
+    <p className="text-center text-xs text-muted-foreground mt-6">
+      Vos données sont protégées. En savoir plus sur notre{" "}
+      <Link to="/politique-confidentialite" className="text-primary hover:underline">politique de confidentialité</Link>.
+    </p>
+  );
+
   // ─── Wizard step renderers ───
   const renderWizardContent = () => {
     const bounceClass = "animate-[bounce-step_0.4s_ease-out]";
 
-    if (wizardStep === 0) {
-      return (
-        <>
-          <h3 className="text-xl font-bold text-primary text-center mb-4">
-            Vérifier mon éligibilité à la prime énergie :
-          </h3>
-          <p className="text-center text-sm text-muted-foreground mb-6">
-            Testez votre éligibilité aux aides et subventions en <span className="underline font-medium">1 minute</span> sur notre site.
-          </p>
-          <Button
-            size="lg"
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg"
-            onClick={() => { triggerBounce(); setTimeout(() => setWizardStep(1), 300); }}
-          >
-            &gt; Continuer
-          </Button>
-          <p className="text-center text-xs text-muted-foreground mt-4">
-            Vos données sont protégées. En savoir plus sur notre{" "}
-            <Link to="/politique-confidentialite" className="text-primary hover:underline">politique de confidentialité</Link>.
-          </p>
-        </>
-      );
-    }
-
     if (wizardStep === 1) {
       return (
-        <div key={bounceKey} className={bounceClass}>
+        <div key={`step1-${bounceKey}`} className={bounceClass}>
+          <h3 className="text-xl font-bold text-primary text-center mb-2">
+            Vérifier mon éligibilité à la prime énergie :
+          </h3>
+          <p className="text-center text-sm text-muted-foreground mb-4">
+            Testez votre éligibilité aux aides et subventions en <span className="underline font-medium">1 minute</span> sur notre site.
+          </p>
           <Progress value={progressValue} className="mb-6 h-3" />
-          <p className="text-center text-sm text-muted-foreground mb-6">
+          <p className="text-center text-sm text-muted-foreground mb-4">
             Vous êtes :
           </p>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 mb-6">
             <button
               onClick={() => handlePropertyChoice("maison")}
-              className="flex flex-col items-center gap-3 p-6 border-2 border-border rounded-xl hover:border-primary hover:bg-primary/5 transition-all cursor-pointer"
+              className={`flex flex-col items-center gap-3 p-6 border-2 rounded-xl transition-all cursor-pointer ${wizardData.propertyType === "maison" ? "border-primary bg-primary/10" : "border-border hover:border-primary hover:bg-primary/5"}`}
             >
               <Home className="w-10 h-10 text-primary" />
               <span className="font-semibold text-foreground">Propriétaire</span>
             </button>
             <button
               onClick={() => handlePropertyChoice("locataire")}
-              className="flex flex-col items-center gap-3 p-6 border-2 border-border rounded-xl hover:border-primary hover:bg-primary/5 transition-all cursor-pointer"
+              className={`flex flex-col items-center gap-3 p-6 border-2 rounded-xl transition-all cursor-pointer ${wizardData.propertyType === "locataire" ? "border-primary bg-primary/10" : "border-border hover:border-primary hover:bg-primary/5"}`}
             >
-              <Plug className="w-10 h-10 text-primary" />
+              <Building2 className="w-10 h-10 text-primary" />
               <span className="font-semibold text-foreground">Locataire</span>
             </button>
           </div>
+          <Button
+            size="lg"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg opacity-50 cursor-default"
+            tabIndex={-1}
+          >
+            &gt; Continuer
+          </Button>
+          {dataFooter}
         </div>
       );
     }
 
     if (wizardStep === 2) {
       return (
-        <div key={bounceKey} className={bounceClass}>
+        <div key={`step2-${bounceKey}`} className={bounceClass}>
+          <h3 className="text-xl font-bold text-primary text-center mb-2">
+            Vérifier mon éligibilité à la prime énergie :
+          </h3>
           <Progress value={progressValue} className="mb-6 h-3" />
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
@@ -331,13 +331,17 @@ const LandingSolaireContent = () => {
               &gt; Continuer
             </Button>
           </div>
+          {dataFooter}
         </div>
       );
     }
 
     if (wizardStep === 3) {
       return (
-        <div key={bounceKey} className={bounceClass}>
+        <div key={`step3-${bounceKey}`} className={bounceClass}>
+          <h3 className="text-xl font-bold text-primary text-center mb-2">
+            Vérifier mon éligibilité à la prime énergie :
+          </h3>
           <Progress value={progressValue} className="mb-6 h-3" />
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
@@ -398,6 +402,7 @@ const LandingSolaireContent = () => {
               {isSubmitting ? "Envoi..." : "> Envoyer"}
             </Button>
           </div>
+          {dataFooter}
         </div>
       );
     }
@@ -578,7 +583,7 @@ const LandingSolaireContent = () => {
                       <Home className="w-7 h-7 text-primary" />
                     </div>
                     <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Plug className="w-7 h-7 text-primary" />
+                      <Building2 className="w-7 h-7 text-primary" />
                     </div>
                   </div>
                   <p className="text-base text-muted-foreground leading-relaxed">
