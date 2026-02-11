@@ -1,11 +1,12 @@
 import { Helmet } from "react-helmet";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { 
   Sun, ArrowRight, Home, Plug, Quote, ChevronLeft, ChevronRight,
   Truck, Wrench, Power, CheckCircle2
@@ -35,14 +36,19 @@ import smartphoneImg from "@/assets/why-solar/utilise-smartphone.png";
 // ─── Band 4: Critères d'éligibilité image ───
 import solarPanelsImg from "@/assets/solar-panels.jpg";
 
-// ─── Form schema for Band 8 ───
-const contactSchema = z.object({
-  lastName: z.string().trim().min(1, "Le nom est requis"),
-  firstName: z.string().trim().min(1, "Le prénom est requis"),
-  phone: z.string().trim().min(10, "Téléphone invalide"),
-  email: z.string().trim().email("Email invalide"),
+// ─── Form schemas ───
+const step2Schema = z.object({
+  chauffage: z.string().min(1, "Le mode de chauffage est requis"),
+  surface: z.string().min(1, "La surface est requise"),
   postalCode: z.string().trim().regex(/^\d{5}$/, "Code postal invalide"),
   city: z.string().trim().min(1, "La ville est requise"),
+});
+
+const step3Schema = z.object({
+  lastName: z.string().trim().min(1, "Le nom est requis"),
+  firstName: z.string().trim().min(1, "Le prénom est requis"),
+  email: z.string().trim().email("Email invalide"),
+  phone: z.string().trim().min(10, "Téléphone invalide"),
 });
 
 // ─── Band 7: Badges data ───
@@ -75,46 +81,6 @@ const testimonials = [
 
 const LandingSolaireContent = () => {
   const { seoStatus, canonicalUrl } = useLandingPageSEO("solaire");
-  const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    lastName: "", firstName: "", phone: "", email: "", postalCode: "", city: "",
-  });
-
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const validated = contactSchema.parse(formData);
-      const { error } = await supabase.from("leads").insert({
-        first_name: validated.firstName,
-        last_name: validated.lastName,
-        phone: validated.phone,
-        email: validated.email,
-        postal_code: validated.postalCode,
-        city: validated.city,
-        address: "N/A",
-        property_type: "maison",
-        needs: ["panneaux-solaires"],
-        notes: "Depuis landing page solaire",
-        status: "new",
-      });
-      if (error) throw error;
-      const params = new URLSearchParams({ 
-        name: `${validated.firstName} ${validated.lastName}`,
-        workType: "energie-solaire"
-      });
-      navigate(`/merci?${params.toString()}`);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        toast.error(error.errors[0].message);
-      } else {
-        toast.error("Erreur lors de l'envoi");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   // Why solar benefits
   const benefits = [
@@ -124,6 +90,301 @@ const LandingSolaireContent = () => {
     { image: appliPvImg, title: "Connecté", description: "Contrôlez la production de votre installation photovoltaïque depuis votre smartphone." },
   ];
 
+  // ─── Wizard state ───
+  const navigate = useNavigate();
+  const [wizardStep, setWizardStep] = useState(0); // 0=intro, 1=choice, 2=details, 3=contact
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bounceKey, setBounceKey] = useState(0);
+  const formRef = useRef<HTMLDivElement>(null);
+
+  const [wizardData, setWizardData] = useState({
+    propertyType: "",
+    chauffage: "",
+    surface: "",
+    postalCode: "",
+    city: "",
+    lastName: "",
+    firstName: "",
+    email: "",
+    phone: "",
+  });
+
+  const triggerBounce = () => {
+    setBounceKey(k => k + 1);
+  };
+
+  const handlePropertyChoice = (choice: string) => {
+    setWizardData(d => ({ ...d, propertyType: choice }));
+    triggerBounce();
+    setTimeout(() => setWizardStep(2), 400);
+  };
+
+  const handleStep2Continue = () => {
+    try {
+      step2Schema.parse({
+        chauffage: wizardData.chauffage,
+        surface: wizardData.surface,
+        postalCode: wizardData.postalCode,
+        city: wizardData.city,
+      });
+      triggerBounce();
+      setTimeout(() => setWizardStep(3), 400);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      }
+    }
+  };
+
+  const handleStep3Submit = async () => {
+    try {
+      step3Schema.parse({
+        lastName: wizardData.lastName,
+        firstName: wizardData.firstName,
+        email: wizardData.email,
+        phone: wizardData.phone,
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+        return;
+      }
+    }
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.from("leads").insert({
+        first_name: wizardData.firstName,
+        last_name: wizardData.lastName,
+        phone: wizardData.phone,
+        email: wizardData.email,
+        postal_code: wizardData.postalCode,
+        city: wizardData.city,
+        address: "N/A",
+        property_type: wizardData.propertyType,
+        needs: ["panneaux-solaires"],
+        notes: `Landing solaire | Chauffage: ${wizardData.chauffage} | Surface: ${wizardData.surface}`,
+        status: "new",
+      });
+      if (error) throw error;
+      const params = new URLSearchParams({
+        name: `${wizardData.firstName} ${wizardData.lastName}`,
+        workType: "panneaux-solaires"
+      });
+      navigate(`/merci?${params.toString()}`);
+    } catch {
+      toast.error("Erreur lors de l'envoi");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const progressValue = wizardStep === 0 ? 0 : wizardStep === 1 ? 10 : wizardStep === 2 ? 55 : 90;
+
+  const scrollToForm = () => {
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  // ─── Wizard step renderers ───
+  const renderWizardContent = () => {
+    const bounceClass = "animate-[bounce-step_0.4s_ease-out]";
+
+    if (wizardStep === 0) {
+      return (
+        <>
+          <h3 className="text-xl font-bold text-primary text-center mb-4">
+            Vérifier mon éligibilité à la prime énergie :
+          </h3>
+          <p className="text-center text-sm text-muted-foreground mb-6">
+            Testez votre éligibilité aux aides et subventions en <span className="underline font-medium">1 minute</span> sur notre site.
+          </p>
+          <Button
+            size="lg"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg"
+            onClick={() => { triggerBounce(); setTimeout(() => setWizardStep(1), 300); }}
+          >
+            &gt; Continuer
+          </Button>
+          <p className="text-center text-xs text-muted-foreground mt-4">
+            Vos données sont protégées. En savoir plus sur notre{" "}
+            <Link to="/politique-confidentialite" className="text-primary hover:underline">politique de confidentialité</Link>.
+          </p>
+        </>
+      );
+    }
+
+    if (wizardStep === 1) {
+      return (
+        <div key={bounceKey} className={bounceClass}>
+          <Progress value={progressValue} className="mb-6 h-3" />
+          <p className="text-center text-sm text-muted-foreground mb-6">
+            Vous êtes :
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              onClick={() => handlePropertyChoice("maison")}
+              className="flex flex-col items-center gap-3 p-6 border-2 border-border rounded-xl hover:border-primary hover:bg-primary/5 transition-all cursor-pointer"
+            >
+              <Home className="w-10 h-10 text-primary" />
+              <span className="font-semibold text-foreground">Propriétaire</span>
+            </button>
+            <button
+              onClick={() => handlePropertyChoice("locataire")}
+              className="flex flex-col items-center gap-3 p-6 border-2 border-border rounded-xl hover:border-primary hover:bg-primary/5 transition-all cursor-pointer"
+            >
+              <Plug className="w-10 h-10 text-primary" />
+              <span className="font-semibold text-foreground">Locataire</span>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (wizardStep === 2) {
+      return (
+        <div key={bounceKey} className={bounceClass}>
+          <Progress value={progressValue} className="mb-6 h-3" />
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <Label className="text-sm font-medium">Votre mode de chauffage principal: *</Label>
+              <select
+                value={wizardData.chauffage}
+                onChange={(e) => setWizardData(d => ({ ...d, chauffage: e.target.value }))}
+                className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="">Sélectionner</option>
+                <option value="Fioul">Fioul</option>
+                <option value="Gaz">Gaz</option>
+                <option value="Électricité">Électricité</option>
+                <option value="Bois">Bois</option>
+                <option value="Pompe à chaleur">Pompe à chaleur</option>
+                <option value="Autre">Autre</option>
+              </select>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Surface de votre logement *</Label>
+              <select
+                value={wizardData.surface}
+                onChange={(e) => setWizardData(d => ({ ...d, surface: e.target.value }))}
+                className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="">Sélectionner</option>
+                <option value="<100m2">&lt;100m2</option>
+                <option value="100-150m2">100-150m2</option>
+                <option value="150-200m2">150-200m2</option>
+                <option value=">200m2">&gt;200m2</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div>
+              <Label className="text-sm font-medium">Code postal *</Label>
+              <Input
+                placeholder="Code postal"
+                value={wizardData.postalCode}
+                onChange={(e) => setWizardData(d => ({ ...d, postalCode: e.target.value }))}
+                className="mt-1 bg-background"
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Ville *</Label>
+              <Input
+                placeholder="Ville"
+                value={wizardData.city}
+                onChange={(e) => setWizardData(d => ({ ...d, city: e.target.value }))}
+                className="mt-1 bg-background"
+              />
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1 bg-muted/60 text-muted-foreground font-semibold"
+              onClick={() => setWizardStep(1)}
+            >
+              Retour
+            </Button>
+            <Button
+              size="lg"
+              className="flex-[2] bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg"
+              onClick={handleStep2Continue}
+            >
+              &gt; Continuer
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    if (wizardStep === 3) {
+      return (
+        <div key={bounceKey} className={bounceClass}>
+          <Progress value={progressValue} className="mb-6 h-3" />
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <Label className="text-sm font-medium">Nom *</Label>
+              <Input
+                placeholder="Nom"
+                value={wizardData.lastName}
+                onChange={(e) => setWizardData(d => ({ ...d, lastName: e.target.value }))}
+                className="mt-1 bg-background"
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Prénom *</Label>
+              <Input
+                placeholder="Prénom"
+                value={wizardData.firstName}
+                onChange={(e) => setWizardData(d => ({ ...d, firstName: e.target.value }))}
+                className="mt-1 bg-background"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div>
+              <Label className="text-sm font-medium">E-mail *</Label>
+              <Input
+                type="email"
+                placeholder="E-mail"
+                value={wizardData.email}
+                onChange={(e) => setWizardData(d => ({ ...d, email: e.target.value }))}
+                className="mt-1 bg-background"
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Téléphone *</Label>
+              <Input
+                type="tel"
+                placeholder="Téléphone"
+                value={wizardData.phone}
+                onChange={(e) => setWizardData(d => ({ ...d, phone: e.target.value }))}
+                className="mt-1 bg-background"
+              />
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1 bg-muted/60 text-muted-foreground font-semibold"
+              onClick={() => setWizardStep(2)}
+            >
+              Retour
+            </Button>
+            <Button
+              size="lg"
+              disabled={isSubmitting}
+              className="flex-[2] bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg"
+              onClick={handleStep3Submit}
+            >
+              {isSubmitting ? "Envoi..." : "> Envoyer"}
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <>
       <Helmet>
@@ -132,6 +393,14 @@ const LandingSolaireContent = () => {
         {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
         {seoStatus === "hidden" && <meta name="robots" content="noindex, nofollow" />}
       </Helmet>
+
+      <style>{`
+        @keyframes bounce-step {
+          0% { transform: scale(0.97); opacity: 0.6; }
+          50% { transform: scale(1.02); }
+          100% { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
 
       <div className="min-h-screen bg-background">
         <Header />
@@ -174,30 +443,19 @@ const LandingSolaireContent = () => {
                   </div>
                 </div>
 
-                {/* Right: Eligibility mini-form */}
-                <div className="bg-card border border-border rounded-2xl p-6 lg:p-8 shadow-lg">
-                  <h3 className="text-xl font-bold text-center mb-4">
+                {/* Right: Eligibility wizard */}
+                <div ref={formRef} id="formulaire-solaire" className="bg-card border border-border rounded-2xl p-6 lg:p-8 shadow-lg">
+                  <h3 className="text-xl font-bold text-primary text-center mb-4">
                     Vérifier mon éligibilité à la prime énergie :
                   </h3>
-                  <p className="text-center text-sm text-muted-foreground mb-6">
-                    Testez votre éligibilité aux aides et subventions en <span className="underline font-medium">1 minute</span> sur notre site.
-                  </p>
-                  <Link to="/#eligibilite">
-                    <Button size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg gap-2">
-                      &gt; Continuer
-                    </Button>
-                  </Link>
-                  <p className="text-center text-xs text-muted-foreground mt-4">
-                    Vos données sont protégées. En savoir plus sur notre{" "}
-                    <Link to="/politique-confidentialite" className="text-primary hover:underline">politique de confidentialité</Link>.
-                  </p>
+                  {renderWizardContent()}
                 </div>
               </div>
             </div>
           </section>
 
           {/* ═══ BAND 2: Générer de l'électricité (from homepage) ═══ */}
-          <section className="py-10 lg:py-16 bg-gradient-to-b from-blue-50/30 to-background">
+          <section className="py-10 lg:py-16 bg-gradient-to-b from-primary/5 to-background">
             <div className="container mx-auto px-4">
               <div className="mb-8">
                 <div className="inline-block w-16 h-1 bg-primary mb-4"></div>
@@ -223,21 +481,19 @@ const LandingSolaireContent = () => {
                       <img src={solarSystemDiagram} alt="Schéma photovoltaïque" className="w-full max-w-[252px] mb-4" />
                       <div className="space-y-2 w-full max-w-[280px]">
                         <div className="flex items-start gap-2">
-                          <div className="w-4 h-4 mt-1 rounded bg-orange-500 flex-shrink-0"></div>
+                          <div className="w-4 h-4 mt-1 rounded bg-destructive/70 flex-shrink-0"></div>
                           <p className="text-sm text-foreground font-medium">Capter les rayons du soleil et les convertir en kW</p>
                         </div>
                         <div className="flex items-start gap-2">
-                          <div className="w-4 h-4 mt-1 rounded bg-cyan-500 flex-shrink-0"></div>
+                          <div className="w-4 h-4 mt-1 rounded bg-accent flex-shrink-0"></div>
                           <p className="text-sm text-foreground font-medium">Revente du surplus non consommé</p>
                         </div>
                       </div>
                     </div>
                   </div>
                   <div className="flex justify-center">
-                    <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl font-semibold gap-2" asChild>
-                      <a href="#formulaire-solaire">
-                        Ça m'intéresse <ArrowRight className="w-4 h-4" />
-                      </a>
+                    <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl font-semibold gap-2" onClick={scrollToForm}>
+                      Ça m'intéresse <ArrowRight className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
@@ -246,7 +502,7 @@ const LandingSolaireContent = () => {
           </section>
 
           {/* ═══ BAND 3: Pourquoi l'énergie solaire ? ═══ */}
-          <section className="py-10 lg:py-20 bg-white overflow-hidden">
+          <section className="py-10 lg:py-20 bg-card overflow-hidden">
             <div className="container mx-auto px-4">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-center mb-12">
                 Pourquoi <span className="text-primary">l'énergie solaire ?</span>
@@ -267,8 +523,8 @@ const LandingSolaireContent = () => {
                       </CarouselItem>
                     ))}
                   </CarouselContent>
-                  <CarouselPrevious className="opacity-60 hover:opacity-100 bg-white/90 hover:bg-white border-2" />
-                  <CarouselNext className="opacity-60 hover:opacity-100 bg-white/90 hover:bg-white border-2" />
+                  <CarouselPrevious className="opacity-60 hover:opacity-100 bg-card border-2" />
+                  <CarouselNext className="opacity-60 hover:opacity-100 bg-card border-2" />
                 </Carousel>
               </div>
               {/* Desktop grid */}
@@ -318,8 +574,8 @@ const LandingSolaireContent = () => {
                       <span>Être relié aux fournisseur d'électricité</span>
                     </li>
                   </ul>
-                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/5 font-semibold rounded-full px-8" asChild>
-                    <a href="#formulaire-solaire">Testez votre éligibilité</a>
+                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/5 font-semibold rounded-full px-8" onClick={scrollToForm}>
+                    Testez votre éligibilité
                   </Button>
                 </div>
                 <div className="rounded-2xl overflow-hidden shadow-lg">
@@ -356,8 +612,8 @@ const LandingSolaireContent = () => {
                   </div>
                 ))}
                 <div className="flex justify-center pt-4">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full px-10" asChild>
-                    <a href="#formulaire-solaire">Testez votre éligibilité</a>
+                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full px-10" onClick={scrollToForm}>
+                    Testez votre éligibilité
                   </Button>
                 </div>
               </div>
@@ -414,100 +670,6 @@ const LandingSolaireContent = () => {
                 <CarouselPrevious className="hidden md:flex -left-12 opacity-50 hover:opacity-100" />
                 <CarouselNext className="hidden md:flex -right-12 opacity-50 hover:opacity-100" />
               </Carousel>
-            </div>
-          </section>
-
-          {/* ═══ BAND 8: Formulaire de contact ═══ */}
-          <section id="formulaire-solaire" className="py-10 lg:py-16 bg-muted/70">
-            <div className="container mx-auto px-4 max-w-4xl">
-              <h2 className="text-2xl lg:text-3xl font-extrabold text-center mb-2">
-                Installer mes panneaux solaires à la maison
-              </h2>
-              <p className="text-center text-orange-600 font-bold mb-8">
-                Propriétaires de maison individuelle exclusivement
-              </p>
-
-              <form onSubmit={handleFormSubmit} className="space-y-5">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-orange-600 font-semibold text-sm">Nom de famille *</Label>
-                    <Input
-                      placeholder="Nom de famille"
-                      value={formData.lastName}
-                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                      required
-                      className="bg-white mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-orange-600 font-semibold text-sm">Prénom *</Label>
-                    <Input
-                      placeholder="Prénom"
-                      value={formData.firstName}
-                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                      required
-                      className="bg-white mt-1"
-                    />
-                  </div>
-                </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-orange-600 font-semibold text-sm">Téléphone *</Label>
-                    <Input
-                      type="tel"
-                      placeholder="Téléphone"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      required
-                      className="bg-white mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-orange-600 font-semibold text-sm">E-mail *</Label>
-                    <Input
-                      type="email"
-                      placeholder="Ex. email@exemple.fr"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      required
-                      className="bg-white mt-1"
-                    />
-                  </div>
-                </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-orange-600 font-semibold text-sm">Code postal *</Label>
-                    <Input
-                      placeholder="Code postal"
-                      value={formData.postalCode}
-                      onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                      required
-                      className="bg-white mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-orange-600 font-semibold text-sm">Ville *</Label>
-                    <Input
-                      placeholder="Ville"
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      required
-                      className="bg-white mt-1"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                  <Button
-                    type="submit"
-                    size="lg"
-                    disabled={isSubmitting}
-                    className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full px-10"
-                  >
-                    {isSubmitting ? "Envoi..." : "Envoyer"}
-                  </Button>
-                </div>
-              </form>
             </div>
           </section>
 
