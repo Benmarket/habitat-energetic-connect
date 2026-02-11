@@ -94,7 +94,6 @@ const LandingSolaireContent = () => {
   const navigate = useNavigate();
   const [wizardStep, setWizardStep] = useState(1); // 1=choice, 2=details, 3=contact
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [bounceKey, setBounceKey] = useState(0);
   const formRef = useRef<HTMLDivElement>(null);
 
   const [wizardData, setWizardData] = useState({
@@ -109,13 +108,11 @@ const LandingSolaireContent = () => {
     phone: "",
   });
 
-  const triggerBounce = () => {
-    setBounceKey(k => k + 1);
-  };
+
 
   const handlePropertyChoice = (choice: string) => {
+    setSelectedProperty(choice);
     setWizardData(d => ({ ...d, propertyType: choice }));
-    triggerBounce();
     setTimeout(() => setWizardStep(2), 500);
   };
 
@@ -127,7 +124,6 @@ const LandingSolaireContent = () => {
         postalCode: wizardData.postalCode,
         city: wizardData.city,
       });
-      triggerBounce();
       setTimeout(() => setWizardStep(3), 400);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -212,12 +208,12 @@ const LandingSolaireContent = () => {
   );
 
   // ─── Wizard step renderers ───
-  const renderWizardContent = () => {
-    const bounceClass = "animate-[bounce-step_0.4s_ease-out]";
+  const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
 
+  const renderWizardContent = () => {
     if (wizardStep === 1) {
       return (
-        <div key={`step1-${bounceKey}`} className={bounceClass}>
+        <div className="animate-fade-in">
           <h3 className="text-xl font-bold text-primary text-center mb-2">
             Vérifier mon éligibilité à la prime énergie :
           </h3>
@@ -231,14 +227,14 @@ const LandingSolaireContent = () => {
           <div className="grid grid-cols-2 gap-4 mb-6">
             <button
               onClick={() => handlePropertyChoice("maison")}
-              className={`flex flex-col items-center gap-3 p-6 border-2 rounded-xl transition-all cursor-pointer ${wizardData.propertyType === "maison" ? "border-primary bg-primary/10" : "border-border hover:border-primary hover:bg-primary/5"}`}
+              className={`flex flex-col items-center gap-3 p-6 border-2 rounded-xl transition-all cursor-pointer ${selectedProperty === "maison" ? "border-primary bg-primary/10 animate-[bounce-step_0.4s_ease-out]" : "border-border hover:border-primary hover:bg-primary/5"}`}
             >
               <Home className="w-10 h-10 text-primary" />
               <span className="font-semibold text-foreground">Propriétaire</span>
             </button>
             <button
               onClick={() => handlePropertyChoice("locataire")}
-              className={`flex flex-col items-center gap-3 p-6 border-2 rounded-xl transition-all cursor-pointer ${wizardData.propertyType === "locataire" ? "border-primary bg-primary/10" : "border-border hover:border-primary hover:bg-primary/5"}`}
+              className={`flex flex-col items-center gap-3 p-6 border-2 rounded-xl transition-all cursor-pointer ${selectedProperty === "locataire" ? "border-primary bg-primary/10 animate-[bounce-step_0.4s_ease-out]" : "border-border hover:border-primary hover:bg-primary/5"}`}
             >
               <Building2 className="w-10 h-10 text-primary" />
               <span className="font-semibold text-foreground">Locataire</span>
@@ -258,7 +254,7 @@ const LandingSolaireContent = () => {
 
     if (wizardStep === 2) {
       return (
-        <div key={`step2-${bounceKey}`} className={bounceClass}>
+        <div key="step2" className="animate-fade-in">
           <h3 className="text-xl font-bold text-primary text-center mb-2">
             Vérifier mon éligibilité à la prime énergie :
           </h3>
@@ -338,7 +334,7 @@ const LandingSolaireContent = () => {
 
     if (wizardStep === 3) {
       return (
-        <div key={`step3-${bounceKey}`} className={bounceClass}>
+        <div key="step3" className="animate-fade-in">
           <h3 className="text-xl font-bold text-primary text-center mb-2">
             Vérifier mon éligibilité à la prime énergie :
           </h3>
@@ -470,9 +466,6 @@ const LandingSolaireContent = () => {
 
                 {/* Right: Eligibility wizard */}
                 <div ref={formRef} id="formulaire-solaire" className="bg-card border border-border rounded-2xl p-6 lg:p-8 shadow-lg">
-                  <h3 className="text-xl font-bold text-primary text-center mb-4">
-                    Vérifier mon éligibilité à la prime énergie :
-                  </h3>
                   {renderWizardContent()}
                 </div>
               </div>
