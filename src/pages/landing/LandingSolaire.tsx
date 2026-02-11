@@ -446,30 +446,29 @@ const LandingSolaireContent = () => {
               
               <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
                 {/* Left: Product info */}
-                <div className="space-y-6">
-                  <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold">
-                    <Sun className="w-4 h-4" />
-                    Programme Exclusif
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <img src={guarantee25Years} alt="Garantie 25 ans" className="w-16 h-16 lg:w-20 lg:h-20" />
-                    <img src={marqueFrancaise} alt="Marque Française" className="h-12 lg:h-14 object-contain" />
-                  </div>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-4">
+                    {/* Left sub-column: garantie + marque + panels */}
+                    <div className="flex flex-col items-start gap-3">
+                      <img src={guarantee25Years} alt="Garantie 25 ans" className="w-16 h-16 lg:w-20 lg:h-20" />
+                      <img src={marqueFrancaise} alt="Marque Française" className="h-12 lg:h-14 object-contain" />
+                      {/* Solar panels + inverter */}
+                      <div className="flex items-end gap-3 mt-1">
+                        <img src={panneauxSolaires} alt="Panneaux solaires" className="h-36 lg:h-48 object-contain" />
+                        <img src={onduleur} alt="Onduleur Hoymiles" className="h-16 lg:h-24 object-contain" />
+                      </div>
+                    </div>
 
-                  <img src={macaronPrix} alt="À partir de 35€/mois, primes déduites" className="w-28 h-28 lg:w-36 lg:h-36 object-contain" />
-
-                  <div>
-                    <h2 className="text-xl lg:text-2xl font-extrabold mb-2">Propriétaire d'une maison individuelle ?</h2>
-                    <p className="text-base text-muted-foreground leading-relaxed">
-                      Passez <strong className="text-foreground">à l'énergie solaire</strong> et faites d'importantes économies sur votre <strong className="text-foreground">facture électrique.</strong>
-                    </p>
-                  </div>
-
-                  {/* Solar panels + inverter images */}
-                  <div className="flex items-end gap-4">
-                    <img src={panneauxSolaires} alt="Panneaux solaires" className="h-40 lg:h-52 object-contain" />
-                    <img src={onduleur} alt="Onduleur Hoymiles" className="h-20 lg:h-28 object-contain" />
+                    {/* Right sub-column: macaron + text */}
+                    <div className="flex flex-col items-start gap-3 pt-2">
+                      <img src={macaronPrix} alt="À partir de 35€/mois, primes déduites" className="w-24 h-24 lg:w-32 lg:h-32 object-contain" />
+                      <div>
+                        <h2 className="text-xl lg:text-2xl font-extrabold mb-2">Propriétaire d'une maison individuelle ?</h2>
+                        <p className="text-base text-muted-foreground leading-relaxed">
+                          Passez <strong className="text-foreground">à l'énergie solaire</strong> et faites d'importantes économies sur votre <strong className="text-foreground">facture électrique.</strong>
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
