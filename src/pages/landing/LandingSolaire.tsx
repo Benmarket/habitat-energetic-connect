@@ -36,6 +36,7 @@ import fondGris from "@/assets/landing/fond-gris.png";
 import panneauxSolaires from "@/assets/landing/panneaux-solaires.png";
 import onduleur from "@/assets/landing/onduleur.png";
 import marqueFrancaise from "@/assets/landing/marque-francaise.png";
+import macaronPrix from "@/assets/landing/macaron-prix.png";
 
 // ─── Band 4: Critères d'éligibilité image ───
 import solarPanelsImg from "@/assets/solar-panels.jpg";
@@ -456,11 +457,7 @@ const LandingSolaireContent = () => {
                     <img src={marqueFrancaise} alt="Marque Française" className="h-12 lg:h-14 object-contain" />
                   </div>
 
-                  <div className="bg-primary/5 border-2 border-primary/20 rounded-2xl p-4 inline-block">
-                    <p className="text-sm text-muted-foreground">À partir de</p>
-                    <p className="text-3xl font-extrabold text-primary">35 €/mois</p>
-                    <p className="text-xs text-muted-foreground font-semibold uppercase">Seulement ! Primes déduites</p>
-                  </div>
+                  <img src={macaronPrix} alt="À partir de 35€/mois, primes déduites" className="w-28 h-28 lg:w-36 lg:h-36 object-contain" />
 
                   <div>
                     <h2 className="text-xl lg:text-2xl font-extrabold mb-2">Propriétaire d'une maison individuelle ?</h2>
