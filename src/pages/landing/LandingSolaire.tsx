@@ -152,7 +152,8 @@ const LandingSolaireContent = () => {
     }
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("leads").insert({
+      // Insert into leads table
+      const { error: leadError } = await supabase.from("leads").insert({
         first_name: wizardData.firstName,
         last_name: wizardData.lastName,
         phone: wizardData.phone,
@@ -165,7 +166,26 @@ const LandingSolaireContent = () => {
         notes: `Landing solaire | Chauffage: ${wizardData.chauffage} | Surface: ${wizardData.surface}`,
         status: "new",
       });
-      if (error) throw error;
+      if (leadError) throw leadError;
+
+      // Also insert into form_submissions for admin tracking
+      const formConfigId = "058314de-16fc-4f17-bad3-fe51e3959109";
+      await supabase.from("form_submissions").insert({
+        form_id: formConfigId,
+        data: {
+          propertyType: wizardData.propertyType,
+          chauffage: wizardData.chauffage,
+          surface: wizardData.surface,
+          postalCode: wizardData.postalCode,
+          city: wizardData.city,
+          lastName: wizardData.lastName,
+          firstName: wizardData.firstName,
+          email: wizardData.email,
+          phone: wizardData.phone,
+        },
+        status: "new",
+      });
+
       const params = new URLSearchParams({
         name: `${wizardData.firstName} ${wizardData.lastName}`,
         workType: "panneaux-solaires"
