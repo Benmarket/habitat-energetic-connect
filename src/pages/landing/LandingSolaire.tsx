@@ -219,7 +219,7 @@ const LandingSolaireContent = () => {
     if (wizardStep === 1) {
       return (
         <div className="animate-fade-in">
-          <h3 className="text-xl font-bold text-primary text-center mb-2">
+          <h3 className="text-xl font-bold text-center mb-2" style={{ color: '#5b7a5b' }}>
             Vérifier mon éligibilité à la prime énergie :
           </h3>
           <p className="text-center text-sm text-muted-foreground mb-4">
@@ -247,7 +247,8 @@ const LandingSolaireContent = () => {
           </div>
           <Button
             size="lg"
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg opacity-50 cursor-default"
+            className="w-full text-white font-bold text-lg opacity-50 cursor-default"
+            style={{ backgroundColor: '#5b7a5b' }}
             tabIndex={-1}
           >
             &gt; Continuer
@@ -260,7 +261,7 @@ const LandingSolaireContent = () => {
     if (wizardStep === 2) {
       return (
         <div key="step2" className="animate-fade-in">
-          <h3 className="text-xl font-bold text-primary text-center mb-2">
+          <h3 className="text-xl font-bold text-center mb-2" style={{ color: '#5b7a5b' }}>
             Vérifier mon éligibilité à la prime énergie :
           </h3>
           <Progress value={progressValue} className="mb-6 h-3" />
@@ -326,7 +327,8 @@ const LandingSolaireContent = () => {
             </Button>
             <Button
               size="lg"
-              className="flex-[2] bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg"
+              className="flex-[2] text-white font-bold text-lg hover:opacity-90"
+              style={{ backgroundColor: '#5b7a5b' }}
               onClick={handleStep2Continue}
             >
               &gt; Continuer
@@ -340,7 +342,7 @@ const LandingSolaireContent = () => {
     if (wizardStep === 3) {
       return (
         <div key="step3" className="animate-fade-in">
-          <h3 className="text-xl font-bold text-primary text-center mb-2">
+          <h3 className="text-xl font-bold text-center mb-2" style={{ color: '#5b7a5b' }}>
             Vérifier mon éligibilité à la prime énergie :
           </h3>
           <Progress value={progressValue} className="mb-6 h-3" />
@@ -397,7 +399,8 @@ const LandingSolaireContent = () => {
             <Button
               size="lg"
               disabled={isSubmitting}
-              className="flex-[2] bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg"
+              className="flex-[2] text-white font-bold text-lg hover:opacity-90"
+              style={{ backgroundColor: '#5b7a5b' }}
               onClick={handleStep3Submit}
             >
               {isSubmitting ? "Envoi..." : "> Envoyer"}
@@ -440,7 +443,7 @@ const LandingSolaireContent = () => {
             <div className="absolute inset-0 bg-background/30" aria-hidden="true" />
             
             <div className="container mx-auto max-w-7xl relative z-10">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-center mb-2 text-primary">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-center mb-2" style={{ color: '#3d8b37' }}>
                 Faites installer vos panneaux solaires
               </h1>
               <p className="text-center text-base lg:text-lg text-foreground mb-8">
