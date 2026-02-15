@@ -55,7 +55,7 @@ interface FormData {
 
 const SimulateurSolaire = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [consumptionSubStep, setConsumptionSubStep] = useState<'profile' | 'equipments'>('profile');
+  const [consumptionSubStep, setConsumptionSubStep] = useState<'energy' | 'raccordement' | 'chauffage' | 'equipments'>('energy');
   const [regions, setRegions] = useState<SolarRegion[]>([]);
   const [loading, setLoading] = useState(true);
   const [addressValidated, setAddressValidated] = useState(false);
@@ -319,12 +319,14 @@ const SimulateurSolaire = () => {
       );
     }
     if (currentStep === 3) {
-      return (
-        formData.tarifKwh.trim() !== "" &&
-        formData.consommationAnnuelle.trim() !== "" &&
-        formData.compteur.trim() !== "" &&
-        formData.monoTri.trim() !== ""
-      );
+      if (consumptionSubStep === 'energy') {
+        return formData.tarifKwh.trim() !== "" && formData.consommationAnnuelle.trim() !== "";
+      }
+      if (consumptionSubStep === 'raccordement') {
+        return formData.compteur.trim() !== "";
+      }
+      // chauffage & equipments are optional
+      return true;
     }
     return true;
   };
@@ -355,25 +357,47 @@ const SimulateurSolaire = () => {
 
   const handleNext = () => {
     // Handle sub-steps within step 3
-    if (currentStep === 3 && consumptionSubStep === 'profile' && canProceedToNextStep()) {
-      setConsumptionSubStep('equipments');
-      return;
+    if (currentStep === 3) {
+      if (consumptionSubStep === 'energy' && canProceedToNextStep()) {
+        setConsumptionSubStep('raccordement');
+        return;
+      }
+      if (consumptionSubStep === 'raccordement') {
+        setConsumptionSubStep('chauffage');
+        return;
+      }
+      if (consumptionSubStep === 'chauffage') {
+        setConsumptionSubStep('equipments');
+        return;
+      }
+      // equipments -> next main step
+      if (consumptionSubStep === 'equipments') {
+        setCurrentStep(prev => prev + 1);
+        setConsumptionSubStep('energy');
+        return;
+      }
     }
     
     if (currentStep < totalSteps && canProceedToNextStep()) {
       setCurrentStep(prev => prev + 1);
-      // Reset consumption sub-step when leaving step 3
-      if (currentStep === 3) {
-        setConsumptionSubStep('profile');
-      }
     }
   };
 
   const handlePrevious = () => {
     // Handle sub-steps within step 3
-    if (currentStep === 3 && consumptionSubStep === 'equipments') {
-      setConsumptionSubStep('profile');
-      return;
+    if (currentStep === 3) {
+      if (consumptionSubStep === 'equipments') {
+        setConsumptionSubStep('chauffage');
+        return;
+      }
+      if (consumptionSubStep === 'chauffage') {
+        setConsumptionSubStep('raccordement');
+        return;
+      }
+      if (consumptionSubStep === 'raccordement') {
+        setConsumptionSubStep('energy');
+        return;
+      }
     }
     
     if (currentStep > 1) {
@@ -393,7 +417,7 @@ const SimulateurSolaire = () => {
   const skipEquipmentStep = () => {
     setFormData(prev => ({ ...prev, equipments: [] }));
     setCurrentStep(prev => prev + 1);
-    setConsumptionSubStep('profile');
+    setConsumptionSubStep('energy');
   };
 
   const progressValue = (currentStep / totalSteps) * 100;
@@ -779,7 +803,7 @@ const SimulateurSolaire = () => {
           {currentStep === 3 && (
             <div className="grid gap-6 lg:grid-cols-5">
               {/* Left Column - Form */}
-              {consumptionSubStep === 'profile' ? (
+              {consumptionSubStep === 'energy' ? (
                 <Card className="shadow-xl border-0 lg:col-span-3">
                   <CardHeader className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-t-lg">
                     <div className="flex items-center gap-3">
@@ -849,7 +873,7 @@ const SimulateurSolaire = () => {
                       </div>
                     </div>
 
-                    {/* Info box for auto-calculation - Always visible */}
+                    {/* Info box for auto-calculation */}
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
                       <Zap className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
                       <p className="text-xs text-blue-700">
@@ -857,6 +881,36 @@ const SimulateurSolaire = () => {
                       </p>
                     </div>
 
+                    <div className="flex justify-between pt-4">
+                      <Button variant="outline" onClick={handlePrevious} className="px-6 py-6">
+                        <ArrowLeft className="w-5 h-5 mr-2" />
+                        Précédent
+                      </Button>
+                      <Button
+                        onClick={handleNext}
+                        disabled={!canProceedToNextStep()}
+                        className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-8 py-6 text-base"
+                      >
+                        Suivant
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : consumptionSubStep === 'raccordement' ? (
+                <Card className="shadow-xl border-0 lg:col-span-3">
+                  <CardHeader className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-t-lg">
+                    <div className="flex items-center gap-3">
+                      <Wrench className="w-6 h-6" />
+                      <div>
+                        <CardTitle className="text-xl">Raccordement électrique</CardTitle>
+                        <CardDescription className="text-white/80">
+                          Informations sur votre compteur et raccordement
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-5">
                     {/* Compteur & Mono/Tri */}
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
@@ -896,7 +950,37 @@ const SimulateurSolaire = () => {
                       </div>
                     </div>
 
-                    {/* Type de chauffage (optional) */}
+                    <div className="flex justify-between pt-4">
+                      <Button variant="outline" onClick={handlePrevious} className="px-6 py-6">
+                        <ArrowLeft className="w-5 h-5 mr-2" />
+                        Précédent
+                      </Button>
+                      <Button
+                        onClick={handleNext}
+                        disabled={!canProceedToNextStep()}
+                        className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-8 py-6 text-base"
+                      >
+                        Suivant
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : consumptionSubStep === 'chauffage' ? (
+                <Card className="shadow-xl border-0 lg:col-span-3">
+                  <CardHeader className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-t-lg">
+                    <div className="flex items-center gap-3">
+                      <Flame className="w-6 h-6" />
+                      <div>
+                        <CardTitle className="text-xl">Chauffage & habitat</CardTitle>
+                        <CardDescription className="text-white/80">
+                          Informations sur votre chauffage et logement
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-5">
+                    {/* Type de chauffage */}
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold">
                         Type de chauffage <span className="text-muted-foreground text-xs">(facultatif)</span>
@@ -919,7 +1003,7 @@ const SimulateurSolaire = () => {
                       </Select>
                     </div>
 
-                    {/* Type de chauffage eau (optional) */}
+                    {/* Type de chauffage eau */}
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold">
                         Type de chauffage de l'eau <span className="text-muted-foreground text-xs">(facultatif)</span>
@@ -941,7 +1025,7 @@ const SimulateurSolaire = () => {
                       </Select>
                     </div>
 
-                    {/* Surface habitat (optional) */}
+                    {/* Surface habitat */}
                     <div className="space-y-2">
                       <Label htmlFor="surfaceHabitat" className="text-sm font-semibold">
                         Surface habitat (m²) <span className="text-muted-foreground text-xs">(facultatif)</span>
@@ -960,17 +1044,12 @@ const SimulateurSolaire = () => {
                     </div>
 
                     <div className="flex justify-between pt-4">
-                      <Button
-                        variant="outline"
-                        onClick={handlePrevious}
-                        className="px-6 py-6"
-                      >
+                      <Button variant="outline" onClick={handlePrevious} className="px-6 py-6">
                         <ArrowLeft className="w-5 h-5 mr-2" />
                         Précédent
                       </Button>
                       <Button
                         onClick={handleNext}
-                        disabled={!canProceedToNextStep()}
                         className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-8 py-6 text-base"
                       >
                         Suivant
@@ -1073,7 +1152,7 @@ const SimulateurSolaire = () => {
 
               {/* Right Column - Summary Panel */}
               <div className="lg:col-span-2 space-y-4">
-                {consumptionSubStep === 'profile' ? (
+                {consumptionSubStep !== 'equipments' ? (
                   <>
                     {/* Header Card - Profile */}
                     <Card className="overflow-hidden border-0 shadow-lg">
