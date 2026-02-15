@@ -212,6 +212,31 @@ const LandingSolaireContent = () => {
     </p>
   );
 
+  // ─── City auto-fill from postal code ───
+  const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
+
+  const handlePostalCodeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 5);
+    setWizardData(d => ({ ...d, postalCode: value, city: '' }));
+    setCitySuggestions([]);
+
+    if (value.length === 5) {
+      try {
+        const res = await fetch(`https://geo.api.gouv.fr/communes?codePostal=${value}&fields=nom&limit=10`);
+        if (res.ok) {
+          const data = await res.json();
+          const cities: string[] = data.map((c: { nom: string }) => c.nom);
+          setCitySuggestions(cities);
+          if (cities.length === 1) {
+            setWizardData(d => ({ ...d, city: cities[0] }));
+          }
+        }
+      } catch {
+        // silently fail, user can type manually
+      }
+    }
+  };
+
   // ─── Wizard step renderers ───
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
 
@@ -303,18 +328,32 @@ const LandingSolaireContent = () => {
               <Input
                 placeholder="Code postal"
                 value={wizardData.postalCode}
-                onChange={(e) => setWizardData(d => ({ ...d, postalCode: e.target.value }))}
+                onChange={handlePostalCodeChange}
+                maxLength={5}
                 className="mt-1 bg-background"
               />
             </div>
             <div>
               <Label className="text-sm font-medium">Ville *</Label>
-              <Input
-                placeholder="Ville"
-                value={wizardData.city}
-                onChange={(e) => setWizardData(d => ({ ...d, city: e.target.value }))}
-                className="mt-1 bg-background"
-              />
+              {citySuggestions.length > 1 ? (
+                <select
+                  value={wizardData.city}
+                  onChange={(e) => setWizardData(d => ({ ...d, city: e.target.value }))}
+                  className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="">Sélectionner</option>
+                  {citySuggestions.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              ) : (
+                <Input
+                  placeholder="Ville"
+                  value={wizardData.city}
+                  onChange={(e) => setWizardData(d => ({ ...d, city: e.target.value }))}
+                  className="mt-1 bg-background"
+                />
+              )}
             </div>
           </div>
           <div className="flex gap-3">
