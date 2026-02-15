@@ -1048,13 +1048,23 @@ const SimulateurSolaire = () => {
                         <ArrowLeft className="w-5 h-5 mr-2" />
                         Précédent
                       </Button>
-                      <Button
-                        onClick={handleNext}
-                        className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-8 py-6 text-base"
-                      >
-                        Suivant
-                        <ArrowRight className="w-5 h-5 ml-2" />
-                      </Button>
+                      <div className="flex gap-3">
+                        <Button
+                          variant="secondary"
+                          onClick={handleNext}
+                          className="bg-gray-800 hover:bg-gray-700 text-white px-6 py-6"
+                        >
+                          <SkipForward className="w-4 h-4 mr-2" />
+                          Ne souhaite pas renseigner
+                        </Button>
+                        <Button
+                          onClick={handleNext}
+                          className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-8 py-6 text-base"
+                        >
+                          Suivant
+                          <ArrowRight className="w-5 h-5 ml-2" />
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
