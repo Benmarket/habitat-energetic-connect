@@ -1206,7 +1206,7 @@ const SimulateurSolaire = () => {
                         </div>
                         <div className="flex gap-3">
                           {/* Compteur visual card */}
-                          <div className={`flex-1 flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+                          <div className={`flex-1 min-w-0 flex items-center gap-2 p-3 rounded-xl border-2 transition-all ${
                             formData.compteur ? 'bg-yellow-50 border-yellow-200' : 'bg-muted/30 border-transparent'
                           }`}>
                             <div className="w-12 h-14 bg-yellow-100 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
@@ -1220,9 +1220,9 @@ const SimulateurSolaire = () => {
                                 <Wrench className="w-5 h-5 text-gray-400" />
                               )}
                             </div>
-                            <div>
+                            <div className="min-w-0 flex-1">
                               <p className="text-xs text-orange-600 uppercase font-bold">Compteur</p>
-                              <p className="font-semibold text-sm">
+                              <p className="font-semibold text-sm truncate">
                                 {formData.compteur === 'linky' ? 'Linky' : 
                                  formData.compteur === 'electronique' ? 'Électronique' :
                                  formData.compteur === 'electromecanique' ? 'Électromécanique' : 
@@ -1230,7 +1230,7 @@ const SimulateurSolaire = () => {
                               </p>
                             </div>
                             {formData.compteur && (
-                              <div className="ml-auto w-5 h-5 bg-orange-400 rounded-full flex items-center justify-center shrink-0">
+                              <div className="w-5 h-5 bg-orange-400 rounded-full flex items-center justify-center shrink-0">
                                 <Check className="w-3 h-3 text-white" />
                               </div>
                             )}
