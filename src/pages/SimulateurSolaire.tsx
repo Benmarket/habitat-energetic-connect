@@ -15,6 +15,7 @@ import compteurLinkyImg from "@/assets/simulators/compteur-linky.png";
 import compteurElectroniqueImg from "@/assets/simulators/compteur-electronique.png";
 import priseMonophaseImg from "@/assets/simulators/prise-monophase.png";
 import priseTriphaseImg from "@/assets/simulators/prise-triphase.png";
+import compteurElectromecaniqeImg from "@/assets/simulators/compteur-electromecanique.png";
 
 interface SolarRegion {
   id: string;
@@ -1213,6 +1214,8 @@ const SimulateurSolaire = () => {
                                 <img src={compteurLinkyImg} alt="Linky" className="w-10 h-12 object-contain" />
                               ) : formData.compteur === 'electronique' ? (
                                 <img src={compteurElectroniqueImg} alt="Électronique" className="w-10 h-12 object-contain" />
+                              ) : formData.compteur === 'electromecanique' ? (
+                                <img src={compteurElectromecaniqeImg} alt="Électromécanique" className="w-10 h-12 object-contain" />
                               ) : (
                                 <Wrench className="w-5 h-5 text-gray-400" />
                               )}
