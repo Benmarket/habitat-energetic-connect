@@ -914,75 +914,42 @@ const SimulateurSolaire = () => {
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="p-6 space-y-6">
-                    {/* Compteur */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-semibold">
-                        Type de compteur <span className="text-destructive">*</span>
-                      </Label>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {[
-                          { value: 'linky', label: 'Linky', img: compteurLinkyImg },
-                          { value: 'electronique', label: 'Électronique', img: compteurElectroniqueImg },
-                          { value: 'electromecanique', label: 'Électromécanique', img: null },
-                        ].map((item) => (
-                          <button
-                            key={item.value}
-                            type="button"
-                            onClick={() => handleInputChange("compteur", item.value)}
-                            className={`relative flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all cursor-pointer hover:shadow-md ${
-                              formData.compteur === item.value
-                                ? 'border-orange-400 bg-orange-50 shadow-md'
-                                : 'border-gray-200 bg-white hover:border-gray-300'
-                            }`}
-                          >
-                            {formData.compteur === item.value && (
-                              <div className="absolute top-2 right-2 w-6 h-6 bg-orange-400 rounded-full flex items-center justify-center">
-                                <Check className="w-4 h-4 text-white" />
-                              </div>
-                            )}
-                            {item.img ? (
-                              <img src={item.img} alt={item.label} className="w-16 h-20 object-contain" />
-                            ) : (
-                              <div className="w-16 h-20 bg-gray-100 rounded-lg flex items-center justify-center">
-                                <Wrench className="w-8 h-8 text-gray-400" />
-                              </div>
-                            )}
-                            <span className="font-semibold text-sm text-gray-700">{item.label}</span>
-                          </button>
-                        ))}
+                  <CardContent className="p-6 space-y-5">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold">
+                          Compteur <span className="text-destructive">*</span>
+                        </Label>
+                        <Select 
+                          value={formData.compteur} 
+                          onValueChange={(value) => handleInputChange("compteur", value)}
+                        >
+                          <SelectTrigger className="h-12">
+                            <SelectValue placeholder="Sélectionnez le compteur" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="linky">Linky</SelectItem>
+                            <SelectItem value="electronique">Électronique</SelectItem>
+                            <SelectItem value="electromecanique">Électromécanique</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
-                    </div>
-
-                    {/* Mono / Tri */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-semibold">
-                        Mono / Tri <span className="text-muted-foreground text-xs">(facultatif)</span>
-                      </Label>
-                      <div className="grid grid-cols-2 gap-4 max-w-md">
-                        {[
-                          { value: 'monophase', label: 'Monophasé', img: priseMonophaseImg },
-                          { value: 'triphase', label: 'Triphasé', img: priseTriphaseImg },
-                        ].map((item) => (
-                          <button
-                            key={item.value}
-                            type="button"
-                            onClick={() => handleInputChange("monoTri", item.value)}
-                            className={`relative flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all cursor-pointer hover:shadow-md ${
-                              formData.monoTri === item.value
-                                ? 'border-blue-400 bg-blue-50 shadow-md'
-                                : 'border-gray-200 bg-white hover:border-gray-300'
-                            }`}
-                          >
-                            {formData.monoTri === item.value && (
-                              <div className="absolute top-2 right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                                <Check className="w-4 h-4 text-white" />
-                              </div>
-                            )}
-                            <img src={item.img} alt={item.label} className="w-16 h-16 object-contain" />
-                            <span className="font-semibold text-sm text-gray-700">{item.label}</span>
-                          </button>
-                        ))}
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold">
+                          Mono/Tri <span className="text-destructive">*</span>
+                        </Label>
+                        <Select 
+                          value={formData.monoTri} 
+                          onValueChange={(value) => handleInputChange("monoTri", value)}
+                        >
+                          <SelectTrigger className="h-12">
+                            <SelectValue placeholder="Sélectionnez le type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="monophase">Monophasé</SelectItem>
+                            <SelectItem value="triphase">Triphasé</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
 
@@ -1236,23 +1203,62 @@ const SimulateurSolaire = () => {
                             <span className="text-xs text-muted-foreground">À compléter</span>
                           )}
                         </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className={`p-3 rounded-lg border ${formData.compteur ? 'bg-green-50 border-green-200' : 'bg-muted/50'}`}>
-                            <p className="text-xs text-muted-foreground uppercase">Compteur</p>
-                            <p className="font-semibold text-sm">
-                              {formData.compteur === 'linky' ? 'Linky' : 
-                               formData.compteur === 'electronique' ? 'Électronique' :
-                               formData.compteur === 'electromecanique' ? 'Électromécanique' : 
-                               'Non renseigné'}
-                            </p>
+                        <div className="flex gap-3">
+                          {/* Compteur visual card */}
+                          <div className={`flex-1 flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+                            formData.compteur ? 'bg-yellow-50 border-yellow-200' : 'bg-muted/30 border-transparent'
+                          }`}>
+                            <div className="w-12 h-14 bg-yellow-100 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
+                              {formData.compteur === 'linky' ? (
+                                <img src={compteurLinkyImg} alt="Linky" className="w-10 h-12 object-contain" />
+                              ) : formData.compteur === 'electronique' ? (
+                                <img src={compteurElectroniqueImg} alt="Électronique" className="w-10 h-12 object-contain" />
+                              ) : (
+                                <Wrench className="w-5 h-5 text-gray-400" />
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-xs text-orange-600 uppercase font-bold">Compteur</p>
+                              <p className="font-semibold text-sm">
+                                {formData.compteur === 'linky' ? 'Linky' : 
+                                 formData.compteur === 'electronique' ? 'Électronique' :
+                                 formData.compteur === 'electromecanique' ? 'Électromécanique' : 
+                                 '—'}
+                              </p>
+                            </div>
+                            {formData.compteur && (
+                              <div className="ml-auto w-5 h-5 bg-orange-400 rounded-full flex items-center justify-center shrink-0">
+                                <Check className="w-3 h-3 text-white" />
+                              </div>
+                            )}
                           </div>
-                          <div className={`p-3 rounded-lg border ${formData.monoTri ? 'bg-green-50 border-green-200' : 'bg-muted/50'}`}>
-                            <p className="text-xs text-muted-foreground uppercase">Mono / Tri</p>
-                            <p className="font-semibold text-sm">
-                              {formData.monoTri === 'monophase' ? 'Monophasé' : 
-                               formData.monoTri === 'triphase' ? 'Triphasé' : 
-                               'Non renseigné'}
-                            </p>
+
+                          {/* Mono/Tri visual card */}
+                          <div className={`flex-1 flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+                            formData.monoTri ? 'bg-blue-50 border-blue-200' : 'bg-muted/30 border-transparent'
+                          }`}>
+                            <div className="w-12 h-14 bg-blue-100 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
+                              {formData.monoTri === 'monophase' ? (
+                                <img src={priseMonophaseImg} alt="Monophasé" className="w-10 h-10 object-contain" />
+                              ) : formData.monoTri === 'triphase' ? (
+                                <img src={priseTriphaseImg} alt="Triphasé" className="w-10 h-10 object-contain" />
+                              ) : (
+                                <Zap className="w-5 h-5 text-gray-400" />
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-xs text-blue-600 uppercase font-bold">Mono / Tri</p>
+                              <p className="font-semibold text-sm">
+                                {formData.monoTri === 'monophase' ? 'Monophasé' : 
+                                 formData.monoTri === 'triphase' ? 'Triphasé' : 
+                                 '—'}
+                              </p>
+                            </div>
+                            {formData.monoTri && (
+                              <div className="ml-auto w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center shrink-0">
+                                <Check className="w-3 h-3 text-white" />
+                              </div>
+                            )}
                           </div>
                         </div>
                       </CardContent>
