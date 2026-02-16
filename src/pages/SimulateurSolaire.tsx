@@ -11,6 +11,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowRight, ArrowLeft, User, MapPin, Sun, Check, Loader2, Search, Zap, Flame, Droplets, Home, Car, Waves, Wind, Thermometer, UtensilsCrossed, Shirt, SkipForward, Wrench, Info } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import compteurLinkyImg from "@/assets/simulators/compteur-linky.png";
+import compteurElectroniqueImg from "@/assets/simulators/compteur-electronique.png";
+import priseMonophaseImg from "@/assets/simulators/prise-monophase.png";
+import priseTriphaseImg from "@/assets/simulators/prise-triphase.png";
 
 interface SolarRegion {
   id: string;
@@ -910,43 +914,75 @@ const SimulateurSolaire = () => {
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="p-6 space-y-5">
-                    {/* Compteur & Mono/Tri */}
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label className="text-sm font-semibold">
-                          Compteur <span className="text-destructive">*</span>
-                        </Label>
-                        <Select 
-                          value={formData.compteur} 
-                          onValueChange={(value) => handleInputChange("compteur", value)}
-                        >
-                          <SelectTrigger className="h-12">
-                            <SelectValue placeholder="Sélectionnez le compteur" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="linky">Linky</SelectItem>
-                            <SelectItem value="electronique">Électronique</SelectItem>
-                            <SelectItem value="electromecanique">Électromécanique</SelectItem>
-                          </SelectContent>
-                        </Select>
+                  <CardContent className="p-6 space-y-6">
+                    {/* Compteur */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-semibold">
+                        Type de compteur <span className="text-destructive">*</span>
+                      </Label>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {[
+                          { value: 'linky', label: 'Linky', img: compteurLinkyImg },
+                          { value: 'electronique', label: 'Électronique', img: compteurElectroniqueImg },
+                          { value: 'electromecanique', label: 'Électromécanique', img: null },
+                        ].map((item) => (
+                          <button
+                            key={item.value}
+                            type="button"
+                            onClick={() => handleInputChange("compteur", item.value)}
+                            className={`relative flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all cursor-pointer hover:shadow-md ${
+                              formData.compteur === item.value
+                                ? 'border-orange-400 bg-orange-50 shadow-md'
+                                : 'border-gray-200 bg-white hover:border-gray-300'
+                            }`}
+                          >
+                            {formData.compteur === item.value && (
+                              <div className="absolute top-2 right-2 w-6 h-6 bg-orange-400 rounded-full flex items-center justify-center">
+                                <Check className="w-4 h-4 text-white" />
+                              </div>
+                            )}
+                            {item.img ? (
+                              <img src={item.img} alt={item.label} className="w-16 h-20 object-contain" />
+                            ) : (
+                              <div className="w-16 h-20 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <Wrench className="w-8 h-8 text-gray-400" />
+                              </div>
+                            )}
+                            <span className="font-semibold text-sm text-gray-700">{item.label}</span>
+                          </button>
+                        ))}
                       </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm font-semibold">
-                          Mono/Tri <span className="text-muted-foreground text-xs">(facultatif)</span>
-                        </Label>
-                        <Select 
-                          value={formData.monoTri} 
-                          onValueChange={(value) => handleInputChange("monoTri", value)}
-                        >
-                          <SelectTrigger className="h-12">
-                            <SelectValue placeholder="Sélectionnez le type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="monophase">Monophasé</SelectItem>
-                            <SelectItem value="triphase">Triphasé</SelectItem>
-                          </SelectContent>
-                        </Select>
+                    </div>
+
+                    {/* Mono / Tri */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-semibold">
+                        Mono / Tri <span className="text-muted-foreground text-xs">(facultatif)</span>
+                      </Label>
+                      <div className="grid grid-cols-2 gap-4 max-w-md">
+                        {[
+                          { value: 'monophase', label: 'Monophasé', img: priseMonophaseImg },
+                          { value: 'triphase', label: 'Triphasé', img: priseTriphaseImg },
+                        ].map((item) => (
+                          <button
+                            key={item.value}
+                            type="button"
+                            onClick={() => handleInputChange("monoTri", item.value)}
+                            className={`relative flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all cursor-pointer hover:shadow-md ${
+                              formData.monoTri === item.value
+                                ? 'border-blue-400 bg-blue-50 shadow-md'
+                                : 'border-gray-200 bg-white hover:border-gray-300'
+                            }`}
+                          >
+                            {formData.monoTri === item.value && (
+                              <div className="absolute top-2 right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                                <Check className="w-4 h-4 text-white" />
+                              </div>
+                            )}
+                            <img src={item.img} alt={item.label} className="w-16 h-16 object-contain" />
+                            <span className="font-semibold text-sm text-gray-700">{item.label}</span>
+                          </button>
+                        ))}
                       </div>
                     </div>
 
