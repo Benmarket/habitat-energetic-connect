@@ -7,6 +7,7 @@ const ALLOWED_ORIGINS = [
   "https://prime-energies.fr",
   "https://www.prime-energies.fr",
   "https://id-preview--e3a30aac-ec15-471c-a0b8-85e6321675bf.lovable.app",
+  "https://e3a30aac-ec15-471c-a0b8-85e6321675bf.lovableproject.com",
 ];
 
 function getCorsHeaders(req: Request) {
