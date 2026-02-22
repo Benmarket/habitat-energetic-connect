@@ -614,20 +614,16 @@ const AdminSettings = () => {
     }
   }, [user]);
 
-  // Track how many async loads have completed
-  const [loadedCount, setLoadedCount] = useState(0);
-  const TOTAL_LOADS = 7; // general, maintenance, ai, heroSlider, cookieBanner, headerFooter, homepageSections
-
-  const markLoaded = useCallback(() => {
-    setLoadedCount(prev => prev + 1);
-  }, []);
-
-  // Store initial settings state after ALL async loads complete
+  // Store initial settings state after all async loads complete
+  // We use a timeout to ensure all state updates have been applied
   useEffect(() => {
-    if (loadedCount >= TOTAL_LOADS && initialSettings === null) {
-      setInitialSettings(JSON.parse(JSON.stringify(settings)));
+    if (user && initialSettings === null) {
+      const timer = setTimeout(() => {
+        setInitialSettings(JSON.parse(JSON.stringify(settings)));
+      }, 500);
+      return () => clearTimeout(timer);
     }
-  }, [loadedCount, settings, initialSettings]);
+  }, [user, settings, initialSettings]);
 
   const loadHomepageSections = async () => {
     try {
@@ -651,8 +647,6 @@ const AdminSettings = () => {
       }
     } catch (error) {
       console.error("Error loading homepage sections:", error);
-    } finally {
-      markLoaded();
     }
   };
 
@@ -844,8 +838,6 @@ const AdminSettings = () => {
       }
     } catch (error) {
       console.error("Error loading header/footer settings:", error);
-    } finally {
-      markLoaded();
     }
   };
 
@@ -878,11 +870,10 @@ const AdminSettings = () => {
         };
 
         setSettings(prev => ({ ...prev, ...loadedGeneral }));
+        // Store initial after all settings loaded (done in a separate effect)
       }
     } catch (error) {
       console.error("Error loading general settings:", error);
-    } finally {
-      markLoaded();
     }
   };
 
@@ -892,7 +883,7 @@ const AdminSettings = () => {
         .from("site_settings")
         .select("value")
         .eq("key", "maintenance_mode")
-        .maybeSingle();
+        .single();
 
       if (error) throw error;
 
@@ -906,8 +897,6 @@ const AdminSettings = () => {
       }
     } catch (error) {
       console.error("Error loading maintenance settings:", error);
-    } finally {
-      markLoaded();
     }
   };
 
@@ -936,8 +925,6 @@ const AdminSettings = () => {
       }
     } catch (error) {
       console.error("Error loading AI settings:", error);
-    } finally {
-      markLoaded();
     }
   };
 
@@ -965,8 +952,6 @@ const AdminSettings = () => {
       }
     } catch (error) {
       console.error("Error loading hero slider settings:", error);
-    } finally {
-      markLoaded();
     }
   };
 
@@ -1007,8 +992,6 @@ const AdminSettings = () => {
       }
     } catch (error) {
       console.error("Error loading cookie banner settings:", error);
-    } finally {
-      markLoaded();
     }
   };
 
@@ -1202,11 +1185,11 @@ const AdminSettings = () => {
       // Toutes les mises à jour en parallèle
       const allUpdates = await Promise.all([
         // Maintenance
-        supabase.from("site_settings").upsert({ key: "maintenance_mode", value: maintenanceValue, updated_by: user.id }, { onConflict: "key" }),
+        supabase.from("site_settings").update({ value: maintenanceValue }).eq("key", "maintenance_mode"),
         // IA
-        supabase.from("site_settings").upsert({ key: "ai_generation_api_url", value: settings.aiApiUrl, updated_by: user.id }, { onConflict: "key" }),
-        supabase.from("site_settings").upsert({ key: "ai_generation_model", value: settings.aiModel, updated_by: user.id }, { onConflict: "key" }),
-        supabase.from("site_settings").upsert({ key: "ai_generation_enabled", value: settings.aiEnabled, updated_by: user.id }, { onConflict: "key" }),
+        supabase.from("site_settings").update({ value: settings.aiApiUrl }).eq("key", "ai_generation_api_url"),
+        supabase.from("site_settings").update({ value: settings.aiModel }).eq("key", "ai_generation_model"),
+        supabase.from("site_settings").update({ value: settings.aiEnabled }).eq("key", "ai_generation_enabled"),
         supabase.from("site_settings").upsert({ key: "ai_custom_instructions", value: settings.aiCustomInstructions }, { onConflict: "key" }),
         // Cookie banner
         supabase.from("site_settings").upsert({ key: "cookie_banner", value: cookieBanner, updated_by: user.id }, { onConflict: "key" }),
