@@ -87,7 +87,7 @@ serve(async (req) => {
     // MODE: ANGLES — Propose 5 editorial angles
     // ══════════════════════════════════════════
     if (mode === 'angles') {
-      const { product, theme, objective, keywords, freePrompt, contentType, customInstructions } = body;
+      const { product, theme, objective, keywords, freePrompt, contentType, customInstructions, targetRegions } = body;
 
       if (!product || !theme || !objective) throw new Error('Produit, thème et objectif sont obligatoires');
 
