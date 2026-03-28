@@ -121,6 +121,29 @@ export function PostFormFields({
           )}
         </div>
       </div>
+
+      {/* Region targeting */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label className="flex items-center gap-2">
+            <MapPin className="w-4 h-4" /> Régions cibles
+          </Label>
+          <Button type="button" variant="ghost" size="sm" className="text-xs h-7"
+            onClick={() => setFormData({ ...formData, target_regions: regions.map(r => r.code) })}>
+            Toutes
+          </Button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {regions.map(r => (
+            <label key={r.code} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md border cursor-pointer text-sm transition-colors ${
+              formData.target_regions.includes(r.code) ? 'border-primary bg-primary/10 font-medium' : 'border-border hover:border-primary/30'
+            }`}>
+              <Checkbox checked={formData.target_regions.includes(r.code)} onCheckedChange={() => toggleRegion(r.code)} />
+              {r.name}
+            </label>
+          ))}
+        </div>
+      </div>
     </>
   );
 }
