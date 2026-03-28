@@ -241,3 +241,106 @@ details summary::-webkit-details-marker {
 details summary {
   list-style: none;
 }
+
+/* ═══ Article Data Tables ═══ */
+.article-content .article-table-wrapper {
+  margin: 2rem 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.article-content .article-data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px -4px hsl(220 13% 18% / 0.1);
+  font-size: 0.95rem;
+}
+
+.article-content .article-data-table thead tr {
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.85));
+}
+
+.article-content .article-data-table thead th {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: hsl(var(--primary-foreground));
+  white-space: nowrap;
+}
+
+.article-content .article-data-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.article-content .article-data-table tbody tr:nth-child(even) {
+  background-color: hsl(var(--muted) / 0.4);
+}
+
+.article-content .article-data-table tbody tr:hover {
+  background-color: hsl(var(--primary) / 0.06);
+}
+
+.article-content .article-data-table tbody td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+  color: hsl(var(--foreground));
+}
+
+.article-content .article-data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.article-content .article-data-table tbody td:first-child {
+  font-weight: 500;
+  color: hsl(var(--foreground));
+}
+
+.article-content .table-source {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+  text-align: right;
+}
+
+/* Fallback for tables without our classes */
+.article-content table:not(.article-data-table) {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px -4px hsl(220 13% 18% / 0.1);
+  margin: 2rem 0;
+  font-size: 0.95rem;
+}
+
+.article-content table:not(.article-data-table) thead th {
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.85));
+  color: hsl(var(--primary-foreground));
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  text-align: left;
+}
+
+.article-content table:not(.article-data-table) tbody tr:nth-child(even) {
+  background-color: hsl(var(--muted) / 0.4);
+}
+
+.article-content table:not(.article-data-table) tbody tr:hover {
+  background-color: hsl(var(--primary) / 0.06);
+}
+
+.article-content table:not(.article-data-table) tbody td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+}
