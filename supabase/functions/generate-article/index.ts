@@ -107,7 +107,8 @@ DATE ACTUELLE: ${todayDate}. Toutes tes propositions doivent être à jour et pe
 Tu dois proposer EXACTEMENT 5 angles éditoriaux DIFFÉRENTS et STRATÉGIQUES pour un article.
 
 CONTEXTE:
-- Produit: ${product}
+- Produit à mettre en avant: ${product}
+${subject ? `- Sujet / Trame de l'article: ${subject}` : ''}
 - Thème: ${theme}
 - Objectif: ${objectiveLabels[objective] || objective}
 - Type: ${contentTypeLabels[contentType] || 'article'}
