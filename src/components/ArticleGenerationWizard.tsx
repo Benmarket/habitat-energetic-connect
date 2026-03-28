@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Sparkles, ArrowLeft, ArrowRight, Check, Target, Lightbulb, FileText, X, MapPin, Clock } from "lucide-react";
@@ -192,8 +192,8 @@ export const ArticleGenerationWizard = ({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-        <DialogHeader>
+      <DialogContent className="w-[min(42rem,calc(100vw-2rem))] h-[90vh] max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
             Générer un {contentLabel} — Étape {step}/3
@@ -212,7 +212,7 @@ export const ArticleGenerationWizard = ({
           ))}
         </div>
 
-        <ScrollArea className="flex-1 min-h-0 pr-2">
+        <div className="flex-1 min-h-0 overflow-y-auto pr-2">
           {/* STEP 1 */}
           {step === 1 && (
             <div className="space-y-4 py-2">
@@ -440,7 +440,7 @@ export const ArticleGenerationWizard = ({
               )}
             </div>
           )}
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );
