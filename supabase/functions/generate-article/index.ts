@@ -138,16 +138,16 @@ FORMAT: [BUTTON:${buttonsForVariant[0]?.text}|${buttonsForVariant[0]?.url}]
 ⚠️ Utilise les boutons EXACTEMENT comme listés, avec texte et URL exacts ! Varie les boutons !`;
       } else {
         instructions += `\n\n=== BOUTONS CTA ===
-Utilise le format [BUTTON:Demander un devis|#contact] pour créer des boutons.`;
+Utilise le format [BUTTON:Demander un devis gratuit|#contact] pour créer des boutons.`;
       }
 
       if (bannersForVariant.length > 0) {
         instructions += `\n\n=== BANNIÈRES CTA OBLIGATOIRES (VARIANTE ${variantIndex + 1}) ===
-Tu DOIS insérer AU MOINS 1-2 bannières :
+Tu DOIS insérer AU MOINS 1 bannière :
 ${bannersForVariant.map((b: any, i: number) => `BANNIÈRE ${i + 1}: ID="${b.id}" | Titre="${b.title}"`).join('\n')}
 
 FORMAT: [CTA_BANNER:${bannersForVariant[0]?.id}]
-⚠️ Place les bannières stratégiquement - une au milieu et une avant la conclusion !`;
+⚠️ Place la bannière au 2/3 de l'article, entre 2 sections !`;
       }
       
       return instructions;
@@ -169,20 +169,14 @@ FORMAT: [CTA_BANNER:${bannersForVariant[0]?.id}]
       
       themeInstructions = `\n\nTHÈME DU GUIDE: ${guideTemplate.toUpperCase()}
 ${themeDescriptions[guideTemplate] || ''}
-Adapte le ton, le style d'écriture et les appels à l'action à ce thème.`;
+Adapte le ton et le style d'écriture à ce thème.`;
 
       guideStructureInstructions = `
 
-STRUCTURE EN SECTIONS POUR GUIDE:
-Le guide DOIT être structuré en 5-8 sections distinctes, chaque section commençant par un <h2> avec un ID unique.
-
-FORMAT OBLIGATOIRE:
-<h2 id="nom-section">Titre de la section</h2>
-<p>Contenu...</p>
-
-Les guides doivent être pratiques, concrets, avec des étapes claires et des conseils actionnables.
-Chaque <h2> DOIT avoir un attribut id unique basé sur le slug du titre !
-Le guide doit être autonome : un lecteur doit pouvoir agir concrètement après l'avoir lu.`;
+STRUCTURE GUIDE:
+Le guide DOIT être structuré en 5-8 sections avec <h2 id="slug-titre">Titre</h2>.
+Chaque section = titre + contenu riche + conseils actionnables.
+Le guide doit être autonome : un lecteur doit pouvoir agir après lecture.`;
     }
 
     const contentTypeLabels: Record<string, string> = {
@@ -191,83 +185,87 @@ Le guide doit être autonome : un lecteur doit pouvoir agir concrètement après
       aide: "article sur les aides et subventions"
     };
 
+    // ============================================================
+    // SYSTEM PROMPT - Structure stricte en 15 étapes
+    // ============================================================
     const systemPrompt = `Tu es un rédacteur SEO expert spécialisé dans les énergies renouvelables et les aides gouvernementales françaises.
 Tu crées du contenu viral, complet et optimisé pour le SEO, le GEO et les recherches IA.
 
-TYPE DE CONTENU: ${contentTypeLabels[contentType] || 'article'}
+TYPE: ${contentTypeLabels[contentType] || 'article'}
 
-${contentType === 'guide' ? `C'est un GUIDE PRATIQUE. Il doit être :
-- Exhaustif et actionnable (le lecteur peut agir concrètement après lecture)
-- Structuré en sections claires avec des étapes numérotées
-- Inclure des tableaux comparatifs, checklists, et exemples concrets
-- Minimum 1800-2500 mots pour un guide complet` : ''}
+${contentType === 'guide' ? `GUIDE PRATIQUE: exhaustif, actionnable, 5-8 sections, tableaux/checklists, 1800-2500 mots.` : ''}
+${contentType === 'aide' ? `AIDES/SUBVENTIONS: montants exacts, conditions, plafonds, textes officiels, exemples chiffrés, démarches étape par étape.` : ''}
 
-${contentType === 'aide' ? `C'est un article sur les AIDES ET SUBVENTIONS. Il doit :
-- Détailler les montants exacts, conditions d'éligibilité, plafonds de revenus
-- Citer les textes officiels et dates d'application
-- Inclure des exemples chiffrés de cas concrets
-- Expliquer les démarches étape par étape` : ''}
+═══════════════════════════════════════════
+STRUCTURE EN 15 ÉTAPES (SUIS CET ORDRE EXACT)
+═══════════════════════════════════════════
 
-STRUCTURE OBLIGATOIRE DE L'ARTICLE (dans cet ordre exact) :
-1. <h1> Titre accrocheur optimisé SEO (60-70 caractères max)
-2. [IMAGE: description détaillée de l'image héro principale]
-3. Bloc "EN RÉSUMÉ" (TL;DR) - 3-4 points clés
-4. Introduction captivante (150-200 mots)
-5. Section H2 #1 avec contenu détaillé
-6. [BUTTON:CTA] stratégiquement placé
-7. Section H2 #2 avec contenu détaillé + listes/tableaux
-8. [IMAGE: description détaillée d'une 2e image complémentaire]
-9. Section H2 #3 avec contenu
-10. [CTA_BANNER:ID] si disponible
-11. Sections H2 supplémentaires (2-3 de plus)
-12. Section FAQ "Questions fréquentes" avec 3-5 Q&A
-13. Sources et références
-14. [BUTTON:CTA final] avant conclusion
-15. Conclusion avec appel à l'action
+ÉTAPE 1 ▸ TITRE H1
+<h1>Titre accrocheur SEO (60-70 caractères)</h1>
 
-FORMAT DU BLOC RÉSUMÉ:
+ÉTAPE 2 ▸ IMAGE HÉRO (immédiatement après H1)
+[IMAGE: Photo professionnelle vue LARGE et PANORAMIQUE montrant {le sujet dans son contexte global}. Style éditorial magazine, lumière naturelle, haute résolution. Scène réaliste et inspirante.]
+
+ÉTAPE 3 ▸ BLOC RÉSUMÉ TL;DR
 <div class="summary-box" style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 1.5rem; margin: 2rem 0;">
   <h2 style="margin-top: 0; color: #0284c7; font-size: 1.25rem;">📌 En résumé</h2>
-  <ul>
-    <li><strong>Point clé 1</strong>: Description</li>
-    <li><strong>Point clé 2</strong>: Description</li>
-    <li><strong>Point clé 3</strong>: Description</li>
-  </ul>
+  <ul><li><strong>Point 1</strong>: ...</li><li><strong>Point 2</strong>: ...</li><li><strong>Point 3</strong>: ...</li><li><strong>Point 4</strong>: ...</li></ul>
 </div>
 
-FORMAT FAQ:
+ÉTAPE 4 ▸ INTRODUCTION (150-200 mots)
+<p>Accroche + contexte + promesse de valeur</p>
+
+ÉTAPE 5 ▸ SECTION H2 #1 (200-300 mots)
+<h2>Premier thème majeur avec mot-clé</h2>
+<p>Développement avec données chiffrées et sources</p>
+<ul><li>Points importants</li></ul>
+
+ÉTAPE 6 ▸ BOUTON CTA #1
+[BUTTON:Texte|URL]
+
+ÉTAPE 7 ▸ SECTION H2 #2 (200-300 mots)
+<h2>Deuxième thème avec listes et exemples</h2>
+
+ÉTAPE 8 ▸ IMAGE COMPLÉMENTAIRE (TRÈS DIFFÉRENTE du héro)
+[IMAGE: GROS PLAN technique ou INFOGRAPHIE détaillée montrant {un aspect spécifique et technique du sujet}. Schéma explicatif, détail d'équipement ou graphique de données. Style professionnel et informatif.]
+
+ÉTAPE 9 ▸ SECTION H2 #3 (200+ mots)
+
+ÉTAPE 10 ▸ BANNIÈRE CTA
+[CTA_BANNER:ID]
+
+ÉTAPE 11 ▸ SECTIONS SUPPLÉMENTAIRES (1-2 H2)
+
+ÉTAPE 12 ▸ FAQ (3-5 questions)
 <h2>Questions fréquentes</h2>
 <div class="faq-item"><h3>Question ?</h3><p>Réponse détaillée.</p></div>
 
-FORMAT SOURCES:
+ÉTAPE 13 ▸ SOURCES
 <h2>Sources et références</h2>
-<ul class="sources-list"><li><strong>ADEME</strong> - Titre, 2024</li></ul>
+<ul class="sources-list"><li><strong>Organisme</strong> - Document, année</li></ul>
 
-IMAGES:
-- Tu DOIS inclure EXACTEMENT 2 images complémentaires
-- Image 1 : héro principale après le H1 (vue d'ensemble, illustration du sujet)
-- Image 2 : complémentaire au milieu de l'article (détail, schéma, exemple concret)
-- Format: [IMAGE: Description TRÈS détaillée en français]
-- Les 2 images doivent être DIFFÉRENTES et complémentaires
+ÉTAPE 14 ▸ BOUTON CTA FINAL
+[BUTTON:Texte final|URL]
 
-OPTIMISATION SEO & GEO:
-- Mots-clés naturels (densité 1-2%)
-- Questions que les gens posent vraiment
-- Sources officielles (ADEME, Ministères, INSEE)
-- Données chiffrées précises avec années
-- Ton conversationnel et accessible
-- Structure en pyramide inversée
+ÉTAPE 15 ▸ CONCLUSION (100-150 mots)
 
-FORMATAGE HTML:
-- Uniquement du HTML pur et valide (pas de markdown)
-- Paragraphes dans <p>, listes dans <ul>/<ol>, titres en <h2>/<h3>
-- Au moins 2-3 listes à puces pour la lisibilité
+═══════════════════════════════════════════
+RÈGLES IMAGES (CRITIQUE)
+═══════════════════════════════════════════
+• EXACTEMENT 2 placeholders [IMAGE: ...]
+• Image 1 = VUE LARGE panoramique (ex: maison avec installation vue de loin, paysage avec éoliennes)
+• Image 2 = GROS PLAN technique (ex: détail d'un panneau, schéma de fonctionnement, graphique)
+• Les 2 descriptions doivent être RADICALEMENT DIFFÉRENTES
+• Chaque description: 25-40 mots minimum
+• Ne JAMAIS utiliser la même perspective pour les 2 images
+
+FORMATAGE: HTML pur uniquement. <p>, <ul>/<ol>, <h2>/<h3>. Jamais de markdown ni de \`\`\`.
 ${themeInstructions}
 ${guideStructureInstructions}
 
-LONGUEUR: ${contentType === 'guide' ? 'Minimum 1800 mots, idéalement 2000-2500 mots' : 'Minimum 1200 mots, idéalement 1500-1800 mots'}.
+LONGUEUR: ${contentType === 'guide' ? 'Min 1800 mots' : 'Min 1200 mots'}.
 
-IMPORTANT: Retourne UNIQUEMENT le HTML pur. Pas de markdown, pas de commentaires, pas d'explications.`;
+Retourne UNIQUEMENT le HTML pur sans aucune explication.`;
 
     let finalSystemPrompt = systemPrompt;
     if (customInstructions?.trim()) {
@@ -276,27 +274,29 @@ IMPORTANT: Retourne UNIQUEMENT le HTML pur. Pas de markdown, pas de commentaires
 
     const keywordsText = keywords.join(', ');
     
-    let userPrompt = `Crée un ${contentTypeLabels[contentType] || 'article'} COMPLET et professionnel sur : ${keywordsText}.
+    let userPrompt = `Crée un ${contentTypeLabels[contentType] || 'article'} COMPLET sur : ${keywordsText}.
 
 MOTS-CLÉS: ${keywordsText}
 
-RAPPEL DE LA STRUCTURE (suis cet ordre) :
-1. H1 titre
-2. [IMAGE: héro du sujet - description détaillée]
-3. Bloc résumé TL;DR
-4. Introduction
-5. Sections H2 avec contenu riche
-6. [BUTTON:CTA] après la 1ère section importante
-7. [IMAGE: 2e image complémentaire - description détaillée DIFFÉRENTE de la 1ère]
-8. Plus de sections
-9. [CTA_BANNER:ID] au 2/3 de l'article
-10. FAQ (3-5 questions)
-11. Sources
-12. [BUTTON:CTA final]
-13. Conclusion
+CHECKLIST OBLIGATOIRE:
+☐ H1 titre accrocheur
+☐ [IMAGE: vue large panoramique - 25+ mots de description]
+☐ Bloc TL;DR summary-box avec 4 points
+☐ Introduction 150-200 mots
+☐ Section H2 #1 avec données chiffrées
+☐ [BUTTON:CTA] après section 1
+☐ Section H2 #2
+☐ [IMAGE: gros plan technique DIFFÉRENT - 25+ mots de description]
+☐ Section H2 #3
+☐ [CTA_BANNER:ID] si fourni
+☐ 1-2 sections H2 supplémentaires
+☐ FAQ 3-5 questions (div class="faq-item")
+☐ Sources officielles
+☐ [BUTTON:CTA final]
+☐ Conclusion
 
-⚠️ Les 2 images DOIVENT être différentes et complémentaires !
-⚠️ Retourne UNIQUEMENT le HTML sans balises de code.`;
+⚠️ Les 2 images DOIVENT avoir des descriptions TRÈS DIFFÉRENTES.
+⚠️ HTML pur uniquement.`;
 
     if (additionalInstructions) {
       userPrompt += `\n\nINSTRUCTIONS ADDITIONNELLES:\n${additionalInstructions}`;
@@ -316,10 +316,10 @@ RAPPEL DE LA STRUCTURE (suis cet ordre) :
       
       variants = await Promise.all([
         generateVariant(apiUrl, model, OPENAI_API_KEY, finalSystemPrompt, 
-          userPrompt + cta1 + "\n\nVARIANTE 1 : Ton pédagogique, accessible au grand public, exemples concrets et bénéfices chiffrés."
+          userPrompt + cta1 + "\n\nVARIANTE 1 : Ton pédagogique, accessible, exemples concrets et bénéfices chiffrés."
         ),
         generateVariant(apiUrl, model, OPENAI_API_KEY, finalSystemPrompt, 
-          userPrompt + cta2 + "\n\nVARIANTE 2 : Ton plus technique et expert, focus expertise et crédibilité, données précises."
+          userPrompt + cta2 + "\n\nVARIANTE 2 : Ton technique et expert, données précises, arguments d'autorité."
         )
       ]);
     }
