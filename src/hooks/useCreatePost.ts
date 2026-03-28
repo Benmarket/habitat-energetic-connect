@@ -444,6 +444,9 @@ export function useCreatePost() {
       if (validatedData.faq && validatedData.faq.length > 0) {
         postData.faq = validatedData.faq;
       }
+      if (formData.target_regions && formData.target_regions.length > 0) {
+        postData.target_regions = formData.target_regions;
+      }
       if (status === "published" && !editId) postData.published_at = new Date().toISOString();
 
       let postId = editId;
