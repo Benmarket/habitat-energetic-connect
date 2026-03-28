@@ -166,13 +166,58 @@ export function useArticleGeneration(
     if (formData.category_id) return formData.category_id;
     const cats = options?.categories || [];
     if (cats.length === 0) return '';
-    const kws = keywords.map(k => k.toLowerCase());
-    for (const cat of cats) {
-      const n = cat.name.toLowerCase();
-      const s = cat.slug.toLowerCase();
-      if (kws.some(k => n.includes(k) || k.includes(n) || s.includes(k))) return cat.id;
+
+    const normalize = (value: string) =>
+      (value || '')
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+    const context = normalize(keywords.join(" "));
+
+    const findByPreferredSlugs = (preferredSlugs: string[]): string => {
+      for (const preferred of preferredSlugs) {
+        const wanted = normalize(preferred);
+        const found = cats.find((c) => normalize(c.slug) === wanted);
+        if (found) return found.id;
+      }
+      return '';
+    };
+
+    const semanticRules = [
+      { terms: ['solaire', 'photovolt', 'panneau', 'batterie', 'autoconsommation', 'edf-oa', 'surplus'], slugs: ['solaire', 'photovoltaique', 'electricite'] },
+      { terms: ['pompe-a-chaleur', 'pac', 'air-eau', 'air-air'], slugs: ['pompe-a-chaleur'] },
+      { terms: ['isolation', 'combles', 'ite', 'toiture'], slugs: ['isolation'] },
+      { terms: ['ventilation', 'vmc', 'double-flux'], slugs: ['ventilation'] },
+      { terms: ['renovation-globale', 'renovation-energetique'], slugs: ['renovation-globale'] },
+      { terms: ['economies-energie', 'economies-d-energie', 'facture', 'consommation'], slugs: ['economies-energie', 'economies-d-energie'] },
+      { terms: ['electricite', 'electrique', 'reseau', 'compteur'], slugs: ['electricite'] },
+      { terms: ['chauffage', 'chaudiere', 'radiateur', 'poele'], slugs: ['chauffage'] },
+    ];
+
+    for (const rule of semanticRules) {
+      if (rule.terms.some((term) => context.includes(normalize(term)))) {
+        const matched = findByPreferredSlugs(rule.slugs);
+        if (matched) return matched;
+      }
     }
-    return cats[0].id;
+
+    // Generic matching fallback
+    for (const cat of cats) {
+      const n = normalize(cat.name);
+      const s = normalize(cat.slug);
+      if (keywords.some((k) => {
+        const kw = normalize(k);
+        return n.includes(kw) || kw.includes(n) || s.includes(kw) || kw.includes(s);
+      })) {
+        return cat.id;
+      }
+    }
+
+    // Do not force first category (often "chauffage")
+    return '';
   };
 
   const autoSelectTags = (keywords: string[]): string[] => {
@@ -200,7 +245,15 @@ export function useArticleGeneration(
     let autoCategory = '';
     if (article.suggestedCategorySlug) {
       const cats = options?.categories || [];
-      const found = cats.find(c => c.slug === article.suggestedCategorySlug);
+      const normalize = (value: string) =>
+        (value || '')
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      const target = normalize(article.suggestedCategorySlug);
+      const found = cats.find(c => normalize(c.slug) === target);
       if (found) autoCategory = found.id;
     }
     if (!autoCategory) autoCategory = autoSelectCategory(kws);

@@ -397,15 +397,145 @@ Retourne UNIQUEMENT le HTML.`;
       const faq = extractFaq(content);
       const tldr = extractTldr(content);
 
-      // Extract classification
-      const classifyMatch = content.match(/<!--\s*CLASSIFY:category=([^|]*)\|tags=([^-]*)\s*-->/);
+      // Extract classification (robust parsing + fallback inference)
+      const classifyMatch = content.match(/<!--\s*CLASSIFY:category=([^|]*)\|tags=([^>]*)\s*-->/i);
       let suggestedCategorySlug = '';
       let suggestedTagSlugs: string[] = [];
+
       if (classifyMatch) {
-        suggestedCategorySlug = classifyMatch[1]?.trim() || '';
-        suggestedTagSlugs = (classifyMatch[2]?.trim() || '').split(',').map((s: string) => s.trim()).filter(Boolean);
-        // Remove the classify comment from content
-        content = content.replace(/<!--\s*CLASSIFY:[^>]*-->/g, '').trim();
+        suggestedCategorySlug = (classifyMatch[1] || '').trim();
+        suggestedTagSlugs = (classifyMatch[2] || '')
+          .split(',')
+          .map((s: string) => s.trim())
+          .filter(Boolean);
+      }
+
+      // Remove classify comment from content (if present)
+      content = content.replace(/<!--\s*CLASSIFY:[^>]*-->/gi, '').trim();
+
+      const normalize = (value: string) =>
+        (value || '')
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+
+      const categoryList = Array.isArray(availableCategories) ? availableCategories : [];
+      const tagList = Array.isArray(availableTags) ? availableTags : [];
+
+      const categorySlugMap = new Map<string, string>(
+        categoryList.map((c: any) => [normalize(String(c.slug || '')), String(c.slug || '')])
+      );
+      const tagSlugMap = new Map<string, string>(
+        tagList.map((t: any) => [normalize(String(t.slug || '')), String(t.slug || '')])
+      );
+
+      const normalizedSuggestedCategory = normalize(suggestedCategorySlug);
+      if (!normalizedSuggestedCategory || !categorySlugMap.has(normalizedSuggestedCategory) || normalizedSuggestedCategory === 'none') {
+        const context = normalize([
+          product,
+          subject,
+          selectedAngle?.title,
+          selectedAngle?.intention,
+          content,
+        ].filter(Boolean).join(' '));
+
+        const pickFirstAvailable = (candidates: string[]) => {
+          for (const candidate of candidates) {
+            const resolved = categorySlugMap.get(normalize(candidate));
+            if (resolved) return resolved;
+          }
+          return '';
+        };
+
+        const categoryRules = [
+          {
+            keywords: ['solaire', 'photovolt', 'panneau', 'autoconsommation', 'edf-oa', 'surplus', 'batterie', 'onduleur', 'kwc'],
+            slugs: ['solaire', 'photovoltaique', 'electricite']
+          },
+          {
+            keywords: ['pompe-a-chaleur', 'pac', 'air-eau', 'air-air'],
+            slugs: ['pompe-a-chaleur']
+          },
+          {
+            keywords: ['isolation', 'combles', 'ite', 'toiture', 'murs'],
+            slugs: ['isolation']
+          },
+          {
+            keywords: ['ventilation', 'vmc', 'double-flux', 'simple-flux'],
+            slugs: ['ventilation']
+          },
+          {
+            keywords: ['renovation-globale', 'renovation-energetique', 'bouquet-de-travaux'],
+            slugs: ['renovation-globale']
+          },
+          {
+            keywords: ['electricite', 'electrique', 'reseau', 'compteur', 'linky'],
+            slugs: ['electricite']
+          },
+          {
+            keywords: ['economies-d-energie', 'economies-energie', 'facture', 'consommation'],
+            slugs: ['economies-energie', 'economies-d-energie']
+          },
+          {
+            keywords: ['subvention', 'aides', 'prime', 'maprimerenov', 'cee'],
+            slugs: ['subventions']
+          },
+          {
+            keywords: ['chauffage', 'chaudiere', 'radiateur', 'poele'],
+            slugs: ['chauffage']
+          },
+        ];
+
+        suggestedCategorySlug = '';
+        for (const rule of categoryRules) {
+          if (rule.keywords.some((keyword) => context.includes(normalize(keyword)))) {
+            const resolved = pickFirstAvailable(rule.slugs);
+            if (resolved) {
+              suggestedCategorySlug = resolved;
+              break;
+            }
+          }
+        }
+      } else {
+        suggestedCategorySlug = categorySlugMap.get(normalizedSuggestedCategory) || '';
+      }
+
+      // Keep only valid tags; infer from context if missing
+      suggestedTagSlugs = suggestedTagSlugs
+        .map((slug) => tagSlugMap.get(normalize(slug)) || '')
+        .filter(Boolean);
+
+      if (suggestedTagSlugs.length === 0 && tagList.length > 0) {
+        const context = normalize([
+          product,
+          subject,
+          selectedAngle?.title,
+          selectedAngle?.intention,
+          ...((keywords || []) as string[]),
+          content,
+        ].filter(Boolean).join(' '));
+
+        const tagRules: Array<{ keywords: string[]; slugs: string[] }> = [
+          { keywords: ['solaire', 'photovolt', 'panneau'], slugs: ['solaire', 'photovoltaique', 'panneaux-solaires'] },
+          { keywords: ['batterie', 'stockage', 'backup'], slugs: ['batteries'] },
+          { keywords: ['edf-oa', 'surplus', 'revente'], slugs: ['electricite'] },
+          { keywords: ['maprimerenov', 'cee', 'prime', 'aides'], slugs: ['maprimerenov', 'cee', 'aides-primes'] },
+        ];
+
+        const inferred: string[] = [];
+        for (const rule of tagRules) {
+          if (rule.keywords.some((keyword) => context.includes(normalize(keyword)))) {
+            for (const slug of rule.slugs) {
+              const resolved = tagSlugMap.get(normalize(slug));
+              if (resolved && !inferred.includes(resolved)) inferred.push(resolved);
+              if (inferred.length >= 4) break;
+            }
+          }
+          if (inferred.length >= 4) break;
+        }
+        suggestedTagSlugs = inferred;
       }
 
       const article = {
