@@ -89,6 +89,7 @@ export const ArticleGenerationWizard = ({
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [input, setInput] = useState<GenerationInput>({
     product: "",
+    subject: "",
     theme: "",
     objective: "lead",
     keywords: initialKeywords,
