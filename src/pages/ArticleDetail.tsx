@@ -136,7 +136,11 @@ const ArticleDetail = () => {
         // Calculate reading time and extract TOC
         if (data.content) {
           setReadingTime(calculateReadingTime(data.content));
-          const contentWithHeadingIds = addHeadingIds(data.content);
+          // Strip duplicate summary-box and FAQ section from HTML (rendered separately as React components)
+          let cleanedContent = data.content
+            .replace(/<div class="summary-box"[^>]*>[\s\S]*?<\/div>/gi, '')
+            .replace(/<h2[^>]*>Questions fréquentes<\/h2>[\s\S]*?(?=<h2|$)/gi, '');
+          const contentWithHeadingIds = addHeadingIds(cleanedContent);
           setContentWithIds(contentWithHeadingIds);
           setToc(extractTableOfContents(contentWithHeadingIds));
         }
