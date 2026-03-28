@@ -185,3 +185,59 @@ All colors MUST be HSL.
 .animate-subtle-bounce {
   animation: subtle-bounce 2s ease-in-out infinite;
 }
+
+/* ═══ Article Content Styling ═══ */
+.article-content img {
+  border-radius: 12px;
+  box-shadow: 0 4px 20px -4px hsl(220 13% 18% / 0.12);
+  margin: 2rem auto;
+  display: block;
+}
+
+.article-content .summary-box {
+  border-radius: 12px;
+  border-left-width: 4px;
+}
+
+.article-content h2 {
+  position: relative;
+}
+
+.article-content h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 40px;
+  height: 3px;
+  background: hsl(var(--primary));
+  border-radius: 2px;
+}
+
+.article-content .cta-banner-rendered {
+  box-shadow: 0 8px 30px -8px hsl(220 13% 18% / 0.15);
+}
+
+.article-content .custom-button-wrapper {
+  margin: 2rem 0;
+}
+
+.article-content .custom-button-wrapper a {
+  box-shadow: 0 4px 14px -3px hsl(220 13% 18% / 0.2);
+  transition: all 0.3s ease;
+}
+
+.article-content .custom-button-wrapper a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px hsl(220 13% 18% / 0.25);
+}
+
+/* FAQ details marker */
+.article-content details summary::-webkit-details-marker,
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details summary {
+  list-style: none;
+}
