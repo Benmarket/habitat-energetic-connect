@@ -348,6 +348,15 @@ RÈGLES GÉNÉRALES
 • Inclure au moins 1 tableau de données chiffré
 ${ctaInstructions}
 
+═══════════════════════════════════════════
+CLASSIFICATION (OBLIGATOIRE)
+═══════════════════════════════════════════
+À la toute fin du HTML, ajoute un commentaire invisible avec la catégorie et les étiquettes les plus pertinentes parmi celles disponibles.
+${availableCategories?.length > 0 ? `CATÉGORIES DISPONIBLES: ${availableCategories.map((c: any) => `"${c.name}" (slug: ${c.slug})`).join(', ')}` : ''}
+${availableTags?.length > 0 ? `ÉTIQUETTES DISPONIBLES: ${availableTags.map((t: any) => `"${t.name}" (slug: ${t.slug})`).join(', ')}` : ''}
+FORMAT (dernière ligne du HTML): <!-- CLASSIFY:category=${availableCategories?.length > 0 ? 'slug_categorie' : 'none'}|tags=${availableTags?.length > 0 ? 'slug1,slug2,slug3' : 'none'} -->
+Choisis la catégorie LA PLUS pertinente et 2-4 étiquettes qui correspondent au contenu.
+
 Retourne UNIQUEMENT le HTML.`;
 
       const response = await fetch(apiUrl, {
