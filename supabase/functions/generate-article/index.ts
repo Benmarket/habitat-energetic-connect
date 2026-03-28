@@ -102,6 +102,8 @@ serve(async (req) => {
 
       const systemPrompt = `Tu es un stratège éditorial SEO expert en ${contentTypeLabels[contentType] || 'articles'} pour le secteur des énergies renouvelables et aides gouvernementales françaises.
 
+DATE ACTUELLE: ${todayDate}. Toutes tes propositions doivent être à jour et pertinentes pour cette date. Ne mentionne JAMAIS de dates passées (2023, 2024, 2025) sauf pour comparer avec la situation actuelle.
+
 Tu dois proposer EXACTEMENT 5 angles éditoriaux DIFFÉRENTS et STRATÉGIQUES pour un article.
 
 CONTEXTE:
