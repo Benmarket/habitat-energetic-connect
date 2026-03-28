@@ -317,7 +317,7 @@ Retourne UNIQUEMENT le HTML.`;
 
       const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
         body: JSON.stringify({
           model, max_tokens: 8192,
           messages: [
@@ -327,7 +327,12 @@ Retourne UNIQUEMENT le HTML.`;
         })
       });
 
-      if (!response.ok) throw new Error(`Erreur API: ${response.status}`);
+      if (!response.ok) {
+        const errText = await response.text();
+        if (response.status === 429) throw new Error('Limite IA atteinte, réessayez dans quelques instants.');
+        if (response.status === 402) throw new Error('Crédits IA insuffisants.');
+        throw new Error(`Erreur API IA: ${response.status} - ${errText}`);
+      }
       const data = await response.json();
       let content = data.choices[0].message.content;
 
