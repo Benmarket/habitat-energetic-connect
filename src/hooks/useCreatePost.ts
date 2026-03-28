@@ -189,6 +189,7 @@ const initialFormData: CreatePostFormData = {
   topline_bg_color: "#22c55e",
   topline_text_color: "#ffffff",
   badge_image: "",
+  target_regions: ["fr"],
 };
 
 export function useCreatePost() {
