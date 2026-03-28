@@ -352,10 +352,22 @@ ${ctaInstructions}
 CLASSIFICATION (OBLIGATOIRE)
 ═══════════════════════════════════════════
 À la toute fin du HTML, ajoute un commentaire invisible avec la catégorie et les étiquettes les plus pertinentes parmi celles disponibles.
-${availableCategories?.length > 0 ? `CATÉGORIES DISPONIBLES: ${availableCategories.map((c: any) => `"${c.name}" (slug: ${c.slug})`).join(', ')}` : ''}
+
+RÈGLE CRITIQUE DE CLASSIFICATION:
+- La catégorie doit correspondre au PRODUIT principal ("${product}") et au SUJET de l'article${subject ? ` ("${subject}")` : ''}.
+- NE CHOISIS PAS "chauffage" par défaut ! Analyse le contenu réel :
+  * Si l'article parle de panneaux solaires/photovoltaïque → catégorie "solaire" ou "photovoltaique"
+  * Si l'article parle d'isolation → catégorie "isolation"
+  * Si l'article parle de pompe à chaleur → catégorie "pompe-a-chaleur"
+  * Si l'article parle de ventilation/VMC → catégorie "ventilation"
+  * Si l'article parle d'économies d'énergie → catégorie "economies-d-energie"
+  * Si l'article parle de rénovation globale → catégorie "renovation-globale"
+  * "chauffage" UNIQUEMENT si le sujet porte spécifiquement sur le chauffage (chaudière, radiateurs, etc.)
+
+${availableCategories?.length > 0 ? `CATÉGORIES DISPONIBLES (choisis parmi celles-ci UNIQUEMENT): ${availableCategories.map((c: any) => `"${c.name}" (slug: ${c.slug})`).join(', ')}` : ''}
 ${availableTags?.length > 0 ? `ÉTIQUETTES DISPONIBLES: ${availableTags.map((t: any) => `"${t.name}" (slug: ${t.slug})`).join(', ')}` : ''}
 FORMAT (dernière ligne du HTML): <!-- CLASSIFY:category=${availableCategories?.length > 0 ? 'slug_categorie' : 'none'}|tags=${availableTags?.length > 0 ? 'slug1,slug2,slug3' : 'none'} -->
-Choisis la catégorie LA PLUS pertinente et 2-4 étiquettes qui correspondent au contenu.
+Choisis la catégorie LA PLUS pertinente par rapport au produit "${product}" et 2-4 étiquettes qui correspondent au contenu.
 
 Retourne UNIQUEMENT le HTML.`;
 
