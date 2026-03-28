@@ -40,6 +40,7 @@ interface Article {
   status: string;
   tldr: string | null;
   faq: Array<{ question: string; answer: string }> | null;
+  focus_keywords: string[] | null;
   // Author fields
   hide_author: boolean;
   author_display_type: string | null;
