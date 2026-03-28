@@ -136,7 +136,11 @@ const ArticleDetail = () => {
         // Calculate reading time and extract TOC
         if (data.content) {
           setReadingTime(calculateReadingTime(data.content));
-          const contentWithHeadingIds = addHeadingIds(data.content);
+          // Strip duplicate summary-box and FAQ section from HTML (rendered separately as React components)
+          let cleanedContent = data.content
+            .replace(/<div class="summary-box"[^>]*>[\s\S]*?<\/div>/gi, '')
+            .replace(/<h2[^>]*>Questions fréquentes<\/h2>[\s\S]*?(?=<h2|$)/gi, '');
+          const contentWithHeadingIds = addHeadingIds(cleanedContent);
           setContentWithIds(contentWithHeadingIds);
           setToc(extractTableOfContents(contentWithHeadingIds));
         }
@@ -493,87 +497,118 @@ const ArticleDetail = () => {
 
           {/* Article Content */}
           <article className="py-12 lg:py-16">
-            <div className="container mx-auto px-4 max-w-4xl">
-              {/* Tags Section */}
-              {article.post_tags && article.post_tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-8">
-                  {article.post_tags.map((pt) => (
-                    <Badge 
-                      key={pt.tags.id}
-                      variant="secondary"
-                      className="bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 transition-colors px-3 py-1.5 flex items-center gap-1.5"
-                    >
-                      <Tag className="w-3.5 h-3.5" />
-                      {pt.tags.name}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-              
-              {article.excerpt && (
-                <p className="text-xl text-muted-foreground mb-8 leading-relaxed border-l-4 border-primary pl-6">
-                  {article.excerpt}
-                </p>
-              )}
-
-              {/* TL;DR Section */}
-              {article.tldr && (
-                <div className="bg-blue-50 dark:bg-blue-950/30 border-l-4 border-blue-500 p-6 mb-8 rounded-r-lg">
-                  <h2 className="text-xl font-semibold text-blue-700 dark:text-blue-400 mb-3 flex items-center gap-2">
-                    📌 En résumé
-                  </h2>
-                  <div className="text-base text-muted-foreground space-y-2 whitespace-pre-line">
-                    {article.tldr}
-                  </div>
-                </div>
-              )}
-
-              {/* Table of contents */}
-              {toc.length > 0 && <TableOfContents items={toc} />}
-              
-              {/* Author Section */}
-              {authorInfo && (
-                <div className="flex items-center gap-4 mb-8 p-4 bg-muted/50 rounded-lg">
-                  {authorInfo.avatar ? (
-                    <img
-                      src={authorInfo.avatar}
-                      alt={authorInfo.name}
-                      className="w-14 h-14 rounded-full object-cover border-2 border-primary/20"
-                    />
-                  ) : (
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-                      <User className="w-7 h-7 text-primary" />
+            <div className="container mx-auto px-4">
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10 max-w-6xl mx-auto">
+                {/* Main Content Column */}
+                <div className="min-w-0">
+                  {/* Author + Meta Bar */}
+                  {authorInfo && (
+                    <div className="flex items-center gap-4 mb-8 pb-6 border-b border-border">
+                      {authorInfo.avatar ? (
+                        <img
+                          src={authorInfo.avatar}
+                          alt={authorInfo.name}
+                          className="w-12 h-12 rounded-full object-cover ring-2 ring-primary/20"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                          <User className="w-6 h-6 text-primary" />
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-semibold text-foreground">{authorInfo.name}</p>
+                        {authorInfo.bio && (
+                          <p className="text-sm text-muted-foreground line-clamp-1">{authorInfo.bio}</p>
+                        )}
+                      </div>
                     </div>
                   )}
-                  <div>
-                    <p className="text-sm text-muted-foreground">Rédigé par</p>
-                    <p className="font-semibold text-foreground">{authorInfo.name}</p>
-                    {authorInfo.bio && (
-                      <p className="text-sm text-muted-foreground mt-1">{authorInfo.bio}</p>
-                    )}
-                  </div>
-                </div>
-              )}
 
-              <div 
-                className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground prose-a:text-primary prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl"
-                dangerouslySetInnerHTML={{ __html: transformCtaBannersInHtml(contentWithIds) }}
-              />
+                  {/* Tags */}
+                  {article.post_tags && article.post_tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {article.post_tags.map((pt) => (
+                        <Badge 
+                          key={pt.tags.id}
+                          variant="secondary"
+                          className="bg-primary/5 text-primary border-primary/20 hover:bg-primary/10 transition-colors px-3 py-1 text-xs font-medium flex items-center gap-1.5"
+                        >
+                          <Tag className="w-3 h-3" />
+                          {pt.tags.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
 
-              {/* FAQ Section */}
-              {article.faq && article.faq.length > 0 && (
-                <div className="mt-12 pt-8 border-t border-border">
-                  <h2 className="text-3xl font-bold mb-8">Questions fréquentes</h2>
-                  <div className="space-y-6">
-                    {article.faq.map((item, index) => (
-                      <div key={index} className="bg-muted/30 p-6 rounded-lg">
-                        <h3 className="text-xl font-semibold mb-3 text-foreground">{item.question}</h3>
-                        <p className="text-muted-foreground leading-relaxed">{item.answer}</p>
+                  {/* Lead / Excerpt */}
+                  {article.excerpt && (
+                    <p className="text-lg lg:text-xl text-muted-foreground mb-8 leading-relaxed font-light">
+                      {article.excerpt}
+                    </p>
+                  )}
+
+                  {/* TL;DR Section — only from structured data, skip if already in HTML */}
+                  {article.tldr && (
+                    <div className="bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 p-6 mb-10 rounded-xl">
+                      <h2 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+                        📌 En résumé
+                      </h2>
+                      <div className="text-base text-muted-foreground space-y-1.5 whitespace-pre-line leading-relaxed">
+                        {article.tldr}
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  )}
+
+                  {/* Separator */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent mb-10" />
+
+                  {/* Article Body */}
+                  <div 
+                    className="article-content prose prose-lg max-w-none
+                      prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight
+                      prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-5 prose-h2:pb-3 prose-h2:border-b prose-h2:border-border/50
+                      prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4
+                      prose-p:text-foreground prose-p:leading-[1.8] prose-p:mb-5
+                      prose-strong:text-foreground prose-strong:font-semibold
+                      prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground prose-li:leading-[1.8]
+                      prose-a:text-primary prose-a:font-medium prose-a:no-underline hover:prose-a:underline
+                      prose-img:rounded-xl prose-img:shadow-lg prose-img:my-8
+                      prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-1 prose-blockquote:rounded-r-lg
+                    "
+                    dangerouslySetInnerHTML={{ __html: transformCtaBannersInHtml(contentWithIds) }}
+                  />
+
+                  {/* FAQ Section */}
+                  {article.faq && article.faq.length > 0 && (
+                    <div className="mt-16 pt-10 border-t border-border">
+                      <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                        <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-lg">❓</span>
+                        Questions fréquentes
+                      </h2>
+                      <div className="space-y-4">
+                        {article.faq.map((item, index) => (
+                          <details key={index} className="group bg-muted/30 rounded-xl border border-border/50 overflow-hidden">
+                            <summary className="flex items-center justify-between p-5 cursor-pointer hover:bg-muted/50 transition-colors">
+                              <h3 className="text-base font-semibold text-foreground pr-4">{item.question}</h3>
+                              <ArrowLeft className="w-5 h-5 text-muted-foreground -rotate-90 group-open:rotate-90 transition-transform shrink-0" />
+                            </summary>
+                            <div className="px-5 pb-5 pt-0">
+                              <p className="text-muted-foreground leading-relaxed">{item.answer}</p>
+                            </div>
+                          </details>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+
+                {/* Sidebar — Table of Contents */}
+                <aside className="hidden lg:block">
+                  <div className="sticky top-28">
+                    {toc.length > 0 && <TableOfContents items={toc} />}
+                  </div>
+                </aside>
+              </div>
             </div>
           </article>
         </main>
