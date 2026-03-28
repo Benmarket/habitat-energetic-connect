@@ -45,7 +45,7 @@ export const ArticleVariantsModal = ({
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedVariantForEdit, setSelectedVariantForEdit] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Timer pendant le chargement
   useEffect(() => {
