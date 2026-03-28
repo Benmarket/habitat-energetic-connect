@@ -508,17 +508,20 @@ const ArticleDetail = () => {
                         <img
                           src={authorInfo.avatar}
                           alt={authorInfo.name}
-                          className="w-12 h-12 rounded-full object-cover ring-2 ring-primary/20"
+                          className="w-12 h-12 rounded-full object-cover ring-2 ring-primary/20 flex-shrink-0"
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                           <User className="w-6 h-6 text-primary" />
                         </div>
                       )}
-                      <div>
+                      <div className="min-w-0">
                         <p className="font-semibold text-foreground">{authorInfo.name}</p>
+                        {authorInfo.jobTitle && (
+                          <p className="text-sm text-primary/80 font-medium">{authorInfo.jobTitle}</p>
+                        )}
                         {authorInfo.bio && (
-                          <p className="text-sm text-muted-foreground line-clamp-1">{authorInfo.bio}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{authorInfo.bio}</p>
                         )}
                       </div>
                     </div>
