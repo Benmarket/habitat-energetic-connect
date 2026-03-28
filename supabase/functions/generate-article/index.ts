@@ -106,7 +106,7 @@ serve(async (req) => {
         fetch(`${supabaseUrl}/rest/v1/cta_banners?select=id,name,template_style,title,subtitle,background_color,secondary_color,text_color,accent_color&user_id=eq.${userId}`, {
           headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
         }),
-        fetch(`${supabaseUrl}/rest/v1/popups?select=id,name,trigger_id,template,title&is_active=eq.true&trigger_type=eq.manual`, {
+        fetch(`${supabaseUrl}/rest/v1/popups?select=id,name,trigger_id,template,title,form_id&is_active=eq.true&order=created_at.desc&limit=5`, {
           headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
         })
       ]);
