@@ -63,6 +63,7 @@ export const AuthorSelectModal = ({ open, onOpenChange, onAuthorCreated }: Autho
       
       // Reset form
       setName("");
+      setJobTitle("");
       setBio("");
       setAvatarUrl("");
     } catch (error: any) {
