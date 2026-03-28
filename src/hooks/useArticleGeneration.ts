@@ -85,6 +85,7 @@ export function useArticleGeneration(
         body: {
           mode: 'article',
           product: input.product,
+          subject: input.subject,
           theme: input.theme,
           objective: input.objective,
           keywords: input.keywords,

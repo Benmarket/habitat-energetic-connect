@@ -339,7 +339,7 @@ RÈGLES TABLEAUX:
 ═══════════════════════════════════════════
 RÈGLES GÉNÉRALES
 ═══════════════════════════════════════════
-• EXACTEMENT 3 [IMAGE: ...] tous DIFFÉRENTS (panoramique + technique + humain/résultat)
+• EXACTEMENT 3 [IMAGE: ...] tous DIFFÉRENTS et en rapport avec le SUJET/TRAME de l'article (pas des images génériques d'éoliennes ou panneaux si le sujet est autre chose)
 • HTML pur (<p>, <ul>, <h2>, <h3>, <table>). Jamais de markdown.
 • ${contentType === 'guide' ? '1800-2500 mots' : '1200-1800 mots'}
 • Style direct, impactant, zéro blabla
