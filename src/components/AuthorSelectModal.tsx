@@ -140,14 +140,19 @@ export const AuthorSelectModal = ({ open, onOpenChange, onAuthorCreated }: Autho
                   Choisir
                 </Button>
               </div>
-              {avatarUrl && (
-                <div className="flex items-center gap-3 mt-2">
-                  <img
-                    src={avatarUrl}
-                    alt="Aperçu avatar"
-                    className="w-12 h-12 rounded-full object-cover border"
-                  />
-                  <span className="text-sm text-muted-foreground">Aperçu</span>
+              {(avatarUrl || name) && (
+                <div className="flex items-center gap-3 mt-3 p-3 rounded-lg bg-muted/50 border">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Aperçu" className="w-11 h-11 rounded-full object-cover ring-2 ring-primary/20" />
+                  ) : (
+                    <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="w-5 h-5 text-primary" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="font-semibold text-sm text-foreground truncate">{name || "Nom de l'auteur"}</p>
+                    {jobTitle && <p className="text-xs text-muted-foreground truncate">{jobTitle}</p>}
+                  </div>
                 </div>
               )}
             </div>

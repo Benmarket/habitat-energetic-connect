@@ -70,7 +70,7 @@ const ArticleDetail = () => {
   const [contentWithIds, setContentWithIds] = useState("");
   const [toc, setToc] = useState<Array<{ id: string; text: string; level: number }>>([]);
   const [readingTime, setReadingTime] = useState(0);
-  const [authorInfo, setAuthorInfo] = useState<{ name: string; bio?: string | null; avatar?: string | null } | null>(null);
+  const [authorInfo, setAuthorInfo] = useState<{ name: string; bio?: string | null; avatar?: string | null; jobTitle?: string | null } | null>(null);
 
   useEffect(() => {
     fetchArticle();
