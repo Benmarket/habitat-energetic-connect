@@ -265,19 +265,41 @@ const ArticleDetail = () => {
     }
   });
 
+  // Build author schema: use Person when individual author is set, Organization otherwise
+  const authorSchema = authorInfo && !article.hide_author
+    ? {
+        "@type": "Person",
+        name: authorInfo.name,
+        ...(authorInfo.bio ? { description: authorInfo.bio } : {}),
+        url: "https://prime-energies.fr"
+      }
+    : {
+        "@type": "Organization",
+        name: "Prime Énergies",
+        url: "https://prime-energies.fr"
+      };
+
+  // Combine focus_keywords + category names + tag names for comprehensive keywords
+  const allKeywords = [
+    ...(article.focus_keywords || []),
+    ...(article.post_categories?.map(pc => pc.categories.name) || []),
+    ...(article.post_tags?.map(pt => pt.tags.name) || []),
+  ].filter(Boolean);
+
   const articleSchema = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Article",
     headline: article.meta_title || article.title,
     description: article.meta_description || article.excerpt || "",
-    image: article.featured_image ? [article.featured_image] : [],
+    image: article.featured_image ? [{
+      "@type": "ImageObject",
+      url: article.featured_image,
+      width: 1200,
+      height: 630
+    }] : [],
     datePublished: article.published_at,
     dateModified: article.updated_at || article.published_at,
-    author: {
-      "@type": "Organization",
-      name: "Prime Énergies",
-      url: "https://prime-energies.fr"
-    },
+    author: authorSchema,
     publisher: {
       "@type": "Organization",
       name: "Prime Énergies",
@@ -291,7 +313,10 @@ const ArticleDetail = () => {
       "@id": currentUrl
     },
     articleSection: article.post_categories?.[0]?.categories.name || "Énergies renouvelables",
-    keywords: article.post_categories?.map(pc => pc.categories.name).join(", ") || ""
+    keywords: allKeywords.join(", "),
+    inLanguage: "fr-FR",
+    isAccessibleForFree: true,
+    ...(article.tldr ? { abstract: article.tldr } : {})
   });
 
   // Schema FAQ si des questions FAQ existent
