@@ -170,7 +170,10 @@ export function AuthorSection({
                           ) : (
                             <User className="w-5 h-5 text-muted-foreground" />
                           )}
-                          {author.name}
+                          <span>{author.name}</span>
+                          {author.job_title && (
+                            <span className="text-xs text-muted-foreground">— {author.job_title}</span>
+                          )}
                         </div>
                       </SelectItem>
                     ))}
