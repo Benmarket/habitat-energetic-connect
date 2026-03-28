@@ -1001,14 +1001,14 @@ export default function SitePopup() {
                 </p>
               </button>
 
-              {/* Option 4: Chercher un installateur */}
+              {/* Option 4: Offres Partenaires */}
               <button
                 onClick={() => {
                   handleClose();
                   setTimeout(() => {
-                    const el = document.getElementById('installateurs');
+                    const el = document.getElementById('offres-partenaires');
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    else navigate("/#installateurs");
+                    else navigate("/#offres-partenaires");
                   }, 100);
                 }}
                 className="group p-3 sm:p-4 rounded-xl border-2 border-slate-200 hover:border-amber-400 bg-white hover:bg-amber-50/50 transition-all duration-200 text-center"
@@ -1020,7 +1020,7 @@ export default function SitePopup() {
                   </svg>
                 </div>
                 <h3 className="font-semibold text-slate-800 text-sm sm:text-base leading-tight mb-1">
-                  Installateurs
+                  Offres Partenaires
                 </h3>
                 <p className="text-[11px] sm:text-xs text-amber-600 font-medium">
                   Près de chez moi
