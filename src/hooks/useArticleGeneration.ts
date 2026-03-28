@@ -1,8 +1,10 @@
-// useArticleGeneration v6 - Regions + timer + images fix
+// useArticleGeneration v7 - Review mode
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { parseContentToSections, CreatePostFormData, generateSlug } from "./useCreatePost";
+import { GenerationInput, EditorialAngle } from "@/components/ArticleGenerationWizard";
+import type { ArticleReview } from "@/components/ArticleReviewModal";
 import { GenerationInput, EditorialAngle } from "@/components/ArticleGenerationWizard";
 
 interface ArticleGenerationOptions {
