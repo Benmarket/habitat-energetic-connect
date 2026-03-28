@@ -218,16 +218,31 @@ export const ArticleGenerationWizard = ({
           {/* STEP 1 */}
           {step === 1 && (
             <div className="space-y-4 py-2">
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Target className="w-4 h-4 text-primary" />
-                  Produit / Sujet principal <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  placeholder="Ex : panneaux photovoltaïques, isolation combles…"
-                  value={input.product}
-                  onChange={e => setInput(prev => ({ ...prev, product: e.target.value }))}
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Target className="w-4 h-4 text-primary" />
+                    Produit à mettre en avant <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    placeholder="Ex : panneaux solaires, pompe à chaleur…"
+                    value={input.product}
+                    onChange={e => setInput(prev => ({ ...prev, product: e.target.value }))}
+                  />
+                  <p className="text-xs text-muted-foreground">Le produit ou service que l'article doit promouvoir.</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Lightbulb className="w-4 h-4 text-primary" />
+                    Sujet / Trame <span className="text-xs text-muted-foreground">(optionnel)</span>
+                  </Label>
+                  <Input
+                    placeholder="Ex : hausse du prix de l'électricité, bilan carbone…"
+                    value={input.subject}
+                    onChange={e => setInput(prev => ({ ...prev, subject: e.target.value }))}
+                  />
+                  <p className="text-xs text-muted-foreground">Le fil conducteur ou l'actualité autour de laquelle l'article est construit.</p>
+                </div>
               </div>
 
               <div className="space-y-2">
