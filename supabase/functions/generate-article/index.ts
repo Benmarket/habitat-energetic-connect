@@ -484,7 +484,8 @@ function extractTldr(html: string): string {
   const m = html.match(/<div class="summary-box"[^>]*>(.*?)<\/div>/is);
   if (!m) return '';
   const items = m[1].match(/<li[^>]*>(.*?)<\/li>/gis);
-  return items ? items.map(i => i.replace(/<[^>]*>/g,'').trim()).join('\n') : '';
+  const text = items ? items.map(i => i.replace(/<[^>]*>/g,'').trim()).join('\n') : '';
+  return text.length <= 500 ? text : text.slice(0, 497) + '...';
 }
 function extractFaq(html: string): Array<{question:string;answer:string}> {
   const faq: Array<{question:string;answer:string}> = [];
