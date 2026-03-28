@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { OrganizationSchema } from "@/components/SEO/OrganizationSchema";
+import { WebSiteSchema } from "@/components/SEO/WebSiteSchema";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
