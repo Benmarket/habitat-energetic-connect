@@ -25,6 +25,7 @@ interface AuthorSelectModalProps {
 
 export const AuthorSelectModal = ({ open, onOpenChange, onAuthorCreated }: AuthorSelectModalProps) => {
   const [name, setName] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [loading, setLoading] = useState(false);
