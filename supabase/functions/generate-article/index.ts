@@ -253,7 +253,8 @@ DATE ACTUELLE: ${todayDate}. Tout le contenu doit être à jour. Utilise les chi
 Tu rédiges UN SEUL article optimisé lead/conversion.
 
 TYPE: ${contentTypeLabels[contentType] || 'article'}
-PRODUIT: ${product}
+PRODUIT À METTRE EN AVANT: ${product}
+${subject ? `SUJET / TRAME: ${subject} (utilise ce sujet comme fil conducteur de l'article, les images et les données doivent être en rapport avec ce sujet, pas seulement le produit)` : ''}
 THÈME: ${theme}
 OBJECTIF: ${objectiveLabels[objective] || objective}
 ANGLE ÉDITORIAL: [${selectedAngle.type}] ${selectedAngle.title}
