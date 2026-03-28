@@ -171,6 +171,14 @@ const CreatePost = () => {
           defaultInstructions={defaultAiInstructions} currentInstructions={currentAiInstructions}
           onSave={(instructions) => setCurrentAiInstructions(instructions)} />
 
+        <ArticleReviewModal
+          open={reviewModalOpen}
+          onOpenChange={setReviewModalOpen}
+          review={articleReview}
+          loading={loadingReview}
+          onStartReview={handleStartReview}
+        />
+
         <AuthorSelectModal open={authorModalOpen} onOpenChange={setAuthorModalOpen}
           onAuthorCreated={(author) => {
             setAvailableAuthors((prev) => [...prev, author]);
