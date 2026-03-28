@@ -274,7 +274,9 @@ const ArticleDetail = () => {
     ? {
         "@type": "Person",
         name: authorInfo.name,
+        ...(authorInfo.jobTitle ? { jobTitle: authorInfo.jobTitle } : {}),
         ...(authorInfo.bio ? { description: authorInfo.bio } : {}),
+        ...(authorInfo.avatar ? { image: authorInfo.avatar } : {}),
         url: "https://prime-energies.fr"
       }
     : {
