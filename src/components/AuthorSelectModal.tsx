@@ -14,6 +14,7 @@ interface Author {
   name: string;
   bio: string | null;
   avatar_url: string | null;
+  job_title: string | null;
 }
 
 interface AuthorSelectModalProps {
