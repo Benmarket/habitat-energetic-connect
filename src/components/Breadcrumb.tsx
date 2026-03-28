@@ -12,7 +12,7 @@ interface BreadcrumbProps {
 
 export const Breadcrumb = ({ items }: BreadcrumbProps) => {
   return (
-    <nav aria-label="Fil d'Ariane" className="bg-muted/30 py-3 px-4">
+    <nav aria-label="Fil d'Ariane" className="bg-muted/30 py-3 px-4 sticky top-20 z-40 backdrop-blur-sm border-b border-border/50">
         <div className="container mx-auto">
           <ol className="flex items-center gap-2 text-sm flex-wrap">
             {items.map((item, index) => (
