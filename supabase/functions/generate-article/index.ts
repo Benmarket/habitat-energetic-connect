@@ -175,7 +175,7 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
     // ══════════════════════════════════════════
     if (mode === 'article') {
       const {
-        product, theme, objective, keywords, freePrompt, targetRegions,
+        product, subject, theme, objective, keywords, freePrompt, targetRegions,
         contentType, customInstructions, guideTemplate,
         selectedAngle
       } = body;
