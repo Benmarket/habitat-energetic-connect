@@ -70,7 +70,7 @@ const ArticleDetail = () => {
   const [contentWithIds, setContentWithIds] = useState("");
   const [toc, setToc] = useState<Array<{ id: string; text: string; level: number }>>([]);
   const [readingTime, setReadingTime] = useState(0);
-  const [authorInfo, setAuthorInfo] = useState<{ name: string; bio?: string | null; avatar?: string | null } | null>(null);
+  const [authorInfo, setAuthorInfo] = useState<{ name: string; bio?: string | null; avatar?: string | null; jobTitle?: string | null } | null>(null);
 
   useEffect(() => {
     fetchArticle();
@@ -96,12 +96,12 @@ const ArticleDetail = () => {
         // Fetch registered author
         const { data: author } = await supabase
           .from("authors")
-          .select("name, bio, avatar_url")
+          .select("name, bio, avatar_url, job_title")
           .eq("id", articleData.display_author_id)
           .maybeSingle();
         
         if (author) {
-          setAuthorInfo({ name: author.name, bio: author.bio, avatar: author.avatar_url });
+          setAuthorInfo({ name: author.name, bio: author.bio, avatar: author.avatar_url, jobTitle: author.job_title });
         }
       }
     } catch (error) {
@@ -274,7 +274,9 @@ const ArticleDetail = () => {
     ? {
         "@type": "Person",
         name: authorInfo.name,
+        ...(authorInfo.jobTitle ? { jobTitle: authorInfo.jobTitle } : {}),
         ...(authorInfo.bio ? { description: authorInfo.bio } : {}),
+        ...(authorInfo.avatar ? { image: authorInfo.avatar } : {}),
         url: "https://prime-energies.fr"
       }
     : {
@@ -508,17 +510,20 @@ const ArticleDetail = () => {
                         <img
                           src={authorInfo.avatar}
                           alt={authorInfo.name}
-                          className="w-12 h-12 rounded-full object-cover ring-2 ring-primary/20"
+                          className="w-12 h-12 rounded-full object-cover ring-2 ring-primary/20 flex-shrink-0"
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                           <User className="w-6 h-6 text-primary" />
                         </div>
                       )}
-                      <div>
+                      <div className="min-w-0">
                         <p className="font-semibold text-foreground">{authorInfo.name}</p>
+                        {authorInfo.jobTitle && (
+                          <p className="text-sm text-primary/80 font-medium">{authorInfo.jobTitle}</p>
+                        )}
                         {authorInfo.bio && (
-                          <p className="text-sm text-muted-foreground line-clamp-1">{authorInfo.bio}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{authorInfo.bio}</p>
                         )}
                       </div>
                     </div>

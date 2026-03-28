@@ -14,6 +14,7 @@ interface Author {
   name: string;
   bio: string | null;
   avatar_url: string | null;
+  job_title: string | null;
 }
 
 interface AuthorSelectModalProps {
@@ -24,6 +25,7 @@ interface AuthorSelectModalProps {
 
 export const AuthorSelectModal = ({ open, onOpenChange, onAuthorCreated }: AuthorSelectModalProps) => {
   const [name, setName] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -45,6 +47,7 @@ export const AuthorSelectModal = ({ open, onOpenChange, onAuthorCreated }: Autho
         .from("authors")
         .insert({
           name: name.trim(),
+          job_title: jobTitle.trim() || null,
           bio: bio.trim() || null,
           avatar_url: avatarUrl.trim() || null,
           created_by: userData.user?.id
@@ -60,6 +63,7 @@ export const AuthorSelectModal = ({ open, onOpenChange, onAuthorCreated }: Autho
       
       // Reset form
       setName("");
+      setJobTitle("");
       setBio("");
       setAvatarUrl("");
     } catch (error: any) {
@@ -94,6 +98,20 @@ export const AuthorSelectModal = ({ open, onOpenChange, onAuthorCreated }: Autho
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="author-job">Poste / Titre (optionnel)</Label>
+              <Input
+                id="author-job"
+                value={jobTitle}
+                onChange={(e) => setJobTitle(e.target.value)}
+                placeholder="Ex: Rédacteur énergies renouvelables, Expert thermique..."
+                maxLength={120}
+              />
+              <p className="text-xs text-muted-foreground">
+                Affiché sous le nom dans l'article.
+              </p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="author-bio">Bio / Expertise (optionnel)</Label>
               <Textarea
                 id="author-bio"
@@ -103,9 +121,6 @@ export const AuthorSelectModal = ({ open, onOpenChange, onAuthorCreated }: Autho
                 rows={3}
                 maxLength={500}
               />
-              <p className="text-xs text-muted-foreground">
-                La bio améliore le SEO et donne de la crédibilité à l'article.
-              </p>
             </div>
 
             <div className="space-y-2">
@@ -125,14 +140,19 @@ export const AuthorSelectModal = ({ open, onOpenChange, onAuthorCreated }: Autho
                   Choisir
                 </Button>
               </div>
-              {avatarUrl && (
-                <div className="flex items-center gap-3 mt-2">
-                  <img
-                    src={avatarUrl}
-                    alt="Aperçu avatar"
-                    className="w-12 h-12 rounded-full object-cover border"
-                  />
-                  <span className="text-sm text-muted-foreground">Aperçu</span>
+              {(avatarUrl || name) && (
+                <div className="flex items-center gap-3 mt-3 p-3 rounded-lg bg-muted/50 border">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Aperçu" className="w-11 h-11 rounded-full object-cover ring-2 ring-primary/20" />
+                  ) : (
+                    <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="w-5 h-5 text-primary" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="font-semibold text-sm text-foreground truncate">{name || "Nom de l'auteur"}</p>
+                    {jobTitle && <p className="text-xs text-muted-foreground truncate">{jobTitle}</p>}
+                  </div>
                 </div>
               )}
             </div>

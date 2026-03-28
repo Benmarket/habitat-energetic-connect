@@ -1,0 +1,1 @@
+ALTER TABLE public.authors ADD COLUMN IF NOT EXISTS job_title text DEFAULT NULL;
