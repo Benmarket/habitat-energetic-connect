@@ -25,6 +25,9 @@ export function useArticleGeneration(
   const [angles, setAngles] = useState<EditorialAngle[] | null>(null);
   const [loadingArticle, setLoadingArticle] = useState(false);
   const [generatedArticle, setGeneratedArticle] = useState<any | null>(null);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [loadingReview, setLoadingReview] = useState(false);
+  const [articleReview, setArticleReview] = useState<ArticleReview | null>(null);
 
   const getAccessToken = async () => {
     const { data } = await supabase.auth.getSession();
