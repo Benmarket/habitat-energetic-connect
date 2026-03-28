@@ -147,7 +147,7 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
           temperature: 0.9,
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: `Propose 5 angles éditoriaux pour: ${product} — ${theme} (objectif: ${objectiveLabels[objective] || objective})` }
+            { role: 'user', content: `Propose 5 angles éditoriaux pour le produit "${product}"${subject ? ` sur le sujet "${subject}"` : ''} — thème: ${theme} (objectif: ${objectiveLabels[objective] || objective})` }
           ]
         })
       });
