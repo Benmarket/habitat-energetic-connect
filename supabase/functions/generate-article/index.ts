@@ -177,7 +177,7 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
       const {
         product, subject, theme, objective, keywords, freePrompt, targetRegions,
         contentType, customInstructions, guideTemplate,
-        selectedAngle
+        selectedAngle, availableCategories, availableTags
       } = body;
 
       if (!selectedAngle) throw new Error('Angle sélectionné requis');
