@@ -247,7 +247,7 @@ export const ArticleGenerationWizard = ({
 
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
-                  <Lightbulb className="w-4 h-4 text-primary" />
+                  <FileText className="w-4 h-4 text-primary" />
                   Thème de l'article <span className="text-destructive">*</span>
                 </Label>
                 <Select value={input.theme} onValueChange={v => setInput(prev => ({ ...prev, theme: v }))}>
