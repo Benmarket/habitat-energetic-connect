@@ -86,11 +86,18 @@ const CreatePost = () => {
                   {editId ? "Éditer" : "Créer"} un{" "}
                   {contentTypeLabels[contentType as keyof typeof contentTypeLabels]}
                 </CardTitle>
-                <Button type="button" variant="outline" size="sm"
-                  onClick={() => setPreviewModalOpen(true)}
-                  disabled={!formData.title || !formData.content} className="gap-2">
-                  Prévisualisation live
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button type="button" variant="outline" size="sm"
+                    onClick={openReviewModal}
+                    disabled={!formData.title || !formData.content} className="gap-2 text-yellow-600 border-yellow-300 hover:bg-yellow-50">
+                    ⭐ Relecture IA
+                  </Button>
+                  <Button type="button" variant="outline" size="sm"
+                    onClick={() => setPreviewModalOpen(true)}
+                    disabled={!formData.title || !formData.content} className="gap-2">
+                    Prévisualisation live
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <form className="space-y-6">
