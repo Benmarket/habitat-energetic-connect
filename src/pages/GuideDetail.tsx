@@ -37,12 +37,18 @@ interface Guide {
   status: string;
   tldr: string | null;
   faq: Array<{ question: string; answer: string }> | null;
+  focus_keywords: string[] | null;
   is_members_only: boolean;
   guide_template: string | null;
   is_downloadable: boolean;
   topline: string | null;
   topline_bg_color: string | null;
   topline_text_color: string | null;
+  hide_author: boolean;
+  author_display_type: string | null;
+  display_author_id: string | null;
+  custom_author_name: string | null;
+  author_id: string;
   post_categories: {
     categories: {
       id: string;
