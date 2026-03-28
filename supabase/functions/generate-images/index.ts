@@ -75,14 +75,14 @@ serve(async (req) => {
               'Authorization': `Bearer ${LOVABLE_API_KEY}`,
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              model: 'google/gemini-2.5-flash-image',
-              messages: [{
-                role: 'user',
-                content: `Crée une image professionnelle et attrayante pour un article sur les énergies renouvelables avec cette description : ${description}. Style moderne, lumineux et engageant.`
-              }],
-              modalities: ['image', 'text']
-            })
+              body: JSON.stringify({
+                model: 'google/gemini-2.5-flash-image',
+                messages: [{
+                  role: 'user',
+                  content: `Génère une image professionnelle, haute qualité, photo réaliste. Description exacte à suivre : ${description}. Style : moderne, lumineux, engageant, adapté à un article web. Ne rajoute AUCUN élément qui ne correspond pas à la description.`
+                }],
+                modalities: ['image', 'text']
+              })
           });
 
           if (!response.ok) {
