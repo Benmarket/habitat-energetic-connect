@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { parseContentToSections, CreatePostFormData, generateSlug } from "./useCreatePost";
 import { GenerationInput, EditorialAngle } from "@/components/ArticleGenerationWizard";
 import type { ArticleReview } from "@/components/ArticleReviewModal";
-import { GenerationInput, EditorialAngle } from "@/components/ArticleGenerationWizard";
 
 interface ArticleGenerationOptions {
   categories?: Array<{ id: string; name: string; slug: string }>;
