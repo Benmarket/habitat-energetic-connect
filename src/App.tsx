@@ -139,6 +139,7 @@ const App = () => (
                   <Route path="/admin/pages-ancres" element={<AdminPagesAnchors />} />
                   <Route path="/admin/simulateurs" element={<AdminSimulators />} />
                   <Route path="/admin/app" element={<AdminApp />} />
+                  <Route path="/admin/auteurs" element={<AdminAuthors />} />
 
                   {/* Utility pages - lazy loaded */}
                   <Route path="/installer-app" element={<InstallApp />} />
