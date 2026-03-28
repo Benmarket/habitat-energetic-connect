@@ -47,6 +47,7 @@ export const AuthorSelectModal = ({ open, onOpenChange, onAuthorCreated }: Autho
         .from("authors")
         .insert({
           name: name.trim(),
+          job_title: jobTitle.trim() || null,
           bio: bio.trim() || null,
           avatar_url: avatarUrl.trim() || null,
           created_by: userData.user?.id
