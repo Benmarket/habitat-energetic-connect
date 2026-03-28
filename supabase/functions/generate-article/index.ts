@@ -122,7 +122,12 @@ RÈGLES:
 - 5 angles RADICALEMENT DIFFÉRENTS
 - Chaque angle doit servir l'objectif "${objectiveLabels[objective] || objective}"
 - Penser conversion et leads
-- Varier les formats: guide, comparatif, erreurs à éviter, simulation, question directe, étude de cas, découverte…
+${contentType === 'actualite' ? `- C'est une ACTUALITÉ (news), PAS un guide. Ne propose JAMAIS d'angle "Guide pratique". Les angles doivent être journalistiques, informatifs, viraux.
+- Varier: décryptage, analyse, tendance, alerte, révélation, comparatif, question directe, témoignage, chiffres clés` : ''}
+${contentType === 'guide' ? `- C'est un GUIDE PRATIQUE. Les angles doivent être pédagogiques, actionnables, exhaustifs.
+- Varier: guide pas-à-pas, checklist, dossier expert, simulation, erreurs à éviter, comparatif technique` : ''}
+${contentType === 'aide' ? `- C'est un article sur les AIDES/SUBVENTIONS. Les angles doivent être informatifs, concrets, orientés démarches.
+- Varier: décryptage, simulation, éligibilité, comparatif aides, étude de cas, erreurs à éviter, checklist` : ''}
 
 RETOURNE un JSON VALIDE (sans markdown ni backticks) :
 [
@@ -130,7 +135,9 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
   ...
 ]
 
-Types possibles: Découverte, Guide pratique, Erreur à éviter, Comparatif, Simulation concrète, Question directe, Étude de cas, Checklist, Dossier expert`;
+${contentType === 'actualite' ? 'Types possibles: Décryptage, Analyse, Tendance, Alerte, Révélation, Comparatif, Question directe, Témoignage, Chiffres clés, Dossier' : ''}
+${contentType === 'guide' ? 'Types possibles: Guide pas-à-pas, Checklist, Dossier expert, Simulation concrète, Erreur à éviter, Comparatif technique, Tutoriel, FAQ complète' : ''}
+${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibilité, Comparatif aides, Étude de cas, Erreur à éviter, Checklist démarches, Dossier expert' : ''}`;
 
       const response = await fetch(apiUrl, {
         method: 'POST',
