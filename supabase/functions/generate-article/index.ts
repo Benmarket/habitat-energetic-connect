@@ -255,6 +255,8 @@ OBJECTIF: ${objectiveLabels[objective] || objective}
 ANGLE ÉDITORIAL: [${selectedAngle.type}] ${selectedAngle.title}
 INTENTION: ${selectedAngle.intention}
 ${keywords?.length > 0 ? `MOTS-CLÉS: ${keywords.join(', ')}` : ''}
+${targetRegions?.length > 0 ? `RÉGIONS CIBLES: ${targetRegions.join(', ')}
+IMPORTANT: Adapte le contenu aux spécificités de ces régions (aides locales, climat, réglementations, exemples locaux). Mentionne les régions naturellement dans le texte pour le SEO géographique.${targetRegions.includes('corse') || targetRegions.includes('reunion') || targetRegions.includes('martinique') || targetRegions.includes('guadeloupe') || targetRegions.includes('guyane') ? ' Inclus les spécificités DOM-TOM si applicable (MaPrimeRénov Outre-mer, conditions climatiques tropicales, etc.).' : ''}` : ''}
 ${guideBlock}
 ${customInstructions ? `INSTRUCTIONS: ${customInstructions}` : ''}
 ${freePrompt ? `CONTRAINTES: ${freePrompt}` : ''}
