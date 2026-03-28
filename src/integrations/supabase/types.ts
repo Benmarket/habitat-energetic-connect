@@ -1472,6 +1472,7 @@ export type Database = {
           source: string | null
           status: Database["public"]["Enums"]["post_status"]
           target_audience: string[] | null
+          target_regions: string[] | null
           template_colors: Json | null
           title: string
           tldr: string | null
@@ -1507,6 +1508,7 @@ export type Database = {
           source?: string | null
           status?: Database["public"]["Enums"]["post_status"]
           target_audience?: string[] | null
+          target_regions?: string[] | null
           template_colors?: Json | null
           title: string
           tldr?: string | null
@@ -1542,6 +1544,7 @@ export type Database = {
           source?: string | null
           status?: Database["public"]["Enums"]["post_status"]
           target_audience?: string[] | null
+          target_regions?: string[] | null
           template_colors?: Json | null
           title?: string
           tldr?: string | null
@@ -1592,6 +1595,39 @@ export type Database = {
           id?: string
           last_name?: string | null
           phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      regions: {
+        Row: {
+          code: string
+          created_at: string
+          display_order: number
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
           updated_at?: string
         }
         Relationships: []
