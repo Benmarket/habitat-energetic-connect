@@ -48,42 +48,32 @@ serve(async (req) => {
     const userId = claimsData.claims.sub;
     if (!userId) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Non autorisé - Utilisateur non identifié' }),
+        JSON.stringify({ success: false, error: 'Non autorisé' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
-    
+
     const { data: canProceed } = await supabaseAdmin
-      .rpc('check_ai_rate_limit', { 
-        p_user_id: userId, 
-        p_endpoint: 'generate-article',
-        p_max_per_hour: 10 
-      });
-    
+      .rpc('check_ai_rate_limit', { p_user_id: userId, p_endpoint: 'generate-article', p_max_per_hour: 20 });
+
     if (canProceed === false) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Limite atteinte : 10 générations maximum par heure.' }),
+        JSON.stringify({ success: false, error: 'Limite atteinte : 20 générations maximum par heure.' }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-    
+
     await supabaseAdmin.rpc('record_ai_call', { p_user_id: userId, p_endpoint: 'generate-article' });
 
-    const { 
-      keywords, contentType, baseContent, additionalInstructions, 
-      customInstructions, guideTemplate
-    } = await req.json();
-    
-    if (!keywords || keywords.length === 0) {
-      throw new Error('Au moins un mot-clé est requis');
-    }
+    const body = await req.json();
+    const { mode } = body;
 
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not configured');
 
-    // Fetch settings
+    // Fetch AI settings
     const settingsResponse = await fetch(`${supabaseUrl}/rest/v1/site_settings?select=*&key=in.(ai_generation_api_url,ai_generation_model,ai_generation_enabled)`, {
       headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
     });
@@ -91,263 +81,266 @@ serve(async (req) => {
     const apiUrl = settings.find((s: any) => s.key === 'ai_generation_api_url')?.value || "https://api.openai.com/v1/chat/completions";
     const model = settings.find((s: any) => s.key === 'ai_generation_model')?.value || "gpt-4o-mini";
     const enabled = settings.find((s: any) => s.key === 'ai_generation_enabled')?.value ?? true;
-    if (!enabled) throw new Error('La génération d\'articles par IA est désactivée');
+    if (!enabled) throw new Error('La génération IA est désactivée');
 
-    // Fetch user's button presets, CTA banners, and active popups
-    let buttonPresets: any[] = [];
-    let ctaBanners: any[] = [];
-    let activePopups: any[] = [];
+    // ══════════════════════════════════════════
+    // MODE: ANGLES — Propose 5 editorial angles
+    // ══════════════════════════════════════════
+    if (mode === 'angles') {
+      const { product, theme, objective, keywords, freePrompt, contentType, customInstructions } = body;
 
-    if (userId) {
-      const [buttonsRes, bannersRes, popupsRes] = await Promise.all([
-        fetch(`${supabaseUrl}/rest/v1/button_presets?select=id,name,text,url,background_color,text_color,size,width,custom_width,align,border_radius,padding_x,padding_y,border_width,border_color,border_style,shadow_size,hover_effect,use_gradient,gradient_type,gradient_color1,gradient_color2,gradient_angle,hover_gradient_shift&user_id=eq.${userId}`, {
-          headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
-        }),
-        fetch(`${supabaseUrl}/rest/v1/cta_banners?select=id,name,template_style,title,subtitle,background_color,secondary_color,text_color,accent_color&user_id=eq.${userId}`, {
-          headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
-        }),
-        fetch(`${supabaseUrl}/rest/v1/popups?select=id,name,trigger_id,template,title,form_id&is_active=eq.true&order=created_at.desc&limit=5`, {
-          headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
-        })
-      ]);
-      
-      buttonPresets = await buttonsRes.json();
-      ctaBanners = await bannersRes.json();
-      const popupsData = await popupsRes.json();
-      activePopups = Array.isArray(popupsData) ? popupsData : [];
-    }
+      if (!product || !theme || !objective) throw new Error('Produit, thème et objectif sont obligatoires');
 
-    // Prefer popups with forms (lead capture), then any active popup
-    const popupWithForm = activePopups.find((p: any) => p.form_id);
-    const defaultPopupId = popupWithForm?.id || (activePopups.length > 0 ? activePopups[0].id : '');
-
-    function createCtaInstructions(variantIndex: number): string {
-      let instructions = '';
-      
-      const shuffledButtons = shuffleArray([...buttonPresets]);
-      const buttonsForVariant = shuffledButtons.slice(0, Math.min(4, shuffledButtons.length));
-      const shuffledBanners = shuffleArray([...ctaBanners]);
-      const bannersForVariant = shuffledBanners.slice(0, Math.min(2, shuffledBanners.length));
-      
-      if (buttonsForVariant.length > 0) {
-        instructions += `\n\n=== BOUTONS CTA OBLIGATOIRES (VARIANTE ${variantIndex + 1}) ===
-Tu DOIS utiliser AU MOINS 2-3 de ces boutons différents :
-${buttonsForVariant.map((btn: any, i: number) => `BOUTON ${i + 1}: Texte="${btn.text}" | URL="${btn.url}" | Nom="${btn.name}"`).join('\n')}
-
-FORMAT: [BUTTON:${buttonsForVariant[0]?.text}|${buttonsForVariant[0]?.url}]
-⚠️ Utilise les boutons EXACTEMENT comme listés, avec texte et URL exacts ! Varie les boutons !`;
-      } else {
-        instructions += `\n\n=== BOUTONS CTA ===
-Utilise le format [BUTTON:Demander un devis gratuit|#contact] pour créer des boutons.`;
-      }
-
-      if (bannersForVariant.length > 0) {
-        instructions += `\n\n=== BANNIÈRES CTA OBLIGATOIRES (VARIANTE ${variantIndex + 1}) ===
-Tu DOIS insérer AU MOINS 1 bannière :
-${bannersForVariant.map((b: any, i: number) => `BANNIÈRE ${i + 1}: ID="${b.id}" | Titre="${b.title}"`).join('\n')}
-
-FORMAT: [CTA_BANNER:${bannersForVariant[0]?.id}]
-⚠️ Place la bannière au 2/3 de l'article, entre 2 sections !`;
-      }
-      
-      return instructions;
-    }
-
-    // Guide-specific instructions
-    let themeInstructions = '';
-    let guideStructureInstructions = '';
-    
-    if (contentType === 'guide' && guideTemplate) {
-      const themeDescriptions: Record<string, string> = {
-        classique: "Style classique et professionnel, sobre et élégant",
-        premium: "Style premium haut de gamme avec effets visuels modernes",
-        expert: "Style technique et expert, données précises, ton professionnel",
-        epure: "Style épuré et minimaliste, focus sur le contenu",
-        vibrant: "Style dynamique et coloré, ton enthousiaste, engageant",
-        sombre: "Style sombre et moderne, sophistiqué, effets subtils"
+      const objectiveLabels: Record<string, string> = {
+        lead: 'génération de leads',
+        reassure: 'rassurer le prospect',
+        educate: 'éduquer et informer',
+        prequalify: 'pré-qualification des prospects',
+        convert: 'conversion directe',
       };
-      
-      themeInstructions = `\n\nTHÈME DU GUIDE: ${guideTemplate.toUpperCase()}
-${themeDescriptions[guideTemplate] || ''}
-Adapte le ton et le style d'écriture à ce thème.`;
 
-      guideStructureInstructions = `
+      const contentTypeLabels: Record<string, string> = {
+        actualite: "actualité",
+        guide: "guide pratique",
+        aide: "article sur les aides/subventions"
+      };
 
-STRUCTURE GUIDE:
-Le guide DOIT être structuré en 5-8 sections avec <h2 id="slug-titre">Titre</h2>.
-Chaque section = titre + contenu riche + conseils actionnables.
-Le guide doit être autonome : un lecteur doit pouvoir agir après lecture.`;
+      const systemPrompt = `Tu es un stratège éditorial SEO expert en ${contentTypeLabels[contentType] || 'articles'} pour le secteur des énergies renouvelables et aides gouvernementales françaises.
+
+Tu dois proposer EXACTEMENT 5 angles éditoriaux DIFFÉRENTS et STRATÉGIQUES pour un article.
+
+CONTEXTE:
+- Produit: ${product}
+- Thème: ${theme}
+- Objectif: ${objectiveLabels[objective] || objective}
+- Type: ${contentTypeLabels[contentType] || 'article'}
+${keywords?.length > 0 ? `- Mots-clés SEO: ${keywords.join(', ')}` : ''}
+${freePrompt ? `- Contraintes: ${freePrompt}` : ''}
+${customInstructions ? `- Instructions: ${customInstructions}` : ''}
+
+RÈGLES:
+- 5 angles RADICALEMENT DIFFÉRENTS
+- Chaque angle doit servir l'objectif "${objectiveLabels[objective] || objective}"
+- Penser conversion et leads
+- Varier les formats: guide, comparatif, erreurs à éviter, simulation, question directe, étude de cas, découverte…
+
+RETOURNE un JSON VALIDE (sans markdown ni backticks) :
+[
+  { "id": 1, "type": "TYPE_ANGLE", "title": "Titre proposé pour l'article", "intention": "Description courte de l'approche et pourquoi elle convertit" },
+  ...
+]
+
+Types possibles: Découverte, Guide pratique, Erreur à éviter, Comparatif, Simulation concrète, Question directe, Étude de cas, Checklist, Dossier expert`;
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
+        body: JSON.stringify({
+          model,
+          max_tokens: 1500,
+          temperature: 0.9,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: `Propose 5 angles éditoriaux pour: ${product} — ${theme} (objectif: ${objectiveLabels[objective] || objective})` }
+          ]
+        })
+      });
+
+      if (!response.ok) throw new Error(`Erreur API: ${response.status}`);
+      const data = await response.json();
+      const raw = data.choices[0].message.content.trim().replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+
+      let angles;
+      try { angles = JSON.parse(raw); } catch { throw new Error('Format de réponse invalide'); }
+
+      return new Response(
+        JSON.stringify({ success: true, angles }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      );
     }
 
-    const contentTypeLabels: Record<string, string> = {
-      actualite: "actualité",
-      guide: "guide pratique détaillé",
-      aide: "article sur les aides et subventions"
-    };
+    // ══════════════════════════════════════════
+    // MODE: ARTICLE — Generate single article
+    // ══════════════════════════════════════════
+    if (mode === 'article') {
+      const {
+        product, theme, objective, keywords, freePrompt,
+        contentType, customInstructions, guideTemplate,
+        selectedAngle
+      } = body;
 
-    // ============================================================
-    // SYSTEM PROMPT - Structure stricte en 15 étapes
-    // ============================================================
-    const systemPrompt = `Tu es un rédacteur SEO expert spécialisé dans les énergies renouvelables et les aides gouvernementales françaises.
-Tu crées du contenu viral, complet et optimisé pour le SEO, le GEO et les recherches IA.
+      if (!selectedAngle) throw new Error('Angle sélectionné requis');
+
+      // Fetch CTA presets
+      let buttonPresets: any[] = [];
+      let ctaBanners: any[] = [];
+      let activePopups: any[] = [];
+
+      if (userId) {
+        const [buttonsRes, bannersRes, popupsRes] = await Promise.all([
+          fetch(`${supabaseUrl}/rest/v1/button_presets?select=*&user_id=eq.${userId}`, {
+            headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+          }),
+          fetch(`${supabaseUrl}/rest/v1/cta_banners?select=*&user_id=eq.${userId}`, {
+            headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+          }),
+          fetch(`${supabaseUrl}/rest/v1/popups?select=id,name,trigger_id,template,title,form_id&is_active=eq.true&order=created_at.desc&limit=5`, {
+            headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+          })
+        ]);
+
+        buttonPresets = await buttonsRes.json();
+        ctaBanners = await bannersRes.json();
+        const popupsData = await popupsRes.json();
+        activePopups = Array.isArray(popupsData) ? popupsData : [];
+      }
+
+      const popupWithForm = activePopups.find((p: any) => p.form_id);
+      const defaultPopupId = popupWithForm?.id || (activePopups.length > 0 ? activePopups[0].id : '');
+
+      // CTA instructions
+      let ctaInstructions = '';
+      const shuffledButtons = shuffleArray([...buttonPresets]);
+      const btns = shuffledButtons.slice(0, 3);
+      if (btns.length > 0) {
+        ctaInstructions += `\n\nBOUTONS CTA:
+${btns.map((b: any, i: number) => `${i + 1}. "${b.text}" → ${b.url}`).join('\n')}
+FORMAT: [BUTTON:Texte|URL]`;
+      } else {
+        ctaInstructions += `\nBOUTONS CTA: [BUTTON:Demander un devis gratuit|#contact]`;
+      }
+
+      const shuffledBanners = shuffleArray([...ctaBanners]);
+      const bnrs = shuffledBanners.slice(0, 2);
+      if (bnrs.length > 0) {
+        ctaInstructions += `\n\nBANNIÈRES CTA:
+${bnrs.map((b: any) => `ID="${b.id}" Titre="${b.title}"`).join('\n')}
+FORMAT: [CTA_BANNER:ID]`;
+      }
+
+      // Guide-specific
+      let guideBlock = '';
+      if (contentType === 'guide' && guideTemplate) {
+        const themes: Record<string, string> = {
+          classique: "professionnel et sobre", premium: "haut de gamme", expert: "technique et précis",
+          epure: "minimaliste", vibrant: "dynamique et coloré", sombre: "moderne et sombre"
+        };
+        guideBlock = `\nSTYLE: ${themes[guideTemplate] || guideTemplate}\nSTRUCTURE: 5-8 sections <h2 id="slug">Titre</h2>. Guide autonome et actionnable.`;
+      }
+
+      const objectiveLabels: Record<string, string> = {
+        lead: 'génération de leads', reassure: 'rassurer', educate: 'éduquer',
+        prequalify: 'pré-qualifier', convert: 'convertir',
+      };
+
+      const contentTypeLabels: Record<string, string> = {
+        actualite: "actualité", guide: "guide pratique détaillé", aide: "article aides/subventions"
+      };
+
+      const systemPrompt = `Tu es un rédacteur SEO expert spécialisé énergies renouvelables et aides françaises.
+Tu rédiges UN SEUL article optimisé lead/conversion.
 
 TYPE: ${contentTypeLabels[contentType] || 'article'}
-
-${contentType === 'guide' ? `GUIDE PRATIQUE: exhaustif, actionnable, 5-8 sections, tableaux/checklists, 1800-2500 mots.` : ''}
-${contentType === 'aide' ? `AIDES/SUBVENTIONS: montants exacts, conditions, plafonds, textes officiels, exemples chiffrés, démarches étape par étape.` : ''}
-
-═══════════════════════════════════════════
-STRUCTURE EN 15 ÉTAPES (SUIS CET ORDRE EXACT)
-═══════════════════════════════════════════
-
-ÉTAPE 1 ▸ TITRE H1
-<h1>Titre accrocheur SEO (60-70 caractères)</h1>
-
-ÉTAPE 2 ▸ IMAGE HÉRO (immédiatement après H1)
-[IMAGE: Photo professionnelle vue LARGE et PANORAMIQUE montrant {le sujet dans son contexte global}. Style éditorial magazine, lumière naturelle, haute résolution. Scène réaliste et inspirante.]
-
-ÉTAPE 3 ▸ BLOC RÉSUMÉ TL;DR
-<div class="summary-box" style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 1.5rem; margin: 2rem 0;">
-  <h2 style="margin-top: 0; color: #0284c7; font-size: 1.25rem;">📌 En résumé</h2>
-  <ul><li><strong>Point 1</strong>: ...</li><li><strong>Point 2</strong>: ...</li><li><strong>Point 3</strong>: ...</li><li><strong>Point 4</strong>: ...</li></ul>
-</div>
-
-ÉTAPE 4 ▸ INTRODUCTION (150-200 mots)
-<p>Accroche + contexte + promesse de valeur</p>
-
-ÉTAPE 5 ▸ SECTION H2 #1 (200-300 mots)
-<h2>Premier thème majeur avec mot-clé</h2>
-<p>Développement avec données chiffrées et sources</p>
-<ul><li>Points importants</li></ul>
-
-ÉTAPE 6 ▸ BOUTON CTA #1
-[BUTTON:Texte|URL]
-
-ÉTAPE 7 ▸ SECTION H2 #2 (200-300 mots)
-<h2>Deuxième thème avec listes et exemples</h2>
-
-ÉTAPE 8 ▸ IMAGE COMPLÉMENTAIRE (TRÈS DIFFÉRENTE du héro)
-[IMAGE: GROS PLAN technique ou INFOGRAPHIE détaillée montrant {un aspect spécifique et technique du sujet}. Schéma explicatif, détail d'équipement ou graphique de données. Style professionnel et informatif.]
-
-ÉTAPE 9 ▸ SECTION H2 #3 (200+ mots)
-
-ÉTAPE 10 ▸ BANNIÈRE CTA
-[CTA_BANNER:ID]
-
-ÉTAPE 11 ▸ SECTIONS SUPPLÉMENTAIRES (1-2 H2)
-
-ÉTAPE 12 ▸ FAQ (3-5 questions)
-<h2>Questions fréquentes</h2>
-<div class="faq-item"><h3>Question ?</h3><p>Réponse détaillée.</p></div>
-
-ÉTAPE 13 ▸ SOURCES
-<h2>Sources et références</h2>
-<ul class="sources-list"><li><strong>Organisme</strong> - Document, année</li></ul>
-
-ÉTAPE 14 ▸ BOUTON CTA FINAL
-[BUTTON:Texte final|URL]
-
-ÉTAPE 15 ▸ CONCLUSION (100-150 mots)
+PRODUIT: ${product}
+THÈME: ${theme}
+OBJECTIF: ${objectiveLabels[objective] || objective}
+ANGLE ÉDITORIAL: [${selectedAngle.type}] ${selectedAngle.title}
+INTENTION: ${selectedAngle.intention}
+${keywords?.length > 0 ? `MOTS-CLÉS: ${keywords.join(', ')}` : ''}
+${guideBlock}
+${customInstructions ? `INSTRUCTIONS: ${customInstructions}` : ''}
+${freePrompt ? `CONTRAINTES: ${freePrompt}` : ''}
 
 ═══════════════════════════════════════════
-RÈGLES IMAGES (CRITIQUE)
+STRUCTURE OBLIGATOIRE (suivre cet ordre)
 ═══════════════════════════════════════════
-• EXACTEMENT 2 placeholders [IMAGE: ...]
-• Image 1 = VUE LARGE panoramique (ex: maison avec installation vue de loin, paysage avec éoliennes)
-• Image 2 = GROS PLAN technique (ex: détail d'un panneau, schéma de fonctionnement, graphique)
-• Les 2 descriptions doivent être RADICALEMENT DIFFÉRENTES
-• Chaque description: 25-40 mots minimum
-• Ne JAMAIS utiliser la même perspective pour les 2 images
 
-FORMATAGE: HTML pur uniquement. <p>, <ul>/<ol>, <h2>/<h3>. Jamais de markdown ni de \`\`\`.
-${themeInstructions}
-${guideStructureInstructions}
+1. <h1>Titre (basé sur l'angle choisi)</h1>
 
-LONGUEUR: ${contentType === 'guide' ? 'Min 1800 mots' : 'Min 1200 mots'}.
+2. [IMAGE: Vue LARGE panoramique du sujet, 30+ mots descriptifs, style magazine]
 
-Retourne UNIQUEMENT le HTML pur sans aucune explication.`;
+3. <div class="summary-box" style="background:#f0f9ff;border-left:4px solid #0284c7;padding:1.5rem;margin:2rem 0;">
+   <h2 style="margin-top:0;color:#0284c7;font-size:1.25rem;">📌 En résumé</h2>
+   <ul><li>4-5 points clés</li></ul>
+   </div>
 
-    let finalSystemPrompt = systemPrompt;
-    if (customInstructions?.trim()) {
-      finalSystemPrompt += `\n\nINSTRUCTIONS PERSONNALISÉES :\n${customInstructions}`;
-    }
+4. Introduction (150-200 mots) — Accroche + problème + promesse
 
-    const keywordsText = keywords.join(', ');
-    
-    let userPrompt = `Crée un ${contentTypeLabels[contentType] || 'article'} COMPLET sur : ${keywordsText}.
+5. <h2>Section 1</h2> — Problème/contexte (200-300 mots, données chiffrées)
 
-MOTS-CLÉS: ${keywordsText}
+6. [BUTTON:CTA] — Premier call-to-action
 
-CHECKLIST OBLIGATOIRE:
-☐ H1 titre accrocheur
-☐ [IMAGE: vue large panoramique - 25+ mots de description]
-☐ Bloc TL;DR summary-box avec 4 points
-☐ Introduction 150-200 mots
-☐ Section H2 #1 avec données chiffrées
-☐ [BUTTON:CTA] après section 1
-☐ Section H2 #2
-☐ [IMAGE: gros plan technique DIFFÉRENT - 25+ mots de description]
-☐ Section H2 #3
-☐ [CTA_BANNER:ID] si fourni
-☐ 1-2 sections H2 supplémentaires
-☐ FAQ 3-5 questions (div class="faq-item")
-☐ Sources officielles
-☐ [BUTTON:CTA final]
-☐ Conclusion
+7. <h2>Section 2</h2> — Développement valeur (200-300 mots)
 
-⚠️ Les 2 images DOIVENT avoir des descriptions TRÈS DIFFÉRENTES.
-⚠️ HTML pur uniquement.`;
+8. [IMAGE: GROS PLAN technique ou infographie, TRÈS DIFFÉRENT de l'image 1, 30+ mots]
 
-    if (additionalInstructions) {
-      userPrompt += `\n\nINSTRUCTIONS ADDITIONNELLES:\n${additionalInstructions}`;
-      if (baseContent) {
-        userPrompt += `\n\nCONTENU DE BASE À AMÉLIORER:\n${baseContent.substring(0, 2000)}...`;
-      }
-    }
+9. <h2>Section 3</h2> — Projection utilisateur (200+ mots)
 
-    let variants;
-    if (additionalInstructions) {
-      const ctaForRegen = createCtaInstructions(0);
-      const regeneratedContent = await generateVariant(apiUrl, model, OPENAI_API_KEY, finalSystemPrompt, userPrompt + ctaForRegen);
-      variants = [regeneratedContent];
-    } else {
-      const cta1 = createCtaInstructions(0);
-      const cta2 = createCtaInstructions(1);
-      
-      variants = await Promise.all([
-        generateVariant(apiUrl, model, OPENAI_API_KEY, finalSystemPrompt, 
-          userPrompt + cta1 + "\n\nVARIANTE 1 : Ton pédagogique, accessible, exemples concrets et bénéfices chiffrés."
-        ),
-        generateVariant(apiUrl, model, OPENAI_API_KEY, finalSystemPrompt, 
-          userPrompt + cta2 + "\n\nVARIANTE 2 : Ton technique et expert, données précises, arguments d'autorité."
-        )
-      ]);
-    }
+10. [CTA_BANNER:ID] — Bannière lead capture
 
-    return new Response(
-      JSON.stringify({ 
-        success: true,
-        variants: variants.map((content, index) => {
-          const cleanContent = cleanHtml(content, ctaBanners, buttonPresets, defaultPopupId);
-          const extractedFaq = extractFaq(cleanContent);
-          const extractedTldr = extractTldr(cleanContent);
-          
-          return {
-            id: index + 1,
-            title: extractTitle(cleanContent),
-            content: cleanContent,
-            excerpt: generateExcerpt(cleanContent),
-            metaTitle: extractMetaTitle(cleanContent, keywords),
-            metaDescription: extractMetaDescription(cleanContent),
-            focusKeywords: keywords,
-            tldr: extractedTldr,
-            faq: extractedFaq,
-            featuredImageDescription: extractFirstImageDescription(cleanContent)
-          };
+11. <h2>Sections supplémentaires</h2> — 1-2 H2 additionnels
+
+12. <h2>Questions fréquentes</h2>
+    <div class="faq-item"><h3>Question ?</h3><p>Réponse.</p></div> (3-5 FAQ)
+
+13. <h2>Sources et références</h2> — Sources officielles
+
+14. [BUTTON:CTA final]
+
+15. Conclusion (100-150 mots) — Synthèse + passage à l'action
+
+═══════════════════════════════════════════
+RÈGLES
+═══════════════════════════════════════════
+• EXACTEMENT 2 [IMAGE: ...] différents (panoramique + technique)
+• HTML pur (<p>, <ul>, <h2>, <h3>). Jamais de markdown.
+• ${contentType === 'guide' ? '1800-2500 mots' : '1200-1800 mots'}
+• Style direct, impactant, zéro blabla
+• Chaque section sert l'objectif lead
+• Pas de paraphrase inutile
+${ctaInstructions}
+
+Retourne UNIQUEMENT le HTML.`;
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
+        body: JSON.stringify({
+          model, max_tokens: 8192,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: `Rédige l'article complet avec l'angle [${selectedAngle.type}]: "${selectedAngle.title}"` }
+          ]
         })
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-    );
+      });
+
+      if (!response.ok) throw new Error(`Erreur API: ${response.status}`);
+      const data = await response.json();
+      let content = data.choices[0].message.content;
+
+      // Clean & convert
+      content = cleanHtml(content, ctaBanners, buttonPresets, defaultPopupId);
+      const faq = extractFaq(content);
+      const tldr = extractTldr(content);
+
+      const article = {
+        title: extractTitle(content),
+        content,
+        excerpt: generateExcerpt(content),
+        metaTitle: extractMetaTitle(content),
+        metaDescription: extractMetaDescription(content),
+        focusKeywords: keywords || [],
+        tldr,
+        faq,
+      };
+
+      return new Response(
+        JSON.stringify({ success: true, article }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      );
+    }
+
+    throw new Error(`Mode inconnu: ${mode}. Utilisez "angles" ou "article".`);
 
   } catch (error) {
     console.error('Error in generate-article:', error);
@@ -358,274 +351,130 @@ CHECKLIST OBLIGATOIRE:
   }
 });
 
-async function generateVariant(apiUrl: string, model: string, apiKey: string, systemPrompt: string, userPrompt: string): Promise<string> {
-  const response = await fetch(apiUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-    body: JSON.stringify({
-      model,
-      max_tokens: 8192,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ]
-    })
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('OpenAI API error:', response.status, errorText);
-    throw new Error(`Erreur API OpenAI: ${response.status}`);
-  }
-
-  const data = await response.json();
-  return data.choices[0].message.content;
-}
+// ═══════════════════════════════════════
+// UTILITY FUNCTIONS
+// ═══════════════════════════════════════
 
 function cleanHtml(htmlContent: string, ctaBanners: any[], buttonPresets: any[], popupId: string): string {
   let cleaned = htmlContent
-    .replace(/```html\s*/gi, '')
-    .replace(/```\s*/g, '')
-    .trim();
-
-  cleaned = cleaned
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
+    .replace(/```html\s*/gi, '').replace(/```\s*/g, '').trim()
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
 
   cleaned = convertButtonsToCustomFormat(cleaned, buttonPresets);
   cleaned = convertCtaBannersToHtml(cleaned, ctaBanners, popupId);
   cleaned = centerImages(cleaned);
-
   return cleaned;
 }
 
-function convertButtonsToCustomFormat(htmlContent: string, buttonPresets: any[]): string {
-  const buttonRegex = /\[BUTTON:([^\|]+)\|([^\]]+)\]/g;
+function convertButtonsToCustomFormat(html: string, presets: any[]): string {
+  const regex = /\[BUTTON:([^\|]+)\|([^\]]+)\]/g;
+  const find = (text: string, url: string) => presets.find((b: any) => (b.text||'').trim() === text.trim() && (b.url||'').trim() === url.trim());
+  const toBool = (v: any, fb: boolean) => typeof v === 'boolean' ? v : fb;
+  const toNum = (v: any, fb: number) => { const n = Number(v); return Number.isFinite(n) ? n : fb; };
 
-  const findPreset = (text: string, url: string) =>
-    buttonPresets.find((b: any) => (b.text || '').trim() === text.trim() && (b.url || '').trim() === url.trim());
-
-  const toBool = (v: any, fallback: boolean) => typeof v === 'boolean' ? v : typeof v === 'string' ? v === 'true' : fallback;
-  const toNum = (v: any, fallback: number) => { const n = Number(v); return Number.isFinite(n) ? n : fallback; };
-
-  return htmlContent.replace(buttonRegex, (_match, rawText, rawUrl) => {
-    const text = String(rawText ?? '').trim();
-    const url = String(rawUrl ?? '').trim();
-    const preset = findPreset(text, url);
-
-    const backgroundColor = preset?.background_color ?? '#10b981';
-    const textColor = preset?.text_color ?? '#ffffff';
-    const size = preset?.size ?? 'medium';
-    const width = preset?.width ?? 'auto';
-    const customWidth = toNum(preset?.custom_width, 200);
-    const align = preset?.align ?? 'center';
-    const borderRadius = toNum(preset?.border_radius, 6);
-    const paddingX = toNum(preset?.padding_x, 24);
-    const paddingY = toNum(preset?.padding_y, 12);
-    const borderWidth = toNum(preset?.border_width, 0);
-    const borderColor = preset?.border_color ?? '#000000';
-    const borderStyle = preset?.border_style ?? 'solid';
-    const shadowSize = preset?.shadow_size ?? 'md';
-    const hoverEffect = toBool(preset?.hover_effect, true);
-    const useGradient = toBool(preset?.use_gradient, false);
-    const gradientType = preset?.gradient_type ?? 'linear';
-    const gradientColor1 = preset?.gradient_color1 ?? '#ec4899';
-    const gradientColor2 = preset?.gradient_color2 ?? '#8b5cf6';
-    const gradientAngle = toNum(preset?.gradient_angle, 90);
-    const hoverGradientShift = toBool(preset?.hover_gradient_shift, true);
-
-    const destinationType = url.startsWith('http') ? 'external' : url.startsWith('#') ? 'anchor' : 'internal';
-
-    const sizeMap: Record<string, string> = { small: '14px', medium: '16px', large: '18px' };
-    const shadowMap: Record<string, string> = {
-      none: 'none',
-      sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-      md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-      lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-    };
-
-    const widthStyle = width === 'full' ? '100%' : width === 'custom' ? `${customWidth}px` : 'auto';
-    const border = borderWidth > 0 ? `${borderWidth}px ${borderStyle} ${borderColor}` : 'none';
-
-    let backgroundStyle: string;
-    if (useGradient) {
-      backgroundStyle = gradientType === 'linear'
-        ? `background: linear-gradient(${gradientAngle}deg, ${gradientColor1}, ${gradientColor2})`
-        : `background: radial-gradient(circle at center, ${gradientColor1}, ${gradientColor2})`;
-    } else {
-      backgroundStyle = `background-color: ${backgroundColor}`;
-    }
-
-    const buttonStyle = [
-      backgroundStyle, `color: ${textColor}`, `padding: ${paddingY}px ${paddingX}px`,
-      `border-radius: ${borderRadius}px`, `font-size: ${sizeMap[size] ?? '16px'}`, 'font-weight: 500',
-      'text-decoration: none', 'display: inline-block', 'transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      `border: ${border}`, 'cursor: pointer', `width: ${widthStyle}`, 'text-align: center',
-      `box-shadow: ${shadowMap[shadowSize] ?? shadowMap.md}`,
-    ].join('; ');
-
-    const targetAttr = destinationType === 'external' ? ' target="_blank"' : '';
-    const relAttr = destinationType === 'external' ? ' rel="noopener noreferrer"' : '';
-
-    return `<div data-custom-button class="custom-button-wrapper my-4" style="text-align: ${align}"
-  data-text="${esc(text)}" data-url="${esc(url)}" data-destination-type="${destinationType}"
-  data-background-color="${esc(backgroundColor)}" data-text-color="${esc(textColor)}"
-  data-size="${size}" data-width="${width}" data-custom-width="${customWidth}" data-align="${align}"
-  data-border-radius="${borderRadius}" data-padding-x="${paddingX}" data-padding-y="${paddingY}"
-  data-border-width="${borderWidth}" data-border-color="${esc(borderColor)}" data-border-style="${borderStyle}"
-  data-shadow-size="${shadowSize}" data-hover-effect="${hoverEffect}"
-  data-use-gradient="${useGradient}" data-gradient-type="${gradientType}" data-gradient-direction="to-right"
-  data-gradient-color1="${esc(gradientColor1)}" data-gradient-color2="${esc(gradientColor2)}"
-  data-gradient-angle="${gradientAngle}" data-hover-gradient-shift="${hoverGradientShift}">
-  <a href="${esc(url)}" style="${esc(buttonStyle)}"${targetAttr}${relAttr}
-     data-button-text="${esc(text)}" data-button-color="${esc(backgroundColor)}"
-     data-destination-type="${destinationType}">${escText(text)}</a>
-</div>`;
+  return html.replace(regex, (_m, rawText, rawUrl) => {
+    const text = String(rawText).trim();
+    const url = String(rawUrl).trim();
+    const p = find(text, url);
+    const bg = p?.background_color ?? '#10b981';
+    const tc = p?.text_color ?? '#ffffff';
+    const size = p?.size ?? 'medium';
+    const width = p?.width ?? 'auto';
+    const cw = toNum(p?.custom_width, 200);
+    const align = p?.align ?? 'center';
+    const br = toNum(p?.border_radius, 6);
+    const px = toNum(p?.padding_x, 24);
+    const py = toNum(p?.padding_y, 12);
+    const bw = toNum(p?.border_width, 0);
+    const bc = p?.border_color ?? '#000000';
+    const bs = p?.border_style ?? 'solid';
+    const ss = p?.shadow_size ?? 'md';
+    const he = toBool(p?.hover_effect, true);
+    const ug = toBool(p?.use_gradient, false);
+    const gt = p?.gradient_type ?? 'linear';
+    const g1 = p?.gradient_color1 ?? '#ec4899';
+    const g2 = p?.gradient_color2 ?? '#8b5cf6';
+    const ga = toNum(p?.gradient_angle, 90);
+    const hgs = toBool(p?.hover_gradient_shift, true);
+    const dt = url.startsWith('http') ? 'external' : url.startsWith('#') ? 'anchor' : 'internal';
+    const sizeMap: Record<string,string> = { small:'14px', medium:'16px', large:'18px' };
+    const shadowMap: Record<string,string> = { none:'none', sm:'0 1px 2px 0 rgba(0,0,0,0.05)', md:'0 4px 6px -1px rgba(0,0,0,0.1)', lg:'0 10px 15px -3px rgba(0,0,0,0.1)' };
+    const ws = width === 'full' ? '100%' : width === 'custom' ? `${cw}px` : 'auto';
+    const border = bw > 0 ? `${bw}px ${bs} ${bc}` : 'none';
+    const bgStyle = ug ? (gt === 'linear' ? `background:linear-gradient(${ga}deg,${g1},${g2})` : `background:radial-gradient(circle,${g1},${g2})`) : `background-color:${bg}`;
+    const style = [bgStyle,`color:${tc}`,`padding:${py}px ${px}px`,`border-radius:${br}px`,`font-size:${sizeMap[size]||'16px'}`,`font-weight:500`,`text-decoration:none`,`display:inline-block`,`transition:all 0.3s`,`border:${border}`,`cursor:pointer`,`width:${ws}`,`text-align:center`,`box-shadow:${shadowMap[ss]||shadowMap.md}`].join(';');
+    const ta = dt === 'external' ? ' target="_blank"' : '';
+    const ra = dt === 'external' ? ' rel="noopener noreferrer"' : '';
+    return `<div data-custom-button class="custom-button-wrapper my-4" style="text-align:${align}" data-text="${esc(text)}" data-url="${esc(url)}" data-destination-type="${dt}" data-background-color="${esc(bg)}" data-text-color="${esc(tc)}" data-size="${size}" data-width="${width}" data-custom-width="${cw}" data-align="${align}" data-border-radius="${br}" data-padding-x="${px}" data-padding-y="${py}" data-border-width="${bw}" data-border-color="${esc(bc)}" data-border-style="${bs}" data-shadow-size="${ss}" data-hover-effect="${he}" data-use-gradient="${ug}" data-gradient-type="${gt}" data-gradient-direction="to-right" data-gradient-color1="${esc(g1)}" data-gradient-color2="${esc(g2)}" data-gradient-angle="${ga}" data-hover-gradient-shift="${hgs}"><a href="${esc(url)}" style="${esc(style)}"${ta}${ra} data-button-text="${esc(text)}" data-button-color="${esc(bg)}" data-destination-type="${dt}">${escText(text)}</a></div>`;
   });
 }
 
-function convertCtaBannersToHtml(htmlContent: string, ctaBanners: any[], popupId: string): string {
-  const bannerRegex = /\[CTA_BANNER:([^\]]+)\]/g;
-
-  return htmlContent.replace(bannerRegex, (_match, bannerId) => {
-    const banner = ctaBanners.find((b) => b.id === String(bannerId).trim());
-    if (!banner) {
-      if (ctaBanners.length > 0) {
-        return generateBannerHtml(ctaBanners[Math.floor(Math.random() * ctaBanners.length)], popupId);
-      }
-      return '';
-    }
-    return generateBannerHtml(banner, popupId);
+function convertCtaBannersToHtml(html: string, banners: any[], popupId: string): string {
+  return html.replace(/\[CTA_BANNER:([^\]]+)\]/g, (_m, bid) => {
+    const banner = banners.find((b) => b.id === String(bid).trim());
+    const b = banner || (banners.length > 0 ? banners[Math.floor(Math.random() * banners.length)] : null);
+    if (!b) return '';
+    return generateBannerHtml(b, popupId);
   });
 }
 
-function generateBannerHtml(banner: any, popupId: string): string {
-  const bannerId = String(banner.id ?? '').trim();
-  const templateStyle = String(banner.template_style ?? 'wave');
-  const bgColor = banner.background_color || '#0284c7';
-  const secondaryColor = banner.secondary_color || '#0369a1';
-  const textColor = banner.text_color || '#ffffff';
-  const accentColor = banner.accent_color || '#f59e0b';
-  const title = String(banner.title ?? '').trim();
-  const subtitle = String(banner.subtitle ?? '').trim();
-
-  const buttonText = 'Profiter de cette offre';
-  const buttonUrl = popupId ? '#' : '#contact';
-  const buttonBg = accentColor;
-  const buttonTextColor = '#000000';
-  const buttonRadius = 6;
-
-  let backgroundStyle = '';
-  switch (templateStyle) {
-    case 'wave': backgroundStyle = `background: linear-gradient(135deg, ${bgColor} 0%, ${secondaryColor} 100%);`; break;
-    case 'gradient': backgroundStyle = `background: linear-gradient(90deg, ${bgColor}, ${secondaryColor});`; break;
-    default: backgroundStyle = `background: ${bgColor};`;
-  }
-
-  const buttonStyle = [
-    'display: inline-block', 'margin-top: 1rem', 'padding: 0.75rem 1.5rem',
-    `background: ${buttonBg}`, `color: ${buttonTextColor}`, `border-radius: ${buttonRadius}px`,
-    'text-decoration: none', 'font-weight: 600',
-  ].join('; ');
-
-  return `<div data-cta-banner="${esc(bannerId)}"
-  data-template-style="${esc(templateStyle)}"
-  data-bg-color="${esc(bgColor)}" data-secondary-color="${esc(secondaryColor)}"
-  data-text-color="${esc(textColor)}" data-accent-color="${esc(accentColor)}"
-  data-title="${esc(title)}" data-subtitle="${esc(subtitle)}"
-  data-button-text="${esc(buttonText)}" data-button-url="${esc(buttonUrl)}"
-  data-button-bg="${esc(buttonBg)}" data-button-text-color="${esc(buttonTextColor)}"
-  data-button-radius="${buttonRadius}"
-  data-popup-id="${esc(popupId)}"
-  class="cta-banner-wrapper my-8"
-  style="border-radius: 12px; overflow: hidden; ${esc(backgroundStyle)} color: ${esc(textColor)}; padding: 2rem; text-align: center;">
-  <h3 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; font-weight: 700; color: ${esc(textColor)};">${escText(title)}</h3>
-  ${subtitle ? `<p style="margin: 0; opacity: 0.9; color: ${esc(textColor)};">${escText(subtitle)}</p>` : ''}
-  <a href="${esc(buttonUrl)}" style="${esc(buttonStyle)}"${popupId ? ` data-popup-trigger="${esc(popupId)}"` : ''}>${escText(buttonText)}</a>
-</div>`;
+function generateBannerHtml(b: any, popupId: string): string {
+  const bg = b.background_color || '#0284c7';
+  const sc = b.secondary_color || '#0369a1';
+  const tc = b.text_color || '#ffffff';
+  const ac = b.accent_color || '#f59e0b';
+  const ts = b.template_style || 'wave';
+  const title = String(b.title || '');
+  const subtitle = String(b.subtitle || '');
+  const btnUrl = popupId ? '#' : '#contact';
+  const bgStyle = ts === 'wave' ? `background:linear-gradient(135deg,${bg},${sc})` : ts === 'gradient' ? `background:linear-gradient(90deg,${bg},${sc})` : `background:${bg}`;
+  const btnStyle = `display:inline-block;margin-top:1rem;padding:0.75rem 1.5rem;background:${ac};color:#000;border-radius:6px;text-decoration:none;font-weight:600`;
+  return `<div data-cta-banner="${esc(b.id)}" data-template-style="${esc(ts)}" data-bg-color="${esc(bg)}" data-secondary-color="${esc(sc)}" data-text-color="${esc(tc)}" data-accent-color="${esc(ac)}" data-title="${esc(title)}" data-subtitle="${esc(subtitle)}" data-button-text="Profiter de cette offre" data-button-url="${esc(btnUrl)}" data-button-bg="${esc(ac)}" data-button-text-color="#000000" data-button-radius="6" data-popup-id="${esc(popupId)}" class="cta-banner-wrapper my-8" style="border-radius:12px;overflow:hidden;${esc(bgStyle)};color:${esc(tc)};padding:2rem;text-align:center;"><h3 style="margin:0 0 0.5rem;font-size:1.5rem;font-weight:700;color:${esc(tc)}">${escText(title)}</h3>${subtitle ? `<p style="margin:0;opacity:0.9;color:${esc(tc)}">${escText(subtitle)}</p>` : ''}<a href="${esc(btnUrl)}" style="${esc(btnStyle)}"${popupId ? ` data-popup-trigger="${esc(popupId)}"` : ''}>Profiter de cette offre</a></div>`;
 }
 
-function centerImages(htmlContent: string): string {
-  return htmlContent.replace(
-    /<img([^>]*)>/g,
-    '<div style="text-align: center; margin: 1.5rem 0;"><img$1 style="max-width: 100%; height: auto; border-radius: 8px;"></div>'
-  );
+function centerImages(html: string): string {
+  return html.replace(/<img([^>]*)>/g, '<div style="text-align:center;margin:1.5rem 0"><img$1 style="max-width:100%;height:auto;border-radius:8px"></div>');
 }
 
-function esc(value: string): string {
-  return String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+function esc(v: string): string {
+  return String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escText(v: string): string {
+  return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-function escText(value: string): string {
-  return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+function extractTitle(html: string): string {
+  const m = html.match(/<h1[^>]*>(.*?)<\/h1>/i);
+  return m ? m[1].replace(/<[^>]*>/g,'').trim() : html.split('\n')[0].replace(/<[^>]*>/g,'').trim().slice(0,100);
 }
-
-function extractTitle(htmlContent: string): string {
-  const h1Match = htmlContent.match(/<h1[^>]*>(.*?)<\/h1>/i);
-  if (h1Match) return h1Match[1].replace(/<[^>]*>/g, '').trim();
-  return htmlContent.split('\n')[0].replace(/<[^>]*>/g, '').trim().slice(0, 100);
+function extractMetaTitle(html: string): string {
+  const t = extractTitle(html);
+  return t.length <= 60 ? t : t.slice(0,57) + '...';
 }
-
-function extractMetaTitle(htmlContent: string, keywords: string[]): string {
-  const title = extractTitle(htmlContent);
-  if (title.length <= 60) return title;
-  return title.slice(0, 57) + '...';
+function extractMetaDescription(html: string): string {
+  const t = html.replace(/<h1[^>]*>.*?<\/h1>/gi,'').replace(/\[IMAGE:.*?\]/g,'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+  return t.length <= 160 ? t : t.slice(0,157) + '...';
 }
-
-function extractMetaDescription(htmlContent: string): string {
-  const textOnly = htmlContent
-    .replace(/<h1[^>]*>.*?<\/h1>/gi, '')
-    .replace(/\[IMAGE:.*?\]/g, '')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-  if (textOnly.length <= 160) return textOnly;
-  return textOnly.slice(0, 157) + '...';
+function generateExcerpt(html: string): string {
+  const t = html.replace(/<h1[^>]*>.*?<\/h1>/gi,'').replace(/\[IMAGE:.*?\]/g,'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+  return t.slice(0,300) + (t.length > 300 ? '...' : '');
 }
-
-function generateExcerpt(htmlContent: string): string {
-  const textOnly = htmlContent
-    .replace(/<h1[^>]*>.*?<\/h1>/gi, '')
-    .replace(/\[IMAGE:.*?\]/g, '')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-  return textOnly.slice(0, 300) + (textOnly.length > 300 ? '...' : '');
+function extractTldr(html: string): string {
+  const m = html.match(/<div class="summary-box"[^>]*>(.*?)<\/div>/is);
+  if (!m) return '';
+  const items = m[1].match(/<li[^>]*>(.*?)<\/li>/gis);
+  return items ? items.map(i => i.replace(/<[^>]*>/g,'').trim()).join('\n') : '';
 }
-
-function extractFirstImageDescription(htmlContent: string): string {
-  const imageMatch = htmlContent.match(/\[IMAGE:\s*([^\]]+)\]/i);
-  return imageMatch ? imageMatch[1].trim() : 'Image représentant le sujet de l\'article';
-}
-
-function extractTldr(htmlContent: string): string {
-  const summaryBoxMatch = htmlContent.match(/<div class="summary-box"[^>]*>(.*?)<\/div>/is);
-  if (!summaryBoxMatch) return '';
-  const listItems = summaryBoxMatch[1].match(/<li[^>]*>(.*?)<\/li>/gis);
-  if (!listItems) return '';
-  return listItems.map(item => item.replace(/<[^>]*>/g, '').trim()).join('\n').trim();
-}
-
-function extractFaq(htmlContent: string): Array<{ question: string; answer: string }> {
-  const faq: Array<{ question: string; answer: string }> = [];
-  const faqSectionMatch = htmlContent.match(/<h2[^>]*>Questions fréquentes<\/h2>(.*?)(?=<h2|$)/is);
-  if (!faqSectionMatch) return faq;
-  
-  const faqItems = faqSectionMatch[1].match(/<div class="faq-item"[^>]*>(.*?)<\/div>/gis);
-  if (!faqItems) return faq;
-  
-  faqItems.forEach(item => {
+function extractFaq(html: string): Array<{question:string;answer:string}> {
+  const faq: Array<{question:string;answer:string}> = [];
+  const m = html.match(/<h2[^>]*>Questions fréquentes<\/h2>(.*?)(?=<h2|$)/is);
+  if (!m) return faq;
+  const items = m[1].match(/<div class="faq-item"[^>]*>(.*?)<\/div>/gis);
+  if (!items) return faq;
+  items.forEach(item => {
     const q = item.match(/<h3[^>]*>(.*?)<\/h3>/is);
     const a = item.match(/<p[^>]*>(.*?)<\/p>/is);
-    if (q && a) {
-      faq.push({
-        question: q[1].replace(/<[^>]*>/g, '').trim(),
-        answer: a[1].replace(/<[^>]*>/g, '').trim()
-      });
-    }
+    if (q && a) faq.push({ question: q[1].replace(/<[^>]*>/g,'').trim(), answer: a[1].replace(/<[^>]*>/g,'').trim() });
   });
   return faq;
 }

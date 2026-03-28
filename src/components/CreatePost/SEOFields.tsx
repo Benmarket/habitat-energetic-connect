@@ -25,7 +25,7 @@ export function SEOFields({
   generatingArticle,
   contentType,
 }: SEOFieldsProps) {
-  const generateButtonLabel = contentType === 'guide' ? 'Générer le guide' : 'Générer l\'article';
+  const generateButtonLabel = contentType === 'guide' ? 'Générer le guide (IA)' : 'Générer l\'article (IA)';
   const [keywordInput, setKeywordInput] = useState("");
 
   return (
