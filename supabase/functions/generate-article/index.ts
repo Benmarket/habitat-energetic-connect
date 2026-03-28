@@ -274,8 +274,9 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
 
 3. <div class="summary-box" style="background:#f0f9ff;border-left:4px solid #0284c7;padding:1.5rem;margin:2rem 0;">
    <h2 style="margin-top:0;color:#0284c7;font-size:1.25rem;">📌 En résumé</h2>
-   <ul><li>4-5 points clés</li></ul>
+   <ul><li>3-4 points clés CONCIS</li></ul>
    </div>
+   IMPORTANT: Le contenu texte de ce bloc "En résumé" (TL;DR) ne doit PAS dépasser 500 caractères au total (tous les <li> combinés).
 
 4. Introduction (150-200 mots) — Accroche + problème + promesse
 
