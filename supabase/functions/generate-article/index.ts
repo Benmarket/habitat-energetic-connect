@@ -272,7 +272,7 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
 
 1. <h1>Titre (basé sur l'angle choisi, SANS préfixe de type comme "Alerte :", "Analyse :", "Décryptage :", "Guide :" etc. Le titre doit être naturel et SEO-friendly)</h1>
 
-2. [IMAGE: Vue LARGE panoramique du sujet principal, photo éditoriale style magazine, lumière naturelle, 30+ mots descriptifs]
+2. [IMAGE: Vue LARGE panoramique en rapport direct avec le SUJET de l'article (pas générique). Si le sujet est l'électricité → réseau électrique, compteur, facture. Si c'est le solaire → panneaux sur toit. Photo éditoriale style magazine, lumière naturelle, 30+ mots descriptifs SPÉCIFIQUES au sujet]
 
 3. <div class="summary-box" style="background:#f0f9ff;border-left:4px solid #0284c7;padding:1.5rem;margin:2rem 0;">
    <h2 style="margin-top:0;color:#0284c7;font-size:1.25rem;">📌 En résumé</h2>
@@ -288,11 +288,11 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
 
 7. <h2>Section 2</h2> — Développement valeur (200-300 mots)
 
-8. [IMAGE: GROS PLAN technique, détail produit ou infographie explicative, TRÈS DIFFÉRENT de l'image 1, 30+ mots descriptifs]
+8. [IMAGE: GROS PLAN en rapport avec le CONTENU de la section précédente. Détail technique, infographie ou illustration du sujet traité. TRÈS DIFFÉRENT de l'image 1. 30+ mots descriptifs SPÉCIFIQUES]
 
 9. <h2>Section 3</h2> — Projection utilisateur (200+ mots)
 
-10. [IMAGE: Photo d'illustration humaine ou résultat concret (ex: famille satisfaite, maison rénovée, facture réduite), DIFFÉRENT des images 1 et 2, 30+ mots descriptifs]
+10. [IMAGE: Photo humaine ou résultat concret en lien avec le sujet (ex: propriétaire regardant sa facture, technicien au travail, maison rénovée). DIFFÉRENT des images 1 et 2. 30+ mots descriptifs SPÉCIFIQUES]
 
 11. [CTA_BANNER:ID] — Bannière lead capture
 
