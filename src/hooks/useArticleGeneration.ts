@@ -162,8 +162,7 @@ export function useArticleGeneration(
   };
 
   // Auto-detect best category
-  const autoSelectCategory = (keywords: string[]): string => {
-    if (formData.category_id) return formData.category_id;
+  const autoSelectCategory = (keywords: string[], extraContext = ''): string => {
     const cats = options?.categories || [];
     if (cats.length === 0) return '';
 
@@ -175,7 +174,7 @@ export function useArticleGeneration(
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "");
 
-    const context = normalize(keywords.join(" "));
+    const context = normalize(`${keywords.join(" ")} ${extraContext}`);
 
     const findByPreferredSlugs = (preferredSlugs: string[]): string => {
       for (const preferred of preferredSlugs) {
@@ -241,7 +240,7 @@ export function useArticleGeneration(
       guideSections = parsed.length > 0 ? parsed : [{ id: `section-${Date.now()}`, title: 'Introduction', content: article.content }];
     }
 
-    // Use AI-suggested category if available, fallback to keyword matching
+    // Use AI-suggested category if available, fallback to semantic matching
     let autoCategory = '';
     if (article.suggestedCategorySlug) {
       const cats = options?.categories || [];
@@ -256,7 +255,12 @@ export function useArticleGeneration(
       const found = cats.find(c => normalize(c.slug) === target);
       if (found) autoCategory = found.id;
     }
-    if (!autoCategory) autoCategory = autoSelectCategory(kws);
+    if (!autoCategory) {
+      autoCategory = autoSelectCategory(
+        kws,
+        `${article.title || ''} ${article.excerpt || ''} ${article.content || ''}`
+      );
+    }
 
     // Use AI-suggested tags if available, fallback to keyword matching
     let autoTags: string[] = [];
