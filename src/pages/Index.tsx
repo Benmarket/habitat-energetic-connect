@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { OrganizationSchema } from "@/components/SEO/OrganizationSchema";
+import { WebSiteSchema } from "@/components/SEO/WebSiteSchema";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
@@ -197,6 +198,7 @@ const Index = () => {
         <meta name="twitter:description" content="Bénéficiez d'une étude énergétique gratuite et découvrez les travaux subventionnés adaptés à votre logement. Panneaux solaires, pompe à chaleur, isolation." />
       </Helmet>
       <OrganizationSchema />
+      <WebSiteSchema />
 
       <div className="min-h-screen bg-background">
         <Header />
