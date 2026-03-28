@@ -1,16 +1,22 @@
-// useArticleGeneration v3 - fixed auth headers
+// useArticleGeneration v4 - auto-fill category/tags + improved mapping
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { parseContentToSections, sectionsToContent, CreatePostFormData, generateSlug } from "./useCreatePost";
 import { GuideSection } from "@/components/GuideSectionsEditor";
 
+interface ArticleGenerationOptions {
+  categories?: Array<{ id: string; name: string; slug: string }>;
+  tags?: Array<{ id: string; name: string; slug: string }>;
+}
+
 export function useArticleGeneration(
   formData: CreatePostFormData,
   setFormData: React.Dispatch<React.SetStateAction<CreatePostFormData>>,
   contentType: string,
   currentAiInstructions: string,
-  userId?: string
+  userId?: string,
+  options?: ArticleGenerationOptions
 ) {
   const [generatingArticle, setGeneratingArticle] = useState(false);
   const [variantsModalOpen, setVariantsModalOpen] = useState(false);
@@ -33,7 +39,6 @@ export function useArticleGeneration(
     setVariantsModalOpen(true);
 
     try {
-      // Récupérer la session pour le token d'authentification
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData?.session?.access_token;
       
@@ -120,6 +125,50 @@ export function useArticleGeneration(
     }
   };
 
+  // Auto-detect best category based on keywords
+  const autoSelectCategory = (): string => {
+    if (formData.category_id) return formData.category_id;
+    const cats = options?.categories || [];
+    if (cats.length === 0) return '';
+    
+    // Try to match a category by keyword overlap
+    const keywords = formData.focus_keywords.map(k => k.toLowerCase());
+    for (const cat of cats) {
+      const catName = cat.name.toLowerCase();
+      const catSlug = cat.slug.toLowerCase();
+      if (keywords.some(k => catName.includes(k) || k.includes(catName) || catSlug.includes(k))) {
+        return cat.id;
+      }
+    }
+    // Fallback: first category
+    return cats[0].id;
+  };
+
+  // Auto-select relevant tags based on keywords  
+  const autoSelectTags = (): string[] => {
+    if (formData.tag_ids.length > 0) return formData.tag_ids;
+    const availableTags = options?.tags || [];
+    if (availableTags.length === 0) return [];
+    
+    const keywords = formData.focus_keywords.map(k => k.toLowerCase());
+    const matchedTagIds: string[] = [];
+    
+    for (const tag of availableTags) {
+      const tagName = tag.name.toLowerCase();
+      const tagSlug = tag.slug.toLowerCase();
+      if (keywords.some(k => tagName.includes(k) || k.includes(tagName) || tagSlug.includes(k))) {
+        matchedTagIds.push(tag.id);
+      }
+    }
+    
+    // If no match, select first 1-2 tags
+    if (matchedTagIds.length === 0) {
+      return availableTags.slice(0, Math.min(2, availableTags.length)).map(t => t.id);
+    }
+    
+    return matchedTagIds;
+  };
+
   const handleSelectVariant = async (variant: any) => {
     let guideSections = formData.guide_sections;
     if (contentType === 'guide' && variant.content) {
@@ -134,6 +183,9 @@ export function useArticleGeneration(
         }];
       }
     }
+
+    const autoCategory = autoSelectCategory();
+    const autoTags = autoSelectTags();
     
     setFormData(prev => ({
       ...prev,
@@ -148,14 +200,29 @@ export function useArticleGeneration(
       tldr: variant.tldr || '',
       faq: variant.faq || [],
       guide_sections: contentType === 'guide' ? guideSections : prev.guide_sections,
-      // Conserver les champs topline et badge_image existants (ne pas écraser avec des valeurs vides)
+      // Auto-fill category & tags if not already set
+      category_id: autoCategory || prev.category_id,
+      tag_ids: autoTags.length > 0 ? autoTags : prev.tag_ids,
+      // Preserve existing guide-specific fields
       topline: variant.topline || prev.topline,
       topline_bg_color: variant.topline_bg_color || prev.topline_bg_color,
       topline_text_color: variant.topline_text_color || prev.topline_text_color,
       badge_image: variant.badge_image || prev.badge_image,
     }));
 
-    toast.success(contentType === 'guide' ? "Guide sélectionné ! Tous les champs ont été remplis." : "Article sélectionné ! Tous les champs ont été remplis.");
+    const autoFilledParts: string[] = [];
+    if (autoCategory) autoFilledParts.push('catégorie');
+    if (autoTags.length > 0) autoFilledParts.push('étiquettes');
+    
+    const baseMsg = contentType === 'guide' 
+      ? "Guide sélectionné ! Tous les champs ont été remplis." 
+      : "Article sélectionné ! Tous les champs ont été remplis.";
+    
+    const extraMsg = autoFilledParts.length > 0 
+      ? ` (${autoFilledParts.join(' et ')} auto-sélectionnées)` 
+      : '';
+    
+    toast.success(baseMsg + extraMsg);
   };
 
   const handleRegenerateVariant = async (variantId: number, instructions: string) => {
@@ -173,7 +240,6 @@ export function useArticleGeneration(
         setPreviousVariantVersions(prev => new Map(prev).set(variantId, { ...currentVariant }));
       }
 
-      // Récupérer la session pour le token d'authentification
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData?.session?.access_token;
       

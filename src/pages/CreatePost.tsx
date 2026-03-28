@@ -61,7 +61,8 @@ const CreatePost = () => {
     setFormData,
     contentType,
     currentAiInstructions,
-    user?.id
+    user?.id,
+    { categories, tags }
   );
 
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
