@@ -117,8 +117,9 @@ serve(async (req) => {
       activePopups = Array.isArray(popupsData) ? popupsData : [];
     }
 
-    // Find popup ID to use for CTA banners
-    const defaultPopupId = activePopups.length > 0 ? activePopups[0].id : '';
+    // Prefer popups with forms (lead capture), then any active popup
+    const popupWithForm = activePopups.find((p: any) => p.form_id);
+    const defaultPopupId = popupWithForm?.id || (activePopups.length > 0 ? activePopups[0].id : '');
 
     function createCtaInstructions(variantIndex: number): string {
       let instructions = '';
