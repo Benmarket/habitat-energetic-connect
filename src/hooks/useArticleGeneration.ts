@@ -304,11 +304,57 @@ export function useArticleGeneration(
     setWizardOpen(true);
   };
 
+  const handleStartReview = async () => {
+    if (!formData.content || !formData.title) {
+      toast.error("L'article doit avoir un titre et du contenu pour être relu");
+      return;
+    }
+    setLoadingReview(true);
+    setArticleReview(null);
+    try {
+      const accessToken = await getAccessToken();
+      if (!accessToken) { setLoadingReview(false); return; }
+
+      const categoryName = options?.categories?.find(c => c.id === formData.category_id)?.name || '';
+
+      const { data, error } = await supabase.functions.invoke('generate-article', {
+        body: {
+          mode: 'review',
+          title: formData.title,
+          content: formData.content,
+          contentType,
+          categoryName,
+        },
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Erreur lors de la relecture");
+
+      setArticleReview(data.review);
+      toast.success("Relecture terminée !");
+    } catch (error: any) {
+      toast.error(error.message || "Erreur lors de la relecture IA");
+    } finally {
+      setLoadingReview(false);
+    }
+  };
+
+  const openReviewModal = () => {
+    setReviewModalOpen(true);
+    if (!articleReview && formData.content) {
+      handleStartReview();
+    }
+  };
+
   return {
     wizardOpen, setWizardOpen, openWizard,
     loadingAngles, angles,
     loadingArticle, generatedArticle,
     handleGenerateAngles, handleSelectAngle, handleSelectArticle,
     generatingArticle: loadingAngles || loadingArticle,
+    // Review
+    reviewModalOpen, setReviewModalOpen, openReviewModal,
+    loadingReview, articleReview, handleStartReview,
   };
 }
