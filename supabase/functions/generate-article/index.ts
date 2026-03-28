@@ -70,18 +70,13 @@ serve(async (req) => {
     const body = await req.json();
     const { mode } = body;
 
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not configured');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY is not configured');
 
-    // Fetch AI settings
-    const settingsResponse = await fetch(`${supabaseUrl}/rest/v1/site_settings?select=*&key=in.(ai_generation_api_url,ai_generation_model,ai_generation_enabled)`, {
-      headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
-    });
-    const settings = await settingsResponse.json();
-    const apiUrl = settings.find((s: any) => s.key === 'ai_generation_api_url')?.value || "https://api.openai.com/v1/chat/completions";
-    const model = settings.find((s: any) => s.key === 'ai_generation_model')?.value || "gpt-4o-mini";
-    const enabled = settings.find((s: any) => s.key === 'ai_generation_enabled')?.value ?? true;
-    if (!enabled) throw new Error('La génération IA est désactivée');
+    const apiUrl = "https://ai.gateway.lovable.dev/v1/chat/completions";
+    const model = "google/gemini-3-flash-preview";
+
+    const todayDate = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
     // ══════════════════════════════════════════
     // MODE: ANGLES — Propose 5 editorial angles
