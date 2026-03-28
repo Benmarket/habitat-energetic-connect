@@ -70,18 +70,13 @@ serve(async (req) => {
     const body = await req.json();
     const { mode } = body;
 
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not configured');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY is not configured');
 
-    // Fetch AI settings
-    const settingsResponse = await fetch(`${supabaseUrl}/rest/v1/site_settings?select=*&key=in.(ai_generation_api_url,ai_generation_model,ai_generation_enabled)`, {
-      headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
-    });
-    const settings = await settingsResponse.json();
-    const apiUrl = settings.find((s: any) => s.key === 'ai_generation_api_url')?.value || "https://api.openai.com/v1/chat/completions";
-    const model = settings.find((s: any) => s.key === 'ai_generation_model')?.value || "gpt-4o-mini";
-    const enabled = settings.find((s: any) => s.key === 'ai_generation_enabled')?.value ?? true;
-    if (!enabled) throw new Error('La génération IA est désactivée');
+    const apiUrl = "https://ai.gateway.lovable.dev/v1/chat/completions";
+    const model = "google/gemini-3-flash-preview";
+
+    const todayDate = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
     // ══════════════════════════════════════════
     // MODE: ANGLES — Propose 5 editorial angles
@@ -106,6 +101,8 @@ serve(async (req) => {
       };
 
       const systemPrompt = `Tu es un stratège éditorial SEO expert en ${contentTypeLabels[contentType] || 'articles'} pour le secteur des énergies renouvelables et aides gouvernementales françaises.
+
+DATE ACTUELLE: ${todayDate}. Toutes tes propositions doivent être à jour et pertinentes pour cette date. Ne mentionne JAMAIS de dates passées (2023, 2024, 2025) sauf pour comparer avec la situation actuelle.
 
 Tu dois proposer EXACTEMENT 5 angles éditoriaux DIFFÉRENTS et STRATÉGIQUES pour un article.
 
@@ -142,7 +139,7 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
 
       const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
         body: JSON.stringify({
           model,
           max_tokens: 1500,
@@ -154,7 +151,12 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
         })
       });
 
-      if (!response.ok) throw new Error(`Erreur API: ${response.status}`);
+      if (!response.ok) {
+        const errText = await response.text();
+        if (response.status === 429) throw new Error('Limite IA atteinte, réessayez dans quelques instants.');
+        if (response.status === 402) throw new Error('Crédits IA insuffisants.');
+        throw new Error(`Erreur API IA: ${response.status} - ${errText}`);
+      }
       const data = await response.json();
       const raw = data.choices[0].message.content.trim().replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
 
@@ -246,6 +248,7 @@ FORMAT: [CTA_BANNER:ID]`;
       };
 
       const systemPrompt = `Tu es un rédacteur SEO expert spécialisé énergies renouvelables et aides françaises.
+DATE ACTUELLE: ${todayDate}. Tout le contenu doit être à jour. Utilise les chiffres, barèmes et réglementations en vigueur en ${new Date().getFullYear()}.
 Tu rédiges UN SEUL article optimisé lead/conversion.
 
 TYPE: ${contentTypeLabels[contentType] || 'article'}
@@ -314,7 +317,7 @@ Retourne UNIQUEMENT le HTML.`;
 
       const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
         body: JSON.stringify({
           model, max_tokens: 8192,
           messages: [
@@ -324,7 +327,12 @@ Retourne UNIQUEMENT le HTML.`;
         })
       });
 
-      if (!response.ok) throw new Error(`Erreur API: ${response.status}`);
+      if (!response.ok) {
+        const errText = await response.text();
+        if (response.status === 429) throw new Error('Limite IA atteinte, réessayez dans quelques instants.');
+        if (response.status === 402) throw new Error('Crédits IA insuffisants.');
+        throw new Error(`Erreur API IA: ${response.status} - ${errText}`);
+      }
       const data = await response.json();
       let content = data.choices[0].message.content;
 
