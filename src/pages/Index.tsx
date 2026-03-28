@@ -198,6 +198,7 @@ const Index = () => {
         <meta name="twitter:description" content="Bénéficiez d'une étude énergétique gratuite et découvrez les travaux subventionnés adaptés à votre logement. Panneaux solaires, pompe à chaleur, isolation." />
       </Helmet>
       <OrganizationSchema />
+      <WebSiteSchema />
 
       <div className="min-h-screen bg-background">
         <Header />
