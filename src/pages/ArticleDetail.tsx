@@ -96,12 +96,12 @@ const ArticleDetail = () => {
         // Fetch registered author
         const { data: author } = await supabase
           .from("authors")
-          .select("name, bio, avatar_url")
+          .select("name, bio, avatar_url, job_title")
           .eq("id", articleData.display_author_id)
           .maybeSingle();
         
         if (author) {
-          setAuthorInfo({ name: author.name, bio: author.bio, avatar: author.avatar_url });
+          setAuthorInfo({ name: author.name, bio: author.bio, avatar: author.avatar_url, jobTitle: author.job_title });
         }
       }
     } catch (error) {
