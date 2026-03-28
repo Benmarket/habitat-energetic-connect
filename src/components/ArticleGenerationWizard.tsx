@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface GenerationInput {
   product: string;
+  subject: string;
   theme: string;
   objective: string;
   keywords: string[];
