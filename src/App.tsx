@@ -51,6 +51,7 @@ const AdminLandingPages = lazy(() => import("./pages/AdminLandingPages"));
 const AdminPagesAnchors = lazy(() => import("./pages/AdminPagesAnchors"));
 const AdminSimulators = lazy(() => import("./pages/AdminSimulators"));
 const AdminAdvertising = lazy(() => import("./pages/AdminAdvertising"));
+const AdminAuthors = lazy(() => import("./pages/AdminAuthors"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentialite"));
 const ConditionsUtilisation = lazy(() => import("./pages/ConditionsUtilisation"));
@@ -138,6 +139,7 @@ const App = () => (
                   <Route path="/admin/pages-ancres" element={<AdminPagesAnchors />} />
                   <Route path="/admin/simulateurs" element={<AdminSimulators />} />
                   <Route path="/admin/app" element={<AdminApp />} />
+                  <Route path="/admin/auteurs" element={<AdminAuthors />} />
 
                   {/* Utility pages - lazy loaded */}
                   <Route path="/installer-app" element={<InstallApp />} />
