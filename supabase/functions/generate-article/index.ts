@@ -115,6 +115,7 @@ CONTEXTE:
 - Objectif: ${objectiveLabels[objective] || objective}
 - Type: ${contentTypeLabels[contentType] || 'article'}
 ${keywords?.length > 0 ? `- Mots-clés SEO: ${keywords.join(', ')}` : ''}
+${targetRegions?.length > 0 ? `- Régions cibles: ${targetRegions.join(', ')} (adapte le contenu, les aides locales et les références géographiques)` : ''}
 ${freePrompt ? `- Contraintes: ${freePrompt}` : ''}
 ${customInstructions ? `- Instructions: ${customInstructions}` : ''}
 
