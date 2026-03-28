@@ -1,9 +1,10 @@
-// useArticleGeneration v6 - Regions + timer + images fix
+// useArticleGeneration v7 - Review mode
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { parseContentToSections, CreatePostFormData, generateSlug } from "./useCreatePost";
 import { GenerationInput, EditorialAngle } from "@/components/ArticleGenerationWizard";
+import type { ArticleReview } from "@/components/ArticleReviewModal";
 
 interface ArticleGenerationOptions {
   categories?: Array<{ id: string; name: string; slug: string }>;
@@ -23,6 +24,9 @@ export function useArticleGeneration(
   const [angles, setAngles] = useState<EditorialAngle[] | null>(null);
   const [loadingArticle, setLoadingArticle] = useState(false);
   const [generatedArticle, setGeneratedArticle] = useState<any | null>(null);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [loadingReview, setLoadingReview] = useState(false);
+  const [articleReview, setArticleReview] = useState<ArticleReview | null>(null);
 
   const getAccessToken = async () => {
     const { data } = await supabase.auth.getSession();
@@ -299,11 +303,57 @@ export function useArticleGeneration(
     setWizardOpen(true);
   };
 
+  const handleStartReview = async () => {
+    if (!formData.content || !formData.title) {
+      toast.error("L'article doit avoir un titre et du contenu pour être relu");
+      return;
+    }
+    setLoadingReview(true);
+    setArticleReview(null);
+    try {
+      const accessToken = await getAccessToken();
+      if (!accessToken) { setLoadingReview(false); return; }
+
+      const categoryName = options?.categories?.find(c => c.id === formData.category_id)?.name || '';
+
+      const { data, error } = await supabase.functions.invoke('generate-article', {
+        body: {
+          mode: 'review',
+          title: formData.title,
+          content: formData.content,
+          contentType,
+          categoryName,
+        },
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Erreur lors de la relecture");
+
+      setArticleReview(data.review);
+      toast.success("Relecture terminée !");
+    } catch (error: any) {
+      toast.error(error.message || "Erreur lors de la relecture IA");
+    } finally {
+      setLoadingReview(false);
+    }
+  };
+
+  const openReviewModal = () => {
+    setReviewModalOpen(true);
+    if (!articleReview && formData.content) {
+      handleStartReview();
+    }
+  };
+
   return {
     wizardOpen, setWizardOpen, openWizard,
     loadingAngles, angles,
     loadingArticle, generatedArticle,
     handleGenerateAngles, handleSelectAngle, handleSelectArticle,
     generatingArticle: loadingAngles || loadingArticle,
+    // Review
+    reviewModalOpen, setReviewModalOpen, openReviewModal,
+    loadingReview, articleReview, handleStartReview,
   };
 }

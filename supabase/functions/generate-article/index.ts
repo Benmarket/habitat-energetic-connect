@@ -214,9 +214,10 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
       const shuffledButtons = shuffleArray([...buttonPresets]);
       const btns = shuffledButtons.slice(0, 3);
       if (btns.length > 0) {
-        ctaInstructions += `\n\nBOUTONS CTA:
-${btns.map((b: any, i: number) => `${i + 1}. "${b.text}" → ${b.url}`).join('\n')}
-FORMAT: [BUTTON:Texte|URL]`;
+        ctaInstructions += `\n\nBOUTONS CTA (VARIER LES COULEURS ! Ne pas tous utiliser la même couleur):
+${btns.map((b: any, i: number) => `${i + 1}. "${b.text}" → ${b.url} (couleur: ${b.background_color || '#10b981'})`).join('\n')}
+FORMAT: [BUTTON:Texte|URL]
+IMPORTANT: Si les boutons ont tous la même couleur, change le texte d'au moins un pour proposer un message différent.`;
       } else {
         ctaInstructions += `\nBOUTONS CTA: [BUTTON:Demander un devis gratuit|#contact]`;
       }
@@ -224,8 +225,8 @@ FORMAT: [BUTTON:Texte|URL]`;
       const shuffledBanners = shuffleArray([...ctaBanners]);
       const bnrs = shuffledBanners.slice(0, 2);
       if (bnrs.length > 0) {
-        ctaInstructions += `\n\nBANNIÈRES CTA:
-${bnrs.map((b: any) => `ID="${b.id}" Titre="${b.title}"`).join('\n')}
+        ctaInstructions += `\n\nBANNIÈRES CTA (utilise des bannières DIFFÉRENTES entre elles):
+${bnrs.map((b: any) => `ID="${b.id}" Titre="${b.title}" (couleurs: bg=${b.background_color}, accent=${b.accent_color})`).join('\n')}
 FORMAT: [CTA_BANNER:ID]`;
       }
 
@@ -308,22 +309,25 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
 16. Conclusion (100-150 mots) — Synthèse + passage à l'action
 
 ═══════════════════════════════════════════
-TABLEAUX DE DONNÉES (OBLIGATOIRE)
+TABLEAUX DE DONNÉES (OBLIGATOIRE — MINIMUM 1, IDÉALEMENT 2-3)
 ═══════════════════════════════════════════
-Insère 1 à 3 tableaux HTML dans l'article pour sourcer des données, comparer des valeurs ou illustrer des évolutions chiffrées.
-Les tableaux rendent l'article plus crédible et professionnel.
+⚠️ UN ARTICLE SANS TABLEAU EST INACCEPTABLE. Tu DOIS inclure au minimum 1 tableau HTML.
+Les tableaux rendent l'article crédible, professionnel et référencé. Ils sont un critère SEO important.
 
-EXEMPLES D'USAGE:
-- Évolution d'un prix/tarif sur plusieurs années
-- Comparatif de solutions/produits (puissance, coût, rendement)
-- Barème d'aides par tranche de revenus
-- Récapitulatif des économies selon les cas
+QUAND UTILISER UN TABLEAU:
+- Comparaison de prix, rendements, performances
+- Barèmes d'aides par tranche de revenus/surface
+- Évolution de tarifs/prix sur plusieurs années
+- Fiches techniques de produits
+- Récapitulatif d'économies selon différents scénarios
+- Comparatif avant/après travaux
 
-FORMAT OBLIGATOIRE (HTML propre avec classes):
+FORMAT OBLIGATOIRE (HTML propre avec classes CSS):
 <div class="article-table-wrapper">
 <table class="article-data-table">
 <thead><tr><th>Colonne 1</th><th>Colonne 2</th><th>Colonne 3</th></tr></thead>
 <tbody>
+<tr><td>Valeur</td><td>Valeur</td><td>Valeur</td></tr>
 <tr><td>Valeur</td><td>Valeur</td><td>Valeur</td></tr>
 </tbody>
 </table>
@@ -331,10 +335,12 @@ FORMAT OBLIGATOIRE (HTML propre avec classes):
 </div>
 
 RÈGLES TABLEAUX:
-- Toujours citer la source sous le tableau
+- TOUJOURS citer la source officielle sous le tableau
 - 3 à 6 colonnes max, 4 à 10 lignes max
 - Données RÉALISTES et ACTUELLES (${new Date().getFullYear()})
 - Placer les tableaux dans les sections où ils apportent une preuve chiffrée
+- Le 1er tableau doit apparaître dans les sections 1-3 de l'article
+- NE PAS mettre de styles inline sur les cellules (les classes CSS s'en chargent)
 
 ═══════════════════════════════════════════
 RÈGLES GÉNÉRALES
@@ -345,7 +351,8 @@ RÈGLES GÉNÉRALES
 • Style direct, impactant, zéro blabla
 • Chaque section sert l'objectif lead
 • Pas de paraphrase inutile
-• Inclure au moins 1 tableau de données chiffré
+• MINIMUM 1 tableau de données chiffré (OBLIGATOIRE)
+• Les CTA doivent avoir des MESSAGES VARIÉS (pas 3x "Demander un devis")
 ${ctaInstructions}
 
 ═══════════════════════════════════════════
@@ -557,7 +564,111 @@ Retourne UNIQUEMENT le HTML.`;
       );
     }
 
-    throw new Error(`Mode inconnu: ${mode}. Utilisez "angles" ou "article".`);
+    // ══════════════════════════════════════════
+    // MODE: REVIEW — AI proofreading of article
+    // ══════════════════════════════════════════
+    if (mode === 'review') {
+      const { title, content, contentType: reviewContentType, categoryName } = body;
+      if (!content) throw new Error('Contenu requis pour la relecture');
+
+      const reviewPrompt = `Tu es un rédacteur en chef exigeant et méticuleux spécialisé dans les articles sur les énergies renouvelables.
+Tu dois relire et auditer l'article fourni. Analyse CHAQUE aspect ci-dessous et attribue une note /10 + un commentaire honnête.
+Sois CONSTRUCTIF mais SANS COMPLAISANCE. Si c'est moyen, dis-le.
+
+DATE ACTUELLE: ${todayDate}
+
+ARTICLE À RELIRE:
+Titre: ${title || 'Sans titre'}
+Catégorie: ${categoryName || 'Non spécifiée'}
+Type: ${reviewContentType || 'actualite'}
+
+CONTENU HTML:
+${content.slice(0, 12000)}
+
+═══════════════════════════════════════
+CRITÈRES D'AUDIT (note /10 + commentaire pour chacun)
+═══════════════════════════════════════
+1. COHÉRENCE GLOBALE - Le fil rouge est clair ? Les sections s'enchaînent logiquement ? Pas de contradictions ?
+2. QUALITÉ RÉDACTIONNELLE - Style, ton, fluidité, richesse du vocabulaire, pas de répétitions
+3. SEO & STRUCTURE - H2/H3 bien utilisés, mots-clés présents, densité correcte, méta-données
+4. DONNÉES & CHIFFRES - Présence de tableaux HTML, données chiffrées sourcées, actuelles (${new Date().getFullYear()})
+5. CTA & CONVERSION - Variété des couleurs/styles des CTA, pertinence des placements, diversité des messages
+6. IMAGES - 3 images distinctes et pertinentes au sujet, pas génériques
+7. FAQ - Questions pertinentes et utiles, réponses complètes
+8. ORIGINALITÉ - L'article apporte-t-il une vraie valeur ? Pas trop "template" ou monotone ?
+
+═══════════════════════════════════════
+PROBLÈMES DÉTECTÉS (liste exhaustive)
+═══════════════════════════════════════
+Liste chaque problème concret trouvé avec:
+- Localisation dans l'article
+- Nature du problème
+- Suggestion de correction
+
+═══════════════════════════════════════
+SUGGESTIONS D'AMÉLIORATION
+═══════════════════════════════════════
+3-5 suggestions concrètes pour améliorer significativement l'article.
+
+RETOURNE un JSON VALIDE (sans markdown ni backticks) :
+{
+  "score_global": 7.5,
+  "verdict": "Phrase résumé courte du verdict global",
+  "criteres": [
+    { "nom": "Cohérence globale", "note": 8, "commentaire": "..." },
+    { "nom": "Qualité rédactionnelle", "note": 7, "commentaire": "..." },
+    { "nom": "SEO & Structure", "note": 6, "commentaire": "..." },
+    { "nom": "Données & Chiffres", "note": 5, "commentaire": "..." },
+    { "nom": "CTA & Conversion", "note": 4, "commentaire": "..." },
+    { "nom": "Images", "note": 7, "commentaire": "..." },
+    { "nom": "FAQ", "note": 8, "commentaire": "..." },
+    { "nom": "Originalité", "note": 6, "commentaire": "..." }
+  ],
+  "problemes": [
+    { "localisation": "Section 2, H2 'xxx'", "probleme": "...", "suggestion": "..." }
+  ],
+  "suggestions": [
+    "Suggestion 1...",
+    "Suggestion 2..."
+  ],
+  "tableaux_presents": true,
+  "nb_cta": 3,
+  "cta_couleurs_variees": false,
+  "nb_images": 3
+}`;
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
+        body: JSON.stringify({
+          model,
+          max_tokens: 4096,
+          temperature: 0.3,
+          messages: [
+            { role: 'system', content: reviewPrompt },
+            { role: 'user', content: `Relis et audite cet article de manière critique et exhaustive.` }
+          ]
+        })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Erreur API IA: ${response.status} - ${errText}`);
+      }
+
+      const data = await response.json();
+      const raw = data.choices[0].message.content.trim().replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+
+      let review;
+      try { review = JSON.parse(raw); } catch { throw new Error('Format de réponse de relecture invalide'); }
+
+      return new Response(
+        JSON.stringify({ success: true, review }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      );
+    }
+
+    throw new Error(`Mode inconnu: ${mode}. Utilisez "angles", "article" ou "review".`);
 
   } catch (error) {
     console.error('Error in generate-article:', error);

@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { ArticlePreviewModal } from "@/components/ArticlePreviewModal";
+import { ArticleReviewModal } from "@/components/ArticleReviewModal";
 import { AIInstructionsModal } from "@/components/AIInstructionsModal";
 import { AuthorSelectModal } from "@/components/AuthorSelectModal";
 import { ArticleGenerationWizard } from "@/components/ArticleGenerationWizard";
@@ -38,6 +39,9 @@ const CreatePost = () => {
     loadingArticle, generatedArticle,
     handleGenerateAngles, handleSelectAngle, handleSelectArticle,
     generatingArticle,
+    // Review
+    reviewModalOpen, setReviewModalOpen, openReviewModal,
+    loadingReview, articleReview, handleStartReview,
   } = useArticleGeneration(
     formData, setFormData, contentType,
     currentAiInstructions, user?.id, { categories, tags }
@@ -82,11 +86,18 @@ const CreatePost = () => {
                   {editId ? "Éditer" : "Créer"} un{" "}
                   {contentTypeLabels[contentType as keyof typeof contentTypeLabels]}
                 </CardTitle>
-                <Button type="button" variant="outline" size="sm"
-                  onClick={() => setPreviewModalOpen(true)}
-                  disabled={!formData.title || !formData.content} className="gap-2">
-                  Prévisualisation live
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button type="button" variant="outline" size="sm"
+                    onClick={openReviewModal}
+                    disabled={!formData.title || !formData.content} className="gap-2 text-yellow-600 border-yellow-300 hover:bg-yellow-50">
+                    ⭐ Relecture IA
+                  </Button>
+                  <Button type="button" variant="outline" size="sm"
+                    onClick={() => setPreviewModalOpen(true)}
+                    disabled={!formData.title || !formData.content} className="gap-2">
+                    Prévisualisation live
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <form className="space-y-6">
@@ -159,6 +170,14 @@ const CreatePost = () => {
         <AIInstructionsModal open={aiInstructionsModalOpen} onOpenChange={setAiInstructionsModalOpen}
           defaultInstructions={defaultAiInstructions} currentInstructions={currentAiInstructions}
           onSave={(instructions) => setCurrentAiInstructions(instructions)} />
+
+        <ArticleReviewModal
+          open={reviewModalOpen}
+          onOpenChange={setReviewModalOpen}
+          review={articleReview}
+          loading={loadingReview}
+          onStartReview={handleStartReview}
+        />
 
         <AuthorSelectModal open={authorModalOpen} onOpenChange={setAuthorModalOpen}
           onAuthorCreated={(author) => {
