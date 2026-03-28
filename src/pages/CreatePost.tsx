@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { ArticlePreviewModal } from "@/components/ArticlePreviewModal";
+import { ArticleReviewModal } from "@/components/ArticleReviewModal";
 import { AIInstructionsModal } from "@/components/AIInstructionsModal";
 import { AuthorSelectModal } from "@/components/AuthorSelectModal";
 import { ArticleGenerationWizard } from "@/components/ArticleGenerationWizard";
