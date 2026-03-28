@@ -322,6 +322,10 @@ const GuideDetail = () => {
         <meta property="og:site_name" content="Prime Énergies" />
         <meta property="og:locale" content="fr_FR" />
         {guide.featured_image && <meta property="og:image" content={guide.featured_image} />}
+        {guide.featured_image && <meta property="og:image:width" content="1200" />}
+        {guide.featured_image && <meta property="og:image:height" content="630" />}
+        {guide.published_at && <meta property="article:published_time" content={guide.published_at} />}
+        {guide.updated_at && <meta property="article:modified_time" content={guide.updated_at} />}
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content={currentUrl} />
@@ -340,7 +344,12 @@ const GuideDetail = () => {
           dangerouslySetInnerHTML={{ __html: faqSchema }}
         />
       )}
-
+      {howToSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: howToSchema }}
+        />
+      )}
       <div className="min-h-screen bg-background">
         <Header />
         <Breadcrumb items={breadcrumbItems} />
