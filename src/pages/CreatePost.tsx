@@ -39,6 +39,9 @@ const CreatePost = () => {
     loadingArticle, generatedArticle,
     handleGenerateAngles, handleSelectAngle, handleSelectArticle,
     generatingArticle,
+    // Review
+    reviewModalOpen, setReviewModalOpen, openReviewModal,
+    loadingReview, articleReview, handleStartReview,
   } = useArticleGeneration(
     formData, setFormData, contentType,
     currentAiInstructions, user?.id, { categories, tags }
