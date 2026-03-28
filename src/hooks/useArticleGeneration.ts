@@ -100,6 +100,8 @@ export function useArticleGeneration(
             title: angle.title,
             intention: angle.intention,
           },
+          availableCategories: (options?.categories || []).map(c => ({ name: c.name, slug: c.slug })),
+          availableTags: (options?.tags || []).map(t => ({ name: t.name, slug: t.slug })),
         },
         headers: { Authorization: `Bearer ${accessToken}` }
       });
@@ -194,8 +196,24 @@ export function useArticleGeneration(
       guideSections = parsed.length > 0 ? parsed : [{ id: `section-${Date.now()}`, title: 'Introduction', content: article.content }];
     }
 
-    const autoCategory = autoSelectCategory(kws);
-    const autoTags = autoSelectTags(kws);
+    // Use AI-suggested category if available, fallback to keyword matching
+    let autoCategory = '';
+    if (article.suggestedCategorySlug) {
+      const cats = options?.categories || [];
+      const found = cats.find(c => c.slug === article.suggestedCategorySlug);
+      if (found) autoCategory = found.id;
+    }
+    if (!autoCategory) autoCategory = autoSelectCategory(kws);
+
+    // Use AI-suggested tags if available, fallback to keyword matching
+    let autoTags: string[] = [];
+    if (article.suggestedTagSlugs?.length > 0) {
+      const available = options?.tags || [];
+      autoTags = article.suggestedTagSlugs
+        .map((slug: string) => available.find(t => t.slug === slug)?.id)
+        .filter(Boolean) as string[];
+    }
+    if (autoTags.length === 0) autoTags = autoSelectTags(kws);
 
     setFormData(prev => ({
       ...prev,
@@ -215,7 +233,7 @@ export function useArticleGeneration(
       target_regions: article.targetRegions || prev.target_regions,
     }));
 
-    toast.success("Article appliqué ! Vérifiez et publiez.");
+    toast.success("Article appliqué avec catégorie et étiquettes !");
   };
 
   const openWizard = () => {

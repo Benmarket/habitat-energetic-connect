@@ -571,8 +571,8 @@ const ArticleDetail = () => {
                   <div 
                     className="article-content prose prose-lg max-w-none
                       prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight
-                      prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-5 prose-h2:pb-3 prose-h2:border-b prose-h2:border-border/50
-                      prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4
+                      prose-h2:text-[1.75rem] lg:prose-h2:text-[2rem] prose-h2:mt-14 prose-h2:mb-6 prose-h2:pb-3 prose-h2:border-b prose-h2:border-primary/20
+                      prose-h3:text-[1.35rem] lg:prose-h3:text-[1.5rem] prose-h3:mt-10 prose-h3:mb-4 prose-h3:text-foreground/90
                       prose-p:text-foreground prose-p:leading-[1.8] prose-p:mb-5
                       prose-strong:text-foreground prose-strong:font-semibold
                       prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground prose-li:leading-[1.8]

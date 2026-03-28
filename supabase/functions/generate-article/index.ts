@@ -177,7 +177,7 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
       const {
         product, subject, theme, objective, keywords, freePrompt, targetRegions,
         contentType, customInstructions, guideTemplate,
-        selectedAngle
+        selectedAngle, availableCategories, availableTags
       } = body;
 
       if (!selectedAngle) throw new Error('Angle sélectionné requis');
@@ -348,6 +348,15 @@ RÈGLES GÉNÉRALES
 • Inclure au moins 1 tableau de données chiffré
 ${ctaInstructions}
 
+═══════════════════════════════════════════
+CLASSIFICATION (OBLIGATOIRE)
+═══════════════════════════════════════════
+À la toute fin du HTML, ajoute un commentaire invisible avec la catégorie et les étiquettes les plus pertinentes parmi celles disponibles.
+${availableCategories?.length > 0 ? `CATÉGORIES DISPONIBLES: ${availableCategories.map((c: any) => `"${c.name}" (slug: ${c.slug})`).join(', ')}` : ''}
+${availableTags?.length > 0 ? `ÉTIQUETTES DISPONIBLES: ${availableTags.map((t: any) => `"${t.name}" (slug: ${t.slug})`).join(', ')}` : ''}
+FORMAT (dernière ligne du HTML): <!-- CLASSIFY:category=${availableCategories?.length > 0 ? 'slug_categorie' : 'none'}|tags=${availableTags?.length > 0 ? 'slug1,slug2,slug3' : 'none'} -->
+Choisis la catégorie LA PLUS pertinente et 2-4 étiquettes qui correspondent au contenu.
+
 Retourne UNIQUEMENT le HTML.`;
 
       const response = await fetch(apiUrl, {
@@ -376,6 +385,17 @@ Retourne UNIQUEMENT le HTML.`;
       const faq = extractFaq(content);
       const tldr = extractTldr(content);
 
+      // Extract classification
+      const classifyMatch = content.match(/<!--\s*CLASSIFY:category=([^|]*)\|tags=([^-]*)\s*-->/);
+      let suggestedCategorySlug = '';
+      let suggestedTagSlugs: string[] = [];
+      if (classifyMatch) {
+        suggestedCategorySlug = classifyMatch[1]?.trim() || '';
+        suggestedTagSlugs = (classifyMatch[2]?.trim() || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+        // Remove the classify comment from content
+        content = content.replace(/<!--\s*CLASSIFY:[^>]*-->/g, '').trim();
+      }
+
       const article = {
         title: extractTitle(content),
         content,
@@ -385,6 +405,8 @@ Retourne UNIQUEMENT le HTML.`;
         focusKeywords: keywords || [],
         tldr,
         faq,
+        suggestedCategorySlug,
+        suggestedTagSlugs,
       };
 
       return new Response(
