@@ -243,6 +243,7 @@ FORMAT: [CTA_BANNER:ID]`;
       };
 
       const systemPrompt = `Tu es un rédacteur SEO expert spécialisé énergies renouvelables et aides françaises.
+DATE ACTUELLE: ${todayDate}. Tout le contenu doit être à jour. Utilise les chiffres, barèmes et réglementations en vigueur en ${new Date().getFullYear()}.
 Tu rédiges UN SEUL article optimisé lead/conversion.
 
 TYPE: ${contentTypeLabels[contentType] || 'article'}
