@@ -25,6 +25,23 @@ export function PostFormFields({
   tags,
   onTitleChange,
 }: PostFormFieldsProps) {
+  const [regions, setRegions] = useState<Array<{code: string; name: string}>>([]);
+
+  useEffect(() => {
+    supabase.from('regions').select('code, name').eq('is_active', true).order('display_order')
+      .then(({ data }) => { if (data) setRegions(data); });
+  }, []);
+
+  const toggleRegion = (code: string) => {
+    const current = formData.target_regions;
+    if (current.includes(code)) {
+      if (current.length === 1) return;
+      setFormData({ ...formData, target_regions: current.filter(r => r !== code) });
+    } else {
+      setFormData({ ...formData, target_regions: [...current, code] });
+    }
+  };
+
   return (
     <>
       <div className="space-y-2">
