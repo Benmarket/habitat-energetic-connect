@@ -338,6 +338,7 @@ export function useCreatePost() {
           topline_bg_color: (post as any).topline_bg_color || "#22c55e",
           topline_text_color: (post as any).topline_text_color || "#ffffff",
           badge_image: (post as any).badge_image || "",
+          target_regions: (post as any).target_regions || ['fr'],
         });
       }
     } catch {
