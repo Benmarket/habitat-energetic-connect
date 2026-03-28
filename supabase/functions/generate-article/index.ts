@@ -139,7 +139,7 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
 
       const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
         body: JSON.stringify({
           model,
           max_tokens: 1500,
