@@ -98,6 +98,20 @@ export const AuthorSelectModal = ({ open, onOpenChange, onAuthorCreated }: Autho
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="author-job">Poste / Titre (optionnel)</Label>
+              <Input
+                id="author-job"
+                value={jobTitle}
+                onChange={(e) => setJobTitle(e.target.value)}
+                placeholder="Ex: Rédacteur énergies renouvelables, Expert thermique..."
+                maxLength={120}
+              />
+              <p className="text-xs text-muted-foreground">
+                Affiché sous le nom dans l'article.
+              </p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="author-bio">Bio / Expertise (optionnel)</Label>
               <Textarea
                 id="author-bio"
@@ -107,9 +121,6 @@ export const AuthorSelectModal = ({ open, onOpenChange, onAuthorCreated }: Autho
                 rows={3}
                 maxLength={500}
               />
-              <p className="text-xs text-muted-foreground">
-                La bio améliore le SEO et donne de la crédibilité à l'article.
-              </p>
             </div>
 
             <div className="space-y-2">
