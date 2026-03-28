@@ -141,7 +141,7 @@ const CreatePost = () => {
           onSelectArticle={handleSelectArticle}
           initialKeywords={formData.focus_keywords}
           initialRegions={formData.target_regions}
-
+        />
 
 
         <ArticlePreviewModal
