@@ -140,7 +140,9 @@ const CreatePost = () => {
           generatedArticle={generatedArticle}
           onSelectArticle={handleSelectArticle}
           initialKeywords={formData.focus_keywords}
+          initialRegions={formData.target_regions}
         />
+
 
         <ArticlePreviewModal
           open={previewModalOpen} onOpenChange={setPreviewModalOpen}

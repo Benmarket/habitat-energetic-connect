@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -5,8 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, MapPin } from "lucide-react";
 import { Category, Tag, CreatePostFormData } from "@/hooks/useCreatePost";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PostFormFieldsProps {
   formData: CreatePostFormData;
@@ -23,6 +25,23 @@ export function PostFormFields({
   tags,
   onTitleChange,
 }: PostFormFieldsProps) {
+  const [regions, setRegions] = useState<Array<{code: string; name: string}>>([]);
+
+  useEffect(() => {
+    supabase.from('regions').select('code, name').eq('is_active', true).order('display_order')
+      .then(({ data }) => { if (data) setRegions(data); });
+  }, []);
+
+  const toggleRegion = (code: string) => {
+    const current = formData.target_regions;
+    if (current.includes(code)) {
+      if (current.length === 1) return;
+      setFormData({ ...formData, target_regions: current.filter(r => r !== code) });
+    } else {
+      setFormData({ ...formData, target_regions: [...current, code] });
+    }
+  };
+
   return (
     <>
       <div className="space-y-2">
@@ -100,6 +119,29 @@ export function PostFormFields({
               </div>
             ))
           )}
+        </div>
+      </div>
+
+      {/* Region targeting */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label className="flex items-center gap-2">
+            <MapPin className="w-4 h-4" /> Régions cibles
+          </Label>
+          <Button type="button" variant="ghost" size="sm" className="text-xs h-7"
+            onClick={() => setFormData({ ...formData, target_regions: regions.map(r => r.code) })}>
+            Toutes
+          </Button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {regions.map(r => (
+            <label key={r.code} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md border cursor-pointer text-sm transition-colors ${
+              formData.target_regions.includes(r.code) ? 'border-primary bg-primary/10 font-medium' : 'border-border hover:border-primary/30'
+            }`}>
+              <Checkbox checked={formData.target_regions.includes(r.code)} onCheckedChange={() => toggleRegion(r.code)} />
+              {r.name}
+            </label>
+          ))}
         </div>
       </div>
     </>

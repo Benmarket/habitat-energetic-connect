@@ -52,6 +52,7 @@ export interface CreatePostFormData {
   topline_bg_color: string;
   topline_text_color: string;
   badge_image: string;
+  target_regions: string[];
 }
 
 // Validation schema
@@ -188,6 +189,7 @@ const initialFormData: CreatePostFormData = {
   topline_bg_color: "#22c55e",
   topline_text_color: "#ffffff",
   badge_image: "",
+  target_regions: ["fr"],
 };
 
 export function useCreatePost() {
@@ -337,6 +339,7 @@ export function useCreatePost() {
           topline_bg_color: (post as any).topline_bg_color || "#22c55e",
           topline_text_color: (post as any).topline_text_color || "#ffffff",
           badge_image: (post as any).badge_image || "",
+          target_regions: (post as any).target_regions || ['fr'],
         });
       }
     } catch {
@@ -441,6 +444,9 @@ export function useCreatePost() {
       if (validatedData.tldr) postData.tldr = validatedData.tldr;
       if (validatedData.faq && validatedData.faq.length > 0) {
         postData.faq = validatedData.faq;
+      }
+      if (formData.target_regions && formData.target_regions.length > 0) {
+        postData.target_regions = formData.target_regions;
       }
       if (status === "published" && !editId) postData.published_at = new Date().toISOString();
 

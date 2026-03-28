@@ -1,4 +1,4 @@
-// useArticleGeneration v5 - Multi-step: angles → selection → single article
+// useArticleGeneration v6 - Regions + timer + images fix
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -52,6 +52,7 @@ export function useArticleGeneration(
           objective: input.objective,
           keywords: input.keywords,
           freePrompt: input.freePrompt,
+          targetRegions: input.targetRegions,
           contentType,
           customInstructions: currentAiInstructions,
         },
@@ -87,6 +88,7 @@ export function useArticleGeneration(
           objective: input.objective,
           keywords: input.keywords,
           freePrompt: input.freePrompt,
+          targetRegions: input.targetRegions,
           contentType,
           customInstructions: currentAiInstructions,
           guideTemplate: contentType === 'guide' ? formData.guide_template : undefined,
@@ -111,7 +113,7 @@ export function useArticleGeneration(
       const imageMatches = contentWithImages.match(/\[IMAGE:\s*([^\]]+)\]/g) || [];
       const imageDescriptions = imageMatches.map((m: string) => m.replace(/\[IMAGE:\s*/, '').replace(/\]/, '').trim());
 
-      if (imageDescriptions.length > 0 && userId) {
+      if (imageDescriptions.length > 0) {
         try {
           const { data: imagesData, error: imagesError } = await supabase.functions.invoke('generate-images', {
             body: { imageDescriptions },
@@ -119,27 +121,35 @@ export function useArticleGeneration(
           });
 
           if (!imagesError && imagesData?.success && imagesData.images) {
+            // First successful image = featured image
             const firstOk = imagesData.images.find((img: any) => img.success);
             if (firstOk) featuredImageUrl = firstOk.url;
 
+            // Replace ALL image placeholders with actual images
             imagesData.images.forEach((imgData: any, index: number) => {
               if (imgData.success && imageMatches[index]) {
-                const imgTag = `<img src="${imgData.url}" alt="${imgData.description}" class="rounded-lg max-w-full h-auto my-4" />`;
+                const imgTag = `<div style="text-align:center;margin:1.5rem 0"><img src="${imgData.url}" alt="${imgData.description || imageDescriptions[index]}" class="rounded-lg" style="max-width:100%;height:auto;border-radius:8px" /></div>`;
                 contentWithImages = contentWithImages.replace(imageMatches[index], imgTag);
               }
             });
           }
-        } catch { /* silent */ }
+        } catch (e) {
+          console.error('Image generation error:', e);
+        }
       }
+
+      // Clean any remaining unresolved placeholders
+      contentWithImages = contentWithImages.replace(/\[IMAGE:\s*[^\]]+\]/g, '');
 
       const finalArticle = {
         ...article,
         content: contentWithImages,
         featuredImageUrl,
+        targetRegions: input.targetRegions,
       };
 
       setGeneratedArticle(finalArticle);
-      toast.success("Article généré avec succès !");
+      toast.success("Article généré avec images !");
     } catch (error: any) {
       toast.error(error.message || "Erreur lors de la génération de l'article");
     } finally {
@@ -161,7 +171,6 @@ export function useArticleGeneration(
     return cats[0].id;
   };
 
-  // Auto-select tags
   const autoSelectTags = (keywords: string[]): string[] => {
     if (formData.tag_ids.length > 0) return formData.tag_ids;
     const available = options?.tags || [];
@@ -175,7 +184,6 @@ export function useArticleGeneration(
     return matched.length > 0 ? matched : available.slice(0, 2).map(t => t.id);
   };
 
-  // Apply selected article to form
   const handleSelectArticle = (article: any) => {
     const kws = article.focusKeywords || formData.focus_keywords;
     let guideSections = formData.guide_sections;
@@ -202,6 +210,7 @@ export function useArticleGeneration(
       guide_sections: contentType === 'guide' ? guideSections : prev.guide_sections,
       category_id: autoCategory || prev.category_id,
       tag_ids: autoTags.length > 0 ? autoTags : prev.tag_ids,
+      target_regions: article.targetRegions || prev.target_regions,
     }));
 
     toast.success("Article appliqué ! Vérifiez et publiez.");
@@ -214,17 +223,10 @@ export function useArticleGeneration(
   };
 
   return {
-    wizardOpen,
-    setWizardOpen,
-    openWizard,
-    loadingAngles,
-    angles,
-    loadingArticle,
-    generatedArticle,
-    handleGenerateAngles,
-    handleSelectAngle,
-    handleSelectArticle,
-    // Keep generatingArticle for backward compat with SEOFields button state
+    wizardOpen, setWizardOpen, openWizard,
+    loadingAngles, angles,
+    loadingArticle, generatedArticle,
+    handleGenerateAngles, handleSelectAngle, handleSelectArticle,
     generatingArticle: loadingAngles || loadingArticle,
   };
 }

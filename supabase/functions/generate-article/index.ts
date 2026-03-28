@@ -87,7 +87,7 @@ serve(async (req) => {
     // MODE: ANGLES — Propose 5 editorial angles
     // ══════════════════════════════════════════
     if (mode === 'angles') {
-      const { product, theme, objective, keywords, freePrompt, contentType, customInstructions } = body;
+      const { product, theme, objective, keywords, freePrompt, contentType, customInstructions, targetRegions } = body;
 
       if (!product || !theme || !objective) throw new Error('Produit, thème et objectif sont obligatoires');
 
@@ -115,6 +115,7 @@ CONTEXTE:
 - Objectif: ${objectiveLabels[objective] || objective}
 - Type: ${contentTypeLabels[contentType] || 'article'}
 ${keywords?.length > 0 ? `- Mots-clés SEO: ${keywords.join(', ')}` : ''}
+${targetRegions?.length > 0 ? `- Régions cibles: ${targetRegions.join(', ')} (adapte le contenu, les aides locales et les références géographiques)` : ''}
 ${freePrompt ? `- Contraintes: ${freePrompt}` : ''}
 ${customInstructions ? `- Instructions: ${customInstructions}` : ''}
 
@@ -171,7 +172,7 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
     // ══════════════════════════════════════════
     if (mode === 'article') {
       const {
-        product, theme, objective, keywords, freePrompt,
+        product, theme, objective, keywords, freePrompt, targetRegions,
         contentType, customInstructions, guideTemplate,
         selectedAngle
       } = body;
@@ -254,6 +255,8 @@ OBJECTIF: ${objectiveLabels[objective] || objective}
 ANGLE ÉDITORIAL: [${selectedAngle.type}] ${selectedAngle.title}
 INTENTION: ${selectedAngle.intention}
 ${keywords?.length > 0 ? `MOTS-CLÉS: ${keywords.join(', ')}` : ''}
+${targetRegions?.length > 0 ? `RÉGIONS CIBLES: ${targetRegions.join(', ')}
+IMPORTANT: Adapte le contenu aux spécificités de ces régions (aides locales, climat, réglementations, exemples locaux). Mentionne les régions naturellement dans le texte pour le SEO géographique.${targetRegions.includes('corse') || targetRegions.includes('reunion') || targetRegions.includes('martinique') || targetRegions.includes('guadeloupe') || targetRegions.includes('guyane') ? ' Inclus les spécificités DOM-TOM si applicable (MaPrimeRénov Outre-mer, conditions climatiques tropicales, etc.).' : ''}` : ''}
 ${guideBlock}
 ${customInstructions ? `INSTRUCTIONS: ${customInstructions}` : ''}
 ${freePrompt ? `CONTRAINTES: ${freePrompt}` : ''}

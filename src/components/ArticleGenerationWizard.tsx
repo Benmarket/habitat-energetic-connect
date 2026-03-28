@@ -1,5 +1,5 @@
-// ArticleGenerationWizard - Multi-step article generation
-import { useState } from "react";
+// ArticleGenerationWizard v2 - Timer + Regions + Images fix
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Sparkles, ArrowLeft, ArrowRight, Check, Target, Lightbulb, FileText, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Loader2, Sparkles, ArrowLeft, ArrowRight, Check, Target, Lightbulb, FileText, X, MapPin, Clock } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface GenerationInput {
   product: string;
@@ -18,6 +20,7 @@ export interface GenerationInput {
   objective: string;
   keywords: string[];
   freePrompt: string;
+  targetRegions: string[];
 }
 
 export interface EditorialAngle {
@@ -27,21 +30,26 @@ export interface EditorialAngle {
   intention: string;
 }
 
+interface Region {
+  id: string;
+  code: string;
+  name: string;
+  image_url: string | null;
+}
+
 interface ArticleGenerationWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   contentType: string;
-  // Step 1 → 2
   onGenerateAngles: (input: GenerationInput) => Promise<void>;
   loadingAngles: boolean;
   angles: EditorialAngle[] | null;
-  // Step 3 → 4
   onSelectAngle: (angle: EditorialAngle, input: GenerationInput) => Promise<void>;
   loadingArticle: boolean;
   generatedArticle: any | null;
   onSelectArticle: (article: any) => void;
-  // Pre-filled keywords
   initialKeywords?: string[];
+  initialRegions?: string[];
 }
 
 const THEMES = [
@@ -75,6 +83,7 @@ export const ArticleGenerationWizard = ({
   generatedArticle,
   onSelectArticle,
   initialKeywords = [],
+  initialRegions = ["fr"],
 }: ArticleGenerationWizardProps) => {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [input, setInput] = useState<GenerationInput>({
@@ -83,15 +92,42 @@ export const ArticleGenerationWizard = ({
     objective: "lead",
     keywords: initialKeywords,
     freePrompt: "",
+    targetRegions: initialRegions,
   });
   const [keywordInput, setKeywordInput] = useState("");
   const [selectedAngle, setSelectedAngle] = useState<EditorialAngle | null>(null);
+  const [regions, setRegions] = useState<Region[]>([]);
+
+  // Timer
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Fetch regions from DB
+  useEffect(() => {
+    if (open) {
+      supabase.from('regions').select('id, code, name, image_url').eq('is_active', true).order('display_order')
+        .then(({ data }) => { if (data) setRegions(data); });
+    }
+  }, [open]);
+
+  // Timer logic
+  useEffect(() => {
+    const isLoading = loadingAngles || loadingArticle;
+    if (isLoading) {
+      setElapsedSeconds(0);
+      timerRef.current = setInterval(() => setElapsedSeconds(s => s + 1), 1000);
+    } else {
+      if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [loadingAngles, loadingArticle]);
 
   const resetWizard = () => {
     setStep(1);
-    setInput({ product: "", theme: "", objective: "lead", keywords: initialKeywords, freePrompt: "" });
+    setInput({ product: "", theme: "", objective: "lead", keywords: initialKeywords, freePrompt: "", targetRegions: initialRegions });
     setKeywordInput("");
     setSelectedAngle(null);
+    setElapsedSeconds(0);
   };
 
   const handleClose = (val: boolean) => {
@@ -122,9 +158,37 @@ export const ArticleGenerationWizard = ({
     setInput(prev => ({ ...prev, keywords: prev.keywords.filter((_, i) => i !== index) }));
   };
 
-  const isStep1Valid = input.product.trim().length > 0 && input.theme.trim().length > 0 && input.objective.trim().length > 0;
+  const toggleRegion = (code: string) => {
+    setInput(prev => {
+      const current = prev.targetRegions;
+      if (current.includes(code)) {
+        if (current.length === 1) return prev; // at least 1
+        return { ...prev, targetRegions: current.filter(r => r !== code) };
+      }
+      return { ...prev, targetRegions: [...current, code] };
+    });
+  };
+
+  const selectAllRegions = () => {
+    setInput(prev => ({ ...prev, targetRegions: regions.map(r => r.code) }));
+  };
+
+  const isStep1Valid = input.product.trim().length > 0 && input.theme.trim().length > 0 && input.objective.trim().length > 0 && input.targetRegions.length > 0;
 
   const contentLabel = contentType === 'guide' ? 'guide' : contentType === 'aide' ? 'article aide' : 'article';
+
+  const formatTimer = (s: number) => {
+    const mins = Math.floor(s / 60);
+    const secs = s % 60;
+    return mins > 0 ? `${mins}m ${secs.toString().padStart(2, '0')}s` : `${secs}s`;
+  };
+
+  const TimerDisplay = () => (
+    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <Clock className="w-4 h-4 animate-pulse" />
+      <span>{formatTimer(elapsedSeconds)}</span>
+    </div>
+  );
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -135,7 +199,7 @@ export const ArticleGenerationWizard = ({
             Générer un {contentLabel} — Étape {step}/3
           </DialogTitle>
           <DialogDescription>
-            {step === 1 && "Définissez votre sujet, thème et objectif pour une génération ciblée."}
+            {step === 1 && "Définissez votre sujet, thème, objectif et régions cibles."}
             {step === 2 && "Choisissez l'angle éditorial qui correspond le mieux à votre stratégie."}
             {step === 3 && "Génération de l'article en cours..."}
           </DialogDescription>
@@ -149,7 +213,7 @@ export const ArticleGenerationWizard = ({
         </div>
 
         <ScrollArea className="flex-1 pr-2">
-          {/* STEP 1: Structured Input */}
+          {/* STEP 1 */}
           {step === 1 && (
             <div className="space-y-4 py-2">
               <div className="space-y-2">
@@ -158,7 +222,7 @@ export const ArticleGenerationWizard = ({
                   Produit / Sujet principal <span className="text-destructive">*</span>
                 </Label>
                 <Input
-                  placeholder="Ex : panneaux photovoltaïques, isolation combles, mutuelle senior…"
+                  placeholder="Ex : panneaux photovoltaïques, isolation combles…"
                   value={input.product}
                   onChange={e => setInput(prev => ({ ...prev, product: e.target.value }))}
                 />
@@ -170,13 +234,9 @@ export const ArticleGenerationWizard = ({
                   Thème de l'article <span className="text-destructive">*</span>
                 </Label>
                 <Select value={input.theme} onValueChange={v => setInput(prev => ({ ...prev, theme: v }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionnez un thème" />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Sélectionnez un thème" /></SelectTrigger>
                   <SelectContent>
-                    {THEMES.map(t => (
-                      <SelectItem key={t} value={t}>{t}</SelectItem>
-                    ))}
+                    {THEMES.map(t => (<SelectItem key={t} value={t}>{t}</SelectItem>))}
                   </SelectContent>
                 </Select>
               </div>
@@ -184,22 +244,16 @@ export const ArticleGenerationWizard = ({
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-primary" />
-                  Objectif de l'article <span className="text-destructive">*</span>
+                  Objectif <span className="text-destructive">*</span>
                 </Label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {OBJECTIVES.map(obj => (
-                    <button
-                      key={obj.value}
-                      type="button"
+                    <button key={obj.value} type="button"
                       onClick={() => setInput(prev => ({ ...prev, objective: obj.value }))}
                       className={`flex items-center gap-2 p-3 rounded-lg border text-left transition-colors text-sm ${
-                        input.objective === obj.value
-                          ? 'border-primary bg-primary/10 text-primary font-medium'
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                    >
-                      <span className="text-lg">{obj.icon}</span>
-                      {obj.label}
+                        input.objective === obj.value ? 'border-primary bg-primary/10 text-primary font-medium' : 'border-border hover:border-primary/50'
+                      }`}>
+                      <span className="text-lg">{obj.icon}</span>{obj.label}
                     </button>
                   ))}
                 </div>
@@ -207,19 +261,46 @@ export const ArticleGenerationWizard = ({
 
               <Separator />
 
+              {/* Region selection */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-primary" />
+                    Régions cibles <span className="text-destructive">*</span>
+                  </Label>
+                  <Button type="button" variant="ghost" size="sm" onClick={selectAllRegions} className="text-xs h-7">
+                    Toutes
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {regions.map(region => (
+                    <label key={region.code}
+                      className={`flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-colors text-sm ${
+                        input.targetRegions.includes(region.code) ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/30'
+                      }`}>
+                      <Checkbox
+                        checked={input.targetRegions.includes(region.code)}
+                        onCheckedChange={() => toggleRegion(region.code)}
+                      />
+                      {region.image_url && (
+                        <img src={region.image_url} alt={region.name} className="w-6 h-6 object-contain" />
+                      )}
+                      <span className="font-medium">{region.name}</span>
+                    </label>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  L'article sera optimisé SEO pour les régions sélectionnées.
+                </p>
+              </div>
+
+              <Separator />
+
               <div className="space-y-2">
                 <Label>Mots-clés SEO <span className="text-muted-foreground text-xs">(optionnel)</span></Label>
-                <Input
-                  placeholder="Tapez un mot-clé et appuyez sur Entrée"
-                  value={keywordInput}
+                <Input placeholder="Tapez un mot-clé et appuyez sur Entrée" value={keywordInput}
                   onChange={e => setKeywordInput(e.target.value)}
-                  onKeyDown={e => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addKeyword(keywordInput);
-                    }
-                  }}
-                />
+                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addKeyword(keywordInput); } }} />
                 {input.keywords.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
                     {input.keywords.map((kw, i) => (
@@ -236,49 +317,47 @@ export const ArticleGenerationWizard = ({
 
               <div className="space-y-2">
                 <Label>Prompt libre <span className="text-muted-foreground text-xs">(optionnel)</span></Label>
-                <Textarea
-                  placeholder="Ajoutez un angle spécifique, des contraintes ou des consignes supplémentaires…"
-                  value={input.freePrompt}
-                  onChange={e => setInput(prev => ({ ...prev, freePrompt: e.target.value }))}
-                  rows={3}
-                />
+                <Textarea placeholder="Angle spécifique, contraintes…" value={input.freePrompt}
+                  onChange={e => setInput(prev => ({ ...prev, freePrompt: e.target.value }))} rows={3} />
               </div>
 
               <div className="flex justify-end pt-2">
                 <Button onClick={handleStep1Submit} disabled={!isStep1Valid || loadingAngles} className="gap-2">
-                  {loadingAngles ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
-                  Proposer 5 angles
+                  {loadingAngles ? <><Loader2 className="w-4 h-4 animate-spin" /><TimerDisplay /></> : <><ArrowRight className="w-4 h-4" />Proposer 5 angles</>}
                 </Button>
               </div>
             </div>
           )}
 
-          {/* STEP 2: Angles Selection */}
+          {/* STEP 2 */}
           {step === 2 && (
             <div className="space-y-4 py-2">
               {loadingAngles && !angles ? (
                 <div className="flex flex-col items-center justify-center py-12 gap-3">
                   <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                  <p className="text-muted-foreground">Analyse de votre sujet et proposition d'angles…</p>
+                  <TimerDisplay />
+                  <p className="text-muted-foreground">Analyse et proposition d'angles…</p>
                 </div>
               ) : angles && angles.length > 0 ? (
                 <>
-                  <p className="text-sm text-muted-foreground">
-                    Sélectionnez l'angle qui correspond le mieux à votre stratégie pour <strong>{input.product}</strong>.
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">
+                      Sélectionnez l'angle pour <strong>{input.product}</strong>
+                      {input.targetRegions.length < regions.length && (
+                        <span className="ml-1">
+                          ({input.targetRegions.map(r => regions.find(rr => rr.code === r)?.name).filter(Boolean).join(', ')})
+                        </span>
+                      )}
+                    </p>
+                  </div>
                   <div className="space-y-3">
                     {angles.map(angle => (
-                      <Card
-                        key={angle.id}
-                        className="cursor-pointer transition-all hover:border-primary/50 hover:shadow-md"
-                        onClick={() => handleAngleSelect(angle)}
-                      >
+                      <Card key={angle.id} className="cursor-pointer transition-all hover:border-primary/50 hover:shadow-md"
+                        onClick={() => handleAngleSelect(angle)}>
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between gap-3">
                             <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <Badge variant="outline" className="text-xs">{angle.type}</Badge>
-                              </div>
+                              <Badge variant="outline" className="text-xs mb-1">{angle.type}</Badge>
                               <h4 className="font-semibold text-base">{angle.title}</h4>
                               <p className="text-sm text-muted-foreground mt-1">→ {angle.intention}</p>
                             </div>
@@ -298,7 +377,7 @@ export const ArticleGenerationWizard = ({
                 </>
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-destructive">Aucun angle n'a pu être généré. Réessayez.</p>
+                  <p className="text-destructive">Aucun angle généré. Réessayez.</p>
                   <Button variant="outline" onClick={() => setStep(1)} className="mt-4 gap-2">
                     <ArrowLeft className="w-4 h-4" /> Retour
                   </Button>
@@ -307,41 +386,44 @@ export const ArticleGenerationWizard = ({
             </div>
           )}
 
-          {/* STEP 3: Article Generation & Preview */}
+          {/* STEP 3 */}
           {step === 3 && (
             <div className="space-y-4 py-2">
               {loadingArticle && !generatedArticle ? (
                 <div className="flex flex-col items-center justify-center py-12 gap-3">
                   <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  <TimerDisplay />
                   <p className="text-muted-foreground">
-                    Rédaction de l'article avec l'angle : <strong>{selectedAngle?.type}</strong>
+                    Rédaction : <strong>{selectedAngle?.type}</strong>
                   </p>
-                  <p className="text-xs text-muted-foreground">Cela peut prendre 30 à 60 secondes…</p>
+                  <p className="text-xs text-muted-foreground">Génération du contenu + images…</p>
                 </div>
               ) : generatedArticle ? (
                 <>
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant="default" className="gap-1">
-                      <Check className="w-3 h-3" /> Article généré
+                      <Check className="w-3 h-3" /> Généré en {formatTimer(elapsedSeconds)}
                     </Badge>
                     <Badge variant="outline">{selectedAngle?.type}</Badge>
                   </div>
-                  
+
                   <Card>
                     <CardContent className="p-4">
+                      {generatedArticle.featuredImageUrl && (
+                        <img src={generatedArticle.featuredImageUrl} alt="Image principale"
+                          className="w-full h-48 object-cover rounded-lg mb-4" />
+                      )}
                       <h3 className="text-lg font-bold mb-2">{generatedArticle.title}</h3>
                       <p className="text-sm text-muted-foreground mb-3">{generatedArticle.excerpt}</p>
                       <Separator className="my-3" />
-                      <div 
-                        className="prose prose-sm max-w-none max-h-[300px] overflow-y-auto"
-                        dangerouslySetInnerHTML={{ __html: generatedArticle.content?.slice(0, 2000) + '...' }}
-                      />
+                      <div className="prose prose-sm max-w-none max-h-[300px] overflow-y-auto"
+                        dangerouslySetInnerHTML={{ __html: generatedArticle.content?.slice(0, 3000) + '...' }} />
                     </CardContent>
                   </Card>
 
                   <div className="flex justify-between pt-2">
-                    <Button variant="ghost" onClick={() => { setStep(2); }} className="gap-2">
-                      <ArrowLeft className="w-4 h-4" /> Choisir un autre angle
+                    <Button variant="ghost" onClick={() => setStep(2)} className="gap-2">
+                      <ArrowLeft className="w-4 h-4" /> Autre angle
                     </Button>
                     <Button onClick={() => { onSelectArticle(generatedArticle); handleClose(false); }} className="gap-2">
                       <Check className="w-4 h-4" /> Utiliser cet article
@@ -350,9 +432,9 @@ export const ArticleGenerationWizard = ({
                 </>
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-destructive">Erreur lors de la génération. Réessayez.</p>
+                  <p className="text-destructive">Erreur lors de la génération.</p>
                   <Button variant="outline" onClick={() => setStep(2)} className="mt-4 gap-2">
-                    <ArrowLeft className="w-4 h-4" /> Retour aux angles
+                    <ArrowLeft className="w-4 h-4" /> Retour
                   </Button>
                 </div>
               )}
