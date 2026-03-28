@@ -193,7 +193,7 @@ export const ArticleGenerationWizard = ({
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="w-[min(42rem,calc(100vw-2rem))] h-[90vh] max-h-[90vh] flex flex-col overflow-hidden">
-        <DialogHeader>
+        <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
             Générer un {contentLabel} — Étape {step}/3
