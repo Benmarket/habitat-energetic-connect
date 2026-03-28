@@ -212,7 +212,7 @@ export const ArticleGenerationWizard = ({
           ))}
         </div>
 
-        <ScrollArea className="flex-1 min-h-0 pr-2">
+        <div className="flex-1 min-h-0 overflow-y-auto pr-2">
           {/* STEP 1 */}
           {step === 1 && (
             <div className="space-y-4 py-2">
