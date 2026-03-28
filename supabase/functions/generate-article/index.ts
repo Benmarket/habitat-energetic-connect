@@ -274,8 +274,9 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
 
 3. <div class="summary-box" style="background:#f0f9ff;border-left:4px solid #0284c7;padding:1.5rem;margin:2rem 0;">
    <h2 style="margin-top:0;color:#0284c7;font-size:1.25rem;">📌 En résumé</h2>
-   <ul><li>4-5 points clés</li></ul>
+   <ul><li>3-4 points clés CONCIS</li></ul>
    </div>
+   IMPORTANT: Le contenu texte de ce bloc "En résumé" (TL;DR) ne doit PAS dépasser 500 caractères au total (tous les <li> combinés).
 
 4. Introduction (150-200 mots) — Accroche + problème + promesse
 
@@ -483,7 +484,8 @@ function extractTldr(html: string): string {
   const m = html.match(/<div class="summary-box"[^>]*>(.*?)<\/div>/is);
   if (!m) return '';
   const items = m[1].match(/<li[^>]*>(.*?)<\/li>/gis);
-  return items ? items.map(i => i.replace(/<[^>]*>/g,'').trim()).join('\n') : '';
+  const text = items ? items.map(i => i.replace(/<[^>]*>/g,'').trim()).join('\n') : '';
+  return text.length <= 500 ? text : text.slice(0, 497) + '...';
 }
 function extractFaq(html: string): Array<{question:string;answer:string}> {
   const faq: Array<{question:string;answer:string}> = [];
