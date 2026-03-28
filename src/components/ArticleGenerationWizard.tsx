@@ -126,7 +126,7 @@ export const ArticleGenerationWizard = ({
 
   const resetWizard = () => {
     setStep(1);
-    setInput({ product: "", theme: "", objective: "lead", keywords: initialKeywords, freePrompt: "", targetRegions: initialRegions });
+    setInput({ product: "", subject: "", theme: "", objective: "lead", keywords: initialKeywords, freePrompt: "", targetRegions: initialRegions });
     setKeywordInput("");
     setSelectedAngle(null);
     setElapsedSeconds(0);
