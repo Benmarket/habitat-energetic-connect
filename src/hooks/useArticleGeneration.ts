@@ -1,9 +1,9 @@
-// useArticleGeneration v4 - auto-fill category/tags + improved mapping
+// useArticleGeneration v5 - Multi-step: angles → selection → single article
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { parseContentToSections, sectionsToContent, CreatePostFormData, generateSlug } from "./useCreatePost";
-import { GuideSection } from "@/components/GuideSectionsEditor";
+import { parseContentToSections, CreatePostFormData, generateSlug } from "./useCreatePost";
+import { GenerationInput, EditorialAngle } from "@/components/ArticleGenerationWizard";
 
 interface ArticleGenerationOptions {
   categories?: Array<{ id: string; name: string; slug: string }>;
@@ -18,314 +18,213 @@ export function useArticleGeneration(
   userId?: string,
   options?: ArticleGenerationOptions
 ) {
-  const [generatingArticle, setGeneratingArticle] = useState(false);
-  const [variantsModalOpen, setVariantsModalOpen] = useState(false);
-  const [generatedVariants, setGeneratedVariants] = useState<any>(null);
-  const [regeneratingVariantId, setRegeneratingVariantId] = useState<number | null>(null);
-  const [previousVariantVersions, setPreviousVariantVersions] = useState<Map<number, any>>(new Map());
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [loadingAngles, setLoadingAngles] = useState(false);
+  const [angles, setAngles] = useState<EditorialAngle[] | null>(null);
+  const [loadingArticle, setLoadingArticle] = useState(false);
+  const [generatedArticle, setGeneratedArticle] = useState<any | null>(null);
 
-  const handleGenerateArticle = async () => {
-    if (formData.focus_keywords.length === 0) {
-      toast.error("Veuillez ajouter au moins un mot-clé avant de générer un article");
-      return;
+  const getAccessToken = async () => {
+    const { data } = await supabase.auth.getSession();
+    const token = data?.session?.access_token;
+    if (!token) {
+      toast.error("Vous devez être connecté pour générer un article");
+      return null;
     }
+    return token;
+  };
 
-    if (contentType === 'guide' && !formData.guide_template) {
-      toast.error("Veuillez sélectionner un thème de guide avant de générer");
-      return;
-    }
-
-    setGeneratingArticle(true);
-    setVariantsModalOpen(true);
+  // STEP 1→2: Generate 5 editorial angles
+  const handleGenerateAngles = async (input: GenerationInput) => {
+    setLoadingAngles(true);
+    setAngles(null);
+    setGeneratedArticle(null);
 
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData?.session?.access_token;
-      
-      if (!accessToken) {
-        toast.error("Vous devez être connecté pour générer un article");
-        setGeneratingArticle(false);
-        setVariantsModalOpen(false);
-        return;
-      }
+      const accessToken = await getAccessToken();
+      if (!accessToken) { setLoadingAngles(false); return; }
 
       const { data, error } = await supabase.functions.invoke('generate-article', {
         body: {
-          keywords: formData.focus_keywords,
-          contentType: contentType,
+          mode: 'angles',
+          product: input.product,
+          theme: input.theme,
+          objective: input.objective,
+          keywords: input.keywords,
+          freePrompt: input.freePrompt,
+          contentType,
           customInstructions: currentAiInstructions,
-          guideTemplate: contentType === 'guide' ? formData.guide_template : undefined,
-          userId: userId
         },
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
+        headers: { Authorization: `Bearer ${accessToken}` }
       });
 
       if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Erreur lors de la génération des angles");
 
-      if (!data.success) {
-        throw new Error(data.error || "Erreur lors de la génération");
-      }
-
-      const variantsWithImages = await Promise.all(
-        data.variants.map(async (variant: any) => {
-          const imageMatches = variant.content?.match(/\[IMAGE:\s*([^\]]+)\]/g) || [];
-          const imageDescriptions = imageMatches.map((match: string) => 
-            match.replace(/\[IMAGE:\s*/, '').replace(/\]/, '').trim()
-          );
-
-          let contentWithImages = variant.content || '';
-          let featuredImageUrl = '';
-
-          if (imageDescriptions.length > 0 && userId) {
-            try {
-              const { data: imagesData, error: imagesError } = await supabase.functions.invoke('generate-images', {
-                body: {
-                  imageDescriptions: imageDescriptions,
-                },
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              });
-
-              if (!imagesError && imagesData?.success && imagesData.images) {
-                const firstSuccessImage = imagesData.images.find((img: any) => img.success);
-                if (firstSuccessImage) {
-                  featuredImageUrl = firstSuccessImage.url;
-                }
-
-                imagesData.images.forEach((imgData: any, index: number) => {
-                  if (imgData.success && imageMatches[index]) {
-                    const imgTag = `<img src="${imgData.url}" alt="${imgData.description}" class="rounded-lg max-w-full h-auto my-4" />`;
-                    contentWithImages = contentWithImages.replace(imageMatches[index], imgTag);
-                  }
-                });
-              }
-            } catch {
-              // Silent fail
-            }
-          }
-
-          return {
-            ...variant,
-            content: contentWithImages,
-            featuredImageUrl: featuredImageUrl
-          };
-        })
-      );
-
-      setGeneratedVariants(variantsWithImages);
-      toast.success("Articles générés avec images !");
+      setAngles(data.angles);
+      toast.success("5 angles éditoriaux proposés !");
     } catch (error: any) {
-      toast.error(error.message || "Erreur lors de la génération de l'article");
-      setVariantsModalOpen(false);
+      toast.error(error.message || "Erreur lors de la proposition des angles");
     } finally {
-      setGeneratingArticle(false);
+      setLoadingAngles(false);
     }
   };
 
-  // Auto-detect best category based on keywords
-  const autoSelectCategory = (): string => {
+  // STEP 3→4: Generate single article from selected angle
+  const handleSelectAngle = async (angle: EditorialAngle, input: GenerationInput) => {
+    setLoadingArticle(true);
+    setGeneratedArticle(null);
+
+    try {
+      const accessToken = await getAccessToken();
+      if (!accessToken) { setLoadingArticle(false); return; }
+
+      const { data, error } = await supabase.functions.invoke('generate-article', {
+        body: {
+          mode: 'article',
+          product: input.product,
+          theme: input.theme,
+          objective: input.objective,
+          keywords: input.keywords,
+          freePrompt: input.freePrompt,
+          contentType,
+          customInstructions: currentAiInstructions,
+          guideTemplate: contentType === 'guide' ? formData.guide_template : undefined,
+          userId,
+          selectedAngle: {
+            type: angle.type,
+            title: angle.title,
+            intention: angle.intention,
+          },
+        },
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Erreur lors de la génération");
+
+      const article = data.article;
+
+      // Generate images from placeholders
+      let contentWithImages = article.content || '';
+      let featuredImageUrl = '';
+      const imageMatches = contentWithImages.match(/\[IMAGE:\s*([^\]]+)\]/g) || [];
+      const imageDescriptions = imageMatches.map((m: string) => m.replace(/\[IMAGE:\s*/, '').replace(/\]/, '').trim());
+
+      if (imageDescriptions.length > 0 && userId) {
+        try {
+          const { data: imagesData, error: imagesError } = await supabase.functions.invoke('generate-images', {
+            body: { imageDescriptions },
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+
+          if (!imagesError && imagesData?.success && imagesData.images) {
+            const firstOk = imagesData.images.find((img: any) => img.success);
+            if (firstOk) featuredImageUrl = firstOk.url;
+
+            imagesData.images.forEach((imgData: any, index: number) => {
+              if (imgData.success && imageMatches[index]) {
+                const imgTag = `<img src="${imgData.url}" alt="${imgData.description}" class="rounded-lg max-w-full h-auto my-4" />`;
+                contentWithImages = contentWithImages.replace(imageMatches[index], imgTag);
+              }
+            });
+          }
+        } catch { /* silent */ }
+      }
+
+      const finalArticle = {
+        ...article,
+        content: contentWithImages,
+        featuredImageUrl,
+      };
+
+      setGeneratedArticle(finalArticle);
+      toast.success("Article généré avec succès !");
+    } catch (error: any) {
+      toast.error(error.message || "Erreur lors de la génération de l'article");
+    } finally {
+      setLoadingArticle(false);
+    }
+  };
+
+  // Auto-detect best category
+  const autoSelectCategory = (keywords: string[]): string => {
     if (formData.category_id) return formData.category_id;
     const cats = options?.categories || [];
     if (cats.length === 0) return '';
-    
-    // Try to match a category by keyword overlap
-    const keywords = formData.focus_keywords.map(k => k.toLowerCase());
+    const kws = keywords.map(k => k.toLowerCase());
     for (const cat of cats) {
-      const catName = cat.name.toLowerCase();
-      const catSlug = cat.slug.toLowerCase();
-      if (keywords.some(k => catName.includes(k) || k.includes(catName) || catSlug.includes(k))) {
-        return cat.id;
-      }
+      const n = cat.name.toLowerCase();
+      const s = cat.slug.toLowerCase();
+      if (kws.some(k => n.includes(k) || k.includes(n) || s.includes(k))) return cat.id;
     }
-    // Fallback: first category
     return cats[0].id;
   };
 
-  // Auto-select relevant tags based on keywords  
-  const autoSelectTags = (): string[] => {
+  // Auto-select tags
+  const autoSelectTags = (keywords: string[]): string[] => {
     if (formData.tag_ids.length > 0) return formData.tag_ids;
-    const availableTags = options?.tags || [];
-    if (availableTags.length === 0) return [];
-    
-    const keywords = formData.focus_keywords.map(k => k.toLowerCase());
-    const matchedTagIds: string[] = [];
-    
-    for (const tag of availableTags) {
-      const tagName = tag.name.toLowerCase();
-      const tagSlug = tag.slug.toLowerCase();
-      if (keywords.some(k => tagName.includes(k) || k.includes(tagName) || tagSlug.includes(k))) {
-        matchedTagIds.push(tag.id);
-      }
-    }
-    
-    // If no match, select first 1-2 tags
-    if (matchedTagIds.length === 0) {
-      return availableTags.slice(0, Math.min(2, availableTags.length)).map(t => t.id);
-    }
-    
-    return matchedTagIds;
+    const available = options?.tags || [];
+    if (available.length === 0) return [];
+    const kws = keywords.map(k => k.toLowerCase());
+    const matched = available.filter(t => {
+      const n = t.name.toLowerCase();
+      const s = t.slug.toLowerCase();
+      return kws.some(k => n.includes(k) || k.includes(n) || s.includes(k));
+    }).map(t => t.id);
+    return matched.length > 0 ? matched : available.slice(0, 2).map(t => t.id);
   };
 
-  const handleSelectVariant = async (variant: any) => {
+  // Apply selected article to form
+  const handleSelectArticle = (article: any) => {
+    const kws = article.focusKeywords || formData.focus_keywords;
     let guideSections = formData.guide_sections;
-    if (contentType === 'guide' && variant.content) {
-      const parsedSections = parseContentToSections(variant.content);
-      if (parsedSections.length > 0) {
-        guideSections = parsedSections;
-      } else {
-        guideSections = [{
-          id: `section-${Date.now()}`,
-          title: 'Introduction',
-          content: variant.content
-        }];
-      }
+    if (contentType === 'guide' && article.content) {
+      const parsed = parseContentToSections(article.content);
+      guideSections = parsed.length > 0 ? parsed : [{ id: `section-${Date.now()}`, title: 'Introduction', content: article.content }];
     }
 
-    const autoCategory = autoSelectCategory();
-    const autoTags = autoSelectTags();
-    
+    const autoCategory = autoSelectCategory(kws);
+    const autoTags = autoSelectTags(kws);
+
     setFormData(prev => ({
       ...prev,
-      title: variant.title || '',
-      slug: generateSlug(variant.title || ''),
-      content: variant.content || '',
-      excerpt: variant.excerpt || '',
-      featured_image: variant.featuredImageUrl || '',
-      meta_title: variant.metaTitle || variant.title?.slice(0, 60) || '',
-      meta_description: variant.metaDescription || variant.excerpt?.slice(0, 160) || '',
-      focus_keywords: variant.focusKeywords || prev.focus_keywords,
-      tldr: variant.tldr || '',
-      faq: variant.faq || [],
+      title: article.title || '',
+      slug: generateSlug(article.title || ''),
+      content: article.content || '',
+      excerpt: article.excerpt || '',
+      featured_image: article.featuredImageUrl || '',
+      meta_title: article.metaTitle || (article.title || '').slice(0, 60),
+      meta_description: article.metaDescription || (article.excerpt || '').slice(0, 160),
+      focus_keywords: kws,
+      tldr: article.tldr || '',
+      faq: article.faq || [],
       guide_sections: contentType === 'guide' ? guideSections : prev.guide_sections,
-      // Auto-fill category & tags if not already set
       category_id: autoCategory || prev.category_id,
       tag_ids: autoTags.length > 0 ? autoTags : prev.tag_ids,
-      // Preserve existing guide-specific fields
-      topline: variant.topline || prev.topline,
-      topline_bg_color: variant.topline_bg_color || prev.topline_bg_color,
-      topline_text_color: variant.topline_text_color || prev.topline_text_color,
-      badge_image: variant.badge_image || prev.badge_image,
     }));
 
-    const autoFilledParts: string[] = [];
-    if (autoCategory) autoFilledParts.push('catégorie');
-    if (autoTags.length > 0) autoFilledParts.push('étiquettes');
-    
-    const baseMsg = contentType === 'guide' 
-      ? "Guide sélectionné ! Tous les champs ont été remplis." 
-      : "Article sélectionné ! Tous les champs ont été remplis.";
-    
-    const extraMsg = autoFilledParts.length > 0 
-      ? ` (${autoFilledParts.join(' et ')} auto-sélectionnées)` 
-      : '';
-    
-    toast.success(baseMsg + extraMsg);
+    toast.success("Article appliqué ! Vérifiez et publiez.");
   };
 
-  const handleRegenerateVariant = async (variantId: number, instructions: string) => {
-    setRegeneratingVariantId(variantId);
-    
-    try {
-      const currentVariant = generatedVariants?.find((v: any) => v.id === variantId);
-      if (!currentVariant) {
-        toast.error("Variante introuvable");
-        setRegeneratingVariantId(null);
-        return;
-      }
-
-      if (!previousVariantVersions.has(variantId)) {
-        setPreviousVariantVersions(prev => new Map(prev).set(variantId, { ...currentVariant }));
-      }
-
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData?.session?.access_token;
-      
-      if (!accessToken) {
-        toast.error("Session expirée, veuillez vous reconnecter");
-        setRegeneratingVariantId(null);
-        return;
-      }
-
-      const { data, error } = await supabase.functions.invoke('generate-article', {
-        body: { 
-          keywords: formData.focus_keywords.length > 0 ? formData.focus_keywords : ['panneau solaire'],
-          contentType: contentType,
-          baseContent: currentVariant.content,
-          additionalInstructions: instructions,
-          customInstructions: currentAiInstructions,
-          guideTemplate: contentType === 'guide' ? formData.guide_template : undefined,
-          userId: userId,
-        },
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      });
-
-      if (error) throw new Error(error.message || "Erreur lors de l'appel à l'edge function");
-      if (!data) throw new Error("Aucune donnée reçue de l'edge function");
-      if (!data.success) throw new Error(data.error || "La génération a échoué");
-      if (!data.variants || data.variants.length === 0) throw new Error("Aucune variante générée");
-
-      const regeneratedVariant = data.variants[0];
-      
-      const imageDescription = regeneratedVariant.imageDescription || 
-        `Image pour l'article: ${regeneratedVariant.title}`;
-      
-      const { data: imageData, error: imageError } = await supabase.functions.invoke('generate-images', {
-        body: { imageDescriptions: [imageDescription] },
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      const firstOk = imageData?.images?.find?.((img: any) => img?.success);
-      if (!imageError && firstOk?.url) {
-        regeneratedVariant.featuredImageUrl = firstOk.url;
-      }
-
-      setGeneratedVariants((prev: any) => 
-        prev.map((v: any) => v.id === variantId ? { ...regeneratedVariant, id: variantId } : v)
-      );
-
-      toast.success("Variante régénérée avec succès !");
-    } catch (error: any) {
-      console.error("Error regenerating variant:", error);
-      toast.error(error.message || "Erreur lors de la régénération de la variante");
-    } finally {
-      setRegeneratingVariantId(null);
-    }
-  };
-
-  const handleRestorePreviousVersion = (variantId: number) => {
-    const previousVersion = previousVariantVersions.get(variantId);
-    if (previousVersion) {
-      setGeneratedVariants((prev: any) => 
-        prev.map((v: any) => v.id === variantId ? previousVersion : v)
-      );
-      
-      setPreviousVariantVersions(prev => {
-        const newMap = new Map(prev);
-        newMap.delete(variantId);
-        return newMap;
-      });
-      
-      toast.success("Version précédente restaurée");
-    }
+  const openWizard = () => {
+    setAngles(null);
+    setGeneratedArticle(null);
+    setWizardOpen(true);
   };
 
   return {
-    generatingArticle,
-    variantsModalOpen,
-    setVariantsModalOpen,
-    generatedVariants,
-    regeneratingVariantId,
-    previousVariantVersions,
-    handleGenerateArticle,
-    handleSelectVariant,
-    handleRegenerateVariant,
-    handleRestorePreviousVersion,
+    wizardOpen,
+    setWizardOpen,
+    openWizard,
+    loadingAngles,
+    angles,
+    loadingArticle,
+    generatedArticle,
+    handleGenerateAngles,
+    handleSelectAngle,
+    handleSelectArticle,
+    // Keep generatingArticle for backward compat with SEOFields button state
+    generatingArticle: loadingAngles || loadingArticle,
   };
 }
