@@ -7,7 +7,7 @@ const CTAPartner = () => {
     window.dispatchEvent(
       new CustomEvent("contact-preselect", {
         detail: {
-          subject: "aide-dossier-subvention",
+          subject: "demande-partenariat",
           accountType: "professionnel",
         },
       }),
