@@ -214,9 +214,10 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
       const shuffledButtons = shuffleArray([...buttonPresets]);
       const btns = shuffledButtons.slice(0, 3);
       if (btns.length > 0) {
-        ctaInstructions += `\n\nBOUTONS CTA:
-${btns.map((b: any, i: number) => `${i + 1}. "${b.text}" → ${b.url}`).join('\n')}
-FORMAT: [BUTTON:Texte|URL]`;
+        ctaInstructions += `\n\nBOUTONS CTA (VARIER LES COULEURS ! Ne pas tous utiliser la même couleur):
+${btns.map((b: any, i: number) => `${i + 1}. "${b.text}" → ${b.url} (couleur: ${b.background_color || '#10b981'})`).join('\n')}
+FORMAT: [BUTTON:Texte|URL]
+IMPORTANT: Si les boutons ont tous la même couleur, change le texte d'au moins un pour proposer un message différent.`;
       } else {
         ctaInstructions += `\nBOUTONS CTA: [BUTTON:Demander un devis gratuit|#contact]`;
       }
@@ -224,8 +225,8 @@ FORMAT: [BUTTON:Texte|URL]`;
       const shuffledBanners = shuffleArray([...ctaBanners]);
       const bnrs = shuffledBanners.slice(0, 2);
       if (bnrs.length > 0) {
-        ctaInstructions += `\n\nBANNIÈRES CTA:
-${bnrs.map((b: any) => `ID="${b.id}" Titre="${b.title}"`).join('\n')}
+        ctaInstructions += `\n\nBANNIÈRES CTA (utilise des bannières DIFFÉRENTES entre elles):
+${bnrs.map((b: any) => `ID="${b.id}" Titre="${b.title}" (couleurs: bg=${b.background_color}, accent=${b.accent_color})`).join('\n')}
 FORMAT: [CTA_BANNER:ID]`;
       }
 
