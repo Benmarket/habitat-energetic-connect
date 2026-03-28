@@ -270,7 +270,7 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
 
 1. <h1>Titre (basé sur l'angle choisi)</h1>
 
-2. [IMAGE: Vue LARGE panoramique du sujet, 30+ mots descriptifs, style magazine]
+2. [IMAGE: Vue LARGE panoramique du sujet principal, photo éditoriale style magazine, lumière naturelle, 30+ mots descriptifs]
 
 3. <div class="summary-box" style="background:#f0f9ff;border-left:4px solid #0284c7;padding:1.5rem;margin:2rem 0;">
    <h2 style="margin-top:0;color:#0284c7;font-size:1.25rem;">📌 En résumé</h2>
@@ -285,27 +285,29 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
 
 7. <h2>Section 2</h2> — Développement valeur (200-300 mots)
 
-8. [IMAGE: GROS PLAN technique ou infographie, TRÈS DIFFÉRENT de l'image 1, 30+ mots]
+8. [IMAGE: GROS PLAN technique, détail produit ou infographie explicative, TRÈS DIFFÉRENT de l'image 1, 30+ mots descriptifs]
 
 9. <h2>Section 3</h2> — Projection utilisateur (200+ mots)
 
-10. [CTA_BANNER:ID] — Bannière lead capture
+10. [IMAGE: Photo d'illustration humaine ou résultat concret (ex: famille satisfaite, maison rénovée, facture réduite), DIFFÉRENT des images 1 et 2, 30+ mots descriptifs]
 
-11. <h2>Sections supplémentaires</h2> — 1-2 H2 additionnels
+11. [CTA_BANNER:ID] — Bannière lead capture
 
-12. <h2>Questions fréquentes</h2>
+12. <h2>Sections supplémentaires</h2> — 1-2 H2 additionnels
+
+13. <h2>Questions fréquentes</h2>
     <div class="faq-item"><h3>Question ?</h3><p>Réponse.</p></div> (3-5 FAQ)
 
-13. <h2>Sources et références</h2> — Sources officielles
+14. <h2>Sources et références</h2> — Sources officielles
 
-14. [BUTTON:CTA final]
+15. [BUTTON:CTA final]
 
-15. Conclusion (100-150 mots) — Synthèse + passage à l'action
+16. Conclusion (100-150 mots) — Synthèse + passage à l'action
 
 ═══════════════════════════════════════════
 RÈGLES
 ═══════════════════════════════════════════
-• EXACTEMENT 2 [IMAGE: ...] différents (panoramique + technique)
+• EXACTEMENT 3 [IMAGE: ...] tous DIFFÉRENTS (panoramique + technique + humain/résultat)
 • HTML pur (<p>, <ul>, <h2>, <h3>). Jamais de markdown.
 • ${contentType === 'guide' ? '1800-2500 mots' : '1200-1800 mots'}
 • Style direct, impactant, zéro blabla
