@@ -385,6 +385,17 @@ Retourne UNIQUEMENT le HTML.`;
       const faq = extractFaq(content);
       const tldr = extractTldr(content);
 
+      // Extract classification
+      const classifyMatch = content.match(/<!--\s*CLASSIFY:category=([^|]*)\|tags=([^-]*)\s*-->/);
+      let suggestedCategorySlug = '';
+      let suggestedTagSlugs: string[] = [];
+      if (classifyMatch) {
+        suggestedCategorySlug = classifyMatch[1]?.trim() || '';
+        suggestedTagSlugs = (classifyMatch[2]?.trim() || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+        // Remove the classify comment from content
+        content = content.replace(/<!--\s*CLASSIFY:[^>]*-->/g, '').trim();
+      }
+
       const article = {
         title: extractTitle(content),
         content,
@@ -394,6 +405,8 @@ Retourne UNIQUEMENT le HTML.`;
         focusKeywords: keywords || [],
         tldr,
         faq,
+        suggestedCategorySlug,
+        suggestedTagSlugs,
       };
 
       return new Response(
