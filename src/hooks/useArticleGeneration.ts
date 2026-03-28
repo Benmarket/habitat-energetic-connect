@@ -100,6 +100,8 @@ export function useArticleGeneration(
             title: angle.title,
             intention: angle.intention,
           },
+          availableCategories: (options?.categories || []).map(c => ({ name: c.name, slug: c.slug })),
+          availableTags: (options?.tags || []).map(t => ({ name: t.name, slug: t.slug })),
         },
         headers: { Authorization: `Bearer ${accessToken}` }
       });
