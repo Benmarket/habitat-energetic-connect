@@ -309,22 +309,25 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
 16. Conclusion (100-150 mots) — Synthèse + passage à l'action
 
 ═══════════════════════════════════════════
-TABLEAUX DE DONNÉES (OBLIGATOIRE)
+TABLEAUX DE DONNÉES (OBLIGATOIRE — MINIMUM 1, IDÉALEMENT 2-3)
 ═══════════════════════════════════════════
-Insère 1 à 3 tableaux HTML dans l'article pour sourcer des données, comparer des valeurs ou illustrer des évolutions chiffrées.
-Les tableaux rendent l'article plus crédible et professionnel.
+⚠️ UN ARTICLE SANS TABLEAU EST INACCEPTABLE. Tu DOIS inclure au minimum 1 tableau HTML.
+Les tableaux rendent l'article crédible, professionnel et référencé. Ils sont un critère SEO important.
 
-EXEMPLES D'USAGE:
-- Évolution d'un prix/tarif sur plusieurs années
-- Comparatif de solutions/produits (puissance, coût, rendement)
-- Barème d'aides par tranche de revenus
-- Récapitulatif des économies selon les cas
+QUAND UTILISER UN TABLEAU:
+- Comparaison de prix, rendements, performances
+- Barèmes d'aides par tranche de revenus/surface
+- Évolution de tarifs/prix sur plusieurs années
+- Fiches techniques de produits
+- Récapitulatif d'économies selon différents scénarios
+- Comparatif avant/après travaux
 
-FORMAT OBLIGATOIRE (HTML propre avec classes):
+FORMAT OBLIGATOIRE (HTML propre avec classes CSS):
 <div class="article-table-wrapper">
 <table class="article-data-table">
 <thead><tr><th>Colonne 1</th><th>Colonne 2</th><th>Colonne 3</th></tr></thead>
 <tbody>
+<tr><td>Valeur</td><td>Valeur</td><td>Valeur</td></tr>
 <tr><td>Valeur</td><td>Valeur</td><td>Valeur</td></tr>
 </tbody>
 </table>
@@ -332,10 +335,12 @@ FORMAT OBLIGATOIRE (HTML propre avec classes):
 </div>
 
 RÈGLES TABLEAUX:
-- Toujours citer la source sous le tableau
+- TOUJOURS citer la source officielle sous le tableau
 - 3 à 6 colonnes max, 4 à 10 lignes max
 - Données RÉALISTES et ACTUELLES (${new Date().getFullYear()})
 - Placer les tableaux dans les sections où ils apportent une preuve chiffrée
+- Le 1er tableau doit apparaître dans les sections 1-3 de l'article
+- NE PAS mettre de styles inline sur les cellules (les classes CSS s'en chargent)
 
 ═══════════════════════════════════════════
 RÈGLES GÉNÉRALES
@@ -346,7 +351,8 @@ RÈGLES GÉNÉRALES
 • Style direct, impactant, zéro blabla
 • Chaque section sert l'objectif lead
 • Pas de paraphrase inutile
-• Inclure au moins 1 tableau de données chiffré
+• MINIMUM 1 tableau de données chiffré (OBLIGATOIRE)
+• Les CTA doivent avoir des MESSAGES VARIÉS (pas 3x "Demander un devis")
 ${ctaInstructions}
 
 ═══════════════════════════════════════════
