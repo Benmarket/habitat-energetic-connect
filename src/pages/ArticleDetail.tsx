@@ -433,6 +433,12 @@ const ArticleDetail = () => {
                         {format(new Date(article.published_at), "d MMMM yyyy", { locale: fr })}
                       </div>
                     )}
+                    {article.updated_at && article.updated_at !== article.published_at && (
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4" />
+                        Mis à jour le {format(new Date(article.updated_at), "d MMMM yyyy", { locale: fr })}
+                      </div>
+                    )}
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
                       {formatReadingTime(readingTime)}
