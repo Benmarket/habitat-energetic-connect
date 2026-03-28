@@ -268,7 +268,7 @@ ${freePrompt ? `CONTRAINTES: ${freePrompt}` : ''}
 STRUCTURE OBLIGATOIRE (suivre cet ordre)
 ═══════════════════════════════════════════
 
-1. <h1>Titre (basé sur l'angle choisi)</h1>
+1. <h1>Titre (basé sur l'angle choisi, SANS préfixe de type comme "Alerte :", "Analyse :", "Décryptage :", "Guide :" etc. Le titre doit être naturel et SEO-friendly)</h1>
 
 2. [IMAGE: Vue LARGE panoramique du sujet principal, photo éditoriale style magazine, lumière naturelle, 30+ mots descriptifs]
 
