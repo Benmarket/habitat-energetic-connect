@@ -189,13 +189,25 @@ const GuideDetail = () => {
     { name: guide.title, url: currentUrl },
   ];
 
-  // Schema.org structured data
+  // Build comprehensive keywords
+  const allKeywords = [
+    ...(guide.focus_keywords || []),
+    ...(guide.post_categories?.map(pc => pc.categories.name) || []),
+    ...(guide.post_tags?.map(pt => pt.tags.name) || []),
+  ].filter(Boolean);
+
+  // Schema.org structured data — TechArticle for guides
   const articleSchema = JSON.stringify({
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "TechArticle",
     headline: guide.meta_title || guide.title,
     description: guide.meta_description || guide.excerpt || "",
-    image: guide.featured_image ? [guide.featured_image] : [],
+    image: guide.featured_image ? [{
+      "@type": "ImageObject",
+      url: guide.featured_image,
+      width: 1200,
+      height: 630
+    }] : [],
     datePublished: guide.published_at,
     dateModified: guide.updated_at || guide.published_at,
     author: {
@@ -214,8 +226,33 @@ const GuideDetail = () => {
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": currentUrl
-    }
+    },
+    articleSection: guide.post_categories?.[0]?.categories?.name || "Guides pratiques",
+    keywords: allKeywords.join(", "),
+    inLanguage: "fr-FR",
+    isAccessibleForFree: !guide.is_members_only,
+    ...(guide.tldr ? { abstract: guide.tldr } : {})
   });
+
+  // HowTo schema extracted from headings (each H2 = a step)
+  const howToSteps = toc
+    .filter(item => item.level === 2)
+    .map((item, index) => ({
+      "@type": "HowToStep",
+      position: index + 1,
+      name: item.text,
+      url: `${currentUrl}#${item.id}`
+    }));
+
+  const howToSchema = howToSteps.length >= 2 ? JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: guide.meta_title || guide.title,
+    description: guide.meta_description || guide.excerpt || "",
+    image: guide.featured_image || undefined,
+    totalTime: `PT${readingTime}M`,
+    step: howToSteps
+  }) : null;
 
   const faqSchema = guide.faq && guide.faq.length > 0 ? JSON.stringify({
     "@context": "https://schema.org",
