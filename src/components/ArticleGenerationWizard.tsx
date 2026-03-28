@@ -440,7 +440,7 @@ export const ArticleGenerationWizard = ({
               )}
             </div>
           )}
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );
