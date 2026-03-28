@@ -82,7 +82,7 @@ serve(async (req) => {
     // MODE: ANGLES — Propose 5 editorial angles
     // ══════════════════════════════════════════
     if (mode === 'angles') {
-      const { product, theme, objective, keywords, freePrompt, contentType, customInstructions, targetRegions } = body;
+      const { product, subject, theme, objective, keywords, freePrompt, contentType, customInstructions, targetRegions } = body;
 
       if (!product || !theme || !objective) throw new Error('Produit, thème et objectif sont obligatoires');
 
@@ -107,7 +107,8 @@ DATE ACTUELLE: ${todayDate}. Toutes tes propositions doivent être à jour et pe
 Tu dois proposer EXACTEMENT 5 angles éditoriaux DIFFÉRENTS et STRATÉGIQUES pour un article.
 
 CONTEXTE:
-- Produit: ${product}
+- Produit à mettre en avant: ${product}
+${subject ? `- Sujet / Trame de l'article: ${subject}` : ''}
 - Thème: ${theme}
 - Objectif: ${objectiveLabels[objective] || objective}
 - Type: ${contentTypeLabels[contentType] || 'article'}
@@ -146,7 +147,7 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
           temperature: 0.9,
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: `Propose 5 angles éditoriaux pour: ${product} — ${theme} (objectif: ${objectiveLabels[objective] || objective})` }
+            { role: 'user', content: `Propose 5 angles éditoriaux pour le produit "${product}"${subject ? ` sur le sujet "${subject}"` : ''} — thème: ${theme} (objectif: ${objectiveLabels[objective] || objective})` }
           ]
         })
       });
@@ -174,7 +175,7 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
     // ══════════════════════════════════════════
     if (mode === 'article') {
       const {
-        product, theme, objective, keywords, freePrompt, targetRegions,
+        product, subject, theme, objective, keywords, freePrompt, targetRegions,
         contentType, customInstructions, guideTemplate,
         selectedAngle
       } = body;
@@ -252,7 +253,8 @@ DATE ACTUELLE: ${todayDate}. Tout le contenu doit être à jour. Utilise les chi
 Tu rédiges UN SEUL article optimisé lead/conversion.
 
 TYPE: ${contentTypeLabels[contentType] || 'article'}
-PRODUIT: ${product}
+PRODUIT À METTRE EN AVANT: ${product}
+${subject ? `SUJET / TRAME: ${subject} (utilise ce sujet comme fil conducteur de l'article, les images et les données doivent être en rapport avec ce sujet, pas seulement le produit)` : ''}
 THÈME: ${theme}
 OBJECTIF: ${objectiveLabels[objective] || objective}
 ANGLE ÉDITORIAL: [${selectedAngle.type}] ${selectedAngle.title}
@@ -270,7 +272,7 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
 
 1. <h1>Titre (basé sur l'angle choisi, SANS préfixe de type comme "Alerte :", "Analyse :", "Décryptage :", "Guide :" etc. Le titre doit être naturel et SEO-friendly)</h1>
 
-2. [IMAGE: Vue LARGE panoramique du sujet principal, photo éditoriale style magazine, lumière naturelle, 30+ mots descriptifs]
+2. [IMAGE: Vue LARGE panoramique en rapport direct avec le SUJET de l'article (pas générique). Si le sujet est l'électricité → réseau électrique, compteur, facture. Si c'est le solaire → panneaux sur toit. Photo éditoriale style magazine, lumière naturelle, 30+ mots descriptifs SPÉCIFIQUES au sujet]
 
 3. <div class="summary-box" style="background:#f0f9ff;border-left:4px solid #0284c7;padding:1.5rem;margin:2rem 0;">
    <h2 style="margin-top:0;color:#0284c7;font-size:1.25rem;">📌 En résumé</h2>
@@ -286,11 +288,11 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
 
 7. <h2>Section 2</h2> — Développement valeur (200-300 mots)
 
-8. [IMAGE: GROS PLAN technique, détail produit ou infographie explicative, TRÈS DIFFÉRENT de l'image 1, 30+ mots descriptifs]
+8. [IMAGE: GROS PLAN en rapport avec le CONTENU de la section précédente. Détail technique, infographie ou illustration du sujet traité. TRÈS DIFFÉRENT de l'image 1. 30+ mots descriptifs SPÉCIFIQUES]
 
 9. <h2>Section 3</h2> — Projection utilisateur (200+ mots)
 
-10. [IMAGE: Photo d'illustration humaine ou résultat concret (ex: famille satisfaite, maison rénovée, facture réduite), DIFFÉRENT des images 1 et 2, 30+ mots descriptifs]
+10. [IMAGE: Photo humaine ou résultat concret en lien avec le sujet (ex: propriétaire regardant sa facture, technicien au travail, maison rénovée). DIFFÉRENT des images 1 et 2. 30+ mots descriptifs SPÉCIFIQUES]
 
 11. [CTA_BANNER:ID] — Bannière lead capture
 
@@ -337,7 +339,7 @@ RÈGLES TABLEAUX:
 ═══════════════════════════════════════════
 RÈGLES GÉNÉRALES
 ═══════════════════════════════════════════
-• EXACTEMENT 3 [IMAGE: ...] tous DIFFÉRENTS (panoramique + technique + humain/résultat)
+• EXACTEMENT 3 [IMAGE: ...] tous DIFFÉRENTS et en rapport avec le SUJET/TRAME de l'article (pas des images génériques d'éoliennes ou panneaux si le sujet est autre chose)
 • HTML pur (<p>, <ul>, <h2>, <h3>, <table>). Jamais de markdown.
 • ${contentType === 'guide' ? '1800-2500 mots' : '1200-1800 mots'}
 • Style direct, impactant, zéro blabla
