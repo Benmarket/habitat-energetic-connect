@@ -151,7 +151,12 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
         })
       });
 
-      if (!response.ok) throw new Error(`Erreur API: ${response.status}`);
+      if (!response.ok) {
+        const errText = await response.text();
+        if (response.status === 429) throw new Error('Limite IA atteinte, réessayez dans quelques instants.');
+        if (response.status === 402) throw new Error('Crédits IA insuffisants.');
+        throw new Error(`Erreur API IA: ${response.status} - ${errText}`);
+      }
       const data = await response.json();
       const raw = data.choices[0].message.content.trim().replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
 
