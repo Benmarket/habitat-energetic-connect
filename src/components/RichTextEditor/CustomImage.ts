@@ -9,6 +9,8 @@ export interface CustomImageOptions {
 export interface ImageAttributes {
   src: string;
   alt: string;
+  title: string;
+  caption: string;
   width: number | null;
   align: 'left' | 'center' | 'right';
 }
