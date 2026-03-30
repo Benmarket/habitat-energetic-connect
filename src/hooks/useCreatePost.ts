@@ -54,6 +54,7 @@ export interface CreatePostFormData {
   topline_text_color: string;
   badge_image: string;
   target_regions: string[];
+  generation_cost: number | null;
 }
 
 // Validation schema
@@ -191,6 +192,7 @@ const initialFormData: CreatePostFormData = {
   topline_text_color: "#ffffff",
   badge_image: "",
   target_regions: ["fr"],
+  generation_cost: null,
 };
 
 export function useCreatePost() {
@@ -341,6 +343,7 @@ export function useCreatePost() {
           topline_text_color: (post as any).topline_text_color || "#ffffff",
           badge_image: (post as any).badge_image || "",
           target_regions: (post as any).target_regions || ['fr'],
+          generation_cost: (post as any).generation_cost ?? null,
         });
       }
     } catch {
@@ -448,6 +451,9 @@ export function useCreatePost() {
       }
       if (formData.target_regions && formData.target_regions.length > 0) {
         postData.target_regions = formData.target_regions;
+      }
+      if (formData.generation_cost !== null && formData.generation_cost !== undefined) {
+        postData.generation_cost = formData.generation_cost;
       }
       if (status === "published" && !editId) postData.published_at = new Date().toISOString();
 

@@ -1462,6 +1462,7 @@ export type Database = {
           faq: Json | null
           featured_image: string | null
           focus_keywords: string[] | null
+          generation_cost: number | null
           guide_template: string | null
           hide_author: boolean
           id: string
@@ -1498,6 +1499,7 @@ export type Database = {
           faq?: Json | null
           featured_image?: string | null
           focus_keywords?: string[] | null
+          generation_cost?: number | null
           guide_template?: string | null
           hide_author?: boolean
           id?: string
@@ -1534,6 +1536,7 @@ export type Database = {
           faq?: Json | null
           featured_image?: string | null
           focus_keywords?: string[] | null
+          generation_cost?: number | null
           guide_template?: string | null
           hide_author?: boolean
           id?: string

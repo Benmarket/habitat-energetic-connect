@@ -33,7 +33,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Calendar, Bot, FileSearch } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Calendar, Bot, FileSearch, DollarSign } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -348,6 +348,7 @@ const ManageActualites = () => {
                         <TableHead>Titre</TableHead>
                         <TableHead className="w-32">Catégorie</TableHead>
                         <TableHead className="w-24">Source</TableHead>
+                        <TableHead className="w-20">Coût</TableHead>
                         <TableHead className="w-32">Statut</TableHead>
                         <TableHead className="w-40">Date</TableHead>
                         <TableHead className="w-24 text-right">Actions</TableHead>
@@ -379,6 +380,28 @@ const ManageActualites = () => {
                               <Badge variant="outline">
                                 {post.source === "ai_auto" ? "IA Auto" : "Manuel"}
                               </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {post.generation_cost != null ? (
+                                <span className="text-xs font-mono text-muted-foreground">
+                                  ${Number(post.generation_cost).toFixed(4)}
+                                </span>
+                              ) : (
+                                <button
+                                  className="text-xs text-muted-foreground/50 hover:text-muted-foreground cursor-pointer"
+                                  onClick={async () => {
+                                    const cost = prompt("Coût de génération ($) :", "0");
+                                    if (cost === null) return;
+                                    const numCost = parseFloat(cost);
+                                    if (isNaN(numCost)) return;
+                                    await supabase.from("posts").update({ generation_cost: numCost } as any).eq("id", post.id);
+                                    fetchPosts();
+                                  }}
+                                  title="Cliquer pour saisir le coût"
+                                >
+                                  —
+                                </button>
+                              )}
                             </TableCell>
                             <TableCell>
                               <div className="space-y-1">
