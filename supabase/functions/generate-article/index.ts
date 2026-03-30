@@ -926,14 +926,26 @@ function extractTldr(html: string): string {
 }
 function extractFaq(html: string): Array<{question:string;answer:string}> {
   const faq: Array<{question:string;answer:string}> = [];
-  const m = html.match(/<h2[^>]*>Questions fréquentes<\/h2>(.*?)(?=<h2|$)/is);
+  // Match the FAQ section (various heading formats)
+  const m = html.match(/<h2[^>]*>\s*(?:❓\s*)?Questions?\s*fr[ée]quentes?\s*<\/h2>([\s\S]*?)(?=<h2[^>]*>(?!\s*(?:❓\s*)?Questions)|$)/i);
   if (!m) return faq;
-  const items = m[1].match(/<div class="faq-item"[^>]*>(.*?)<\/div>/gis);
-  if (!items) return faq;
-  items.forEach(item => {
-    const q = item.match(/<h3[^>]*>(.*?)<\/h3>/is);
-    const a = item.match(/<p[^>]*>(.*?)<\/p>/is);
-    if (q && a) faq.push({ question: q[1].replace(/<[^>]*>/g,'').trim(), answer: a[1].replace(/<[^>]*>/g,'').trim() });
-  });
-  return faq;
+  const section = m[1];
+  // Try faq-item divs first
+  const items = section.match(/<div class="faq-item"[^>]*>([\s\S]*?)<\/div>/gi);
+  if (items) {
+    items.forEach(item => {
+      const q = item.match(/<h3[^>]*>(.*?)<\/h3>/is);
+      const a = item.match(/<p[^>]*>([\s\S]*?)<\/p>/is);
+      if (q && a) faq.push({ question: q[1].replace(/<[^>]*>/g,'').trim(), answer: a[1].replace(/<[^>]*>/g,'').trim() });
+    });
+  }
+  // Fallback: extract h3 + p pairs directly
+  if (faq.length === 0) {
+    const h3Matches = [...section.matchAll(/<h3[^>]*>(.*?)<\/h3>\s*<p[^>]*>([\s\S]*?)<\/p>/gi)];
+    h3Matches.forEach(match => {
+      faq.push({ question: match[1].replace(/<[^>]*>/g,'').trim(), answer: match[2].replace(/<[^>]*>/g,'').trim() });
+    });
+  }
+  // Cap at 5 best questions
+  return faq.slice(0, 5);
 }

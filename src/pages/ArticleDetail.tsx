@@ -137,11 +137,11 @@ const ArticleDetail = () => {
         // Calculate reading time and extract TOC
         if (data.content) {
           setReadingTime(calculateReadingTime(data.content));
-          // Strip duplicate summary-box and FAQ section from HTML (rendered separately as React components)
-          // Use non-greedy match for FAQ: only remove faq-item divs, not everything after
+          // Strip any remaining summary-box or FAQ section from HTML
+          // (should already be cleaned server-side, but safety net)
           let cleanedContent = data.content
             .replace(/<div class="summary-box"[^>]*>[\s\S]*?<\/div>/gi, '')
-            .replace(/<h2[^>]*>\s*(?:❓\s*)?Questions?\s*fr[ée]quentes?\s*<\/h2>(?:\s*<div class="faq-item"[^>]*>[\s\S]*?<\/div>)*/gi, '');
+            .replace(/<h2[^>]*>\s*(?:❓\s*)?Questions?\s*fr[ée]quentes?\s*<\/h2>[\s\S]*?(?=<h2[^>]*>(?!Questions)|$)/gi, '');
           const contentWithHeadingIds = addHeadingIds(cleanedContent);
           setContentWithIds(contentWithHeadingIds);
           setToc(extractTableOfContents(contentWithHeadingIds));
