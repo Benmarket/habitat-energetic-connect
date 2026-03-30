@@ -31,25 +31,16 @@ serve(async (req) => {
       global: { headers: { Authorization: authHeader } }
     });
 
-    // Valider le token et récupérer l'utilisateur
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser();
     
-    if (claimsError || !claimsData?.claims) {
+    if (userError || !user) {
       return new Response(
         JSON.stringify({ success: false, error: 'Non autorisé - Token invalide' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Extraire le userId du JWT validé (pas du body!)
-    const userId = claimsData.claims.sub;
-    if (!userId) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Non autorisé - Utilisateur non identifié' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const userId = user.id;
 
     const { imageDescriptions } = await req.json();
     
