@@ -10,6 +10,46 @@ import { X, MapPin } from "lucide-react";
 import { Category, Tag, CreatePostFormData } from "@/hooks/useCreatePost";
 import { supabase } from "@/integrations/supabase/client";
 
+function KeywordsField({ formData, setFormData }: { formData: CreatePostFormData; setFormData: React.Dispatch<React.SetStateAction<CreatePostFormData>> }) {
+  const [keywordInput, setKeywordInput] = useState("");
+  return (
+    <div className="space-y-2">
+      <Label htmlFor="focus_keywords">Mots-clés ciblés (SEO, IA & GEO)</Label>
+      <Input
+        id="focus_keywords"
+        value={keywordInput}
+        onChange={(e) => setKeywordInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            const keyword = keywordInput.trim();
+            if (keyword && !formData.focus_keywords.includes(keyword)) {
+              setFormData({ ...formData, focus_keywords: [...formData.focus_keywords, keyword] });
+              setKeywordInput("");
+            }
+          }
+        }}
+        placeholder="Tapez un mot-clé et appuyez sur Entrée"
+      />
+      {formData.focus_keywords.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {formData.focus_keywords.map((keyword, index) => (
+            <Badge key={index} variant="secondary" className="gap-1 pr-1">
+              {keyword}
+              <button type="button" onClick={() => setFormData({ ...formData, focus_keywords: formData.focus_keywords.filter((_, i) => i !== index) })} className="ml-1 hover:bg-muted rounded-full p-0.5">
+                <X className="w-3 h-3" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
+      <p className="text-xs text-muted-foreground">
+        Ces mots-clés aident votre article à mieux ranker sur Google, Bing et les IA comme ChatGPT.
+      </p>
+    </div>
+  );
+}
+
 interface PostFormFieldsProps {
   formData: CreatePostFormData;
   setFormData: React.Dispatch<React.SetStateAction<CreatePostFormData>>;
