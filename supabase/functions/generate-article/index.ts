@@ -503,6 +503,7 @@ Retourne UNIQUEMENT le HTML.`;
         throw new Error(`Erreur API IA: ${response.status} - ${errText}`);
       }
       const data = await response.json();
+      const articleUsage = data.usage || {};
       let content = data.choices[0].message.content;
 
       // Clean & convert
