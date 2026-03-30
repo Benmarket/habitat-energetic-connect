@@ -84,6 +84,8 @@ export function PostFormFields({
 
   return (
     <>
+      <KeywordsField formData={formData} setFormData={setFormData} />
+
       <div className="space-y-2">
         <Label htmlFor="title">Titre *</Label>
         <Input
