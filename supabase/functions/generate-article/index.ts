@@ -787,7 +787,76 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
       );
     }
 
-    throw new Error(`Mode inconnu: ${mode}. Utilisez "angles", "article" ou "review".`);
+    // ══════════════════════════════════════════
+    // MODE: REVIEW_FIX — Apply corrections from review
+    // ══════════════════════════════════════════
+    if (mode === 'review_fix') {
+      const { title, content, contentType: fixContentType, problemes, suggestions } = body;
+      if (!content) throw new Error('Contenu requis pour la correction');
+
+      const issuesList = (problemes || []).map((p: any, i: number) => 
+        `${i + 1}. [${p.localisation}] ${p.probleme} → Correction: ${p.suggestion}`
+      ).join('\n');
+
+      const suggestionsList = (suggestions || []).map((s: string, i: number) =>
+        `${i + 1}. ${s}`
+      ).join('\n');
+
+      const fixPrompt = `Tu es un rédacteur expert en énergies renouvelables. Tu dois CORRIGER un article HTML existant.
+
+RÈGLES CRITIQUES:
+- Tu reçois le HTML complet de l'article et une liste de problèmes détectés + suggestions d'amélioration.
+- Tu dois retourner le HTML CORRIGÉ COMPLET (pas juste les morceaux modifiés).
+- CONSERVE intégralement: tous les data-custom-button, data-cta-banner, data-custom-image, <figure>, <figcaption>, <table> existants.
+- NE SUPPRIME AUCUN élément interactif (boutons, bannières CTA, images).
+- NE CHANGE PAS la structure des CTA/boutons/images (leurs attributs data-*).
+- Corrige UNIQUEMENT le texte rédactionnel, la structure des H2/H3, l'ajout de données manquantes.
+- Si un tableau est manquant, ajoute-en un avec la classe "article-data-table".
+- Utilise "kWc" (pas kWp).
+- Ne mens pas, n'invente pas de données. Si tu n'es pas sûr, ne mets pas.
+- DATE ACTUELLE: ${todayDate}
+
+ARTICLE TYPE: ${fixContentType || 'actualite'}
+TITRE: ${title || 'Sans titre'}
+
+PROBLÈMES À CORRIGER:
+${issuesList || 'Aucun problème spécifique'}
+
+SUGGESTIONS À APPLIQUER:
+${suggestionsList || 'Aucune suggestion spécifique'}
+
+Retourne UNIQUEMENT le HTML corrigé, rien d'autre. Pas de markdown, pas de backticks, pas d'explication.`;
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
+        body: JSON.stringify({
+          model,
+          max_tokens: 8192,
+          temperature: 0.2,
+          messages: [
+            { role: 'system', content: fixPrompt },
+            { role: 'user', content: content.slice(0, 15000) }
+          ]
+        })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Erreur API IA: ${response.status} - ${errText}`);
+      }
+
+      const data = await response.json();
+      let fixedContent = data.choices[0].message.content.trim()
+        .replace(/```html\s*/gi, '').replace(/```\s*/g, '').trim();
+
+      return new Response(
+        JSON.stringify({ success: true, fixedContent }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      );
+    }
+
+    throw new Error(`Mode inconnu: ${mode}. Utilisez "angles", "article", "review" ou "review_fix".`);
 
   } catch (error) {
     console.error('Error in generate-article:', error);
