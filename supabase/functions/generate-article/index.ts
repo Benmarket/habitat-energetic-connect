@@ -687,21 +687,52 @@ Retourne UNIQUEMENT le HTML.`;
     // MODE: REVIEW — AI proofreading of article
     // ══════════════════════════════════════════
     if (mode === 'review') {
-      const { title, content, contentType: reviewContentType, categoryName } = body;
+      const { title, content, contentType: reviewContentType, categoryName,
+              excerpt, metaTitle, metaDescription, focusKeywords, targetRegions,
+              faq, tldr, tagNames, featuredImage } = body;
       if (!content) throw new Error('Contenu requis pour la relecture');
 
+      const faqSection = Array.isArray(faq) && faq.length > 0
+        ? `\n\nFAQ FOURNIES (${faq.length} questions):\n${faq.map((f: any, i: number) => `Q${i+1}: ${f.question}\nR${i+1}: ${f.answer}`).join('\n\n')}`
+        : '\n\nFAQ: AUCUNE FAQ fournie';
+
+      const keywordsInfo = Array.isArray(focusKeywords) && focusKeywords.length > 0
+        ? focusKeywords.join(', ') : 'Aucun';
+      const regionsInfo = Array.isArray(targetRegions) && targetRegions.length > 0
+        ? targetRegions.join(', ') : 'Aucune';
+      const tagsInfo = Array.isArray(tagNames) && tagNames.length > 0
+        ? tagNames.join(', ') : 'Aucun';
+
       const reviewPrompt = `Tu es un rédacteur en chef exigeant et méticuleux spécialisé dans les articles sur les énergies renouvelables.
-Tu dois relire et auditer l'article fourni. Analyse CHAQUE aspect ci-dessous et attribue une note /10 + un commentaire honnête.
+Tu dois relire et auditer L'INTÉGRALITÉ du contenu éditorial fourni (pas seulement le corps de l'article).
+Analyse CHAQUE aspect ci-dessous et attribue une note /10 + un commentaire honnête.
 Sois CONSTRUCTIF mais SANS COMPLAISANCE. Si c'est moyen, dis-le.
 
 DATE ACTUELLE: ${todayDate}
 
-ARTICLE À RELIRE:
-Titre: ${title || 'Sans titre'}
-Catégorie: ${categoryName || 'Non spécifiée'}
+═══════════════════════════════════════
+DONNÉES COMPLÈTES À AUDITER
+═══════════════════════════════════════
+Titre: ${title || 'MANQUANT ⚠️'}
+Catégorie: ${categoryName || 'Non spécifiée ⚠️'}
 Type: ${reviewContentType || 'actualite'}
+Tags: ${tagsInfo}
+Mots-clés ciblés (SEO/GEO): ${keywordsInfo}
+Régions ciblées: ${regionsInfo}
+Image à la une: ${featuredImage ? 'Présente ✅' : 'ABSENTE ⚠️'}
 
-CONTENU HTML:
+— EXTRAIT / CHAPÔ —
+${excerpt || 'AUCUN extrait fourni ⚠️'}
+
+— TL;DR —
+${tldr || 'AUCUN TL;DR fourni ⚠️'}
+
+— MÉTA SEO —
+Meta Title: ${metaTitle || 'ABSENT ⚠️'}
+Meta Description: ${metaDescription || 'ABSENTE ⚠️'}
+${faqSection}
+
+— CONTENU HTML (corps de l'article) —
 ${content.slice(0, 12000)}
 
 ═══════════════════════════════════════
@@ -709,25 +740,26 @@ CRITÈRES D'AUDIT (note /10 + commentaire pour chacun)
 ═══════════════════════════════════════
 1. COHÉRENCE GLOBALE - Le fil rouge est clair ? Les sections s'enchaînent logiquement ? Pas de contradictions ?
 2. QUALITÉ RÉDACTIONNELLE - Style, ton, fluidité, richesse du vocabulaire, pas de répétitions
-3. SEO & STRUCTURE - H2/H3 bien utilisés, mots-clés présents, densité correcte, méta-données
+3. SEO & STRUCTURE - H2/H3 bien utilisés, mots-clés présents dans le contenu ET les méta (meta title <60 car, meta desc <160 car), densité correcte. Le titre est-il optimisé SEO ?
 4. DONNÉES & CHIFFRES - Présence de tableaux HTML, données chiffrées sourcées, actuelles (${new Date().getFullYear()})
 5. CTA & CONVERSION - Variété des couleurs/styles des CTA, pertinence des placements, diversité des messages
-6. IMAGES - 3 images distinctes et pertinentes au sujet, pas génériques
-7. FAQ - Questions pertinentes et utiles, réponses complètes
+6. IMAGES - Images distinctes et pertinentes au sujet (vérifier dans le HTML), image à la une présente
+7. FAQ - Les FAQ sont-elles fournies ? Questions pertinentes, utiles et variées ? Réponses complètes ? (${Array.isArray(faq) && faq.length > 0 ? faq.length + ' FAQ détectées' : '⚠️ AUCUNE FAQ'})
 8. ORIGINALITÉ - L'article apporte-t-il une vraie valeur ? Pas trop "template" ou monotone ?
+9. COMPLÉTUDE ÉDITORIALE - Extrait/chapô renseigné ? TL;DR ? Image à la une ? Tags ? Mots-clés SEO ? Régions ciblées ?
 
 ═══════════════════════════════════════
 PROBLÈMES DÉTECTÉS (liste exhaustive)
 ═══════════════════════════════════════
 Liste chaque problème concret trouvé avec:
-- Localisation dans l'article
+- Localisation (champ du formulaire ou section de l'article)
 - Nature du problème
 - Suggestion de correction
 
 ═══════════════════════════════════════
 SUGGESTIONS D'AMÉLIORATION
 ═══════════════════════════════════════
-3-5 suggestions concrètes pour améliorer significativement l'article.
+3-5 suggestions concrètes pour améliorer significativement l'article ET ses métadonnées.
 
 RETOURNE un JSON VALIDE (sans markdown ni backticks) :
 {
@@ -741,10 +773,11 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
     { "nom": "CTA & Conversion", "note": 4, "commentaire": "..." },
     { "nom": "Images", "note": 7, "commentaire": "..." },
     { "nom": "FAQ", "note": 8, "commentaire": "..." },
-    { "nom": "Originalité", "note": 6, "commentaire": "..." }
+    { "nom": "Originalité", "note": 6, "commentaire": "..." },
+    { "nom": "Complétude éditoriale", "note": 5, "commentaire": "..." }
   ],
   "problemes": [
-    { "localisation": "Section 2, H2 'xxx'", "probleme": "...", "suggestion": "..." }
+    { "localisation": "Champ: Meta Title", "probleme": "...", "suggestion": "..." }
   ],
   "suggestions": [
     "Suggestion 1...",
@@ -753,7 +786,9 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
   "tableaux_presents": true,
   "nb_cta": 3,
   "cta_couleurs_variees": false,
-  "nb_images": 3
+  "nb_images": 3,
+  "nb_faq": ${Array.isArray(faq) ? faq.length : 0},
+  "champs_manquants": []
 }`;
 
       const response = await fetch(apiUrl, {

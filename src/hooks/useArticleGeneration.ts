@@ -320,6 +320,10 @@ export function useArticleGeneration(
 
       const categoryName = options?.categories?.find(c => c.id === formData.category_id)?.name || '';
 
+      const tagNames = (options?.tags || [])
+        .filter(t => (formData.tag_ids || []).includes(t.id))
+        .map(t => t.name);
+
       const { data, error } = await supabase.functions.invoke('generate-article', {
         body: {
           mode: 'review',
@@ -327,6 +331,15 @@ export function useArticleGeneration(
           content: formData.content,
           contentType,
           categoryName,
+          excerpt: formData.excerpt || '',
+          metaTitle: formData.meta_title || '',
+          metaDescription: formData.meta_description || '',
+          focusKeywords: formData.focus_keywords || [],
+          targetRegions: formData.target_regions || [],
+          faq: formData.faq || [],
+          tldr: formData.tldr || '',
+          tagNames,
+          featuredImage: formData.featured_image || '',
         },
         headers: { Authorization: `Bearer ${accessToken}` }
       });
