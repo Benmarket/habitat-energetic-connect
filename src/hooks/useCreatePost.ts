@@ -452,6 +452,9 @@ export function useCreatePost() {
       if (formData.target_regions && formData.target_regions.length > 0) {
         postData.target_regions = formData.target_regions;
       }
+      if (formData.generation_cost !== null && formData.generation_cost !== undefined) {
+        postData.generation_cost = formData.generation_cost;
+      }
       if (status === "published" && !editId) postData.published_at = new Date().toISOString();
 
       let postId = editId;
