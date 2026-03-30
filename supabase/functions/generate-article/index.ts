@@ -452,11 +452,13 @@ RÈGLES GÉNÉRALES
 • Style direct, impactant, zéro blabla — chaque phrase doit APPORTER quelque chose
 • Chaque section sert l'objectif lead ET répond à une vraie question
 • Pas de paraphrase inutile, pas de phrases creuses ("il est important de noter que...")
-• MINIMUM 1 tableau de données chiffré (OBLIGATOIRE), idéalement 2-3
+• ⚠️ MINIMUM 1 tableau de données HTML (OBLIGATOIRE), idéalement 2-3. UN ARTICLE SANS TABLEAU EST REJETÉ.
 • Les CTA doivent avoir des MESSAGES VARIÉS et CONTEXTUELS (pas 3x "Demander un devis" — adapter au contexte de la section)
 • HONNÊTETÉ : mentionner les limites et inconvénients quand ils existent — ça renforce la crédibilité
 • SPÉCIFICITÉ : préférer "2 847€ en moyenne selon l'ADEME (2025)" à "plusieurs milliers d'euros"
 • ANTI-GÉNÉRIQUE : si une phrase pourrait s'appliquer à n'importe quel sujet, la réécrire ou la supprimer
+• ⚠️ COHÉRENCE STRUCTURELLE : L'article doit former UN TOUT cohérent. PAS de sections en double (une seule FAQ, un seul TL;DR, pas de questions dispersées dans le corps de l'article).
+• L'article suit un flux logique : TL;DR → Intro → Sections → CTA → FAQ → Sources → Conclusion. Chaque bloc n'apparaît QU'UNE SEULE FOIS.
 ${ctaInstructions}
 
 ═══════════════════════════════════════════
