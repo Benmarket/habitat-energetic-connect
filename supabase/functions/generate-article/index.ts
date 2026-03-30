@@ -864,7 +864,24 @@ function generateBannerHtml(b: any, popupId: string): string {
 }
 
 function centerImages(html: string): string {
-  return html.replace(/<img([^>]*)>/g, '<div style="text-align:center;margin:1.5rem 0"><img$1 style="max-width:100%;height:auto;border-radius:8px"></div>');
+  // Convert [IMAGE:type|objective|prompt|title|caption] placeholders to figure elements
+  html = html.replace(/\[IMAGE:([^\|]*)\|([^\|]*)\|([^\|]*)\|([^\|]*)\|([^\]]*)\]/g, (_m, _type, _obj, _prompt, title, caption) => {
+    const t = String(title || '').trim();
+    const c = String(caption || '').trim();
+    const titleAttr = t ? ` title="${esc(t)}"` : '';
+    const altAttr = ` alt="${esc(t || _obj || '')}"`;
+    const captionHtml = c ? `<figcaption style="font-size:0.875rem;color:#6b7280;margin-top:0.5rem;text-align:center;font-style:italic">${escText(c)}</figcaption>` : '';
+    return `<figure data-custom-image class="custom-image-wrapper my-4" style="text-align:center"><img src=""${altAttr}${titleAttr} style="max-width:100%;height:auto;border-radius:8px" data-image-prompt="${esc(_prompt)}">${captionHtml}</figure>`;
+  });
+  // Fallback for old 3-part format [IMAGE:type|objective|prompt]
+  html = html.replace(/\[IMAGE:([^\|]*)\|([^\|]*)\|([^\]]*)\]/g, (_m, _type, _obj, _prompt) => {
+    return `<figure data-custom-image class="custom-image-wrapper my-4" style="text-align:center"><img src="" alt="${esc(_obj || '')}" style="max-width:100%;height:auto;border-radius:8px" data-image-prompt="${esc(_prompt)}"></figure>`;
+  });
+  // Wrap standalone imgs in figures
+  return html.replace(/<img([^>]*)>/g, (match) => {
+    if (match.includes('data-image-prompt')) return match;
+    return `<figure data-custom-image class="custom-image-wrapper my-4" style="text-align:center">${match.replace(/>$/, ' style="max-width:100%;height:auto;border-radius:8px">')}</figure>`;
+  });
 }
 
 function esc(v: string): string {
