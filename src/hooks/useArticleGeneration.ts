@@ -27,6 +27,7 @@ export function useArticleGeneration(
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [loadingReview, setLoadingReview] = useState(false);
   const [articleReview, setArticleReview] = useState<ArticleReview | null>(null);
+  const [loadingFix, setLoadingFix] = useState(false);
 
   const getAccessToken = async () => {
     const { data } = await supabase.auth.getSession();
