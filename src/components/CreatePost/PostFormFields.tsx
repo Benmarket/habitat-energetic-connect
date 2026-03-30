@@ -6,11 +6,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { X, MapPin } from "lucide-react";
+import { X, MapPin, Sparkles, FileText } from "lucide-react";
 import { Category, Tag, CreatePostFormData } from "@/hooks/useCreatePost";
 import { supabase } from "@/integrations/supabase/client";
 
-function KeywordsField({ formData, setFormData }: { formData: CreatePostFormData; setFormData: React.Dispatch<React.SetStateAction<CreatePostFormData>> }) {
+function KeywordsField({ formData, setFormData, onGenerateArticle, onOpenAiInstructions, generatingArticle, contentType }: {
+  formData: CreatePostFormData;
+  setFormData: React.Dispatch<React.SetStateAction<CreatePostFormData>>;
+  onGenerateArticle: () => void;
+  onOpenAiInstructions: () => void;
+  generatingArticle: boolean;
+  contentType: string;
+}) {
+  const generateButtonLabel = contentType === 'guide' ? 'Générer le guide (IA)' : 'Générer l\'article (IA)';
   const [keywordInput, setKeywordInput] = useState("");
   return (
     <div className="space-y-2">
