@@ -179,6 +179,8 @@ const CreatePost = () => {
           review={articleReview}
           loading={loadingReview}
           onStartReview={handleStartReview}
+          onApplyFixes={handleApplyFixes}
+          loadingFix={loadingFix}
         />
 
         <AuthorSelectModal open={authorModalOpen} onOpenChange={setAuthorModalOpen}
