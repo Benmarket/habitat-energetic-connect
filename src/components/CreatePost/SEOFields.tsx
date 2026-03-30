@@ -1,11 +1,9 @@
-// SEOFields component v2
-import { useState } from "react";
+// SEOFields component v3
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { X, Sparkles, FileText } from "lucide-react";
+import { Sparkles, FileText } from "lucide-react";
 import { CreatePostFormData } from "@/hooks/useCreatePost";
 
 interface SEOFieldsProps {
