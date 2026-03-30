@@ -3,46 +3,55 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect } from "react";
 import { Image as ImageIcon, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { MediaLibrary } from "@/components/MediaLibrary";
 
+interface ImageAttrs {
+  src: string;
+  alt: string;
+  title: string;
+  caption: string;
+  width: number | null;
+  align: 'left' | 'center' | 'right';
+}
+
 interface ImageEditorModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (attrs: { src: string; alt: string; width: number | null; align: 'left' | 'center' | 'right' }) => void;
-  initialAttrs?: {
-    src: string;
-    alt: string;
-    width: number | null;
-    align: 'left' | 'center' | 'right';
-  };
+  onSave: (attrs: ImageAttrs) => void;
+  initialAttrs?: Partial<ImageAttrs>;
 }
 
 export const ImageEditorModal = ({ open, onOpenChange, onSave, initialAttrs }: ImageEditorModalProps) => {
   const [src, setSrc] = useState(initialAttrs?.src || '');
   const [alt, setAlt] = useState(initialAttrs?.alt || '');
+  const [title, setTitle] = useState(initialAttrs?.title || '');
+  const [caption, setCaption] = useState(initialAttrs?.caption || '');
   const [width, setWidth] = useState<number | null>(initialAttrs?.width || null);
   const [align, setAlign] = useState<'left' | 'center' | 'right'>(initialAttrs?.align || 'center');
   const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
 
   useEffect(() => {
     if (open && initialAttrs) {
-      setSrc(initialAttrs.src);
-      setAlt(initialAttrs.alt);
-      setWidth(initialAttrs.width);
-      setAlign(initialAttrs.align);
+      setSrc(initialAttrs.src || '');
+      setAlt(initialAttrs.alt || '');
+      setTitle(initialAttrs.title || '');
+      setCaption(initialAttrs.caption || '');
+      setWidth(initialAttrs.width || null);
+      setAlign(initialAttrs.align || 'center');
     }
   }, [open, initialAttrs]);
 
   const handleSave = () => {
-    onSave({ src, alt, width, align });
+    onSave({ src, alt, title, caption, width, align });
     onOpenChange(false);
   };
 
   const handleSelectImage = (url: string, altText: string) => {
     setSrc(url);
-    setAlt(altText);
+    if (!alt) setAlt(altText);
     setMediaLibraryOpen(false);
   };
 
@@ -53,7 +62,7 @@ export const ImageEditorModal = ({ open, onOpenChange, onSave, initialAttrs }: I
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <ImageIcon className="w-5 h-5 text-primary" />
@@ -65,10 +74,11 @@ export const ImageEditorModal = ({ open, onOpenChange, onSave, initialAttrs }: I
             {/* Aperçu de l'image */}
             {src && (
               <div className="border rounded-lg p-4 bg-muted/30">
-                <div className={`text-${align}`}>
+                <figure className={`text-${align}`}>
                   <img
                     src={src}
                     alt={alt}
+                    title={title}
                     style={{
                       width: width ? `${width}px` : 'auto',
                       maxWidth: '100%',
@@ -77,7 +87,12 @@ export const ImageEditorModal = ({ open, onOpenChange, onSave, initialAttrs }: I
                       display: 'inline-block',
                     }}
                   />
-                </div>
+                  {caption && (
+                    <figcaption className="text-sm text-muted-foreground mt-2 text-center italic">
+                      {caption}
+                    </figcaption>
+                  )}
+                </figure>
               </div>
             )}
 
@@ -102,15 +117,47 @@ export const ImageEditorModal = ({ open, onOpenChange, onSave, initialAttrs }: I
               </div>
             </div>
 
+            {/* Titre de l'image */}
+            <div className="space-y-2">
+              <Label htmlFor="title">Titre de l'image</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Titre affiché au survol de l'image"
+              />
+              <p className="text-xs text-muted-foreground">
+                Apparaît au survol de l'image (attribut title)
+              </p>
+            </div>
+
             {/* Texte alternatif */}
             <div className="space-y-2">
-              <Label htmlFor="alt">Texte alternatif (SEO)</Label>
+              <Label htmlFor="alt">Description / Texte alternatif (SEO)</Label>
               <Input
                 id="alt"
                 value={alt}
                 onChange={(e) => setAlt(e.target.value)}
                 placeholder="Description de l'image pour le référencement"
               />
+              <p className="text-xs text-muted-foreground">
+                Utilisé par les moteurs de recherche et les lecteurs d'écran
+              </p>
+            </div>
+
+            {/* Légende */}
+            <div className="space-y-2">
+              <Label htmlFor="caption">Légende</Label>
+              <Textarea
+                id="caption"
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+                placeholder="Légende visible sous l'image (ex: Source, crédit photo, contexte...)"
+                rows={2}
+              />
+              <p className="text-xs text-muted-foreground">
+                Texte affiché en dessous de l'image, visible par les lecteurs
+              </p>
             </div>
 
             {/* Largeur */}

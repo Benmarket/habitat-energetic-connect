@@ -41,7 +41,7 @@ const ALLOWED_ATTR = [
   'data-text-color', 'data-accent-color', 'data-title', 'data-subtitle',
   'data-button-text', 'data-button-url', 'data-button-bg', 'data-button-text-color',
   'data-button-radius', 'data-popup-id', 'data-popup-trigger',
-  'data-custom-button', 'data-destination-type', 'data-url',
+  'data-custom-button', 'data-custom-image', 'data-destination-type', 'data-url',
   // Aria pour accessibilité
   'aria-label', 'aria-labelledby', 'aria-describedby', 'aria-hidden', 'role'
 ];

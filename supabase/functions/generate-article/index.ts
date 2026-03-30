@@ -401,12 +401,12 @@ RÈGLES IMAGES :
 - Style : photo éditoriale professionnelle, lumière naturelle, rendu magazine — PAS de rendu 3D/fake/IA visible
 
 FORMAT du placeholder :
-[IMAGE:TYPE_IMAGE|OBJECTIF_SECTION|Prompt détaillé ultra-précis de 40+ mots décrivant exactement la scène, le cadrage, l'éclairage, les éléments visibles, le style photographique]
+[IMAGE:TYPE_IMAGE|OBJECTIF_SECTION|Prompt détaillé ultra-précis de 40+ mots|Titre court de l'image|Légende descriptive visible sous l'image (source, contexte, crédit)]
 
 Exemples :
-[IMAGE:Mise en situation|Montrer le résultat concret d'une installation|Vue en contre-plongée d'une toiture résidentielle en tuiles terre cuite avec 12 panneaux solaires monocristallins noirs parfaitement alignés, ciel bleu avec quelques nuages, jardin verdoyant visible en premier plan, maison de style provençal, lumière dorée de fin d'après-midi, style photo reportage magazine architecture]
-[IMAGE:Avant/Après|Illustrer l'impact sur la facture|Split-screen horizontal montrant à gauche une facture EDF élevée avec montant 280€ entouré en rouge sur un bureau encombré, et à droite la même facture avec montant 45€ entouré en vert sur un bureau lumineux et ordonné, éclairage naturel, style photo documentaire]
-[IMAGE:Schéma explicatif|Expliquer le fonctionnement technique|Infographie minimaliste sur fond blanc montrant le flux d'énergie solaire : panneau sur toit → onduleur → tableau électrique → appareils ménagers, avec flèches vertes et icônes flat design, chiffres de production en kWh annotés, style graphique professionnel épuré]
+[IMAGE:Mise en situation|Montrer le résultat concret d'une installation|Vue en contre-plongée d'une toiture résidentielle en tuiles terre cuite avec 12 panneaux solaires monocristallins noirs parfaitement alignés, ciel bleu avec quelques nuages, jardin verdoyant visible en premier plan, maison de style provençal, lumière dorée de fin d'après-midi, style photo reportage magazine architecture|Installation solaire résidentielle en Provence|Exemple d'une installation de 6 kWc sur une maison individuelle — Source : reportage terrain 2025]
+[IMAGE:Avant/Après|Illustrer l'impact sur la facture|Split-screen horizontal montrant à gauche une facture EDF élevée avec montant 280€ entouré en rouge sur un bureau encombré, et à droite la même facture avec montant 45€ entouré en vert sur un bureau lumineux et ordonné, éclairage naturel, style photo documentaire|Comparaison facture avant/après solaire|Économie constatée après 1 an d'autoconsommation — Données moyennes clients 2024-2025]
+[IMAGE:Schéma explicatif|Expliquer le fonctionnement technique|Infographie minimaliste sur fond blanc montrant le flux d'énergie solaire : panneau sur toit → onduleur → tableau électrique → appareils ménagers, avec flèches vertes et icônes flat design, chiffres de production en kWh annotés, style graphique professionnel épuré|Schéma du fonctionnement d'une installation solaire|Circuit de l'énergie : du panneau à vos appareils — Infographie simplifiée]
 
 ═══════════════════════════════════════════
 TABLEAUX DE DONNÉES (OBLIGATOIRE — MINIMUM 1, IDÉALEMENT 2-3)
@@ -864,7 +864,24 @@ function generateBannerHtml(b: any, popupId: string): string {
 }
 
 function centerImages(html: string): string {
-  return html.replace(/<img([^>]*)>/g, '<div style="text-align:center;margin:1.5rem 0"><img$1 style="max-width:100%;height:auto;border-radius:8px"></div>');
+  // Convert [IMAGE:type|objective|prompt|title|caption] placeholders to figure elements
+  html = html.replace(/\[IMAGE:([^\|]*)\|([^\|]*)\|([^\|]*)\|([^\|]*)\|([^\]]*)\]/g, (_m, _type, _obj, _prompt, title, caption) => {
+    const t = String(title || '').trim();
+    const c = String(caption || '').trim();
+    const titleAttr = t ? ` title="${esc(t)}"` : '';
+    const altAttr = ` alt="${esc(t || _obj || '')}"`;
+    const captionHtml = c ? `<figcaption style="font-size:0.875rem;color:#6b7280;margin-top:0.5rem;text-align:center;font-style:italic">${escText(c)}</figcaption>` : '';
+    return `<figure data-custom-image class="custom-image-wrapper my-4" style="text-align:center"><img src=""${altAttr}${titleAttr} style="max-width:100%;height:auto;border-radius:8px" data-image-prompt="${esc(_prompt)}">${captionHtml}</figure>`;
+  });
+  // Fallback for old 3-part format [IMAGE:type|objective|prompt]
+  html = html.replace(/\[IMAGE:([^\|]*)\|([^\|]*)\|([^\]]*)\]/g, (_m, _type, _obj, _prompt) => {
+    return `<figure data-custom-image class="custom-image-wrapper my-4" style="text-align:center"><img src="" alt="${esc(_obj || '')}" style="max-width:100%;height:auto;border-radius:8px" data-image-prompt="${esc(_prompt)}"></figure>`;
+  });
+  // Wrap standalone imgs in figures
+  return html.replace(/<img([^>]*)>/g, (match) => {
+    if (match.includes('data-image-prompt')) return match;
+    return `<figure data-custom-image class="custom-image-wrapper my-4" style="text-align:center">${match.replace(/>$/, ' style="max-width:100%;height:auto;border-radius:8px">')}</figure>`;
+  });
 }
 
 function esc(v: string): string {
