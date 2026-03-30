@@ -408,12 +408,15 @@ RÈGLES GÉNÉRALES
 ═══════════════════════════════════════════
 • Entre 2 et 4 [IMAGE:...] intelligemment placés selon la stratégie (pertinence > quantité)
 • HTML pur (<p>, <ul>, <h2>, <h3>, <table>). Jamais de markdown.
-• ${contentType === 'guide' ? '1800-2500 mots' : '1200-1800 mots'}
-• Style direct, impactant, zéro blabla
-• Chaque section sert l'objectif lead
-• Pas de paraphrase inutile
-• MINIMUM 1 tableau de données chiffré (OBLIGATOIRE)
-• Les CTA doivent avoir des MESSAGES VARIÉS (pas 3x "Demander un devis")
+• ${contentType === 'guide' ? '2000-3000 mots' : '1500-2200 mots'} — assez long pour être exhaustif, assez concis pour garder l'attention
+• Style direct, impactant, zéro blabla — chaque phrase doit APPORTER quelque chose
+• Chaque section sert l'objectif lead ET répond à une vraie question
+• Pas de paraphrase inutile, pas de phrases creuses ("il est important de noter que...")
+• MINIMUM 1 tableau de données chiffré (OBLIGATOIRE), idéalement 2-3
+• Les CTA doivent avoir des MESSAGES VARIÉS et CONTEXTUELS (pas 3x "Demander un devis" — adapter au contexte de la section)
+• HONNÊTETÉ : mentionner les limites et inconvénients quand ils existent — ça renforce la crédibilité
+• SPÉCIFICITÉ : préférer "2 847€ en moyenne selon l'ADEME (2025)" à "plusieurs milliers d'euros"
+• ANTI-GÉNÉRIQUE : si une phrase pourrait s'appliquer à n'importe quel sujet, la réécrire ou la supprimer
 ${ctaInstructions}
 
 ═══════════════════════════════════════════
