@@ -348,6 +348,7 @@ const ManageActualites = () => {
                         <TableHead>Titre</TableHead>
                         <TableHead className="w-32">Catégorie</TableHead>
                         <TableHead className="w-24">Source</TableHead>
+                        <TableHead className="w-20">Coût</TableHead>
                         <TableHead className="w-32">Statut</TableHead>
                         <TableHead className="w-40">Date</TableHead>
                         <TableHead className="w-24 text-right">Actions</TableHead>
