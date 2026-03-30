@@ -117,11 +117,7 @@ const CreatePost = () => {
                   <ContentFields formData={formData} setFormData={setFormData} contentType={contentType} />
                   <FAQSection formData={formData} setFormData={setFormData} />
 
-                  <SEOFields formData={formData} setFormData={setFormData}
-                    onGenerateArticle={openWizard}
-                    onOpenAiInstructions={() => setAiInstructionsModalOpen(true)}
-                    generatingArticle={generatingArticle}
-                    contentType={contentType} />
+                  <SEOFields formData={formData} setFormData={setFormData} />
 
                   {contentType === "actualite" && (
                     <AuthorSection formData={formData} setFormData={setFormData}
