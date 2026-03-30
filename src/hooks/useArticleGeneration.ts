@@ -118,8 +118,14 @@ export function useArticleGeneration(
       // Generate images from placeholders
       let contentWithImages = article.content || '';
       let featuredImageUrl = '';
-      const imageMatches = contentWithImages.match(/\[IMAGE:\s*([^\]]+)\]/g) || [];
-      const imageDescriptions = imageMatches.map((m: string) => m.replace(/\[IMAGE:\s*/, '').replace(/\]/, '').trim());
+      const imageMatches = contentWithImages.match(/\[IMAGE:[^\]]+\]/g) || [];
+      const imageDescriptions = imageMatches.map((m: string) => {
+        // Support both old format [IMAGE: description] and new format [IMAGE:TYPE|OBJECTIF|Prompt]
+        const inner = m.replace(/^\[IMAGE:\s*/, '').replace(/\]$/, '').trim();
+        const parts = inner.split('|');
+        // If new format with pipes, use the last part (the actual prompt)
+        return parts.length >= 3 ? parts[parts.length - 1].trim() : inner;
+      });
 
       if (imageDescriptions.length > 0) {
         try {
