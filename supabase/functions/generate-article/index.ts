@@ -100,11 +100,20 @@ serve(async (req) => {
         aide: "article sur les aides/subventions"
       };
 
-      const systemPrompt = `Tu es un stratège éditorial SEO expert en ${contentTypeLabels[contentType] || 'articles'} pour le secteur des énergies renouvelables et aides gouvernementales françaises.
+      const systemPrompt = `Tu es un stratège éditorial SEO/GEO expert en ${contentTypeLabels[contentType] || 'articles'} pour le secteur des énergies renouvelables et aides gouvernementales françaises.
 
-DATE ACTUELLE: ${todayDate}. Toutes tes propositions doivent être à jour et pertinentes pour cette date. Ne mentionne JAMAIS de dates passées (2023, 2024, 2025) sauf pour comparer avec la situation actuelle.
+DATE ACTUELLE: ${todayDate}. Toutes tes propositions doivent être à jour et pertinentes pour cette date.
 
-Tu dois proposer EXACTEMENT 5 angles éditoriaux DIFFÉRENTS et STRATÉGIQUES pour un article.
+Tu dois proposer EXACTEMENT 5 angles éditoriaux DIFFÉRENTS et STRATÉGIQUES.
+
+MÉTHODOLOGIE — PENSER COMME L'INTERNAUTE :
+Avant de proposer tes angles, demande-toi :
+- "Comment un propriétaire/particulier formulerait sa recherche sur Google ou demanderait à ChatGPT/Gemini ?"
+- "Quelle est sa VRAIE inquiétude, son vrai blocage ?"
+- "Qu'est-ce qui le ferait cliquer ET rester sur l'article ?"
+- "Quelles infos il ne trouve PAS facilement sur les 10 premiers résultats Google ?"
+
+Chaque angle doit répondre à un VRAI BESOIN humain, pas juste placer des mots-clés.
 
 CONTEXTE:
 - Produit à mettre en avant: ${product}
@@ -120,8 +129,11 @@ ${customInstructions ? `- Instructions: ${customInstructions}` : ''}
 RÈGLES:
 - 5 angles RADICALEMENT DIFFÉRENTS
 - Chaque angle doit servir l'objectif "${objectiveLabels[objective] || objective}"
-- Penser conversion et leads
-${contentType === 'actualite' ? `- C'est une ACTUALITÉ (news), PAS un guide. Ne propose JAMAIS d'angle "Guide pratique". Les angles doivent être journalistiques, informatifs, viraux.
+- Au moins 1 angle doit aborder un aspect NÉGATIF ou HONNÊTE (limites, pièges, ce qu'on ne vous dit pas)
+- Au moins 1 angle doit contenir des CHIFFRES CONCRETS dans le titre
+- Les titres doivent ressembler à ce qu'un internaute CHERCHE VRAIMENT (pas du jargon marketing)
+- Penser conversion ET crédibilité
+${contentType === 'actualite' ? `- C'est une ACTUALITÉ (news), PAS un guide. Les angles doivent être journalistiques, informatifs, viraux.
 - Varier: décryptage, analyse, tendance, alerte, révélation, comparatif, question directe, témoignage, chiffres clés` : ''}
 ${contentType === 'guide' ? `- C'est un GUIDE PRATIQUE. Les angles doivent être pédagogiques, actionnables, exhaustifs.
 - Varier: guide pas-à-pas, checklist, dossier expert, simulation, erreurs à éviter, comparatif technique` : ''}
@@ -130,14 +142,13 @@ ${contentType === 'aide' ? `- C'est un article sur les AIDES/SUBVENTIONS. Les an
 
 RETOURNE un JSON VALIDE (sans markdown ni backticks) :
 [
-  { "id": 1, "type": "TYPE_ANGLE", "title": "Titre proposé pour l'article", "intention": "Description courte de l'approche et pourquoi elle convertit" },
+  { "id": 1, "type": "TYPE_ANGLE", "title": "Titre proposé pour l'article", "intention": "Description courte de l'approche, la problématique réelle adressée, et pourquoi ça convertit" },
   ...
 ]
 
 ${contentType === 'actualite' ? 'Types possibles: Décryptage, Analyse, Tendance, Alerte, Révélation, Comparatif, Question directe, Témoignage, Chiffres clés, Dossier' : ''}
 ${contentType === 'guide' ? 'Types possibles: Guide pas-à-pas, Checklist, Dossier expert, Simulation concrète, Erreur à éviter, Comparatif technique, Tutoriel, FAQ complète' : ''}
 ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibilité, Comparatif aides, Étude de cas, Erreur à éviter, Checklist démarches, Dossier expert' : ''}`;
-
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
