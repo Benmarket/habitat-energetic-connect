@@ -6,15 +6,34 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { X, MapPin } from "lucide-react";
+import { X, MapPin, Sparkles, FileText } from "lucide-react";
 import { Category, Tag, CreatePostFormData } from "@/hooks/useCreatePost";
 import { supabase } from "@/integrations/supabase/client";
 
-function KeywordsField({ formData, setFormData }: { formData: CreatePostFormData; setFormData: React.Dispatch<React.SetStateAction<CreatePostFormData>> }) {
+function KeywordsField({ formData, setFormData, onGenerateArticle, onOpenAiInstructions, generatingArticle, contentType }: {
+  formData: CreatePostFormData;
+  setFormData: React.Dispatch<React.SetStateAction<CreatePostFormData>>;
+  onGenerateArticle: () => void;
+  onOpenAiInstructions: () => void;
+  generatingArticle: boolean;
+  contentType: string;
+}) {
+  const generateButtonLabel = contentType === 'guide' ? 'Générer le guide (IA)' : 'Générer l\'article (IA)';
   const [keywordInput, setKeywordInput] = useState("");
   return (
     <div className="space-y-2">
-      <Label htmlFor="focus_keywords">Mots-clés ciblés (SEO, IA & GEO)</Label>
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <Label htmlFor="focus_keywords">Mots-clés ciblés (SEO, IA & GEO)</Label>
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={onOpenAiInstructions} className="gap-2">
+            <FileText className="w-4 h-4" /> Instruction article IA
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={onGenerateArticle}
+            disabled={generatingArticle || formData.focus_keywords.length === 0} className="gap-2">
+            <Sparkles className="w-4 h-4" /> {generateButtonLabel}
+          </Button>
+        </div>
+      </div>
       <Input
         id="focus_keywords"
         value={keywordInput}
@@ -56,6 +75,10 @@ interface PostFormFieldsProps {
   categories: Category[];
   tags: Tag[];
   onTitleChange: (title: string) => void;
+  onGenerateArticle: () => void;
+  onOpenAiInstructions: () => void;
+  generatingArticle: boolean;
+  contentType: string;
 }
 
 export function PostFormFields({
@@ -64,6 +87,10 @@ export function PostFormFields({
   categories,
   tags,
   onTitleChange,
+  onGenerateArticle,
+  onOpenAiInstructions,
+  generatingArticle,
+  contentType,
 }: PostFormFieldsProps) {
   const [regions, setRegions] = useState<Array<{code: string; name: string}>>([]);
 
@@ -84,7 +111,9 @@ export function PostFormFields({
 
   return (
     <>
-      <KeywordsField formData={formData} setFormData={setFormData} />
+      <KeywordsField formData={formData} setFormData={setFormData}
+        onGenerateArticle={onGenerateArticle} onOpenAiInstructions={onOpenAiInstructions}
+        generatingArticle={generatingArticle} contentType={contentType} />
 
       <div className="space-y-2">
         <Label htmlFor="title">Titre *</Label>
