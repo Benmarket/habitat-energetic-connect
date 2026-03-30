@@ -54,6 +54,7 @@ export interface CreatePostFormData {
   topline_text_color: string;
   badge_image: string;
   target_regions: string[];
+  generation_cost: number | null;
 }
 
 // Validation schema
