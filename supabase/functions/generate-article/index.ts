@@ -360,12 +360,13 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
 7. <h2>Questions fréquentes</h2>
     <div class="faq-item"><h3>Question ?</h3><p>Réponse.</p></div>
     RÈGLES FAQ CRITIQUES :
-    - 5-7 questions (pas 3 bâclées)
+    - EXACTEMENT 4-5 questions (pas plus, pas moins). Sélectionner les MEILLEURES questions à fort potentiel de conversion.
     - Formulées EXACTEMENT comme un internaute les taperait sur Google ou demanderait à ChatGPT
     - Inclure les questions "gênantes" que les concurrents évitent (ex: "Est-ce que ça vaut vraiment le coup ?", "Quels sont les vrais inconvénients ?")
     - Réponses factuelles, précises, avec chiffres quand possible
-    - Au moins 2 questions doivent aborder des aspects NÉGATIFS ou des LIMITES (honnêteté = crédibilité)
-    - Chaque réponse : 50-100 mots (pas trop court, pas trop long)
+    - Au moins 1 question doit aborder un aspect NÉGATIF ou une LIMITE (honnêteté = crédibilité)
+    - Chaque réponse : 50-80 mots (concis et impactant)
+    - ⚠️ NE PAS ajouter de questions FAQ ailleurs dans l'article. TOUTES les questions doivent être dans cette UNIQUE section FAQ.
 
 8. <h2>Sources et références</h2>
    - Citer des sources VÉRIFIABLES et OFFICIELLES (ADEME, France Rénov, Journal Officiel, INSEE, etc.)
@@ -451,11 +452,13 @@ RÈGLES GÉNÉRALES
 • Style direct, impactant, zéro blabla — chaque phrase doit APPORTER quelque chose
 • Chaque section sert l'objectif lead ET répond à une vraie question
 • Pas de paraphrase inutile, pas de phrases creuses ("il est important de noter que...")
-• MINIMUM 1 tableau de données chiffré (OBLIGATOIRE), idéalement 2-3
+• ⚠️ MINIMUM 1 tableau de données HTML (OBLIGATOIRE), idéalement 2-3. UN ARTICLE SANS TABLEAU EST REJETÉ.
 • Les CTA doivent avoir des MESSAGES VARIÉS et CONTEXTUELS (pas 3x "Demander un devis" — adapter au contexte de la section)
 • HONNÊTETÉ : mentionner les limites et inconvénients quand ils existent — ça renforce la crédibilité
 • SPÉCIFICITÉ : préférer "2 847€ en moyenne selon l'ADEME (2025)" à "plusieurs milliers d'euros"
 • ANTI-GÉNÉRIQUE : si une phrase pourrait s'appliquer à n'importe quel sujet, la réécrire ou la supprimer
+• ⚠️ COHÉRENCE STRUCTURELLE : L'article doit former UN TOUT cohérent. PAS de sections en double (une seule FAQ, un seul TL;DR, pas de questions dispersées dans le corps de l'article).
+• L'article suit un flux logique : TL;DR → Intro → Sections → CTA → FAQ → Sources → Conclusion. Chaque bloc n'apparaît QU'UNE SEULE FOIS.
 ${ctaInstructions}
 
 ═══════════════════════════════════════════
@@ -506,6 +509,13 @@ Retourne UNIQUEMENT le HTML.`;
       content = cleanHtml(content, ctaBanners, buttonPresets, defaultPopupId);
       const faq = extractFaq(content);
       const tldr = extractTldr(content);
+
+      // CRITICAL: Remove FAQ section and summary-box from HTML content
+      // These are rendered as separate React components (Accordion FAQ, TL;DR box)
+      content = content
+        .replace(/<div class="summary-box"[^>]*>[\s\S]*?<\/div>/gi, '')
+        .replace(/<h2[^>]*>\s*(?:❓\s*)?Questions?\s*fr[ée]quentes?\s*<\/h2>[\s\S]*?(?=<h2[^>]*>(?!Questions)|$)/gi, '')
+        .trim();
 
       // Extract classification (robust parsing + fallback inference)
       const classifyMatch = content.match(/<!--\s*CLASSIFY:category=([^|]*)\|tags=([^>]*)\s*-->/i);
@@ -916,14 +926,26 @@ function extractTldr(html: string): string {
 }
 function extractFaq(html: string): Array<{question:string;answer:string}> {
   const faq: Array<{question:string;answer:string}> = [];
-  const m = html.match(/<h2[^>]*>Questions fréquentes<\/h2>(.*?)(?=<h2|$)/is);
+  // Match the FAQ section (various heading formats)
+  const m = html.match(/<h2[^>]*>\s*(?:❓\s*)?Questions?\s*fr[ée]quentes?\s*<\/h2>([\s\S]*?)(?=<h2[^>]*>(?!\s*(?:❓\s*)?Questions)|$)/i);
   if (!m) return faq;
-  const items = m[1].match(/<div class="faq-item"[^>]*>(.*?)<\/div>/gis);
-  if (!items) return faq;
-  items.forEach(item => {
-    const q = item.match(/<h3[^>]*>(.*?)<\/h3>/is);
-    const a = item.match(/<p[^>]*>(.*?)<\/p>/is);
-    if (q && a) faq.push({ question: q[1].replace(/<[^>]*>/g,'').trim(), answer: a[1].replace(/<[^>]*>/g,'').trim() });
-  });
-  return faq;
+  const section = m[1];
+  // Try faq-item divs first
+  const items = section.match(/<div class="faq-item"[^>]*>([\s\S]*?)<\/div>/gi);
+  if (items) {
+    items.forEach(item => {
+      const q = item.match(/<h3[^>]*>(.*?)<\/h3>/is);
+      const a = item.match(/<p[^>]*>([\s\S]*?)<\/p>/is);
+      if (q && a) faq.push({ question: q[1].replace(/<[^>]*>/g,'').trim(), answer: a[1].replace(/<[^>]*>/g,'').trim() });
+    });
+  }
+  // Fallback: extract h3 + p pairs directly
+  if (faq.length === 0) {
+    const h3Matches = [...section.matchAll(/<h3[^>]*>(.*?)<\/h3>\s*<p[^>]*>([\s\S]*?)<\/p>/gi)];
+    h3Matches.forEach(match => {
+      faq.push({ question: match[1].replace(/<[^>]*>/g,'').trim(), answer: match[2].replace(/<[^>]*>/g,'').trim() });
+    });
+  }
+  // Cap at 5 best questions
+  return faq.slice(0, 5);
 }
