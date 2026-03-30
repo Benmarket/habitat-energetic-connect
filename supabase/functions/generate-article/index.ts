@@ -273,10 +273,38 @@ ANGLE ÉDITORIAL: [${selectedAngle.type}] ${selectedAngle.title}
 INTENTION: ${selectedAngle.intention}
 ${keywords?.length > 0 ? `MOTS-CLÉS: ${keywords.join(', ')}` : ''}
 ${targetRegions?.length > 0 ? `RÉGIONS CIBLES: ${targetRegions.join(', ')}
-IMPORTANT: Adapte le contenu aux spécificités de ces régions (aides locales, climat, réglementations, exemples locaux). Mentionne les régions naturellement dans le texte pour le SEO géographique.${targetRegions.includes('corse') || targetRegions.includes('reunion') || targetRegions.includes('martinique') || targetRegions.includes('guadeloupe') || targetRegions.includes('guyane') ? ' Inclus les spécificités DOM-TOM si applicable (MaPrimeRénov Outre-mer, conditions climatiques tropicales, etc.).' : ''}` : ''}
+IMPORTANT: Adapte le contenu aux spécificités de ces régions (aides locales, climat, réglementations, exemples locaux). Mentionne les régions naturellement dans le texte pour le SEO géographique.${targetRegions.includes('corse') || targetRegions.includes('reunion') || targetRegions.includes('martinique') || targetRegions.includes('guadeloupe') || targetRegions.includes('guyane') ? ' Inclus les spécificités DOM-TOM si applicable UNIQUEMENT si tu es CERTAIN que l\'aide existe pour ce type de produit. NE MENTIONNE PAS MaPrimeRénov Outre-mer pour des produits non éligibles (ex: batteries, onduleurs hybrides ne sont PAS éligibles à MaPrimeRénov).' : ''}` : ''}
 ${guideBlock}
 ${customInstructions ? `INSTRUCTIONS: ${customInstructions}` : ''}
 ${freePrompt ? `CONTRAINTES: ${freePrompt}` : ''}
+
+═══════════════════════════════════════════
+🚨 RÈGLE ANTI-HALLUCINATION — ZÉRO BULLSHIT (ÉLIMINATOIRE)
+═══════════════════════════════════════════
+
+⛔ NE JAMAIS INVENTER OU EXTRAPOLER DES INFORMATIONS :
+- Si tu n'es PAS CERTAIN qu'une aide/subvention s'applique à un produit précis → NE LA MENTIONNE PAS
+- MaPrimeRénov' : concerne UNIQUEMENT les équipements listés (PAC, isolation, VMC, chauffe-eau solaire/thermo, poêles à bois). Les BATTERIES SOLAIRES, ONDULEURS HYBRIDES, PANNEAUX SOLAIRES PHOTOVOLTAÏQUES ne sont PAS éligibles à MaPrimeRénov'.
+- Les panneaux solaires photovoltaïques bénéficient de : prime à l'autoconsommation, tarif de rachat EDF OA, TVA 10%, parfois aides régionales — PAS de MaPrimeRénov'.
+- Les batteries de stockage ne bénéficient d'AUCUNE aide nationale spécifique en ${new Date().getFullYear()} (sauf éventuelles aides locales/régionales à vérifier).
+- NE PAS citer des chiffres ou montants d'aides si tu n'es pas SÛR qu'ils sont corrects et à jour.
+- En cas de DOUTE sur un chiffre ou une aide → utilise une formulation prudente : "sous réserve d'éligibilité", "à vérifier sur france-renov.gouv.fr", ou NE LE MENTIONNE PAS.
+
+⛔ TERMINOLOGIE FRANÇAISE OBLIGATOIRE :
+- Utilise "kWc" (kilowatt-crête) et JAMAIS "kWp" — kWc est le standard français utilisé par tous les installateurs, l'ADEME et les particuliers.
+- Utilise "kWh" pour l'énergie produite/consommée.
+- Pas de jargon anglais inutile : "retour sur investissement" et non "ROI", "autoconsommation" et non "self-consumption".
+
+⛔ VÉRIFICATION DES SOURCES :
+- Ne cite QUE des sources officielles que tu sais exister : ADEME, France Rénov', service-public.fr, photovoltaique.info, Enedis, EDF OA.
+- NE PAS inventer d'URLs. Si tu n'es pas sûr de l'URL exacte, cite juste le nom de l'organisme sans URL.
+- Les chiffres de prix/coûts doivent être des FOURCHETTES réalistes, pas des montants trop précis qui pourraient être faux.
+
+⛔ ORIENTATION CONVERSION (PAS TECHNIQUE) :
+- L'article s'adresse à des PARTICULIERS, pas à des ingénieurs. Parler en langage SIMPLE.
+- Chaque info technique doit être suivie d'une traduction concrète : "3 kWc, soit de quoi couvrir la consommation d'un foyer de 2-3 personnes"
+- Toujours ramener à l'impact CONCRET pour le lecteur : économies en €, confort, autonomie, valorisation du bien
+- Poser les questions COMME LES GENS LES POSENT : "Combien ça coûte ?", "Est-ce rentable ?", "Comment ça marche concrètement ?"
 
 ═══════════════════════════════════════════
 PHILOSOPHIE DE RÉDACTION — PENSER COMME L'INTERNAUTE
