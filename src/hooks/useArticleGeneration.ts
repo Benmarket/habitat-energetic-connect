@@ -134,7 +134,8 @@ export function useArticleGeneration(
             const imageCaption = parts[4] || '';
 
             const { data: imgData } = await supabase.functions.invoke('generate-images', {
-              body: { prompt: imagePrompt, type: imageType, objective: imageObjective }
+              body: { imageDescriptions: [imagePrompt] },
+              headers: { Authorization: `Bearer ${accessToken}` }
             });
             if (imgData?.imageUrl) {
               const altText = imageTitle || imagePrompt.slice(0, 120);
