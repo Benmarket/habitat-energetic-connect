@@ -100,11 +100,20 @@ serve(async (req) => {
         aide: "article sur les aides/subventions"
       };
 
-      const systemPrompt = `Tu es un stratège éditorial SEO expert en ${contentTypeLabels[contentType] || 'articles'} pour le secteur des énergies renouvelables et aides gouvernementales françaises.
+      const systemPrompt = `Tu es un stratège éditorial SEO/GEO expert en ${contentTypeLabels[contentType] || 'articles'} pour le secteur des énergies renouvelables et aides gouvernementales françaises.
 
-DATE ACTUELLE: ${todayDate}. Toutes tes propositions doivent être à jour et pertinentes pour cette date. Ne mentionne JAMAIS de dates passées (2023, 2024, 2025) sauf pour comparer avec la situation actuelle.
+DATE ACTUELLE: ${todayDate}. Toutes tes propositions doivent être à jour et pertinentes pour cette date.
 
-Tu dois proposer EXACTEMENT 5 angles éditoriaux DIFFÉRENTS et STRATÉGIQUES pour un article.
+Tu dois proposer EXACTEMENT 5 angles éditoriaux DIFFÉRENTS et STRATÉGIQUES.
+
+MÉTHODOLOGIE — PENSER COMME L'INTERNAUTE :
+Avant de proposer tes angles, demande-toi :
+- "Comment un propriétaire/particulier formulerait sa recherche sur Google ou demanderait à ChatGPT/Gemini ?"
+- "Quelle est sa VRAIE inquiétude, son vrai blocage ?"
+- "Qu'est-ce qui le ferait cliquer ET rester sur l'article ?"
+- "Quelles infos il ne trouve PAS facilement sur les 10 premiers résultats Google ?"
+
+Chaque angle doit répondre à un VRAI BESOIN humain, pas juste placer des mots-clés.
 
 CONTEXTE:
 - Produit à mettre en avant: ${product}
@@ -120,8 +129,11 @@ ${customInstructions ? `- Instructions: ${customInstructions}` : ''}
 RÈGLES:
 - 5 angles RADICALEMENT DIFFÉRENTS
 - Chaque angle doit servir l'objectif "${objectiveLabels[objective] || objective}"
-- Penser conversion et leads
-${contentType === 'actualite' ? `- C'est une ACTUALITÉ (news), PAS un guide. Ne propose JAMAIS d'angle "Guide pratique". Les angles doivent être journalistiques, informatifs, viraux.
+- Au moins 1 angle doit aborder un aspect NÉGATIF ou HONNÊTE (limites, pièges, ce qu'on ne vous dit pas)
+- Au moins 1 angle doit contenir des CHIFFRES CONCRETS dans le titre
+- Les titres doivent ressembler à ce qu'un internaute CHERCHE VRAIMENT (pas du jargon marketing)
+- Penser conversion ET crédibilité
+${contentType === 'actualite' ? `- C'est une ACTUALITÉ (news), PAS un guide. Les angles doivent être journalistiques, informatifs, viraux.
 - Varier: décryptage, analyse, tendance, alerte, révélation, comparatif, question directe, témoignage, chiffres clés` : ''}
 ${contentType === 'guide' ? `- C'est un GUIDE PRATIQUE. Les angles doivent être pédagogiques, actionnables, exhaustifs.
 - Varier: guide pas-à-pas, checklist, dossier expert, simulation, erreurs à éviter, comparatif technique` : ''}
@@ -130,14 +142,13 @@ ${contentType === 'aide' ? `- C'est un article sur les AIDES/SUBVENTIONS. Les an
 
 RETOURNE un JSON VALIDE (sans markdown ni backticks) :
 [
-  { "id": 1, "type": "TYPE_ANGLE", "title": "Titre proposé pour l'article", "intention": "Description courte de l'approche et pourquoi elle convertit" },
+  { "id": 1, "type": "TYPE_ANGLE", "title": "Titre proposé pour l'article", "intention": "Description courte de l'approche, la problématique réelle adressée, et pourquoi ça convertit" },
   ...
 ]
 
 ${contentType === 'actualite' ? 'Types possibles: Décryptage, Analyse, Tendance, Alerte, Révélation, Comparatif, Question directe, Témoignage, Chiffres clés, Dossier' : ''}
 ${contentType === 'guide' ? 'Types possibles: Guide pas-à-pas, Checklist, Dossier expert, Simulation concrète, Erreur à éviter, Comparatif technique, Tutoriel, FAQ complète' : ''}
 ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibilité, Comparatif aides, Étude de cas, Erreur à éviter, Checklist démarches, Dossier expert' : ''}`;
-
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
@@ -249,9 +260,9 @@ FORMAT: [CTA_BANNER:ID]`;
         actualite: "actualité", guide: "guide pratique détaillé", aide: "article aides/subventions"
       };
 
-      const systemPrompt = `Tu es un rédacteur SEO expert spécialisé énergies renouvelables et aides françaises.
+      const systemPrompt = `Tu es un rédacteur SEO/GEO expert spécialisé énergies renouvelables et aides françaises.
 DATE ACTUELLE: ${todayDate}. Tout le contenu doit être à jour. Utilise les chiffres, barèmes et réglementations en vigueur en ${new Date().getFullYear()}.
-Tu rédiges UN SEUL article optimisé lead/conversion.
+Tu rédiges UN SEUL article de HAUTE QUALITÉ optimisé lead/conversion ET référencement IA (GEO).
 
 TYPE: ${contentTypeLabels[contentType] || 'article'}
 PRODUIT À METTRE EN AVANT: ${product}
@@ -268,31 +279,73 @@ ${customInstructions ? `INSTRUCTIONS: ${customInstructions}` : ''}
 ${freePrompt ? `CONTRAINTES: ${freePrompt}` : ''}
 
 ═══════════════════════════════════════════
+PHILOSOPHIE DE RÉDACTION — PENSER COMME L'INTERNAUTE
+═══════════════════════════════════════════
+
+⚠️ AVANT D'ÉCRIRE, pose-toi ces questions fondamentales :
+1. "Comment une personne réelle formulerait-elle sa recherche sur Google ou sur une IA (ChatGPT, Gemini) ?"
+2. "Quelle est la VRAIE problématique derrière cette recherche ? Pas la surface, le VRAI problème."
+3. "Quelles informations CONCRÈTES cette personne ne trouve PAS facilement chez les concurrents ?"
+4. "Quel contenu ferait qu'un lecteur ENREGISTRE cet article ou le partage ?"
+
+PRINCIPES DE QUALITÉ NON NÉGOCIABLES :
+• RÉPONDRE À UNE VRAIE PROBLÉMATIQUE — Pas de contenu générique. Chaque section doit résoudre un point de douleur concret.
+• APPORTER DE LA VALEUR UNIQUE — Inclure des infos qu'on ne retrouve PAS dans les 10 premiers résultats Google :
+  - Chiffres précis avec sources et dates (pas "environ X€", mais "X€ selon [source] au ${todayDate}")
+  - Exemples concrets avec montants réels (ex: "Pour une maison de 100m² à Lyon, le coût moyen est de...")
+  - Pièges et erreurs que les gens font VRAIMENT (pas les erreurs évidentes)
+  - Retours terrain / situations réelles (ex: "En pratique, les délais annoncés de 3 mois sont souvent de 5-6 mois car...")
+  - Comparaisons honnêtes (avantages ET inconvénients)
+• ÉCRIRE POUR LES IA — Les réponses des IA (ChatGPT, Gemini, Perplexity) extraient des articles bien structurés :
+  - Réponses directes et factuelles dès les premières lignes de chaque section
+  - Données chiffrées précises (les IA adorent les chiffres sourcés)
+  - Phrases de synthèse claires en début de paragraphe (pattern "question → réponse directe → développement")
+  - Listes à puces pour les points clés (les IA les citent facilement)
+• TONALITÉ — Expert accessible. Parler comme un conseiller de confiance, pas comme un vendeur. Admettre les limites quand il y en a.
+
+═══════════════════════════════════════════
 STRUCTURE OBLIGATOIRE (suivre cet ordre)
 ═══════════════════════════════════════════
 
-1. <h1>Titre (basé sur l'angle choisi, SANS préfixe de type comme "Alerte :", "Analyse :", "Décryptage :", "Guide :" etc. Le titre doit être naturel et SEO-friendly)</h1>
+1. <h1>Titre (basé sur l'angle choisi, SANS préfixe de type. Formulé comme une VRAIE QUESTION que se poserait l'internaute, ou une réponse directe à sa recherche. SEO-friendly et naturel.)</h1>
 
 2. <div class="summary-box" style="background:#f0f9ff;border-left:4px solid #0284c7;padding:1.5rem;margin:2rem 0;">
    <h2 style="margin-top:0;color:#0284c7;font-size:1.25rem;">📌 En résumé</h2>
-   <ul><li>3-4 points clés CONCIS</li></ul>
+   <ul><li>4-5 points clés CONCIS avec des CHIFFRES précis</li></ul>
    </div>
    IMPORTANT: Le contenu texte de ce bloc "En résumé" (TL;DR) ne doit PAS dépasser 500 caractères au total (tous les <li> combinés).
+   Ce bloc doit contenir les réponses directes aux questions principales — c'est ce que les IA citeront.
 
-3. Introduction (150-200 mots) — Accroche + problème + promesse
+3. Introduction (150-200 mots) — Commencer par la VRAIE QUESTION que se pose l'internaute. Montrer qu'on comprend son problème. Promettre une réponse concrète, pas du blabla.
 
-4. Sections H2/H3 (4-7 sections) — Chaque section 200-300 mots, avec données chiffrées quand pertinent
+4. Sections H2/H3 (4-7 sections) — CHAQUE section doit :
+   - Avoir un H2 formulé comme une question ou problématique réelle (pas "Les avantages de X", mais "Combien économise-t-on réellement avec X ?")
+   - Commencer par une RÉPONSE DIRECTE en 1-2 phrases (pour les extraits IA/featured snippets)
+   - Contenir des données chiffrées SOURCÉES et DATÉES
+   - Inclure au moins UN élément qu'on ne trouve pas facilement ailleurs (calcul concret, piège méconnu, retour terrain)
+   - 200-350 mots par section
 
-5. [BUTTON:CTA] — Call-to-action stratégiquement placés (2-3 dans l'article)
+5. [BUTTON:CTA] — Call-to-action stratégiquement placés (2-3 dans l'article) avec des messages VARIÉS et contextuels
 
 6. [CTA_BANNER:ID] — Bannière lead capture (1-2 dans l'article)
 
 7. <h2>Questions fréquentes</h2>
-    <div class="faq-item"><h3>Question ?</h3><p>Réponse.</p></div> (3-5 FAQ)
+    <div class="faq-item"><h3>Question ?</h3><p>Réponse.</p></div>
+    RÈGLES FAQ CRITIQUES :
+    - 5-7 questions (pas 3 bâclées)
+    - Formulées EXACTEMENT comme un internaute les taperait sur Google ou demanderait à ChatGPT
+    - Inclure les questions "gênantes" que les concurrents évitent (ex: "Est-ce que ça vaut vraiment le coup ?", "Quels sont les vrais inconvénients ?")
+    - Réponses factuelles, précises, avec chiffres quand possible
+    - Au moins 2 questions doivent aborder des aspects NÉGATIFS ou des LIMITES (honnêteté = crédibilité)
+    - Chaque réponse : 50-100 mots (pas trop court, pas trop long)
 
-8. <h2>Sources et références</h2> — Sources officielles
+8. <h2>Sources et références</h2>
+   - Citer des sources VÉRIFIABLES et OFFICIELLES (ADEME, France Rénov, Journal Officiel, INSEE, etc.)
+   - Donner les URLs complètes quand possible
+   - Minimum 3 sources distinctes
+   - Dater chaque source
 
-9. Conclusion (100-150 mots) — Synthèse + passage à l'action
+9. Conclusion (100-150 mots) — Synthèse actionnable + passage à l'action CLAIR
 
 ═══════════════════════════════════════════
 STRATÉGIE D'IMAGES (PERTINENCE > QUANTITÉ)
@@ -366,12 +419,15 @@ RÈGLES GÉNÉRALES
 ═══════════════════════════════════════════
 • Entre 2 et 4 [IMAGE:...] intelligemment placés selon la stratégie (pertinence > quantité)
 • HTML pur (<p>, <ul>, <h2>, <h3>, <table>). Jamais de markdown.
-• ${contentType === 'guide' ? '1800-2500 mots' : '1200-1800 mots'}
-• Style direct, impactant, zéro blabla
-• Chaque section sert l'objectif lead
-• Pas de paraphrase inutile
-• MINIMUM 1 tableau de données chiffré (OBLIGATOIRE)
-• Les CTA doivent avoir des MESSAGES VARIÉS (pas 3x "Demander un devis")
+• ${contentType === 'guide' ? '2000-3000 mots' : '1500-2200 mots'} — assez long pour être exhaustif, assez concis pour garder l'attention
+• Style direct, impactant, zéro blabla — chaque phrase doit APPORTER quelque chose
+• Chaque section sert l'objectif lead ET répond à une vraie question
+• Pas de paraphrase inutile, pas de phrases creuses ("il est important de noter que...")
+• MINIMUM 1 tableau de données chiffré (OBLIGATOIRE), idéalement 2-3
+• Les CTA doivent avoir des MESSAGES VARIÉS et CONTEXTUELS (pas 3x "Demander un devis" — adapter au contexte de la section)
+• HONNÊTETÉ : mentionner les limites et inconvénients quand ils existent — ça renforce la crédibilité
+• SPÉCIFICITÉ : préférer "2 847€ en moyenne selon l'ADEME (2025)" à "plusieurs milliers d'euros"
+• ANTI-GÉNÉRIQUE : si une phrase pourrait s'appliquer à n'importe quel sujet, la réécrire ou la supprimer
 ${ctaInstructions}
 
 ═══════════════════════════════════════════
