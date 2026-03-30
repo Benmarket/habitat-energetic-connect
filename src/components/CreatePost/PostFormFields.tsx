@@ -22,7 +22,18 @@ function KeywordsField({ formData, setFormData, onGenerateArticle, onOpenAiInstr
   const [keywordInput, setKeywordInput] = useState("");
   return (
     <div className="space-y-2">
-      <Label htmlFor="focus_keywords">Mots-clés ciblés (SEO, IA & GEO)</Label>
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <Label htmlFor="focus_keywords">Mots-clés ciblés (SEO, IA & GEO)</Label>
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={onOpenAiInstructions} className="gap-2">
+            <FileText className="w-4 h-4" /> Instruction article IA
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={onGenerateArticle}
+            disabled={generatingArticle || formData.focus_keywords.length === 0} className="gap-2">
+            <Sparkles className="w-4 h-4" /> {generateButtonLabel}
+          </Button>
+        </div>
+      </div>
       <Input
         id="focus_keywords"
         value={keywordInput}
