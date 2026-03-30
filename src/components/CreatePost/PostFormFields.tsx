@@ -75,6 +75,10 @@ interface PostFormFieldsProps {
   categories: Category[];
   tags: Tag[];
   onTitleChange: (title: string) => void;
+  onGenerateArticle: () => void;
+  onOpenAiInstructions: () => void;
+  generatingArticle: boolean;
+  contentType: string;
 }
 
 export function PostFormFields({
