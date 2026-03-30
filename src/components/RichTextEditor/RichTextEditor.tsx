@@ -146,7 +146,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
 
   const addImage = (url: string, alt: string) => {
     if (url && editor) {
-      editor.chain().focus().setCustomImage({ src: url, alt, width: null, align: 'center' }).run();
+      editor.chain().focus().setCustomImage({ src: url, alt, title: '', caption: '', width: null, align: 'center' }).run();
       setMediaLibraryOpen(false);
     }
   };

@@ -61,6 +61,9 @@ export const CustomImage = Node.create<CustomImageOptions>({
   parseHTML() {
     return [
       {
+        tag: 'figure[data-custom-image]',
+      },
+      {
         tag: 'div[data-custom-image]',
       },
       {
