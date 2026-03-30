@@ -138,9 +138,10 @@ const ArticleDetail = () => {
         if (data.content) {
           setReadingTime(calculateReadingTime(data.content));
           // Strip duplicate summary-box and FAQ section from HTML (rendered separately as React components)
+          // Use non-greedy match for FAQ: only remove faq-item divs, not everything after
           let cleanedContent = data.content
             .replace(/<div class="summary-box"[^>]*>[\s\S]*?<\/div>/gi, '')
-            .replace(/<h2[^>]*>Questions fréquentes<\/h2>[\s\S]*?(?=<h2|$)/gi, '');
+            .replace(/<h2[^>]*>\s*(?:❓\s*)?Questions?\s*fr[ée]quentes?\s*<\/h2>(?:\s*<div class="faq-item"[^>]*>[\s\S]*?<\/div>)*/gi, '');
           const contentWithHeadingIds = addHeadingIds(cleanedContent);
           setContentWithIds(contentWithHeadingIds);
           setToc(extractTableOfContents(contentWithHeadingIds));
