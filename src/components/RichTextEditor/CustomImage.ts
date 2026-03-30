@@ -43,6 +43,12 @@ export const CustomImage = Node.create<CustomImageOptions>({
       alt: {
         default: '',
       },
+      title: {
+        default: '',
+      },
+      caption: {
+        default: '',
+      },
       width: {
         default: null,
       },
