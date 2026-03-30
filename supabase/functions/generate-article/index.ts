@@ -659,6 +659,11 @@ Retourne UNIQUEMENT le HTML.`;
         suggestedTagSlugs = inferred;
       }
 
+      // Estimate cost from token usage (Gemini Flash pricing ~$0.10/1M input, ~$0.40/1M output)
+      const promptTokens = articleUsage.prompt_tokens || 0;
+      const completionTokens = articleUsage.completion_tokens || 0;
+      const estimatedCost = parseFloat(((promptTokens * 0.0001 + completionTokens * 0.0004) / 1000).toFixed(4));
+
       const article = {
         title: extractTitle(content),
         content,
@@ -673,7 +678,7 @@ Retourne UNIQUEMENT le HTML.`;
       };
 
       return new Response(
-        JSON.stringify({ success: true, article }),
+        JSON.stringify({ success: true, article, usage: { promptTokens, completionTokens, estimatedCost } }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
       );
     }
