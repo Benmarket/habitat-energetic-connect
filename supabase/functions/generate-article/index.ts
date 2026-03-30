@@ -507,6 +507,13 @@ Retourne UNIQUEMENT le HTML.`;
       const faq = extractFaq(content);
       const tldr = extractTldr(content);
 
+      // CRITICAL: Remove FAQ section and summary-box from HTML content
+      // These are rendered as separate React components (Accordion FAQ, TL;DR box)
+      content = content
+        .replace(/<div class="summary-box"[^>]*>[\s\S]*?<\/div>/gi, '')
+        .replace(/<h2[^>]*>\s*(?:❓\s*)?Questions?\s*fr[ée]quentes?\s*<\/h2>[\s\S]*?(?=<h2[^>]*>(?!Questions)|$)/gi, '')
+        .trim();
+
       // Extract classification (robust parsing + fallback inference)
       const classifyMatch = content.match(/<!--\s*CLASSIFY:category=([^|]*)\|tags=([^>]*)\s*-->/i);
       let suggestedCategorySlug = '';
