@@ -1,30 +1,15 @@
-// SEOFields component v3
+// SEOFields component v4
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Sparkles, FileText } from "lucide-react";
 import { CreatePostFormData } from "@/hooks/useCreatePost";
 
 interface SEOFieldsProps {
   formData: CreatePostFormData;
   setFormData: React.Dispatch<React.SetStateAction<CreatePostFormData>>;
-  onGenerateArticle: () => void;
-  onOpenAiInstructions: () => void;
-  generatingArticle: boolean;
-  contentType: string;
 }
 
-export function SEOFields({
-  formData,
-  setFormData,
-  onGenerateArticle,
-  onOpenAiInstructions,
-  generatingArticle,
-  contentType,
-}: SEOFieldsProps) {
-  const generateButtonLabel = contentType === 'guide' ? 'Générer le guide (IA)' : 'Générer l\'article (IA)';
-
+export function SEOFields({ formData, setFormData }: SEOFieldsProps) {
   return (
     <>
       <div className="space-y-2">
@@ -48,16 +33,6 @@ export function SEOFields({
           rows={2}
           maxLength={160}
         />
-      </div>
-
-      <div className="flex items-center justify-end gap-2 flex-wrap">
-        <Button type="button" variant="outline" size="sm" onClick={onOpenAiInstructions} className="gap-2">
-          <FileText className="w-4 h-4" /> Instruction article IA
-        </Button>
-        <Button type="button" variant="outline" size="sm" onClick={onGenerateArticle}
-          disabled={generatingArticle || formData.focus_keywords.length === 0} className="gap-2">
-          <Sparkles className="w-4 h-4" /> {generateButtonLabel}
-        </Button>
       </div>
     </>
   );
