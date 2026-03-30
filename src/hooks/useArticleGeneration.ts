@@ -350,6 +350,43 @@ export function useArticleGeneration(
     }
   };
 
+  const handleApplyFixes = async () => {
+    if (!articleReview || !formData.content) return;
+    setLoadingFix(true);
+    try {
+      const accessToken = await getAccessToken();
+      if (!accessToken) { setLoadingFix(false); return; }
+
+      const { data, error } = await supabase.functions.invoke('generate-article', {
+        body: {
+          mode: 'review_fix',
+          title: formData.title,
+          content: formData.content,
+          contentType,
+          problemes: articleReview.problemes,
+          suggestions: articleReview.suggestions,
+        },
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Erreur lors de la correction");
+
+      setFormData(prev => ({
+        ...prev,
+        content: data.fixedContent,
+      }));
+
+      setArticleReview(null);
+      setReviewModalOpen(false);
+      toast.success("Corrections appliquées ! Vérifiez le contenu puis relancez l'analyse si besoin.");
+    } catch (error: any) {
+      toast.error(error.message || "Erreur lors de la correction automatique");
+    } finally {
+      setLoadingFix(false);
+    }
+  };
+
   return {
     wizardOpen, setWizardOpen, openWizard,
     loadingAngles, angles,
@@ -359,5 +396,7 @@ export function useArticleGeneration(
     // Review
     reviewModalOpen, setReviewModalOpen, openReviewModal,
     loadingReview, articleReview, handleStartReview,
+    // Fix
+    loadingFix, handleApplyFixes,
   };
 }
