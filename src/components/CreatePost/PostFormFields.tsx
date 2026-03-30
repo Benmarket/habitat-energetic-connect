@@ -87,6 +87,10 @@ export function PostFormFields({
   categories,
   tags,
   onTitleChange,
+  onGenerateArticle,
+  onOpenAiInstructions,
+  generatingArticle,
+  contentType,
 }: PostFormFieldsProps) {
   const [regions, setRegions] = useState<Array<{code: string; name: string}>>([]);
 
@@ -107,7 +111,9 @@ export function PostFormFields({
 
   return (
     <>
-      <KeywordsField formData={formData} setFormData={setFormData} />
+      <KeywordsField formData={formData} setFormData={setFormData}
+        onGenerateArticle={onGenerateArticle} onOpenAiInstructions={onOpenAiInstructions}
+        generatingArticle={generatingArticle} contentType={contentType} />
 
       <div className="space-y-2">
         <Label htmlFor="title">Titre *</Label>

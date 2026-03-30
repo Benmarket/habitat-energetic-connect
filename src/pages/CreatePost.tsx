@@ -104,7 +104,11 @@ const CreatePost = () => {
               <CardContent>
                 <form className="space-y-6">
                   <PostFormFields formData={formData} setFormData={setFormData}
-                    categories={categories} tags={tags} onTitleChange={handleTitleChange} />
+                    categories={categories} tags={tags} onTitleChange={handleTitleChange}
+                    onGenerateArticle={openWizard}
+                    onOpenAiInstructions={() => setAiInstructionsModalOpen(true)}
+                    generatingArticle={generatingArticle}
+                    contentType={contentType} />
 
                   {contentType === "guide" && (
                     <GuideOptions formData={formData} setFormData={setFormData} />
