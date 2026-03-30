@@ -273,40 +273,59 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
 
 1. <h1>Titre (basé sur l'angle choisi, SANS préfixe de type comme "Alerte :", "Analyse :", "Décryptage :", "Guide :" etc. Le titre doit être naturel et SEO-friendly)</h1>
 
-2. [IMAGE: Vue LARGE panoramique en rapport direct avec le SUJET de l'article (pas générique). Si le sujet est l'électricité → réseau électrique, compteur, facture. Si c'est le solaire → panneaux sur toit. Photo éditoriale style magazine, lumière naturelle, 30+ mots descriptifs SPÉCIFIQUES au sujet]
-
-3. <div class="summary-box" style="background:#f0f9ff;border-left:4px solid #0284c7;padding:1.5rem;margin:2rem 0;">
+2. <div class="summary-box" style="background:#f0f9ff;border-left:4px solid #0284c7;padding:1.5rem;margin:2rem 0;">
    <h2 style="margin-top:0;color:#0284c7;font-size:1.25rem;">📌 En résumé</h2>
    <ul><li>3-4 points clés CONCIS</li></ul>
    </div>
    IMPORTANT: Le contenu texte de ce bloc "En résumé" (TL;DR) ne doit PAS dépasser 500 caractères au total (tous les <li> combinés).
 
-4. Introduction (150-200 mots) — Accroche + problème + promesse
+3. Introduction (150-200 mots) — Accroche + problème + promesse
 
-5. <h2>Section 1</h2> — Problème/contexte (200-300 mots, données chiffrées)
+4. Sections H2/H3 (4-7 sections) — Chaque section 200-300 mots, avec données chiffrées quand pertinent
 
-6. [BUTTON:CTA] — Premier call-to-action
+5. [BUTTON:CTA] — Call-to-action stratégiquement placés (2-3 dans l'article)
 
-7. <h2>Section 2</h2> — Développement valeur (200-300 mots)
+6. [CTA_BANNER:ID] — Bannière lead capture (1-2 dans l'article)
 
-8. [IMAGE: GROS PLAN en rapport avec le CONTENU de la section précédente. Détail technique, infographie ou illustration du sujet traité. TRÈS DIFFÉRENT de l'image 1. 30+ mots descriptifs SPÉCIFIQUES]
-
-9. <h2>Section 3</h2> — Projection utilisateur (200+ mots)
-
-10. [IMAGE: Photo humaine ou résultat concret en lien avec le sujet (ex: propriétaire regardant sa facture, technicien au travail, maison rénovée). DIFFÉRENT des images 1 et 2. 30+ mots descriptifs SPÉCIFIQUES]
-
-11. [CTA_BANNER:ID] — Bannière lead capture
-
-12. <h2>Sections supplémentaires</h2> — 1-2 H2 additionnels
-
-13. <h2>Questions fréquentes</h2>
+7. <h2>Questions fréquentes</h2>
     <div class="faq-item"><h3>Question ?</h3><p>Réponse.</p></div> (3-5 FAQ)
 
-14. <h2>Sources et références</h2> — Sources officielles
+8. <h2>Sources et références</h2> — Sources officielles
 
-15. [BUTTON:CTA final]
+9. Conclusion (100-150 mots) — Synthèse + passage à l'action
 
-16. Conclusion (100-150 mots) — Synthèse + passage à l'action
+═══════════════════════════════════════════
+STRATÉGIE D'IMAGES (PERTINENCE > QUANTITÉ)
+═══════════════════════════════════════════
+⚠️ AVANT de rédiger, définis une STRATÉGIE D'IMAGES intelligente pour chaque section.
+
+Pour CHAQUE section H2/H3, détermine si une image est pertinente (oui/non).
+NE FORCE PAS une image partout — une image doit RENFORCER la compréhension ou la conversion.
+
+TYPES D'IMAGES possibles (choisis le plus adapté) :
+- Illustration réaliste : projection utilisateur, mise en situation concrète (ex: propriétaire devant sa maison avec panneaux)
+- Schéma explicatif : fonctionnement technique, flux d'énergie, processus étape par étape
+- Avant / Après : transformation visuelle (rénovation, factures, performance)
+- Donnée / preuve visuelle : infographie de chiffres clés, graphique comparatif
+- Mise en situation : photo contextuelle professionnelle (technicien, chantier, résultat final)
+- Comparatif visuel : côte-à-côte de solutions, technologies, résultats
+
+RÈGLES IMAGES :
+- Maximum 1 image par section (pas plus)
+- Entre 2 et 4 images TOTAL dans l'article (pas systématiquement 3)
+- Chaque image doit être RADICALEMENT DIFFÉRENTE des autres (cadrage, sujet, type)
+- La PREMIÈRE image doit être une vue large/hero en rapport DIRECT avec le sujet spécifique
+- Les prompts doivent être ULTRA-PRÉCIS : 40+ mots, mention du cadrage, éclairage, style, éléments spécifiques
+- JAMAIS d'images génériques (pas de "panneaux solaires sur un toit" si le sujet est les batteries)
+- Style : photo éditoriale professionnelle, lumière naturelle, rendu magazine — PAS de rendu 3D/fake/IA visible
+
+FORMAT du placeholder :
+[IMAGE:TYPE_IMAGE|OBJECTIF_SECTION|Prompt détaillé ultra-précis de 40+ mots décrivant exactement la scène, le cadrage, l'éclairage, les éléments visibles, le style photographique]
+
+Exemples :
+[IMAGE:Mise en situation|Montrer le résultat concret d'une installation|Vue en contre-plongée d'une toiture résidentielle en tuiles terre cuite avec 12 panneaux solaires monocristallins noirs parfaitement alignés, ciel bleu avec quelques nuages, jardin verdoyant visible en premier plan, maison de style provençal, lumière dorée de fin d'après-midi, style photo reportage magazine architecture]
+[IMAGE:Avant/Après|Illustrer l'impact sur la facture|Split-screen horizontal montrant à gauche une facture EDF élevée avec montant 280€ entouré en rouge sur un bureau encombré, et à droite la même facture avec montant 45€ entouré en vert sur un bureau lumineux et ordonné, éclairage naturel, style photo documentaire]
+[IMAGE:Schéma explicatif|Expliquer le fonctionnement technique|Infographie minimaliste sur fond blanc montrant le flux d'énergie solaire : panneau sur toit → onduleur → tableau électrique → appareils ménagers, avec flèches vertes et icônes flat design, chiffres de production en kWh annotés, style graphique professionnel épuré]
 
 ═══════════════════════════════════════════
 TABLEAUX DE DONNÉES (OBLIGATOIRE — MINIMUM 1, IDÉALEMENT 2-3)
@@ -345,7 +364,7 @@ RÈGLES TABLEAUX:
 ═══════════════════════════════════════════
 RÈGLES GÉNÉRALES
 ═══════════════════════════════════════════
-• EXACTEMENT 3 [IMAGE: ...] tous DIFFÉRENTS et en rapport avec le SUJET/TRAME de l'article (pas des images génériques d'éoliennes ou panneaux si le sujet est autre chose)
+• Entre 2 et 4 [IMAGE:...] intelligemment placés selon la stratégie (pertinence > quantité)
 • HTML pur (<p>, <ul>, <h2>, <h3>, <table>). Jamais de markdown.
 • ${contentType === 'guide' ? '1800-2500 mots' : '1200-1800 mots'}
 • Style direct, impactant, zéro blabla
