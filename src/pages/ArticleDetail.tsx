@@ -592,19 +592,22 @@ const ArticleDetail = () => {
                         <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-lg">❓</span>
                         Questions fréquentes
                       </h2>
-                      <div className="space-y-4">
+                      <Accordion type="single" collapsible className="space-y-3">
                         {article.faq.map((item, index) => (
-                          <details key={index} className="group bg-muted/30 rounded-xl border border-border/50 overflow-hidden">
-                            <summary className="flex items-center justify-between p-5 cursor-pointer hover:bg-muted/50 transition-colors">
-                              <h3 className="text-base font-semibold text-foreground pr-4">{item.question}</h3>
-                              <ArrowLeft className="w-5 h-5 text-muted-foreground -rotate-90 group-open:rotate-90 transition-transform shrink-0" />
-                            </summary>
-                            <div className="px-5 pb-5 pt-0">
+                          <AccordionItem
+                            key={index}
+                            value={`faq-${index}`}
+                            className="bg-muted/30 rounded-xl border border-border/50 overflow-hidden px-1 data-[state=open]:bg-muted/50 transition-colors"
+                          >
+                            <AccordionTrigger className="px-5 py-5 text-base font-semibold text-foreground hover:no-underline [&[data-state=open]>svg]:rotate-180">
+                              {item.question}
+                            </AccordionTrigger>
+                            <AccordionContent className="px-5 pb-5 pt-0">
                               <p className="text-muted-foreground leading-relaxed">{item.answer}</p>
-                            </div>
-                          </details>
+                            </AccordionContent>
+                          </AccordionItem>
                         ))}
-                      </div>
+                      </Accordion>
                     </div>
                   )}
                 </div>
