@@ -382,6 +382,28 @@ const ManageActualites = () => {
                               </Badge>
                             </TableCell>
                             <TableCell>
+                              {post.generation_cost != null ? (
+                                <span className="text-xs font-mono text-muted-foreground">
+                                  ${Number(post.generation_cost).toFixed(4)}
+                                </span>
+                              ) : (
+                                <button
+                                  className="text-xs text-muted-foreground/50 hover:text-muted-foreground cursor-pointer"
+                                  onClick={async () => {
+                                    const cost = prompt("Coût de génération ($) :", "0");
+                                    if (cost === null) return;
+                                    const numCost = parseFloat(cost);
+                                    if (isNaN(numCost)) return;
+                                    await supabase.from("posts").update({ generation_cost: numCost } as any).eq("id", post.id);
+                                    fetchPosts();
+                                  }}
+                                  title="Cliquer pour saisir le coût"
+                                >
+                                  —
+                                </button>
+                              )}
+                            </TableCell>
+                            <TableCell>
                               <div className="space-y-1">
                                 <span
                                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
