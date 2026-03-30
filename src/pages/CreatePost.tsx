@@ -42,6 +42,8 @@ const CreatePost = () => {
     // Review
     reviewModalOpen, setReviewModalOpen, openReviewModal,
     loadingReview, articleReview, handleStartReview,
+    // Fix
+    loadingFix, handleApplyFixes,
   } = useArticleGeneration(
     formData, setFormData, contentType,
     currentAiInstructions, user?.id, { categories, tags }
