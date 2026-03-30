@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { AlertTriangle, CheckCircle2, Loader2, Star, Table2, Image, MousePointerClick, Lightbulb, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Loader2, Star, Table2, Image, MousePointerClick, Lightbulb, XCircle, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ReviewCritere {
@@ -36,6 +36,8 @@ interface ArticleReviewModalProps {
   review: ArticleReview | null;
   loading: boolean;
   onStartReview: () => void;
+  onApplyFixes?: () => void;
+  loadingFix?: boolean;
 }
 
 const getNoteColor = (note: number) => {
@@ -59,8 +61,9 @@ const getScoreBadge = (score: number) => {
   return { label: "Insuffisant", variant: "destructive" as const, className: "" };
 };
 
-export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStartReview }: ArticleReviewModalProps) => {
+export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStartReview, onApplyFixes, loadingFix }: ArticleReviewModalProps) => {
   const scoreBadge = review ? getScoreBadge(review.score_global) : null;
+  const hasIssues = review && (review.problemes.length > 0 || review.suggestions.length > 0);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -92,7 +95,15 @@ export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStar
           </div>
         )}
 
-        {review && !loading && (
+        {loadingFix && (
+          <div className="text-center py-16 space-y-4">
+            <Wand2 className="w-10 h-10 animate-pulse text-primary mx-auto" />
+            <p className="text-muted-foreground font-medium">Correction en cours…</p>
+            <p className="text-sm text-muted-foreground">L'IA corrige l'article en se basant sur l'audit</p>
+          </div>
+        )}
+
+        {review && !loading && !loadingFix && (
           <ScrollArea className="max-h-[70vh] pr-4">
             <div className="space-y-6">
               {/* Score global */}
@@ -186,12 +197,19 @@ export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStar
                 </>
               )}
 
-              {/* Re-run */}
-              <div className="text-center pt-2">
+              {/* Actions */}
+              <Separator />
+              <div className="flex items-center justify-center gap-3 pt-2">
                 <Button variant="outline" onClick={onStartReview} size="sm" className="gap-2">
                   <Star className="w-4 h-4" />
                   Relancer l'analyse
                 </Button>
+                {hasIssues && onApplyFixes && (
+                  <Button onClick={onApplyFixes} size="sm" className="gap-2 bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-700">
+                    <Wand2 className="w-4 h-4" />
+                    Appliquer les corrections
+                  </Button>
+                )}
               </div>
             </div>
           </ScrollArea>

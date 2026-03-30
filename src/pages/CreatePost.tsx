@@ -42,6 +42,8 @@ const CreatePost = () => {
     // Review
     reviewModalOpen, setReviewModalOpen, openReviewModal,
     loadingReview, articleReview, handleStartReview,
+    // Fix
+    loadingFix, handleApplyFixes,
   } = useArticleGeneration(
     formData, setFormData, contentType,
     currentAiInstructions, user?.id, { categories, tags }
@@ -177,6 +179,8 @@ const CreatePost = () => {
           review={articleReview}
           loading={loadingReview}
           onStartReview={handleStartReview}
+          onApplyFixes={handleApplyFixes}
+          loadingFix={loadingFix}
         />
 
         <AuthorSelectModal open={authorModalOpen} onOpenChange={setAuthorModalOpen}
