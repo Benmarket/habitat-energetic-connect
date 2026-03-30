@@ -294,6 +294,7 @@ export function useArticleGeneration(
       category_id: autoCategory || prev.category_id,
       tag_ids: autoTags.length > 0 ? autoTags : prev.tag_ids,
       target_regions: article.targetRegions || prev.target_regions,
+      generation_cost: article.generationCost ?? prev.generation_cost,
     }));
 
     toast.success("Article appliqué avec catégorie et étiquettes !");
