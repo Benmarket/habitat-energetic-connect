@@ -134,13 +134,15 @@ export function useArticleGeneration(
             const imageCaption = parts[4] || '';
 
             const { data: imgData } = await supabase.functions.invoke('generate-images', {
-              body: { prompt: imagePrompt, type: imageType, objective: imageObjective }
+              body: { imageDescriptions: [imagePrompt] },
+              headers: { Authorization: `Bearer ${accessToken}` }
             });
-            if (imgData?.imageUrl) {
+            const generatedUrl = imgData?.images?.[0]?.success ? imgData.images[0].url : null;
+            if (generatedUrl) {
               const altText = imageTitle || imagePrompt.slice(0, 120);
-              const figureHtml = `<figure><div data-custom-image="true" data-src="${imgData.imageUrl}" data-alt="${altText}" data-title="${imageTitle}" data-caption="${imageCaption}"></div>${imageCaption ? `<figcaption>${imageCaption}</figcaption>` : ''}</figure>`;
+              const figureHtml = `<figure><div data-custom-image="true" data-src="${generatedUrl}" data-alt="${altText}" data-title="${imageTitle}" data-caption="${imageCaption}"></div>${imageCaption ? `<figcaption>${imageCaption}</figcaption>` : ''}</figure>`;
               contentWithImages = contentWithImages.replace(match, figureHtml);
-              if (i === 0 && !featuredImageUrl) featuredImageUrl = imgData.imageUrl;
+              if (i === 0 && !featuredImageUrl) featuredImageUrl = generatedUrl;
             }
           } catch (imgErr) {
             console.warn('Image generation failed for:', match, imgErr);
