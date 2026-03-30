@@ -360,12 +360,13 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
 7. <h2>Questions fréquentes</h2>
     <div class="faq-item"><h3>Question ?</h3><p>Réponse.</p></div>
     RÈGLES FAQ CRITIQUES :
-    - 5-7 questions (pas 3 bâclées)
+    - EXACTEMENT 4-5 questions (pas plus, pas moins). Sélectionner les MEILLEURES questions à fort potentiel de conversion.
     - Formulées EXACTEMENT comme un internaute les taperait sur Google ou demanderait à ChatGPT
     - Inclure les questions "gênantes" que les concurrents évitent (ex: "Est-ce que ça vaut vraiment le coup ?", "Quels sont les vrais inconvénients ?")
     - Réponses factuelles, précises, avec chiffres quand possible
-    - Au moins 2 questions doivent aborder des aspects NÉGATIFS ou des LIMITES (honnêteté = crédibilité)
-    - Chaque réponse : 50-100 mots (pas trop court, pas trop long)
+    - Au moins 1 question doit aborder un aspect NÉGATIF ou une LIMITE (honnêteté = crédibilité)
+    - Chaque réponse : 50-80 mots (concis et impactant)
+    - ⚠️ NE PAS ajouter de questions FAQ ailleurs dans l'article. TOUTES les questions doivent être dans cette UNIQUE section FAQ.
 
 8. <h2>Sources et références</h2>
    - Citer des sources VÉRIFIABLES et OFFICIELLES (ADEME, France Rénov, Journal Officiel, INSEE, etc.)
