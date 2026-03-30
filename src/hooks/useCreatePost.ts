@@ -343,6 +343,7 @@ export function useCreatePost() {
           topline_text_color: (post as any).topline_text_color || "#ffffff",
           badge_image: (post as any).badge_image || "",
           target_regions: (post as any).target_regions || ['fr'],
+          generation_cost: (post as any).generation_cost ?? null,
         });
       }
     } catch {
