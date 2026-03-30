@@ -92,7 +92,7 @@ export const CustomImage = Node.create<CustomImageOptions>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const { src, alt, width, align } = HTMLAttributes;
+    const { src, alt, title, caption, width, align } = HTMLAttributes;
 
     const imgStyle = [
       'max-width: 100%',
@@ -101,21 +101,36 @@ export const CustomImage = Node.create<CustomImageOptions>({
       width ? `width: ${width}px` : '',
     ].filter(Boolean).join('; ');
 
-    return [
-      'div',
-      mergeAttributes(this.options.HTMLAttributes, {
-        'data-custom-image': '',
-        class: 'custom-image-wrapper my-4',
-        style: `text-align: ${align}`,
-      }),
+    const children: any[] = [
       [
         'img',
         {
           src,
           alt,
+          title: title || undefined,
           style: imgStyle,
         },
       ],
+    ];
+
+    if (caption) {
+      children.push([
+        'figcaption',
+        {
+          style: 'font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem; text-align: center; font-style: italic;',
+        },
+        caption,
+      ]);
+    }
+
+    return [
+      'figure',
+      mergeAttributes(this.options.HTMLAttributes, {
+        'data-custom-image': '',
+        class: 'custom-image-wrapper my-4',
+        style: `text-align: ${align}`,
+      }),
+      ...children,
     ];
   },
 
