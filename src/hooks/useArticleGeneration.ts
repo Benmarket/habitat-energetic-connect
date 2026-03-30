@@ -114,41 +114,36 @@ export function useArticleGeneration(
       if (!data?.success) throw new Error(data?.error || "Erreur lors de la génération");
 
       const article = data.article;
+      const usage = data.usage || {};
 
       // Generate images from placeholders
       let contentWithImages = article.content || '';
       let featuredImageUrl = '';
       const imageMatches = contentWithImages.match(/\[IMAGE:[^\]]+\]/g) || [];
-      const imageDescriptions = imageMatches.map((m: string) => {
-        // Support both old format [IMAGE: description] and new format [IMAGE:TYPE|OBJECTIF|Prompt]
-        const inner = m.replace(/^\[IMAGE:\s*/, '').replace(/\]$/, '').trim();
-        const parts = inner.split('|');
-        // If new format with pipes, use the last part (the actual prompt)
-        return parts.length >= 3 ? parts[parts.length - 1].trim() : inner;
-      });
 
-      if (imageDescriptions.length > 0) {
-        try {
-          const { data: imagesData, error: imagesError } = await supabase.functions.invoke('generate-images', {
-            body: { imageDescriptions },
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
+      if (imageMatches.length > 0) {
+        for (let i = 0; i < imageMatches.length; i++) {
+          const match = imageMatches[i];
+          try {
+            const parts = match.replace('[IMAGE:', '').replace(']', '').split('|').map((s: string) => s.trim());
+            const imageType = parts[0] || 'illustration';
+            const imageObjective = parts[1] || 'informer';
+            const imagePrompt = parts[2] || match;
+            const imageTitle = parts[3] || '';
+            const imageCaption = parts[4] || '';
 
-          if (!imagesError && imagesData?.success && imagesData.images) {
-            // First successful image = featured image
-            const firstOk = imagesData.images.find((img: any) => img.success);
-            if (firstOk) featuredImageUrl = firstOk.url;
-
-            // Replace ALL image placeholders with actual images
-            imagesData.images.forEach((imgData: any, index: number) => {
-              if (imgData.success && imageMatches[index]) {
-                const imgTag = `<div style="text-align:center;margin:1.5rem 0"><img src="${imgData.url}" alt="${imgData.description || imageDescriptions[index]}" class="rounded-lg" style="max-width:100%;height:auto;border-radius:8px" /></div>`;
-                contentWithImages = contentWithImages.replace(imageMatches[index], imgTag);
-              }
+            const { data: imgData } = await supabase.functions.invoke('generate-images', {
+              body: { prompt: imagePrompt, type: imageType, objective: imageObjective }
             });
+            if (imgData?.imageUrl) {
+              const altText = imageTitle || imagePrompt.slice(0, 120);
+              const figureHtml = `<figure><div data-custom-image="true" data-src="${imgData.imageUrl}" data-alt="${altText}" data-title="${imageTitle}" data-caption="${imageCaption}"></div>${imageCaption ? `<figcaption>${imageCaption}</figcaption>` : ''}</figure>`;
+              contentWithImages = contentWithImages.replace(match, figureHtml);
+              if (i === 0 && !featuredImageUrl) featuredImageUrl = imgData.imageUrl;
+            }
+          } catch (imgErr) {
+            console.warn('Image generation failed for:', match, imgErr);
           }
-        } catch (e) {
-          console.error('Image generation error:', e);
         }
       }
 
@@ -160,6 +155,7 @@ export function useArticleGeneration(
         content: contentWithImages,
         featuredImageUrl,
         targetRegions: input.targetRegions,
+        generationCost: usage.estimatedCost || null,
       };
 
       setGeneratedArticle(finalArticle);
