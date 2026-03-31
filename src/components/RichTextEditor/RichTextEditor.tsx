@@ -4,6 +4,10 @@ import Link from '@tiptap/extension-link';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableHeader } from '@tiptap/extension-table-header';
+import { TableCell } from '@tiptap/extension-table-cell';
 import { CustomButton } from './CustomButton';
 import { CustomImage } from './CustomImage';
 import { CustomCtaBanner } from './CustomCtaBanner';
@@ -28,6 +32,7 @@ import {
   Image as ImageIcon,
   MousePointerClick,
   LayoutTemplate,
+  TableIcon,
   Undo,
   Redo,
   AlignLeft,
@@ -70,6 +75,15 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       }),
       TextStyle,
       Color,
+      Table.configure({
+        resizable: false,
+        HTMLAttributes: {
+          class: 'article-data-table',
+        },
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
       CustomButton,
       CustomImage,
       CustomCtaBanner,
@@ -400,6 +414,15 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           title="Insérer un bandeau CTA"
         >
           <LayoutTemplate className="w-4 h-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+          title="Insérer un tableau"
+        >
+          <TableIcon className="w-4 h-4" />
         </Button>
         
         <div className="w-px h-8 bg-border mx-1" />
