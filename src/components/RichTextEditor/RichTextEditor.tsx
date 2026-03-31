@@ -75,6 +75,15 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       }),
       TextStyle,
       Color,
+      Table.configure({
+        resizable: false,
+        HTMLAttributes: {
+          class: 'article-data-table',
+        },
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
       CustomButton,
       CustomImage,
       CustomCtaBanner,
