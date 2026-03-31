@@ -249,7 +249,8 @@ details summary {
   -webkit-overflow-scrolling: touch;
 }
 
-.article-content .article-data-table {
+.article-content .article-data-table,
+.article-content table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
@@ -257,13 +258,17 @@ details summary {
   overflow: hidden;
   box-shadow: 0 4px 20px -4px hsl(220 13% 18% / 0.1);
   font-size: 0.95rem;
+  margin: 2rem 0;
 }
 
-.article-content .article-data-table thead tr {
+.article-content .article-data-table thead tr,
+.article-content table thead tr {
   background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.85));
 }
 
-.article-content .article-data-table thead th {
+.article-content .article-data-table thead th,
+.article-content table thead th,
+.article-content table th {
   padding: 0.875rem 1rem;
   text-align: left;
   font-weight: 600;
@@ -272,31 +277,39 @@ details summary {
   letter-spacing: 0.03em;
   color: hsl(var(--primary-foreground));
   white-space: nowrap;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.85));
 }
 
-.article-content .article-data-table tbody tr {
+.article-content .article-data-table tbody tr,
+.article-content table tbody tr {
   transition: background-color 0.2s ease;
 }
 
-.article-content .article-data-table tbody tr:nth-child(even) {
+.article-content .article-data-table tbody tr:nth-child(even),
+.article-content table tbody tr:nth-child(even) {
   background-color: hsl(var(--muted) / 0.4);
 }
 
-.article-content .article-data-table tbody tr:hover {
+.article-content .article-data-table tbody tr:hover,
+.article-content table tbody tr:hover {
   background-color: hsl(var(--primary) / 0.06);
 }
 
-.article-content .article-data-table tbody td {
+.article-content .article-data-table tbody td,
+.article-content table tbody td,
+.article-content table td {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid hsl(var(--border) / 0.5);
   color: hsl(var(--foreground));
 }
 
-.article-content .article-data-table tbody tr:last-child td {
+.article-content .article-data-table tbody tr:last-child td,
+.article-content table tbody tr:last-child td {
   border-bottom: none;
 }
 
-.article-content .article-data-table tbody td:first-child {
+.article-content .article-data-table tbody td:first-child,
+.article-content table tbody td:first-child {
   font-weight: 500;
   color: hsl(var(--foreground));
 }
@@ -309,38 +322,57 @@ details summary {
   text-align: right;
 }
 
-/* Fallback for tables without our classes */
-.article-content table:not(.article-data-table) {
+/* ═══ TipTap Editor Table Styles ═══ */
+.ProseMirror table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 20px -4px hsl(220 13% 18% / 0.1);
-  margin: 2rem 0;
-  font-size: 0.95rem;
+  margin: 1rem 0;
+  border: 1px solid hsl(var(--border));
 }
 
-.article-content table:not(.article-data-table) thead th {
-  padding: 0.875rem 1rem;
+.ProseMirror table th {
   background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.85));
   color: hsl(var(--primary-foreground));
   font-weight: 600;
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
+  padding: 0.75rem 0.75rem;
   text-align: left;
+  border: 1px solid hsl(var(--primary) / 0.3);
 }
 
-.article-content table:not(.article-data-table) tbody tr:nth-child(even) {
-  background-color: hsl(var(--muted) / 0.4);
+.ProseMirror table td {
+  padding: 0.625rem 0.75rem;
+  border: 1px solid hsl(var(--border) / 0.5);
+  vertical-align: top;
+  min-width: 80px;
 }
 
-.article-content table:not(.article-data-table) tbody tr:hover {
-  background-color: hsl(var(--primary) / 0.06);
+.ProseMirror table td.selectedCell,
+.ProseMirror table th.selectedCell {
+  background-color: hsl(var(--primary) / 0.12);
+  outline: 2px solid hsl(var(--primary) / 0.5);
 }
 
-.article-content table:not(.article-data-table) tbody td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid hsl(var(--border) / 0.5);
+.ProseMirror table tr:nth-child(even) td {
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+.ProseMirror table tr:hover td {
+  background-color: hsl(var(--primary) / 0.05);
+}
+
+@media (max-width: 640px) {
+  .article-content .article-table-wrapper,
+  .article-content table {
+    font-size: 0.85rem;
+  }
+  .article-content table th,
+  .article-content table td {
+    padding: 0.5rem 0.625rem;
+  }
 }
