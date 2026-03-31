@@ -415,6 +415,15 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         >
           <LayoutTemplate className="w-4 h-4" />
         </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+          title="Insérer un tableau"
+        >
+          <TableIcon className="w-4 h-4" />
+        </Button>
         
         <div className="w-px h-8 bg-border mx-1" />
         
