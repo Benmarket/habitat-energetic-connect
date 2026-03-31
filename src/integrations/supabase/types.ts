@@ -985,12 +985,16 @@ export type Database = {
           description: string | null
           icon: string
           id: string
+          level: string
+          parent_id: string | null
           path: string
+          region_code: string | null
           seo_status: string
           seo_status_changed_at: string | null
           slug: string
           title: string
           updated_at: string
+          variant_slug: string | null
         }
         Insert: {
           bg_color?: string
@@ -999,12 +1003,16 @@ export type Database = {
           description?: string | null
           icon?: string
           id?: string
+          level?: string
+          parent_id?: string | null
           path: string
+          region_code?: string | null
           seo_status?: string
           seo_status_changed_at?: string | null
           slug: string
           title: string
           updated_at?: string
+          variant_slug?: string | null
         }
         Update: {
           bg_color?: string
@@ -1013,14 +1021,26 @@ export type Database = {
           description?: string | null
           icon?: string
           id?: string
+          level?: string
+          parent_id?: string | null
           path?: string
+          region_code?: string | null
           seo_status?: string
           seo_status_changed_at?: string | null
           slug?: string
           title?: string
           updated_at?: string
+          variant_slug?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "landing_pages_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "landing_pages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leads: {
         Row: {
