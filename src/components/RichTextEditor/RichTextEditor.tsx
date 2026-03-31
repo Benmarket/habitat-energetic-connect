@@ -32,6 +32,7 @@ import {
   Image as ImageIcon,
   MousePointerClick,
   LayoutTemplate,
+  TableIcon,
   Undo,
   Redo,
   AlignLeft,
