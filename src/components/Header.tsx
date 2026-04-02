@@ -34,7 +34,7 @@ const Header = () => {
     whatsappLink: "",
     showMemberSpace: true,
     showInstallerButton: true,
-    installerButtonText: "Trouver un installateur",
+    installerButtonText: "",
     installerButtonColor: "#22c55e",
     installerButtonTextColor: "#ffffff",
     installerButtonBorderRadius: 6,
