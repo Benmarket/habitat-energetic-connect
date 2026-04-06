@@ -55,6 +55,7 @@ export interface CreatePostFormData {
   badge_image: string;
   target_regions: string[];
   generation_cost: number | null;
+  published_at: string;
 }
 
 // Validation schema
@@ -193,6 +194,7 @@ const initialFormData: CreatePostFormData = {
   badge_image: "",
   target_regions: ["fr"],
   generation_cost: null,
+  published_at: "",
 };
 
 export function useCreatePost() {
@@ -344,6 +346,7 @@ export function useCreatePost() {
           badge_image: (post as any).badge_image || "",
           target_regions: (post as any).target_regions || ['fr'],
           generation_cost: (post as any).generation_cost ?? null,
+          published_at: post.published_at || "",
         });
       }
     } catch {
@@ -470,7 +473,12 @@ export function useCreatePost() {
       if (formData.generation_cost !== null && formData.generation_cost !== undefined) {
         postData.generation_cost = formData.generation_cost;
       }
-      if (status === "published" && !editId) postData.published_at = new Date().toISOString();
+      // Handle published_at: use custom date if set, otherwise auto-set on first publish
+      if (formData.published_at) {
+        postData.published_at = formData.published_at;
+      } else if (status === "published" && !editId) {
+        postData.published_at = new Date().toISOString();
+      }
 
       let postId = editId;
 

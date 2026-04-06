@@ -6,9 +6,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { X, MapPin, Sparkles, FileText } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { X, MapPin, Sparkles, FileText, CalendarIcon } from "lucide-react";
 import { Category, Tag, CreatePostFormData } from "@/hooks/useCreatePost";
 import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 function KeywordsField({ formData, setFormData, onGenerateArticle, onOpenAiInstructions, generatingArticle, contentType }: {
   formData: CreatePostFormData;
@@ -137,8 +142,68 @@ export function PostFormFields({
         />
       </div>
 
+      {/* Date & heure de publication */}
       <div className="space-y-2">
-        <Label htmlFor="category">Catégorie *</Label>
+        <Label>Date et heure de publication</Label>
+        <div className="flex gap-2 items-center">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                className={cn(
+                  "w-[220px] justify-start text-left font-normal",
+                  !formData.published_at && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {formData.published_at
+                  ? format(new Date(formData.published_at), "dd MMM yyyy", { locale: fr })
+                  : "Date auto (publication)"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={formData.published_at ? new Date(formData.published_at) : undefined}
+                onSelect={(date) => {
+                  if (date) {
+                    const existing = formData.published_at ? new Date(formData.published_at) : new Date();
+                    date.setHours(existing.getHours(), existing.getMinutes());
+                    setFormData({ ...formData, published_at: date.toISOString() });
+                  }
+                }}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
+          <Input
+            type="time"
+            className="w-[120px]"
+            value={formData.published_at
+              ? format(new Date(formData.published_at), "HH:mm")
+              : ""}
+            onChange={(e) => {
+              const [h, m] = e.target.value.split(":").map(Number);
+              const d = formData.published_at ? new Date(formData.published_at) : new Date();
+              d.setHours(h, m, 0, 0);
+              setFormData({ ...formData, published_at: d.toISOString() });
+            }}
+          />
+          {formData.published_at && (
+            <Button type="button" variant="ghost" size="icon" className="h-8 w-8"
+              onClick={() => setFormData({ ...formData, published_at: "" })}>
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Laissez vide pour utiliser la date de première publication automatique.
+        </p>
+      </div>
+
+      <div className="space-y-2">
         <Select
           value={formData.category_id}
           onValueChange={(value) => setFormData({ ...formData, category_id: value })}
