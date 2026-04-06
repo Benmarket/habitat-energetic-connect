@@ -973,7 +973,47 @@ Retourne UNIQUEMENT le HTML corrigé, rien d'autre. Pas de markdown, pas de back
       );
     }
 
-    throw new Error(`Mode inconnu: ${mode}. Utilisez "angles", "article", "review" ou "review_fix".`);
+    // ══════════════════════════════════════════
+    // MODE: IMAGE_PROMPT — Generate a smart image prompt from context
+    // ══════════════════════════════════════════
+    if (mode === 'image_prompt') {
+      const { context, contextLabel } = body;
+      if (!context) throw new Error('Contexte requis');
+
+      const promptGenResponse = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
+        body: JSON.stringify({
+          model,
+          max_tokens: 512,
+          temperature: 0.7,
+          messages: [
+            { role: 'system', content: `Tu es un expert en création de prompts pour la génération d'images éditoriales. Tu dois créer UN SEUL prompt détaillé (40-80 mots) pour générer une image professionnelle percutante et virale pour ${contextLabel === 'image à la une' ? 'la une d\'un article' : 'une section d\'article'} sur les énergies renouvelables.
+
+RÈGLES:
+- Photo réaliste, lumière naturelle, rendu magazine professionnel
+- PAS de rendu 3D, pas d'illustration cartoon, pas de stock photo générique
+- L'image doit être ENGAGEANTE et donner envie de lire
+- Inclure des détails précis: angle de vue, éclairage, composition, éléments humains si pertinent
+- Adapter au contexte fourni
+
+Retourne UNIQUEMENT le prompt, rien d'autre.` },
+            { role: 'user', content: `Contexte de l'article/section:\n${context.slice(0, 2000)}` }
+          ]
+        })
+      });
+
+      if (!promptGenResponse.ok) throw new Error('Erreur génération prompt image');
+      const promptData = await promptGenResponse.json();
+      const generatedPrompt = promptData.choices[0].message.content.trim();
+
+      return new Response(
+        JSON.stringify({ success: true, prompt: generatedPrompt }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      );
+    }
+
+    throw new Error(`Mode inconnu: ${mode}. Utilisez "angles", "article", "review", "review_fix" ou "image_prompt".`);
 
   } catch (error) {
     console.error('Error in generate-article:', error);
