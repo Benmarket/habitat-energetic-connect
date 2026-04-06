@@ -166,6 +166,81 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     };
   }, [buttonDialogOpen, imageDialogOpen, ctaBannerEditorOpen]);
 
+  // Inline image regeneration/upload/library events
+  useEffect(() => {
+    const handleRegenerate = (event: any) => {
+      const { attrs, sectionContext } = event.detail;
+      setRegenTargetSrc(attrs.src);
+      setRegenContext(sectionContext || '');
+      setRegenModalOpen(true);
+    };
+
+    const handleUploadReplace = (event: any) => {
+      const { attrs } = event.detail;
+      uploadTargetSrcRef.current = attrs.src;
+      fileInputRef.current?.click();
+    };
+
+    const handleMediaLibReplace = (event: any) => {
+      const { attrs } = event.detail;
+      setReplaceTargetSrc(attrs.src);
+      setReplaceMediaLibOpen(true);
+    };
+
+    window.addEventListener('regenerate-image', handleRegenerate);
+    window.addEventListener('upload-image-replace', handleUploadReplace);
+    window.addEventListener('medialibrary-image-replace', handleMediaLibReplace);
+    return () => {
+      window.removeEventListener('regenerate-image', handleRegenerate);
+      window.removeEventListener('upload-image-replace', handleUploadReplace);
+      window.removeEventListener('medialibrary-image-replace', handleMediaLibReplace);
+    };
+  }, []);
+
+  const replaceImageSrc = (oldSrc: string, newSrc: string) => {
+    if (!editor) return;
+    const { state } = editor;
+    state.doc.descendants((node, pos) => {
+      if (node.type.name === 'customImage' && node.attrs.src === oldSrc) {
+        editor.commands.setNodeSelection(pos);
+        editor.commands.updateCustomImage({ ...node.attrs, src: newSrc });
+        return false;
+      }
+    });
+  };
+
+  const handleInlineFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const targetSrc = uploadTargetSrcRef.current;
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData?.session?.user?.id;
+      if (!userId) { toast.error("Non connecté"); return; }
+
+      const ext = file.name.split('.').pop();
+      const filename = `inline-${Date.now()}.${ext}`;
+      const storagePath = `${userId}/${filename}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('media').upload(storagePath, file, { contentType: file.type });
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(storagePath);
+      await supabase.from('media').insert({
+        user_id: userId, filename, storage_path: publicUrl,
+        alt_text: file.name, mime_type: file.type, file_size: file.size,
+      });
+
+      replaceImageSrc(targetSrc, publicUrl);
+      toast.success("Image remplacée !");
+    } catch (err: any) {
+      toast.error(err.message || "Erreur upload");
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   if (!editor) {
     return null;
   }
