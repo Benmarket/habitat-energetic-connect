@@ -17,11 +17,15 @@ export const extractTableOfContents = (content: string): TOCItem[] => {
   const toc: TOCItem[] = [];
   
   headings.forEach((heading, index) => {
+    // Skip headings inside CTA banners or custom buttons — they're not real content sections
+    if (heading.closest('[data-cta-banner]') || heading.closest('[data-custom-button]')) {
+      return;
+    }
+    
     const text = heading.textContent?.trim() || "";
     const level = parseInt(heading.tagName.substring(1));
     const id = heading.id || `heading-${index}`;
     
-    // Add id to heading if not present
     if (!heading.id) {
       heading.id = id;
     }
