@@ -33,7 +33,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Calendar, Bot, FileSearch, DollarSign } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Calendar, Bot, FileSearch, DollarSign, BarChart3, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -47,6 +47,7 @@ const ManageActualites = () => {
   const navigate = useNavigate();
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [articleStats, setArticleStats] = useState<Record<string, { views: number; avgDuration: number | null }>>({});
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
@@ -127,12 +128,58 @@ const ManageActualites = () => {
       const { data, error } = await query;
       
       if (error) throw error;
-      if (data) setPosts(data);
+      if (data) {
+        setPosts(data);
+        // Fetch article view stats
+        fetchArticleStats(data);
+      }
     } catch (error) {
       console.error("Error fetching posts:", error);
       toast.error("Erreur lors du chargement des actualités");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchArticleStats = async (postsData: any[]) => {
+    try {
+      const slugs = postsData.map(p => `/actualites/${p.post_categories?.[0]?.categories?.slug || 'general'}/${p.slug}`);
+      
+      // Fetch all page_views for article URLs
+      const { data: viewsData } = await supabase
+        .from("page_views")
+        .select("page_url, duration_seconds")
+        .in("page_url", slugs);
+      
+      if (!viewsData) return;
+
+      // Aggregate by page_url
+      const statsMap: Record<string, { views: number; totalDuration: number; durationCount: number }> = {};
+      viewsData.forEach((pv: any) => {
+        if (!statsMap[pv.page_url]) {
+          statsMap[pv.page_url] = { views: 0, totalDuration: 0, durationCount: 0 };
+        }
+        statsMap[pv.page_url].views++;
+        if (pv.duration_seconds && pv.duration_seconds > 0) {
+          statsMap[pv.page_url].totalDuration += pv.duration_seconds;
+          statsMap[pv.page_url].durationCount++;
+        }
+      });
+
+      // Map back to post IDs
+      const result: Record<string, { views: number; avgDuration: number | null }> = {};
+      postsData.forEach(post => {
+        const url = `/actualites/${post.post_categories?.[0]?.categories?.slug || 'general'}/${post.slug}`;
+        const stat = statsMap[url];
+        result[post.id] = {
+          views: stat?.views || 0,
+          avgDuration: stat?.durationCount ? Math.round(stat.totalDuration / stat.durationCount) : null,
+        };
+      });
+      
+      setArticleStats(result);
+    } catch (error) {
+      console.error("Error fetching article stats:", error);
     }
   };
 
@@ -347,6 +394,18 @@ const ManageActualites = () => {
                         <TableHead className="w-20">Image</TableHead>
                         <TableHead>Titre</TableHead>
                         <TableHead className="w-32">Catégorie</TableHead>
+                        <TableHead className="w-16 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <BarChart3 className="w-3.5 h-3.5" />
+                            Vues
+                          </div>
+                        </TableHead>
+                        <TableHead className="w-24 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <Clock className="w-3.5 h-3.5" />
+                            Durée moy.
+                          </div>
+                        </TableHead>
                         <TableHead className="w-24">Source</TableHead>
                         <TableHead className="w-20">Coût</TableHead>
                         <TableHead className="w-32">Statut</TableHead>
@@ -375,6 +434,30 @@ const ManageActualites = () => {
                             <TableCell className="font-medium">{post.title}</TableCell>
                             <TableCell>
                               {post.post_categories?.[0]?.categories?.name || "-"}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {(() => {
+                                const views = articleStats[post.id]?.views || 0;
+                                return (
+                                  <span className={`text-sm font-semibold ${views > 100 ? 'text-green-600' : views > 20 ? 'text-blue-600' : 'text-muted-foreground'}`}>
+                                    {views > 0 ? views.toLocaleString('fr-FR') : '—'}
+                                  </span>
+                                );
+                              })()}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {(() => {
+                                const avg = articleStats[post.id]?.avgDuration;
+                                if (!avg) return <span className="text-xs text-muted-foreground">—</span>;
+                                const minutes = Math.floor(avg / 60);
+                                const seconds = avg % 60;
+                                const color = avg > 180 ? 'text-green-600' : avg > 60 ? 'text-blue-600' : 'text-orange-500';
+                                return (
+                                  <span className={`text-sm font-medium ${color}`}>
+                                    {minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`}
+                                  </span>
+                                );
+                              })()}
                             </TableCell>
                             <TableCell>
                               <Badge variant="outline">

@@ -1180,6 +1180,7 @@ export type Database = {
       page_views: {
         Row: {
           created_at: string
+          duration_seconds: number | null
           id: string
           page_url: string
           referrer: string | null
@@ -1190,6 +1191,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          duration_seconds?: number | null
           id?: string
           page_url: string
           referrer?: string | null
@@ -1200,6 +1202,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          duration_seconds?: number | null
           id?: string
           page_url?: string
           referrer?: string | null
