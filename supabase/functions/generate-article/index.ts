@@ -742,7 +742,7 @@ CRITÈRES D'AUDIT (note /10 + commentaire pour chacun)
 2. QUALITÉ RÉDACTIONNELLE - Style, ton, fluidité, richesse du vocabulaire, pas de répétitions
 3. SEO & STRUCTURE - H2/H3 bien utilisés, mots-clés présents dans le contenu ET les méta (meta title <60 car, meta desc <160 car), densité correcte. Le titre est-il optimisé SEO ?
 4. DONNÉES & CHIFFRES - Présence de tableaux HTML, données chiffrées sourcées, actuelles (${new Date().getFullYear()})
-5. CTA & CONVERSION - Variété des couleurs/styles des CTA, pertinence des placements, diversité des messages
+5. CTA & CONVERSION - Variété des couleurs/styles des CTA, pertinence des placements, diversité des messages. CRITIQUE: Vérifie si les boutons (data-custom-button) et bandeaux CTA (data-cta-banner) ont un data-popup-id renseigné ou un lien valide (pas juste "#" ou "#contact"). Si un CTA n'est connecté à rien, c'est un PROBLÈME BLOQUANT à signaler en priorité (note 0/10 automatique si CTA non connecté détecté).
 6. IMAGES & LÉGENDES - Images distinctes et pertinentes au sujet (vérifier dans le HTML), image à la une présente, légendes (figcaption) descriptives et informatives (pas vides ni génériques), alt text optimisé SEO
 7. FAQ - Les FAQ sont-elles fournies ? Questions pertinentes, utiles et variées ? Réponses complètes ? (${Array.isArray(faq) && faq.length > 0 ? faq.length + ' FAQ détectées' : '⚠️ AUCUNE FAQ'})
 8. ORIGINALITÉ - L'article apporte-t-il une vraie valeur ? Pas trop "template" ou monotone ?

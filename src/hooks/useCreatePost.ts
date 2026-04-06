@@ -410,6 +410,21 @@ export function useCreatePost() {
         return;
       }
 
+      // Block publication if unconnected CTAs exist
+      if (status === "published") {
+        const { detectUnconnectedCTAs } = await import("@/utils/contentRenderer");
+        const unconnectedCTAs = detectUnconnectedCTAs(finalContent);
+        if (unconnectedCTAs.length > 0) {
+          const labels = unconnectedCTAs.map(c => `• ${c.type === 'button' ? '🔘' : '📢'} "${c.label}"`).join('\n');
+          toast.error(`Publication bloquée : ${unconnectedCTAs.length} CTA non connecté(s) détecté(s)`, {
+            description: `Connectez-les à un popup ou un lien valide avant de publier.`,
+            duration: 8000,
+          });
+          setLoading(false);
+          return;
+        }
+      }
+
       if (!formData.hide_author && formData.author_display_type === "custom") {
         toast.error("Veuillez créer l'auteur avant de publier l'article");
         setLoading(false);

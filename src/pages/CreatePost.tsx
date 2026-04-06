@@ -1,12 +1,12 @@
 // CreatePost v4 - Multi-step generation wizard
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, AlertTriangle } from "lucide-react";
 import { ArticlePreviewModal } from "@/components/ArticlePreviewModal";
 import { ArticleReviewModal } from "@/components/ArticleReviewModal";
 import { AIInstructionsModal } from "@/components/AIInstructionsModal";
@@ -14,6 +14,7 @@ import { AuthorSelectModal } from "@/components/AuthorSelectModal";
 import { ArticleGenerationWizard } from "@/components/ArticleGenerationWizard";
 import { useCreatePost, sectionsToContent } from "@/hooks/useCreatePost";
 import { useArticleGeneration } from "@/hooks/useArticleGeneration";
+import { detectUnconnectedCTAs } from "@/utils/contentRenderer";
 import {
   PostFormFields,
   GuideOptions,
@@ -52,6 +53,11 @@ const CreatePost = () => {
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [aiInstructionsModalOpen, setAiInstructionsModalOpen] = useState(false);
   const [authorModalOpen, setAuthorModalOpen] = useState(false);
+
+  const currentContent = contentType === "guide" 
+    ? sectionsToContent(formData.guide_sections) 
+    : formData.content;
+  const unconnectedCTAs = useMemo(() => detectUnconnectedCTAs(currentContent), [currentContent]);
 
   if (authLoading || !user || loadingPost) {
     return (
@@ -126,11 +132,44 @@ const CreatePost = () => {
                       onOpenAuthorModal={() => setAuthorModalOpen(true)} />
                   )}
 
+                  {/* Warning: Unconnected CTAs */}
+                  {unconnectedCTAs.length > 0 && (
+                    <div className="rounded-xl border-2 border-destructive/50 bg-destructive/5 p-4">
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                        <div className="space-y-2">
+                          <p className="font-semibold text-destructive text-sm">
+                            {unconnectedCTAs.length} CTA non connecté{unconnectedCTAs.length > 1 ? 's' : ''} — Publication bloquée
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Les éléments suivants ne sont liés à aucun popup ni lien valide. Connectez-les via l'éditeur avant de publier.
+                          </p>
+                          <ul className="space-y-1">
+                            {unconnectedCTAs.map((cta, i) => (
+                              <li key={i} className="text-sm flex items-center gap-2 text-destructive/80">
+                                <span>{cta.type === 'button' ? '🔘' : '📢'}</span>
+                                <span className="font-medium">"{cta.label}"</span>
+                                <span className="text-xs text-muted-foreground">
+                                  ({cta.type === 'button' ? 'Bouton' : 'Bandeau CTA'})
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex gap-4 pt-4">
                     <Button type="button" variant="outline" onClick={(e) => handleSubmit(e, "draft")} disabled={loading}>
                       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Enregistrer brouillon"}
                     </Button>
-                    <Button type="button" onClick={(e) => handleSubmit(e, "published")} disabled={loading}>
+                    <Button 
+                      type="button" 
+                      onClick={(e) => handleSubmit(e, "published")} 
+                      disabled={loading || unconnectedCTAs.length > 0}
+                      title={unconnectedCTAs.length > 0 ? "Connectez tous les CTA avant de publier" : undefined}
+                    >
                       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Publier"}
                     </Button>
                   </div>
