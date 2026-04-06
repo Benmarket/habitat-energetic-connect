@@ -435,6 +435,30 @@ const ManageActualites = () => {
                             <TableCell>
                               {post.post_categories?.[0]?.categories?.name || "-"}
                             </TableCell>
+                            <TableCell className="text-center">
+                              {(() => {
+                                const views = articleStats[post.id]?.views || 0;
+                                return (
+                                  <span className={`text-sm font-semibold ${views > 100 ? 'text-green-600' : views > 20 ? 'text-blue-600' : 'text-muted-foreground'}`}>
+                                    {views > 0 ? views.toLocaleString('fr-FR') : '—'}
+                                  </span>
+                                );
+                              })()}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {(() => {
+                                const avg = articleStats[post.id]?.avgDuration;
+                                if (!avg) return <span className="text-xs text-muted-foreground">—</span>;
+                                const minutes = Math.floor(avg / 60);
+                                const seconds = avg % 60;
+                                const color = avg > 180 ? 'text-green-600' : avg > 60 ? 'text-blue-600' : 'text-orange-500';
+                                return (
+                                  <span className={`text-sm font-medium ${color}`}>
+                                    {minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`}
+                                  </span>
+                                );
+                              })()}
+                            </TableCell>
                             <TableCell>
                               <Badge variant="outline">
                                 {post.source === "ai_auto" ? "IA Auto" : "Manuel"}
