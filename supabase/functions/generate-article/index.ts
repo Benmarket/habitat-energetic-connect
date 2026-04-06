@@ -896,10 +896,21 @@ FORMAT AJOUT BOUTON: [BUTTON:Texte|URL]`;
       }
       const shuffledBnrs = shuffleArray([...ctaBanners]).slice(0, 2);
       if (shuffledBnrs.length > 0) {
-        ctaFixInstructions += `\nBANNIÈRES CTA DISPONIBLES (si tu en ajoutes):
-${shuffledBnrs.map((b: any) => `ID="${b.id}" Titre="${b.title}"`).join('\n')}
-FORMAT AJOUT BANNIÈRE: [CTA_BANNER:ID]`;
+        ctaFixInstructions += `\nBANNIÈRES CTA DISPONIBLES (si tu en ajoutes ou AMÉLIORES):
+${shuffledBnrs.map((b: any) => `ID="${b.id}" (template visuel)`).join('\n')}
+FORMAT: [CTA_BANNER:ID|Titre personnalisé|Sous-titre personnalisé|Texte du bouton|COULEUR_INTENTION]
+COULEURS: urgent (rouge), opportunity (vert), trust (bleu), premium (violet), eco (vert nature)
+⚠️ PERSONNALISE le texte en fonction du contexte de l'article ! Pas de "Offre limitée" générique.`;
       }
+
+      // Also enhance existing banners in the content
+      ctaFixInstructions += `\n\n═══════════════════════════════════════
+AMÉLIORATION DES BANNIÈRES CTA EXISTANTES (OBLIGATOIRE)
+═══════════════════════════════════════
+Si l'article contient des bannières CTA avec des titres GÉNÉRIQUES ("Offre limitée", "Ne manquez pas", "Profiter de cette offre"), 
+tu DOIS les réécrire avec du contenu CONTEXTUEL et CONCRET lié au sujet de l'article.
+Modifie les attributs data-title, data-subtitle et data-button-text des div[data-cta-banner].
+Adapte aussi les couleurs (data-bg-color, data-secondary-color, data-accent-color) selon l'intention.`;
 
       const issuesList = (problemes || []).map((p: any, i: number) => 
         `${i + 1}. [${p.localisation}] ${p.probleme} → Correction: ${p.suggestion}`
