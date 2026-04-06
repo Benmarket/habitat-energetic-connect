@@ -236,9 +236,40 @@ IMPORTANT: Si les boutons ont tous la même couleur, change le texte d'au moins 
       const shuffledBanners = shuffleArray([...ctaBanners]);
       const bnrs = shuffledBanners.slice(0, 2);
       if (bnrs.length > 0) {
-        ctaInstructions += `\n\nBANNIÈRES CTA (utilise des bannières DIFFÉRENTES entre elles):
-${bnrs.map((b: any) => `ID="${b.id}" Titre="${b.title}" (couleurs: bg=${b.background_color}, accent=${b.accent_color})`).join('\n')}
-FORMAT: [CTA_BANNER:ID]`;
+        ctaInstructions += `\n\n═══════════════════════════════════════
+BANNIÈRES CTA — PERSONNALISATION CONTEXTUELLE OBLIGATOIRE
+═══════════════════════════════════════
+Tu as ${bnrs.length} template(s) de bannière CTA à ta disposition (utilisés comme BASE visuelle uniquement).
+${bnrs.map((b: any) => `ID="${b.id}" (template visuel: style=${b.template_style || 'wave'})`).join('\n')}
+
+⚠️ RÈGLE CRITIQUE : Tu ne DOIS PAS utiliser le titre/sous-titre par défaut du template.
+Tu DOIS personnaliser CHAQUE bannière en fonction du CONTEXTE PRÉCIS de la section où elle est placée.
+
+FORMAT: [CTA_BANNER:ID|Titre personnalisé|Sous-titre personnalisé|Texte du bouton|COULEUR_INTENTION]
+
+COULEUR_INTENTION (choisis selon le ton du message) :
+- "urgent" → rouge/orange vif (offre limitée, deadline, alerte prix)
+- "opportunity" → vert/émeraude (économie, gain, bon plan)
+- "trust" → bleu/indigo (expertise, accompagnement, conseil)
+- "premium" → violet/doré (exclusif, VIP, premium)
+- "eco" → vert nature (écologie, impact environnemental)
+
+RÈGLES DE PERSONNALISATION :
+1. Le TITRE doit être une accroche CONCRÈTE liée au sujet de l'article et de la section (ex: "Votre toiture peut produire jusqu'à 4 500€/an d'électricité" au lieu de "Offre limitée !")
+2. Le SOUS-TITRE doit apporter une PREUVE ou un BÉNÉFICE chiffré (ex: "Simulation gratuite en 2 min · Sans engagement · Résultat immédiat")
+3. Le TEXTE DU BOUTON doit être une ACTION CLAIRE et CONTEXTUALISÉE (ex: "Calculer mes économies solaires" au lieu de "En savoir plus")
+4. VARIER les messages entre les bannières — JAMAIS deux bannières identiques
+5. Le contenu doit donner ENVIE de cliquer : promettre un résultat concret, pas du vague
+
+EXEMPLES DE BONNES BANNIÈRES :
+[CTA_BANNER:xxx|Combien pourriez-vous économiser avec des panneaux solaires ?|Simulation personnalisée gratuite basée sur votre toiture et votre consommation réelle|Lancer ma simulation gratuite|opportunity]
+[CTA_BANNER:xxx|⚡ Prime autoconsommation : les montants baissent en juillet|Profitez des barèmes actuels avant la prochaine révision trimestrielle|Vérifier mon éligibilité maintenant|urgent]
+[CTA_BANNER:xxx|Un expert certifié RGE analyse votre projet gratuitement|Bilan énergétique complet + estimation des aides auxquelles vous avez droit|Demander mon bilan gratuit|trust]
+
+MAUVAIS EXEMPLES (À NE JAMAIS FAIRE) :
+❌ "Offre limitée !" / "Ne manquez pas cette opportunité !" / "Profitez-en maintenant !" → TROP VAGUE
+❌ "En savoir plus" / "Cliquer ici" / "Découvrir" → AUCUNE VALEUR
+❌ Deux bannières avec le même message → MONOTONE`;
       }
 
       // Guide-specific
@@ -742,7 +773,7 @@ CRITÈRES D'AUDIT (note /10 + commentaire pour chacun)
 2. QUALITÉ RÉDACTIONNELLE - Style, ton, fluidité, richesse du vocabulaire, pas de répétitions
 3. SEO & STRUCTURE - H2/H3 bien utilisés, mots-clés présents dans le contenu ET les méta (meta title <60 car, meta desc <160 car), densité correcte. Le titre est-il optimisé SEO ?
 4. DONNÉES & CHIFFRES - Présence de tableaux HTML, données chiffrées sourcées, actuelles (${new Date().getFullYear()})
-5. CTA & CONVERSION - Variété des couleurs/styles des CTA, pertinence des placements, diversité des messages. CRITIQUE: Vérifie si les boutons (data-custom-button) et bandeaux CTA (data-cta-banner) ont un data-popup-id renseigné ou un lien valide (pas juste "#" ou "#contact"). Si un CTA n'est connecté à rien, c'est un PROBLÈME BLOQUANT à signaler en priorité (note 0/10 automatique si CTA non connecté détecté).
+5. CTA & CONVERSION - Variété des couleurs/styles des CTA, pertinence des placements, diversité des messages. CRITIQUE: Vérifie si les boutons (data-custom-button) et bandeaux CTA (data-cta-banner) ont un data-popup-id renseigné ou un lien valide (pas juste "#" ou "#contact"). Si un CTA n'est connecté à rien, c'est un PROBLÈME BLOQUANT (note 0/10). ÉGALEMENT: Vérifie le CONTENU TEXTUEL des bannières CTA — si un bandeau contient un titre générique ("Offre limitée", "Ne manquez pas", "Profiter de cette offre", "En savoir plus") au lieu d'un message contextuel lié au sujet de l'article, signale-le comme problème et retire 3 points. Les bannières doivent avoir un titre CONCRET, un sous-titre avec bénéfice chiffré, et un bouton d'action contextualisé.
 6. IMAGES & LÉGENDES - Images distinctes et pertinentes au sujet (vérifier dans le HTML), image à la une présente, légendes (figcaption) descriptives et informatives (pas vides ni génériques), alt text optimisé SEO
 7. FAQ - Les FAQ sont-elles fournies ? Questions pertinentes, utiles et variées ? Réponses complètes ? (${Array.isArray(faq) && faq.length > 0 ? faq.length + ' FAQ détectées' : '⚠️ AUCUNE FAQ'})
 8. ORIGINALITÉ - L'article apporte-t-il une vraie valeur ? Pas trop "template" ou monotone ?
@@ -865,10 +896,21 @@ FORMAT AJOUT BOUTON: [BUTTON:Texte|URL]`;
       }
       const shuffledBnrs = shuffleArray([...ctaBanners]).slice(0, 2);
       if (shuffledBnrs.length > 0) {
-        ctaFixInstructions += `\nBANNIÈRES CTA DISPONIBLES (si tu en ajoutes):
-${shuffledBnrs.map((b: any) => `ID="${b.id}" Titre="${b.title}"`).join('\n')}
-FORMAT AJOUT BANNIÈRE: [CTA_BANNER:ID]`;
+        ctaFixInstructions += `\nBANNIÈRES CTA DISPONIBLES (si tu en ajoutes ou AMÉLIORES):
+${shuffledBnrs.map((b: any) => `ID="${b.id}" (template visuel)`).join('\n')}
+FORMAT: [CTA_BANNER:ID|Titre personnalisé|Sous-titre personnalisé|Texte du bouton|COULEUR_INTENTION]
+COULEURS: urgent (rouge), opportunity (vert), trust (bleu), premium (violet), eco (vert nature)
+⚠️ PERSONNALISE le texte en fonction du contexte de l'article ! Pas de "Offre limitée" générique.`;
       }
+
+      // Also enhance existing banners in the content
+      ctaFixInstructions += `\n\n═══════════════════════════════════════
+AMÉLIORATION DES BANNIÈRES CTA EXISTANTES (OBLIGATOIRE)
+═══════════════════════════════════════
+Si l'article contient des bannières CTA avec des titres GÉNÉRIQUES ("Offre limitée", "Ne manquez pas", "Profiter de cette offre"), 
+tu DOIS les réécrire avec du contenu CONTEXTUEL et CONCRET lié au sujet de l'article.
+Modifie les attributs data-title, data-subtitle et data-button-text des div[data-cta-banner].
+Adapte aussi les couleurs (data-bg-color, data-secondary-color, data-accent-color) selon l'intention.`;
 
       const issuesList = (problemes || []).map((p: any, i: number) => 
         `${i + 1}. [${p.localisation}] ${p.probleme} → Correction: ${p.suggestion}`
@@ -889,9 +931,12 @@ RÈGLES CRITIQUES
 ═══════════════════════════════════════
 - Tu reçois le HTML complet de l'article et une liste de problèmes détectés + suggestions d'amélioration.
 - Tu dois retourner le HTML CORRIGÉ COMPLET (pas juste les morceaux modifiés).
-- CONSERVE intégralement: tous les data-custom-button, data-cta-banner, data-custom-image, <table> existants.
+- CONSERVE intégralement: tous les data-custom-button, data-custom-image, <table> existants.
 - NE SUPPRIME AUCUN élément interactif (boutons, bannières CTA, images existantes).
-- NE CHANGE PAS la structure des CTA/boutons EXISTANTS (leurs attributs data-*).
+- NE CHANGE PAS la structure des CTA/boutons EXISTANTS (leurs attributs data-*) SAUF pour les bannières CTA :
+  → Tu PEUX et DOIS modifier data-title, data-subtitle, data-button-text des bannières CTA existantes si leur contenu est générique ("Offre limitée", "Ne manquez pas", "Profiter de cette offre", "En savoir plus").
+  → Tu PEUX aussi modifier les couleurs (data-bg-color, data-secondary-color, data-accent-color) pour correspondre à l'intention du message.
+  → Rends chaque bannière CONTEXTUELLE au sujet de l'article avec un message CONCRET donnant envie de cliquer.
 - IMAGES EXISTANTES : tu PEUX et DOIS améliorer les <figcaption> (légendes) et attributs alt des images existantes si elles sont vides, génériques ou peu descriptives. Rends-les précises, informatives et contextuelles par rapport au contenu de la section.
 - Corrige le texte rédactionnel, la structure des H2/H3, l'ajout de données manquantes.
 - Si un tableau est manquant, ajoute-en un avec la classe "article-data-table".
@@ -1083,26 +1128,51 @@ function convertButtonsToCustomFormat(html: string, presets: any[]): string {
 }
 
 function convertCtaBannersToHtml(html: string, banners: any[], popupId: string): string {
-  return html.replace(/\[CTA_BANNER:([^\]]+)\]/g, (_m, bid) => {
+  // New format: [CTA_BANNER:ID|title|subtitle|buttonText|colorIntention]
+  // Legacy format: [CTA_BANNER:ID]
+  return html.replace(/\[CTA_BANNER:([^\]]+)\]/g, (_m, content) => {
+    const parts = content.split('|').map((s: string) => s.trim());
+    const bid = parts[0];
+    const customTitle = parts[1] || '';
+    const customSubtitle = parts[2] || '';
+    const customButtonText = parts[3] || '';
+    const colorIntention = parts[4] || '';
+
     const banner = banners.find((b) => b.id === String(bid).trim());
     const b = banner || (banners.length > 0 ? banners[Math.floor(Math.random() * banners.length)] : null);
     if (!b) return '';
-    return generateBannerHtml(b, popupId);
+    return generateBannerHtml(b, popupId, customTitle, customSubtitle, customButtonText, colorIntention);
   });
 }
 
-function generateBannerHtml(b: any, popupId: string): string {
-  const bg = b.background_color || '#0284c7';
-  const sc = b.secondary_color || '#0369a1';
-  const tc = b.text_color || '#ffffff';
-  const ac = b.accent_color || '#f59e0b';
+const INTENTION_COLORS: Record<string, { bg: string; sc: string; ac: string; tc: string }> = {
+  urgent:      { bg: '#dc2626', sc: '#b91c1c', ac: '#fbbf24', tc: '#ffffff' },
+  opportunity: { bg: '#059669', sc: '#047857', ac: '#34d399', tc: '#ffffff' },
+  trust:       { bg: '#2563eb', sc: '#1d4ed8', ac: '#60a5fa', tc: '#ffffff' },
+  premium:     { bg: '#7c3aed', sc: '#6d28d9', ac: '#c4b5fd', tc: '#ffffff' },
+  eco:         { bg: '#16a34a', sc: '#15803d', ac: '#86efac', tc: '#ffffff' },
+};
+
+function generateBannerHtml(b: any, popupId: string, customTitle?: string, customSubtitle?: string, customButtonText?: string, colorIntention?: string): string {
+  // Use intention colors if specified, otherwise fall back to banner defaults
+  const intentionColors = colorIntention ? INTENTION_COLORS[colorIntention.toLowerCase()] : null;
+  const bg = intentionColors?.bg || b.background_color || '#0284c7';
+  const sc = intentionColors?.sc || b.secondary_color || '#0369a1';
+  const tc = intentionColors?.tc || b.text_color || '#ffffff';
+  const ac = intentionColors?.ac || b.accent_color || '#f59e0b';
   const ts = b.template_style || 'wave';
-  const title = String(b.title || '');
-  const subtitle = String(b.subtitle || '');
+
+  // Use custom text if provided, fall back to banner defaults
+  const title = customTitle || String(b.title || '');
+  const subtitle = customSubtitle || String(b.subtitle || '');
+  const buttonText = customButtonText || 'Profiter de cette offre';
+
   const btnUrl = popupId ? '#' : '#contact';
   const bgStyle = ts === 'wave' ? `background:linear-gradient(135deg,${bg},${sc})` : ts === 'gradient' ? `background:linear-gradient(90deg,${bg},${sc})` : `background:${bg}`;
-  const btnStyle = `display:inline-block;margin-top:1rem;padding:0.75rem 1.5rem;background:${ac};color:#000;border-radius:6px;text-decoration:none;font-weight:600`;
-  return `<div data-cta-banner="${esc(b.id)}" data-template-style="${esc(ts)}" data-bg-color="${esc(bg)}" data-secondary-color="${esc(sc)}" data-text-color="${esc(tc)}" data-accent-color="${esc(ac)}" data-title="${esc(title)}" data-subtitle="${esc(subtitle)}" data-button-text="Profiter de cette offre" data-button-url="${esc(btnUrl)}" data-button-bg="${esc(ac)}" data-button-text-color="#000000" data-button-radius="6" data-popup-id="${esc(popupId)}" class="cta-banner-wrapper my-8" style="border-radius:12px;overflow:hidden;${esc(bgStyle)};color:${esc(tc)};padding:2rem;text-align:center;"><h3 style="margin:0 0 0.5rem;font-size:1.5rem;font-weight:700;color:${esc(tc)}">${escText(title)}</h3>${subtitle ? `<p style="margin:0;opacity:0.9;color:${esc(tc)}">${escText(subtitle)}</p>` : ''}<a href="${esc(btnUrl)}" style="${esc(btnStyle)}"${popupId ? ` data-popup-trigger="${esc(popupId)}"` : ''}>Profiter de cette offre</a></div>`;
+  const btnBg = ac;
+  const btnTextColor = colorIntention === 'urgent' ? '#000000' : colorIntention === 'premium' ? '#1e1b4b' : '#000000';
+  const btnStyle = `display:inline-block;margin-top:1rem;padding:0.75rem 1.5rem;background:${btnBg};color:${btnTextColor};border-radius:6px;text-decoration:none;font-weight:600`;
+  return `<div data-cta-banner="${esc(b.id)}" data-template-style="${esc(ts)}" data-bg-color="${esc(bg)}" data-secondary-color="${esc(sc)}" data-text-color="${esc(tc)}" data-accent-color="${esc(ac)}" data-title="${esc(title)}" data-subtitle="${esc(subtitle)}" data-button-text="${esc(buttonText)}" data-button-url="${esc(btnUrl)}" data-button-bg="${esc(btnBg)}" data-button-text-color="${esc(btnTextColor)}" data-button-radius="6" data-popup-id="${esc(popupId)}" class="cta-banner-wrapper my-8" style="border-radius:12px;overflow:hidden;${esc(bgStyle)};color:${esc(tc)};padding:2rem;text-align:center;"><h3 style="margin:0 0 0.5rem;font-size:1.5rem;font-weight:700;color:${esc(tc)}">${escText(title)}</h3>${subtitle ? `<p style="margin:0;opacity:0.9;color:${esc(tc)}">${escText(subtitle)}</p>` : ''}<a href="${esc(btnUrl)}" style="${esc(btnStyle)}"${popupId ? ` data-popup-trigger="${esc(popupId)}"` : ''}>${escText(buttonText)}</a></div>`;
 }
 
 function centerImages(html: string): string {
