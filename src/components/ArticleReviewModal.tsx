@@ -66,6 +66,35 @@ export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStar
   const scoreBadge = review ? getScoreBadge(review.score_global) : null;
   const hasIssues = review && (review.problemes.length > 0 || review.suggestions.length > 0);
 
+  // Timer for loading states
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const isTimerActive = loading || loadingFix;
+
+  useEffect(() => {
+    if (isTimerActive) {
+      setElapsedSeconds(0);
+      timerRef.current = setInterval(() => setElapsedSeconds(s => s + 1), 1000);
+    } else {
+      if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [isTimerActive]);
+
+  const formatTimer = (s: number) => {
+    const mins = Math.floor(s / 60);
+    const secs = s % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const TimerDisplay = () => (
+    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <Clock className="w-4 h-4 animate-pulse" />
+      <span>{formatTimer(elapsedSeconds)}</span>
+    </div>
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh]">
@@ -92,6 +121,7 @@ export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStar
           <div className="text-center py-16 space-y-4">
             <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto" />
             <p className="text-muted-foreground font-medium">Analyse en cours…</p>
+            <TimerDisplay />
             <p className="text-sm text-muted-foreground">L'IA relit l'intégralité de votre article</p>
           </div>
         )}
@@ -100,7 +130,8 @@ export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStar
           <div className="text-center py-16 space-y-4">
             <Wand2 className="w-10 h-10 animate-pulse text-primary mx-auto" />
             <p className="text-muted-foreground font-medium">Correction en cours…</p>
-            <p className="text-sm text-muted-foreground">L'IA corrige l'article en se basant sur l'audit</p>
+            <TimerDisplay />
+            <p className="text-sm text-muted-foreground">L'IA corrige l'article et génère les éléments manquants</p>
           </div>
         )}
 
