@@ -743,7 +743,7 @@ CRITÈRES D'AUDIT (note /10 + commentaire pour chacun)
 3. SEO & STRUCTURE - H2/H3 bien utilisés, mots-clés présents dans le contenu ET les méta (meta title <60 car, meta desc <160 car), densité correcte. Le titre est-il optimisé SEO ?
 4. DONNÉES & CHIFFRES - Présence de tableaux HTML, données chiffrées sourcées, actuelles (${new Date().getFullYear()})
 5. CTA & CONVERSION - Variété des couleurs/styles des CTA, pertinence des placements, diversité des messages
-6. IMAGES - Images distinctes et pertinentes au sujet (vérifier dans le HTML), image à la une présente
+6. IMAGES & LÉGENDES - Images distinctes et pertinentes au sujet (vérifier dans le HTML), image à la une présente, légendes (figcaption) descriptives et informatives (pas vides ni génériques), alt text optimisé SEO
 7. FAQ - Les FAQ sont-elles fournies ? Questions pertinentes, utiles et variées ? Réponses complètes ? (${Array.isArray(faq) && faq.length > 0 ? faq.length + ' FAQ détectées' : '⚠️ AUCUNE FAQ'})
 8. ORIGINALITÉ - L'article apporte-t-il une vraie valeur ? Pas trop "template" ou monotone ?
 9. COMPLÉTUDE ÉDITORIALE - Extrait/chapô renseigné ? TL;DR ? Image à la une ? Tags ? Mots-clés SEO ? Régions ciblées ?
@@ -889,9 +889,10 @@ RÈGLES CRITIQUES
 ═══════════════════════════════════════
 - Tu reçois le HTML complet de l'article et une liste de problèmes détectés + suggestions d'amélioration.
 - Tu dois retourner le HTML CORRIGÉ COMPLET (pas juste les morceaux modifiés).
-- CONSERVE intégralement: tous les data-custom-button, data-cta-banner, data-custom-image, <figure>, <figcaption>, <table> existants.
+- CONSERVE intégralement: tous les data-custom-button, data-cta-banner, data-custom-image, <table> existants.
 - NE SUPPRIME AUCUN élément interactif (boutons, bannières CTA, images existantes).
-- NE CHANGE PAS la structure des CTA/boutons/images EXISTANTS (leurs attributs data-*).
+- NE CHANGE PAS la structure des CTA/boutons EXISTANTS (leurs attributs data-*).
+- IMAGES EXISTANTES : tu PEUX et DOIS améliorer les <figcaption> (légendes) et attributs alt des images existantes si elles sont vides, génériques ou peu descriptives. Rends-les précises, informatives et contextuelles par rapport au contenu de la section.
 - Corrige le texte rédactionnel, la structure des H2/H3, l'ajout de données manquantes.
 - Si un tableau est manquant, ajoute-en un avec la classe "article-data-table".
 - Utilise "kWc" (pas kWp).
