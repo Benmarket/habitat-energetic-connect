@@ -63,6 +63,15 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const [htmlContent, setHtmlContent] = useState(content);
   const [activeTab, setActiveTab] = useState<string>('visual');
 
+  // Image regeneration/replacement state
+  const [regenModalOpen, setRegenModalOpen] = useState(false);
+  const [regenContext, setRegenContext] = useState('');
+  const [regenTargetSrc, setRegenTargetSrc] = useState('');
+  const [replaceMediaLibOpen, setReplaceMediaLibOpen] = useState(false);
+  const [replaceTargetSrc, setReplaceTargetSrc] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadTargetSrcRef = useRef('');
+
   const editor = useEditor({
     extensions: [
       StarterKit,
