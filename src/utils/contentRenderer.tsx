@@ -296,4 +296,58 @@ export const ContentRenderer: React.FC<ContentRendererProps> = ({ html, classNam
   );
 };
 
+export interface UnconnectedCta {
+  type: 'button' | 'banner';
+  label: string;
+}
+
+/**
+ * Analyse le HTML pour détecter les CTA (boutons et bandeaux) non connectés à un popup
+ */
+export function detectUnconnectedCTAs(html: string): UnconnectedCta[] {
+  if (!html) return [];
+  
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const issues: UnconnectedCta[] = [];
+
+  // Check custom buttons
+  const buttons = doc.querySelectorAll('div[data-custom-button]');
+  buttons.forEach((btn) => {
+    const anchor = btn.querySelector('a');
+    const destinationType = btn.getAttribute('data-destination-type') || anchor?.getAttribute('data-destination-type') || '';
+    const popupId = (btn.getAttribute('data-popup-id') || anchor?.getAttribute('data-popup-id') || '').trim().replace('#popup-', '');
+    const url = btn.getAttribute('data-url') || anchor?.getAttribute('href') || '';
+    const label = anchor?.textContent?.trim() || btn.textContent?.trim() || 'Bouton sans texte';
+    
+    // A button is unconnected if:
+    // - destination is popup but no valid popup ID
+    // - destination is empty/not set and URL is # or empty
+    const isPopupWithNoId = destinationType === 'popup' && (!popupId || popupId.length === 0);
+    const isNoDestination = !destinationType && (!url || url === '#' || url === '#contact');
+    
+    if (isPopupWithNoId || isNoDestination) {
+      issues.push({ type: 'button', label });
+    }
+  });
+
+  // Check CTA banners
+  const banners = doc.querySelectorAll('div[data-cta-banner]');
+  banners.forEach((banner) => {
+    const popupId = (banner.getAttribute('data-popup-id') || '').trim();
+    const buttonUrl = (banner.getAttribute('data-button-url') || '').trim();
+    const title = banner.getAttribute('data-title') || 'Bandeau CTA';
+
+    // A banner is unconnected if no popup ID and URL is # or empty
+    const hasNoPopup = !popupId || popupId.length === 0;
+    const hasNoRealUrl = !buttonUrl || buttonUrl === '#' || buttonUrl === '#contact';
+
+    if (hasNoPopup && hasNoRealUrl) {
+      issues.push({ type: 'banner', label: title });
+    }
+  });
+
+  return issues;
+}
+
 export { CtaBannerComponent };
