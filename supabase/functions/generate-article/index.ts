@@ -236,9 +236,40 @@ IMPORTANT: Si les boutons ont tous la même couleur, change le texte d'au moins 
       const shuffledBanners = shuffleArray([...ctaBanners]);
       const bnrs = shuffledBanners.slice(0, 2);
       if (bnrs.length > 0) {
-        ctaInstructions += `\n\nBANNIÈRES CTA (utilise des bannières DIFFÉRENTES entre elles):
-${bnrs.map((b: any) => `ID="${b.id}" Titre="${b.title}" (couleurs: bg=${b.background_color}, accent=${b.accent_color})`).join('\n')}
-FORMAT: [CTA_BANNER:ID]`;
+        ctaInstructions += `\n\n═══════════════════════════════════════
+BANNIÈRES CTA — PERSONNALISATION CONTEXTUELLE OBLIGATOIRE
+═══════════════════════════════════════
+Tu as ${bnrs.length} template(s) de bannière CTA à ta disposition (utilisés comme BASE visuelle uniquement).
+${bnrs.map((b: any) => `ID="${b.id}" (template visuel: style=${b.template_style || 'wave'})`).join('\n')}
+
+⚠️ RÈGLE CRITIQUE : Tu ne DOIS PAS utiliser le titre/sous-titre par défaut du template.
+Tu DOIS personnaliser CHAQUE bannière en fonction du CONTEXTE PRÉCIS de la section où elle est placée.
+
+FORMAT: [CTA_BANNER:ID|Titre personnalisé|Sous-titre personnalisé|Texte du bouton|COULEUR_INTENTION]
+
+COULEUR_INTENTION (choisis selon le ton du message) :
+- "urgent" → rouge/orange vif (offre limitée, deadline, alerte prix)
+- "opportunity" → vert/émeraude (économie, gain, bon plan)
+- "trust" → bleu/indigo (expertise, accompagnement, conseil)
+- "premium" → violet/doré (exclusif, VIP, premium)
+- "eco" → vert nature (écologie, impact environnemental)
+
+RÈGLES DE PERSONNALISATION :
+1. Le TITRE doit être une accroche CONCRÈTE liée au sujet de l'article et de la section (ex: "Votre toiture peut produire jusqu'à 4 500€/an d'électricité" au lieu de "Offre limitée !")
+2. Le SOUS-TITRE doit apporter une PREUVE ou un BÉNÉFICE chiffré (ex: "Simulation gratuite en 2 min · Sans engagement · Résultat immédiat")
+3. Le TEXTE DU BOUTON doit être une ACTION CLAIRE et CONTEXTUALISÉE (ex: "Calculer mes économies solaires" au lieu de "En savoir plus")
+4. VARIER les messages entre les bannières — JAMAIS deux bannières identiques
+5. Le contenu doit donner ENVIE de cliquer : promettre un résultat concret, pas du vague
+
+EXEMPLES DE BONNES BANNIÈRES :
+[CTA_BANNER:xxx|Combien pourriez-vous économiser avec des panneaux solaires ?|Simulation personnalisée gratuite basée sur votre toiture et votre consommation réelle|Lancer ma simulation gratuite|opportunity]
+[CTA_BANNER:xxx|⚡ Prime autoconsommation : les montants baissent en juillet|Profitez des barèmes actuels avant la prochaine révision trimestrielle|Vérifier mon éligibilité maintenant|urgent]
+[CTA_BANNER:xxx|Un expert certifié RGE analyse votre projet gratuitement|Bilan énergétique complet + estimation des aides auxquelles vous avez droit|Demander mon bilan gratuit|trust]
+
+MAUVAIS EXEMPLES (À NE JAMAIS FAIRE) :
+❌ "Offre limitée !" / "Ne manquez pas cette opportunité !" / "Profitez-en maintenant !" → TROP VAGUE
+❌ "En savoir plus" / "Cliquer ici" / "Découvrir" → AUCUNE VALEUR
+❌ Deux bannières avec le même message → MONOTONE`;
       }
 
       // Guide-specific
