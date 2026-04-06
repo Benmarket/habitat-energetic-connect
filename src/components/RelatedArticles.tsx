@@ -14,6 +14,9 @@ interface RelatedArticle {
   excerpt: string | null;
   featured_image: string | null;
   content_type: ContentType;
+  published_at: string | null;
+  categorySlug?: string;
+  score: number;
 }
 
 interface RelatedArticlesProps {
@@ -36,6 +39,7 @@ export const RelatedArticles = ({
 
   const fetchRelatedArticles = async () => {
     try {
+      // Fetch a larger pool of candidates to score and rank
       const { data, error } = await supabase
         .from("posts")
         .select(`
@@ -45,6 +49,7 @@ export const RelatedArticles = ({
           excerpt,
           featured_image,
           content_type,
+          published_at,
           post_categories(
             categories(slug)
           )
@@ -52,43 +57,80 @@ export const RelatedArticles = ({
         .eq("status", "published")
         .eq("content_type", contentType)
         .neq("id", currentArticleId)
-        .limit(3);
+        .order("published_at", { ascending: false })
+        .limit(30);
 
       if (error) throw error;
-
-      // Filter by category if provided
-      let filteredArticles = data || [];
-      if (categorySlug) {
-        filteredArticles = filteredArticles.filter((article: any) =>
-          article.post_categories?.some(
-            (pc: any) => pc.categories?.slug === categorySlug
-          )
-        );
+      if (!data || data.length === 0) {
+        setArticles([]);
+        return;
       }
 
-      // If we don't have 3 articles with same category, add more from same content type
-      if (filteredArticles.length < 3) {
-        const { data: additionalData } = await supabase
-          .from("posts")
-          .select("id, title, slug, excerpt, featured_image, content_type")
-          .eq("status", "published")
-          .eq("content_type", contentType)
-          .neq("id", currentArticleId)
-          .limit(3 - filteredArticles.length);
+      // Fetch view counts for these articles
+      const slugUrls = data.map((a: any) => {
+        const catSlug = a.post_categories?.[0]?.categories?.slug || "general";
+        return `/actualites/${catSlug}/${a.slug}`;
+      });
 
-        if (additionalData) {
-          const additionalArticles = additionalData
-            .filter((article) => !filteredArticles.find((fa: any) => fa.id === article.id))
-            .map((article) => ({
-              ...article,
-              post_categories: [],
-            }));
+      const { data: viewsData } = await supabase
+        .from("page_views")
+        .select("page_url")
+        .in("page_url", slugUrls);
 
-          filteredArticles = [...filteredArticles, ...additionalArticles] as any[];
-        }
+      // Count views per URL
+      const viewsMap: Record<string, number> = {};
+      viewsData?.forEach((pv: any) => {
+        viewsMap[pv.page_url] = (viewsMap[pv.page_url] || 0) + 1;
+      });
+
+      const now = Date.now();
+
+      // Score each article: theme match (50pts) + freshness (30pts) + popularity (20pts)
+      const scored: RelatedArticle[] = data.map((article: any) => {
+        const artCatSlug = article.post_categories?.[0]?.categories?.slug || "general";
+        const articleUrl = `/actualites/${artCatSlug}/${article.slug}`;
+        const views = viewsMap[articleUrl] || 0;
+
+        // 1. Theme score: same category = 50, different = 0
+        const themeScore = (categorySlug && artCatSlug === categorySlug) ? 50 : 0;
+
+        // 2. Freshness score: 0-30 based on recency (max 30 for today, decays over 30 days)
+        const publishedAt = article.published_at ? new Date(article.published_at).getTime() : 0;
+        const ageInDays = Math.max(0, (now - publishedAt) / (1000 * 60 * 60 * 24));
+        const freshnessScore = Math.max(0, 30 - ageInDays);
+
+        // 3. Popularity score: 0-20 based on views (logarithmic scale)
+        const popularityScore = views > 0 ? Math.min(20, Math.log10(views + 1) * 10) : 0;
+
+        const score = themeScore + freshnessScore + popularityScore;
+
+        return {
+          id: article.id,
+          title: article.title,
+          slug: article.slug,
+          excerpt: article.excerpt,
+          featured_image: article.featured_image,
+          content_type: article.content_type,
+          published_at: article.published_at,
+          categorySlug: artCatSlug,
+          score,
+        };
+      });
+
+      // Sort by score descending
+      scored.sort((a, b) => b.score - a.score);
+
+      // Pick top 6, then randomly select 3 for rotation
+      const topCandidates = scored.slice(0, Math.min(6, scored.length));
+      const selected: RelatedArticle[] = [];
+      const pool = [...topCandidates];
+      
+      while (selected.length < 3 && pool.length > 0) {
+        const idx = Math.floor(Math.random() * pool.length);
+        selected.push(pool.splice(idx, 1)[0]);
       }
 
-      setArticles(filteredArticles.slice(0, 3) as RelatedArticle[]);
+      setArticles(selected);
     } catch (error) {
       console.error("Error fetching related articles:", error);
     } finally {
@@ -98,7 +140,8 @@ export const RelatedArticles = ({
 
   const getArticleUrl = (article: RelatedArticle) => {
     if (article.content_type === "actualite") {
-      return `/actualites/general/${article.slug}`;
+      const catSlug = article.categorySlug || "general";
+      return `/actualites/${catSlug}/${article.slug}`;
     } else if (article.content_type === "guide") {
       return `/guide/${article.slug}`;
     } else if (article.content_type === "aide") {
@@ -109,16 +152,11 @@ export const RelatedArticles = ({
 
   const getContentTypeLabel = (type: ContentType) => {
     switch (type) {
-      case "actualite":
-        return "Actualités";
-      case "guide":
-        return "Guides";
-      case "aide":
-        return "Aides";
-      case "annonce":
-        return "Annonces";
-      default:
-        return "Articles";
+      case "actualite": return "Actualités";
+      case "guide": return "Guides";
+      case "aide": return "Aides";
+      case "annonce": return "Annonces";
+      default: return "Articles";
     }
   };
 
