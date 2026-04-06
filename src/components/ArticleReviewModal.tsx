@@ -3,8 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { AlertTriangle, CheckCircle2, Loader2, Star, Table2, Image, MousePointerClick, Lightbulb, XCircle, Wand2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Loader2, Star, Table2, Image, MousePointerClick, Lightbulb, XCircle, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect, useRef } from "react";
 
 interface ReviewCritere {
   nom: string;
