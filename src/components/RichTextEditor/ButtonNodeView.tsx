@@ -70,6 +70,9 @@ export const ButtonNodeView = ({ node, selected, editor, getPos }: NodeViewProps
     boxShadow: selected ? '0 0 0 3px rgba(59, 130, 246, 0.5)' : shadowMap[attrs.shadowSize],
     position: 'relative',
     overflow: 'hidden',
+    whiteSpace: 'normal',
+    wordBreak: 'break-word',
+    maxWidth: '100%',
   };
 
   const handleClick = (e: React.MouseEvent) => {
