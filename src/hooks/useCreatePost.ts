@@ -473,7 +473,12 @@ export function useCreatePost() {
       if (formData.generation_cost !== null && formData.generation_cost !== undefined) {
         postData.generation_cost = formData.generation_cost;
       }
-      if (status === "published" && !editId) postData.published_at = new Date().toISOString();
+      // Handle published_at: use custom date if set, otherwise auto-set on first publish
+      if (formData.published_at) {
+        postData.published_at = formData.published_at;
+      } else if (status === "published" && !editId) {
+        postData.published_at = new Date().toISOString();
+      }
 
       let postId = editId;
 
