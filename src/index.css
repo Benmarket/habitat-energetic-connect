@@ -225,10 +225,12 @@ All colors MUST be HSL.
 .article-content .custom-button-wrapper a {
   box-shadow: 0 4px 14px -3px hsl(220 13% 18% / 0.2);
   transition: all 0.3s ease;
-  white-space: normal;
-  word-break: break-word;
+  white-space: nowrap;
   max-width: 100%;
+  box-sizing: border-box;
   display: inline-block;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .article-content .custom-button-wrapper a:hover {
