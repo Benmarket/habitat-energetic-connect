@@ -132,11 +132,44 @@ const CreatePost = () => {
                       onOpenAuthorModal={() => setAuthorModalOpen(true)} />
                   )}
 
+                  {/* Warning: Unconnected CTAs */}
+                  {unconnectedCTAs.length > 0 && (
+                    <div className="rounded-xl border-2 border-destructive/50 bg-destructive/5 p-4">
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                        <div className="space-y-2">
+                          <p className="font-semibold text-destructive text-sm">
+                            {unconnectedCTAs.length} CTA non connecté{unconnectedCTAs.length > 1 ? 's' : ''} — Publication bloquée
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Les éléments suivants ne sont liés à aucun popup ni lien valide. Connectez-les via l'éditeur avant de publier.
+                          </p>
+                          <ul className="space-y-1">
+                            {unconnectedCTAs.map((cta, i) => (
+                              <li key={i} className="text-sm flex items-center gap-2 text-destructive/80">
+                                <span>{cta.type === 'button' ? '🔘' : '📢'}</span>
+                                <span className="font-medium">"{cta.label}"</span>
+                                <span className="text-xs text-muted-foreground">
+                                  ({cta.type === 'button' ? 'Bouton' : 'Bandeau CTA'})
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex gap-4 pt-4">
                     <Button type="button" variant="outline" onClick={(e) => handleSubmit(e, "draft")} disabled={loading}>
                       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Enregistrer brouillon"}
                     </Button>
-                    <Button type="button" onClick={(e) => handleSubmit(e, "published")} disabled={loading}>
+                    <Button 
+                      type="button" 
+                      onClick={(e) => handleSubmit(e, "published")} 
+                      disabled={loading || unconnectedCTAs.length > 0}
+                      title={unconnectedCTAs.length > 0 ? "Connectez tous les CTA avant de publier" : undefined}
+                    >
                       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Publier"}
                     </Button>
                   </div>
