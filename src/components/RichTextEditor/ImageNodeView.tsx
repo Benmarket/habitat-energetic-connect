@@ -1,10 +1,12 @@
 import { NodeViewWrapper } from '@tiptap/react';
 import { useState, useEffect, useRef } from 'react';
+import { RefreshCw, Upload, Image as ImageIcon, Pencil, Trash2 } from 'lucide-react';
 
-export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected }: any) => {
+export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected, editor }: any) => {
   const [isResizing, setIsResizing] = useState(false);
   const [startX, setStartX] = useState(0);
   const [startWidth, setStartWidth] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
   const { src, alt, title, caption, width, align } = node.attrs;
@@ -14,6 +16,43 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected }: 
       detail: { attrs: node.attrs },
     });
     window.dispatchEvent(event);
+  };
+
+  const handleRegenerate = () => {
+    // Get surrounding section context for smart regeneration
+    const sectionContext = getSectionContext();
+    const event = new CustomEvent('regenerate-image', {
+      detail: { attrs: node.attrs, sectionContext },
+    });
+    window.dispatchEvent(event);
+  };
+
+  const handleUpload = () => {
+    const event = new CustomEvent('upload-image-replace', {
+      detail: { attrs: node.attrs },
+    });
+    window.dispatchEvent(event);
+  };
+
+  const handleMediaLibrary = () => {
+    const event = new CustomEvent('medialibrary-image-replace', {
+      detail: { attrs: node.attrs },
+    });
+    window.dispatchEvent(event);
+  };
+
+  const getSectionContext = (): string => {
+    if (!editor) return '';
+    try {
+      // Get text content around this image for context
+      const pos = editor.view.state.selection.from;
+      const doc = editor.state.doc;
+      const textBefore = doc.textBetween(Math.max(0, pos - 500), pos, '\n');
+      const textAfter = doc.textBetween(pos, Math.min(doc.content.size, pos + 500), '\n');
+      return `${textBefore}\n${textAfter}`.trim();
+    } catch {
+      return '';
+    }
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -26,20 +65,14 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected }: 
 
   useEffect(() => {
     if (!isResizing) return;
-
     const handleMouseMove = (e: MouseEvent) => {
       const diff = e.clientX - startX;
       const newWidth = Math.max(100, Math.min(startWidth + diff, 1200));
       updateAttributes({ width: newWidth });
     };
-
-    const handleMouseUp = () => {
-      setIsResizing(false);
-    };
-
+    const handleMouseUp = () => setIsResizing(false);
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
@@ -65,7 +98,11 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected }: 
       className={`custom-image-wrapper my-4 ${alignmentClass}`}
       style={{ display: 'block' }}
     >
-      <figure className={`relative inline-block ${selected ? 'ring-2 ring-primary ring-offset-2 rounded-lg' : ''}`}>
+      <figure
+        className={`relative inline-block ${selected ? 'ring-2 ring-primary ring-offset-2 rounded-lg' : ''}`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         <img
           ref={imgRef}
           src={src}
@@ -78,10 +115,43 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected }: 
             borderRadius: '8px',
             cursor: 'pointer',
             display: 'block',
+            transition: 'filter 0.2s, transform 0.2s',
+            filter: isHovered ? 'brightness(0.5)' : 'none',
+            transform: isHovered ? 'scale(1.01)' : 'none',
           }}
           onDoubleClick={handleDoubleClick}
           draggable={false}
         />
+
+        {/* Hover overlay with action buttons */}
+        {isHovered && !selected && (
+          <div className="absolute inset-0 flex items-center justify-center gap-2 animate-in fade-in duration-200 z-10">
+            <button
+              onClick={handleRegenerate}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/90 hover:bg-primary text-primary-foreground text-xs font-medium rounded-md shadow-lg transition-colors"
+              title="Régénérer avec l'IA"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Régénérer
+            </button>
+            <button
+              onClick={handleUpload}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary/90 hover:bg-secondary text-secondary-foreground text-xs font-medium rounded-md shadow-lg transition-colors"
+              title="Uploader une image"
+            >
+              <Upload className="w-3.5 h-3.5" />
+              Uploader
+            </button>
+            <button
+              onClick={handleMediaLibrary}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary/90 hover:bg-secondary text-secondary-foreground text-xs font-medium rounded-md shadow-lg transition-colors"
+              title="Choisir depuis la bibliothèque"
+            >
+              <ImageIcon className="w-3.5 h-3.5" />
+              Bibliothèque
+            </button>
+          </div>
+        )}
 
         {/* Légende sous l'image */}
         {caption && (
@@ -104,7 +174,7 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected }: 
               title="Redimensionner l'image"
             />
 
-            <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 flex gap-1 bg-background border rounded-lg shadow-lg p-1">
+            <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 flex gap-1 bg-background border rounded-lg shadow-lg p-1 z-20">
               <button
                 onClick={() => updateAttributes({ align: 'left' })}
                 className={`p-1.5 rounded hover:bg-accent transition-colors ${align === 'left' ? 'bg-accent' : ''}`}
@@ -134,22 +204,25 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected }: 
               </button>
               <div className="w-px bg-border mx-1" />
               <button
+                onClick={handleRegenerate}
+                className="p-1.5 rounded hover:bg-accent transition-colors text-primary"
+                title="Régénérer l'image"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </button>
+              <button
                 onClick={handleDoubleClick}
                 className="p-1.5 rounded hover:bg-accent transition-colors"
                 title="Modifier l'image"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
-                </svg>
+                <Pencil className="w-4 h-4" />
               </button>
               <button
                 onClick={deleteNode}
                 className="p-1.5 rounded hover:bg-destructive hover:text-destructive-foreground transition-colors"
                 title="Supprimer l'image"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                </svg>
+                <Trash2 className="w-4 h-4" />
               </button>
             </div>
           </>

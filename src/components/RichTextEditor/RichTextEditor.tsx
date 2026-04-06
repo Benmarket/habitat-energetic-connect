@@ -18,10 +18,13 @@ import { CtaBannerEditorModal } from './CtaBannerEditorModal';
 import { FavoriteButtonsBar } from '@/components/FavoriteButtonsBar';
 import { FavoriteCtaBannersBar } from './FavoriteCtaBannersBar';
 import { MediaLibrary } from '@/components/MediaLibrary';
+import { ImageRegenerateModal } from '@/components/ImageRegenerateModal';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import {
   Bold,
   Italic,
@@ -40,7 +43,7 @@ import {
   AlignRight,
   AlignJustify,
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface RichTextEditorProps {
   content: string;
@@ -59,6 +62,15 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const [ctaBannerDraft, setCtaBannerDraft] = useState<any>(null);
   const [htmlContent, setHtmlContent] = useState(content);
   const [activeTab, setActiveTab] = useState<string>('visual');
+
+  // Image regeneration/replacement state
+  const [regenModalOpen, setRegenModalOpen] = useState(false);
+  const [regenContext, setRegenContext] = useState('');
+  const [regenTargetSrc, setRegenTargetSrc] = useState('');
+  const [replaceMediaLibOpen, setReplaceMediaLibOpen] = useState(false);
+  const [replaceTargetSrc, setReplaceTargetSrc] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadTargetSrcRef = useRef('');
 
   const editor = useEditor({
     extensions: [
@@ -153,6 +165,81 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       window.removeEventListener('edit-cta-banner', handleEditCtaBanner);
     };
   }, [buttonDialogOpen, imageDialogOpen, ctaBannerEditorOpen]);
+
+  // Inline image regeneration/upload/library events
+  useEffect(() => {
+    const handleRegenerate = (event: any) => {
+      const { attrs, sectionContext } = event.detail;
+      setRegenTargetSrc(attrs.src);
+      setRegenContext(sectionContext || '');
+      setRegenModalOpen(true);
+    };
+
+    const handleUploadReplace = (event: any) => {
+      const { attrs } = event.detail;
+      uploadTargetSrcRef.current = attrs.src;
+      fileInputRef.current?.click();
+    };
+
+    const handleMediaLibReplace = (event: any) => {
+      const { attrs } = event.detail;
+      setReplaceTargetSrc(attrs.src);
+      setReplaceMediaLibOpen(true);
+    };
+
+    window.addEventListener('regenerate-image', handleRegenerate);
+    window.addEventListener('upload-image-replace', handleUploadReplace);
+    window.addEventListener('medialibrary-image-replace', handleMediaLibReplace);
+    return () => {
+      window.removeEventListener('regenerate-image', handleRegenerate);
+      window.removeEventListener('upload-image-replace', handleUploadReplace);
+      window.removeEventListener('medialibrary-image-replace', handleMediaLibReplace);
+    };
+  }, []);
+
+  const replaceImageSrc = (oldSrc: string, newSrc: string) => {
+    if (!editor) return;
+    const { state } = editor;
+    state.doc.descendants((node, pos) => {
+      if (node.type.name === 'customImage' && node.attrs.src === oldSrc) {
+        editor.commands.setNodeSelection(pos);
+        editor.commands.updateCustomImage({ ...node.attrs, src: newSrc });
+        return false;
+      }
+    });
+  };
+
+  const handleInlineFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const targetSrc = uploadTargetSrcRef.current;
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData?.session?.user?.id;
+      if (!userId) { toast.error("Non connecté"); return; }
+
+      const ext = file.name.split('.').pop();
+      const filename = `inline-${Date.now()}.${ext}`;
+      const storagePath = `${userId}/${filename}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('media').upload(storagePath, file, { contentType: file.type });
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(storagePath);
+      await supabase.from('media').insert({
+        user_id: userId, filename, storage_path: publicUrl,
+        alt_text: file.name, mime_type: file.type, file_size: file.size,
+      });
+
+      replaceImageSrc(targetSrc, publicUrl);
+      toast.success("Image remplacée !");
+    } catch (err: any) {
+      toast.error(err.message || "Erreur upload");
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   if (!editor) {
     return null;
@@ -520,6 +607,37 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         onSave={addCtaBanner}
         initialConfig={editingCtaBanner?.attrs ?? ctaBannerDraft}
         isEditing={!!editingCtaBanner}
+      />
+
+      {/* Inline image regeneration modal */}
+      <ImageRegenerateModal
+        open={regenModalOpen}
+        onOpenChange={setRegenModalOpen}
+        onImageGenerated={(url) => {
+          replaceImageSrc(regenTargetSrc, url);
+          setRegenModalOpen(false);
+        }}
+        context={regenContext}
+        contextLabel="l'image de section"
+      />
+
+      {/* Inline image replacement via media library */}
+      <MediaLibrary
+        open={replaceMediaLibOpen}
+        onOpenChange={setReplaceMediaLibOpen}
+        onSelect={(url) => {
+          replaceImageSrc(replaceTargetSrc, url);
+          setReplaceMediaLibOpen(false);
+        }}
+      />
+
+      {/* Hidden file input for inline image upload replacement */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleInlineFileUpload}
       />
     </div>
   );
