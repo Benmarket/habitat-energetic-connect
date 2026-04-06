@@ -62,33 +62,71 @@ export const CustomImage = Node.create<CustomImageOptions>({
     return [
       {
         tag: 'figure[data-custom-image]',
+        getAttrs: (dom) => {
+          if (typeof dom === 'string') return false;
+          const element = dom as HTMLElement;
+          const img = element.querySelector('img');
+          const legacyImage = element.querySelector('div[data-custom-image]');
+          const figcaption = element.querySelector('figcaption');
+          const widthAttr = img?.getAttribute('width') || element.getAttribute('data-width');
+          const width = widthAttr ? parseInt(widthAttr, 10) : null;
+          const align = (element.style.textAlign || 'center') as 'left' | 'center' | 'right';
+
+          return {
+            src: img?.getAttribute('src') || element.getAttribute('data-src') || legacyImage?.getAttribute('data-src') || null,
+            alt: img?.getAttribute('alt') || element.getAttribute('data-alt') || legacyImage?.getAttribute('data-alt') || '',
+            title: img?.getAttribute('title') || element.getAttribute('data-title') || legacyImage?.getAttribute('data-title') || '',
+            caption: figcaption?.textContent?.trim() || element.getAttribute('data-caption') || legacyImage?.getAttribute('data-caption') || '',
+            width,
+            align: ['left', 'center', 'right'].includes(align) ? align : 'center',
+          };
+        },
       },
       {
         tag: 'div[data-custom-image]',
+        getAttrs: (dom) => {
+          if (typeof dom === 'string') return false;
+          const element = dom as HTMLElement;
+          const widthAttr = element.getAttribute('data-width');
+
+          return {
+            src: element.getAttribute('data-src') || null,
+            alt: element.getAttribute('data-alt') || '',
+            title: element.getAttribute('data-title') || '',
+            caption: element.getAttribute('data-caption') || '',
+            width: widthAttr ? parseInt(widthAttr, 10) : null,
+            align: 'center',
+          };
+        },
       },
       {
         tag: 'img[src]',
         getAttrs: (dom) => {
           if (typeof dom === 'string') return false;
           const element = dom as HTMLElement;
+          const figure = element.closest('figure');
           
           // Récupérer les attributs de l'image
           const src = element.getAttribute('src');
           const alt = element.getAttribute('alt') || '';
+          const title = element.getAttribute('title') || '';
           const widthAttr = element.getAttribute('width');
           const width = widthAttr ? parseInt(widthAttr) : null;
+          const caption = figure?.querySelector('figcaption')?.textContent?.trim() || '';
           
           // Si l'image est dans un conteneur avec text-align, récupérer l'alignement
           let align: 'left' | 'center' | 'right' = 'center';
-          const parent = element.parentElement;
+          const parent = figure || element.parentElement;
           if (parent) {
-            const textAlign = window.getComputedStyle(parent).textAlign;
+            const textAlign = parent instanceof HTMLElement && parent.style.textAlign
+              ? parent.style.textAlign
+              : window.getComputedStyle(parent).textAlign;
             if (textAlign === 'left' || textAlign === 'right') {
               align = textAlign as 'left' | 'right';
             }
           }
           
-          return { src, alt, width, align };
+          return { src, alt, title, caption, width, align };
         },
       },
     ];

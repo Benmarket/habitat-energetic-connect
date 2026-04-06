@@ -6,6 +6,15 @@ import { parseContentToSections, CreatePostFormData, generateSlug } from "./useC
 import { GenerationInput, EditorialAngle } from "@/components/ArticleGenerationWizard";
 import type { ArticleReview } from "@/components/ArticleReviewModal";
 
+interface ImagePlaceholder {
+  raw: string;
+  type: string;
+  objective: string;
+  prompt: string;
+  title: string;
+  caption: string;
+}
+
 interface ArticleGenerationOptions {
   categories?: Array<{ id: string; name: string; slug: string }>;
   tags?: Array<{ id: string; name: string; slug: string }>;
@@ -37,6 +46,81 @@ export function useArticleGeneration(
       return null;
     }
     return token;
+  };
+
+  const escapeHtml = (value: string) =>
+    String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+
+  const parseImagePlaceholders = (html: string): ImagePlaceholder[] => {
+    const matches = html.match(/\[IMAGE:[^\]]+\]/g) || [];
+
+    return matches.map((raw) => {
+      const parts = raw
+        .replace('[IMAGE:', '')
+        .replace(']', '')
+        .split('|')
+        .map((part) => part.trim());
+
+      return {
+        raw,
+        type: parts[0] || 'illustration',
+        objective: parts[1] || 'informer',
+        prompt: parts[2] || raw,
+        title: parts[3] || '',
+        caption: parts[4] || '',
+      };
+    });
+  };
+
+  const buildImageFigureHtml = (url: string, placeholder: ImagePlaceholder) => {
+    const altText = placeholder.title || placeholder.prompt.slice(0, 120);
+    const escapedUrl = escapeHtml(url);
+    const escapedAlt = escapeHtml(altText);
+    const escapedTitle = placeholder.title ? escapeHtml(placeholder.title) : '';
+    const escapedCaption = placeholder.caption ? escapeHtml(placeholder.caption) : '';
+
+    return `<figure data-custom-image="" class="custom-image-wrapper my-4" style="text-align: center;"><img src="${escapedUrl}" alt="${escapedAlt}"${escapedTitle ? ` title="${escapedTitle}"` : ''} style="max-width: 100%; height: auto; border-radius: 8px;" />${escapedCaption ? `<figcaption style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem; text-align: center; font-style: italic;">${escapedCaption}</figcaption>` : ''}</figure>`;
+  };
+
+  const resolveGeneratedImages = async (html: string, accessToken: string) => {
+    let contentWithImages = html || '';
+    const placeholders = parseImagePlaceholders(contentWithImages);
+
+    if (placeholders.length === 0) {
+      return { contentWithImages, featuredImageUrl: '', generatedCount: 0 };
+    }
+
+    const { data: imgData, error: imgError } = await supabase.functions.invoke('generate-images', {
+      body: { imageDescriptions: placeholders.map((placeholder) => placeholder.prompt) },
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+
+    if (imgError) throw imgError;
+
+    const generatedImages = Array.isArray(imgData?.images) ? imgData.images : [];
+    let featuredImageUrl = '';
+    let generatedCount = 0;
+
+    placeholders.forEach((placeholder, index) => {
+      const generatedUrl = generatedImages[index]?.success ? generatedImages[index].url : null;
+
+      if (generatedUrl) {
+        contentWithImages = contentWithImages.replace(placeholder.raw, buildImageFigureHtml(generatedUrl, placeholder));
+        generatedCount += 1;
+
+        if (!featuredImageUrl) {
+          featuredImageUrl = generatedUrl;
+        }
+      }
+    });
+
+    contentWithImages = contentWithImages.replace(/\[IMAGE:\s*[^\]]+\]/g, '');
+
+    return { contentWithImages, featuredImageUrl, generatedCount };
   };
 
   // STEP 1→2: Generate 5 editorial angles
@@ -117,41 +201,7 @@ export function useArticleGeneration(
       const article = data.article;
       const usage = data.usage || {};
 
-      // Generate images from placeholders
-      let contentWithImages = article.content || '';
-      let featuredImageUrl = '';
-      const imageMatches = contentWithImages.match(/\[IMAGE:[^\]]+\]/g) || [];
-
-      if (imageMatches.length > 0) {
-        for (let i = 0; i < imageMatches.length; i++) {
-          const match = imageMatches[i];
-          try {
-            const parts = match.replace('[IMAGE:', '').replace(']', '').split('|').map((s: string) => s.trim());
-            const imageType = parts[0] || 'illustration';
-            const imageObjective = parts[1] || 'informer';
-            const imagePrompt = parts[2] || match;
-            const imageTitle = parts[3] || '';
-            const imageCaption = parts[4] || '';
-
-            const { data: imgData } = await supabase.functions.invoke('generate-images', {
-              body: { imageDescriptions: [imagePrompt] },
-              headers: { Authorization: `Bearer ${accessToken}` }
-            });
-            const generatedUrl = imgData?.images?.[0]?.success ? imgData.images[0].url : null;
-            if (generatedUrl) {
-              const altText = imageTitle || imagePrompt.slice(0, 120);
-              const figureHtml = `<figure><div data-custom-image="true" data-src="${generatedUrl}" data-alt="${altText}" data-title="${imageTitle}" data-caption="${imageCaption}"></div>${imageCaption ? `<figcaption>${imageCaption}</figcaption>` : ''}</figure>`;
-              contentWithImages = contentWithImages.replace(match, figureHtml);
-              if (i === 0 && !featuredImageUrl) featuredImageUrl = generatedUrl;
-            }
-          } catch (imgErr) {
-            console.warn('Image generation failed for:', match, imgErr);
-          }
-        }
-      }
-
-      // Clean any remaining unresolved placeholders
-      contentWithImages = contentWithImages.replace(/\[IMAGE:\s*[^\]]+\]/g, '');
+      const { contentWithImages, featuredImageUrl, generatedCount } = await resolveGeneratedImages(article.content || '', accessToken);
 
       const finalArticle = {
         ...article,
@@ -162,7 +212,7 @@ export function useArticleGeneration(
       };
 
       setGeneratedArticle(finalArticle);
-      toast.success("Article généré avec images !");
+      toast.success(`Article généré avec ${generatedCount} image(s) !`);
     } catch (error: any) {
       toast.error(error.message || "Erreur lors de la génération de l'article");
     } finally {
@@ -388,43 +438,12 @@ export function useArticleGeneration(
       if (error) throw error;
       if (!data?.success) throw new Error(data?.error || "Erreur lors de la correction");
 
-      // Generate images from any new [IMAGE:...] placeholders added by the fix
-      let contentWithImages = data.fixedContent || '';
-      const imageMatches = contentWithImages.match(/\[IMAGE:[^\]]+\]/g) || [];
-
-      if (imageMatches.length > 0) {
-        toast.info(`Génération de ${imageMatches.length} image(s) ajoutée(s)...`);
-        for (let i = 0; i < imageMatches.length; i++) {
-          const match = imageMatches[i];
-          try {
-            const parts = match.replace('[IMAGE:', '').replace(']', '').split('|').map((s: string) => s.trim());
-            const imagePrompt = parts[2] || match;
-            const imageTitle = parts[3] || '';
-            const imageCaption = parts[4] || '';
-
-            const { data: imgData } = await supabase.functions.invoke('generate-images', {
-              body: { imageDescriptions: [imagePrompt] },
-              headers: { Authorization: `Bearer ${accessToken}` }
-            });
-            const generatedUrl = imgData?.images?.[0]?.success ? imgData.images[0].url : null;
-            if (generatedUrl) {
-              const altText = imageTitle || imagePrompt.slice(0, 120);
-              const figureHtml = `<figure><div data-custom-image="true" data-src="${generatedUrl}" data-alt="${altText}" data-title="${imageTitle}" data-caption="${imageCaption}"></div>${imageCaption ? `<figcaption>${imageCaption}</figcaption>` : ''}</figure>`;
-              contentWithImages = contentWithImages.replace(match, figureHtml);
-
-              // Set featured image if none exists
-              if (!formData.featured_image) {
-                setFormData(prev => ({ ...prev, featured_image: generatedUrl }));
-              }
-            }
-          } catch (imgErr) {
-            console.warn('Image generation failed during fix:', match, imgErr);
-          }
-        }
+      const placeholderCount = parseImagePlaceholders(data.fixedContent || '').length;
+      if (placeholderCount > 0) {
+        toast.info(`Génération de ${placeholderCount} image(s) ajoutée(s)...`);
       }
 
-      // Clean remaining unresolved image placeholders
-      contentWithImages = contentWithImages.replace(/\[IMAGE:\s*[^\]]+\]/g, '');
+      const { contentWithImages, featuredImageUrl, generatedCount } = await resolveGeneratedImages(data.fixedContent || '', accessToken);
 
       // Additive cost: add fix cost to existing generation cost
       const fixCost = data.fixCost || 0;
@@ -434,12 +453,13 @@ export function useArticleGeneration(
       setFormData(prev => ({
         ...prev,
         content: contentWithImages,
+        featured_image: prev.featured_image || featuredImageUrl,
         generation_cost: totalCost > 0 ? totalCost : prev.generation_cost,
       }));
 
       setArticleReview(null);
       setReviewModalOpen(false);
-      toast.success(`Corrections appliquées ! ${imageMatches.length > 0 ? `${imageMatches.length} image(s) générée(s). ` : ''}Coût mis à jour.`);
+      toast.success(`Corrections appliquées ! ${generatedCount > 0 ? `${generatedCount} image(s) générée(s). ` : ''}Coût mis à jour.`);
     } catch (error: any) {
       toast.error(error.message || "Erreur lors de la correction automatique");
     } finally {
