@@ -394,6 +394,18 @@ const ManageActualites = () => {
                         <TableHead className="w-20">Image</TableHead>
                         <TableHead>Titre</TableHead>
                         <TableHead className="w-32">Catégorie</TableHead>
+                        <TableHead className="w-16 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <BarChart3 className="w-3.5 h-3.5" />
+                            Vues
+                          </div>
+                        </TableHead>
+                        <TableHead className="w-24 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <Clock className="w-3.5 h-3.5" />
+                            Durée moy.
+                          </div>
+                        </TableHead>
                         <TableHead className="w-24">Source</TableHead>
                         <TableHead className="w-20">Coût</TableHead>
                         <TableHead className="w-32">Statut</TableHead>
