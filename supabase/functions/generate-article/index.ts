@@ -743,7 +743,7 @@ CRITÈRES D'AUDIT (note /10 + commentaire pour chacun)
 3. SEO & STRUCTURE - H2/H3 bien utilisés, mots-clés présents dans le contenu ET les méta (meta title <60 car, meta desc <160 car), densité correcte. Le titre est-il optimisé SEO ?
 4. DONNÉES & CHIFFRES - Présence de tableaux HTML, données chiffrées sourcées, actuelles (${new Date().getFullYear()})
 5. CTA & CONVERSION - Variété des couleurs/styles des CTA, pertinence des placements, diversité des messages
-6. IMAGES - Images distinctes et pertinentes au sujet (vérifier dans le HTML), image à la une présente
+6. IMAGES & LÉGENDES - Images distinctes et pertinentes au sujet (vérifier dans le HTML), image à la une présente, légendes (figcaption) descriptives et informatives (pas vides ni génériques), alt text optimisé SEO
 7. FAQ - Les FAQ sont-elles fournies ? Questions pertinentes, utiles et variées ? Réponses complètes ? (${Array.isArray(faq) && faq.length > 0 ? faq.length + ' FAQ détectées' : '⚠️ AUCUNE FAQ'})
 8. ORIGINALITÉ - L'article apporte-t-il une vraie valeur ? Pas trop "template" ou monotone ?
 9. COMPLÉTUDE ÉDITORIALE - Extrait/chapô renseigné ? TL;DR ? Image à la une ? Tags ? Mots-clés SEO ? Régions ciblées ?
