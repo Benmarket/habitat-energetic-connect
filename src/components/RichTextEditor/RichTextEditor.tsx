@@ -18,10 +18,13 @@ import { CtaBannerEditorModal } from './CtaBannerEditorModal';
 import { FavoriteButtonsBar } from '@/components/FavoriteButtonsBar';
 import { FavoriteCtaBannersBar } from './FavoriteCtaBannersBar';
 import { MediaLibrary } from '@/components/MediaLibrary';
+import { ImageRegenerateModal } from '@/components/ImageRegenerateModal';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import {
   Bold,
   Italic,
@@ -40,7 +43,7 @@ import {
   AlignRight,
   AlignJustify,
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface RichTextEditorProps {
   content: string;
