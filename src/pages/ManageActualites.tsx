@@ -47,6 +47,7 @@ const ManageActualites = () => {
   const navigate = useNavigate();
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [articleStats, setArticleStats] = useState<Record<string, { views: number; avgDuration: number | null }>>({});
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
