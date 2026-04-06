@@ -1,12 +1,12 @@
 // CreatePost v4 - Multi-step generation wizard
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, AlertTriangle } from "lucide-react";
 import { ArticlePreviewModal } from "@/components/ArticlePreviewModal";
 import { ArticleReviewModal } from "@/components/ArticleReviewModal";
 import { AIInstructionsModal } from "@/components/AIInstructionsModal";
@@ -14,6 +14,7 @@ import { AuthorSelectModal } from "@/components/AuthorSelectModal";
 import { ArticleGenerationWizard } from "@/components/ArticleGenerationWizard";
 import { useCreatePost, sectionsToContent } from "@/hooks/useCreatePost";
 import { useArticleGeneration } from "@/hooks/useArticleGeneration";
+import { detectUnconnectedCTAs } from "@/utils/contentRenderer";
 import {
   PostFormFields,
   GuideOptions,
