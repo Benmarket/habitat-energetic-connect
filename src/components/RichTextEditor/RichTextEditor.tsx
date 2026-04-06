@@ -608,6 +608,37 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         initialConfig={editingCtaBanner?.attrs ?? ctaBannerDraft}
         isEditing={!!editingCtaBanner}
       />
+
+      {/* Inline image regeneration modal */}
+      <ImageRegenerateModal
+        open={regenModalOpen}
+        onOpenChange={setRegenModalOpen}
+        onImageGenerated={(url) => {
+          replaceImageSrc(regenTargetSrc, url);
+          setRegenModalOpen(false);
+        }}
+        context={regenContext}
+        contextLabel="l'image de section"
+      />
+
+      {/* Inline image replacement via media library */}
+      <MediaLibrary
+        open={replaceMediaLibOpen}
+        onOpenChange={setReplaceMediaLibOpen}
+        onSelect={(url) => {
+          replaceImageSrc(replaceTargetSrc, url);
+          setReplaceMediaLibOpen(false);
+        }}
+      />
+
+      {/* Hidden file input for inline image upload replacement */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleInlineFileUpload}
+      />
     </div>
   );
 };
