@@ -6,9 +6,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { X, MapPin, Sparkles, FileText } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { X, MapPin, Sparkles, FileText, CalendarIcon } from "lucide-react";
 import { Category, Tag, CreatePostFormData } from "@/hooks/useCreatePost";
 import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 function KeywordsField({ formData, setFormData, onGenerateArticle, onOpenAiInstructions, generatingArticle, contentType }: {
   formData: CreatePostFormData;
