@@ -1114,26 +1114,51 @@ function convertButtonsToCustomFormat(html: string, presets: any[]): string {
 }
 
 function convertCtaBannersToHtml(html: string, banners: any[], popupId: string): string {
-  return html.replace(/\[CTA_BANNER:([^\]]+)\]/g, (_m, bid) => {
+  // New format: [CTA_BANNER:ID|title|subtitle|buttonText|colorIntention]
+  // Legacy format: [CTA_BANNER:ID]
+  return html.replace(/\[CTA_BANNER:([^\]]+)\]/g, (_m, content) => {
+    const parts = content.split('|').map((s: string) => s.trim());
+    const bid = parts[0];
+    const customTitle = parts[1] || '';
+    const customSubtitle = parts[2] || '';
+    const customButtonText = parts[3] || '';
+    const colorIntention = parts[4] || '';
+
     const banner = banners.find((b) => b.id === String(bid).trim());
     const b = banner || (banners.length > 0 ? banners[Math.floor(Math.random() * banners.length)] : null);
     if (!b) return '';
-    return generateBannerHtml(b, popupId);
+    return generateBannerHtml(b, popupId, customTitle, customSubtitle, customButtonText, colorIntention);
   });
 }
 
-function generateBannerHtml(b: any, popupId: string): string {
-  const bg = b.background_color || '#0284c7';
-  const sc = b.secondary_color || '#0369a1';
-  const tc = b.text_color || '#ffffff';
-  const ac = b.accent_color || '#f59e0b';
+const INTENTION_COLORS: Record<string, { bg: string; sc: string; ac: string; tc: string }> = {
+  urgent:      { bg: '#dc2626', sc: '#b91c1c', ac: '#fbbf24', tc: '#ffffff' },
+  opportunity: { bg: '#059669', sc: '#047857', ac: '#34d399', tc: '#ffffff' },
+  trust:       { bg: '#2563eb', sc: '#1d4ed8', ac: '#60a5fa', tc: '#ffffff' },
+  premium:     { bg: '#7c3aed', sc: '#6d28d9', ac: '#c4b5fd', tc: '#ffffff' },
+  eco:         { bg: '#16a34a', sc: '#15803d', ac: '#86efac', tc: '#ffffff' },
+};
+
+function generateBannerHtml(b: any, popupId: string, customTitle?: string, customSubtitle?: string, customButtonText?: string, colorIntention?: string): string {
+  // Use intention colors if specified, otherwise fall back to banner defaults
+  const intentionColors = colorIntention ? INTENTION_COLORS[colorIntention.toLowerCase()] : null;
+  const bg = intentionColors?.bg || b.background_color || '#0284c7';
+  const sc = intentionColors?.sc || b.secondary_color || '#0369a1';
+  const tc = intentionColors?.tc || b.text_color || '#ffffff';
+  const ac = intentionColors?.ac || b.accent_color || '#f59e0b';
   const ts = b.template_style || 'wave';
-  const title = String(b.title || '');
-  const subtitle = String(b.subtitle || '');
+
+  // Use custom text if provided, fall back to banner defaults
+  const title = customTitle || String(b.title || '');
+  const subtitle = customSubtitle || String(b.subtitle || '');
+  const buttonText = customButtonText || 'Profiter de cette offre';
+
   const btnUrl = popupId ? '#' : '#contact';
   const bgStyle = ts === 'wave' ? `background:linear-gradient(135deg,${bg},${sc})` : ts === 'gradient' ? `background:linear-gradient(90deg,${bg},${sc})` : `background:${bg}`;
-  const btnStyle = `display:inline-block;margin-top:1rem;padding:0.75rem 1.5rem;background:${ac};color:#000;border-radius:6px;text-decoration:none;font-weight:600`;
-  return `<div data-cta-banner="${esc(b.id)}" data-template-style="${esc(ts)}" data-bg-color="${esc(bg)}" data-secondary-color="${esc(sc)}" data-text-color="${esc(tc)}" data-accent-color="${esc(ac)}" data-title="${esc(title)}" data-subtitle="${esc(subtitle)}" data-button-text="Profiter de cette offre" data-button-url="${esc(btnUrl)}" data-button-bg="${esc(ac)}" data-button-text-color="#000000" data-button-radius="6" data-popup-id="${esc(popupId)}" class="cta-banner-wrapper my-8" style="border-radius:12px;overflow:hidden;${esc(bgStyle)};color:${esc(tc)};padding:2rem;text-align:center;"><h3 style="margin:0 0 0.5rem;font-size:1.5rem;font-weight:700;color:${esc(tc)}">${escText(title)}</h3>${subtitle ? `<p style="margin:0;opacity:0.9;color:${esc(tc)}">${escText(subtitle)}</p>` : ''}<a href="${esc(btnUrl)}" style="${esc(btnStyle)}"${popupId ? ` data-popup-trigger="${esc(popupId)}"` : ''}>Profiter de cette offre</a></div>`;
+  const btnBg = ac;
+  const btnTextColor = colorIntention === 'urgent' ? '#000000' : colorIntention === 'premium' ? '#1e1b4b' : '#000000';
+  const btnStyle = `display:inline-block;margin-top:1rem;padding:0.75rem 1.5rem;background:${btnBg};color:${btnTextColor};border-radius:6px;text-decoration:none;font-weight:600`;
+  return `<div data-cta-banner="${esc(b.id)}" data-template-style="${esc(ts)}" data-bg-color="${esc(bg)}" data-secondary-color="${esc(sc)}" data-text-color="${esc(tc)}" data-accent-color="${esc(ac)}" data-title="${esc(title)}" data-subtitle="${esc(subtitle)}" data-button-text="${esc(buttonText)}" data-button-url="${esc(btnUrl)}" data-button-bg="${esc(btnBg)}" data-button-text-color="${esc(btnTextColor)}" data-button-radius="6" data-popup-id="${esc(popupId)}" class="cta-banner-wrapper my-8" style="border-radius:12px;overflow:hidden;${esc(bgStyle)};color:${esc(tc)};padding:2rem;text-align:center;"><h3 style="margin:0 0 0.5rem;font-size:1.5rem;font-weight:700;color:${esc(tc)}">${escText(title)}</h3>${subtitle ? `<p style="margin:0;opacity:0.9;color:${esc(tc)}">${escText(subtitle)}</p>` : ''}<a href="${esc(btnUrl)}" style="${esc(btnStyle)}"${popupId ? ` data-popup-trigger="${esc(popupId)}"` : ''}>${escText(buttonText)}</a></div>`;
 }
 
 function centerImages(html: string): string {
