@@ -931,9 +931,12 @@ RÈGLES CRITIQUES
 ═══════════════════════════════════════
 - Tu reçois le HTML complet de l'article et une liste de problèmes détectés + suggestions d'amélioration.
 - Tu dois retourner le HTML CORRIGÉ COMPLET (pas juste les morceaux modifiés).
-- CONSERVE intégralement: tous les data-custom-button, data-cta-banner, data-custom-image, <table> existants.
+- CONSERVE intégralement: tous les data-custom-button, data-custom-image, <table> existants.
 - NE SUPPRIME AUCUN élément interactif (boutons, bannières CTA, images existantes).
-- NE CHANGE PAS la structure des CTA/boutons EXISTANTS (leurs attributs data-*).
+- NE CHANGE PAS la structure des CTA/boutons EXISTANTS (leurs attributs data-*) SAUF pour les bannières CTA :
+  → Tu PEUX et DOIS modifier data-title, data-subtitle, data-button-text des bannières CTA existantes si leur contenu est générique ("Offre limitée", "Ne manquez pas", "Profiter de cette offre", "En savoir plus").
+  → Tu PEUX aussi modifier les couleurs (data-bg-color, data-secondary-color, data-accent-color) pour correspondre à l'intention du message.
+  → Rends chaque bannière CONTEXTUELLE au sujet de l'article avec un message CONCRET donnant envie de cliquer.
 - IMAGES EXISTANTES : tu PEUX et DOIS améliorer les <figcaption> (légendes) et attributs alt des images existantes si elles sont vides, génériques ou peu descriptives. Rends-les précises, informatives et contextuelles par rapport au contenu de la section.
 - Corrige le texte rédactionnel, la structure des H2/H3, l'ajout de données manquantes.
 - Si un tableau est manquant, ajoute-en un avec la classe "article-data-table".
