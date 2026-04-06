@@ -380,6 +380,7 @@ export function useArticleGeneration(
           contentType,
           problemes: articleReview.problemes,
           suggestions: articleReview.suggestions,
+          userId,
         },
         headers: { Authorization: `Bearer ${accessToken}` }
       });
@@ -387,14 +388,58 @@ export function useArticleGeneration(
       if (error) throw error;
       if (!data?.success) throw new Error(data?.error || "Erreur lors de la correction");
 
+      // Generate images from any new [IMAGE:...] placeholders added by the fix
+      let contentWithImages = data.fixedContent || '';
+      const imageMatches = contentWithImages.match(/\[IMAGE:[^\]]+\]/g) || [];
+
+      if (imageMatches.length > 0) {
+        toast.info(`Génération de ${imageMatches.length} image(s) ajoutée(s)...`);
+        for (let i = 0; i < imageMatches.length; i++) {
+          const match = imageMatches[i];
+          try {
+            const parts = match.replace('[IMAGE:', '').replace(']', '').split('|').map((s: string) => s.trim());
+            const imagePrompt = parts[2] || match;
+            const imageTitle = parts[3] || '';
+            const imageCaption = parts[4] || '';
+
+            const { data: imgData } = await supabase.functions.invoke('generate-images', {
+              body: { imageDescriptions: [imagePrompt] },
+              headers: { Authorization: `Bearer ${accessToken}` }
+            });
+            const generatedUrl = imgData?.images?.[0]?.success ? imgData.images[0].url : null;
+            if (generatedUrl) {
+              const altText = imageTitle || imagePrompt.slice(0, 120);
+              const figureHtml = `<figure><div data-custom-image="true" data-src="${generatedUrl}" data-alt="${altText}" data-title="${imageTitle}" data-caption="${imageCaption}"></div>${imageCaption ? `<figcaption>${imageCaption}</figcaption>` : ''}</figure>`;
+              contentWithImages = contentWithImages.replace(match, figureHtml);
+
+              // Set featured image if none exists
+              if (!formData.featured_image) {
+                setFormData(prev => ({ ...prev, featured_image: generatedUrl }));
+              }
+            }
+          } catch (imgErr) {
+            console.warn('Image generation failed during fix:', match, imgErr);
+          }
+        }
+      }
+
+      // Clean remaining unresolved image placeholders
+      contentWithImages = contentWithImages.replace(/\[IMAGE:\s*[^\]]+\]/g, '');
+
+      // Additive cost: add fix cost to existing generation cost
+      const fixCost = data.fixCost || 0;
+      const previousCost = formData.generation_cost || 0;
+      const totalCost = previousCost + fixCost;
+
       setFormData(prev => ({
         ...prev,
-        content: data.fixedContent,
+        content: contentWithImages,
+        generation_cost: totalCost > 0 ? totalCost : prev.generation_cost,
       }));
 
       setArticleReview(null);
       setReviewModalOpen(false);
-      toast.success("Corrections appliquées ! Vérifiez le contenu puis relancez l'analyse si besoin.");
+      toast.success(`Corrections appliquées ! ${imageMatches.length > 0 ? `${imageMatches.length} image(s) générée(s). ` : ''}Coût mis à jour.`);
     } catch (error: any) {
       toast.error(error.message || "Erreur lors de la correction automatique");
     } finally {

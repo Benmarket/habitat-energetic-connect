@@ -826,8 +826,49 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
     // MODE: REVIEW_FIX — Apply corrections from review
     // ══════════════════════════════════════════
     if (mode === 'review_fix') {
-      const { title, content, contentType: fixContentType, problemes, suggestions } = body;
+      const { title, content, contentType: fixContentType, problemes, suggestions, userId: fixUserId } = body;
       if (!content) throw new Error('Contenu requis pour la correction');
+
+      // Load user's CTA presets (same as article mode)
+      let buttonPresets: any[] = [];
+      let ctaBanners: any[] = [];
+      let activePopups: any[] = [];
+
+      if (fixUserId) {
+        const [buttonsRes, bannersRes, popupsRes] = await Promise.all([
+          fetch(`${supabaseUrl}/rest/v1/button_presets?select=*&user_id=eq.${fixUserId}`, {
+            headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+          }),
+          fetch(`${supabaseUrl}/rest/v1/cta_banners?select=*&user_id=eq.${fixUserId}`, {
+            headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+          }),
+          fetch(`${supabaseUrl}/rest/v1/popups?select=id,name,trigger_id,template,title,form_id&is_active=eq.true&order=created_at.desc&limit=5`, {
+            headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+          })
+        ]);
+        buttonPresets = await buttonsRes.json();
+        ctaBanners = await bannersRes.json();
+        const popupsData = await popupsRes.json();
+        activePopups = Array.isArray(popupsData) ? popupsData : [];
+      }
+
+      const popupWithForm = activePopups.find((p: any) => p.form_id);
+      const defaultPopupId = popupWithForm?.id || (activePopups.length > 0 ? activePopups[0].id : '');
+
+      // Build CTA instructions for the fix prompt
+      let ctaFixInstructions = '';
+      const shuffledBtns = shuffleArray([...buttonPresets]).slice(0, 3);
+      if (shuffledBtns.length > 0) {
+        ctaFixInstructions += `\nBOUTONS CTA DISPONIBLES (si tu en ajoutes):
+${shuffledBtns.map((b: any, i: number) => `${i + 1}. "${b.text}" → ${b.url} (couleur: ${b.background_color || '#10b981'})`).join('\n')}
+FORMAT AJOUT BOUTON: [BUTTON:Texte|URL]`;
+      }
+      const shuffledBnrs = shuffleArray([...ctaBanners]).slice(0, 2);
+      if (shuffledBnrs.length > 0) {
+        ctaFixInstructions += `\nBANNIÈRES CTA DISPONIBLES (si tu en ajoutes):
+${shuffledBnrs.map((b: any) => `ID="${b.id}" Titre="${b.title}"`).join('\n')}
+FORMAT AJOUT BANNIÈRE: [CTA_BANNER:ID]`;
+      }
 
       const issuesList = (problemes || []).map((p: any, i: number) => 
         `${i + 1}. [${p.localisation}] ${p.probleme} → Correction: ${p.suggestion}`
@@ -837,27 +878,59 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
         `${i + 1}. ${s}`
       ).join('\n');
 
-      const fixPrompt = `Tu es un rédacteur expert en énergies renouvelables. Tu dois CORRIGER un article HTML existant.
+      const fixPrompt = `Tu es un rédacteur expert en énergies renouvelables. Tu dois CORRIGER et AMÉLIORER un article HTML existant.
 
-RÈGLES CRITIQUES:
-- Tu reçois le HTML complet de l'article et une liste de problèmes détectés + suggestions d'amélioration.
-- Tu dois retourner le HTML CORRIGÉ COMPLET (pas juste les morceaux modifiés).
-- CONSERVE intégralement: tous les data-custom-button, data-cta-banner, data-custom-image, <figure>, <figcaption>, <table> existants.
-- NE SUPPRIME AUCUN élément interactif (boutons, bannières CTA, images).
-- NE CHANGE PAS la structure des CTA/boutons/images (leurs attributs data-*).
-- Corrige UNIQUEMENT le texte rédactionnel, la structure des H2/H3, l'ajout de données manquantes.
-- Si un tableau est manquant, ajoute-en un avec la classe "article-data-table".
-- Utilise "kWc" (pas kWp).
-- Ne mens pas, n'invente pas de données. Si tu n'es pas sûr, ne mets pas.
-- DATE ACTUELLE: ${todayDate}
-
+DATE ACTUELLE: ${todayDate}
 ARTICLE TYPE: ${fixContentType || 'actualite'}
 TITRE: ${title || 'Sans titre'}
 
-PROBLÈMES À CORRIGER:
+═══════════════════════════════════════
+RÈGLES CRITIQUES
+═══════════════════════════════════════
+- Tu reçois le HTML complet de l'article et une liste de problèmes détectés + suggestions d'amélioration.
+- Tu dois retourner le HTML CORRIGÉ COMPLET (pas juste les morceaux modifiés).
+- CONSERVE intégralement: tous les data-custom-button, data-cta-banner, data-custom-image, <figure>, <figcaption>, <table> existants.
+- NE SUPPRIME AUCUN élément interactif (boutons, bannières CTA, images existantes).
+- NE CHANGE PAS la structure des CTA/boutons/images EXISTANTS (leurs attributs data-*).
+- Corrige le texte rédactionnel, la structure des H2/H3, l'ajout de données manquantes.
+- Si un tableau est manquant, ajoute-en un avec la classe "article-data-table".
+- Utilise "kWc" (pas kWp).
+- Ne mens pas, n'invente pas de données.
+
+═══════════════════════════════════════
+AJOUTS AUTORISÉS (si manquants)
+═══════════════════════════════════════
+Si l'audit a détecté des éléments MANQUANTS, tu PEUX et DOIS les ajouter :
+
+📸 IMAGES MANQUANTES :
+Si l'article n'a pas assez d'images (idéalement 2-4), ajoute des placeholders :
+[IMAGE:TYPE|OBJECTIF|Prompt détaillé ultra-précis de 40+ mots|Titre court|Légende descriptive]
+Types : Illustration réaliste, Schéma explicatif, Avant/Après, Donnée/preuve visuelle, Mise en situation, Comparatif visuel.
+Chaque image doit être pertinente au sujet spécifique et radicalement différente des autres.
+Style : photo éditoriale professionnelle, lumière naturelle, rendu magazine — PAS de rendu 3D/fake.
+
+🔘 CTA MANQUANTS :
+Si l'article manque de CTA (idéalement 2-3 boutons + 1-2 bannières), utilise les presets ci-dessous.
+${ctaFixInstructions || 'FORMAT BOUTON: [BUTTON:Demander un devis gratuit|#contact]'}
+
+📊 TABLEAUX MANQUANTS :
+Si aucun tableau n'est présent, ajoute au minimum 1 tableau avec classe "article-data-table".
+<div class="article-table-wrapper">
+<table class="article-data-table">
+<thead><tr><th>...</th></tr></thead>
+<tbody><tr><td>...</td></tr></tbody>
+</table>
+<p class="table-source">Source : organisme officiel, année</p>
+</div>
+
+═══════════════════════════════════════
+PROBLÈMES À CORRIGER
+═══════════════════════════════════════
 ${issuesList || 'Aucun problème spécifique'}
 
-SUGGESTIONS À APPLIQUER:
+═══════════════════════════════════════
+SUGGESTIONS À APPLIQUER
+═══════════════════════════════════════
 ${suggestionsList || 'Aucune suggestion spécifique'}
 
 Retourne UNIQUEMENT le HTML corrigé, rien d'autre. Pas de markdown, pas de backticks, pas d'explication.`;
@@ -882,11 +955,19 @@ Retourne UNIQUEMENT le HTML corrigé, rien d'autre. Pas de markdown, pas de back
       }
 
       const data = await response.json();
+      const fixUsage = data.usage || {};
       let fixedContent = data.choices[0].message.content.trim()
         .replace(/```html\s*/gi, '').replace(/```\s*/g, '').trim();
 
+      // Convert placeholders to internal format (same as article mode)
+      fixedContent = cleanHtml(fixedContent, ctaBanners, buttonPresets, defaultPopupId);
+
+      const estimatedFixCost = fixUsage.prompt_tokens && fixUsage.completion_tokens
+        ? ((fixUsage.prompt_tokens * 0.075 + fixUsage.completion_tokens * 0.3) / 1_000_000)
+        : null;
+
       return new Response(
-        JSON.stringify({ success: true, fixedContent }),
+        JSON.stringify({ success: true, fixedContent, usage: fixUsage, fixCost: estimatedFixCost }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
       );
     }
