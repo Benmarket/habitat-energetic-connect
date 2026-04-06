@@ -128,12 +128,58 @@ const ManageActualites = () => {
       const { data, error } = await query;
       
       if (error) throw error;
-      if (data) setPosts(data);
+      if (data) {
+        setPosts(data);
+        // Fetch article view stats
+        fetchArticleStats(data);
+      }
     } catch (error) {
       console.error("Error fetching posts:", error);
       toast.error("Erreur lors du chargement des actualités");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchArticleStats = async (postsData: any[]) => {
+    try {
+      const slugs = postsData.map(p => `/actualites/${p.post_categories?.[0]?.categories?.slug || 'general'}/${p.slug}`);
+      
+      // Fetch all page_views for article URLs
+      const { data: viewsData } = await supabase
+        .from("page_views")
+        .select("page_url, duration_seconds")
+        .in("page_url", slugs);
+      
+      if (!viewsData) return;
+
+      // Aggregate by page_url
+      const statsMap: Record<string, { views: number; totalDuration: number; durationCount: number }> = {};
+      viewsData.forEach((pv: any) => {
+        if (!statsMap[pv.page_url]) {
+          statsMap[pv.page_url] = { views: 0, totalDuration: 0, durationCount: 0 };
+        }
+        statsMap[pv.page_url].views++;
+        if (pv.duration_seconds && pv.duration_seconds > 0) {
+          statsMap[pv.page_url].totalDuration += pv.duration_seconds;
+          statsMap[pv.page_url].durationCount++;
+        }
+      });
+
+      // Map back to post IDs
+      const result: Record<string, { views: number; avgDuration: number | null }> = {};
+      postsData.forEach(post => {
+        const url = `/actualites/${post.post_categories?.[0]?.categories?.slug || 'general'}/${post.slug}`;
+        const stat = statsMap[url];
+        result[post.id] = {
+          views: stat?.views || 0,
+          avgDuration: stat?.durationCount ? Math.round(stat.totalDuration / stat.durationCount) : null,
+        };
+      });
+      
+      setArticleStats(result);
+    } catch (error) {
+      console.error("Error fetching article stats:", error);
     }
   };
 
