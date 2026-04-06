@@ -194,6 +194,7 @@ const initialFormData: CreatePostFormData = {
   badge_image: "",
   target_regions: ["fr"],
   generation_cost: null,
+  published_at: "",
 };
 
 export function useCreatePost() {
