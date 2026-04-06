@@ -54,6 +54,11 @@ const CreatePost = () => {
   const [aiInstructionsModalOpen, setAiInstructionsModalOpen] = useState(false);
   const [authorModalOpen, setAuthorModalOpen] = useState(false);
 
+  const currentContent = contentType === "guide" 
+    ? sectionsToContent(formData.guide_sections) 
+    : formData.content;
+  const unconnectedCTAs = useMemo(() => detectUnconnectedCTAs(currentContent), [currentContent]);
+
   if (authLoading || !user || loadingPost) {
     return (
       <div className="min-h-screen flex items-center justify-center">
