@@ -247,18 +247,22 @@ details summary {
   margin: 2rem 0;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  max-width: 100%;
 }
 
 .article-content .article-data-table,
 .article-content table {
   width: 100%;
+  max-width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 20px -4px hsl(220 13% 18% / 0.1);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   margin: 2rem 0;
+  table-layout: auto;
+  word-break: break-word;
 }
 
 .article-content .article-data-table thead tr,
