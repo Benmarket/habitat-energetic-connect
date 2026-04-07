@@ -355,6 +355,7 @@ export default function PopupPreview({ popup, onClose }: PopupPreviewProps) {
           {renderContent()}
         </div>
       </div>
+      </div>
     </div>
   );
 }
