@@ -327,17 +327,18 @@ export default function PopupPreview({ popup, onClose }: PopupPreviewProps) {
         style={{ opacity: popup.overlay_opacity / 100 }}
       />
 
-      {/* Popup */}
-      <div
-        className={`absolute ${getPositionClasses()} ${getSizeClasses()} ${getAnimationClasses()} 
-          ${popup.size !== "fullscreen" ? "rounded-xl shadow-2xl p-6" : ""} overflow-hidden`}
-        style={{
-          backgroundColor: popup.background_color,
-          backgroundImage: popup.background_image ? `url(${popup.background_image})` : undefined,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
+      {/* Popup container with flex centering */}
+      <div className={`absolute inset-0 flex ${getContainerAlignClasses()}`}>
+        <div
+          className={`relative w-full ${getSizeClasses()} ${getAnimationClasses()} 
+            ${popup.size !== "fullscreen" ? "rounded-xl shadow-2xl p-6" : ""} overflow-hidden`}
+          style={{
+            backgroundColor: popup.background_color,
+            backgroundImage: popup.background_image ? `url(${popup.background_image})` : undefined,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
         {/* Close button */}
         {popup.show_close_button && (
           <button
