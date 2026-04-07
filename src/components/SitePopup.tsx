@@ -1186,7 +1186,7 @@ export default function SitePopup() {
   };
 
   return (
-    <div className="fixed inset-0 z-[100]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center">
       {/* Overlay */}
       <div 
         className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isAnimating ? "opacity-100" : "opacity-0"}`}
@@ -1196,12 +1196,19 @@ export default function SitePopup() {
 
       {/* Popup */}
       <div
-        className={`fixed ${getPositionClasses()} ${getSizeClasses()} ${getAnimationClasses()} 
+        className={`relative w-full ${getSizeClasses()} ${getAnimationClasses()} 
           ${
             activePopup.size !== "fullscreen"
-              ? "rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 mx-2 sm:mx-0 max-h-[90vh] overflow-hidden overflow-y-auto"
+              ? "rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 mx-4 sm:mx-6 max-h-[90vh] overflow-hidden overflow-y-auto"
               : "overflow-hidden"
           } transition-all duration-300`}
+        style={{
+          backgroundColor: activePopup.background_color,
+          backgroundImage: activePopup.background_image ? `url(${activePopup.background_image})` : undefined,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          ...(activePopup.size === "fullscreen" ? { position: 'fixed' as const, inset: 0 } : {}),
+        }}
         style={{
           backgroundColor: activePopup.background_color,
           backgroundImage: activePopup.background_image ? `url(${activePopup.background_image})` : undefined,
