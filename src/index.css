@@ -228,8 +228,20 @@ All colors MUST be HSL.
   white-space: nowrap;
   max-width: 100%;
   box-sizing: border-box;
-  display: inline-block;
-  text-overflow: ellipsis;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .article-content .custom-button-wrapper a {
+    white-space: normal;
+    text-align: center;
+    font-size: 14px !important;
+  }
+}
+
+.article-content .custom-button-wrapper {
   overflow: hidden;
 }
 
