@@ -1209,8 +1209,7 @@ export default function SitePopup() {
           backgroundPosition: "center",
           ...(activePopup.size === "fullscreen" ? { position: 'fixed' as const, inset: 0 } : {}),
         }}
-        style={{
-          backgroundColor: activePopup.background_color,
+      >
           backgroundImage: activePopup.background_image ? `url(${activePopup.background_image})` : undefined,
           backgroundSize: "cover",
           backgroundPosition: "center",
