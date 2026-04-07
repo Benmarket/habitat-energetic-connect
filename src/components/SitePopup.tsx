@@ -1210,11 +1210,6 @@ export default function SitePopup() {
           ...(activePopup.size === "fullscreen" ? { position: 'fixed' as const, inset: 0 } : {}),
         }}
       >
-          backgroundImage: activePopup.background_image ? `url(${activePopup.background_image})` : undefined,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
         {/* Decorative gradient overlay */}
         {!activePopup.background_image && activePopup.size !== "fullscreen" && (
           <div 
