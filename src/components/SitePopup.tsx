@@ -378,22 +378,21 @@ export default function SitePopup() {
     }
   };
 
-  const getPositionClasses = () => {
-    if (activePopup.size === "fullscreen") return "inset-0";
+  const getContainerAlignClasses = () => {
+    if (activePopup.size === "fullscreen") return "";
     
     switch (activePopup.position) {
-      case "center":
-        return "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2";
       case "bottom-right":
-        return "bottom-4 right-4";
+        return "items-end justify-end p-4";
       case "bottom-left":
-        return "bottom-4 left-4";
+        return "items-end justify-start p-4";
       case "top-right":
-        return "top-4 right-4";
+        return "items-start justify-end p-4";
       case "top-left":
-        return "top-4 left-4";
+        return "items-start justify-start p-4";
+      case "center":
       default:
-        return "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2";
+        return "items-center justify-center p-4";
     }
   };
 
@@ -1186,7 +1185,7 @@ export default function SitePopup() {
   };
 
   return (
-    <div className="fixed inset-0 z-[100]">
+    <div className={`fixed inset-0 z-[100] flex ${getContainerAlignClasses()}`}>
       {/* Overlay */}
       <div 
         className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isAnimating ? "opacity-100" : "opacity-0"}`}
@@ -1196,10 +1195,10 @@ export default function SitePopup() {
 
       {/* Popup */}
       <div
-        className={`fixed ${getPositionClasses()} ${getSizeClasses()} ${getAnimationClasses()} 
+        className={`relative w-full ${getSizeClasses()} ${getAnimationClasses()} 
           ${
             activePopup.size !== "fullscreen"
-              ? "rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 mx-2 sm:mx-0 max-h-[90vh] overflow-hidden overflow-y-auto"
+              ? "rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 mx-4 sm:mx-6 max-h-[90vh] overflow-hidden overflow-y-auto"
               : "overflow-hidden"
           } transition-all duration-300`}
         style={{
@@ -1207,6 +1206,7 @@ export default function SitePopup() {
           backgroundImage: activePopup.background_image ? `url(${activePopup.background_image})` : undefined,
           backgroundSize: "cover",
           backgroundPosition: "center",
+          ...(activePopup.size === "fullscreen" ? { position: 'fixed' as const, inset: 0 } : {}),
         }}
       >
         {/* Decorative gradient overlay */}

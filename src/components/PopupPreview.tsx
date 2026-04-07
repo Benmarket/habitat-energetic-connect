@@ -45,22 +45,21 @@ export default function PopupPreview({ popup, onClose }: PopupPreviewProps) {
   // Force large size for parcours_projet template
   const effectiveSize = popup.template === "parcours_projet" ? "large" : popup.size;
 
-  const getPositionClasses = () => {
-    if (popup.size === "fullscreen") return "inset-0";
+  const getContainerAlignClasses = () => {
+    if (popup.size === "fullscreen") return "";
     
     switch (popup.position) {
-      case "center":
-        return "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2";
       case "bottom-right":
-        return "bottom-4 right-4";
+        return "items-end justify-end p-4";
       case "bottom-left":
-        return "bottom-4 left-4";
+        return "items-end justify-start p-4";
       case "top-right":
-        return "top-4 right-4";
+        return "items-start justify-end p-4";
       case "top-left":
-        return "top-4 left-4";
+        return "items-start justify-start p-4";
+      case "center":
       default:
-        return "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2";
+        return "items-center justify-center p-4";
     }
   };
 
@@ -328,17 +327,18 @@ export default function PopupPreview({ popup, onClose }: PopupPreviewProps) {
         style={{ opacity: popup.overlay_opacity / 100 }}
       />
 
-      {/* Popup */}
-      <div
-        className={`absolute ${getPositionClasses()} ${getSizeClasses()} ${getAnimationClasses()} 
-          ${popup.size !== "fullscreen" ? "rounded-xl shadow-2xl p-6" : ""} overflow-hidden`}
-        style={{
-          backgroundColor: popup.background_color,
-          backgroundImage: popup.background_image ? `url(${popup.background_image})` : undefined,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
+      {/* Popup container with flex centering */}
+      <div className={`absolute inset-0 flex ${getContainerAlignClasses()}`}>
+        <div
+          className={`relative w-full ${getSizeClasses()} ${getAnimationClasses()} 
+            ${popup.size !== "fullscreen" ? "rounded-xl shadow-2xl p-6" : ""} overflow-hidden`}
+          style={{
+            backgroundColor: popup.background_color,
+            backgroundImage: popup.background_image ? `url(${popup.background_image})` : undefined,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
         {/* Close button */}
         {popup.show_close_button && (
           <button
@@ -354,6 +354,7 @@ export default function PopupPreview({ popup, onClose }: PopupPreviewProps) {
         <div className={popup.size === "fullscreen" ? "h-full" : ""}>
           {renderContent()}
         </div>
+      </div>
       </div>
     </div>
   );
