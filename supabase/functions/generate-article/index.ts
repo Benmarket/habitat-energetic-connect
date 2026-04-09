@@ -197,16 +197,20 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
       let buttonPresets: any[] = [];
       let ctaBanners: any[] = [];
       let activePopups: any[] = [];
+      let landingPages: any[] = [];
 
       if (userId) {
-        const [buttonsRes, bannersRes, popupsRes] = await Promise.all([
+        const [buttonsRes, bannersRes, popupsRes, landingRes] = await Promise.all([
           fetch(`${supabaseUrl}/rest/v1/button_presets?select=*&user_id=eq.${userId}`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           }),
           fetch(`${supabaseUrl}/rest/v1/cta_banners?select=*&user_id=eq.${userId}`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           }),
-          fetch(`${supabaseUrl}/rest/v1/popups?select=id,name,trigger_id,template,title,form_id&is_active=eq.true&order=created_at.desc&limit=5`, {
+          fetch(`${supabaseUrl}/rest/v1/popups?select=id,name,trigger_id,template,title,form_id&is_active=eq.true&order=created_at.desc&limit=10`, {
+            headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+          }),
+          fetch(`${supabaseUrl}/rest/v1/landing_pages?select=title,path,slug&limit=50`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           })
         ]);
@@ -215,22 +219,67 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
         ctaBanners = await bannersRes.json();
         const popupsData = await popupsRes.json();
         activePopups = Array.isArray(popupsData) ? popupsData : [];
+        const landingData = await landingRes.json();
+        landingPages = Array.isArray(landingData) ? landingData : [];
       }
 
       const popupWithForm = activePopups.find((p: any) => p.form_id);
       const defaultPopupId = popupWithForm?.id || (activePopups.length > 0 ? activePopups[0].id : '');
 
+      // Build available pages list for AI (internal pages + landing pages)
+      const internalPages = [
+        { path: '/simulateur-solaire', title: 'Simulateur solaire / photovoltaïque' },
+        { path: '/aides', title: 'Aides et subventions' },
+        { path: '/guides', title: 'Guides pratiques' },
+        { path: '/actualites', title: 'Actualités' },
+        { path: '/#contact', title: 'Formulaire de contact' },
+        ...landingPages.map((lp: any) => ({ path: lp.path, title: lp.title }))
+      ];
+
       // CTA instructions
       let ctaInstructions = '';
       const shuffledButtons = shuffleArray([...buttonPresets]);
       const btns = shuffledButtons.slice(0, 3);
+
+      // Build popup list for buttons
+      const popupsList = activePopups.map((p: any) => `POPUP_ID="${p.id}" (${p.name || p.title || p.template}${p.form_id ? ' — avec formulaire' : ''})`).join('\n');
+
+      ctaInstructions += `\n\n═══════════════════════════════════════
+CONNEXION DES CTA — RÈGLE CRITIQUE (ÉLIMINATOIRE)
+═══════════════════════════════════════
+⚠️ CHAQUE bouton CTA et CHAQUE bannière CTA DOIT être connecté à :
+- SOIT un popup (via son POPUP_ID) pour ouvrir un formulaire/popup
+- SOIT une page interne existante (URL de redirection)
+- ⛔ JAMAIS de "#contact" ou "#" seul sans POPUP_ID — c'est un CTA MORT qui ne fonctionne pas.
+
+POPUPS ACTIFS DISPONIBLES:
+${popupsList || 'Aucun popup actif — utilise des URLs de pages internes'}
+
+PAGES INTERNES DISPONIBLES:
+${internalPages.slice(0, 15).map((p: any) => `"${p.title}" → ${p.path}`).join('\n')}
+
+STRATÉGIE DE CONNEXION:
+- Si l'article parle de solaire/photovoltaïque → utilise "/simulateur-solaire" comme URL
+- Si l'article parle d'aides/subventions → utilise "/aides" comme URL
+- Si tu veux ouvrir un formulaire de contact → utilise "#" + un POPUP_ID
+- Pour les redirections vers des pages thématiques → utilise les landing pages ci-dessus
+`;
+
       if (btns.length > 0) {
-        ctaInstructions += `\n\nBOUTONS CTA (VARIER LES COULEURS ! Ne pas tous utiliser la même couleur):
+        ctaInstructions += `\nBOUTONS CTA (VARIER LES COULEURS ! Ne pas tous utiliser la même couleur):
 ${btns.map((b: any, i: number) => `${i + 1}. "${b.text}" → ${b.url} (couleur: ${b.background_color || '#10b981'})`).join('\n')}
-FORMAT: [BUTTON:Texte|URL]
-IMPORTANT: Si les boutons ont tous la même couleur, change le texte d'au moins un pour proposer un message différent.`;
+FORMAT: [BUTTON:Texte|URL] ou [BUTTON:Texte|#|POPUP_ID] (pour ouvrir un popup)
+EXEMPLES:
+[BUTTON:Lancer ma simulation solaire|/simulateur-solaire]
+[BUTTON:Demander un devis gratuit|#|${defaultPopupId}]
+IMPORTANT: Si les boutons ont tous la même couleur, change le texte d'au moins un pour proposer un message différent.
+⚠️ CHAQUE bouton DOIT avoir soit une vraie URL de page interne, soit un POPUP_ID.`;
       } else {
-        ctaInstructions += `\nBOUTONS CTA: [BUTTON:Demander un devis gratuit|#contact]`;
+        ctaInstructions += `\nBOUTONS CTA:
+FORMAT: [BUTTON:Texte|URL] ou [BUTTON:Texte|#|POPUP_ID]
+EXEMPLES:
+[BUTTON:Lancer ma simulation solaire|/simulateur-solaire]
+[BUTTON:Demander un devis gratuit|#|${defaultPopupId}]`;
       }
 
       const shuffledBanners = shuffleArray([...ctaBanners]);
@@ -866,16 +915,20 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
       let buttonPresets: any[] = [];
       let ctaBanners: any[] = [];
       let activePopups: any[] = [];
+      let landingPages: any[] = [];
 
       if (fixUserId) {
-        const [buttonsRes, bannersRes, popupsRes] = await Promise.all([
+        const [buttonsRes, bannersRes, popupsRes, landingRes] = await Promise.all([
           fetch(`${supabaseUrl}/rest/v1/button_presets?select=*&user_id=eq.${fixUserId}`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           }),
           fetch(`${supabaseUrl}/rest/v1/cta_banners?select=*&user_id=eq.${fixUserId}`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           }),
-          fetch(`${supabaseUrl}/rest/v1/popups?select=id,name,trigger_id,template,title,form_id&is_active=eq.true&order=created_at.desc&limit=5`, {
+          fetch(`${supabaseUrl}/rest/v1/popups?select=id,name,trigger_id,template,title,form_id&is_active=eq.true&order=created_at.desc&limit=10`, {
+            headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+          }),
+          fetch(`${supabaseUrl}/rest/v1/landing_pages?select=title,path,slug&limit=50`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           })
         ]);
@@ -883,10 +936,22 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
         ctaBanners = await bannersRes.json();
         const popupsData = await popupsRes.json();
         activePopups = Array.isArray(popupsData) ? popupsData : [];
+        const landingData = await landingRes.json();
+        landingPages = Array.isArray(landingData) ? landingData : [];
       }
 
       const popupWithForm = activePopups.find((p: any) => p.form_id);
       const defaultPopupId = popupWithForm?.id || (activePopups.length > 0 ? activePopups[0].id : '');
+
+      const fixInternalPages = [
+        { path: '/simulateur-solaire', title: 'Simulateur solaire / photovoltaïque' },
+        { path: '/aides', title: 'Aides et subventions' },
+        { path: '/guides', title: 'Guides pratiques' },
+        { path: '/#contact', title: 'Formulaire de contact' },
+        ...landingPages.map((lp: any) => ({ path: lp.path, title: lp.title }))
+      ];
+
+      const fixPopupsList = activePopups.map((p: any) => `POPUP_ID="${p.id}" (${p.name || p.title || p.template}${p.form_id ? ' — avec formulaire' : ''})`).join('\n');
 
       // Build CTA instructions for the fix prompt
       let ctaFixInstructions = '';
@@ -894,7 +959,11 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
       if (shuffledBtns.length > 0) {
         ctaFixInstructions += `\nBOUTONS CTA DISPONIBLES (si tu en ajoutes):
 ${shuffledBtns.map((b: any, i: number) => `${i + 1}. "${b.text}" → ${b.url} (couleur: ${b.background_color || '#10b981'})`).join('\n')}
-FORMAT AJOUT BOUTON: [BUTTON:Texte|URL]`;
+FORMAT AJOUT BOUTON: [BUTTON:Texte|URL] ou [BUTTON:Texte|#|POPUP_ID]
+
+POPUPS ACTIFS: ${fixPopupsList || 'Aucun'}
+PAGES INTERNES: ${fixInternalPages.slice(0, 10).map((p: any) => `${p.title} → ${p.path}`).join(', ')}
+⚠️ CHAQUE bouton DOIT avoir une vraie URL interne ou un POPUP_ID. Jamais "#contact" ou "#" sans popup.`;
       }
       const shuffledBnrs = shuffleArray([...ctaBanners]).slice(0, 2);
       if (shuffledBnrs.length > 0) {
@@ -1087,21 +1156,28 @@ function cleanHtml(htmlContent: string, ctaBanners: any[], buttonPresets: any[],
     .replace(/```html\s*/gi, '').replace(/```\s*/g, '').trim()
     .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
 
-  cleaned = convertButtonsToCustomFormat(cleaned, buttonPresets);
+  cleaned = convertButtonsToCustomFormat(cleaned, buttonPresets, popupId);
   cleaned = convertCtaBannersToHtml(cleaned, ctaBanners, popupId);
   cleaned = centerImages(cleaned);
   return cleaned;
 }
 
-function convertButtonsToCustomFormat(html: string, presets: any[]): string {
-  const regex = /\[BUTTON:([^\|]+)\|([^\]]+)\]/g;
+function convertButtonsToCustomFormat(html: string, presets: any[], defaultPopupId?: string): string {
+  // Support [BUTTON:Text|URL] and [BUTTON:Text|URL|POPUP_ID]
+  const regex = /\[BUTTON:([^\]]+)\]/g;
   const find = (text: string, url: string) => presets.find((b: any) => (b.text||'').trim() === text.trim() && (b.url||'').trim() === url.trim());
   const toBool = (v: any, fb: boolean) => typeof v === 'boolean' ? v : fb;
   const toNum = (v: any, fb: number) => { const n = Number(v); return Number.isFinite(n) ? n : fb; };
 
-  return html.replace(regex, (_m, rawText, rawUrl) => {
-    const text = String(rawText).trim();
-    const url = String(rawUrl).trim();
+  return html.replace(regex, (_m, content) => {
+    const parts = content.split('|').map((s: string) => s.trim());
+    const text = parts[0] || '';
+    const url = parts[1] || '#';
+    const explicitPopupId = parts[2] || '';
+
+    // Determine popup ID: explicit > default for anchor URLs
+    const popupId = explicitPopupId || ((url === '#' || url === '#contact') ? (defaultPopupId || '') : '');
+
     const p = find(text, url);
     const bg = p?.background_color ?? '#10b981';
     const tc = p?.text_color ?? '#ffffff';
@@ -1123,7 +1199,7 @@ function convertButtonsToCustomFormat(html: string, presets: any[]): string {
     const g2 = p?.gradient_color2 ?? '#8b5cf6';
     const ga = toNum(p?.gradient_angle, 90);
     const hgs = toBool(p?.hover_gradient_shift, true);
-    const dt = url.startsWith('http') ? 'external' : url.startsWith('#') ? 'anchor' : 'internal';
+    const dt = popupId ? 'popup' : url.startsWith('http') ? 'external' : url.startsWith('#') ? 'anchor' : 'internal';
     const sizeMap: Record<string,string> = { small:'14px', medium:'16px', large:'18px' };
     const shadowMap: Record<string,string> = { none:'none', sm:'0 1px 2px 0 rgba(0,0,0,0.05)', md:'0 4px 6px -1px rgba(0,0,0,0.1)', lg:'0 10px 15px -3px rgba(0,0,0,0.1)' };
     const ws = width === 'full' ? '100%' : width === 'custom' ? `${cw}px` : 'auto';
@@ -1132,7 +1208,9 @@ function convertButtonsToCustomFormat(html: string, presets: any[]): string {
     const style = [bgStyle,`color:${tc}`,`padding:${py}px ${px}px`,`border-radius:${br}px`,`font-size:${sizeMap[size]||'16px'}`,`font-weight:500`,`text-decoration:none`,`display:inline-block`,`transition:all 0.3s`,`border:${border}`,`cursor:pointer`,`width:${ws}`,`text-align:center`,`box-shadow:${shadowMap[ss]||shadowMap.md}`].join(';');
     const ta = dt === 'external' ? ' target="_blank"' : '';
     const ra = dt === 'external' ? ' rel="noopener noreferrer"' : '';
-    return `<div data-custom-button class="custom-button-wrapper my-4" style="text-align:${align}" data-text="${esc(text)}" data-url="${esc(url)}" data-destination-type="${dt}" data-background-color="${esc(bg)}" data-text-color="${esc(tc)}" data-size="${size}" data-width="${width}" data-custom-width="${cw}" data-align="${align}" data-border-radius="${br}" data-padding-x="${px}" data-padding-y="${py}" data-border-width="${bw}" data-border-color="${esc(bc)}" data-border-style="${bs}" data-shadow-size="${ss}" data-hover-effect="${he}" data-use-gradient="${ug}" data-gradient-type="${gt}" data-gradient-direction="to-right" data-gradient-color1="${esc(g1)}" data-gradient-color2="${esc(g2)}" data-gradient-angle="${ga}" data-hover-gradient-shift="${hgs}"><a href="${esc(url)}" style="${esc(style)}"${ta}${ra} data-button-text="${esc(text)}" data-button-color="${esc(bg)}" data-destination-type="${dt}">${escText(text)}</a></div>`;
+    const popupAttr = popupId ? ` data-popup-id="${esc(popupId)}"` : '';
+    const popupTrigger = popupId ? ` data-popup-trigger="${esc(popupId)}"` : '';
+    return `<div data-custom-button class="custom-button-wrapper my-4" style="text-align:${align}" data-text="${esc(text)}" data-url="${esc(url)}" data-destination-type="${dt}"${popupAttr} data-background-color="${esc(bg)}" data-text-color="${esc(tc)}" data-size="${size}" data-width="${width}" data-custom-width="${cw}" data-align="${align}" data-border-radius="${br}" data-padding-x="${px}" data-padding-y="${py}" data-border-width="${bw}" data-border-color="${esc(bc)}" data-border-style="${bs}" data-shadow-size="${ss}" data-hover-effect="${he}" data-use-gradient="${ug}" data-gradient-type="${gt}" data-gradient-direction="to-right" data-gradient-color1="${esc(g1)}" data-gradient-color2="${esc(g2)}" data-gradient-angle="${ga}" data-hover-gradient-shift="${hgs}"><a href="${esc(url)}" style="${esc(style)}"${ta}${ra}${popupTrigger} data-button-text="${esc(text)}" data-button-color="${esc(bg)}" data-destination-type="${dt}">${escText(text)}</a></div>`;
   });
 }
 
