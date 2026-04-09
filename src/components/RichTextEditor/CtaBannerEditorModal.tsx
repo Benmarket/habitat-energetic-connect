@@ -99,6 +99,35 @@ export const CtaBannerEditorModal = ({
     }
   };
 
+  const loadAvailablePages = async () => {
+    const staticPages = [
+      { path: '/', label: 'Accueil' },
+      { path: '/actualites', label: 'Actualités' },
+      { path: '/guides', label: 'Guides' },
+      { path: '/aides', label: 'Aides' },
+      { path: '/simulateur-solaire', label: 'Simulateur Solaire' },
+      { path: '/faq', label: 'FAQ' },
+      { path: '/forum', label: 'Forum' },
+      { path: '/installer-app', label: 'Installer l\'app' },
+    ];
+
+    try {
+      const { data: landingPages } = await supabase
+        .from('landing_pages')
+        .select('path, title')
+        .order('title');
+
+      const lpPages = (landingPages || []).map(lp => ({
+        path: lp.path,
+        label: `LP: ${lp.title}`,
+      }));
+
+      setAvailablePages([...staticPages, ...lpPages]);
+    } catch {
+      setAvailablePages(staticPages);
+    }
+  };
+
   const handleSave = () => {
     onSave(config);
     onOpenChange(false);
