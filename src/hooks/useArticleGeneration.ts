@@ -412,7 +412,6 @@ export function useArticleGeneration(
   const openReviewModal = () => {
     setReviewModalOpen(true);
   };
-  };
 
   const handleApplyFixes = async (userCorrections?: string) => {
     if (!articleReview || !formData.content) return;
