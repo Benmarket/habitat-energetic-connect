@@ -624,7 +624,9 @@ export default function AdminForms() {
     if (!submissions || submissions.length === 0) return [];
     const fields = new Set<string>();
     submissions.forEach((sub) => {
-      Object.keys(sub.data).forEach((key) => fields.add(key));
+      Object.keys(sub.data).forEach((key) => {
+        if (key !== '_attribution') fields.add(key);
+      });
     });
     return Array.from(fields);
   };
@@ -642,8 +644,15 @@ export default function AdminForms() {
     // Get all unique field names
     const allFields = new Set<string>();
     submissions.forEach((sub) => {
-      Object.keys(sub.data).forEach((key) => allFields.add(key));
+      Object.keys(sub.data).forEach((key) => {
+        if (key !== '_attribution') allFields.add(key);
+      });
     });
+    // Add attribution columns for CSV export
+    allFields.add('source_article');
+    allFields.add('source_cta');
+    allFields.add('source_page');
+    allFields.add('source_referrer');
 
     // Create CSV header
     const headers = ["Date de soumission", "ID", ...Array.from(allFields)];
