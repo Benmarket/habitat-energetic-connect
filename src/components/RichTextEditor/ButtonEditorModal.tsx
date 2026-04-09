@@ -516,16 +516,22 @@ export const ButtonEditorModal = ({
 
             {config.destinationType === 'internal' && (
               <div className="space-y-2">
-                <Label htmlFor="internal-url">Page interne</Label>
-                <Input
-                  id="internal-url"
-                  placeholder="Ex: /guides/mon-guide"
-                  value={config.url}
-                  onChange={(e) => setConfig(prev => ({ ...prev, url: e.target.value }))}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Chemin relatif vers une page du site (ex: /aides, /guides/solaire)
-                </p>
+                <Label>Sélectionner une page</Label>
+                <Select
+                  value={config.url || '/'}
+                  onValueChange={(val) => setConfig(prev => ({ ...prev, url: val }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choisir une page..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {internalPages.map((page) => (
+                      <SelectItem key={page.path} value={page.path}>
+                        {page.label} ({page.path})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
 
