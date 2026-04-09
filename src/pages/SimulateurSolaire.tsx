@@ -395,10 +395,27 @@ const SimulateurSolaire = () => {
         setConsumptionSubStep('equipments');
         return;
       }
-      // equipments -> next main step
       if (consumptionSubStep === 'equipments') {
         setCurrentStep(prev => prev + 1);
         setConsumptionSubStep('energy');
+        setRoofSubStep('orientation');
+        return;
+      }
+    }
+
+    // Handle sub-steps within step 4 (Toiture)
+    if (currentStep === 4) {
+      if (roofSubStep === 'orientation' && canProceedToNextStep()) {
+        setRoofSubStep('type');
+        return;
+      }
+      if (roofSubStep === 'type' && canProceedToNextStep()) {
+        setRoofSubStep('surface');
+        return;
+      }
+      if (roofSubStep === 'surface') {
+        setCurrentStep(prev => prev + 1);
+        setRoofSubStep('orientation');
         return;
       }
     }
@@ -421,6 +438,24 @@ const SimulateurSolaire = () => {
       }
       if (consumptionSubStep === 'raccordement') {
         setConsumptionSubStep('energy');
+        return;
+      }
+    }
+
+    // Handle sub-steps within step 4 (Toiture)
+    if (currentStep === 4) {
+      if (roofSubStep === 'surface') {
+        setRoofSubStep('type');
+        return;
+      }
+      if (roofSubStep === 'type') {
+        setRoofSubStep('orientation');
+        return;
+      }
+      // Going back from orientation -> step 3 equipments
+      if (roofSubStep === 'orientation') {
+        setCurrentStep(3);
+        setConsumptionSubStep('equipments');
         return;
       }
     }
