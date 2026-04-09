@@ -16,6 +16,7 @@ interface CtaBannerAttributes {
   buttonTextColor: string;
   buttonBorderRadius: number;
   popupId: string | null;
+  refArticle?: string | null;
 }
 
 interface CtaBannerProps {
