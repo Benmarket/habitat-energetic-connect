@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, ArrowLeft, User, MapPin, Sun, Check, Loader2, Search, Zap, Flame, Droplets, Home, Car, Waves, Wind, Thermometer, UtensilsCrossed, Shirt, SkipForward, Wrench, Info } from "lucide-react";
+import { ArrowRight, ArrowLeft, User, MapPin, Sun, Check, Loader2, Search, Zap, Flame, Droplets, Home, Car, Waves, Wind, Thermometer, UtensilsCrossed, Shirt, SkipForward, Wrench, Info, Compass, LayoutGrid, Maximize2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import compteurLinkyImg from "@/assets/simulators/compteur-linky.png";
