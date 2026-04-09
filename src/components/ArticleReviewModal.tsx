@@ -3,8 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { AlertTriangle, CheckCircle2, Clock, Loader2, Star, Table2, Image, MousePointerClick, Lightbulb, XCircle, Wand2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Loader2, Star, Table2, Image, MousePointerClick, Lightbulb, XCircle, Wand2, MessageSquarePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect, useRef } from "react";
 
 interface ReviewCritere {
@@ -36,8 +37,8 @@ interface ArticleReviewModalProps {
   onOpenChange: (open: boolean) => void;
   review: ArticleReview | null;
   loading: boolean;
-  onStartReview: () => void;
-  onApplyFixes?: () => void;
+  onStartReview: (userCorrections?: string) => void;
+  onApplyFixes?: (userCorrections?: string) => void;
   loadingFix?: boolean;
 }
 
@@ -65,6 +66,8 @@ const getScoreBadge = (score: number) => {
 export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStartReview, onApplyFixes, loadingFix }: ArticleReviewModalProps) => {
   const scoreBadge = review ? getScoreBadge(review.score_global) : null;
   const hasIssues = review && (review.problemes.length > 0 || review.suggestions.length > 0);
+
+  const [userCorrections, setUserCorrections] = useState("");
 
   // Timer for loading states
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -106,14 +109,33 @@ export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStar
         </DialogHeader>
 
         {!review && !loading && (
-          <div className="text-center py-10 space-y-4">
-            <p className="text-muted-foreground">
+          <div className="py-6 space-y-5">
+            <p className="text-muted-foreground text-center">
               Lancez la relecture IA pour analyser la qualité, la cohérence, les CTA, les tableaux et l'originalité de votre article.
             </p>
-            <Button onClick={onStartReview} className="gap-2">
-              <Star className="w-4 h-4" />
-              Lancer la relecture
-            </Button>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium flex items-center gap-2">
+                <MessageSquarePlus className="w-4 h-4 text-primary" />
+                Vos corrections / remarques (optionnel)
+              </label>
+              <Textarea
+                placeholder={'Indiquez ce que vous souhaitez corriger ou modifier, par exemple :\n• "La prime autoconsommation est de 260 €/kWc, pas 350 €/kWc"\n• "Remplacer le tableau des tarifs par les chiffres 2026"\n• "L\'image principale ne correspond pas au sujet"\n• "Le CTA vert doit renvoyer vers /simulateur"'}
+                value={userCorrections}
+                onChange={(e) => setUserCorrections(e.target.value)}
+                className="min-h-[120px] text-sm"
+              />
+              {userCorrections.trim() && (
+                <p className="text-xs text-muted-foreground">{userCorrections.trim().length} caractères</p>
+              )}
+            </div>
+
+            <div className="text-center">
+              <Button onClick={() => onStartReview(userCorrections.trim() || undefined)} className="gap-2">
+                <Star className="w-4 h-4" />
+                Lancer la relecture
+              </Button>
+            </div>
           </div>
         )}
 
@@ -229,15 +251,30 @@ export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStar
                 </>
               )}
 
-              {/* Actions */}
+              {/* User corrections */}
               <Separator />
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <MessageSquarePlus className="w-4 h-4 text-primary" />
+                  Vos corrections / remarques (optionnel)
+                </label>
+                <Textarea
+                  placeholder={'Indiquez ce que vous souhaitez corriger, ex : "La prime est de 260 €/kWc, pas 350 €/kWc"'}
+                  value={userCorrections}
+                  onChange={(e) => setUserCorrections(e.target.value)}
+                  className="min-h-[80px] text-sm"
+                  disabled={!!loadingFix}
+                />
+              </div>
+
+              {/* Actions */}
               <div className="flex items-center justify-center gap-3 pt-2">
-                <Button variant="outline" onClick={onStartReview} size="sm" className="gap-2">
+                <Button variant="outline" onClick={() => onStartReview(userCorrections.trim() || undefined)} size="sm" className="gap-2">
                   <Star className="w-4 h-4" />
                   Relancer l'analyse
                 </Button>
                 {hasIssues && onApplyFixes && (
-                  <Button onClick={onApplyFixes} size="sm" className="gap-2 bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-700">
+                  <Button onClick={() => onApplyFixes(userCorrections.trim() || undefined)} size="sm" className="gap-2 bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-700">
                     <Wand2 className="w-4 h-4" />
                     Appliquer les corrections
                   </Button>

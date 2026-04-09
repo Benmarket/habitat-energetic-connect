@@ -720,7 +720,7 @@ Retourne UNIQUEMENT le HTML.`;
     if (mode === 'review') {
       const { title, content, contentType: reviewContentType, categoryName,
               excerpt, metaTitle, metaDescription, focusKeywords, targetRegions,
-              faq, tldr, tagNames, featuredImage } = body;
+              faq, tldr, tagNames, featuredImage, userCorrections } = body;
       if (!content) throw new Error('Contenu requis pour la relecture');
 
       const faqSection = Array.isArray(faq) && faq.length > 0
@@ -831,7 +831,9 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
           temperature: 0.3,
           messages: [
             { role: 'system', content: reviewPrompt },
-            { role: 'user', content: `Relis et audite cet article de manière critique et exhaustive.` }
+            { role: 'user', content: userCorrections
+              ? `Relis et audite cet article de manière critique et exhaustive.\n\n═══════════════════════════════════════\nCORRECTIONS DEMANDÉES PAR L'UTILISATEUR (PRIORITÉ ABSOLUE)\n═══════════════════════════════════════\n${userCorrections}\n\nIntègre ces remarques comme des problèmes prioritaires dans ton audit. Si l'utilisateur signale une erreur factuelle, c'est un problème BLOQUANT.`
+              : `Relis et audite cet article de manière critique et exhaustive.` }
           ]
         })
       });
@@ -857,7 +859,7 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
     // MODE: REVIEW_FIX — Apply corrections from review
     // ══════════════════════════════════════════
     if (mode === 'review_fix') {
-      const { title, content, contentType: fixContentType, problemes, suggestions, userId: fixUserId } = body;
+      const { title, content, contentType: fixContentType, problemes, suggestions, userId: fixUserId, userCorrections: fixUserCorrections } = body;
       if (!content) throw new Error('Contenu requis pour la correction');
 
       // Load user's CTA presets (same as article mode)
@@ -978,6 +980,13 @@ ${issuesList || 'Aucun problème spécifique'}
 SUGGESTIONS À APPLIQUER
 ═══════════════════════════════════════
 ${suggestionsList || 'Aucune suggestion spécifique'}
+${fixUserCorrections ? `
+═══════════════════════════════════════
+CORRECTIONS MANUELLES DE L'UTILISATEUR (PRIORITÉ ABSOLUE)
+═══════════════════════════════════════
+${fixUserCorrections}
+
+Ces corrections viennent directement de l'auteur. Applique-les EN PRIORITÉ, même si elles contredisent les suggestions automatiques.` : ''}
 
 Retourne UNIQUEMENT le HTML corrigé, rien d'autre. Pas de markdown, pas de backticks, pas d'explication.`;
 
