@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -68,12 +69,80 @@ interface FormData {
   acceptCgu: boolean;
 }
 
+// Redirect results component with countdown
+const RedirectResults = ({ formData, redirectCountdown, setRedirectCountdown, navigate }: {
+  formData: any;
+  redirectCountdown: number;
+  setRedirectCountdown: (v: number | ((p: number) => number)) => void;
+  navigate: (path: string) => void;
+}) => {
+  useEffect(() => {
+    if (redirectCountdown <= 0) {
+      const params = new URLSearchParams({
+        name: `${formData.firstName || ''} ${formData.lastName || ''}`.trim(),
+        workType: 'energie-solaire',
+        email: formData.contactEmail || '',
+      });
+      navigate(`/merci?${params.toString()}`);
+      return;
+    }
+    const timer = setTimeout(() => setRedirectCountdown((c: number) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [redirectCountdown, formData, navigate, setRedirectCountdown]);
+
+  const oFactor: Record<string, number> = { 'sud': 1, 'sud-est': 0.94, 'sud-ouest': 0.94, 'est': 0.82, 'ouest': 0.82, 'nord': 0.45 };
+  const prod = Math.round(parseFloat(formData.puissanceChoisie || '0') * 1100 * (oFactor[formData.orientationToiture] || 0.85));
+
+  return (
+    <div className="max-w-3xl mx-auto">
+      <Card className="shadow-xl border-0">
+        <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-t-lg text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-full flex items-center justify-center">
+            <Check className="w-8 h-8" />
+          </div>
+          <CardTitle className="text-2xl text-white">Simulation terminée !</CardTitle>
+          <CardDescription className="text-white/90 text-base mt-2">
+            Merci {formData.firstName}, vos résultats ont été enregistrés.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-8 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-blue-50 rounded-xl">
+              <p className="text-2xl font-bold text-blue-600">{formData.puissanceChoisie} kWc</p>
+              <p className="text-sm text-muted-foreground">Puissance choisie</p>
+            </div>
+            <div className="text-center p-4 bg-orange-50 rounded-xl">
+              <p className="text-2xl font-bold text-orange-600">{parseFloat(formData.consommationAnnuelle || '0').toLocaleString()} kWh</p>
+              <p className="text-sm text-muted-foreground">Consommation/an</p>
+            </div>
+            <div className="text-center p-4 bg-green-50 rounded-xl">
+              <p className="text-2xl font-bold text-green-600">{prod.toLocaleString()} kWh</p>
+              <p className="text-sm text-muted-foreground">Production estimée/an</p>
+            </div>
+          </div>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+            <p className="text-sm text-blue-700">
+              📧 Vos résultats détaillés et nos recommandations seront envoyés à <strong>{formData.contactEmail}</strong>.
+              Un conseiller pourra vous contacter au <strong>{formData.contactPhone}</strong>.
+            </p>
+          </div>
+          <div className="text-center text-sm text-muted-foreground animate-pulse">
+            Redirection dans {redirectCountdown} seconde{redirectCountdown > 1 ? 's' : ''}…
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
 const SimulateurSolaire = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [consumptionSubStep, setConsumptionSubStep] = useState<'energy' | 'raccordement' | 'chauffage' | 'equipments'>('energy');
   const [roofSubStep, setRoofSubStep] = useState<'orientation' | 'type' | 'surface'>('orientation');
   const [moduleSubStep, setModuleSubStep] = useState<'puissance' | 'contact'>('puissance');
   const [submittingLead, setSubmittingLead] = useState(false);
+  const [redirectCountdown, setRedirectCountdown] = useState(5);
   const [regions, setRegions] = useState<SolarRegion[]>([]);
   const [loading, setLoading] = useState(true);
   const [addressValidated, setAddressValidated] = useState(false);
@@ -2177,45 +2246,12 @@ const SimulateurSolaire = () => {
 
           {/* ========== STEP 6: RÉSULTATS ========== */}
           {currentStep === 6 && (
-            <div className="max-w-3xl mx-auto">
-              <Card className="shadow-xl border-0">
-                <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-t-lg text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-full flex items-center justify-center">
-                    <Check className="w-8 h-8" />
-                  </div>
-                  <CardTitle className="text-2xl text-white">Simulation terminée !</CardTitle>
-                  <CardDescription className="text-white/90 text-base mt-2">
-                    Merci {formData.firstName}, vos résultats ont été enregistrés.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-8 space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="text-center p-4 bg-blue-50 rounded-xl">
-                      <p className="text-2xl font-bold text-blue-600">{formData.puissanceChoisie} kWc</p>
-                      <p className="text-sm text-muted-foreground">Puissance choisie</p>
-                    </div>
-                    <div className="text-center p-4 bg-orange-50 rounded-xl">
-                      <p className="text-2xl font-bold text-orange-600">{parseFloat(formData.consommationAnnuelle || '0').toLocaleString()} kWh</p>
-                      <p className="text-sm text-muted-foreground">Consommation/an</p>
-                    </div>
-                    <div className="text-center p-4 bg-green-50 rounded-xl">
-                      {(() => {
-                        const oFactor: Record<string, number> = { 'sud': 1, 'sud-est': 0.94, 'sud-ouest': 0.94, 'est': 0.82, 'ouest': 0.82, 'nord': 0.45 };
-                        const prod = Math.round(parseFloat(formData.puissanceChoisie || '0') * 1100 * (oFactor[formData.orientationToiture] || 0.85));
-                        return <p className="text-2xl font-bold text-green-600">{prod.toLocaleString()} kWh</p>;
-                      })()}
-                      <p className="text-sm text-muted-foreground">Production estimée/an</p>
-                    </div>
-                  </div>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-                    <p className="text-sm text-blue-700">
-                      📧 Vos résultats détaillés et nos recommandations seront envoyés à <strong>{formData.contactEmail}</strong>. 
-                      Un conseiller pourra vous contacter au <strong>{formData.contactPhone}</strong>.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <RedirectResults
+              formData={formData}
+              redirectCountdown={redirectCountdown}
+              setRedirectCountdown={setRedirectCountdown}
+              navigate={navigate}
+            />
           )}
 
         </div>
