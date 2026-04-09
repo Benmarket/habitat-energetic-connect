@@ -98,7 +98,6 @@ export default function LeadOfferModal({
             fullName: data.fullName,
             phone: data.phone,
             email: data.email,
-            // Auto-captured data
             offerId: offerData.offerId,
             offerTitle: offerData.offerTitle,
             advertiserName: offerData.advertiserName,
@@ -106,6 +105,12 @@ export default function LeadOfferModal({
             productType: offerData.productType,
             regionCode: offerData.regionCode || 'fr',
             submittedAt: new Date().toISOString(),
+            _attribution: {
+              ref_article: new URLSearchParams(window.location.search).get('ref_article') || null,
+              ref_cta: new URLSearchParams(window.location.search).get('ref_cta') || null,
+              ref_page: window.location.pathname,
+              ref_referrer: document.referrer || null,
+            },
           },
         });
 

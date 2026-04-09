@@ -624,7 +624,9 @@ export default function AdminForms() {
     if (!submissions || submissions.length === 0) return [];
     const fields = new Set<string>();
     submissions.forEach((sub) => {
-      Object.keys(sub.data).forEach((key) => fields.add(key));
+      Object.keys(sub.data).forEach((key) => {
+        if (key !== '_attribution') fields.add(key);
+      });
     });
     return Array.from(fields);
   };
@@ -642,8 +644,15 @@ export default function AdminForms() {
     // Get all unique field names
     const allFields = new Set<string>();
     submissions.forEach((sub) => {
-      Object.keys(sub.data).forEach((key) => allFields.add(key));
+      Object.keys(sub.data).forEach((key) => {
+        if (key !== '_attribution') allFields.add(key);
+      });
     });
+    // Add attribution columns for CSV export
+    allFields.add('source_article');
+    allFields.add('source_cta');
+    allFields.add('source_page');
+    allFields.add('source_referrer');
 
     // Create CSV header
     const headers = ["Date de soumission", "ID", ...Array.from(allFields)];
@@ -654,8 +663,13 @@ export default function AdminForms() {
           new Date(sub.submitted_at).toLocaleString("fr-FR"),
           sub.id,
           ...Array.from(allFields).map((field) => {
-            const value = sub.data[field] || "";
-            // Escape commas and quotes in values
+            let value: any;
+            if (field.startsWith('source_')) {
+              const attrKey = field.replace('source_', 'ref_');
+              value = sub.data?._attribution?.[attrKey] || "";
+            } else {
+              value = sub.data[field] || "";
+            }
             return typeof value === "string" && (value.includes(",") || value.includes('"'))
               ? `"${value.replace(/"/g, '""')}"`
               : value;
@@ -1237,6 +1251,7 @@ export default function AdminForms() {
                           </div>
                         </TableHead>
                       ))}
+                      <TableHead className="w-[150px]">Source trafic</TableHead>
                       <TableHead className="w-[150px]">Statut</TableHead>
                       <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
@@ -1260,6 +1275,39 @@ export default function AdminForms() {
                             {formatFieldValue(field, submission.data[field])}
                           </TableCell>
                         ))}
+                        <TableCell className="max-w-[200px]">
+                          {submission.data?._attribution ? (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="space-y-0.5">
+                                  {submission.data._attribution.ref_article && (
+                                    <Badge variant="outline" className="text-[10px] block w-fit">
+                                      📄 {submission.data._attribution.ref_article}
+                                    </Badge>
+                                  )}
+                                  {submission.data._attribution.ref_cta && (
+                                    <Badge variant="secondary" className="text-[10px] block w-fit">
+                                      🔗 {submission.data._attribution.ref_cta}
+                                    </Badge>
+                                  )}
+                                  {!submission.data._attribution.ref_article && !submission.data._attribution.ref_cta && (
+                                    <span className="text-xs text-muted-foreground">Direct</span>
+                                  )}
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="left" className="max-w-xs">
+                                <div className="text-xs space-y-1">
+                                  <p><strong>Article:</strong> {submission.data._attribution.ref_article || 'N/A'}</p>
+                                  <p><strong>CTA:</strong> {submission.data._attribution.ref_cta || 'N/A'}</p>
+                                  <p><strong>Page:</strong> {submission.data._attribution.ref_page || 'N/A'}</p>
+                                  <p><strong>Referrer:</strong> {submission.data._attribution.ref_referrer || 'N/A'}</p>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
                         <TableCell>
                           <Select 
                             value={submission.status} 
