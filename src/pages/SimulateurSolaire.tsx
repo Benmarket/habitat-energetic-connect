@@ -1632,11 +1632,9 @@ const SimulateurSolaire = () => {
                           <SelectValue placeholder="Sélectionnez une tranche de surface" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="moins-20">Moins de 20 m²</SelectItem>
-                          <SelectItem value="20-40">20 à 40 m²</SelectItem>
-                          <SelectItem value="40-60">40 à 60 m²</SelectItem>
-                          <SelectItem value="60-80">60 à 80 m²</SelectItem>
-                          <SelectItem value="80-100">80 à 100 m²</SelectItem>
+                          <SelectItem value="moins-30">Moins de 30 m²</SelectItem>
+                          <SelectItem value="30-60">30 à 60 m²</SelectItem>
+                          <SelectItem value="60-100">60 à 100 m²</SelectItem>
                           <SelectItem value="100-150">100 à 150 m²</SelectItem>
                           <SelectItem value="plus-150">Plus de 150 m²</SelectItem>
                         </SelectContent>
