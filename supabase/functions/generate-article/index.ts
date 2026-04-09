@@ -938,7 +938,7 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
       let landingPages: any[] = [];
 
       if (fixUserId) {
-        const [buttonsRes, bannersRes, popupsRes, landingRes] = await Promise.all([
+        const [buttonsRes, bannersRes, popupsRes, landingRes, formsRes] = await Promise.all([
           fetch(`${supabaseUrl}/rest/v1/button_presets?select=*&user_id=eq.${fixUserId}`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           }),
@@ -950,14 +950,27 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
           }),
           fetch(`${supabaseUrl}/rest/v1/landing_pages?select=title,path,slug&limit=50`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+          }),
+          fetch(`${supabaseUrl}/rest/v1/form_configurations?select=id,form_identifier`, {
+            headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           })
         ]);
         buttonPresets = await buttonsRes.json();
         ctaBanners = await bannersRes.json();
         const popupsData = await popupsRes.json();
-        activePopups = Array.isArray(popupsData) ? popupsData : [];
+        const allPopups = Array.isArray(popupsData) ? popupsData : [];
         const landingData = await landingRes.json();
         landingPages = Array.isArray(landingData) ? landingData : [];
+        const formsData = await formsRes.json();
+        const allForms = Array.isArray(formsData) ? formsData : [];
+
+        // Filter out popups linked to excluded forms
+        const excludedFormIds = new Set(
+          allForms
+            .filter((f: any) => EXCLUDED_FORM_IDENTIFIERS.includes(f.form_identifier))
+            .map((f: any) => f.id)
+        );
+        activePopups = allPopups.filter((p: any) => !p.form_id || !excludedFormIds.has(p.form_id));
       }
 
       const popupWithForm = activePopups.find((p: any) => p.form_id);
