@@ -382,7 +382,7 @@ const SimulateurSolaire = () => {
     setSuggestions([]);
   };
 
-  const handleInputChange = (field: keyof FormData, value: string) => {
+  const handleInputChange = (field: keyof FormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Reset validation when address fields change
