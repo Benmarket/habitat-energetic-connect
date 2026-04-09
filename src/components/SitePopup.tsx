@@ -291,6 +291,17 @@ export default function SitePopup() {
     e.preventDefault();
     if (!form) return;
 
+    // Validate that all required fields are filled
+    const fields = Array.isArray(form.fields_schema) ? form.fields_schema : [];
+    const missingFields = fields
+      .filter((f: any) => f.required && (!formData[f.name] || formData[f.name].trim() === ""))
+      .map((f: any) => f.label || f.name);
+    
+    if (missingFields.length > 0) {
+      toast.error(`Veuillez remplir : ${missingFields.join(", ")}`);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       if (form.form_identifier === "newsletter") {
@@ -548,11 +559,14 @@ export default function SitePopup() {
       case "lead_capture":
         // Determine icon and button text based on form type
         const isAideDossier = form?.form_identifier === "aide-dossier";
+        const isLeadAnnonce = form?.form_identifier === "lead-annonce";
         const FormIcon = isAideDossier ? FileText : Mail;
-        const submitButtonText = isAideDossier ? "Envoyer ma demande" : "S'inscrire maintenant";
-        const loadingText = isAideDossier ? "Envoi..." : "Inscription...";
+        const submitButtonText = isAideDossier ? "Envoyer ma demande" : isLeadAnnonce ? "Envoyer ma demande" : "S'inscrire maintenant";
+        const loadingText = isAideDossier || isLeadAnnonce ? "Envoi..." : "Inscription...";
         const footerText = isAideDossier 
           ? "Vos données sont utilisées uniquement pour traiter votre demande."
+          : isLeadAnnonce
+          ? "En soumettant ce formulaire, vous acceptez d'être contacté par notre partenaire."
           : "En vous inscrivant, vous acceptez de recevoir nos communications.";
         
         // Check if this is aide-dossier form for 2-column layout
