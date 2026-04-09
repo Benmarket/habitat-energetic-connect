@@ -559,12 +559,14 @@ export default function SitePopup() {
       case "lead_capture":
         // Determine icon and button text based on form type
         const isAideDossier = form?.form_identifier === "aide-dossier";
+        const isLeadAnnonce = form?.form_identifier === "lead-annonce";
         const FormIcon = isAideDossier ? FileText : Mail;
-        const submitButtonText = isAideDossier ? "Envoyer ma demande" : "S'inscrire maintenant";
-        const loadingText = isAideDossier ? "Envoi..." : "Inscription...";
+        const submitButtonText = isAideDossier ? "Envoyer ma demande" : isLeadAnnonce ? "Envoyer ma demande" : "S'inscrire maintenant";
+        const loadingText = isAideDossier || isLeadAnnonce ? "Envoi..." : "Inscription...";
         const footerText = isAideDossier 
           ? "Vos données sont utilisées uniquement pour traiter votre demande."
-          : "En vous inscrivant, vous acceptez de recevoir nos communications.";
+          : isLeadAnnonce
+          ? "En soumettant ce formulaire, vous acceptez d'être contacté par notre partenaire."
         
         // Check if this is aide-dossier form for 2-column layout
         const isAideDossierForm = form?.form_identifier === "aide-dossier";
