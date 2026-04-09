@@ -486,6 +486,15 @@ const SimulateurSolaire = () => {
         return formData.surfaceToiture.trim() !== "";
       }
     }
+    if (currentStep === 5) {
+      if (moduleSubStep === 'puissance') {
+        return formData.puissanceChoisie.trim() !== "";
+      }
+      if (moduleSubStep === 'contact') {
+        const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail);
+        return emailValid && formData.contactPhone.trim() !== "" && formData.acceptCgu;
+      }
+    }
     return true;
   };
 
