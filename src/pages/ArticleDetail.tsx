@@ -582,7 +582,7 @@ const ArticleDetail = () => {
                       prose-img:rounded-xl prose-img:shadow-lg prose-img:my-8
                       prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-1 prose-blockquote:rounded-r-lg
                     "
-                    dangerouslySetInnerHTML={{ __html: transformCtaBannersInHtml(contentWithIds) }}
+                    dangerouslySetInnerHTML={{ __html: transformCtaBannersInHtml(contentWithIds, article.slug) }}
                   />
 
                   {/* FAQ Section */}
