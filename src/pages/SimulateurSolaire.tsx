@@ -64,6 +64,7 @@ interface FormData {
   surfaceToiture: string;
   // Step 5: Modules
   puissanceChoisie: string;
+  surplusChoice: string;
   contactEmail: string;
   contactPhone: string;
   acceptCgu: boolean;
@@ -140,7 +141,7 @@ const SimulateurSolaire = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [consumptionSubStep, setConsumptionSubStep] = useState<'energy' | 'raccordement' | 'chauffage' | 'equipments'>('energy');
   const [roofSubStep, setRoofSubStep] = useState<'orientation' | 'type' | 'surface'>('orientation');
-  const [moduleSubStep, setModuleSubStep] = useState<'puissance' | 'contact'>('puissance');
+  const [moduleSubStep, setModuleSubStep] = useState<'puissance' | 'surplus' | 'contact'>('puissance');
   const [submittingLead, setSubmittingLead] = useState(false);
   const [redirectCountdown, setRedirectCountdown] = useState(5);
   const [regions, setRegions] = useState<SolarRegion[]>([]);
@@ -180,6 +181,7 @@ const SimulateurSolaire = () => {
     surfaceToiture: "",
     // Step 5: Modules
     puissanceChoisie: "",
+    surplusChoice: "",
     contactEmail: "",
     contactPhone: "",
     acceptCgu: false,
