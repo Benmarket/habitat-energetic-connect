@@ -30,6 +30,12 @@ const Merci = () => {
     "autre": "Autre projet",
   };
 
+  const surplusLabels: Record<string, string> = {
+    "batterie": "Stockage sur batterie solaire",
+    "revente": "Revente du surplus à EDF",
+    "ne-sait-pas": "Conseil par un expert",
+  };
+
   // Déterminer le libellé de l'offre demandée
   const displayOffer = offerTitle || (workType ? workTypeLabels[workType] : null);
 
