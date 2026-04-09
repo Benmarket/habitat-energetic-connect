@@ -354,6 +354,7 @@ const SimulateurSolaire = () => {
       }
     }
     return true;
+  };
 
   // Auto-fill tarif kWh when entering step 3
   useEffect(() => {
