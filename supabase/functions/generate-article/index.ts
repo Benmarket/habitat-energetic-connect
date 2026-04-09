@@ -980,6 +980,13 @@ ${issuesList || 'Aucun problème spécifique'}
 SUGGESTIONS À APPLIQUER
 ═══════════════════════════════════════
 ${suggestionsList || 'Aucune suggestion spécifique'}
+${fixUserCorrections ? `
+═══════════════════════════════════════
+CORRECTIONS MANUELLES DE L'UTILISATEUR (PRIORITÉ ABSOLUE)
+═══════════════════════════════════════
+${fixUserCorrections}
+
+Ces corrections viennent directement de l'auteur. Applique-les EN PRIORITÉ, même si elles contredisent les suggestions automatiques.` : ''}
 
 Retourne UNIQUEMENT le HTML corrigé, rien d'autre. Pas de markdown, pas de backticks, pas d'explication.`;
 
