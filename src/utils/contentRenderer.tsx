@@ -279,11 +279,24 @@ export function transformCtaBannersInHtml(html: string, articleSlug?: string): s
     
     // Bouton
     const button = doc.createElement('a');
-    button.href = attrs.popupId ? '#' : attrs.buttonUrl;
     button.style.cssText = `display: inline-block; padding: 0.75rem 1.5rem; background: ${attrs.buttonBackground}; color: ${attrs.buttonTextColor}; border-radius: ${attrs.buttonBorderRadius}px; text-decoration: none; font-weight: 600; transition: transform 0.2s, box-shadow 0.2s;`;
     button.textContent = attrs.buttonText;
     if (attrs.popupId) {
       button.setAttribute('data-popup-trigger', attrs.popupId);
+      button.href = '#';
+      if (articleSlug) {
+        button.setAttribute('data-ref-article', articleSlug);
+        button.setAttribute('data-ref-cta', `banner:${attrs.title}`);
+      }
+    } else {
+      // Lien interne avec attribution
+      const url = attrs.buttonUrl || '#';
+      if (articleSlug && url.startsWith('/')) {
+        const sep = url.includes('?') ? '&' : '?';
+        button.href = `${url}${sep}ref_article=${encodeURIComponent(articleSlug)}&ref_cta=${encodeURIComponent(`banner:${attrs.title}`)}`;
+      } else {
+        button.href = url;
+      }
     }
     newBanner.appendChild(button);
     
