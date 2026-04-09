@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, ArrowLeft, User, MapPin, Sun, Check, Loader2, Search, Zap, Flame, Droplets, Home, Car, Waves, Wind, Thermometer, UtensilsCrossed, Shirt, SkipForward, Wrench, Info, Compass, LayoutGrid, Maximize2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, User, MapPin, Sun, Check, Loader2, Search, Zap, Flame, Droplets, Home, Car, Waves, Wind, Thermometer, UtensilsCrossed, Shirt, SkipForward, Wrench, Info, Compass, LayoutGrid, Maximize2, Mail, Phone, BarChart3, Battery } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 import compteurLinkyImg from "@/assets/simulators/compteur-linky.png";
 import compteurElectroniqueImg from "@/assets/simulators/compteur-electronique.png";
 import priseMonophaseImg from "@/assets/simulators/prise-monophase.png";
@@ -60,12 +61,19 @@ interface FormData {
   orientationToiture: string;
   typeToiture: string;
   surfaceToiture: string;
+  // Step 5: Modules
+  puissanceChoisie: string;
+  contactEmail: string;
+  contactPhone: string;
+  acceptCgu: boolean;
 }
 
 const SimulateurSolaire = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [consumptionSubStep, setConsumptionSubStep] = useState<'energy' | 'raccordement' | 'chauffage' | 'equipments'>('energy');
   const [roofSubStep, setRoofSubStep] = useState<'orientation' | 'type' | 'surface'>('orientation');
+  const [moduleSubStep, setModuleSubStep] = useState<'puissance' | 'contact'>('puissance');
+  const [submittingLead, setSubmittingLead] = useState(false);
   const [regions, setRegions] = useState<SolarRegion[]>([]);
   const [loading, setLoading] = useState(true);
   const [addressValidated, setAddressValidated] = useState(false);
@@ -101,6 +109,11 @@ const SimulateurSolaire = () => {
     orientationToiture: "",
     typeToiture: "",
     surfaceToiture: "",
+    // Step 5: Modules
+    puissanceChoisie: "",
+    contactEmail: "",
+    contactPhone: "",
+    acceptCgu: false,
   });
 
   // Equipment options
@@ -113,7 +126,7 @@ const SimulateurSolaire = () => {
     { id: 'seche-linge', label: 'Sèche linge', icon: Shirt },
   ];
 
-  const totalSteps = 7;
+  const totalSteps = 6;
 
   const steps = [
     { id: 1, label: 'Client' },
@@ -121,9 +134,129 @@ const SimulateurSolaire = () => {
     { id: 3, label: 'Consommation' },
     { id: 4, label: 'Toiture' },
     { id: 5, label: 'Modules' },
-    { id: 6, label: 'Financement' },
-    { id: 7, label: 'Résultats' },
+    { id: 6, label: 'Résultats' },
   ];
+
+  // Power options in kWc
+  const powerOptions = [3, 4.5, 6, 7.5, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36];
+
+  // Calculate recommended power based on consumption & roof
+  const getRecommendedPower = () => {
+    const conso = parseFloat(formData.consommationAnnuelle) || 5000;
+    // ~1100 kWh/kWc average production in France
+    const idealKwc = conso / 1100;
+    // Find closest power option
+    let closest = powerOptions[0];
+    let minDiff = Math.abs(idealKwc - closest);
+    for (const p of powerOptions) {
+      const diff = Math.abs(idealKwc - p);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closest = p;
+      }
+    }
+    return closest;
+  };
+
+  // Submit simulation lead
+  const submitSimulationLead = async () => {
+    setSubmittingLead(true);
+    try {
+      // Ensure form configuration exists
+      const { data: existingForm } = await supabase
+        .from('form_configurations')
+        .select('id')
+        .eq('form_identifier', 'simulation-solaire')
+        .maybeSingle();
+
+      let formId = existingForm?.id;
+
+      if (!formId) {
+        const { data: newForm, error: formError } = await supabase
+          .from('form_configurations')
+          .insert({
+            name: 'Simulation Solaire / Photovoltaïque',
+            form_identifier: 'simulation-solaire',
+            description: 'Leads issus du simulateur solaire photovoltaïque',
+            fields_schema: {
+              fields: [
+                { name: 'firstName', label: 'Prénom', type: 'text' },
+                { name: 'lastName', label: 'Nom', type: 'text' },
+                { name: 'email', label: 'Email', type: 'email' },
+                { name: 'phone', label: 'Téléphone', type: 'tel' },
+                { name: 'address', label: 'Adresse', type: 'text' },
+                { name: 'postalCode', label: 'Code postal', type: 'text' },
+                { name: 'city', label: 'Ville', type: 'text' },
+                { name: 'region', label: 'Région détectée', type: 'text' },
+                { name: 'consommationAnnuelle', label: 'Consommation annuelle (kWh)', type: 'number' },
+                { name: 'factureAnnuelle', label: 'Facture annuelle (€)', type: 'number' },
+                { name: 'compteur', label: 'Type de compteur', type: 'text' },
+                { name: 'monoTri', label: 'Mono/Triphasé', type: 'text' },
+                { name: 'typeChauffage', label: 'Type de chauffage', type: 'text' },
+                { name: 'typeChauffageEau', label: 'Chauffage eau', type: 'text' },
+                { name: 'surfaceHabitat', label: 'Surface habitat', type: 'text' },
+                { name: 'equipments', label: 'Équipements', type: 'text' },
+                { name: 'orientationToiture', label: 'Orientation toiture', type: 'text' },
+                { name: 'typeToiture', label: 'Type de toiture', type: 'text' },
+                { name: 'surfaceToiture', label: 'Surface toiture', type: 'text' },
+                { name: 'puissanceChoisie', label: 'Puissance choisie (kWc)', type: 'number' },
+              ]
+            },
+            webhook_enabled: false,
+          })
+          .select('id')
+          .single();
+
+        if (formError) throw formError;
+        formId = newForm?.id;
+      }
+
+      if (!formId) throw new Error('Impossible de créer le formulaire');
+
+      // Submit the lead data
+      const { error: submitError } = await supabase
+        .from('form_submissions')
+        .insert({
+          form_id: formId,
+          data: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.contactEmail,
+            phone: formData.contactPhone,
+            address: formData.address,
+            postalCode: formData.postalCode,
+            city: formData.city,
+            region: formData.detectedRegion,
+            latitude: formData.latitude,
+            longitude: formData.longitude,
+            consommationAnnuelle: formData.consommationAnnuelle,
+            factureAnnuelle: formData.factureAnnuelle,
+            tarifKwh: formData.tarifKwh,
+            compteur: formData.compteur,
+            monoTri: formData.monoTri,
+            typeChauffage: formData.typeChauffage,
+            typeChauffageEau: formData.typeChauffageEau,
+            surfaceHabitat: formData.surfaceHabitat,
+            equipments: formData.equipments.join(', '),
+            orientationToiture: formData.orientationToiture,
+            typeToiture: formData.typeToiture,
+            surfaceToiture: formData.surfaceToiture,
+            puissanceChoisie: formData.puissanceChoisie,
+          },
+          status: 'new',
+        });
+
+      if (submitError) throw submitError;
+
+      toast.success("Simulation enregistrée ! Vos résultats sont prêts.");
+      setCurrentStep(6);
+    } catch (err) {
+      console.error("Error submitting simulation:", err);
+      toast.error("Erreur lors de l'envoi. Veuillez réessayer.");
+    } finally {
+      setSubmittingLead(false);
+    }
+  };
 
   useEffect(() => {
     const loadRegions = async () => {
@@ -249,7 +382,7 @@ const SimulateurSolaire = () => {
     setSuggestions([]);
   };
 
-  const handleInputChange = (field: keyof FormData, value: string) => {
+  const handleInputChange = (field: keyof FormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Reset validation when address fields change
@@ -259,7 +392,7 @@ const SimulateurSolaire = () => {
     
     // Fetch suggestions for full address
     if (field === 'fullAddress') {
-      fetchAddressSuggestions(value);
+      fetchAddressSuggestions(value as string);
     }
     
     // Track which energy field was last edited for auto-calculation
@@ -353,6 +486,15 @@ const SimulateurSolaire = () => {
         return formData.surfaceToiture.trim() !== "";
       }
     }
+    if (currentStep === 5) {
+      if (moduleSubStep === 'puissance') {
+        return formData.puissanceChoisie.trim() !== "";
+      }
+      if (moduleSubStep === 'contact') {
+        const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail);
+        return emailValid && formData.contactPhone.trim() !== "" && formData.acceptCgu;
+      }
+    }
     return true;
   };
 
@@ -414,8 +556,26 @@ const SimulateurSolaire = () => {
         return;
       }
       if (roofSubStep === 'surface') {
-        setCurrentStep(prev => prev + 1);
+        setCurrentStep(5);
         setRoofSubStep('orientation');
+        setModuleSubStep('puissance');
+        // Auto-select recommended power
+        if (!formData.puissanceChoisie) {
+          setFormData(prev => ({ ...prev, puissanceChoisie: getRecommendedPower().toString() }));
+        }
+        return;
+      }
+    }
+
+    // Handle sub-steps within step 5 (Modules)
+    if (currentStep === 5) {
+      if (moduleSubStep === 'puissance' && canProceedToNextStep()) {
+        setModuleSubStep('contact');
+        return;
+      }
+      if (moduleSubStep === 'contact' && canProceedToNextStep()) {
+        // Submit lead and go to results
+        submitSimulationLead();
         return;
       }
     }
@@ -456,6 +616,19 @@ const SimulateurSolaire = () => {
       if (roofSubStep === 'orientation') {
         setCurrentStep(3);
         setConsumptionSubStep('equipments');
+        return;
+      }
+    }
+
+    // Handle sub-steps within step 5 (Modules)
+    if (currentStep === 5) {
+      if (moduleSubStep === 'contact') {
+        setModuleSubStep('puissance');
+        return;
+      }
+      if (moduleSubStep === 'puissance') {
+        setCurrentStep(4);
+        setRoofSubStep('surface');
         return;
       }
     }
@@ -1755,6 +1928,293 @@ const SimulateurSolaire = () => {
                   </Card>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* ========== STEP 5: MODULES ========== */}
+          {currentStep === 5 && (
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 max-w-5xl mx-auto">
+              {/* Left Column - Module Selection or Contact */}
+              {moduleSubStep === 'puissance' ? (
+                <Card className="shadow-xl border-0 lg:col-span-3">
+                  <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-t-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <Battery className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg text-white">Choix de la puissance</CardTitle>
+                        <CardDescription className="text-white/80">Sélectionnez la puissance de votre installation</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-5">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
+                      <Info className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+                      <p className="text-xs text-blue-700">
+                        <strong>Recommandation :</strong> Basée sur votre consommation de {formData.consommationAnnuelle || '—'} kWh/an, nous recommandons une puissance de <strong>{getRecommendedPower()} kWc</strong>.
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">
+                        Puissance souhaitée <span className="text-destructive">*</span>
+                      </Label>
+                      <Select value={formData.puissanceChoisie} onValueChange={(value) => handleInputChange("puissanceChoisie", value)}>
+                        <SelectTrigger className="h-12">
+                          <SelectValue placeholder="Choisissez une puissance" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {powerOptions.map(p => (
+                            <SelectItem key={p} value={p.toString()}>
+                              {p} kWc {p === getRecommendedPower() ? '⭐ Recommandé' : ''}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex justify-between pt-4">
+                      <Button variant="outline" onClick={handlePrevious} className="px-6 py-6">
+                        <ArrowLeft className="w-5 h-5 mr-2" /> Précédent
+                      </Button>
+                      <Button onClick={handleNext} disabled={!canProceedToNextStep()} className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-8 py-6 text-base">
+                        Suivant <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="shadow-xl border-0 lg:col-span-3">
+                  <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-t-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <Mail className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg text-white">Vos coordonnées</CardTitle>
+                        <CardDescription className="text-white/80">Recevez vos résultats et recommandations</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-5">
+                    <div className="space-y-2">
+                      <Label htmlFor="contactEmail" className="text-sm font-semibold flex items-center gap-2">
+                        <Mail className="w-4 h-4" /> Adresse email <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="contactEmail"
+                        type="email"
+                        placeholder="votre@email.com"
+                        value={formData.contactEmail}
+                        onChange={(e) => handleInputChange("contactEmail", e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="contactPhone" className="text-sm font-semibold flex items-center gap-2">
+                        <Phone className="w-4 h-4" /> Numéro de téléphone <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="contactPhone"
+                        type="tel"
+                        placeholder="06 12 34 56 78"
+                        value={formData.contactPhone}
+                        onChange={(e) => handleInputChange("contactPhone", e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
+                    <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-lg border">
+                      <Checkbox
+                        id="acceptCgu"
+                        checked={formData.acceptCgu}
+                        onCheckedChange={(checked) => handleInputChange("acceptCgu", checked as boolean)}
+                        className="mt-0.5"
+                      />
+                      <label htmlFor="acceptCgu" className="text-sm leading-relaxed cursor-pointer">
+                        J'accepte les <a href="/conditions-utilisation" target="_blank" className="text-blue-600 underline hover:text-blue-800">conditions générales d'utilisation</a> et consens à recevoir mes résultats de simulation ainsi que des recommandations commerciales par email et/ou téléphone.
+                      </label>
+                    </div>
+                    <div className="flex justify-between pt-4">
+                      <Button variant="outline" onClick={handlePrevious} className="px-6 py-6">
+                        <ArrowLeft className="w-5 h-5 mr-2" /> Précédent
+                      </Button>
+                      <Button 
+                        onClick={handleNext} 
+                        disabled={!canProceedToNextStep() || submittingLead} 
+                        className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-8 py-6 text-base"
+                      >
+                        {submittingLead ? (
+                          <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Envoi...</>
+                        ) : (
+                          <>Voir mes résultats <ArrowRight className="w-5 h-5 ml-2" /></>
+                        )}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Right Column - Consumption vs Production Chart */}
+              <div className="lg:col-span-2 space-y-4">
+                <Card className="overflow-hidden border-0 shadow-lg">
+                  <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-6 text-white text-center">
+                    <div className="w-12 h-12 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
+                      <BarChart3 className="w-6 h-6" />
+                    </div>
+                    <h3 className="font-bold text-lg">Comparaison énergétique</h3>
+                    <p className="text-sm text-white/80 mt-1">Consommation vs Production</p>
+                  </div>
+                </Card>
+
+                {/* Visual Bar Chart */}
+                <Card className="border shadow-sm">
+                  <CardContent className="p-5">
+                    {(() => {
+                      const conso = parseFloat(formData.consommationAnnuelle) || 5000;
+                      const puissance = parseFloat(formData.puissanceChoisie) || getRecommendedPower();
+                      const oFactor: Record<string, number> = { 'sud': 1, 'sud-est': 0.94, 'sud-ouest': 0.94, 'est': 0.82, 'ouest': 0.82, 'nord': 0.45 };
+                      const orientation = oFactor[formData.orientationToiture] || 0.85;
+                      const productionAnnuelle = Math.round(puissance * 1100 * orientation);
+                      const maxVal = Math.max(conso, productionAnnuelle);
+                      const consoPercent = (conso / maxVal) * 100;
+                      const prodPercent = (productionAnnuelle / maxVal) * 100;
+                      const difference = productionAnnuelle - conso;
+                      const coveragePercent = Math.round((productionAnnuelle / conso) * 100);
+
+                      return (
+                        <div className="space-y-5">
+                          <h4 className="font-semibold text-sm text-center">Production annuelle estimée</h4>
+                          
+                          {/* Consumption Bar */}
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs">
+                              <span className="font-medium text-orange-600">Consommation</span>
+                              <span className="font-bold">{conso.toLocaleString()} kWh/an</span>
+                            </div>
+                            <div className="h-8 bg-muted/30 rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full transition-all duration-700 flex items-center justify-end pr-2"
+                                style={{ width: `${consoPercent}%` }}
+                              >
+                                <Zap className="w-4 h-4 text-white" />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Production Bar */}
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs">
+                              <span className="font-medium text-blue-600">Production ({puissance} kWc)</span>
+                              <span className="font-bold">{productionAnnuelle.toLocaleString()} kWh/an</span>
+                            </div>
+                            <div className="h-8 bg-muted/30 rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-gradient-to-r from-blue-400 to-blue-500 rounded-full transition-all duration-700 flex items-center justify-end pr-2"
+                                style={{ width: `${prodPercent}%` }}
+                              >
+                                <Sun className="w-4 h-4 text-white" />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Difference indicator */}
+                          <div className={`p-3 rounded-lg text-center ${difference >= 0 ? 'bg-green-50 border border-green-200' : 'bg-amber-50 border border-amber-200'}`}>
+                            {difference >= 0 ? (
+                              <>
+                                <p className="text-sm font-bold text-green-700">
+                                  ✅ Couverture : {coveragePercent}%
+                                </p>
+                                <p className="text-xs text-green-600 mt-1">
+                                  Surplus estimé : +{difference.toLocaleString()} kWh/an
+                                </p>
+                              </>
+                            ) : (
+                              <>
+                                <p className="text-sm font-bold text-amber-700">
+                                  ⚡ Couverture : {coveragePercent}%
+                                </p>
+                                <p className="text-xs text-amber-600 mt-1">
+                                  Complément réseau : {Math.abs(difference).toLocaleString()} kWh/an
+                                </p>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </CardContent>
+                </Card>
+
+                {/* Selected power summary */}
+                <div className={`p-3 rounded-lg border flex items-center gap-3 ${formData.puissanceChoisie ? 'bg-blue-50 border-blue-200' : 'bg-muted/30'}`}>
+                  <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
+                    <Battery className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                      Puissance choisie {formData.puissanceChoisie && <Check className="w-3 h-3 text-green-600" />}
+                    </p>
+                    <p className="font-bold">{formData.puissanceChoisie ? `${formData.puissanceChoisie} kWc` : 'Non renseigné'}</p>
+                  </div>
+                </div>
+
+                {/* Contact summary */}
+                {formData.contactEmail && (
+                  <div className="p-3 rounded-lg border bg-indigo-50 border-indigo-200 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center shrink-0">
+                      <Mail className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                        Contact {formData.acceptCgu && <Check className="w-3 h-3 text-green-600" />}
+                      </p>
+                      <p className="font-bold text-sm truncate max-w-[180px]">{formData.contactEmail}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ========== STEP 6: RÉSULTATS ========== */}
+          {currentStep === 6 && (
+            <div className="max-w-3xl mx-auto">
+              <Card className="shadow-xl border-0">
+                <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-t-lg text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-full flex items-center justify-center">
+                    <Check className="w-8 h-8" />
+                  </div>
+                  <CardTitle className="text-2xl text-white">Simulation terminée !</CardTitle>
+                  <CardDescription className="text-white/90 text-base mt-2">
+                    Merci {formData.firstName}, vos résultats ont été enregistrés.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-8 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="text-center p-4 bg-blue-50 rounded-xl">
+                      <p className="text-2xl font-bold text-blue-600">{formData.puissanceChoisie} kWc</p>
+                      <p className="text-sm text-muted-foreground">Puissance choisie</p>
+                    </div>
+                    <div className="text-center p-4 bg-orange-50 rounded-xl">
+                      <p className="text-2xl font-bold text-orange-600">{parseFloat(formData.consommationAnnuelle || '0').toLocaleString()} kWh</p>
+                      <p className="text-sm text-muted-foreground">Consommation/an</p>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-xl">
+                      {(() => {
+                        const oFactor: Record<string, number> = { 'sud': 1, 'sud-est': 0.94, 'sud-ouest': 0.94, 'est': 0.82, 'ouest': 0.82, 'nord': 0.45 };
+                        const prod = Math.round(parseFloat(formData.puissanceChoisie || '0') * 1100 * (oFactor[formData.orientationToiture] || 0.85));
+                        return <p className="text-2xl font-bold text-green-600">{prod.toLocaleString()} kWh</p>;
+                      })()}
+                      <p className="text-sm text-muted-foreground">Production estimée/an</p>
+                    </div>
+                  </div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                    <p className="text-sm text-blue-700">
+                      📧 Vos résultats détaillés et nos recommandations seront envoyés à <strong>{formData.contactEmail}</strong>. 
+                      Un conseiller pourra vous contacter au <strong>{formData.contactPhone}</strong>.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           )}
 
