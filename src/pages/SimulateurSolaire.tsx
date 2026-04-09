@@ -2033,19 +2033,19 @@ const SimulateurSolaire = () => {
                         J'accepte les <a href="/conditions-utilisation" target="_blank" className="text-blue-600 underline hover:text-blue-800">conditions générales d'utilisation</a> et consens à recevoir mes résultats de simulation ainsi que des recommandations commerciales par email et/ou téléphone.
                       </label>
                     </div>
-                    <div className="flex justify-between pt-4">
-                      <Button variant="outline" onClick={handlePrevious} className="px-6 py-6">
-                        <ArrowLeft className="w-5 h-5 mr-2" /> Précédent
+                    <div className="flex justify-between pt-4 gap-3">
+                      <Button variant="outline" onClick={handlePrevious} className="px-4 py-5 shrink-0">
+                        <ArrowLeft className="w-4 h-4 mr-2" /> Précédent
                       </Button>
                       <Button 
                         onClick={handleNext} 
                         disabled={!canProceedToNextStep() || submittingLead} 
-                        className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-6 py-6 text-base whitespace-nowrap shrink-0"
+                        className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-4 py-5 text-sm whitespace-nowrap shrink min-w-0"
                       >
                         {submittingLead ? (
-                          <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Envoi...</>
+                          <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> Envoi...</>
                         ) : (
-                          <>Voir mes résultats <ArrowRight className="w-5 h-5 ml-2" /></>
+                          <>Résultats <ArrowRight className="w-4 h-4 ml-1" /></>
                         )}
                       </Button>
                     </div>
