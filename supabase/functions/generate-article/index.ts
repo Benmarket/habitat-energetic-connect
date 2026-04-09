@@ -720,7 +720,7 @@ Retourne UNIQUEMENT le HTML.`;
     if (mode === 'review') {
       const { title, content, contentType: reviewContentType, categoryName,
               excerpt, metaTitle, metaDescription, focusKeywords, targetRegions,
-              faq, tldr, tagNames, featuredImage } = body;
+              faq, tldr, tagNames, featuredImage, userCorrections } = body;
       if (!content) throw new Error('Contenu requis pour la relecture');
 
       const faqSection = Array.isArray(faq) && faq.length > 0
@@ -831,7 +831,9 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
           temperature: 0.3,
           messages: [
             { role: 'system', content: reviewPrompt },
-            { role: 'user', content: `Relis et audite cet article de manière critique et exhaustive.` }
+            { role: 'user', content: userCorrections
+              ? `Relis et audite cet article de manière critique et exhaustive.\n\n═══════════════════════════════════════\nCORRECTIONS DEMANDÉES PAR L'UTILISATEUR (PRIORITÉ ABSOLUE)\n═══════════════════════════════════════\n${userCorrections}\n\nIntègre ces remarques comme des problèmes prioritaires dans ton audit. Si l'utilisateur signale une erreur factuelle, c'est un problème BLOQUANT.`
+              : `Relis et audite cet article de manière critique et exhaustive.` }
           ]
         })
       });
