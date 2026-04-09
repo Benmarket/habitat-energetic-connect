@@ -62,6 +62,12 @@ export default function SitePopup() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [activePopup, setActivePopup] = useState<Popup | null>(null);
   const [parcoursStep, setParcoursStep] = useState<"main" | "contact-choice">("main");
+  const [attribution, setAttribution] = useState<{ refArticle?: string; refCta?: string }>({});
+
+  // Capture attribution from URL params
+  const urlParams = new URLSearchParams(location.search);
+  const urlRefArticle = urlParams.get('ref_article') || undefined;
+  const urlRefCta = urlParams.get('ref_cta') || undefined;
 
   // Check if we're on an article detail page
   const isArticlePage = location.pathname.startsWith("/actualites/") && location.pathname.split("/").length > 2;
@@ -191,10 +197,13 @@ export default function SitePopup() {
     }
   }, []);
 
-  // Handle AUTO popups (with delay)
+  // Handle AUTO popups (with delay) — capture URL attribution
   useEffect(() => {
-    if (!autoPopup) {
-      return;
+    if (!autoPopup) return;
+
+    // Si on arrive sur la page avec des params d'attribution (depuis un CTA article)
+    if (urlRefArticle || urlRefCta) {
+      setAttribution({ refArticle: urlRefArticle, refCta: urlRefCta });
     }
 
     const timer = setTimeout(() => {
@@ -202,7 +211,7 @@ export default function SitePopup() {
     }, autoPopup.delay_seconds * 1000);
 
     return () => clearTimeout(timer);
-  }, [autoPopup, showPopup]);
+  }, [autoPopup, showPopup, urlRefArticle, urlRefCta]);
 
   // Handle CLICK popups (listen for custom events)
   useEffect(() => {
@@ -220,10 +229,15 @@ export default function SitePopup() {
     };
 
     // Handler pour les bandeaux CTA avec popupId (ouvre par ID de popup)
-    const handleOpenPopup = (event: CustomEvent<{ popupId: string }>) => {
-      const { popupId } = event.detail;
+    const handleOpenPopup = (event: CustomEvent<{ popupId: string; refArticle?: string; refCta?: string }>) => {
+      const { popupId, refArticle, refCta } = event.detail;
       
       if (!popupId) return;
+
+      // Capturer l'attribution
+      if (refArticle || refCta) {
+        setAttribution({ refArticle, refCta });
+      }
       
       // Chercher le popup par son ID directement
       supabase
@@ -263,8 +277,10 @@ export default function SitePopup() {
         if (popupId) {
           e.preventDefault();
           e.stopPropagation();
+          const refArticle = popupTrigger.getAttribute('data-ref-article') || undefined;
+          const refCta = popupTrigger.getAttribute('data-ref-cta') || undefined;
           window.dispatchEvent(new CustomEvent('open-popup', { 
-            detail: { popupId } 
+            detail: { popupId, refArticle, refCta } 
           }));
         }
       }
@@ -283,7 +299,8 @@ export default function SitePopup() {
       setIsSuccess(false);
       setFormData({});
       setActivePopup(null);
-      setParcoursStep("main"); // Reset parcours step
+      setParcoursStep("main");
+      setAttribution({});
     }, 300);
   };
 
@@ -328,11 +345,17 @@ export default function SitePopup() {
           return;
         }
 
+        const source = attribution.refArticle 
+          ? `popup:article:${attribution.refArticle}` 
+          : urlRefArticle 
+            ? `popup:article:${urlRefArticle}` 
+            : "popup";
+
         const { error } = await supabase
           .from("newsletter_subscribers")
           .insert({
             email,
-            source: "popup",
+            source,
             status: "active"
           });
 
@@ -342,11 +365,29 @@ export default function SitePopup() {
         toast.success("Inscription réussie !");
         setTimeout(handleClose, 2000);
       } else {
+        // Construire les données avec attribution
+        const currentAttribution = attribution.refArticle || attribution.refCta || urlRefArticle || urlRefCta
+          ? {
+              ref_article: attribution.refArticle || urlRefArticle || null,
+              ref_cta: attribution.refCta || urlRefCta || null,
+              ref_page: location.pathname,
+              ref_referrer: document.referrer || null,
+            }
+          : {
+              ref_page: location.pathname,
+              ref_referrer: document.referrer || null,
+            };
+
+        const submissionData = {
+          ...formData,
+          _attribution: currentAttribution,
+        };
+
         const { error } = await supabase
           .from("form_submissions")
           .insert([{
             form_id: form.id,
-            data: formData,
+            data: submissionData,
           }]);
 
         if (error) throw error;
