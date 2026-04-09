@@ -216,7 +216,7 @@ function transformCustomButtons(doc: Document, articleSlug?: string): void {
  * et en transformant les boutons pour qu'ils fonctionnent correctement
  * (version pour dangerouslySetInnerHTML)
  */
-export function transformCtaBannersInHtml(html: string): string {
+export function transformCtaBannersInHtml(html: string, articleSlug?: string): string {
   if (!html || typeof window === 'undefined') return html;
   
   // SÉCURITÉ: Nettoyer le HTML avant transformation pour prévenir XSS
@@ -227,7 +227,7 @@ export function transformCtaBannersInHtml(html: string): string {
   const doc = parser.parseFromString(sanitizedHtml, 'text/html');
   
   // Transformer les boutons personnalisés
-  transformCustomButtons(doc);
+  transformCustomButtons(doc, articleSlug);
   
   // Trouver tous les bandeaux CTA
   const banners = doc.querySelectorAll('div[data-cta-banner]');
