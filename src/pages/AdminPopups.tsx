@@ -198,7 +198,10 @@ export default function AdminPopups() {
     },
   });
 
-  // Fetch forms for selection
+  // Forms excluded from popup usage (dedicated to specific pages/flows)
+  const EXCLUDED_FORM_IDENTIFIERS = ['simulation-solaire', 'chatbot_contacter_prime_energies', 'chatbot_projet_subvention'];
+
+  // Fetch forms for selection (excluding dedicated forms)
   const { data: forms } = useQuery({
     queryKey: ["form-configurations-list"],
     queryFn: async () => {
@@ -207,7 +210,7 @@ export default function AdminPopups() {
         .select("id, name, form_identifier")
         .order("name");
       if (error) throw error;
-      return data as FormConfig[];
+      return (data as FormConfig[]).filter(f => !EXCLUDED_FORM_IDENTIFIERS.includes(f.form_identifier));
     },
   });
 
