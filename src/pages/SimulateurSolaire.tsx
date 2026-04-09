@@ -70,11 +70,13 @@ interface FormData {
 }
 
 const SimulateurSolaire = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [consumptionSubStep, setConsumptionSubStep] = useState<'energy' | 'raccordement' | 'chauffage' | 'equipments'>('energy');
   const [roofSubStep, setRoofSubStep] = useState<'orientation' | 'type' | 'surface'>('orientation');
   const [moduleSubStep, setModuleSubStep] = useState<'puissance' | 'contact'>('puissance');
   const [submittingLead, setSubmittingLead] = useState(false);
+  const [redirectCountdown, setRedirectCountdown] = useState(5);
   const [regions, setRegions] = useState<SolarRegion[]>([]);
   const [loading, setLoading] = useState(true);
   const [addressValidated, setAddressValidated] = useState(false);
