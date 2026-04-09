@@ -577,6 +577,7 @@ export default function AdminForms() {
       typeToiture: "Type toiture",
       surfaceToiture: "Surface toiture",
       puissanceChoisie: "Puissance (kWc)",
+      surplusChoice: "Gestion surplus",
       acceptCgu: "CGU acceptées",
       source: "Source",
       status: "Statut",

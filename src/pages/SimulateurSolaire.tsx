@@ -64,6 +64,7 @@ interface FormData {
   surfaceToiture: string;
   // Step 5: Modules
   puissanceChoisie: string;
+  surplusChoice: string;
   contactEmail: string;
   contactPhone: string;
   acceptCgu: boolean;
@@ -140,7 +141,7 @@ const SimulateurSolaire = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [consumptionSubStep, setConsumptionSubStep] = useState<'energy' | 'raccordement' | 'chauffage' | 'equipments'>('energy');
   const [roofSubStep, setRoofSubStep] = useState<'orientation' | 'type' | 'surface'>('orientation');
-  const [moduleSubStep, setModuleSubStep] = useState<'puissance' | 'contact'>('puissance');
+  const [moduleSubStep, setModuleSubStep] = useState<'puissance' | 'surplus' | 'contact'>('puissance');
   const [submittingLead, setSubmittingLead] = useState(false);
   const [redirectCountdown, setRedirectCountdown] = useState(5);
   const [regions, setRegions] = useState<SolarRegion[]>([]);
@@ -180,6 +181,7 @@ const SimulateurSolaire = () => {
     surfaceToiture: "",
     // Step 5: Modules
     puissanceChoisie: "",
+    surplusChoice: "",
     contactEmail: "",
     contactPhone: "",
     acceptCgu: false,
@@ -269,6 +271,7 @@ const SimulateurSolaire = () => {
                 { name: 'typeToiture', label: 'Type de toiture', type: 'text' },
                 { name: 'surfaceToiture', label: 'Surface toiture', type: 'text' },
                 { name: 'puissanceChoisie', label: 'Puissance choisie (kWc)', type: 'number' },
+                { name: 'surplusChoice', label: 'Gestion du surplus', type: 'text' },
               ]
             },
             webhook_enabled: false,
@@ -311,6 +314,7 @@ const SimulateurSolaire = () => {
             typeToiture: formData.typeToiture,
             surfaceToiture: formData.surfaceToiture,
             puissanceChoisie: formData.puissanceChoisie,
+            surplusChoice: formData.surplusChoice,
           },
           status: 'new',
         });
@@ -559,6 +563,9 @@ const SimulateurSolaire = () => {
       if (moduleSubStep === 'puissance') {
         return formData.puissanceChoisie.trim() !== "";
       }
+      if (moduleSubStep === 'surplus') {
+        return formData.surplusChoice.trim() !== "";
+      }
       if (moduleSubStep === 'contact') {
         const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail);
         return emailValid && formData.contactPhone.trim() !== "" && formData.acceptCgu;
@@ -639,6 +646,10 @@ const SimulateurSolaire = () => {
     // Handle sub-steps within step 5 (Modules)
     if (currentStep === 5) {
       if (moduleSubStep === 'puissance' && canProceedToNextStep()) {
+        setModuleSubStep('surplus');
+        return;
+      }
+      if (moduleSubStep === 'surplus' && canProceedToNextStep()) {
         setModuleSubStep('contact');
         return;
       }
@@ -692,6 +703,10 @@ const SimulateurSolaire = () => {
     // Handle sub-steps within step 5 (Modules)
     if (currentStep === 5) {
       if (moduleSubStep === 'contact') {
+        setModuleSubStep('surplus');
+        return;
+      }
+      if (moduleSubStep === 'surplus') {
         setModuleSubStep('puissance');
         return;
       }
@@ -2046,6 +2061,54 @@ const SimulateurSolaire = () => {
                         <ArrowLeft className="w-5 h-5 mr-2" /> Précédent
                       </Button>
                       <Button onClick={handleNext} disabled={!canProceedToNextStep()} className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-8 py-6 text-base">
+                        Suivant <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : moduleSubStep === 'surplus' ? (
+                <Card className="shadow-xl border-0 lg:col-span-3">
+                  <CardHeader className="bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-t-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <Zap className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg text-white">Gestion du surplus</CardTitle>
+                        <CardDescription className="text-white/80">Que souhaitez-vous faire de l'excédent produit ?</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-5">
+                    <p className="text-sm text-muted-foreground">
+                      Vos panneaux peuvent produire plus d'énergie que votre consommation. Choisissez comment gérer ce surplus :
+                    </p>
+                    <div className="space-y-3">
+                      {[
+                        { value: 'batterie', label: '🔋 Stocker sur une batterie', desc: 'Stockez l\'excédent pour l\'utiliser le soir ou les jours nuageux.' },
+                        { value: 'revente', label: '💰 Revente totale du surplus à EDF', desc: 'Revendez l\'électricité excédentaire à EDF OA et générez des revenus.' },
+                        { value: 'ne-sait-pas', label: '🤝 Je ne sais pas, je préfère être conseillé', desc: 'Un expert vous guidera vers la meilleure option pour votre situation.' },
+                      ].map(option => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => handleInputChange('surplusChoice', option.value)}
+                          className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                            formData.surplusChoice === option.value
+                              ? 'border-amber-500 bg-amber-50 shadow-md'
+                              : 'border-border hover:border-amber-300 hover:bg-amber-50/50'
+                          }`}
+                        >
+                          <p className="font-semibold text-sm">{option.label}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{option.desc}</p>
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex justify-between pt-4">
+                      <Button variant="outline" onClick={handlePrevious} className="px-6 py-6">
+                        <ArrowLeft className="w-5 h-5 mr-2" /> Précédent
+                      </Button>
+                      <Button onClick={handleNext} disabled={!canProceedToNextStep()} className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-6 text-base">
                         Suivant <ArrowRight className="w-5 h-5 ml-2" />
                       </Button>
                     </div>
