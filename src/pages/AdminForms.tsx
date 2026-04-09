@@ -663,8 +663,13 @@ export default function AdminForms() {
           new Date(sub.submitted_at).toLocaleString("fr-FR"),
           sub.id,
           ...Array.from(allFields).map((field) => {
-            const value = sub.data[field] || "";
-            // Escape commas and quotes in values
+            let value: any;
+            if (field.startsWith('source_')) {
+              const attrKey = field.replace('source_', 'ref_');
+              value = sub.data?._attribution?.[attrKey] || "";
+            } else {
+              value = sub.data[field] || "";
+            }
             return typeof value === "string" && (value.includes(",") || value.includes('"'))
               ? `"${value.replace(/"/g, '""')}"`
               : value;
