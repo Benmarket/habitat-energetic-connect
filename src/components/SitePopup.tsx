@@ -291,6 +291,17 @@ export default function SitePopup() {
     e.preventDefault();
     if (!form) return;
 
+    // Validate that all required fields are filled
+    const fields = Array.isArray(form.fields_schema) ? form.fields_schema : [];
+    const missingFields = fields
+      .filter((f: any) => f.required && (!formData[f.name] || formData[f.name].trim() === ""))
+      .map((f: any) => f.label || f.name);
+    
+    if (missingFields.length > 0) {
+      toast.error(`Veuillez remplir : ${missingFields.join(", ")}`);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       if (form.form_identifier === "newsletter") {
