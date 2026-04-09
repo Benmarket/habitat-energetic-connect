@@ -176,6 +176,7 @@ export const ButtonEditorModal = ({
   });
   const [favoriteButtons, setFavoriteButtons] = useState<FavoriteButton[]>([]);
   const [availablePopups, setAvailablePopups] = useState<Array<{ id: string; name: string }>>([]);
+  const [internalPages, setInternalPages] = useState<Array<{ path: string; label: string }>>([]);
 
   useEffect(() => {
     if (open) {
@@ -185,8 +186,35 @@ export const ButtonEditorModal = ({
       });
       loadFavoriteButtons();
       loadAvailablePopups();
+      loadInternalPages();
     }
   }, [open, initialConfig]);
+
+  const loadInternalPages = async () => {
+    const staticPages = [
+      { path: '/', label: 'Accueil' },
+      { path: '/actualites', label: 'Actualités' },
+      { path: '/guides', label: 'Guides' },
+      { path: '/aides', label: 'Aides' },
+      { path: '/simulateur-solaire', label: 'Simulateur Solaire' },
+      { path: '/faq', label: 'FAQ' },
+      { path: '/forum', label: 'Forum' },
+      { path: '/installer-app', label: "Installer l'app" },
+    ];
+    try {
+      const { data: landingPages } = await supabase
+        .from('landing_pages')
+        .select('path, title')
+        .order('title');
+      const lpPages = (landingPages || []).map(lp => ({
+        path: lp.path,
+        label: `LP: ${lp.title}`,
+      }));
+      setInternalPages([...staticPages, ...lpPages]);
+    } catch {
+      setInternalPages(staticPages);
+    }
+  };
 
   const loadFavoriteButtons = async () => {
     try {
