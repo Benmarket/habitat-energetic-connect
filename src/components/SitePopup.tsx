@@ -274,8 +274,10 @@ export default function SitePopup() {
         if (popupId) {
           e.preventDefault();
           e.stopPropagation();
+          const refArticle = popupTrigger.getAttribute('data-ref-article') || undefined;
+          const refCta = popupTrigger.getAttribute('data-ref-cta') || undefined;
           window.dispatchEvent(new CustomEvent('open-popup', { 
-            detail: { popupId } 
+            detail: { popupId, refArticle, refCta } 
           }));
         }
       }
