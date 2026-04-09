@@ -392,7 +392,7 @@ const SimulateurSolaire = () => {
     
     // Fetch suggestions for full address
     if (field === 'fullAddress') {
-      fetchAddressSuggestions(value);
+      fetchAddressSuggestions(value as string);
     }
     
     // Track which energy field was last edited for auto-calculation
