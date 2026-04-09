@@ -644,6 +644,10 @@ const SimulateurSolaire = () => {
     // Handle sub-steps within step 5 (Modules)
     if (currentStep === 5) {
       if (moduleSubStep === 'puissance' && canProceedToNextStep()) {
+        setModuleSubStep('surplus');
+        return;
+      }
+      if (moduleSubStep === 'surplus' && canProceedToNextStep()) {
         setModuleSubStep('contact');
         return;
       }
@@ -697,6 +701,10 @@ const SimulateurSolaire = () => {
     // Handle sub-steps within step 5 (Modules)
     if (currentStep === 5) {
       if (moduleSubStep === 'contact') {
+        setModuleSubStep('surplus');
+        return;
+      }
+      if (moduleSubStep === 'surplus') {
         setModuleSubStep('puissance');
         return;
       }
