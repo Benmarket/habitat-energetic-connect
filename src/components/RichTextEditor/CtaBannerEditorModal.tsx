@@ -71,7 +71,7 @@ export const CtaBannerEditorModal = ({
         ...initialConfig,
       });
       loadAvailablePopups();
-      
+      loadAvailablePages();
       // Déterminer le type de destination initial
       if (initialConfig?.popupId) {
         setDestinationType('popup');
