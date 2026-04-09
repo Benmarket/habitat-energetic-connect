@@ -56,11 +56,16 @@ interface FormData {
   useDefaultFacture: boolean;
   // Step 3b: Equipment
   equipments: string[];
+  // Step 4: Toiture
+  orientationToiture: string;
+  typeToiture: string;
+  surfaceToiture: string;
 }
 
 const SimulateurSolaire = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [consumptionSubStep, setConsumptionSubStep] = useState<'energy' | 'raccordement' | 'chauffage' | 'equipments'>('energy');
+  const [roofSubStep, setRoofSubStep] = useState<'orientation' | 'type' | 'surface'>('orientation');
   const [regions, setRegions] = useState<SolarRegion[]>([]);
   const [loading, setLoading] = useState(true);
   const [addressValidated, setAddressValidated] = useState(false);
@@ -92,6 +97,10 @@ const SimulateurSolaire = () => {
     useDefaultFacture: false,
     // Step 3b: Equipment
     equipments: [],
+    // Step 4: Toiture
+    orientationToiture: "",
+    typeToiture: "",
+    surfaceToiture: "",
   });
 
   // Equipment options
@@ -110,7 +119,7 @@ const SimulateurSolaire = () => {
     { id: 1, label: 'Client' },
     { id: 2, label: 'Adresse' },
     { id: 3, label: 'Consommation' },
-    { id: 4, label: 'Installation' },
+    { id: 4, label: 'Toiture' },
     { id: 5, label: 'Modules' },
     { id: 6, label: 'Financement' },
     { id: 7, label: 'Résultats' },
