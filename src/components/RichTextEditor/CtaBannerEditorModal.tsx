@@ -429,6 +429,25 @@ export const CtaBannerEditorModal = ({
                   </SelectContent>
                 </Select>
               </div>
+            ) : destinationType === 'internal' ? (
+              <div className="space-y-2">
+                <Label>Sélectionner une page</Label>
+                <Select
+                  value={config.buttonUrl || '/'}
+                  onValueChange={(val) => setConfig(prev => ({ ...prev, buttonUrl: val }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choisir une page..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availablePages.map((page) => (
+                      <SelectItem key={page.path} value={page.path}>
+                        {page.label} <span className="text-muted-foreground ml-1">({page.path})</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             ) : (
               <div className="space-y-2">
                 <Label>URL de destination</Label>
