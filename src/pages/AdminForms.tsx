@@ -1275,6 +1275,39 @@ export default function AdminForms() {
                             {formatFieldValue(field, submission.data[field])}
                           </TableCell>
                         ))}
+                        <TableCell className="max-w-[200px]">
+                          {submission.data?._attribution ? (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="space-y-0.5">
+                                  {submission.data._attribution.ref_article && (
+                                    <Badge variant="outline" className="text-[10px] block w-fit">
+                                      📄 {submission.data._attribution.ref_article}
+                                    </Badge>
+                                  )}
+                                  {submission.data._attribution.ref_cta && (
+                                    <Badge variant="secondary" className="text-[10px] block w-fit">
+                                      🔗 {submission.data._attribution.ref_cta}
+                                    </Badge>
+                                  )}
+                                  {!submission.data._attribution.ref_article && !submission.data._attribution.ref_cta && (
+                                    <span className="text-xs text-muted-foreground">Direct</span>
+                                  )}
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="left" className="max-w-xs">
+                                <div className="text-xs space-y-1">
+                                  <p><strong>Article:</strong> {submission.data._attribution.ref_article || 'N/A'}</p>
+                                  <p><strong>CTA:</strong> {submission.data._attribution.ref_cta || 'N/A'}</p>
+                                  <p><strong>Page:</strong> {submission.data._attribution.ref_page || 'N/A'}</p>
+                                  <p><strong>Referrer:</strong> {submission.data._attribution.ref_referrer || 'N/A'}</p>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
                         <TableCell>
                           <Select 
                             value={submission.status} 
