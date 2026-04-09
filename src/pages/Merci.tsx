@@ -16,6 +16,7 @@ const Merci = () => {
   const workType = searchParams.get("workType");
   const pageType = searchParams.get("type"); // "newsletter" ou null (lead)
   const subscriberEmail = searchParams.get("email");
+  const surplusChoice = searchParams.get("surplus");
   
   const isNewsletter = pageType === "newsletter";
   const isFromOffer = offerTitle && advertiserName;
@@ -27,6 +28,12 @@ const Merci = () => {
     "isolation": "Isolation",
     "renovation-globale": "Rénovation globale",
     "autre": "Autre projet",
+  };
+
+  const surplusLabels: Record<string, string> = {
+    "batterie": "Stockage sur batterie solaire",
+    "revente": "Revente du surplus à EDF",
+    "ne-sait-pas": "Conseil par un expert",
   };
 
   // Déterminer le libellé de l'offre demandée
@@ -207,18 +214,24 @@ const Merci = () => {
                     <Sparkles className="w-4 h-4 text-primary" />
                     Récapitulatif de votre demande
                   </h2>
-                  <div className="space-y-2 text-sm">
-                    <div className={`flex justify-between items-center py-1.5 ${advertiserName ? 'border-b border-border/50' : ''}`}>
-                      <span className="text-muted-foreground">Offre demandée</span>
-                      <span className="font-medium text-foreground">{displayOffer}</span>
-                    </div>
-                    {advertiserName && (
-                      <div className="flex justify-between items-center py-1.5">
-                        <span className="text-muted-foreground">Partenaire</span>
-                        <span className="font-medium text-foreground">{advertiserName}</span>
-                      </div>
-                    )}
-                  </div>
+                   <div className="space-y-2 text-sm">
+                     <div className={`flex justify-between items-center py-1.5 ${(advertiserName || surplusChoice) ? 'border-b border-border/50' : ''}`}>
+                       <span className="text-muted-foreground">Offre demandée</span>
+                       <span className="font-medium text-foreground">{displayOffer}</span>
+                     </div>
+                     {surplusChoice && surplusLabels[surplusChoice] && (
+                       <div className={`flex justify-between items-center py-1.5 ${advertiserName ? 'border-b border-border/50' : ''}`}>
+                         <span className="text-muted-foreground">Option choisie</span>
+                         <span className="font-medium text-foreground">{surplusLabels[surplusChoice]}</span>
+                       </div>
+                     )}
+                     {advertiserName && (
+                       <div className="flex justify-between items-center py-1.5">
+                         <span className="text-muted-foreground">Partenaire</span>
+                         <span className="font-medium text-foreground">{advertiserName}</span>
+                       </div>
+                     )}
+                   </div>
                 </CardContent>
               </Card>
             )}

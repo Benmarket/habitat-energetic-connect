@@ -83,6 +83,7 @@ const RedirectResults = ({ formData, redirectCountdown, setRedirectCountdown, na
         name: `${formData.firstName || ''} ${formData.lastName || ''}`.trim(),
         workType: 'energie-solaire',
         email: formData.contactEmail || '',
+        surplus: formData.surplusChoice || '',
       });
       navigate(`/merci?${params.toString()}`);
       return;
