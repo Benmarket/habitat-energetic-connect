@@ -342,8 +342,18 @@ const SimulateurSolaire = () => {
       // chauffage & equipments are optional
       return true;
     }
+    if (currentStep === 4) {
+      if (roofSubStep === 'orientation') {
+        return formData.orientationToiture.trim() !== "";
+      }
+      if (roofSubStep === 'type') {
+        return formData.typeToiture.trim() !== "";
+      }
+      if (roofSubStep === 'surface') {
+        return formData.surfaceToiture.trim() !== "";
+      }
+    }
     return true;
-  };
 
   // Auto-fill tarif kWh when entering step 3
   useEffect(() => {
