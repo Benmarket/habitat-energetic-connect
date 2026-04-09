@@ -299,7 +299,8 @@ export default function SitePopup() {
       setIsSuccess(false);
       setFormData({});
       setActivePopup(null);
-      setParcoursStep("main"); // Reset parcours step
+      setParcoursStep("main");
+      setAttribution({});
     }, 300);
   };
 
