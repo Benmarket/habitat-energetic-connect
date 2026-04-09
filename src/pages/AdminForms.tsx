@@ -561,12 +561,33 @@ export default function AdminForms() {
       message: "Message",
       subject: "Sujet",
       company: "Entreprise",
+      region: "Région",
+      latitude: "Latitude",
+      longitude: "Longitude",
+      consommationAnnuelle: "Conso. annuelle (kWh)",
+      factureAnnuelle: "Facture annuelle (€)",
+      tarifKwh: "Tarif kWh",
+      compteur: "Compteur",
+      monoTri: "Mono/Triphasé",
+      typeChauffage: "Type chauffage",
+      typeChauffageEau: "Chauffage eau",
+      surfaceHabitat: "Surface habitat",
+      equipments: "Équipements",
+      orientationToiture: "Orientation toiture",
+      typeToiture: "Type toiture",
+      surfaceToiture: "Surface toiture",
+      puissanceChoisie: "Puissance (kWc)",
+      acceptCgu: "CGU acceptées",
+      source: "Source",
+      status: "Statut",
     };
     
     if (!selectedForm?.fields_schema) {
       return defaultLabels[fieldName] || fieldName;
     }
-    const schema = selectedForm.fields_schema as Array<{ name: string; label: string }>;
+    // Handle both formats: array directly or { fields: [...] }
+    const raw = selectedForm.fields_schema as any;
+    const schema: Array<{ name: string; label: string }> = Array.isArray(raw) ? raw : (Array.isArray(raw?.fields) ? raw.fields : []);
     const field = schema.find((f) => f.name === fieldName);
     return field?.label || defaultLabels[fieldName] || fieldName;
   };
