@@ -197,10 +197,13 @@ export default function SitePopup() {
     }
   }, []);
 
-  // Handle AUTO popups (with delay)
+  // Handle AUTO popups (with delay) — capture URL attribution
   useEffect(() => {
-    if (!autoPopup) {
-      return;
+    if (!autoPopup) return;
+
+    // Si on arrive sur la page avec des params d'attribution (depuis un CTA article)
+    if (urlRefArticle || urlRefCta) {
+      setAttribution({ refArticle: urlRefArticle, refCta: urlRefCta });
     }
 
     const timer = setTimeout(() => {
@@ -208,7 +211,7 @@ export default function SitePopup() {
     }, autoPopup.delay_seconds * 1000);
 
     return () => clearTimeout(timer);
-  }, [autoPopup, showPopup]);
+  }, [autoPopup, showPopup, urlRefArticle, urlRefCta]);
 
   // Handle CLICK popups (listen for custom events)
   useEffect(() => {
