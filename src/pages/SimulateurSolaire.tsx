@@ -561,6 +561,9 @@ const SimulateurSolaire = () => {
       if (moduleSubStep === 'puissance') {
         return formData.puissanceChoisie.trim() !== "";
       }
+      if (moduleSubStep === 'surplus') {
+        return formData.surplusChoice.trim() !== "";
+      }
       if (moduleSubStep === 'contact') {
         const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail);
         return emailValid && formData.contactPhone.trim() !== "" && formData.acceptCgu;
