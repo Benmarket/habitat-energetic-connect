@@ -1251,6 +1251,7 @@ export default function AdminForms() {
                           </div>
                         </TableHead>
                       ))}
+                      <TableHead className="w-[150px]">Source trafic</TableHead>
                       <TableHead className="w-[150px]">Statut</TableHead>
                       <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
