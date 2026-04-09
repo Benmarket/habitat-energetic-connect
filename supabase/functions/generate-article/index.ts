@@ -859,7 +859,7 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
     // MODE: REVIEW_FIX — Apply corrections from review
     // ══════════════════════════════════════════
     if (mode === 'review_fix') {
-      const { title, content, contentType: fixContentType, problemes, suggestions, userId: fixUserId } = body;
+      const { title, content, contentType: fixContentType, problemes, suggestions, userId: fixUserId, userCorrections: fixUserCorrections } = body;
       if (!content) throw new Error('Contenu requis pour la correction');
 
       // Load user's CTA presets (same as article mode)
