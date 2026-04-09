@@ -567,6 +567,7 @@ export default function SitePopup() {
           ? "Vos données sont utilisées uniquement pour traiter votre demande."
           : isLeadAnnonce
           ? "En soumettant ce formulaire, vous acceptez d'être contacté par notre partenaire."
+          : "En vous inscrivant, vous acceptez de recevoir nos communications.";
         
         // Check if this is aide-dossier form for 2-column layout
         const isAideDossierForm = form?.form_identifier === "aide-dossier";
