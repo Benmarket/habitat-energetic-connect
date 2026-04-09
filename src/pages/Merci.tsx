@@ -16,6 +16,7 @@ const Merci = () => {
   const workType = searchParams.get("workType");
   const pageType = searchParams.get("type"); // "newsletter" ou null (lead)
   const subscriberEmail = searchParams.get("email");
+  const surplusChoice = searchParams.get("surplus");
   
   const isNewsletter = pageType === "newsletter";
   const isFromOffer = offerTitle && advertiserName;
