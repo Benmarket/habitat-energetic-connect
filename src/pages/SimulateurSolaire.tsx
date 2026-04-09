@@ -314,6 +314,7 @@ const SimulateurSolaire = () => {
             typeToiture: formData.typeToiture,
             surfaceToiture: formData.surfaceToiture,
             puissanceChoisie: formData.puissanceChoisie,
+            surplusChoice: formData.surplusChoice,
           },
           status: 'new',
         });
