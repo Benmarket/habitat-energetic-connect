@@ -915,16 +915,20 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
       let buttonPresets: any[] = [];
       let ctaBanners: any[] = [];
       let activePopups: any[] = [];
+      let landingPages: any[] = [];
 
       if (fixUserId) {
-        const [buttonsRes, bannersRes, popupsRes] = await Promise.all([
+        const [buttonsRes, bannersRes, popupsRes, landingRes] = await Promise.all([
           fetch(`${supabaseUrl}/rest/v1/button_presets?select=*&user_id=eq.${fixUserId}`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           }),
           fetch(`${supabaseUrl}/rest/v1/cta_banners?select=*&user_id=eq.${fixUserId}`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           }),
-          fetch(`${supabaseUrl}/rest/v1/popups?select=id,name,trigger_id,template,title,form_id&is_active=eq.true&order=created_at.desc&limit=5`, {
+          fetch(`${supabaseUrl}/rest/v1/popups?select=id,name,trigger_id,template,title,form_id&is_active=eq.true&order=created_at.desc&limit=10`, {
+            headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+          }),
+          fetch(`${supabaseUrl}/rest/v1/landing_pages?select=title,path,slug&limit=50`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           })
         ]);
@@ -932,10 +936,22 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
         ctaBanners = await bannersRes.json();
         const popupsData = await popupsRes.json();
         activePopups = Array.isArray(popupsData) ? popupsData : [];
+        const landingData = await landingRes.json();
+        landingPages = Array.isArray(landingData) ? landingData : [];
       }
 
       const popupWithForm = activePopups.find((p: any) => p.form_id);
       const defaultPopupId = popupWithForm?.id || (activePopups.length > 0 ? activePopups[0].id : '');
+
+      const fixInternalPages = [
+        { path: '/simulateur-solaire', title: 'Simulateur solaire / photovoltaïque' },
+        { path: '/aides', title: 'Aides et subventions' },
+        { path: '/guides', title: 'Guides pratiques' },
+        { path: '/#contact', title: 'Formulaire de contact' },
+        ...landingPages.map((lp: any) => ({ path: lp.path, title: lp.title }))
+      ];
+
+      const fixPopupsList = activePopups.map((p: any) => `POPUP_ID="${p.id}" (${p.name || p.title || p.template}${p.form_id ? ' — avec formulaire' : ''})`).join('\n');
 
       // Build CTA instructions for the fix prompt
       let ctaFixInstructions = '';
@@ -943,7 +959,11 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
       if (shuffledBtns.length > 0) {
         ctaFixInstructions += `\nBOUTONS CTA DISPONIBLES (si tu en ajoutes):
 ${shuffledBtns.map((b: any, i: number) => `${i + 1}. "${b.text}" → ${b.url} (couleur: ${b.background_color || '#10b981'})`).join('\n')}
-FORMAT AJOUT BOUTON: [BUTTON:Texte|URL]`;
+FORMAT AJOUT BOUTON: [BUTTON:Texte|URL] ou [BUTTON:Texte|#|POPUP_ID]
+
+POPUPS ACTIFS: ${fixPopupsList || 'Aucun'}
+PAGES INTERNES: ${fixInternalPages.slice(0, 10).map((p: any) => `${p.title} → ${p.path}`).join(', ')}
+⚠️ CHAQUE bouton DOIT avoir une vraie URL interne ou un POPUP_ID. Jamais "#contact" ou "#" sans popup.`;
       }
       const shuffledBnrs = shuffleArray([...ctaBanners]).slice(0, 2);
       if (shuffledBnrs.length > 0) {
