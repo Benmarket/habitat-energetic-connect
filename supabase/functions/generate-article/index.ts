@@ -1142,15 +1142,22 @@ function cleanHtml(htmlContent: string, ctaBanners: any[], buttonPresets: any[],
   return cleaned;
 }
 
-function convertButtonsToCustomFormat(html: string, presets: any[]): string {
-  const regex = /\[BUTTON:([^\|]+)\|([^\]]+)\]/g;
+function convertButtonsToCustomFormat(html: string, presets: any[], defaultPopupId?: string): string {
+  // Support [BUTTON:Text|URL] and [BUTTON:Text|URL|POPUP_ID]
+  const regex = /\[BUTTON:([^\]]+)\]/g;
   const find = (text: string, url: string) => presets.find((b: any) => (b.text||'').trim() === text.trim() && (b.url||'').trim() === url.trim());
   const toBool = (v: any, fb: boolean) => typeof v === 'boolean' ? v : fb;
   const toNum = (v: any, fb: number) => { const n = Number(v); return Number.isFinite(n) ? n : fb; };
 
-  return html.replace(regex, (_m, rawText, rawUrl) => {
-    const text = String(rawText).trim();
-    const url = String(rawUrl).trim();
+  return html.replace(regex, (_m, content) => {
+    const parts = content.split('|').map((s: string) => s.trim());
+    const text = parts[0] || '';
+    const url = parts[1] || '#';
+    const explicitPopupId = parts[2] || '';
+
+    // Determine popup ID: explicit > default for anchor URLs
+    const popupId = explicitPopupId || ((url === '#' || url === '#contact') ? (defaultPopupId || '') : '');
+
     const p = find(text, url);
     const bg = p?.background_color ?? '#10b981';
     const tc = p?.text_color ?? '#ffffff';
@@ -1172,7 +1179,7 @@ function convertButtonsToCustomFormat(html: string, presets: any[]): string {
     const g2 = p?.gradient_color2 ?? '#8b5cf6';
     const ga = toNum(p?.gradient_angle, 90);
     const hgs = toBool(p?.hover_gradient_shift, true);
-    const dt = url.startsWith('http') ? 'external' : url.startsWith('#') ? 'anchor' : 'internal';
+    const dt = popupId ? 'popup' : url.startsWith('http') ? 'external' : url.startsWith('#') ? 'anchor' : 'internal';
     const sizeMap: Record<string,string> = { small:'14px', medium:'16px', large:'18px' };
     const shadowMap: Record<string,string> = { none:'none', sm:'0 1px 2px 0 rgba(0,0,0,0.05)', md:'0 4px 6px -1px rgba(0,0,0,0.1)', lg:'0 10px 15px -3px rgba(0,0,0,0.1)' };
     const ws = width === 'full' ? '100%' : width === 'custom' ? `${cw}px` : 'auto';
@@ -1181,7 +1188,9 @@ function convertButtonsToCustomFormat(html: string, presets: any[]): string {
     const style = [bgStyle,`color:${tc}`,`padding:${py}px ${px}px`,`border-radius:${br}px`,`font-size:${sizeMap[size]||'16px'}`,`font-weight:500`,`text-decoration:none`,`display:inline-block`,`transition:all 0.3s`,`border:${border}`,`cursor:pointer`,`width:${ws}`,`text-align:center`,`box-shadow:${shadowMap[ss]||shadowMap.md}`].join(';');
     const ta = dt === 'external' ? ' target="_blank"' : '';
     const ra = dt === 'external' ? ' rel="noopener noreferrer"' : '';
-    return `<div data-custom-button class="custom-button-wrapper my-4" style="text-align:${align}" data-text="${esc(text)}" data-url="${esc(url)}" data-destination-type="${dt}" data-background-color="${esc(bg)}" data-text-color="${esc(tc)}" data-size="${size}" data-width="${width}" data-custom-width="${cw}" data-align="${align}" data-border-radius="${br}" data-padding-x="${px}" data-padding-y="${py}" data-border-width="${bw}" data-border-color="${esc(bc)}" data-border-style="${bs}" data-shadow-size="${ss}" data-hover-effect="${he}" data-use-gradient="${ug}" data-gradient-type="${gt}" data-gradient-direction="to-right" data-gradient-color1="${esc(g1)}" data-gradient-color2="${esc(g2)}" data-gradient-angle="${ga}" data-hover-gradient-shift="${hgs}"><a href="${esc(url)}" style="${esc(style)}"${ta}${ra} data-button-text="${esc(text)}" data-button-color="${esc(bg)}" data-destination-type="${dt}">${escText(text)}</a></div>`;
+    const popupAttr = popupId ? ` data-popup-id="${esc(popupId)}"` : '';
+    const popupTrigger = popupId ? ` data-popup-trigger="${esc(popupId)}"` : '';
+    return `<div data-custom-button class="custom-button-wrapper my-4" style="text-align:${align}" data-text="${esc(text)}" data-url="${esc(url)}" data-destination-type="${dt}"${popupAttr} data-background-color="${esc(bg)}" data-text-color="${esc(tc)}" data-size="${size}" data-width="${width}" data-custom-width="${cw}" data-align="${align}" data-border-radius="${br}" data-padding-x="${px}" data-padding-y="${py}" data-border-width="${bw}" data-border-color="${esc(bc)}" data-border-style="${bs}" data-shadow-size="${ss}" data-hover-effect="${he}" data-use-gradient="${ug}" data-gradient-type="${gt}" data-gradient-direction="to-right" data-gradient-color1="${esc(g1)}" data-gradient-color2="${esc(g2)}" data-gradient-angle="${ga}" data-hover-gradient-shift="${hgs}"><a href="${esc(url)}" style="${esc(style)}"${ta}${ra}${popupTrigger} data-button-text="${esc(text)}" data-button-color="${esc(bg)}" data-destination-type="${dt}">${escText(text)}</a></div>`;
   });
 }
 
