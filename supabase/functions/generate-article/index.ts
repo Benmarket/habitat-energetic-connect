@@ -197,16 +197,20 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
       let buttonPresets: any[] = [];
       let ctaBanners: any[] = [];
       let activePopups: any[] = [];
+      let landingPages: any[] = [];
 
       if (userId) {
-        const [buttonsRes, bannersRes, popupsRes] = await Promise.all([
+        const [buttonsRes, bannersRes, popupsRes, landingRes] = await Promise.all([
           fetch(`${supabaseUrl}/rest/v1/button_presets?select=*&user_id=eq.${userId}`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           }),
           fetch(`${supabaseUrl}/rest/v1/cta_banners?select=*&user_id=eq.${userId}`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           }),
-          fetch(`${supabaseUrl}/rest/v1/popups?select=id,name,trigger_id,template,title,form_id&is_active=eq.true&order=created_at.desc&limit=5`, {
+          fetch(`${supabaseUrl}/rest/v1/popups?select=id,name,trigger_id,template,title,form_id&is_active=eq.true&order=created_at.desc&limit=10`, {
+            headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+          }),
+          fetch(`${supabaseUrl}/rest/v1/landing_pages?select=title,path,slug&limit=50`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           })
         ]);
@@ -215,22 +219,67 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
         ctaBanners = await bannersRes.json();
         const popupsData = await popupsRes.json();
         activePopups = Array.isArray(popupsData) ? popupsData : [];
+        const landingData = await landingRes.json();
+        landingPages = Array.isArray(landingData) ? landingData : [];
       }
 
       const popupWithForm = activePopups.find((p: any) => p.form_id);
       const defaultPopupId = popupWithForm?.id || (activePopups.length > 0 ? activePopups[0].id : '');
 
+      // Build available pages list for AI (internal pages + landing pages)
+      const internalPages = [
+        { path: '/simulateur-solaire', title: 'Simulateur solaire / photovoltaïque' },
+        { path: '/aides', title: 'Aides et subventions' },
+        { path: '/guides', title: 'Guides pratiques' },
+        { path: '/actualites', title: 'Actualités' },
+        { path: '/#contact', title: 'Formulaire de contact' },
+        ...landingPages.map((lp: any) => ({ path: lp.path, title: lp.title }))
+      ];
+
       // CTA instructions
       let ctaInstructions = '';
       const shuffledButtons = shuffleArray([...buttonPresets]);
       const btns = shuffledButtons.slice(0, 3);
+
+      // Build popup list for buttons
+      const popupsList = activePopups.map((p: any) => `POPUP_ID="${p.id}" (${p.name || p.title || p.template}${p.form_id ? ' — avec formulaire' : ''})`).join('\n');
+
+      ctaInstructions += `\n\n═══════════════════════════════════════
+CONNEXION DES CTA — RÈGLE CRITIQUE (ÉLIMINATOIRE)
+═══════════════════════════════════════
+⚠️ CHAQUE bouton CTA et CHAQUE bannière CTA DOIT être connecté à :
+- SOIT un popup (via son POPUP_ID) pour ouvrir un formulaire/popup
+- SOIT une page interne existante (URL de redirection)
+- ⛔ JAMAIS de "#contact" ou "#" seul sans POPUP_ID — c'est un CTA MORT qui ne fonctionne pas.
+
+POPUPS ACTIFS DISPONIBLES:
+${popupsList || 'Aucun popup actif — utilise des URLs de pages internes'}
+
+PAGES INTERNES DISPONIBLES:
+${internalPages.slice(0, 15).map((p: any) => `"${p.title}" → ${p.path}`).join('\n')}
+
+STRATÉGIE DE CONNEXION:
+- Si l'article parle de solaire/photovoltaïque → utilise "/simulateur-solaire" comme URL
+- Si l'article parle d'aides/subventions → utilise "/aides" comme URL
+- Si tu veux ouvrir un formulaire de contact → utilise "#" + un POPUP_ID
+- Pour les redirections vers des pages thématiques → utilise les landing pages ci-dessus
+`;
+
       if (btns.length > 0) {
-        ctaInstructions += `\n\nBOUTONS CTA (VARIER LES COULEURS ! Ne pas tous utiliser la même couleur):
+        ctaInstructions += `\nBOUTONS CTA (VARIER LES COULEURS ! Ne pas tous utiliser la même couleur):
 ${btns.map((b: any, i: number) => `${i + 1}. "${b.text}" → ${b.url} (couleur: ${b.background_color || '#10b981'})`).join('\n')}
-FORMAT: [BUTTON:Texte|URL]
-IMPORTANT: Si les boutons ont tous la même couleur, change le texte d'au moins un pour proposer un message différent.`;
+FORMAT: [BUTTON:Texte|URL] ou [BUTTON:Texte|#|POPUP_ID] (pour ouvrir un popup)
+EXEMPLES:
+[BUTTON:Lancer ma simulation solaire|/simulateur-solaire]
+[BUTTON:Demander un devis gratuit|#|${defaultPopupId}]
+IMPORTANT: Si les boutons ont tous la même couleur, change le texte d'au moins un pour proposer un message différent.
+⚠️ CHAQUE bouton DOIT avoir soit une vraie URL de page interne, soit un POPUP_ID.`;
       } else {
-        ctaInstructions += `\nBOUTONS CTA: [BUTTON:Demander un devis gratuit|#contact]`;
+        ctaInstructions += `\nBOUTONS CTA:
+FORMAT: [BUTTON:Texte|URL] ou [BUTTON:Texte|#|POPUP_ID]
+EXEMPLES:
+[BUTTON:Lancer ma simulation solaire|/simulateur-solaire]
+[BUTTON:Demander un devis gratuit|#|${defaultPopupId}]`;
       }
 
       const shuffledBanners = shuffleArray([...ctaBanners]);
