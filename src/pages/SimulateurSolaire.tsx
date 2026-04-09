@@ -1541,10 +1541,7 @@ const SimulateurSolaire = () => {
                           <SelectItem value="sud-ouest">Sud-Ouest</SelectItem>
                           <SelectItem value="est">Est</SelectItem>
                           <SelectItem value="ouest">Ouest</SelectItem>
-                          <SelectItem value="nord-est">Nord-Est</SelectItem>
-                          <SelectItem value="nord-ouest">Nord-Ouest</SelectItem>
                           <SelectItem value="nord">Nord</SelectItem>
-                          <SelectItem value="ne-sait-pas">Je ne sais pas</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -1695,7 +1692,7 @@ const SimulateurSolaire = () => {
                       Orientation {formData.orientationToiture && <Check className="w-3 h-3 text-green-600" />}
                     </p>
                     <p className="font-bold capitalize">
-                      {formData.orientationToiture ? (formData.orientationToiture === 'ne-sait-pas' ? 'Non déterminée' : formData.orientationToiture.replace('-', ' ')) : 'Non renseigné'}
+                      {formData.orientationToiture ? formData.orientationToiture.replace('-', ' ') : 'Non renseigné'}
                     </p>
                   </div>
                 </div>
@@ -1749,7 +1746,7 @@ const SimulateurSolaire = () => {
                         <div className="text-center">
                           <p className="text-lg font-bold text-teal-600">
                             {(() => {
-                              const oFactor: Record<string, number> = { 'sud': 1, 'sud-est': 0.94, 'sud-ouest': 0.94, 'est': 0.82, 'ouest': 0.82, 'nord-est': 0.60, 'nord-ouest': 0.60, 'nord': 0.45, 'ne-sait-pas': 0.85 };
+                              const oFactor: Record<string, number> = { 'sud': 1, 'sud-est': 0.94, 'sud-ouest': 0.94, 'est': 0.82, 'ouest': 0.82, 'nord': 0.45 };
                               return `${Math.round((oFactor[formData.orientationToiture] || 0.85) * 100)}%`;
                             })()}
                           </p>
