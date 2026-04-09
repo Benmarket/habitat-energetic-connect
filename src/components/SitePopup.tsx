@@ -226,10 +226,15 @@ export default function SitePopup() {
     };
 
     // Handler pour les bandeaux CTA avec popupId (ouvre par ID de popup)
-    const handleOpenPopup = (event: CustomEvent<{ popupId: string }>) => {
-      const { popupId } = event.detail;
+    const handleOpenPopup = (event: CustomEvent<{ popupId: string; refArticle?: string; refCta?: string }>) => {
+      const { popupId, refArticle, refCta } = event.detail;
       
       if (!popupId) return;
+
+      // Capturer l'attribution
+      if (refArticle || refCta) {
+        setAttribution({ refArticle, refCta });
+      }
       
       // Chercher le popup par son ID directement
       supabase
