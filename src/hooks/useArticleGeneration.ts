@@ -411,9 +411,7 @@ export function useArticleGeneration(
 
   const openReviewModal = () => {
     setReviewModalOpen(true);
-    if (!articleReview && formData.content) {
-      handleStartReview();
-    }
+  };
   };
 
   const handleApplyFixes = async (userCorrections?: string) => {
