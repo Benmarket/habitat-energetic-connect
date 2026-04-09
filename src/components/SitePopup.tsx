@@ -62,6 +62,7 @@ export default function SitePopup() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [activePopup, setActivePopup] = useState<Popup | null>(null);
   const [parcoursStep, setParcoursStep] = useState<"main" | "contact-choice">("main");
+  const [attribution, setAttribution] = useState<{ refArticle?: string; refCta?: string }>({});
 
   // Check if we're on an article detail page
   const isArticlePage = location.pathname.startsWith("/actualites/") && location.pathname.split("/").length > 2;
