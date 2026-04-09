@@ -345,11 +345,17 @@ export default function SitePopup() {
           return;
         }
 
+        const source = attribution.refArticle 
+          ? `popup:article:${attribution.refArticle}` 
+          : urlRefArticle 
+            ? `popup:article:${urlRefArticle}` 
+            : "popup";
+
         const { error } = await supabase
           .from("newsletter_subscribers")
           .insert({
             email,
-            source: "popup",
+            source,
             status: "active"
           });
 
