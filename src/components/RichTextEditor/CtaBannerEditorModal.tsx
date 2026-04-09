@@ -454,7 +454,7 @@ export const CtaBannerEditorModal = ({
                 <Input
                   value={config.buttonUrl}
                   onChange={(e) => setConfig(prev => ({ ...prev, buttonUrl: e.target.value }))}
-                  placeholder={destinationType === 'anchor' ? '#section' : destinationType === 'internal' ? '/page' : 'https://...'}
+                  placeholder={destinationType === 'anchor' ? '#section' : 'https://...'}
                 />
               </div>
             )}
