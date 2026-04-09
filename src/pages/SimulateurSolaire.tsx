@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, ArrowLeft, User, MapPin, Sun, Check, Loader2, Search, Zap, Flame, Droplets, Home, Car, Waves, Wind, Thermometer, UtensilsCrossed, Shirt, SkipForward, Wrench, Info, Compass, LayoutGrid, Maximize2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, User, MapPin, Sun, Check, Loader2, Search, Zap, Flame, Droplets, Home, Car, Waves, Wind, Thermometer, UtensilsCrossed, Shirt, SkipForward, Wrench, Info, Compass, LayoutGrid, Maximize2, Mail, Phone, BarChart3, Battery } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 import compteurLinkyImg from "@/assets/simulators/compteur-linky.png";
 import compteurElectroniqueImg from "@/assets/simulators/compteur-electronique.png";
 import priseMonophaseImg from "@/assets/simulators/prise-monophase.png";
@@ -60,12 +61,19 @@ interface FormData {
   orientationToiture: string;
   typeToiture: string;
   surfaceToiture: string;
+  // Step 5: Modules
+  puissanceChoisie: string;
+  contactEmail: string;
+  contactPhone: string;
+  acceptCgu: boolean;
 }
 
 const SimulateurSolaire = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [consumptionSubStep, setConsumptionSubStep] = useState<'energy' | 'raccordement' | 'chauffage' | 'equipments'>('energy');
   const [roofSubStep, setRoofSubStep] = useState<'orientation' | 'type' | 'surface'>('orientation');
+  const [moduleSubStep, setModuleSubStep] = useState<'puissance' | 'contact'>('puissance');
+  const [submittingLead, setSubmittingLead] = useState(false);
   const [regions, setRegions] = useState<SolarRegion[]>([]);
   const [loading, setLoading] = useState(true);
   const [addressValidated, setAddressValidated] = useState(false);
@@ -101,6 +109,11 @@ const SimulateurSolaire = () => {
     orientationToiture: "",
     typeToiture: "",
     surfaceToiture: "",
+    // Step 5: Modules
+    puissanceChoisie: "",
+    contactEmail: "",
+    contactPhone: "",
+    acceptCgu: false,
   });
 
   // Equipment options
@@ -113,7 +126,7 @@ const SimulateurSolaire = () => {
     { id: 'seche-linge', label: 'Sèche linge', icon: Shirt },
   ];
 
-  const totalSteps = 7;
+  const totalSteps = 6;
 
   const steps = [
     { id: 1, label: 'Client' },
@@ -121,9 +134,129 @@ const SimulateurSolaire = () => {
     { id: 3, label: 'Consommation' },
     { id: 4, label: 'Toiture' },
     { id: 5, label: 'Modules' },
-    { id: 6, label: 'Financement' },
-    { id: 7, label: 'Résultats' },
+    { id: 6, label: 'Résultats' },
   ];
+
+  // Power options in kWc
+  const powerOptions = [3, 4.5, 6, 7.5, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36];
+
+  // Calculate recommended power based on consumption & roof
+  const getRecommendedPower = () => {
+    const conso = parseFloat(formData.consommationAnnuelle) || 5000;
+    // ~1100 kWh/kWc average production in France
+    const idealKwc = conso / 1100;
+    // Find closest power option
+    let closest = powerOptions[0];
+    let minDiff = Math.abs(idealKwc - closest);
+    for (const p of powerOptions) {
+      const diff = Math.abs(idealKwc - p);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closest = p;
+      }
+    }
+    return closest;
+  };
+
+  // Submit simulation lead
+  const submitSimulationLead = async () => {
+    setSubmittingLead(true);
+    try {
+      // Ensure form configuration exists
+      const { data: existingForm } = await supabase
+        .from('form_configurations')
+        .select('id')
+        .eq('form_identifier', 'simulation-solaire')
+        .maybeSingle();
+
+      let formId = existingForm?.id;
+
+      if (!formId) {
+        const { data: newForm, error: formError } = await supabase
+          .from('form_configurations')
+          .insert({
+            name: 'Simulation Solaire / Photovoltaïque',
+            form_identifier: 'simulation-solaire',
+            description: 'Leads issus du simulateur solaire photovoltaïque',
+            fields_schema: {
+              fields: [
+                { name: 'firstName', label: 'Prénom', type: 'text' },
+                { name: 'lastName', label: 'Nom', type: 'text' },
+                { name: 'email', label: 'Email', type: 'email' },
+                { name: 'phone', label: 'Téléphone', type: 'tel' },
+                { name: 'address', label: 'Adresse', type: 'text' },
+                { name: 'postalCode', label: 'Code postal', type: 'text' },
+                { name: 'city', label: 'Ville', type: 'text' },
+                { name: 'region', label: 'Région détectée', type: 'text' },
+                { name: 'consommationAnnuelle', label: 'Consommation annuelle (kWh)', type: 'number' },
+                { name: 'factureAnnuelle', label: 'Facture annuelle (€)', type: 'number' },
+                { name: 'compteur', label: 'Type de compteur', type: 'text' },
+                { name: 'monoTri', label: 'Mono/Triphasé', type: 'text' },
+                { name: 'typeChauffage', label: 'Type de chauffage', type: 'text' },
+                { name: 'typeChauffageEau', label: 'Chauffage eau', type: 'text' },
+                { name: 'surfaceHabitat', label: 'Surface habitat', type: 'text' },
+                { name: 'equipments', label: 'Équipements', type: 'text' },
+                { name: 'orientationToiture', label: 'Orientation toiture', type: 'text' },
+                { name: 'typeToiture', label: 'Type de toiture', type: 'text' },
+                { name: 'surfaceToiture', label: 'Surface toiture', type: 'text' },
+                { name: 'puissanceChoisie', label: 'Puissance choisie (kWc)', type: 'number' },
+              ]
+            },
+            webhook_enabled: false,
+          })
+          .select('id')
+          .single();
+
+        if (formError) throw formError;
+        formId = newForm?.id;
+      }
+
+      if (!formId) throw new Error('Impossible de créer le formulaire');
+
+      // Submit the lead data
+      const { error: submitError } = await supabase
+        .from('form_submissions')
+        .insert({
+          form_id: formId,
+          data: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.contactEmail,
+            phone: formData.contactPhone,
+            address: formData.address,
+            postalCode: formData.postalCode,
+            city: formData.city,
+            region: formData.detectedRegion,
+            latitude: formData.latitude,
+            longitude: formData.longitude,
+            consommationAnnuelle: formData.consommationAnnuelle,
+            factureAnnuelle: formData.factureAnnuelle,
+            tarifKwh: formData.tarifKwh,
+            compteur: formData.compteur,
+            monoTri: formData.monoTri,
+            typeChauffage: formData.typeChauffage,
+            typeChauffageEau: formData.typeChauffageEau,
+            surfaceHabitat: formData.surfaceHabitat,
+            equipments: formData.equipments.join(', '),
+            orientationToiture: formData.orientationToiture,
+            typeToiture: formData.typeToiture,
+            surfaceToiture: formData.surfaceToiture,
+            puissanceChoisie: formData.puissanceChoisie,
+          },
+          status: 'new',
+        });
+
+      if (submitError) throw submitError;
+
+      toast.success("Simulation enregistrée ! Vos résultats sont prêts.");
+      setCurrentStep(6);
+    } catch (err) {
+      console.error("Error submitting simulation:", err);
+      toast.error("Erreur lors de l'envoi. Veuillez réessayer.");
+    } finally {
+      setSubmittingLead(false);
+    }
+  };
 
   useEffect(() => {
     const loadRegions = async () => {
