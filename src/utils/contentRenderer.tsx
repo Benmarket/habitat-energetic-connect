@@ -158,7 +158,7 @@ function parseCtaBannerAttributes(element: Element): CtaBannerAttributes {
 /**
  * Transforme les boutons personnalisés pour qu'ils fonctionnent correctement (popups, ancres, etc.)
  */
-function transformCustomButtons(doc: Document): void {
+function transformCustomButtons(doc: Document, articleSlug?: string): void {
   const buttons = doc.querySelectorAll('div[data-custom-button]');
   
   buttons.forEach((buttonWrapper) => {
@@ -168,20 +168,26 @@ function transformCustomButtons(doc: Document): void {
     const destinationType = buttonWrapper.getAttribute('data-destination-type') || anchor.getAttribute('data-destination-type');
     const rawPopupId = buttonWrapper.getAttribute('data-popup-id') || anchor.getAttribute('data-popup-id') || '';
     const url = buttonWrapper.getAttribute('data-url') || anchor.getAttribute('href') || '#';
+    const buttonText = anchor.textContent?.trim() || 'bouton';
     
-    // Nettoyer le popupId - il peut être vide, avoir le préfixe #popup-, ou être juste l'ID
+    // Nettoyer le popupId
     let popupId = rawPopupId.trim();
     if (popupId.startsWith('#popup-')) {
       popupId = popupId.replace('#popup-', '');
     }
     
-    // Si c'est un popup, ajouter data-popup-trigger et modifier le href
+    // Injecter les attributs d'attribution
+    if (articleSlug) {
+      anchor.setAttribute('data-ref-article', articleSlug);
+      anchor.setAttribute('data-ref-cta', `button:${buttonText}`);
+    }
+    
+    // Si c'est un popup
     if (destinationType === 'popup' && popupId && popupId.length > 0) {
       anchor.setAttribute('data-popup-trigger', popupId);
       anchor.setAttribute('href', '#');
       anchor.removeAttribute('target');
       anchor.removeAttribute('rel');
-      // Use data attribute for event handling instead of inline onclick (XSS prevention)
       anchor.setAttribute('data-prevent-default', 'true');
     }
     // Si c'est un lien externe
@@ -193,9 +199,14 @@ function transformCustomButtons(doc: Document): void {
     else if (destinationType === 'anchor' && url.startsWith('#')) {
       anchor.setAttribute('href', url);
     }
-    // Si c'est un lien interne
+    // Si c'est un lien interne — ajouter les paramètres d'attribution
     else if (destinationType === 'internal') {
-      anchor.setAttribute('href', url);
+      if (articleSlug) {
+        const separator = url.includes('?') ? '&' : '?';
+        anchor.setAttribute('href', `${url}${separator}ref_article=${encodeURIComponent(articleSlug)}&ref_cta=${encodeURIComponent(`button:${buttonText}`)}`);
+      } else {
+        anchor.setAttribute('href', url);
+      }
     }
   });
 }
