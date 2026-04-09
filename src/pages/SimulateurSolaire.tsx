@@ -1510,6 +1510,259 @@ const SimulateurSolaire = () => {
             </div>
           )}
 
+          {/* Step 4: Toiture - Two Column Layout */}
+          {currentStep === 4 && (
+            <div className="grid gap-6 lg:grid-cols-5">
+              {roofSubStep === 'orientation' ? (
+                <Card className="shadow-xl border-0 lg:col-span-3">
+                  <CardHeader className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-t-lg">
+                    <div className="flex items-center gap-3">
+                      <Compass className="w-6 h-6" />
+                      <div>
+                        <CardTitle className="text-xl">Orientation de la toiture</CardTitle>
+                        <CardDescription className="text-white/80">
+                          Dans quelle direction est orientée votre toiture ?
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-5">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">
+                        Orientation principale <span className="text-destructive">*</span>
+                      </Label>
+                      <Select value={formData.orientationToiture} onValueChange={(value) => handleInputChange("orientationToiture", value)}>
+                        <SelectTrigger className="h-12">
+                          <SelectValue placeholder="Sélectionnez l'orientation" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="sud">Sud</SelectItem>
+                          <SelectItem value="sud-est">Sud-Est</SelectItem>
+                          <SelectItem value="sud-ouest">Sud-Ouest</SelectItem>
+                          <SelectItem value="est">Est</SelectItem>
+                          <SelectItem value="ouest">Ouest</SelectItem>
+                          <SelectItem value="nord-est">Nord-Est</SelectItem>
+                          <SelectItem value="nord-ouest">Nord-Ouest</SelectItem>
+                          <SelectItem value="nord">Nord</SelectItem>
+                          <SelectItem value="ne-sait-pas">Je ne sais pas</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-start gap-2">
+                      <Compass className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                      <p className="text-xs text-emerald-700">
+                        <strong>Conseil :</strong> L'orientation Sud est idéale pour maximiser la production solaire. Les orientations Sud-Est et Sud-Ouest restent très performantes.
+                      </p>
+                    </div>
+                    <div className="flex justify-between pt-4">
+                      <Button variant="outline" onClick={handlePrevious} className="px-6 py-6">
+                        <ArrowLeft className="w-5 h-5 mr-2" /> Précédent
+                      </Button>
+                      <Button onClick={handleNext} disabled={!canProceedToNextStep()} className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-8 py-6 text-base">
+                        Suivant <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : roofSubStep === 'type' ? (
+                <Card className="shadow-xl border-0 lg:col-span-3">
+                  <CardHeader className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-t-lg">
+                    <div className="flex items-center gap-3">
+                      <LayoutGrid className="w-6 h-6" />
+                      <div>
+                        <CardTitle className="text-xl">Type de toiture</CardTitle>
+                        <CardDescription className="text-white/80">
+                          Quel est le type de couverture de votre toiture ?
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-5">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">
+                        Type de couverture <span className="text-destructive">*</span>
+                      </Label>
+                      <Select value={formData.typeToiture} onValueChange={(value) => handleInputChange("typeToiture", value)}>
+                        <SelectTrigger className="h-12">
+                          <SelectValue placeholder="Sélectionnez le type de toiture" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="tuiles">Tuiles</SelectItem>
+                          <SelectItem value="ardoises">Ardoises</SelectItem>
+                          <SelectItem value="plaques">Plaques</SelectItem>
+                          <SelectItem value="bac-acier">Bac acier</SelectItem>
+                          <SelectItem value="membrane-epdm">Membrane EPDM</SelectItem>
+                          <SelectItem value="toiture-plate">Toiture plate</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-start gap-2">
+                      <Info className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                      <p className="text-xs text-emerald-700">
+                        <strong>Info :</strong> Le type de toiture influence le mode de fixation des panneaux solaires. Chaque type nécessite un système de montage adapté.
+                      </p>
+                    </div>
+                    <div className="flex justify-between pt-4">
+                      <Button variant="outline" onClick={handlePrevious} className="px-6 py-6">
+                        <ArrowLeft className="w-5 h-5 mr-2" /> Précédent
+                      </Button>
+                      <Button onClick={handleNext} disabled={!canProceedToNextStep()} className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-8 py-6 text-base">
+                        Suivant <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="shadow-xl border-0 lg:col-span-3">
+                  <CardHeader className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-t-lg">
+                    <div className="flex items-center gap-3">
+                      <Maximize2 className="w-6 h-6" />
+                      <div>
+                        <CardTitle className="text-xl">Surface de toiture</CardTitle>
+                        <CardDescription className="text-white/80">
+                          Quelle est la surface approximative de votre toiture ?
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-5">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">
+                        Surface approximative <span className="text-destructive">*</span>
+                      </Label>
+                      <Select value={formData.surfaceToiture} onValueChange={(value) => handleInputChange("surfaceToiture", value)}>
+                        <SelectTrigger className="h-12">
+                          <SelectValue placeholder="Sélectionnez une tranche de surface" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="moins-20">Moins de 20 m²</SelectItem>
+                          <SelectItem value="20-40">20 à 40 m²</SelectItem>
+                          <SelectItem value="40-60">40 à 60 m²</SelectItem>
+                          <SelectItem value="60-80">60 à 80 m²</SelectItem>
+                          <SelectItem value="80-100">80 à 100 m²</SelectItem>
+                          <SelectItem value="100-150">100 à 150 m²</SelectItem>
+                          <SelectItem value="plus-150">Plus de 150 m²</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-start gap-2">
+                      <Maximize2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                      <p className="text-xs text-emerald-700">
+                        <strong>Astuce :</strong> La surface disponible détermine la puissance maximale installable. En moyenne, 1 kWc nécessite environ 5 à 7 m² de toiture.
+                      </p>
+                    </div>
+                    <div className="flex justify-between pt-4">
+                      <Button variant="outline" onClick={handlePrevious} className="px-6 py-6">
+                        <ArrowLeft className="w-5 h-5 mr-2" /> Précédent
+                      </Button>
+                      <Button onClick={handleNext} disabled={!canProceedToNextStep()} className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-8 py-6 text-base">
+                        Suivant <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Right Column - Roof Summary Panel */}
+              <div className="lg:col-span-2 space-y-4">
+                <Card className="overflow-hidden border-0 shadow-lg">
+                  <div className="bg-gradient-to-br from-emerald-500 to-teal-500 p-6 text-white text-center">
+                    <div className="w-12 h-12 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center">
+                      <Home className="w-6 h-6" />
+                    </div>
+                    <h3 className="font-bold text-lg">Votre toiture</h3>
+                    <p className="text-sm text-white/80 mt-1">
+                      {formData.orientationToiture && formData.typeToiture && formData.surfaceToiture ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-green-400" /> Toiture complète
+                        </span>
+                      ) : (
+                        <span className="flex items-center justify-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-yellow-300" /> En cours de saisie
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </Card>
+
+                {/* Orientation */}
+                <div className={`p-3 rounded-lg border flex items-center gap-3 ${formData.orientationToiture ? 'bg-emerald-50 border-emerald-200' : 'bg-muted/30'}`}>
+                  <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+                    <Compass className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                      Orientation {formData.orientationToiture && <Check className="w-3 h-3 text-green-600" />}
+                    </p>
+                    <p className="font-bold capitalize">
+                      {formData.orientationToiture ? (formData.orientationToiture === 'ne-sait-pas' ? 'Non déterminée' : formData.orientationToiture.replace('-', ' ')) : 'Non renseigné'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Type */}
+                <div className={`p-3 rounded-lg border flex items-center gap-3 ${formData.typeToiture ? 'bg-teal-50 border-teal-200' : 'bg-muted/30'}`}>
+                  <div className="w-10 h-10 rounded-full bg-teal-500 flex items-center justify-center shrink-0">
+                    <LayoutGrid className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                      Type de toiture {formData.typeToiture && <Check className="w-3 h-3 text-green-600" />}
+                    </p>
+                    <p className="font-bold capitalize">{formData.typeToiture ? formData.typeToiture.replace('-', ' ') : 'Non renseigné'}</p>
+                  </div>
+                </div>
+
+                {/* Surface */}
+                <div className={`p-3 rounded-lg border flex items-center gap-3 ${formData.surfaceToiture ? 'bg-green-50 border-green-200' : 'bg-muted/30'}`}>
+                  <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+                    <Maximize2 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase flex items-center gap-1">
+                      Surface toiture {formData.surfaceToiture && <Check className="w-3 h-3 text-green-600" />}
+                    </p>
+                    <p className="font-bold">
+                      {(() => {
+                        const labels: Record<string, string> = { 'moins-20': '< 20 m²', '20-40': '20 – 40 m²', '40-60': '40 – 60 m²', '60-80': '60 – 80 m²', '80-100': '80 – 100 m²', '100-150': '100 – 150 m²', 'plus-150': '> 150 m²' };
+                        return formData.surfaceToiture ? labels[formData.surfaceToiture] || formData.surfaceToiture : 'Non renseigné';
+                      })()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Estimation */}
+                {formData.surfaceToiture && formData.orientationToiture && (
+                  <Card className="border shadow-sm">
+                    <CardContent className="p-4">
+                      <h4 className="font-semibold text-sm text-center mb-3">Estimation préliminaire</h4>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="text-center">
+                          <p className="text-lg font-bold text-emerald-600">
+                            {(() => {
+                              const sMax: Record<string, number> = { 'moins-20': 15, '20-40': 30, '40-60': 50, '60-80': 70, '80-100': 90, '100-150': 125, 'plus-150': 180 };
+                              return `≈ ${Math.round((sMax[formData.surfaceToiture] || 30) / 6)} kWc`;
+                            })()}
+                          </p>
+                          <p className="text-xs text-muted-foreground">Puissance max.</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-lg font-bold text-teal-600">
+                            {(() => {
+                              const oFactor: Record<string, number> = { 'sud': 1, 'sud-est': 0.94, 'sud-ouest': 0.94, 'est': 0.82, 'ouest': 0.82, 'nord-est': 0.60, 'nord-ouest': 0.60, 'nord': 0.45, 'ne-sait-pas': 0.85 };
+                              return `${Math.round((oFactor[formData.orientationToiture] || 0.85) * 100)}%`;
+                            })()}
+                          </p>
+                          <p className="text-xs text-muted-foreground">Rendement orientation</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </div>
+          )}
+
         </div>
       </main>
 
