@@ -408,6 +408,14 @@ const AdminPagesAnchors = () => {
                                         <span className="font-medium text-sm flex-1">{regionName}</span>
                                         <code className="text-[10px] px-1.5 py-0.5 bg-muted rounded text-muted-foreground hidden sm:inline">{region.path}</code>
                                         <SeoMicroBadge status={region.seo_status} />
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <button onClick={() => setPreviewLanding(region)} className="p-1 rounded hover:bg-muted transition-colors">
+                                              <Eye className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
+                                            </button>
+                                          </TooltipTrigger>
+                                          <TooltipContent>Prévisualiser</TooltipContent>
+                                        </Tooltip>
                                         <SeoStatusSelect landing={region} />
                                       </div>
 
@@ -422,6 +430,14 @@ const AdminPagesAnchors = () => {
                                               </span>
                                               <code className="text-[10px] px-1.5 py-0.5 bg-muted rounded text-muted-foreground hidden sm:inline">{variant.path}</code>
                                               <SeoMicroBadge status={variant.seo_status} />
+                                              <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                  <button onClick={() => setPreviewLanding(variant)} className="p-1 rounded hover:bg-muted transition-colors">
+                                                    <Eye className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
+                                                  </button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>Prévisualiser</TooltipContent>
+                                              </Tooltip>
                                               <SeoStatusSelect landing={variant} />
                                             </div>
                                           ))}
