@@ -60,8 +60,13 @@ const CtaBannerComponent: React.FC<CtaBannerProps> = ({ attrs }) => {
   const handleClick = (e: React.MouseEvent) => {
     if (attrs.popupId) {
       e.preventDefault();
-      // Déclencher l'ouverture du popup via un événement personnalisé
-      window.dispatchEvent(new CustomEvent('open-popup', { detail: { popupId: attrs.popupId } }));
+      window.dispatchEvent(new CustomEvent('open-popup', { 
+        detail: { 
+          popupId: attrs.popupId,
+          refArticle: attrs.refArticle || null,
+          refCta: `banner:${attrs.title}`,
+        } 
+      }));
     }
   };
 
