@@ -286,6 +286,11 @@ const SimulateurSolaire = () => {
 
       if (!formId) throw new Error('Impossible de créer le formulaire');
 
+      // Capture attribution from URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      const refArticle = urlParams.get('ref_article') || null;
+      const refCta = urlParams.get('ref_cta') || null;
+
       // Submit the lead data
       const { error: submitError } = await supabase
         .from('form_submissions')
@@ -316,6 +321,12 @@ const SimulateurSolaire = () => {
             surfaceToiture: formData.surfaceToiture,
             puissanceChoisie: formData.puissanceChoisie,
             surplusChoice: formData.surplusChoice,
+            _attribution: {
+              ref_article: refArticle,
+              ref_cta: refCta,
+              ref_page: '/simulateur-solaire',
+              ref_referrer: document.referrer || null,
+            },
           },
           status: 'new',
         });
