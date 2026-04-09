@@ -61,6 +61,7 @@ export const CtaBannerEditorModal = ({
     ...initialConfig,
   });
   const [availablePopups, setAvailablePopups] = useState<Array<{ id: string; name: string }>>([]);
+  const [availablePages, setAvailablePages] = useState<Array<{ path: string; label: string }>>([]);
   const [destinationType, setDestinationType] = useState<'anchor' | 'internal' | 'external' | 'popup'>('anchor');
 
   useEffect(() => {
