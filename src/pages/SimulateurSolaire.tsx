@@ -271,6 +271,7 @@ const SimulateurSolaire = () => {
                 { name: 'typeToiture', label: 'Type de toiture', type: 'text' },
                 { name: 'surfaceToiture', label: 'Surface toiture', type: 'text' },
                 { name: 'puissanceChoisie', label: 'Puissance choisie (kWc)', type: 'number' },
+                { name: 'surplusChoice', label: 'Gestion du surplus', type: 'text' },
               ]
             },
             webhook_enabled: false,
