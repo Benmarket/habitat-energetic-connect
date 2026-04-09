@@ -1719,7 +1719,7 @@ const SimulateurSolaire = () => {
                     </p>
                     <p className="font-bold">
                       {(() => {
-                        const labels: Record<string, string> = { 'moins-20': '< 20 m²', '20-40': '20 – 40 m²', '40-60': '40 – 60 m²', '60-80': '60 – 80 m²', '80-100': '80 – 100 m²', '100-150': '100 – 150 m²', 'plus-150': '> 150 m²' };
+                        const labels: Record<string, string> = { 'moins-30': '< 30 m²', '30-60': '30 – 60 m²', '60-100': '60 – 100 m²', '100-150': '100 – 150 m²', 'plus-150': '> 150 m²' };
                         return formData.surfaceToiture ? labels[formData.surfaceToiture] || formData.surfaceToiture : 'Non renseigné';
                       })()}
                     </p>
@@ -1735,7 +1735,7 @@ const SimulateurSolaire = () => {
                         <div className="text-center">
                           <p className="text-lg font-bold text-emerald-600">
                             {(() => {
-                              const sMax: Record<string, number> = { 'moins-20': 15, '20-40': 30, '40-60': 50, '60-80': 70, '80-100': 90, '100-150': 125, 'plus-150': 180 };
+                              const sMax: Record<string, number> = { 'moins-30': 20, '30-60': 45, '60-100': 80, '100-150': 125, 'plus-150': 180 };
                               return `≈ ${Math.round((sMax[formData.surfaceToiture] || 30) / 6)} kWc`;
                             })()}
                           </p>
