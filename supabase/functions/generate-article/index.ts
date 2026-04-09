@@ -1136,7 +1136,7 @@ function cleanHtml(htmlContent: string, ctaBanners: any[], buttonPresets: any[],
     .replace(/```html\s*/gi, '').replace(/```\s*/g, '').trim()
     .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
 
-  cleaned = convertButtonsToCustomFormat(cleaned, buttonPresets);
+  cleaned = convertButtonsToCustomFormat(cleaned, buttonPresets, popupId);
   cleaned = convertCtaBannersToHtml(cleaned, ctaBanners, popupId);
   cleaned = centerImages(cleaned);
   return cleaned;
