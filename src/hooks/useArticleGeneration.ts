@@ -359,7 +359,7 @@ export function useArticleGeneration(
     setWizardOpen(true);
   };
 
-  const handleStartReview = async () => {
+  const handleStartReview = async (userCorrections?: string) => {
     if (!formData.content || !formData.title) {
       toast.error("L'article doit avoir un titre et du contenu pour être relu");
       return;
@@ -392,6 +392,7 @@ export function useArticleGeneration(
           tldr: formData.tldr || '',
           tagNames,
           featuredImage: formData.featured_image || '',
+          ...(userCorrections ? { userCorrections } : {}),
         },
         headers: { Authorization: `Bearer ${accessToken}` }
       });
@@ -415,7 +416,7 @@ export function useArticleGeneration(
     }
   };
 
-  const handleApplyFixes = async () => {
+  const handleApplyFixes = async (userCorrections?: string) => {
     if (!articleReview || !formData.content) return;
     setLoadingFix(true);
     try {
@@ -431,6 +432,7 @@ export function useArticleGeneration(
           problemes: articleReview.problemes,
           suggestions: articleReview.suggestions,
           userId,
+          ...(userCorrections ? { userCorrections } : {}),
         },
         headers: { Authorization: `Bearer ${accessToken}` }
       });
