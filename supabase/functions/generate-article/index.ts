@@ -277,10 +277,12 @@ PAGES INTERNES DISPONIBLES:
 ${internalPages.slice(0, 15).map((p: any) => `"${p.title}" → ${p.path}`).join('\n')}
 
 STRATÉGIE DE CONNEXION:
-- Si l'article parle de solaire/photovoltaïque → utilise "/simulateur-solaire" comme URL
-- Si l'article parle d'aides/subventions → utilise "/aides" comme URL
-- Si tu veux ouvrir un formulaire de contact → utilise "#" + un POPUP_ID
+- Si l'article parle de solaire/photovoltaïque → TOUJOURS utiliser "/simulateur-solaire" comme URL de redirection (PAS de popup)
+- Si l'article parle d'aides/subventions → utilise "/aides" comme URL de redirection
+- Si l'article parle de pompe à chaleur → cherche la landing page correspondante
+- Pour les demandes de devis/contact → utilise "#" + un POPUP_ID (formulaire de contact)
 - Pour les redirections vers des pages thématiques → utilise les landing pages ci-dessus
+- ⛔ NE JAMAIS utiliser un popup pour rediriger vers un simulateur — utilise l'URL directe de la page
 `;
 
       if (btns.length > 0) {
