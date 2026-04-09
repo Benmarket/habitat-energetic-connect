@@ -359,11 +359,29 @@ export default function SitePopup() {
         toast.success("Inscription réussie !");
         setTimeout(handleClose, 2000);
       } else {
+        // Construire les données avec attribution
+        const currentAttribution = attribution.refArticle || attribution.refCta || urlRefArticle || urlRefCta
+          ? {
+              ref_article: attribution.refArticle || urlRefArticle || null,
+              ref_cta: attribution.refCta || urlRefCta || null,
+              ref_page: location.pathname,
+              ref_referrer: document.referrer || null,
+            }
+          : {
+              ref_page: location.pathname,
+              ref_referrer: document.referrer || null,
+            };
+
+        const submissionData = {
+          ...formData,
+          _attribution: currentAttribution,
+        };
+
         const { error } = await supabase
           .from("form_submissions")
           .insert([{
             form_id: form.id,
-            data: formData,
+            data: submissionData,
           }]);
 
         if (error) throw error;
