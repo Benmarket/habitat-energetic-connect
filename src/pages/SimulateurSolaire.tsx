@@ -556,8 +556,26 @@ const SimulateurSolaire = () => {
         return;
       }
       if (roofSubStep === 'surface') {
-        setCurrentStep(prev => prev + 1);
+        setCurrentStep(5);
         setRoofSubStep('orientation');
+        setModuleSubStep('puissance');
+        // Auto-select recommended power
+        if (!formData.puissanceChoisie) {
+          setFormData(prev => ({ ...prev, puissanceChoisie: getRecommendedPower().toString() }));
+        }
+        return;
+      }
+    }
+
+    // Handle sub-steps within step 5 (Modules)
+    if (currentStep === 5) {
+      if (moduleSubStep === 'puissance' && canProceedToNextStep()) {
+        setModuleSubStep('contact');
+        return;
+      }
+      if (moduleSubStep === 'contact' && canProceedToNextStep()) {
+        // Submit lead and go to results
+        submitSimulationLead();
         return;
       }
     }
@@ -598,6 +616,19 @@ const SimulateurSolaire = () => {
       if (roofSubStep === 'orientation') {
         setCurrentStep(3);
         setConsumptionSubStep('equipments');
+        return;
+      }
+    }
+
+    // Handle sub-steps within step 5 (Modules)
+    if (currentStep === 5) {
+      if (moduleSubStep === 'contact') {
+        setModuleSubStep('puissance');
+        return;
+      }
+      if (moduleSubStep === 'puissance') {
+        setCurrentStep(4);
+        setRoofSubStep('surface');
         return;
       }
     }
