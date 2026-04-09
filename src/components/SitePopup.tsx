@@ -64,6 +64,11 @@ export default function SitePopup() {
   const [parcoursStep, setParcoursStep] = useState<"main" | "contact-choice">("main");
   const [attribution, setAttribution] = useState<{ refArticle?: string; refCta?: string }>({});
 
+  // Capture attribution from URL params
+  const urlParams = new URLSearchParams(location.search);
+  const urlRefArticle = urlParams.get('ref_article') || undefined;
+  const urlRefCta = urlParams.get('ref_cta') || undefined;
+
   // Check if we're on an article detail page
   const isArticlePage = location.pathname.startsWith("/actualites/") && location.pathname.split("/").length > 2;
   const articleSlug = isArticlePage ? location.pathname.split("/").pop() : null;
