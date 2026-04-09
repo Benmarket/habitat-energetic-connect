@@ -193,6 +193,9 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
 
       if (!selectedAngle) throw new Error('Angle sélectionné requis');
 
+      // Forms that are exclusive to specific pages/flows — must NOT be used via popups in articles
+      const EXCLUDED_FORM_IDENTIFIERS = ['simulation-solaire', 'chatbot_contacter_prime_energies', 'chatbot_projet_subvention'];
+
       // Fetch CTA presets
       let buttonPresets: any[] = [];
       let ctaBanners: any[] = [];
@@ -200,7 +203,7 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
       let landingPages: any[] = [];
 
       if (userId) {
-        const [buttonsRes, bannersRes, popupsRes, landingRes] = await Promise.all([
+        const [buttonsRes, bannersRes, popupsRes, landingRes, formsRes] = await Promise.all([
           fetch(`${supabaseUrl}/rest/v1/button_presets?select=*&user_id=eq.${userId}`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           }),
@@ -212,15 +215,30 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
           }),
           fetch(`${supabaseUrl}/rest/v1/landing_pages?select=title,path,slug&limit=50`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+          }),
+          fetch(`${supabaseUrl}/rest/v1/form_configurations?select=id,form_identifier`, {
+            headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           })
         ]);
 
         buttonPresets = await buttonsRes.json();
         ctaBanners = await bannersRes.json();
         const popupsData = await popupsRes.json();
-        activePopups = Array.isArray(popupsData) ? popupsData : [];
+        const allPopups = Array.isArray(popupsData) ? popupsData : [];
         const landingData = await landingRes.json();
         landingPages = Array.isArray(landingData) ? landingData : [];
+        const formsData = await formsRes.json();
+        const allForms = Array.isArray(formsData) ? formsData : [];
+
+        // Build set of excluded form IDs
+        const excludedFormIds = new Set(
+          allForms
+            .filter((f: any) => EXCLUDED_FORM_IDENTIFIERS.includes(f.form_identifier))
+            .map((f: any) => f.id)
+        );
+
+        // Filter out popups linked to excluded forms
+        activePopups = allPopups.filter((p: any) => !p.form_id || !excludedFormIds.has(p.form_id));
       }
 
       const popupWithForm = activePopups.find((p: any) => p.form_id);
