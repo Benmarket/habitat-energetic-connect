@@ -609,6 +609,7 @@ const AdminPagesAnchors = () => {
             regionName={regionLabels[editingRegional.region_code || ""] || editingRegional.region_code || ""}
             regionCode={editingRegional.region_code || ""}
             initialContent={(editingRegional.regional_content || {}) as RegionalContent}
+            variantSlug={editingRegional.variant_slug}
             onSaved={() => queryClient.invalidateQueries({ queryKey: ["landing-pages"] })}
           />
         )}
