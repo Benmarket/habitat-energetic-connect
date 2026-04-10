@@ -195,7 +195,7 @@ const Header = () => {
     return null;
   };
 
-  const isAdminOrAbove = userRole === 'super_admin' || userRole === 'admin' || userRole === 'moderator';
+  const isAdminOrAbove = userRole === 'super_admin';
 
   return (
     <header className="sticky top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
