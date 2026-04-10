@@ -21,9 +21,9 @@ const LandingIsolationContent = () => {
       <div className="min-h-screen bg-background">
         <Header />
         
-        <main className="pt-20">
+        <main>
           {/* Hero Section */}
-          <section className="relative py-20 px-4 bg-gradient-to-br from-blue-50 to-background">
+          <section className="relative pt-24 pb-12 lg:pt-28 lg:pb-20 px-4 bg-gradient-to-br from-blue-50 to-background">
             <div className="container mx-auto max-w-6xl">
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div>
