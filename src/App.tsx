@@ -57,6 +57,7 @@ const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentia
 const ConditionsUtilisation = lazy(() => import("./pages/ConditionsUtilisation"));
 const MentionsLegales = lazy(() => import("./pages/MentionsLegales"));
 const LandingSolaire = lazy(() => import("./pages/landing/LandingSolaire"));
+const LandingSolaireRegionale = lazy(() => import("./pages/landing/LandingSolaireRegionale"));
 const LandingIsolation = lazy(() => import("./pages/landing/LandingIsolation"));
 const LandingPompeAChaleur = lazy(() => import("./pages/landing/LandingPompeAChaleur"));
 const LandingRenovationGlobale = lazy(() => import("./pages/landing/LandingRenovationGlobale"));
@@ -147,6 +148,8 @@ const App = () => (
 
                   {/* Landing pages - lazy loaded */}
                   <Route path="/landing/solaire" element={<LandingSolaire />} />
+                  <Route path="/landing/solaire/:region" element={<LandingSolaireRegionale />} />
+                  <Route path="/landing/solaire/:region/:variant" element={<LandingSolaireRegionale />} />
                   <Route path="/landing/isolation" element={<LandingIsolation />} />
                   <Route path="/landing/pompe-a-chaleur" element={<LandingPompeAChaleur />} />
                   <Route path="/landing/renovation-globale" element={<LandingRenovationGlobale />} />
