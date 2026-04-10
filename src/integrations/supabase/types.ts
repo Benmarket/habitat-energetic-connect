@@ -989,6 +989,7 @@ export type Database = {
           parent_id: string | null
           path: string
           region_code: string | null
+          regional_content: Json | null
           seo_status: string
           seo_status_changed_at: string | null
           slug: string
@@ -1007,6 +1008,7 @@ export type Database = {
           parent_id?: string | null
           path: string
           region_code?: string | null
+          regional_content?: Json | null
           seo_status?: string
           seo_status_changed_at?: string | null
           slug: string
@@ -1025,6 +1027,7 @@ export type Database = {
           parent_id?: string | null
           path?: string
           region_code?: string | null
+          regional_content?: Json | null
           seo_status?: string
           seo_status_changed_at?: string | null
           slug?: string
