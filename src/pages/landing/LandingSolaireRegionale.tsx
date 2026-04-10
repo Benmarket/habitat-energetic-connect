@@ -751,7 +751,7 @@ const LandingSolaireRegionale = () => {
   const slug = regionCode === "fr" ? "solaire" : `solaire-${regionCode}`;
 
   return (
-    <LandingPageGuard slug={slug}>
+    <LandingPageGuard slug={slug} fallbackSlug="solaire">
       <LandingSolaireRegionaleContent regionCode={regionCode} />
     </LandingPageGuard>
   );
