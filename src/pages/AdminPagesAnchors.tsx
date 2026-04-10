@@ -21,6 +21,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import RegionalContentEditor from "@/components/RegionalContentEditor";
+import type { RegionalContent } from "@/hooks/useRegionalContent";
+import { Pencil } from "lucide-react";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Sun, Home, Thermometer, Building2,
@@ -41,6 +44,7 @@ type LandingPage = {
   updated_at: string;
   parent_id: string | null;
   region_code: string | null;
+  regional_content: RegionalContent | null;
   variant_slug: string | null;
   level: string;
 };
@@ -134,6 +138,7 @@ const AdminPagesAnchors = () => {
   const [previewLanding, setPreviewLanding] = useState<LandingPage | null>(null);
   const [expandedProducts, setExpandedProducts] = useState<Set<string>>(new Set());
   const [expandedRegions, setExpandedRegions] = useState<Set<string>>(new Set());
+  const [editingRegional, setEditingRegional] = useState<LandingPage | null>(null);
 
   const { data: landingPages = [], isLoading } = useQuery({
     queryKey: ["landing-pages"],
@@ -410,6 +415,14 @@ const AdminPagesAnchors = () => {
                                         <SeoMicroBadge status={region.seo_status} />
                                         <Tooltip>
                                           <TooltipTrigger asChild>
+                                            <button onClick={() => setEditingRegional(region)} className="p-1 rounded hover:bg-muted transition-colors">
+                                              <Pencil className="w-3.5 h-3.5 text-muted-foreground hover:text-primary" />
+                                            </button>
+                                          </TooltipTrigger>
+                                          <TooltipContent>Éditer le contenu</TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
                                             <button onClick={() => setPreviewLanding(region)} className="p-1 rounded hover:bg-muted transition-colors">
                                               <Eye className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
                                             </button>
@@ -579,6 +592,18 @@ const AdminPagesAnchors = () => {
             </div>
           </DialogContent>
         </Dialog>
+        {/* Regional Content Editor */}
+        {editingRegional && (
+          <RegionalContentEditor
+            open={!!editingRegional}
+            onOpenChange={(open) => !open && setEditingRegional(null)}
+            landingPageId={editingRegional.id}
+            regionName={regionLabels[editingRegional.region_code || ""] || editingRegional.region_code || ""}
+            regionCode={editingRegional.region_code || ""}
+            initialContent={(editingRegional.regional_content || {}) as RegionalContent}
+            onSaved={() => queryClient.invalidateQueries({ queryKey: ["landing-pages"] })}
+          />
+        )}
       </div>
     </>
   );
