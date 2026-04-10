@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { RegionProvider } from "@/hooks/useRegionContext";
+import AdminGuard from "@/components/AdminGuard";
 import MaintenanceMode from "@/components/MaintenanceMode";
 import CookieBanner from "@/components/CookieBanner";
 import { ScrollToTop } from "@/components/ScrollToTop";
