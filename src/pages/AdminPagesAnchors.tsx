@@ -445,6 +445,14 @@ const AdminPagesAnchors = () => {
                                               <SeoMicroBadge status={variant.seo_status} />
                                               <Tooltip>
                                                 <TooltipTrigger asChild>
+                                                  <button onClick={() => setEditingRegional(variant)} className="p-1 rounded hover:bg-muted transition-colors">
+                                                    <Pencil className="w-3.5 h-3.5 text-muted-foreground hover:text-primary" />
+                                                  </button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>Éditer le contenu</TooltipContent>
+                                              </Tooltip>
+                                              <Tooltip>
+                                                <TooltipTrigger asChild>
                                                   <button onClick={() => setPreviewLanding(variant)} className="p-1 rounded hover:bg-muted transition-colors">
                                                     <Eye className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
                                                   </button>
