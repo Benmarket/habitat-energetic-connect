@@ -138,6 +138,7 @@ const AdminPagesAnchors = () => {
   const [previewLanding, setPreviewLanding] = useState<LandingPage | null>(null);
   const [expandedProducts, setExpandedProducts] = useState<Set<string>>(new Set());
   const [expandedRegions, setExpandedRegions] = useState<Set<string>>(new Set());
+  const [editingRegional, setEditingRegional] = useState<LandingPage | null>(null);
 
   const { data: landingPages = [], isLoading } = useQuery({
     queryKey: ["landing-pages"],
