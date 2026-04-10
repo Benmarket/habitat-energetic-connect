@@ -592,6 +592,18 @@ const AdminPagesAnchors = () => {
             </div>
           </DialogContent>
         </Dialog>
+        {/* Regional Content Editor */}
+        {editingRegional && (
+          <RegionalContentEditor
+            open={!!editingRegional}
+            onOpenChange={(open) => !open && setEditingRegional(null)}
+            landingPageId={editingRegional.id}
+            regionName={regionLabels[editingRegional.region_code || ""] || editingRegional.region_code || ""}
+            regionCode={editingRegional.region_code || ""}
+            initialContent={(editingRegional.regional_content || {}) as RegionalContent}
+            onSaved={() => queryClient.invalidateQueries({ queryKey: ["landing-pages"] })}
+          />
+        )}
       </div>
     </>
   );
