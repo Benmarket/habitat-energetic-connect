@@ -446,7 +446,7 @@ export const ChatBot = () => {
       try {
         // Also save to form_submissions for admin tracking
         const { data: formConfig } = await supabase
-          .from("form_configurations")
+          .from("form_configurations_public")
           .select("id")
           .eq("form_identifier", "chatbot_contacter_prime_energies")
           .single();

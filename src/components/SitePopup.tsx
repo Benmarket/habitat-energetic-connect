@@ -163,7 +163,7 @@ export default function SitePopup() {
     queryFn: async () => {
       if (!activePopup?.form_id) return null;
       const { data, error } = await supabase
-        .from("form_configurations")
+        .from("form_configurations_public")
         .select("*")
         .eq("id", activePopup.form_id)
         .maybeSingle();
