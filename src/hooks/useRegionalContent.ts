@@ -75,6 +75,12 @@ export interface RegionalImages {
   hero?: string;
   context?: string;
   profitability?: string;
+  aids?: string;
+  eligibility?: string;
+  prestation?: string;
+  testimonials?: string;
+  faq?: string;
+  cta?: string;
 }
 
 export interface RegionalContent {

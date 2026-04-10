@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 
   Save, Plus, Trash2, MapPin, TrendingUp, HelpCircle, Quote, 
-  Shield, Search, Users, BarChart3, Loader2, Sparkles, ImageIcon
+  Shield, Search, BarChart3, Loader2, Sparkles, ImageIcon, Eye, Maximize2
 } from "lucide-react";
 import type { RegionalContent, RegionalHighlight, RegionalAidItem, RegionalTestimonial, RegionalFAQ } from "@/hooks/useRegionalContent";
 
@@ -24,16 +24,44 @@ interface RegionalContentEditorProps {
   regionCode: string;
   initialContent: RegionalContent;
   variantSlug?: string | null;
+  pagePath?: string;
   onSaved: () => void;
 }
 
+// Section image config
+const sectionImageConfig = [
+  { key: "hero", label: "Hero (bandeau principal)", fieldKey: "hero_image" as const, isTopLevel: true },
+  { key: "context", label: "Contexte local / Ensoleillement", fieldKey: "context" },
+  { key: "profitability", label: "Rentabilité", fieldKey: "profitability" },
+  { key: "aids", label: "Aides & Subventions", fieldKey: "aids" },
+  { key: "eligibility", label: "Critères d'éligibilité", fieldKey: "eligibility" },
+  { key: "prestation", label: "Notre prestation", fieldKey: "prestation" },
+  { key: "testimonials", label: "Témoignages", fieldKey: "testimonials" },
+  { key: "faq", label: "FAQ", fieldKey: "faq" },
+  { key: "cta", label: "CTA final", fieldKey: "cta" },
+];
+
+// ─── Section Preview Component ───
+const SectionPreview = ({ label, content, imageUrl }: { label: string; content: React.ReactNode; imageUrl?: string }) => (
+  <div className="border border-border rounded-lg overflow-hidden bg-card">
+    <div className="bg-muted/50 px-3 py-1.5 border-b flex items-center justify-between">
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+    </div>
+    <div className="p-3 space-y-2">
+      {imageUrl && <img src={imageUrl} alt={label} className="w-full h-28 object-cover rounded-md" />}
+      <div className="text-xs text-muted-foreground">{content}</div>
+    </div>
+  </div>
+);
+
 const RegionalContentEditor = ({
-  open, onOpenChange, landingPageId, regionName, regionCode, initialContent, variantSlug, onSaved,
+  open, onOpenChange, landingPageId, regionName, regionCode, initialContent, variantSlug, pagePath, onSaved,
 }: RegionalContentEditorProps) => {
   const [content, setContent] = useState<RegionalContent>(initialContent);
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState("hero");
+  const [previewMode, setPreviewMode] = useState<"none" | "section" | "fullpage">("none");
 
   useEffect(() => {
     setContent(initialContent);
@@ -64,15 +92,12 @@ const RegionalContentEditor = ({
       const { data, error } = await supabase.functions.invoke("generate-regional-content", {
         body: { regionCode, regionName, variantSlug: variantSlug || null },
       });
-
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-
       if (data?.content) {
         setContent(prev => ({
           ...prev,
           ...data.content,
-          // Preserve existing images (AI doesn't generate those)
           images: prev.images,
           hero_image: prev.hero_image || data.content.hero_image,
         }));
@@ -132,18 +157,21 @@ const RegionalContentEditor = ({
     }));
   };
 
+  const getImageForSection = (key: string): string | undefined => {
+    if (key === "hero") return content.hero_image;
+    return content.images?.[key as keyof typeof content.images];
+  };
+
   // Array helpers
   const addHighlight = () => {
     const highlights = [...(content.context?.highlights || []), { icon: "Sun", label: "", value: "", description: "" }];
     updateContext("highlights", highlights);
   };
-
   const removeHighlight = (index: number) => {
     const highlights = [...(content.context?.highlights || [])];
     highlights.splice(index, 1);
     updateContext("highlights", highlights);
   };
-
   const updateHighlight = (index: number, field: keyof RegionalHighlight, value: string) => {
     const highlights = [...(content.context?.highlights || [])];
     highlights[index] = { ...highlights[index], [field]: value };
@@ -157,7 +185,6 @@ const RegionalContentEditor = ({
       aids: { title: prev.aids?.title || `Aides en ${regionName}`, items, intro_text: prev.aids?.intro_text },
     }));
   };
-
   const removeAid = (index: number) => {
     const items = [...(content.aids?.items || [])];
     items.splice(index, 1);
@@ -166,7 +193,6 @@ const RegionalContentEditor = ({
       aids: { title: prev.aids?.title || "", items, intro_text: prev.aids?.intro_text },
     }));
   };
-
   const updateAid = (index: number, field: keyof RegionalAidItem, value: any) => {
     const items = [...(content.aids?.items || [])];
     items[index] = { ...items[index], [field]: value };
@@ -179,13 +205,11 @@ const RegionalContentEditor = ({
   const addTestimonial = () => {
     updateField("testimonials", [...(content.testimonials || []), { text: "", name: "", location: regionName }]);
   };
-
   const removeTestimonial = (index: number) => {
     const arr = [...(content.testimonials || [])];
     arr.splice(index, 1);
     updateField("testimonials", arr);
   };
-
   const updateTestimonial = (index: number, field: keyof RegionalTestimonial, value: string) => {
     const arr = [...(content.testimonials || [])];
     arr[index] = { ...arr[index], [field]: value };
@@ -195,13 +219,11 @@ const RegionalContentEditor = ({
   const addFaq = () => {
     updateField("faq", [...(content.faq || []), { question: "", answer: "" }]);
   };
-
   const removeFaq = (index: number) => {
     const arr = [...(content.faq || [])];
     arr.splice(index, 1);
     updateField("faq", arr);
   };
-
   const updateFaq = (index: number, field: keyof RegionalFAQ, value: string) => {
     const arr = [...(content.faq || [])];
     arr[index] = { ...arr[index], [field]: value };
@@ -217,9 +239,92 @@ const RegionalContentEditor = ({
     content.seo?.h1,
   ].filter(Boolean).length;
 
+  // Section preview content builders
+  const getSectionPreviewContent = (tabKey: string) => {
+    switch (tabKey) {
+      case "hero":
+        return (
+          <div>
+            <p className="font-semibold text-sm text-foreground mb-1">{content.hero_title || `Panneaux Solaires en ${regionName}`}</p>
+            <p className="text-xs">{content.hero_subtitle || "Faites jusqu'à 70% d'économie..."}</p>
+          </div>
+        );
+      case "context":
+        return (
+          <div>
+            <p className="font-semibold text-sm text-foreground mb-1">{content.context?.title || "Contexte local"}</p>
+            <p className="text-xs line-clamp-2">{content.context?.intro_text || "Non renseigné"}</p>
+            {content.context?.highlights?.length ? (
+              <div className="flex gap-2 mt-2 flex-wrap">
+                {content.context.highlights.map((h, i) => (
+                  <Badge key={i} variant="secondary" className="text-[10px]">{h.label}: {h.value}</Badge>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        );
+      case "profitability":
+        return (
+          <div>
+            <p className="font-semibold text-sm text-foreground mb-1">{content.profitability?.title || "Rentabilité"}</p>
+            <div className="flex gap-3 mt-1">
+              {content.profitability?.roi_years && <Badge variant="outline" className="text-[10px]">ROI: {content.profitability.roi_years} ans</Badge>}
+              {content.profitability?.savings_25_years && <Badge variant="outline" className="text-[10px]">{content.profitability.savings_25_years}</Badge>}
+            </div>
+          </div>
+        );
+      case "aids":
+        return (
+          <div>
+            <p className="font-semibold text-sm text-foreground mb-1">{content.aids?.title || "Aides"}</p>
+            <p className="text-xs">{content.aids?.items?.length || 0} aide(s) configurée(s)</p>
+            {content.aids?.items?.slice(0, 2).map((a, i) => (
+              <div key={i} className="flex justify-between mt-1">
+                <span className="text-[10px] truncate">{a.name}</span>
+                <Badge variant="secondary" className="text-[10px] ml-1">{a.amount}</Badge>
+              </div>
+            ))}
+          </div>
+        );
+      case "testimonials":
+        return (
+          <div>
+            <p className="font-semibold text-sm text-foreground mb-1">Témoignages</p>
+            <p className="text-xs">{content.testimonials?.length || 0} témoignage(s)</p>
+            {content.testimonials?.[0] && (
+              <p className="text-xs italic mt-1 line-clamp-2">"{content.testimonials[0].text}"</p>
+            )}
+          </div>
+        );
+      case "faq":
+        return (
+          <div>
+            <p className="font-semibold text-sm text-foreground mb-1">FAQ Régionale</p>
+            <p className="text-xs">{content.faq?.length || 0} question(s)</p>
+            {content.faq?.slice(0, 2).map((f, i) => (
+              <p key={i} className="text-[10px] mt-1 truncate">• {f.question}</p>
+            ))}
+          </div>
+        );
+      case "seo":
+        return (
+          <div>
+            <p className="font-semibold text-sm text-foreground mb-1">SEO</p>
+            <p className="text-xs truncate">{content.seo?.meta_title || "Non configuré"}</p>
+            <p className="text-[10px] mt-1">H1: {content.seo?.h1 || "—"}</p>
+          </div>
+        );
+      default:
+        return <p className="text-xs">Section non configurée</p>;
+    }
+  };
+
+  // Compute preview URL
+  const previewUrl = pagePath || `/landing/solaire/${regionCode}`;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[92vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MapPin className="w-5 h-5 text-primary" />
@@ -229,37 +334,87 @@ const RegionalContentEditor = ({
           </DialogTitle>
         </DialogHeader>
 
-        {/* AI Generate Button */}
-        <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
-          <Sparkles className="w-5 h-5 text-primary flex-shrink-0" />
-          <div className="flex-1">
-            <p className="text-sm font-medium">Remplissage IA</p>
-            <p className="text-xs text-muted-foreground">Génère automatiquement tout le contenu pour cette région. Vous pourrez éditer manuellement ensuite.</p>
+        {/* AI + Preview bar */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* AI Generate */}
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20 flex-1">
+            <Sparkles className="w-5 h-5 text-primary flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium">Remplissage IA</p>
+              <p className="text-xs text-muted-foreground truncate">Génère tout le contenu automatiquement</p>
+            </div>
+            <Button onClick={handleAIGenerate} disabled={generating} variant="default" size="sm" className="flex-shrink-0">
+              {generating ? <><Loader2 className="w-4 h-4 mr-1 animate-spin" />Génération...</> : <><Sparkles className="w-4 h-4 mr-1" />Remplir</>}
+            </Button>
           </div>
-          <Button
-            onClick={handleAIGenerate}
-            disabled={generating}
-            variant="default"
-            size="sm"
-            className="flex-shrink-0"
-          >
-            {generating ? (
-              <><Loader2 className="w-4 h-4 mr-1 animate-spin" />Génération...</>
-            ) : (
-              <><Sparkles className="w-4 h-4 mr-1" />Remplir avec l'IA</>
-            )}
-          </Button>
+
+          {/* Preview buttons */}
+          <div className="flex gap-2">
+            <Button
+              variant={previewMode === "section" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setPreviewMode(previewMode === "section" ? "none" : "section")}
+              className="gap-1"
+            >
+              <Eye className="w-4 h-4" />
+              <span className="hidden sm:inline">Sections</span>
+            </Button>
+            <Button
+              variant={previewMode === "fullpage" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setPreviewMode(previewMode === "fullpage" ? "none" : "fullpage")}
+              className="gap-1"
+            >
+              <Maximize2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Page</span>
+            </Button>
+          </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-2">
+        {/* Full page preview */}
+        {previewMode === "fullpage" && (
+          <div className="border border-border rounded-lg overflow-hidden bg-muted/30 animate-fade-in">
+            <div className="flex items-center justify-between px-3 py-2 bg-muted border-b">
+              <span className="text-xs font-medium text-muted-foreground">Prévisualisation page complète</span>
+              <Button variant="ghost" size="sm" className="text-xs h-6" onClick={() => window.open(previewUrl, "_blank")}>
+                Ouvrir dans un nouvel onglet ↗
+              </Button>
+            </div>
+            <iframe src={previewUrl} className="w-full h-[400px]" title={`Prévisualisation ${regionName}`} />
+          </div>
+        )}
+
+        {/* Section previews grid */}
+        {previewMode === "section" && (
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 animate-fade-in">
+            {["hero", "context", "profitability", "aids", "testimonials", "faq"].map(key => (
+              <button
+                key={key}
+                className="text-left hover:ring-2 hover:ring-primary/50 rounded-lg transition-all"
+                onClick={() => {
+                  setActiveTab(key);
+                  setPreviewMode("none");
+                }}
+              >
+                <SectionPreview
+                  label={sectionImageConfig.find(s => s.key === key)?.label || key}
+                  imageUrl={getImageForSection(key)}
+                  content={getSectionPreviewContent(key)}
+                />
+              </button>
+            ))}
+          </div>
+        )}
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-1">
           <TabsList className="grid grid-cols-4 lg:grid-cols-8 gap-1">
             <TabsTrigger value="hero" className="text-xs">Hero</TabsTrigger>
-            <TabsTrigger value="images" className="text-xs">Images</TabsTrigger>
             <TabsTrigger value="context" className="text-xs">Contexte</TabsTrigger>
             <TabsTrigger value="profitability" className="text-xs">Rentabilité</TabsTrigger>
             <TabsTrigger value="aids" className="text-xs">Aides</TabsTrigger>
             <TabsTrigger value="testimonials" className="text-xs">Témoignages</TabsTrigger>
             <TabsTrigger value="faq" className="text-xs">FAQ</TabsTrigger>
+            <TabsTrigger value="images" className="text-xs">Images</TabsTrigger>
             <TabsTrigger value="seo" className="text-xs">SEO & Biz</TabsTrigger>
           </TabsList>
 
@@ -280,35 +435,9 @@ const RegionalContentEditor = ({
                   <Textarea value={content.hero_subtitle || ""} onChange={e => updateField("hero_subtitle", e.target.value)} placeholder="Faites jusqu'à 70% d'économie..." rows={2} />
                 </div>
                 <div>
-                  <Label>URL image hero</Label>
+                  <Label>Image Hero</Label>
                   <Input value={content.hero_image || ""} onChange={e => updateField("hero_image", e.target.value)} placeholder="https://..." />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Images */}
-          <TabsContent value="images" className="space-y-4 mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2"><ImageIcon className="w-4 h-4" />Images par section</CardTitle>
-                <CardDescription>Images spécifiques à la région pour chaque section. Laissez vide pour les images par défaut.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label>Image Hero (bandeau principal)</Label>
-                  <Input value={content.hero_image || ""} onChange={e => updateField("hero_image", e.target.value)} placeholder="https://..." />
-                  {content.hero_image && <img src={content.hero_image} alt="Hero preview" className="mt-2 rounded-lg h-24 object-cover w-full" />}
-                </div>
-                <div>
-                  <Label>Image Contexte (section ensoleillement)</Label>
-                  <Input value={content.images?.context || ""} onChange={e => updateImages("context", e.target.value)} placeholder="https://..." />
-                  {content.images?.context && <img src={content.images.context} alt="Context preview" className="mt-2 rounded-lg h-24 object-cover w-full" />}
-                </div>
-                <div>
-                  <Label>Image Rentabilité</Label>
-                  <Input value={content.images?.profitability || ""} onChange={e => updateImages("profitability", e.target.value)} placeholder="https://..." />
-                  {content.images?.profitability && <img src={content.images.profitability} alt="Profitability preview" className="mt-2 rounded-lg h-24 object-cover w-full" />}
+                  {content.hero_image && <img src={content.hero_image} alt="Hero" className="mt-2 rounded-lg h-32 object-cover w-full" />}
                 </div>
               </CardContent>
             </Card>
@@ -330,7 +459,11 @@ const RegionalContentEditor = ({
                   <Label>Texte d'introduction</Label>
                   <Textarea value={content.context?.intro_text || ""} onChange={e => updateContext("intro_text", e.target.value)} placeholder="Avec plus de 2800 heures d'ensoleillement..." rows={3} />
                 </div>
-
+                <div>
+                  <Label>Image de section</Label>
+                  <Input value={content.images?.context || ""} onChange={e => updateImages("context", e.target.value)} placeholder="https://..." />
+                  {content.images?.context && <img src={content.images.context} alt="Contexte" className="mt-2 rounded-lg h-28 object-cover w-full" />}
+                </div>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label>Points clés (highlights)</Label>
@@ -365,6 +498,11 @@ const RegionalContentEditor = ({
                 </div>
                 <div><Label>Texte d'intro</Label><Textarea value={content.profitability?.intro_text || ""} onChange={e => updateProfitability("intro_text", e.target.value)} rows={2} /></div>
                 <div><Label>Texte comparatif</Label><Textarea value={content.profitability?.comparison_text || ""} onChange={e => updateProfitability("comparison_text", e.target.value)} rows={2} placeholder="Comparé à la moyenne nationale..." /></div>
+                <div>
+                  <Label>Image de section</Label>
+                  <Input value={content.images?.profitability || ""} onChange={e => updateImages("profitability", e.target.value)} placeholder="https://..." />
+                  {content.images?.profitability && <img src={content.images.profitability} alt="Rentabilité" className="mt-2 rounded-lg h-28 object-cover w-full" />}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -379,6 +517,11 @@ const RegionalContentEditor = ({
               <CardContent className="space-y-4">
                 <div><Label>Titre de section</Label><Input value={content.aids?.title || ""} onChange={e => setContent(prev => ({ ...prev, aids: { ...prev.aids!, title: e.target.value, items: prev.aids?.items || [] } }))} /></div>
                 <div><Label>Texte d'intro</Label><Textarea value={content.aids?.intro_text || ""} onChange={e => setContent(prev => ({ ...prev, aids: { ...prev.aids!, intro_text: e.target.value, items: prev.aids?.items || [], title: prev.aids?.title || "" } }))} rows={2} /></div>
+                <div>
+                  <Label>Image de section</Label>
+                  <Input value={content.images?.aids || ""} onChange={e => updateImages("aids", e.target.value)} placeholder="https://..." />
+                  {content.images?.aids && <img src={content.images.aids} alt="Aides" className="mt-2 rounded-lg h-28 object-cover w-full" />}
+                </div>
                 <div className="flex items-center justify-between">
                   <Label>Aides</Label>
                   <Button variant="outline" size="sm" onClick={addAid}><Plus className="w-3 h-3 mr-1" />Ajouter</Button>
@@ -411,6 +554,11 @@ const RegionalContentEditor = ({
                 <CardTitle className="text-base flex items-center gap-2"><Quote className="w-4 h-4" />Témoignages</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div>
+                  <Label>Image de section</Label>
+                  <Input value={content.images?.testimonials || ""} onChange={e => updateImages("testimonials", e.target.value)} placeholder="https://..." />
+                  {content.images?.testimonials && <img src={content.images.testimonials} alt="Témoignages" className="mt-2 rounded-lg h-28 object-cover w-full" />}
+                </div>
                 <div className="flex justify-end"><Button variant="outline" size="sm" onClick={addTestimonial}><Plus className="w-3 h-3 mr-1" />Ajouter</Button></div>
                 {(content.testimonials || []).map((t, i) => (
                   <div key={i} className="p-3 rounded-lg bg-muted/50 space-y-2">
@@ -433,6 +581,11 @@ const RegionalContentEditor = ({
                 <CardTitle className="text-base flex items-center gap-2"><HelpCircle className="w-4 h-4" />FAQ Régionale</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div>
+                  <Label>Image de section</Label>
+                  <Input value={content.images?.faq || ""} onChange={e => updateImages("faq", e.target.value)} placeholder="https://..." />
+                  {content.images?.faq && <img src={content.images.faq} alt="FAQ" className="mt-2 rounded-lg h-28 object-cover w-full" />}
+                </div>
                 <div className="flex justify-end"><Button variant="outline" size="sm" onClick={addFaq}><Plus className="w-3 h-3 mr-1" />Ajouter</Button></div>
                 {(content.faq || []).map((f, i) => (
                   <div key={i} className="p-3 rounded-lg bg-muted/50 space-y-2">
@@ -443,6 +596,39 @@ const RegionalContentEditor = ({
                     <div><Label className="text-xs">Réponse</Label><Textarea value={f.answer} onChange={e => updateFaq(i, "answer", e.target.value)} rows={2} /></div>
                   </div>
                 ))}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Images - all sections */}
+          <TabsContent value="images" className="space-y-4 mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2"><ImageIcon className="w-4 h-4" />Images par section</CardTitle>
+                <CardDescription>Chaque section possède une image. Laissez vide pour utiliser l'image par défaut.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-5">
+                {sectionImageConfig.map(({ key, label, fieldKey, isTopLevel }) => {
+                  const value = isTopLevel ? content.hero_image || "" : content.images?.[fieldKey as keyof typeof content.images] || "";
+                  const onChange = isTopLevel
+                    ? (v: string) => updateField("hero_image", v)
+                    : (v: string) => updateImages(fieldKey, v);
+                  return (
+                    <div key={key} className="grid grid-cols-[1fr_auto] gap-3 items-start p-3 rounded-lg bg-muted/30 border border-border/50">
+                      <div>
+                        <Label className="text-sm font-medium">{label}</Label>
+                        <Input value={value} onChange={e => onChange(e.target.value)} placeholder="https://..." className="mt-1" />
+                      </div>
+                      {value ? (
+                        <img src={value} alt={label} className="w-24 h-16 object-cover rounded-md border" />
+                      ) : (
+                        <div className="w-24 h-16 rounded-md border border-dashed border-muted-foreground/30 flex items-center justify-center">
+                          <ImageIcon className="w-5 h-5 text-muted-foreground/40" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </CardContent>
             </Card>
           </TabsContent>
