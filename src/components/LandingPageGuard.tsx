@@ -5,10 +5,11 @@ import { Loader2 } from "lucide-react";
 
 interface LandingPageGuardProps {
   slug: string;
+  fallbackSlug?: string;
   children: React.ReactNode;
 }
 
-const LandingPageGuard = ({ slug, children }: LandingPageGuardProps) => {
+const LandingPageGuard = ({ slug, fallbackSlug, children }: LandingPageGuardProps) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [isAccessible, setIsAccessible] = useState(false);
@@ -23,18 +24,30 @@ const LandingPageGuard = ({ slug, children }: LandingPageGuardProps) => {
           .single();
 
         if (error || !data) {
-          // Page not found in DB, redirect to 404
+          // Page not found — try fallback if provided
+          if (fallbackSlug) {
+            const { data: fallbackData, error: fallbackError } = await supabase
+              .from("landing_pages")
+              .select("seo_status")
+              .eq("slug", fallbackSlug)
+              .single();
+
+            if (!fallbackError && fallbackData && fallbackData.seo_status !== "disabled") {
+              // Fallback exists and is accessible → allow rendering with fallback content
+              setIsAccessible(true);
+              setLoading(false);
+              return;
+            }
+          }
           navigate("/404", { replace: true });
           return;
         }
 
         if (data.seo_status === "disabled") {
-          // Page is disabled, redirect to 404
           navigate("/404", { replace: true });
           return;
         }
 
-        // Page is accessible (seo or hidden)
         setIsAccessible(true);
       } catch (err) {
         console.error("Error checking landing page access:", err);
@@ -45,7 +58,7 @@ const LandingPageGuard = ({ slug, children }: LandingPageGuardProps) => {
     };
 
     checkAccess();
-  }, [slug, navigate]);
+  }, [slug, fallbackSlug, navigate]);
 
   if (loading) {
     return (
@@ -55,9 +68,7 @@ const LandingPageGuard = ({ slug, children }: LandingPageGuardProps) => {
     );
   }
 
-  if (!isAccessible) {
-    return null;
-  }
+  if (!isAccessible) return null;
 
   return <>{children}</>;
 };
