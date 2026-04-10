@@ -37,6 +37,7 @@ export interface RegionalAidItem {
   amount: string;
   description: string;
   is_local: boolean;
+  year?: number;
 }
 
 export interface RegionalAids {

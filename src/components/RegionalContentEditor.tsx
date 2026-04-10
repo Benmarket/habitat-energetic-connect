@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 
   Save, Plus, Trash2, MapPin, TrendingUp, HelpCircle, Quote, 
-  Shield, Search, Users, BarChart3, Loader2
+  Shield, Search, Users, BarChart3, Loader2, Sparkles, ImageIcon
 } from "lucide-react";
 import type { RegionalContent, RegionalHighlight, RegionalAidItem, RegionalTestimonial, RegionalFAQ } from "@/hooks/useRegionalContent";
 
@@ -23,14 +23,16 @@ interface RegionalContentEditorProps {
   regionName: string;
   regionCode: string;
   initialContent: RegionalContent;
+  variantSlug?: string | null;
   onSaved: () => void;
 }
 
 const RegionalContentEditor = ({
-  open, onOpenChange, landingPageId, regionName, regionCode, initialContent, onSaved,
+  open, onOpenChange, landingPageId, regionName, regionCode, initialContent, variantSlug, onSaved,
 }: RegionalContentEditorProps) => {
   const [content, setContent] = useState<RegionalContent>(initialContent);
   const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState("hero");
 
   useEffect(() => {
@@ -53,6 +55,40 @@ const RegionalContentEditor = ({
       toast.error("Erreur lors de la sauvegarde");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleAIGenerate = async () => {
+    setGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-regional-content", {
+        body: { regionCode, regionName, variantSlug: variantSlug || null },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      if (data?.content) {
+        setContent(prev => ({
+          ...prev,
+          ...data.content,
+          // Preserve existing images (AI doesn't generate those)
+          images: prev.images,
+          hero_image: prev.hero_image || data.content.hero_image,
+        }));
+        toast.success("Contenu généré par l'IA ! Vérifiez et ajustez avant de sauvegarder.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      if (err?.message?.includes("429") || err?.message?.includes("Limite")) {
+        toast.error("Limite de requêtes atteinte, réessayez dans quelques minutes.");
+      } else if (err?.message?.includes("402") || err?.message?.includes("Crédits")) {
+        toast.error("Crédits IA insuffisants.");
+      } else {
+        toast.error("Erreur lors de la génération IA");
+      }
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -89,6 +125,13 @@ const RegionalContentEditor = ({
     }));
   };
 
+  const updateImages = (field: string, value: string) => {
+    setContent(prev => ({
+      ...prev,
+      images: { ...prev.images, [field]: value },
+    }));
+  };
+
   // Array helpers
   const addHighlight = () => {
     const highlights = [...(content.context?.highlights || []), { icon: "Sun", label: "", value: "", description: "" }];
@@ -108,7 +151,7 @@ const RegionalContentEditor = ({
   };
 
   const addAid = () => {
-    const items = [...(content.aids?.items || []), { name: "", amount: "", description: "", is_local: true }];
+    const items = [...(content.aids?.items || []), { name: "", amount: "", description: "", is_local: true, year: new Date().getFullYear() }];
     setContent(prev => ({
       ...prev,
       aids: { title: prev.aids?.title || `Aides en ${regionName}`, items, intro_text: prev.aids?.intro_text },
@@ -167,7 +210,7 @@ const RegionalContentEditor = ({
 
   const filledCount = [
     content.context?.intro_text,
-    content.profitability?.table_data?.length,
+    content.profitability?.table_data?.length || content.profitability?.roi_years,
     content.aids?.items?.length,
     content.testimonials?.length,
     content.faq?.length,
@@ -181,19 +224,43 @@ const RegionalContentEditor = ({
           <DialogTitle className="flex items-center gap-2">
             <MapPin className="w-5 h-5 text-primary" />
             Contenu régional — {regionName}
+            {variantSlug && <Badge variant="outline" className="text-xs">{variantSlug}</Badge>}
             <Badge variant="secondary">{filledCount}/6 sections</Badge>
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
-          <TabsList className="grid grid-cols-3 lg:grid-cols-7 gap-1">
+        {/* AI Generate Button */}
+        <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
+          <Sparkles className="w-5 h-5 text-primary flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-medium">Remplissage IA</p>
+            <p className="text-xs text-muted-foreground">Génère automatiquement tout le contenu pour cette région. Vous pourrez éditer manuellement ensuite.</p>
+          </div>
+          <Button
+            onClick={handleAIGenerate}
+            disabled={generating}
+            variant="default"
+            size="sm"
+            className="flex-shrink-0"
+          >
+            {generating ? (
+              <><Loader2 className="w-4 h-4 mr-1 animate-spin" />Génération...</>
+            ) : (
+              <><Sparkles className="w-4 h-4 mr-1" />Remplir avec l'IA</>
+            )}
+          </Button>
+        </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-2">
+          <TabsList className="grid grid-cols-4 lg:grid-cols-8 gap-1">
             <TabsTrigger value="hero" className="text-xs">Hero</TabsTrigger>
+            <TabsTrigger value="images" className="text-xs">Images</TabsTrigger>
             <TabsTrigger value="context" className="text-xs">Contexte</TabsTrigger>
             <TabsTrigger value="profitability" className="text-xs">Rentabilité</TabsTrigger>
             <TabsTrigger value="aids" className="text-xs">Aides</TabsTrigger>
             <TabsTrigger value="testimonials" className="text-xs">Témoignages</TabsTrigger>
             <TabsTrigger value="faq" className="text-xs">FAQ</TabsTrigger>
-            <TabsTrigger value="seo" className="text-xs">SEO & Business</TabsTrigger>
+            <TabsTrigger value="seo" className="text-xs">SEO & Biz</TabsTrigger>
           </TabsList>
 
           {/* Hero */}
@@ -201,7 +268,7 @@ const RegionalContentEditor = ({
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Section Hero</CardTitle>
-                <CardDescription>Titre et sous-titre de la page. Laissez vide pour utiliser le fallback national.</CardDescription>
+                <CardDescription>Titre et sous-titre. Laissez vide pour le fallback national.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -215,6 +282,33 @@ const RegionalContentEditor = ({
                 <div>
                   <Label>URL image hero</Label>
                   <Input value={content.hero_image || ""} onChange={e => updateField("hero_image", e.target.value)} placeholder="https://..." />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Images */}
+          <TabsContent value="images" className="space-y-4 mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2"><ImageIcon className="w-4 h-4" />Images par section</CardTitle>
+                <CardDescription>Images spécifiques à la région pour chaque section. Laissez vide pour les images par défaut.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label>Image Hero (bandeau principal)</Label>
+                  <Input value={content.hero_image || ""} onChange={e => updateField("hero_image", e.target.value)} placeholder="https://..." />
+                  {content.hero_image && <img src={content.hero_image} alt="Hero preview" className="mt-2 rounded-lg h-24 object-cover w-full" />}
+                </div>
+                <div>
+                  <Label>Image Contexte (section ensoleillement)</Label>
+                  <Input value={content.images?.context || ""} onChange={e => updateImages("context", e.target.value)} placeholder="https://..." />
+                  {content.images?.context && <img src={content.images.context} alt="Context preview" className="mt-2 rounded-lg h-24 object-cover w-full" />}
+                </div>
+                <div>
+                  <Label>Image Rentabilité</Label>
+                  <Input value={content.images?.profitability || ""} onChange={e => updateImages("profitability", e.target.value)} placeholder="https://..." />
+                  {content.images?.profitability && <img src={content.images.profitability} alt="Profitability preview" className="mt-2 rounded-lg h-24 object-cover w-full" />}
                 </div>
               </CardContent>
             </Card>
@@ -284,15 +378,17 @@ const RegionalContentEditor = ({
               </CardHeader>
               <CardContent className="space-y-4">
                 <div><Label>Titre de section</Label><Input value={content.aids?.title || ""} onChange={e => setContent(prev => ({ ...prev, aids: { ...prev.aids!, title: e.target.value, items: prev.aids?.items || [] } }))} /></div>
+                <div><Label>Texte d'intro</Label><Textarea value={content.aids?.intro_text || ""} onChange={e => setContent(prev => ({ ...prev, aids: { ...prev.aids!, intro_text: e.target.value, items: prev.aids?.items || [], title: prev.aids?.title || "" } }))} rows={2} /></div>
                 <div className="flex items-center justify-between">
                   <Label>Aides</Label>
                   <Button variant="outline" size="sm" onClick={addAid}><Plus className="w-3 h-3 mr-1" />Ajouter</Button>
                 </div>
                 {(content.aids?.items || []).map((aid, i) => (
                   <div key={i} className="p-3 rounded-lg bg-muted/50 space-y-2">
-                    <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-end">
+                    <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-end">
                       <div><Label className="text-xs">Nom</Label><Input value={aid.name} onChange={e => updateAid(i, "name", e.target.value)} placeholder="Prime Autoconsommation" /></div>
-                      <div><Label className="text-xs">Montant</Label><Input value={aid.amount} onChange={e => updateAid(i, "amount", e.target.value)} placeholder="1 500 €" className="w-32" /></div>
+                      <div><Label className="text-xs">Montant</Label><Input value={aid.amount} onChange={e => updateAid(i, "amount", e.target.value)} placeholder="1 500 €" className="w-28" /></div>
+                      <div><Label className="text-xs">Année</Label><Input type="number" value={aid.year || new Date().getFullYear()} onChange={e => updateAid(i, "year", Number(e.target.value))} className="w-20" /></div>
                       <Button variant="ghost" size="icon" onClick={() => removeAid(i)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
                     </div>
                     <div className="grid grid-cols-[1fr_auto] gap-2 items-center">
@@ -368,7 +464,7 @@ const RegionalContentEditor = ({
             <Card>
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2"><BarChart3 className="w-4 h-4" />Variables Business</CardTitle>
-                <CardDescription>Données dynamiques pour renforcer la conversion (nombre de clients, installations, etc.)</CardDescription>
+                <CardDescription>Données dynamiques pour renforcer la conversion</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -382,10 +478,10 @@ const RegionalContentEditor = ({
           </TabsContent>
         </Tabs>
 
-        <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
+        <div className="flex justify-end gap-2 pt-4 border-t">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
           <Button onClick={handleSave} disabled={saving}>
-            {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+            {saving ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Save className="w-4 h-4 mr-1" />}
             Sauvegarder
           </Button>
         </div>
