@@ -334,7 +334,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
         <main>
 
           {/* ═══ SECTION 1: Hero Banner ═══ */}
-          <section className="relative py-12 lg:py-20 px-4 overflow-hidden">
+          <section className="relative pt-24 pb-12 lg:pt-28 lg:pb-20 px-4 overflow-hidden">
             <img src={fondGris} alt="" className="absolute inset-0 w-full h-full object-cover" aria-hidden="true" />
             <div className="absolute inset-0 bg-background/30" aria-hidden="true" />
             <div className="container mx-auto max-w-7xl relative z-10">
