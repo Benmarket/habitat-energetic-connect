@@ -654,9 +654,9 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed px-2">{t.text}</p>
                     <p className="font-bold text-foreground">{t.name}</p>
-                    {"location" in t && t.location && (
+                    {"location" in t && (t as { location?: string }).location && (
                       <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-                        <MapPin className="w-3 h-3" /> {t.location}
+                        <MapPin className="w-3 h-3" /> {(t as { location?: string }).location}
                       </p>
                     )}
                   </div>
