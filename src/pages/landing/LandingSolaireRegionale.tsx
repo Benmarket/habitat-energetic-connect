@@ -331,7 +331,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
 
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="pt-20">
+        <main>
 
           {/* ═══ SECTION 1: Hero Banner ═══ */}
           <section className="relative py-12 lg:py-20 px-4 overflow-hidden">
