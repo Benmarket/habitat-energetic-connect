@@ -113,35 +113,35 @@ const App = () => (
                   <Route path="/tableau-de-bord" element={<Dashboard />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/profil" element={<Profil />} />
-                  <Route path="/creer-contenu" element={<AdminGuard><CreatePost /></AdminGuard>} />
+                  <Route path="/creer-contenu" element={<AdminGuard allowedRoles={["super_admin"]}><CreatePost /></AdminGuard>} />
 
-                  {/* Management pages - protected */}
-                  <Route path="/gerer-actualites" element={<AdminGuard><ManageActualites /></AdminGuard>} />
-                  <Route path="/gerer-guides" element={<AdminGuard><ManageGuides /></AdminGuard>} />
-                  <Route path="/gerer-aides" element={<AdminGuard><ManageAides /></AdminGuard>} />
-                  <Route path="/gerer-annonces" element={<AdminGuard><ManageAnnonces /></AdminGuard>} />
+                  {/* Management pages - super_admin only */}
+                  <Route path="/gerer-actualites" element={<AdminGuard allowedRoles={["super_admin"]}><ManageActualites /></AdminGuard>} />
+                  <Route path="/gerer-guides" element={<AdminGuard allowedRoles={["super_admin"]}><ManageGuides /></AdminGuard>} />
+                  <Route path="/gerer-aides" element={<AdminGuard allowedRoles={["super_admin"]}><ManageAides /></AdminGuard>} />
+                  <Route path="/gerer-annonces" element={<AdminGuard allowedRoles={["super_admin"]}><ManageAnnonces /></AdminGuard>} />
 
-                  {/* Admin pages - protected */}
-                  <Route path="/admin/annonceurs" element={<AdminGuard allowedRoles={["super_admin", "admin"]}><AdminAdvertising /></AdminGuard>} />
-                  <Route path="/admin/annonces" element={<AdminGuard allowedRoles={["super_admin", "admin"]}><AdminAdvertising /></AdminGuard>} />
-                  <Route path="/chat-support" element={<AdminGuard><ChatSupport /></AdminGuard>} />
-                  <Route path="/administration" element={<AdminGuard><Administration /></AdminGuard>} />
+                  {/* Admin pages - super_admin only */}
+                  <Route path="/admin/annonceurs" element={<AdminGuard allowedRoles={["super_admin"]}><AdminAdvertising /></AdminGuard>} />
+                  <Route path="/admin/annonces" element={<AdminGuard allowedRoles={["super_admin"]}><AdminAdvertising /></AdminGuard>} />
+                  <Route path="/chat-support" element={<AdminGuard allowedRoles={["super_admin"]}><ChatSupport /></AdminGuard>} />
+                  <Route path="/administration" element={<AdminGuard allowedRoles={["super_admin"]}><Administration /></AdminGuard>} />
                   <Route path="/admin/utilisateurs" element={<AdminGuard allowedRoles={["super_admin"]}><AdminUsers /></AdminGuard>} />
-                  <Route path="/admin/categories" element={<AdminGuard allowedRoles={["super_admin", "admin"]}><AdminCategories /></AdminGuard>} />
-                  <Route path="/admin/etiquettes" element={<AdminGuard allowedRoles={["super_admin", "admin"]}><AdminTags /></AdminGuard>} />
+                  <Route path="/admin/categories" element={<AdminGuard allowedRoles={["super_admin"]}><AdminCategories /></AdminGuard>} />
+                  <Route path="/admin/etiquettes" element={<AdminGuard allowedRoles={["super_admin"]}><AdminTags /></AdminGuard>} />
                   <Route path="/admin/parametres" element={<AdminGuard allowedRoles={["super_admin"]}><AdminSettings /></AdminGuard>} />
-                  <Route path="/admin/boutons" element={<AdminGuard><AdminButtons /></AdminGuard>} />
-                  <Route path="/admin/bandeaux-cta" element={<AdminGuard><AdminCtaBanners /></AdminGuard>} />
-                  <Route path="/admin/newsletter" element={<AdminGuard allowedRoles={["super_admin", "admin"]}><AdminNewsletter /></AdminGuard>} />
-                  <Route path="/admin/chatbot" element={<AdminGuard allowedRoles={["super_admin", "admin"]}><AdminChatbot /></AdminGuard>} />
-                  <Route path="/admin/chat-history" element={<AdminGuard><AdminChatHistory /></AdminGuard>} />
-                  <Route path="/admin/formulaires" element={<AdminGuard allowedRoles={["super_admin", "admin"]}><AdminForms /></AdminGuard>} />
-                  <Route path="/admin/popups" element={<AdminGuard allowedRoles={["super_admin", "admin"]}><AdminPopups /></AdminGuard>} />
-                  <Route path="/admin/landing-pages" element={<AdminGuard allowedRoles={["super_admin", "admin"]}><AdminLandingPages /></AdminGuard>} />
-                  <Route path="/admin/pages-ancres" element={<AdminGuard allowedRoles={["super_admin", "admin"]}><AdminPagesAnchors /></AdminGuard>} />
-                  <Route path="/admin/simulateurs" element={<AdminGuard allowedRoles={["super_admin", "admin"]}><AdminSimulators /></AdminGuard>} />
-                  <Route path="/admin/app" element={<AdminGuard allowedRoles={["super_admin", "admin"]}><AdminApp /></AdminGuard>} />
-                  <Route path="/admin/auteurs" element={<AdminGuard allowedRoles={["super_admin", "admin"]}><AdminAuthors /></AdminGuard>} />
+                  <Route path="/admin/boutons" element={<AdminGuard allowedRoles={["super_admin"]}><AdminButtons /></AdminGuard>} />
+                  <Route path="/admin/bandeaux-cta" element={<AdminGuard allowedRoles={["super_admin"]}><AdminCtaBanners /></AdminGuard>} />
+                  <Route path="/admin/newsletter" element={<AdminGuard allowedRoles={["super_admin"]}><AdminNewsletter /></AdminGuard>} />
+                  <Route path="/admin/chatbot" element={<AdminGuard allowedRoles={["super_admin"]}><AdminChatbot /></AdminGuard>} />
+                  <Route path="/admin/chat-history" element={<AdminGuard allowedRoles={["super_admin"]}><AdminChatHistory /></AdminGuard>} />
+                  <Route path="/admin/formulaires" element={<AdminGuard allowedRoles={["super_admin"]}><AdminForms /></AdminGuard>} />
+                  <Route path="/admin/popups" element={<AdminGuard allowedRoles={["super_admin"]}><AdminPopups /></AdminGuard>} />
+                  <Route path="/admin/landing-pages" element={<AdminGuard allowedRoles={["super_admin"]}><AdminLandingPages /></AdminGuard>} />
+                  <Route path="/admin/pages-ancres" element={<AdminGuard allowedRoles={["super_admin"]}><AdminPagesAnchors /></AdminGuard>} />
+                  <Route path="/admin/simulateurs" element={<AdminGuard allowedRoles={["super_admin"]}><AdminSimulators /></AdminGuard>} />
+                  <Route path="/admin/app" element={<AdminGuard allowedRoles={["super_admin"]}><AdminApp /></AdminGuard>} />
+                  <Route path="/admin/auteurs" element={<AdminGuard allowedRoles={["super_admin"]}><AdminAuthors /></AdminGuard>} />
 
                   {/* Utility pages - lazy loaded */}
                   <Route path="/installer-app" element={<InstallApp />} />

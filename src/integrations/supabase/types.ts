@@ -207,6 +207,13 @@ export type Database = {
             referencedRelation: "advertisers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "advertisements_advertiser_id_fkey"
+            columns: ["advertiser_id"]
+            isOneToOne: false
+            referencedRelation: "advertisers_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       advertisers: {
@@ -795,6 +802,13 @@ export type Database = {
             columns: ["form_id"]
             isOneToOne: false
             referencedRelation: "form_configurations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "form_submissions_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "form_configurations_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1399,6 +1413,13 @@ export type Database = {
             referencedRelation: "form_configurations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "popups_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "form_configurations_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       post_categories: {
@@ -1941,6 +1962,87 @@ export type Database = {
       }
     }
     Views: {
+      advertisers_public: {
+        Row: {
+          city: string | null
+          created_at: string | null
+          department: string | null
+          description: string | null
+          id: string | null
+          intervention_departments: string[] | null
+          intervention_radius_km: number | null
+          is_active: boolean | null
+          logo: string | null
+          name: string | null
+          postal_code: string | null
+          region: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string | null
+          department?: string | null
+          description?: string | null
+          id?: string | null
+          intervention_departments?: string[] | null
+          intervention_radius_km?: number | null
+          is_active?: boolean | null
+          logo?: string | null
+          name?: string | null
+          postal_code?: string | null
+          region?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string | null
+          department?: string | null
+          description?: string | null
+          id?: string | null
+          intervention_departments?: string[] | null
+          intervention_radius_km?: number | null
+          is_active?: boolean | null
+          logo?: string | null
+          name?: string | null
+          postal_code?: string | null
+          region?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      form_configurations_public: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          fields_schema: Json | null
+          form_identifier: string | null
+          id: string | null
+          name: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          fields_schema?: Json | null
+          form_identifier?: string | null
+          id?: string | null
+          name?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          fields_schema?: Json | null
+          form_identifier?: string | null
+          id?: string | null
+          name?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       forum_images_safe: {
         Row: {
           created_at: string | null
