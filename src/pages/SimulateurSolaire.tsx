@@ -236,7 +236,7 @@ const SimulateurSolaire = () => {
     try {
       // Ensure form configuration exists
       const { data: existingForm } = await supabase
-        .from('form_configurations')
+        .from('form_configurations_public')
         .select('id')
         .eq('form_identifier', 'simulation-solaire')
         .maybeSingle();

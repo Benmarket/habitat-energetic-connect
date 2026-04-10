@@ -78,7 +78,7 @@ export default function LeadOfferModal({
     try {
       // First, get the form configuration ID for lead-annonce
       const { data: formConfig, error: formError } = await supabase
-        .from("form_configurations")
+        .from("form_configurations_public")
         .select("id")
         .eq("form_identifier", "lead-annonce")
         .maybeSingle();

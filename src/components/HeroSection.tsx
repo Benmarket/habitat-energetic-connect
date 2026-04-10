@@ -111,7 +111,7 @@ const HeroSection = () => {
 
       // Récupérer la configuration du formulaire
       const { data: formConfig } = await supabase
-        .from("form_configurations")
+        .from("form_configurations_public")
         .select("id")
         .eq("form_identifier", "hero-form-accueil")
         .maybeSingle();
