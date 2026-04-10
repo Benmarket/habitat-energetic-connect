@@ -21,6 +21,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import RegionalContentEditor from "@/components/RegionalContentEditor";
+import type { RegionalContent } from "@/hooks/useRegionalContent";
+import { Pencil } from "lucide-react";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Sun, Home, Thermometer, Building2,
@@ -41,6 +44,7 @@ type LandingPage = {
   updated_at: string;
   parent_id: string | null;
   region_code: string | null;
+  regional_content: RegionalContent | null;
   variant_slug: string | null;
   level: string;
 };
