@@ -744,7 +744,62 @@ const LandingSolaireContent = () => {
             </div>
           </section>
 
-          {/* ═══ BAND 6: Témoignages ═══ */}
+          {/* ═══ BAND 5b: Nos réalisations ═══ */}
+          <section className="py-12 lg:py-20 bg-background">
+            <div className="container mx-auto px-4 max-w-6xl">
+              <div className="text-center mb-10">
+                <div className="inline-block w-16 h-1 bg-primary mb-4"></div>
+                <h2 className="text-2xl lg:text-4xl font-extrabold">
+                  Nos réalisations en images
+                </h2>
+                <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
+                  Découvrez des installations solaires réalisées partout en France : toiture tuiles, toit-terrasse, maison individuelle... chaque projet est unique.
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-6">
+                {[
+                  {
+                    img: realisationTropicale,
+                    title: "Installation Outre-mer",
+                    desc: "Maison équipée en autoconsommation solaire sous climat tropical. Jusqu'à 80% d'économie grâce à un ensoleillement exceptionnel.",
+                  },
+                  {
+                    img: realisationFamille,
+                    title: "Projet familial clé en main",
+                    desc: "Une famille profite de son installation photovoltaïque avec piscine solaire. Rentabilité atteinte en moins de 7 ans.",
+                  },
+                  {
+                    img: realisationAccompagnement,
+                    title: "Accompagnement personnalisé",
+                    desc: "Nos conseillers vous accompagnent de l'étude de faisabilité à la mise en service, sur tablette et sur le terrain.",
+                  },
+                ].map((item, i) => (
+                  <div key={i} className="group rounded-2xl overflow-hidden border border-border bg-card shadow-sm hover:shadow-lg transition-shadow">
+                    <div className="aspect-[4/3] overflow-hidden">
+                      <img
+                        src={item.img}
+                        alt={item.title}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="p-5 space-y-2">
+                      <h3 className="font-bold text-lg text-foreground">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-center pt-8">
+                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full px-10" onClick={scrollToForm}>
+                  Demandez votre étude gratuite
+                </Button>
+              </div>
+            </div>
+          </section>
+
           <section className="py-10 lg:py-16 bg-muted">
             <div className="container mx-auto px-4 max-w-6xl">
               <h2 className="text-2xl lg:text-4xl font-extrabold text-center mb-12">
