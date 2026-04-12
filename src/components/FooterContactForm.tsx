@@ -52,7 +52,8 @@ const FooterContactForm = () => {
 
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("leads").insert({
+      // Insert into leads table for CRM
+      const { error: leadError } = await supabase.from("leads").insert({
         first_name: formData.firstName,
         last_name: formData.lastName,
         phone: formData.phone,
@@ -63,7 +64,22 @@ const FooterContactForm = () => {
         needs: [formData.workType],
       });
 
-      if (error) throw error;
+      if (leadError) throw leadError;
+
+      // Also insert into form_submissions for admin tracking
+      const { error: formError } = await supabase.from("form_submissions").insert({
+        form_id: "b0e21b71-1c2c-4474-895d-7b43117fa2ec",
+        data: {
+          nom: formData.lastName,
+          prenom: formData.firstName,
+          telephone: formData.phone,
+          email: formData.email,
+          code_postal: formData.postalCode,
+          type_travaux: formData.workType,
+        },
+      });
+
+      if (formError) console.error("Form submission tracking error:", formError);
       toast.success("Votre demande a bien été envoyée !");
       setFormData({
         lastName: "",
