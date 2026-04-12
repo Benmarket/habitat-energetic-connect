@@ -38,47 +38,42 @@ import onduleur from "@/assets/landing/onduleur.png";
 import marqueFrancaise from "@/assets/landing/marque-francaise.png";
 import macaronPrix from "@/assets/landing/macaron-prix.png";
 
-// ─── Logos partenaires ───
-import logoRgeQualipv from "@/assets/logos/rge-qualipv.png";
-import logoMaprimerenov from "@/assets/logos/maprimerenov.png";
-import logoCee from "@/assets/logos/cee.png";
-import logoDomofinance from "@/assets/logos/domofinance.png";
-import logoQualipac from "@/assets/logos/qualipac.png";
-import logoFranceRenov from "@/assets/logos/france-renov.png";
-import logoAdeme from "@/assets/logos/ademe.png";
-import logoEcoPtz from "@/assets/logos/eco-ptz.png";
+// ─── Logos partenaires (hébergés sur le stockage cloud) ───
+const STORAGE_BASE = "https://ggucavhanqmdxjqdbcnw.supabase.co/storage/v1/object/public/media/logos";
 
 // ─── Band 4: Critères d'éligibilité image ───
-import solarPanelsImg from "@/assets/solar-panels.jpg";
-
-// ─── Form schemas ───
-const step2Schema = z.object({
-  chauffage: z.string().min(1, "Le mode de chauffage est requis"),
-  surface: z.string().min(1, "La surface est requise"),
-  postalCode: z.string().trim().regex(/^\d{5}$/, "Code postal invalide"),
-  city: z.string().trim().min(1, "La ville est requise"),
-});
-
-const step3Schema = z.object({
-  lastName: z.string().trim().min(1, "Le nom est requis"),
-  firstName: z.string().trim().min(1, "Le prénom est requis"),
-  email: z.string().trim().email("Email invalide"),
-  phone: z.string().trim().min(10, "Téléphone invalide"),
-});
+import eligibiliteBg from "@/assets/landing/eligibilite-bg.jpg";
 
 // ─── Band 7: Badges data ───
 const badges = [
-  { name: "RGE QualiPV", logo: logoRgeQualipv },
-  { name: "MaPrimeRénov'", logo: logoMaprimerenov },
-  { name: "CEE", logo: logoCee },
-  { name: "Domofinance", logo: logoDomofinance },
-  { name: "QualiPac", logo: logoQualipac },
-  { name: "France Rénov'", logo: logoFranceRenov },
-  { name: "ADEME", logo: logoAdeme },
-  { name: "Eco PTZ", logo: logoEcoPtz },
+  { name: "RGE QualiPV", logo: `${STORAGE_BASE}/rge-qualipv.png` },
+  { name: "MaPrimeRénov'", logo: `${STORAGE_BASE}/maprimerenov.png` },
+  { name: "CEE", logo: `${STORAGE_BASE}/cee.png` },
+  { name: "Domofinance", logo: `${STORAGE_BASE}/domofinance.png` },
+  { name: "QualiPac", logo: `${STORAGE_BASE}/qualipac.png` },
+  { name: "France Rénov'", logo: `${STORAGE_BASE}/france-renov.png` },
+  { name: "ADEME", logo: `${STORAGE_BASE}/ademe.png` },
+  { name: "Eco PTZ", logo: `${STORAGE_BASE}/eco-ptz.png` },
 ];
 
-// ─── Band 6: Testimonials data ───
+// ─── Schemas de validation wizard ───
+const step2Schema = z.object({
+  chauffage: z.string().min(1, "Veuillez sélectionner votre type de chauffage"),
+  surface: z.string().min(1, "Veuillez indiquer la surface"),
+  postalCode: z.string().regex(/^\d{5}$/, "Code postal invalide"),
+  city: z.string().min(1, "Veuillez indiquer la ville"),
+});
+
+const step3Schema = z.object({
+  lastName: z.string().min(1, "Veuillez indiquer votre nom"),
+  firstName: z.string().min(1, "Veuillez indiquer votre prénom"),
+  email: z.string().email("Email invalide"),
+  phone: z.string().min(10, "Numéro de téléphone invalide"),
+});
+
+// ─── Image éligibilité ───
+const solarPanelsImg = eligibiliteBg;
+
 const testimonials = [
   {
     text: "J'ai bénéficié du programme de financement Eco PTZ et je suis passée à l'énergie solaire. Je suis très satisfaite de ce dispositif et de la qualité de l'installation.",
