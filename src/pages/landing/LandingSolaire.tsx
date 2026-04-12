@@ -38,6 +38,16 @@ import onduleur from "@/assets/landing/onduleur.png";
 import marqueFrancaise from "@/assets/landing/marque-francaise.png";
 import macaronPrix from "@/assets/landing/macaron-prix.png";
 
+// ─── Logos partenaires ───
+import logoRgeQualipv from "@/assets/logos/rge-qualipv.png";
+import logoMaprimerenov from "@/assets/logos/maprimerenov.png";
+import logoCee from "@/assets/logos/cee.png";
+import logoDomofinance from "@/assets/logos/domofinance.png";
+import logoQualipac from "@/assets/logos/qualipac.png";
+import logoFranceRenov from "@/assets/logos/france-renov.png";
+import logoAdeme from "@/assets/logos/ademe.png";
+import logoEcoPtz from "@/assets/logos/eco-ptz.png";
+
 // ─── Band 4: Critères d'éligibilité image ───
 import solarPanelsImg from "@/assets/solar-panels.jpg";
 
