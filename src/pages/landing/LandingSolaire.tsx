@@ -101,11 +101,11 @@ const testimonials = [
 const LandingSolaireContent = () => {
   const { seoStatus, canonicalUrl } = useLandingPageSEO("solaire");
 
-  // ─── Hero background carousel ───
-  const [heroBgIndex, setHeroBgIndex] = useState(0);
+  // ─── House image carousel ───
+  const [houseImgIndex, setHouseImgIndex] = useState(0);
   useEffect(() => {
     const interval = setInterval(() => {
-      setHeroBgIndex(prev => (prev + 1) % heroBackgrounds.length);
+      setHouseImgIndex(prev => (prev + 1) % houseImages.length);
     }, 3000);
     return () => clearInterval(interval);
   }, []);
