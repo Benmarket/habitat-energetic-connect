@@ -542,7 +542,7 @@ const LandingSolaireContent = () => {
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-2">
                       <img src={marqueFrancaise} alt="Marque Française" className="h-9 lg:h-11 object-contain" />
-                      <img src={guarantee25Years} alt="Garantie 25 ans" className="w-12 h-12 lg:w-14 lg:h-14" />
+                      <img src={guarantee25Years} alt="Garantie 25 ans" className="w-16 h-16 lg:w-[4.5rem] lg:h-[4.5rem]" />
                     </div>
                     <h2 className="text-lg lg:text-xl font-extrabold leading-tight">Propriétaire d'une maison individuelle ?</h2>
                     <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">
