@@ -499,16 +499,13 @@ const LandingSolaireContent = () => {
 
           {/* ═══ BAND 1: Hero Banner ═══ */}
           <section className="relative pt-24 pb-12 lg:pt-28 lg:pb-20 px-4 overflow-hidden">
-            {/* Background images carousel */}
-            {heroBackgrounds.map((bg, i) => (
-              <img
-                key={i}
-                src={bg}
-                alt=""
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === heroBgIndex ? "opacity-100" : "opacity-0"}`}
-                aria-hidden="true"
-              />
-            ))}
+            {/* Static background */}
+            <img
+              src={fondGris}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+              aria-hidden="true"
+            />
             <div className="absolute inset-0 bg-background/40" aria-hidden="true" />
             
             <div className="container mx-auto max-w-7xl relative z-10">
