@@ -37,9 +37,17 @@ import panneauxSolaires from "@/assets/landing/panneaux-solaires.png";
 import onduleur from "@/assets/landing/onduleur.png";
 import marqueFrancaise from "@/assets/landing/marque-francaise.png";
 import macaronPrix from "@/assets/landing/macaron-prix.png";
+import heroToitureTuiles from "@/assets/landing/hero-toiture-tuiles.jpg";
+import heroToiturePlate from "@/assets/landing/hero-toiture-plate.jpg";
+import realisationFamille from "@/assets/landing/realisation-famille.png";
+import realisationAccompagnement from "@/assets/landing/realisation-accompagnement.png";
+import realisationTropicale from "@/assets/landing/realisation-tropicale.png";
 
 // ─── Logos partenaires (hébergés sur le stockage cloud) ───
 const STORAGE_BASE = "https://ggucavhanqmdxjqdbcnw.supabase.co/storage/v1/object/public/media/logos";
+
+// ─── Hero backgrounds ───
+const heroBackgrounds = [fondGris, heroToitureTuiles, heroToiturePlate];
 
 // ─── Band 4: Critères d'éligibilité image ───
 import eligibiliteBg from "@/assets/landing/panneaux-solaires.png";
