@@ -47,8 +47,8 @@ import realisationTropicale from "@/assets/landing/realisation-tropicale.png";
 // ─── Logos partenaires (hébergés sur le stockage cloud) ───
 const STORAGE_BASE = "https://ggucavhanqmdxjqdbcnw.supabase.co/storage/v1/object/public/media/logos";
 
-// ─── Hero backgrounds ───
-const heroBackgrounds = [fondGris, heroToitureTuiles, heroToiturePlate];
+// ─── Small house images carousel ───
+const houseImages = [solarHouseBanner, heroToitureTuiles, heroToiturePlate];
 
 // ─── Band 4: Critères d'éligibilité image ───
 import eligibiliteBg from "@/assets/landing/panneaux-solaires.png";
