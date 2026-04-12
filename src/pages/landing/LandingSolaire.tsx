@@ -42,7 +42,7 @@ import macaronPrix from "@/assets/landing/macaron-prix.png";
 const STORAGE_BASE = "https://ggucavhanqmdxjqdbcnw.supabase.co/storage/v1/object/public/media/logos";
 
 // ─── Band 4: Critères d'éligibilité image ───
-import eligibiliteBg from "@/assets/landing/eligibilite-bg.jpg";
+import eligibiliteBg from "@/assets/landing/panneaux-solaires.png";
 
 // ─── Band 7: Badges data ───
 const badges = [
