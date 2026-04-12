@@ -56,7 +56,24 @@ const badges = [
   { name: "Eco PTZ", logo: `${STORAGE_BASE}/eco-ptz.png` },
 ];
 
-// ─── Band 6: Testimonials data ───
+// ─── Schemas de validation wizard ───
+const step2Schema = z.object({
+  chauffage: z.string().min(1, "Veuillez sélectionner votre type de chauffage"),
+  surface: z.string().min(1, "Veuillez indiquer la surface"),
+  postalCode: z.string().regex(/^\d{5}$/, "Code postal invalide"),
+  city: z.string().min(1, "Veuillez indiquer la ville"),
+});
+
+const step3Schema = z.object({
+  lastName: z.string().min(1, "Veuillez indiquer votre nom"),
+  firstName: z.string().min(1, "Veuillez indiquer votre prénom"),
+  email: z.string().email("Email invalide"),
+  phone: z.string().min(10, "Numéro de téléphone invalide"),
+});
+
+// ─── Image éligibilité ───
+const solarPanelsImg = eligibiliteBg;
+
 const testimonials = [
   {
     text: "J'ai bénéficié du programme de financement Eco PTZ et je suis passée à l'énergie solaire. Je suis très satisfaite de ce dispositif et de la qualité de l'installation.",
