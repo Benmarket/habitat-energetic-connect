@@ -617,17 +617,22 @@ const LandingSolaireContent = () => {
           </section>
 
           {/* ═══ BAND 4: Critères d'éligibilité ═══ */}
-          <section className="py-10 lg:py-16 bg-muted">
+          <section className="py-12 lg:py-20 bg-muted">
             <div className="container mx-auto px-4 max-w-6xl">
-              <div className="text-center mb-2">
+              <div className="text-center mb-8">
                 <div className="inline-block w-16 h-1 bg-primary mb-4"></div>
+                <h2 className="text-2xl lg:text-4xl font-extrabold">
+                  Quels sont les critères d'éligibilité ?
+                </h2>
+                <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
+                  Vérifiez en quelques secondes si vous remplissez les conditions pour bénéficier des aides à l'installation solaire.
+                </p>
               </div>
-              <h2 className="text-2xl lg:text-4xl font-extrabold mb-10 text-center lg:text-left">
-                Quels sont les critères d'éligibilité?
-              </h2>
-              <div className="grid lg:grid-cols-2 gap-10 items-center">
+
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
+                {/* Colonne gauche : critères */}
                 <div className="space-y-6">
-                  <div className="flex gap-6 justify-center lg:justify-start">
+                  <div className="flex gap-4 justify-center lg:justify-start">
                     <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
                       <Home className="w-7 h-7 text-primary" />
                     </div>
@@ -635,25 +640,46 @@ const LandingSolaireContent = () => {
                       <Building2 className="w-7 h-7 text-primary" />
                     </div>
                   </div>
+
                   <p className="text-base text-muted-foreground leading-relaxed">
-                    Pour pouvoir bénéficier de l'installation de panneaux solaires, il vous faut respecter les critères d'éligibilité suivants:
+                    Pour bénéficier de l'installation de panneaux solaires et des aides associées, vous devez remplir les critères suivants :
                   </p>
-                  <ul className="space-y-3 text-foreground">
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Être propriétaire d'une maison individuelle.</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Être relié aux fournisseur d'électricité</span>
-                    </li>
+
+                  <ul className="space-y-4 text-foreground">
+                    {[
+                      "Être propriétaire ou copropriétaire d'un logement (maison individuelle ou immeuble).",
+                      "Le logement doit être construit depuis plus de 2 ans.",
+                      "Être raccordé au réseau électrique public (Enedis ou ELD).",
+                      "Faire appel à un installateur certifié RGE (Reconnu Garant de l'Environnement).",
+                      "Le logement doit être situé en France métropolitaine ou en Outre-mer.",
+                      "Ne pas dépasser la puissance maximale de 500 kWc pour les particuliers.",
+                    ].map((text, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                        <span>{text}</span>
+                      </li>
+                    ))}
                   </ul>
+
+                  <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-sm text-muted-foreground">
+                    <strong className="text-foreground">💡 Bon à savoir :</strong> Même les locataires peuvent bénéficier d'aides pour l'installation solaire avec l'accord du propriétaire.
+                  </div>
+
                   <Button variant="outline" className="border-primary text-primary hover:bg-primary/5 font-semibold rounded-full px-8" onClick={scrollToForm}>
-                    Testez votre éligibilité
+                    Testez votre éligibilité gratuitement
                   </Button>
                 </div>
-                <div className="rounded-2xl overflow-hidden shadow-lg">
-                  <img src={solarPanelsImg} alt="Famille heureuse avec panneaux solaires" className="w-full h-auto object-cover" />
+
+                {/* Colonne droite : image */}
+                <div className="rounded-2xl overflow-hidden shadow-xl">
+                  <img
+                    src={solarPanelsImg}
+                    alt="Toiture équipée de panneaux solaires photovoltaïques"
+                    className="w-full h-auto object-cover"
+                    loading="lazy"
+                    width={1280}
+                    height={720}
+                  />
                 </div>
               </div>
             </div>
