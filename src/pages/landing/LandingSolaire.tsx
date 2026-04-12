@@ -68,14 +68,14 @@ const step3Schema = z.object({
 
 // ─── Band 7: Badges data ───
 const badges = [
-  { name: "RGE QualiPV", color: "text-purple-700" },
-  { name: "MaPrimeRénov'", color: "text-teal-600" },
-  { name: "CEE Certificats d'Économies d'Énergie", color: "text-green-700" },
-  { name: "Domofinance", color: "text-orange-600" },
-  { name: "QualiPac", color: "text-blue-700" },
-  { name: "France Rénov'", color: "text-indigo-600" },
-  { name: "ADEME", color: "text-emerald-700" },
-  { name: "Eco PTZ", color: "text-amber-700" },
+  { name: "RGE QualiPV", logo: logoRgeQualipv },
+  { name: "MaPrimeRénov'", logo: logoMaprimerenov },
+  { name: "CEE", logo: logoCee },
+  { name: "Domofinance", logo: logoDomofinance },
+  { name: "QualiPac", logo: logoQualipac },
+  { name: "France Rénov'", logo: logoFranceRenov },
+  { name: "ADEME", logo: logoAdeme },
+  { name: "Eco PTZ", logo: logoEcoPtz },
 ];
 
 // ─── Band 6: Testimonials data ───
