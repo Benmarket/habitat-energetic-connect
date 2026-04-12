@@ -730,7 +730,7 @@ const LandingSolaireContent = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center py-4">
                       {badges.slice(0, 4).map((badge, i) => (
                         <div key={i} className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow">
-                          <span className={`text-sm md:text-base font-bold text-center ${badge.color}`}>{badge.name}</span>
+                          <img src={badge.logo} alt={badge.name} loading="lazy" className="h-16 w-auto object-contain" />
                         </div>
                       ))}
                     </div>
@@ -740,7 +740,7 @@ const LandingSolaireContent = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center py-4">
                       {badges.slice(4, 8).map((badge, i) => (
                         <div key={i} className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow">
-                          <span className={`text-sm md:text-base font-bold text-center ${badge.color}`}>{badge.name}</span>
+                          <img src={badge.logo} alt={badge.name} loading="lazy" className="h-16 w-auto object-contain" />
                         </div>
                       ))}
                     </div>
