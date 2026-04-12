@@ -47,8 +47,8 @@ import realisationTropicale from "@/assets/landing/realisation-tropicale.png";
 // ─── Logos partenaires (hébergés sur le stockage cloud) ───
 const STORAGE_BASE = "https://ggucavhanqmdxjqdbcnw.supabase.co/storage/v1/object/public/media/logos";
 
-// ─── Hero backgrounds ───
-const heroBackgrounds = [fondGris, heroToitureTuiles, heroToiturePlate];
+// ─── Small house images carousel ───
+const houseImages = [solarHouseBanner, heroToitureTuiles, heroToiturePlate];
 
 // ─── Band 4: Critères d'éligibilité image ───
 import eligibiliteBg from "@/assets/landing/panneaux-solaires.png";
@@ -101,11 +101,11 @@ const testimonials = [
 const LandingSolaireContent = () => {
   const { seoStatus, canonicalUrl } = useLandingPageSEO("solaire");
 
-  // ─── Hero background carousel ───
-  const [heroBgIndex, setHeroBgIndex] = useState(0);
+  // ─── House image carousel ───
+  const [houseImgIndex, setHouseImgIndex] = useState(0);
   useEffect(() => {
     const interval = setInterval(() => {
-      setHeroBgIndex(prev => (prev + 1) % heroBackgrounds.length);
+      setHouseImgIndex(prev => (prev + 1) % houseImages.length);
     }, 3000);
     return () => clearInterval(interval);
   }, []);
@@ -499,16 +499,13 @@ const LandingSolaireContent = () => {
 
           {/* ═══ BAND 1: Hero Banner ═══ */}
           <section className="relative pt-24 pb-12 lg:pt-28 lg:pb-20 px-4 overflow-hidden">
-            {/* Background images carousel */}
-            {heroBackgrounds.map((bg, i) => (
-              <img
-                key={i}
-                src={bg}
-                alt=""
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === heroBgIndex ? "opacity-100" : "opacity-0"}`}
-                aria-hidden="true"
-              />
-            ))}
+            {/* Static background */}
+            <img
+              src={fondGris}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+              aria-hidden="true"
+            />
             <div className="absolute inset-0 bg-background/40" aria-hidden="true" />
             
             <div className="container mx-auto max-w-7xl relative z-10">
@@ -522,13 +519,22 @@ const LandingSolaireContent = () => {
               <div className="grid lg:grid-cols-[1fr_1fr] gap-6 lg:gap-8 items-center">
                 {/* Left: Product visual + text side by side */}
                 <div className="flex items-center gap-4 lg:gap-6">
-                  {/* Panel with macaron overlay + onduleur overlay */}
+                  {/* Panel with macaron overlay + rotating house images */}
                   <div className="relative flex-shrink-0">
                     {/* Macaron top-left */}
                     <img src={macaronPrix} alt="À partir de 35€/mois, primes déduites" className="absolute -top-4 -left-4 w-24 h-24 lg:w-28 lg:h-28 object-contain z-10" />
-                    {/* Solar panels */}
-                    <img src={panneauxSolaires} alt="Panneaux solaires" className="h-56 md:h-64 lg:h-80 object-contain" />
-                    {/* Onduleur bottom-right on panel */}
+                    {/* Rotating house/roof images */}
+                    <div className="relative h-56 md:h-64 lg:h-80 w-56 md:w-64 lg:w-80 rounded-xl overflow-hidden">
+                      {houseImages.map((img, i) => (
+                        <img
+                          key={i}
+                          src={img}
+                          alt="Installation solaire sur toiture"
+                          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === houseImgIndex ? "opacity-100" : "opacity-0"}`}
+                        />
+                      ))}
+                    </div>
+                    {/* Onduleur bottom-right */}
                     <img src={onduleur} alt="Onduleur Hoymiles" className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 h-20 lg:h-28 object-contain" />
                   </div>
 
