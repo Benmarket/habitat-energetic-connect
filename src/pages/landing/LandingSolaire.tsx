@@ -100,7 +100,15 @@ const testimonials = [
 const LandingSolaireContent = () => {
   const { seoStatus, canonicalUrl } = useLandingPageSEO("solaire");
 
-  // Why solar benefits
+  // ─── Hero background carousel ───
+  const [heroBgIndex, setHeroBgIndex] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHeroBgIndex(prev => (prev + 1) % heroBackgrounds.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   const benefits = [
     { image: ecologiqueImg, title: "Écologique", description: "L'énergie solaire utilise la lumière du soleil pour produire de l'électricité sans émission nocive." },
     { image: factureEdfImg, title: "Économique", description: "Votre installation solaire peut vous faire réaliser jusqu'à 70% d'économie sur votre facture d'électricité." },
