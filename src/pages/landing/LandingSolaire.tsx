@@ -855,6 +855,7 @@ const LandingSolaireContent = () => {
 
         </main>
 
+        <FooterContactForm />
         <Footer />
       </div>
     </>
