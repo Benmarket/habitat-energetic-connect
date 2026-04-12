@@ -519,13 +519,22 @@ const LandingSolaireContent = () => {
               <div className="grid lg:grid-cols-[1fr_1fr] gap-6 lg:gap-8 items-center">
                 {/* Left: Product visual + text side by side */}
                 <div className="flex items-center gap-4 lg:gap-6">
-                  {/* Panel with macaron overlay + onduleur overlay */}
+                  {/* Panel with macaron overlay + rotating house images */}
                   <div className="relative flex-shrink-0">
                     {/* Macaron top-left */}
                     <img src={macaronPrix} alt="À partir de 35€/mois, primes déduites" className="absolute -top-4 -left-4 w-24 h-24 lg:w-28 lg:h-28 object-contain z-10" />
-                    {/* Solar panels */}
-                    <img src={panneauxSolaires} alt="Panneaux solaires" className="h-56 md:h-64 lg:h-80 object-contain" />
-                    {/* Onduleur bottom-right on panel */}
+                    {/* Rotating house/roof images */}
+                    <div className="relative h-56 md:h-64 lg:h-80 w-56 md:w-64 lg:w-80 rounded-xl overflow-hidden">
+                      {houseImages.map((img, i) => (
+                        <img
+                          key={i}
+                          src={img}
+                          alt="Installation solaire sur toiture"
+                          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === houseImgIndex ? "opacity-100" : "opacity-0"}`}
+                        />
+                      ))}
+                    </div>
+                    {/* Onduleur bottom-right */}
                     <img src={onduleur} alt="Onduleur Hoymiles" className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 h-20 lg:h-28 object-contain" />
                   </div>
 
