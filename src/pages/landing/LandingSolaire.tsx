@@ -38,6 +38,16 @@ import onduleur from "@/assets/landing/onduleur.png";
 import marqueFrancaise from "@/assets/landing/marque-francaise.png";
 import macaronPrix from "@/assets/landing/macaron-prix.png";
 
+// ─── Logos partenaires ───
+import logoRgeQualipv from "@/assets/logos/rge-qualipv.png";
+import logoMaprimerenov from "@/assets/logos/maprimerenov.png";
+import logoCee from "@/assets/logos/cee.png";
+import logoDomofinance from "@/assets/logos/domofinance.png";
+import logoQualipac from "@/assets/logos/qualipac.png";
+import logoFranceRenov from "@/assets/logos/france-renov.png";
+import logoAdeme from "@/assets/logos/ademe.png";
+import logoEcoPtz from "@/assets/logos/eco-ptz.png";
+
 // ─── Band 4: Critères d'éligibilité image ───
 import solarPanelsImg from "@/assets/solar-panels.jpg";
 
@@ -58,14 +68,14 @@ const step3Schema = z.object({
 
 // ─── Band 7: Badges data ───
 const badges = [
-  { name: "RGE QualiPV", color: "text-purple-700" },
-  { name: "MaPrimeRénov'", color: "text-teal-600" },
-  { name: "CEE Certificats d'Économies d'Énergie", color: "text-green-700" },
-  { name: "Domofinance", color: "text-orange-600" },
-  { name: "QualiPac", color: "text-blue-700" },
-  { name: "France Rénov'", color: "text-indigo-600" },
-  { name: "ADEME", color: "text-emerald-700" },
-  { name: "Eco PTZ", color: "text-amber-700" },
+  { name: "RGE QualiPV", logo: logoRgeQualipv },
+  { name: "MaPrimeRénov'", logo: logoMaprimerenov },
+  { name: "CEE", logo: logoCee },
+  { name: "Domofinance", logo: logoDomofinance },
+  { name: "QualiPac", logo: logoQualipac },
+  { name: "France Rénov'", logo: logoFranceRenov },
+  { name: "ADEME", logo: logoAdeme },
+  { name: "Eco PTZ", logo: logoEcoPtz },
 ];
 
 // ─── Band 6: Testimonials data ───
@@ -720,7 +730,7 @@ const LandingSolaireContent = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center py-4">
                       {badges.slice(0, 4).map((badge, i) => (
                         <div key={i} className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow">
-                          <span className={`text-sm md:text-base font-bold text-center ${badge.color}`}>{badge.name}</span>
+                          <img src={badge.logo} alt={badge.name} loading="lazy" className="h-16 w-auto object-contain" />
                         </div>
                       ))}
                     </div>
@@ -730,7 +740,7 @@ const LandingSolaireContent = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center py-4">
                       {badges.slice(4, 8).map((badge, i) => (
                         <div key={i} className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow">
-                          <span className={`text-sm md:text-base font-bold text-center ${badge.color}`}>{badge.name}</span>
+                          <img src={badge.logo} alt={badge.name} loading="lazy" className="h-16 w-auto object-contain" />
                         </div>
                       ))}
                     </div>
