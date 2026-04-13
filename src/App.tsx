@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { RegionProvider } from "@/hooks/useRegionContext";
 import AdminGuard from "@/components/AdminGuard";
@@ -81,24 +81,22 @@ const PageLoader = () => (
   </div>
 );
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <RegionProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <ScrollToTop />
-            <PageViewTracker />
-            <MaintenanceMode>
-              <Suspense fallback={null}>
-                <ChatBot />
-                <SitePopup />
-              </Suspense>
-              <CookieBanner />
-              <Suspense fallback={<PageLoader />}>
-                <Routes>
+const AppShell = () => {
+  const location = useLocation();
+  const isHomeRoute = location.pathname === "/";
+
+  const appContent = (
+    <>
+      <ScrollToTop />
+      <PageViewTracker />
+      <MaintenanceMode>
+        <Suspense fallback={null}>
+          <ChatBot />
+          <SitePopup />
+        </Suspense>
+        <CookieBanner />
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
                   {/* Public pages - eagerly loaded */}
                   <Route path="/" element={<Index />} />
                   <Route path="/actualites" element={<Actualites />} />
@@ -173,12 +171,29 @@ const App = () => (
 
                   {/* Catch-all */}
                   <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
-            </MaintenanceMode>
-          </BrowserRouter>
-        </TooltipProvider>
-      </RegionProvider>
+          </Routes>
+        </Suspense>
+      </MaintenanceMode>
+    </>
+  );
+
+  if (isHomeRoute) {
+    return <RegionProvider>{appContent}</RegionProvider>;
+  }
+
+  return appContent;
+};
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AppShell />
+        </BrowserRouter>
+      </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
