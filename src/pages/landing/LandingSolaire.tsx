@@ -1,29 +1,31 @@
 import { Helmet } from "react-helmet";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import FooterContactForm from "@/components/FooterContactForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { 
-  Sun, ArrowRight, Home, Building2, Quote, ChevronLeft, ChevronRight,
-  Truck, Wrench, Power, CheckCircle2
+import {
+  Sun,
+  ArrowRight,
+  Home,
+  Building2,
+  Quote,
+  ChevronLeft,
+  ChevronRight,
+  Truck,
+  Wrench,
+  Power,
+  CheckCircle2,
 } from "lucide-react";
 import LandingPageGuard from "@/components/LandingPageGuard";
 import { useLandingPageSEO } from "@/hooks/useLandingPageSEO";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
 import solarHouseBanner from "@/assets/solar-house-banner.jpg";
@@ -38,17 +40,9 @@ import panneauxSolaires from "@/assets/landing/panneaux-solaires.png";
 import onduleur from "@/assets/landing/onduleur.png";
 import marqueFrancaise from "@/assets/landing/marque-francaise.png";
 import macaronPrix from "@/assets/landing/macaron-prix.png";
-import heroToitureTuiles from "@/assets/landing/hero-toiture-tuiles.jpg";
-import heroToiturePlate from "@/assets/landing/hero-toiture-plate.jpg";
-import realisationFamille from "@/assets/landing/realisation-famille.png";
-import realisationAccompagnement from "@/assets/landing/realisation-accompagnement.png";
-import realisationTropicale from "@/assets/landing/realisation-tropicale.png";
 
 // ─── Logos partenaires (hébergés sur le stockage cloud) ───
 const STORAGE_BASE = "https://ggucavhanqmdxjqdbcnw.supabase.co/storage/v1/object/public/media/logos";
-
-// ─── Small house images carousel ───
-const houseImages = [solarHouseBanner, heroToitureTuiles, heroToiturePlate];
 
 // ─── Band 4: Critères d'éligibilité image ───
 import eligibiliteBg from "@/assets/landing/panneaux-solaires.png";
@@ -101,20 +95,30 @@ const testimonials = [
 const LandingSolaireContent = () => {
   const { seoStatus, canonicalUrl } = useLandingPageSEO("solaire");
 
-  // ─── House image carousel ───
-  const [houseImgIndex, setHouseImgIndex] = useState(0);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setHouseImgIndex(prev => (prev + 1) % houseImages.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
+  // Why solar benefits
   const benefits = [
-    { image: ecologiqueImg, title: "Écologique", description: "L'énergie solaire utilise la lumière du soleil pour produire de l'électricité sans émission nocive." },
-    { image: factureEdfImg, title: "Économique", description: "Votre installation solaire peut vous faire réaliser jusqu'à 70% d'économie sur votre facture d'électricité." },
-    { image: smartphoneImg, title: "Maîtrise", description: "Maîtrisez votre consommation électrique en produisant votre propre énergie." },
-    { image: appliPvImg, title: "Connecté", description: "Contrôlez la production de votre installation photovoltaïque depuis votre smartphone." },
+    {
+      image: ecologiqueImg,
+      title: "Écologique",
+      description:
+        "L'énergie solaire utilise la lumière du soleil pour produire de l'électricité sans émission nocive.",
+    },
+    {
+      image: factureEdfImg,
+      title: "Économique",
+      description:
+        "Votre installation solaire peut vous faire réaliser jusqu'à 70% d'économie sur votre facture d'électricité.",
+    },
+    {
+      image: smartphoneImg,
+      title: "Maîtrise",
+      description: "Maîtrisez votre consommation électrique en produisant votre propre énergie.",
+    },
+    {
+      image: appliPvImg,
+      title: "Connecté",
+      description: "Contrôlez la production de votre installation photovoltaïque depuis votre smartphone.",
+    },
   ];
 
   // ─── Wizard state ───
@@ -135,11 +139,9 @@ const LandingSolaireContent = () => {
     phone: "",
   });
 
-
-
   const handlePropertyChoice = (choice: string) => {
     setSelectedProperty(choice);
-    setWizardData(d => ({ ...d, propertyType: choice }));
+    setWizardData((d) => ({ ...d, propertyType: choice }));
     setTimeout(() => setWizardStep(2), 500);
   };
 
@@ -211,7 +213,7 @@ const LandingSolaireContent = () => {
 
       const params = new URLSearchParams({
         name: `${wizardData.firstName} ${wizardData.lastName}`,
-        workType: "panneaux-solaires"
+        workType: "panneaux-solaires",
       });
       navigate(`/merci?${params.toString()}`);
     } catch {
@@ -230,7 +232,10 @@ const LandingSolaireContent = () => {
   const dataFooter = (
     <p className="text-center text-xs text-muted-foreground mt-6">
       Vos données sont protégées. En savoir plus sur notre{" "}
-      <Link to="/politique-confidentialite" className="text-primary hover:underline">politique de confidentialité</Link>.
+      <Link to="/politique-confidentialite" className="text-primary hover:underline">
+        politique de confidentialité
+      </Link>
+      .
     </p>
   );
 
@@ -238,8 +243,8 @@ const LandingSolaireContent = () => {
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
 
   const handlePostalCodeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 5);
-    setWizardData(d => ({ ...d, postalCode: value, city: '' }));
+    const value = e.target.value.replace(/\D/g, "").slice(0, 5);
+    setWizardData((d) => ({ ...d, postalCode: value, city: "" }));
     setCitySuggestions([]);
 
     if (value.length === 5) {
@@ -250,7 +255,7 @@ const LandingSolaireContent = () => {
           const cities: string[] = data.map((c: { nom: string }) => c.nom);
           setCitySuggestions(cities);
           if (cities.length === 1) {
-            setWizardData(d => ({ ...d, city: cities[0] }));
+            setWizardData((d) => ({ ...d, city: cities[0] }));
           }
         }
       } catch {
@@ -266,16 +271,15 @@ const LandingSolaireContent = () => {
     if (wizardStep === 1) {
       return (
         <div className="animate-fade-in">
-          <h3 className="text-xl font-bold text-center mb-2" style={{ color: '#5b7a5b' }}>
+          <h3 className="text-xl font-bold text-center mb-2" style={{ color: "#5b7a5b" }}>
             Vérifier mon éligibilité à la prime énergie :
           </h3>
           <p className="text-center text-sm text-muted-foreground mb-4">
-            Testez votre éligibilité aux aides et subventions en <span className="underline font-medium">1 minute</span> sur notre site.
+            Testez votre éligibilité aux aides et subventions en <span className="underline font-medium">1 minute</span>{" "}
+            sur notre site.
           </p>
           <Progress value={progressValue} className="mb-6 h-3" />
-          <p className="text-center text-sm text-muted-foreground mb-4">
-            Vous êtes :
-          </p>
+          <p className="text-center text-sm text-muted-foreground mb-4">Vous êtes :</p>
           <div className="grid grid-cols-2 gap-4 mb-6">
             <button
               onClick={() => handlePropertyChoice("maison")}
@@ -295,7 +299,7 @@ const LandingSolaireContent = () => {
           <Button
             size="lg"
             className="w-full text-white font-bold text-lg opacity-50 cursor-default"
-            style={{ backgroundColor: '#5b7a5b' }}
+            style={{ backgroundColor: "#5b7a5b" }}
             tabIndex={-1}
           >
             &gt; Continuer
@@ -308,7 +312,7 @@ const LandingSolaireContent = () => {
     if (wizardStep === 2) {
       return (
         <div key="step2" className="animate-fade-in">
-          <h3 className="text-xl font-bold text-center mb-2" style={{ color: '#5b7a5b' }}>
+          <h3 className="text-xl font-bold text-center mb-2" style={{ color: "#5b7a5b" }}>
             Vérifier mon éligibilité à la prime énergie :
           </h3>
           <Progress value={progressValue} className="mb-6 h-3" />
@@ -317,7 +321,7 @@ const LandingSolaireContent = () => {
               <Label className="text-sm font-medium">Votre mode de chauffage principal: *</Label>
               <select
                 value={wizardData.chauffage}
-                onChange={(e) => setWizardData(d => ({ ...d, chauffage: e.target.value }))}
+                onChange={(e) => setWizardData((d) => ({ ...d, chauffage: e.target.value }))}
                 className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
               >
                 <option value="">Sélectionner</option>
@@ -333,7 +337,7 @@ const LandingSolaireContent = () => {
               <Label className="text-sm font-medium">Surface de votre logement *</Label>
               <select
                 value={wizardData.surface}
-                onChange={(e) => setWizardData(d => ({ ...d, surface: e.target.value }))}
+                onChange={(e) => setWizardData((d) => ({ ...d, surface: e.target.value }))}
                 className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
               >
                 <option value="">Sélectionner</option>
@@ -360,19 +364,21 @@ const LandingSolaireContent = () => {
               {citySuggestions.length > 1 ? (
                 <select
                   value={wizardData.city}
-                  onChange={(e) => setWizardData(d => ({ ...d, city: e.target.value }))}
+                  onChange={(e) => setWizardData((d) => ({ ...d, city: e.target.value }))}
                   className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
                 >
                   <option value="">Sélectionner</option>
                   {citySuggestions.map((c) => (
-                    <option key={c} value={c}>{c}</option>
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
                   ))}
                 </select>
               ) : (
                 <Input
                   placeholder="Ville"
                   value={wizardData.city}
-                  onChange={(e) => setWizardData(d => ({ ...d, city: e.target.value }))}
+                  onChange={(e) => setWizardData((d) => ({ ...d, city: e.target.value }))}
                   className="mt-1 bg-background"
                 />
               )}
@@ -389,7 +395,7 @@ const LandingSolaireContent = () => {
             <Button
               size="lg"
               className="flex-[2] text-white font-bold text-lg hover:opacity-90"
-              style={{ backgroundColor: '#5b7a5b' }}
+              style={{ backgroundColor: "#5b7a5b" }}
               onClick={handleStep2Continue}
             >
               &gt; Continuer
@@ -403,7 +409,7 @@ const LandingSolaireContent = () => {
     if (wizardStep === 3) {
       return (
         <div key="step3" className="animate-fade-in">
-          <h3 className="text-xl font-bold text-center mb-2" style={{ color: '#5b7a5b' }}>
+          <h3 className="text-xl font-bold text-center mb-2" style={{ color: "#5b7a5b" }}>
             Vérifier mon éligibilité à la prime énergie :
           </h3>
           <Progress value={progressValue} className="mb-6 h-3" />
@@ -413,7 +419,7 @@ const LandingSolaireContent = () => {
               <Input
                 placeholder="Nom"
                 value={wizardData.lastName}
-                onChange={(e) => setWizardData(d => ({ ...d, lastName: e.target.value }))}
+                onChange={(e) => setWizardData((d) => ({ ...d, lastName: e.target.value }))}
                 className="mt-1 bg-background"
               />
             </div>
@@ -422,7 +428,7 @@ const LandingSolaireContent = () => {
               <Input
                 placeholder="Prénom"
                 value={wizardData.firstName}
-                onChange={(e) => setWizardData(d => ({ ...d, firstName: e.target.value }))}
+                onChange={(e) => setWizardData((d) => ({ ...d, firstName: e.target.value }))}
                 className="mt-1 bg-background"
               />
             </div>
@@ -434,7 +440,7 @@ const LandingSolaireContent = () => {
                 type="email"
                 placeholder="E-mail"
                 value={wizardData.email}
-                onChange={(e) => setWizardData(d => ({ ...d, email: e.target.value }))}
+                onChange={(e) => setWizardData((d) => ({ ...d, email: e.target.value }))}
                 className="mt-1 bg-background"
               />
             </div>
@@ -444,7 +450,7 @@ const LandingSolaireContent = () => {
                 type="tel"
                 placeholder="Téléphone"
                 value={wizardData.phone}
-                onChange={(e) => setWizardData(d => ({ ...d, phone: e.target.value }))}
+                onChange={(e) => setWizardData((d) => ({ ...d, phone: e.target.value }))}
                 className="mt-1 bg-background"
               />
             </div>
@@ -461,7 +467,7 @@ const LandingSolaireContent = () => {
               size="lg"
               disabled={isSubmitting}
               className="flex-[2] text-white font-bold text-lg hover:opacity-90"
-              style={{ backgroundColor: '#5b7a5b' }}
+              style={{ backgroundColor: "#5b7a5b" }}
               onClick={handleStep3Submit}
             >
               {isSubmitting ? "Envoi..." : "> Envoyer"}
@@ -479,7 +485,10 @@ const LandingSolaireContent = () => {
     <>
       <Helmet>
         <title>Installation Panneaux Solaires Photovoltaïques | Prime Énergies</title>
-        <meta name="description" content="Profitez des aides pour installer vos panneaux solaires photovoltaïques. Réduisez vos factures d'électricité et produisez votre propre énergie verte." />
+        <meta
+          name="description"
+          content="Profitez des aides pour installer vos panneaux solaires photovoltaïques. Réduisez vos factures d'électricité et produisez votre propre énergie verte."
+        />
         {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
         {seoStatus === "hidden" && <meta name="robots" content="noindex, nofollow" />}
       </Helmet>
@@ -494,65 +503,72 @@ const LandingSolaireContent = () => {
 
       <div className="min-h-screen bg-background">
         <Header />
-        
-        <main>
 
+        <main>
           {/* ═══ BAND 1: Hero Banner ═══ */}
           <section className="relative pt-24 pb-12 lg:pt-28 lg:pb-20 px-4 overflow-hidden">
-            {/* Static background */}
-            <img
-              src={fondGris}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover"
-              aria-hidden="true"
-            />
-            <div className="absolute inset-0 bg-background/40" aria-hidden="true" />
-            
+            {/* Background image */}
+            <img src={fondGris} alt="" className="absolute inset-0 w-full h-full object-cover" aria-hidden="true" />
+            <div className="absolute inset-0 bg-background/30" aria-hidden="true" />
+
             <div className="container mx-auto max-w-7xl relative z-10">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-center mb-2" style={{ color: '#3d8b37' }}>
+              <h1
+                className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-center mb-2"
+                style={{ color: "#3d8b37" }}
+              >
                 Faites installer vos panneaux solaires
               </h1>
               <p className="text-center text-base lg:text-lg text-foreground mb-8">
                 Faites jusqu'à 70% d'économie sur 30 ans avec une centrale solaire en autoconsommation.
               </p>
-              
+
               <div className="grid lg:grid-cols-[1fr_1fr] gap-6 lg:gap-8 items-center">
                 {/* Left: Product visual + text side by side */}
                 <div className="flex items-center gap-4 lg:gap-6">
-                  {/* Panel with macaron overlay + rotating house images */}
+                  {/* Panel with macaron overlay + onduleur overlay */}
                   <div className="relative flex-shrink-0">
                     {/* Macaron top-left */}
-                    <img src={macaronPrix} alt="À partir de 35€/mois, primes déduites" className="absolute -top-4 -left-4 w-24 h-24 lg:w-28 lg:h-28 object-contain z-10" />
-                    {/* Rotating house/roof images */}
-                    <div className="relative h-56 md:h-64 lg:h-80 w-56 md:w-64 lg:w-80 rounded-xl overflow-hidden">
-                      {houseImages.map((img, i) => (
-                        <img
-                          key={i}
-                          src={img}
-                          alt="Installation solaire sur toiture"
-                          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === houseImgIndex ? "opacity-100" : "opacity-0"}`}
-                        />
-                      ))}
-                    </div>
-                    {/* Onduleur bottom-right */}
-                    <img src={onduleur} alt="Onduleur Hoymiles" className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 h-20 lg:h-28 object-contain" />
+                    <img
+                      src={macaronPrix}
+                      alt="À partir de 35€/mois, primes déduites"
+                      className="absolute -top-4 -left-4 w-24 h-24 lg:w-28 lg:h-28 object-contain z-10"
+                    />
+                    {/* Solar panels */}
+                    <img
+                      src={panneauxSolaires}
+                      alt="Panneaux solaires"
+                      className="h-56 md:h-64 lg:h-80 object-contain"
+                    />
+                    {/* Onduleur bottom-right on panel */}
+                    <img
+                      src={onduleur}
+                      alt="Onduleur Hoymiles"
+                      className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 h-20 lg:h-28 object-contain"
+                    />
                   </div>
 
                   {/* Text beside the panel */}
                   <div className="flex flex-col gap-3">
-                    <div className="flex items-center gap-2">
-                      <img src={marqueFrancaise} alt="Marque Française" className="h-9 lg:h-11 object-contain" />
-                      <img src={guarantee25Years} alt="Garantie 25 ans" className="w-16 h-16 lg:w-[4.5rem] lg:h-[4.5rem]" />
+                    <div className="flex items-center gap-3">
+                      <img src={marqueFrancaise} alt="Marque Française" className="h-12 lg:h-14 object-contain" />
+                      <img src={guarantee25Years} alt="Garantie 25 ans" className="w-16 h-16 lg:w-20 lg:h-20" />
                     </div>
-                    <h2 className="text-lg lg:text-xl font-extrabold leading-tight">Propriétaire d'une maison individuelle ?</h2>
+                    <h2 className="text-lg lg:text-xl font-extrabold leading-tight">
+                      Propriétaire d'une maison individuelle ?
+                    </h2>
                     <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">
-                      Passez <strong className="text-foreground">à l'énergie solaire</strong> et faites d'importantes économies sur votre <strong className="text-foreground">facture électrique.</strong>
+                      Passez <strong className="text-foreground">à l'énergie solaire</strong> et faites d'importantes
+                      économies sur votre <strong className="text-foreground">facture électrique.</strong>
                     </p>
                   </div>
                 </div>
 
                 {/* Right: Eligibility wizard */}
-                <div ref={formRef} id="formulaire-solaire" className="bg-card border border-border rounded-2xl p-6 lg:p-8 shadow-lg">
+                <div
+                  ref={formRef}
+                  id="formulaire-solaire"
+                  className="bg-card border border-border rounded-2xl p-6 lg:p-8 shadow-lg"
+                >
                   {renderWizardContent()}
                 </div>
               </div>
@@ -578,16 +594,19 @@ const LandingSolaireContent = () => {
                 <div className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <p className="text-base text-foreground leading-relaxed">
-                      Le photovoltaïque permet de produire votre propre électricité grâce à l'énergie solaire, 
-                      une ressource gratuite et inépuisable. En plus de réduire vos factures, c'est un 
-                      investissement rentable grâce aux aides de l'État. Avec le contrat EDF OA, vous pouvez revendre le surplus d'électricité produit.
+                      Le photovoltaïque permet de produire votre propre électricité grâce à l'énergie solaire, une
+                      ressource gratuite et inépuisable. En plus de réduire vos factures, c'est un investissement
+                      rentable grâce aux aides de l'État. Avec le contrat EDF OA, vous pouvez revendre le surplus
+                      d'électricité produit.
                     </p>
                     <div className="flex flex-col items-center">
                       <img src={solarSystemDiagram} alt="Schéma photovoltaïque" className="w-full max-w-[252px] mb-4" />
                       <div className="space-y-2 w-full max-w-[280px]">
                         <div className="flex items-start gap-2">
                           <div className="w-4 h-4 mt-1 rounded bg-destructive/70 flex-shrink-0"></div>
-                          <p className="text-sm text-foreground font-medium">Capter les rayons du soleil et les convertir en kW</p>
+                          <p className="text-sm text-foreground font-medium">
+                            Capter les rayons du soleil et les convertir en kW
+                          </p>
                         </div>
                         <div className="flex items-start gap-2">
                           <div className="w-4 h-4 mt-1 rounded bg-accent flex-shrink-0"></div>
@@ -597,7 +616,11 @@ const LandingSolaireContent = () => {
                     </div>
                   </div>
                   <div className="flex justify-center">
-                    <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl font-semibold gap-2" onClick={scrollToForm}>
+                    <Button
+                      size="lg"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl font-semibold gap-2"
+                      onClick={scrollToForm}
+                    >
                       Ça m'intéresse <ArrowRight className="w-4 h-4" />
                     </Button>
                   </div>
@@ -614,13 +637,21 @@ const LandingSolaireContent = () => {
               </h2>
               {/* Mobile carousel */}
               <div className="lg:hidden pb-12">
-                <Carousel opts={{ align: "start", loop: true }} plugins={[Autoplay({ delay: 5000 })]} className="relative">
+                <Carousel
+                  opts={{ align: "start", loop: true }}
+                  plugins={[Autoplay({ delay: 5000 })]}
+                  className="relative"
+                >
                   <CarouselContent>
                     {benefits.map((b, i) => (
                       <CarouselItem key={i} className="md:basis-1/2">
                         <div className="flex flex-col items-center text-center px-4">
                           <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center mb-6 overflow-hidden hover:scale-110 transition-transform">
-                            <img src={b.image} alt={b.title} className={`w-full h-full ${i === 1 ? 'object-cover scale-[2]' : 'object-cover'}`} />
+                            <img
+                              src={b.image}
+                              alt={b.title}
+                              className={`w-full h-full ${i === 1 ? "object-cover scale-[2]" : "object-cover"}`}
+                            />
                           </div>
                           <h3 className="text-xl font-bold text-primary mb-4">{b.title}</h3>
                           <p className="text-sm text-foreground">{b.description}</p>
@@ -637,7 +668,11 @@ const LandingSolaireContent = () => {
                 {benefits.map((b, i) => (
                   <div key={i} className="flex flex-col items-center text-center">
                     <div className="w-40 h-40 rounded-full bg-muted flex items-center justify-center mb-6 overflow-hidden hover:scale-110 transition-transform cursor-pointer">
-                      <img src={b.image} alt={b.title} className={`w-full h-full ${i === 1 ? 'object-cover scale-[2]' : 'object-cover'}`} />
+                      <img
+                        src={b.image}
+                        alt={b.title}
+                        className={`w-full h-full ${i === 1 ? "object-cover scale-[2]" : "object-cover"}`}
+                      />
                     </div>
                     <h3 className="text-2xl font-bold text-primary mb-4">{b.title}</h3>
                     <p className="text-base text-foreground">{b.description}</p>
@@ -652,11 +687,10 @@ const LandingSolaireContent = () => {
             <div className="container mx-auto px-4 max-w-6xl">
               <div className="text-center mb-8">
                 <div className="inline-block w-16 h-1 bg-primary mb-4"></div>
-                <h2 className="text-2xl lg:text-4xl font-extrabold">
-                  Quels sont les critères d'éligibilité ?
-                </h2>
+                <h2 className="text-2xl lg:text-4xl font-extrabold">Quels sont les critères d'éligibilité ?</h2>
                 <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
-                  Vérifiez en quelques secondes si vous remplissez les conditions pour bénéficier des aides à l'installation solaire.
+                  Vérifiez en quelques secondes si vous remplissez les conditions pour bénéficier des aides à
+                  l'installation solaire.
                 </p>
               </div>
 
@@ -673,7 +707,8 @@ const LandingSolaireContent = () => {
                   </div>
 
                   <p className="text-base text-muted-foreground leading-relaxed">
-                    Pour bénéficier de l'installation de panneaux solaires et des aides associées, vous devez remplir les critères suivants :
+                    Pour bénéficier de l'installation de panneaux solaires et des aides associées, vous devez remplir
+                    les critères suivants :
                   </p>
 
                   <ul className="space-y-4 text-foreground">
@@ -693,10 +728,15 @@ const LandingSolaireContent = () => {
                   </ul>
 
                   <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-sm text-muted-foreground">
-                    <strong className="text-foreground">💡 Bon à savoir :</strong> Même les locataires peuvent bénéficier d'aides pour l'installation solaire avec l'accord du propriétaire.
+                    <strong className="text-foreground">💡 Bon à savoir :</strong> Même les locataires peuvent
+                    bénéficier d'aides pour l'installation solaire avec l'accord du propriétaire.
                   </div>
 
-                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/5 font-semibold rounded-full px-8" onClick={scrollToForm}>
+                  <Button
+                    variant="outline"
+                    className="border-primary text-primary hover:bg-primary/5 font-semibold rounded-full px-8"
+                    onClick={scrollToForm}
+                  >
                     Testez votre éligibilité gratuitement
                   </Button>
                 </div>
@@ -724,15 +764,15 @@ const LandingSolaireContent = () => {
                 {[
                   {
                     icon: Truck,
-                    text: "Primes-energies.fr vous aide à vérifier votre éligibilité à l'installation de panneaux solaires. Cette installation peut être financée en partie grâce au programme de transition énergétique et vous permet de faire l'acquisition de votre installation solaire livrée, installée, mise en service et garantie."
+                    text: "Primes-energies.fr vous aide à vérifier votre éligibilité à l'installation de panneaux solaires. Cette installation peut être financée en partie grâce au programme de transition énergétique et vous permet de faire l'acquisition de votre installation solaire livrée, installée, mise en service et garantie.",
                   },
                   {
                     icon: Wrench,
-                    text: "Nous nous occupons également de toutes les démarches administratives."
+                    text: "Nous nous occupons également de toutes les démarches administratives.",
                   },
                   {
                     icon: Power,
-                    text: "Afin de savoir le montant de vos aides octroyés, vous pouvez effectuer un test d'éligibilité sur notre site."
+                    text: "Afin de savoir le montant de vos aides octroyés, vous pouvez effectuer un test d'éligibilité sur notre site.",
                   },
                 ].map((item, i) => (
                   <div key={i} className="flex items-start gap-5">
@@ -743,7 +783,11 @@ const LandingSolaireContent = () => {
                   </div>
                 ))}
                 <div className="flex justify-center pt-4">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full px-10" onClick={scrollToForm}>
+                  <Button
+                    size="lg"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full px-10"
+                    onClick={scrollToForm}
+                  >
                     Testez votre éligibilité
                   </Button>
                 </div>
@@ -751,66 +795,11 @@ const LandingSolaireContent = () => {
             </div>
           </section>
 
-          {/* ═══ BAND 5b: Nos réalisations ═══ */}
-          <section className="py-12 lg:py-20 bg-background">
-            <div className="container mx-auto px-4 max-w-6xl">
-              <div className="text-center mb-10">
-                <div className="inline-block w-16 h-1 bg-primary mb-4"></div>
-                <h2 className="text-2xl lg:text-4xl font-extrabold">
-                  Nos réalisations en images
-                </h2>
-                <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
-                  Découvrez des installations solaires réalisées partout en France : toiture tuiles, toit-terrasse, maison individuelle... chaque projet est unique.
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-6">
-                {[
-                  {
-                    img: realisationTropicale,
-                    title: "Installation Outre-mer",
-                    desc: "Maison équipée en autoconsommation solaire sous climat tropical. Jusqu'à 80% d'économie grâce à un ensoleillement exceptionnel.",
-                  },
-                  {
-                    img: realisationFamille,
-                    title: "Projet familial clé en main",
-                    desc: "Une famille profite de son installation photovoltaïque avec piscine solaire. Rentabilité atteinte en moins de 7 ans.",
-                  },
-                  {
-                    img: realisationAccompagnement,
-                    title: "Accompagnement personnalisé",
-                    desc: "Nos conseillers vous accompagnent de l'étude de faisabilité à la mise en service, sur tablette et sur le terrain.",
-                  },
-                ].map((item, i) => (
-                  <div key={i} className="group rounded-2xl overflow-hidden border border-border bg-card shadow-sm hover:shadow-lg transition-shadow">
-                    <div className="aspect-[4/3] overflow-hidden">
-                      <img
-                        src={item.img}
-                        alt={item.title}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                    <div className="p-5 space-y-2">
-                      <h3 className="font-bold text-lg text-foreground">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex justify-center pt-8">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full px-10" onClick={scrollToForm}>
-                  Demandez votre étude gratuite
-                </Button>
-              </div>
-            </div>
-          </section>
-
+          {/* ═══ BAND 6: Témoignages ═══ */}
           <section className="py-10 lg:py-16 bg-muted">
             <div className="container mx-auto px-4 max-w-6xl">
               <h2 className="text-2xl lg:text-4xl font-extrabold text-center mb-12">
-                Déjà plus de <span className="text-primary">1000 clients</span> installés et satisfaits
+                Déjà plus de <span className="text-primary">2000 clients</span> installés et satisfaits
               </h2>
               <div className="grid md:grid-cols-3 gap-8">
                 {testimonials.map((t, i) => (
@@ -830,14 +819,26 @@ const LandingSolaireContent = () => {
           {/* ═══ BAND 7: Badges défilants ═══ */}
           <section className="py-10 lg:py-14 bg-background">
             <div className="container mx-auto px-4 max-w-5xl">
-              <Carousel opts={{ align: "start", loop: true }} plugins={[Autoplay({ delay: 4000 })]} className="relative">
+              <Carousel
+                opts={{ align: "start", loop: true }}
+                plugins={[Autoplay({ delay: 4000 })]}
+                className="relative"
+              >
                 <CarouselContent>
                   {/* Frame 1: badges 0-3 */}
                   <CarouselItem className="basis-full">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center py-4">
                       {badges.slice(0, 4).map((badge, i) => (
-                        <div key={i} className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow">
-                          <img src={badge.logo} alt={badge.name} loading="lazy" className="h-16 w-auto object-contain" />
+                        <div
+                          key={i}
+                          className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow"
+                        >
+                          <img
+                            src={badge.logo}
+                            alt={badge.name}
+                            loading="lazy"
+                            className="h-16 w-auto object-contain"
+                          />
                         </div>
                       ))}
                     </div>
@@ -846,8 +847,16 @@ const LandingSolaireContent = () => {
                   <CarouselItem className="basis-full">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center py-4">
                       {badges.slice(4, 8).map((badge, i) => (
-                        <div key={i} className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow">
-                          <img src={badge.logo} alt={badge.name} loading="lazy" className="h-16 w-auto object-contain" />
+                        <div
+                          key={i}
+                          className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow"
+                        >
+                          <img
+                            src={badge.logo}
+                            alt={badge.name}
+                            loading="lazy"
+                            className="h-16 w-auto object-contain"
+                          />
                         </div>
                       ))}
                     </div>
@@ -858,10 +867,8 @@ const LandingSolaireContent = () => {
               </Carousel>
             </div>
           </section>
-
         </main>
 
-        <FooterContactForm />
         <Footer />
       </div>
     </>
