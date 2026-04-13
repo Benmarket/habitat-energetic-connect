@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -796,8 +796,41 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
 // ─── Wrapper with Guard ───
 const LandingSolaireRegionale = () => {
   const { region } = useParams<{ region: string }>();
+  const navigate = useNavigate();
   const regionCode = region || "fr";
   const slug = regionCode === "fr" ? "solaire" : `solaire-${regionCode}`;
+
+  // Validate that the region actually exists in the regions table
+  const [regionValid, setRegionValid] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (regionCode === "fr") {
+      setRegionValid(true);
+      return;
+    }
+    const check = async () => {
+      const { data } = await supabase
+        .from("regions")
+        .select("code")
+        .eq("code", regionCode)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (!data) {
+        navigate("/404", { replace: true });
+      } else {
+        setRegionValid(true);
+      }
+    };
+    check();
+  }, [regionCode, navigate]);
+
+  if (regionValid === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <LandingPageGuard slug={slug} fallbackSlug="solaire">
