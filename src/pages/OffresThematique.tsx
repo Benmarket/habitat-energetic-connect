@@ -12,7 +12,7 @@ import { Check, Tag, Clock, Award, ArrowRight } from "lucide-react";
 import { format, differenceInDays, isPast } from "date-fns";
 import { fr } from "date-fns/locale";
 import { getOfferUrl } from "@/utils/slugify";
-import Breadcrumb from "@/components/Breadcrumb";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 // Mapping slug URL → product_type en base + meta SEO
 const THEMATIQUES: Record<string, { productTypes: string[]; label: string; description: string }> = {
@@ -236,7 +236,7 @@ const OffresThematique = () => {
                         </div>
                         {offer.is_rge_certified && (
                           <div className="absolute top-3 right-3">
-                            <Badge className="bg-green-600 text-white flex items-center gap-1">
+                            <Badge className="bg-primary text-primary-foreground flex items-center gap-1">
                               <Award className="w-3 h-3" />
                               RGE
                             </Badge>
@@ -268,7 +268,7 @@ const OffresThematique = () => {
                         <ul className="space-y-1 mb-4">
                           {offer.features.slice(0, 3).map((feature, idx) => (
                             <li key={idx} className="flex items-start gap-2 text-sm text-foreground">
-                              <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                              <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                               <span>{feature}</span>
                             </li>
                           ))}
