@@ -137,9 +137,9 @@ const OffresThematique = () => {
   }
 
   const breadcrumbItems = [
-    { label: "Accueil", href: "/" },
-    { label: "Offres Partenaires", href: "/#offres" },
-    { label: config.label },
+    { name: "Accueil", url: "/" },
+    { name: "Offres Partenaires", url: "/#offres" },
+    { name: config.label, url: `/offres/${thematique}` },
   ];
 
   const getExpiryBadge = (expiresAt: string | null) => {
