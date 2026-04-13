@@ -84,11 +84,11 @@ const PageLoader = () => (
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <RegionProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+      <BrowserRouter>
+        <RegionProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
             <ScrollToTop />
             <PageViewTracker />
             <MaintenanceMode>
@@ -176,9 +176,9 @@ const App = () => (
                 </Routes>
               </Suspense>
             </MaintenanceMode>
-          </BrowserRouter>
-        </TooltipProvider>
-      </RegionProvider>
+          </TooltipProvider>
+        </RegionProvider>
+      </BrowserRouter>
     </AuthProvider>
   </QueryClientProvider>
 );
