@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { RegionProvider } from "@/hooks/useRegionContext";
 import AdminGuard from "@/components/AdminGuard";
@@ -169,7 +169,8 @@ const App = () => (
                   <Route path="/conditions-utilisation" element={<ConditionsUtilisation />} />
                   <Route path="/faq" element={<FAQ />} />
                   <Route path="/merci" element={<Merci />} />
-                  <Route path="/simulateur-solaire" element={<SimulateurSolaire />} />
+                  <Route path="/simulateurs/solaire" element={<SimulateurSolaire />} />
+                  <Route path="/simulateur-solaire" element={<Navigate to="/simulateurs/solaire" replace />} />
 
                   {/* Catch-all */}
                   <Route path="*" element={<NotFound />} />

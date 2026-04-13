@@ -324,7 +324,7 @@ const SimulateurSolaire = () => {
             _attribution: {
               ref_article: refArticle,
               ref_cta: refCta,
-              ref_page: '/simulateur-solaire',
+              ref_page: '/simulateurs/solaire',
               ref_referrer: document.referrer || null,
             },
           },

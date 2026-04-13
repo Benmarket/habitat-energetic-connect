@@ -105,7 +105,7 @@ export const CtaBannerEditorModal = ({
       { path: '/actualites', label: 'Actualités' },
       { path: '/guides', label: 'Guides' },
       { path: '/aides', label: 'Aides' },
-      { path: '/simulateur-solaire', label: 'Simulateur Solaire' },
+      { path: '/simulateurs/solaire', label: 'Simulateur Solaire' },
       { path: '/faq', label: 'FAQ' },
       { path: '/forum', label: 'Forum' },
       { path: '/installer-app', label: 'Installer l\'app' },

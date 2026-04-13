@@ -96,7 +96,7 @@ serve(async (req) => {
       { url: "/guides", priority: "0.9", changefreq: "weekly" },
       { url: "/aides", priority: "0.9", changefreq: "weekly" },
       { url: "/faq", priority: "0.7", changefreq: "monthly" },
-      { url: "/simulateur-solaire", priority: "0.8", changefreq: "monthly" },
+      { url: "/simulateurs/solaire", priority: "0.8", changefreq: "monthly" },
       { url: "/forum", priority: "0.7", changefreq: "daily" },
     ];
 
