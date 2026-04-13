@@ -35,7 +35,7 @@ import appliPvImg from "@/assets/why-solar/appli-pv.jpg";
 import smartphoneImg from "@/assets/why-solar/utilise-smartphone.png";
 import fondGris from "@/assets/landing/fond-gris.png";
 import SolarHeroVisual from "@/components/landing/SolarHeroVisual";
-import solarPanelsImg from "@/assets/solar-panels.jpg";
+import solarPanelsImg from "@/assets/landing/panneaux-solaires.png";
 
 // ─── Icon resolver ───
 const iconMap: Record<string, React.ElementType> = {
