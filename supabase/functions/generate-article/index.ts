@@ -246,7 +246,7 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
 
       // Build available pages list for AI (internal pages + landing pages)
       const internalPages = [
-        { path: '/simulateur-solaire', title: 'Simulateur solaire / photovoltaïque' },
+        { path: '/simulateurs/solaire', title: 'Simulateur solaire / photovoltaïque' },
         { path: '/aides', title: 'Aides et subventions' },
         { path: '/guides', title: 'Guides pratiques' },
         { path: '/actualites', title: 'Actualités' },
@@ -277,7 +277,7 @@ PAGES INTERNES DISPONIBLES:
 ${internalPages.slice(0, 15).map((p: any) => `"${p.title}" → ${p.path}`).join('\n')}
 
 STRATÉGIE DE CONNEXION:
-- Si l'article parle de solaire/photovoltaïque → TOUJOURS utiliser "/simulateur-solaire" comme URL de redirection (PAS de popup)
+- Si l'article parle de solaire/photovoltaïque → TOUJOURS utiliser "/simulateurs/solaire" comme URL de redirection (PAS de popup)
 - Si l'article parle d'aides/subventions → utilise "/aides" comme URL de redirection
 - Si l'article parle de pompe à chaleur → cherche la landing page correspondante
 - Pour les demandes de devis/contact → utilise "#" + un POPUP_ID (formulaire de contact)
@@ -290,7 +290,7 @@ STRATÉGIE DE CONNEXION:
 ${btns.map((b: any, i: number) => `${i + 1}. "${b.text}" → ${b.url} (couleur: ${b.background_color || '#10b981'})`).join('\n')}
 FORMAT: [BUTTON:Texte|URL] ou [BUTTON:Texte|#|POPUP_ID] (pour ouvrir un popup)
 EXEMPLES:
-[BUTTON:Lancer ma simulation solaire|/simulateur-solaire]
+[BUTTON:Lancer ma simulation solaire|/simulateurs/solaire]
 [BUTTON:Demander un devis gratuit|#|${defaultPopupId}]
 IMPORTANT: Si les boutons ont tous la même couleur, change le texte d'au moins un pour proposer un message différent.
 ⚠️ CHAQUE bouton DOIT avoir soit une vraie URL de page interne, soit un POPUP_ID.`;
@@ -298,7 +298,7 @@ IMPORTANT: Si les boutons ont tous la même couleur, change le texte d'au moins 
         ctaInstructions += `\nBOUTONS CTA:
 FORMAT: [BUTTON:Texte|URL] ou [BUTTON:Texte|#|POPUP_ID]
 EXEMPLES:
-[BUTTON:Lancer ma simulation solaire|/simulateur-solaire]
+[BUTTON:Lancer ma simulation solaire|/simulateurs/solaire]
 [BUTTON:Demander un devis gratuit|#|${defaultPopupId}]`;
       }
 
@@ -977,7 +977,7 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
       const defaultPopupId = popupWithForm?.id || (activePopups.length > 0 ? activePopups[0].id : '');
 
       const fixInternalPages = [
-        { path: '/simulateur-solaire', title: 'Simulateur solaire / photovoltaïque' },
+        { path: '/simulateurs/solaire', title: 'Simulateur solaire / photovoltaïque' },
         { path: '/aides', title: 'Aides et subventions' },
         { path: '/guides', title: 'Guides pratiques' },
         { path: '/#contact', title: 'Formulaire de contact' },
