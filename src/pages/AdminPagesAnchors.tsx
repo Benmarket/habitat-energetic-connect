@@ -71,7 +71,7 @@ const SITE_PAGES = [
   { id: "aides", title: "Aides", path: "/aides", icon: HandCoins, color: "text-emerald-600", bgColor: "bg-emerald-100", description: "Aides et subventions", anchors: [] },
   { id: "forum", title: "Forum", path: "/forum", icon: MessageCircle, color: "text-orange-600", bgColor: "bg-orange-100", description: "Forum communautaire", anchors: [] },
   { id: "faq", title: "FAQ", path: "/faq", icon: HelpCircle, color: "text-purple-600", bgColor: "bg-purple-100", description: "Questions fréquentes", anchors: [] },
-  { id: "simulateur-solaire", title: "Simulateur Solaire", path: "/simulateur-solaire", icon: Calculator, color: "text-amber-600", bgColor: "bg-amber-100", description: "Simulateur d'économies solaires", anchors: [] },
+  { id: "simulateur-solaire", title: "Simulateur Solaire", path: "/simulateurs/solaire", icon: Calculator, color: "text-amber-600", bgColor: "bg-amber-100", description: "Simulateur d'économies solaires", anchors: [] },
 ];
 
 type SectionTab = "landing-pages" | "site-pages" | "anchors";

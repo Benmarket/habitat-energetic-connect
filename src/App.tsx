@@ -169,7 +169,8 @@ const App = () => (
                   <Route path="/conditions-utilisation" element={<ConditionsUtilisation />} />
                   <Route path="/faq" element={<FAQ />} />
                   <Route path="/merci" element={<Merci />} />
-                  <Route path="/simulateur-solaire" element={<SimulateurSolaire />} />
+                  <Route path="/simulateurs/solaire" element={<SimulateurSolaire />} />
+                  <Route path="/simulateur-solaire" element={<Navigate to="/simulateurs/solaire" replace />} />
 
                   {/* Catch-all */}
                   <Route path="*" element={<NotFound />} />

@@ -49,7 +49,7 @@ const SimulatorsSection = () => {
       gradient: "from-orange-500 to-yellow-500",
       iconBg: "bg-orange-50",
       ctaText: "Simuler le solaire",
-      link: "/simulateur-solaire"
+      link: "/simulateurs/solaire"
     },
     {
       id: "classe-energetique",
