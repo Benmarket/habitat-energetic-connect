@@ -59,7 +59,7 @@ export const SolarHeroVisual = () => {
         <img
           src={onduleur}
           alt="Onduleur Hoymiles"
-          className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 h-20 lg:h-28 object-contain"
+          className="absolute bottom-0 right-0 translate-x-[10%] translate-y-1/4 h-20 lg:h-28 object-contain"
         />
       </div>
 
