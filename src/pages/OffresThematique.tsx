@@ -109,7 +109,7 @@ const OffresThematique = () => {
         .select(`
           id, title, description, image, price, original_price, features,
           cta_text, badge_text, badge_type, expires_at, is_rge_certified,
-          rge_certification_text, product_type,
+          rge_certification_text, product_type, target_regions,
           advertiser:advertisers!advertisements_advertiser_id_fkey(name, logo)
         `)
         .eq("status", "active")
