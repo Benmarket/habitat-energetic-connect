@@ -15,10 +15,12 @@ const RegionContext = createContext<RegionContextType | undefined>(undefined);
 function getInitialRegion(): RegionCode {
   // 1. Check query param
   if (typeof window !== "undefined") {
-    const urlParams = new URLSearchParams(window.location.search);
-    const regionParam = urlParams.get("region")?.toLowerCase() as RegionCode;
-    if (regionParam && VALID_REGIONS.includes(regionParam)) {
-      return regionParam;
+    if (window.location.pathname === "/") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const regionParam = urlParams.get("region")?.toLowerCase() as RegionCode;
+      if (regionParam && VALID_REGIONS.includes(regionParam)) {
+        return regionParam;
+      }
     }
     
     // 2. Check localStorage
@@ -37,6 +39,8 @@ export function RegionProvider({ children }: { children: ReactNode }) {
 
   // On mount, sync initial region to URL if not already present
   useEffect(() => {
+    if (window.location.pathname !== "/") return;
+
     const urlParams = new URLSearchParams(window.location.search);
     const currentRegion = urlParams.get("region");
     
@@ -56,22 +60,23 @@ export function RegionProvider({ children }: { children: ReactNode }) {
     // Store in localStorage
     localStorage.setItem(STORAGE_KEY, region);
     
-    // Update URL with history.pushState
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    if (region === "fr") {
-      // Remove region param for default
-      urlParams.delete("region");
-    } else {
-      urlParams.set("region", region);
+    // Update URL only on homepage
+    if (window.location.pathname === "/") {
+      const urlParams = new URLSearchParams(window.location.search);
+
+      if (region === "fr") {
+        urlParams.delete("region");
+      } else {
+        urlParams.set("region", region);
+      }
+
+      const queryString = urlParams.toString();
+      const newUrl = queryString
+        ? `${window.location.pathname}?${queryString}`
+        : window.location.pathname;
+
+      window.history.pushState({}, "", newUrl);
     }
-    
-    const queryString = urlParams.toString();
-    const newUrl = queryString 
-      ? `${window.location.pathname}?${queryString}`
-      : window.location.pathname;
-    
-    window.history.pushState({}, "", newUrl);
   };
 
   return (
