@@ -43,7 +43,7 @@ export const SolarHeroVisual = () => {
           className="absolute -top-4 -left-4 w-24 h-24 lg:w-28 lg:h-28 object-contain z-10"
         />
 
-        <div className="relative h-56 w-[16rem] overflow-hidden md:h-64 md:w-[19rem] lg:h-80 lg:w-[27rem]">
+        <div className="relative h-44 w-[13rem] overflow-hidden md:h-52 md:w-[16rem] lg:h-64 lg:w-[22rem]">
           {heroSlides.map((slide, index) => (
             <img
               key={slide.src}
