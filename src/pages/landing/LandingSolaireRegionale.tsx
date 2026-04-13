@@ -59,16 +59,19 @@ const step3Schema = z.object({
   phone: z.string().trim().min(10, "Téléphone invalide"),
 });
 
+// ─── Logos partenaires (hébergés sur le stockage cloud) ───
+const STORAGE_BASE = "https://ggucavhanqmdxjqdbcnw.supabase.co/storage/v1/object/public/media/logos";
+
 // ─── Badges data ───
 const badges = [
-  { name: "RGE QualiPV", color: "text-purple-700" },
-  { name: "MaPrimeRénov'", color: "text-teal-600" },
-  { name: "CEE Certificats d'Économies d'Énergie", color: "text-green-700" },
-  { name: "Domofinance", color: "text-orange-600" },
-  { name: "QualiPac", color: "text-blue-700" },
-  { name: "France Rénov'", color: "text-indigo-600" },
-  { name: "ADEME", color: "text-emerald-700" },
-  { name: "Eco PTZ", color: "text-amber-700" },
+  { name: "RGE QualiPV", logo: `${STORAGE_BASE}/rge-qualipv.png` },
+  { name: "MaPrimeRénov'", logo: `${STORAGE_BASE}/maprimerenov.png` },
+  { name: "CEE", logo: `${STORAGE_BASE}/cee.png` },
+  { name: "Domofinance", logo: `${STORAGE_BASE}/domofinance.png` },
+  { name: "QualiPac", logo: `${STORAGE_BASE}/qualipac.png` },
+  { name: "France Rénov'", logo: `${STORAGE_BASE}/france-renov.png` },
+  { name: "ADEME", logo: `${STORAGE_BASE}/ademe.png` },
+  { name: "Eco PTZ", logo: `${STORAGE_BASE}/eco-ptz.png` },
 ];
 
 // ─── Default testimonials (fallback) ───
@@ -569,27 +572,70 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
           )}
 
           {/* ═══ SECTION 7: Critères d'éligibilité ═══ */}
-          <section className="py-10 lg:py-16 bg-muted">
+          <section className="py-12 lg:py-20 bg-muted">
             <div className="container mx-auto px-4 max-w-6xl">
-              <div className="text-center mb-2"><div className="inline-block w-16 h-1 bg-primary mb-4"></div></div>
-              <h2 className="text-2xl lg:text-4xl font-extrabold mb-10 text-center lg:text-left">Quels sont les critères d'éligibilité?</h2>
-              <div className="grid lg:grid-cols-2 gap-10 items-center">
+              <div className="text-center mb-8">
+                <div className="inline-block w-16 h-1 bg-primary mb-4"></div>
+                <h2 className="text-2xl lg:text-4xl font-extrabold">Quels sont les critères d'éligibilité ?</h2>
+                <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
+                  Vérifiez en quelques secondes si vous remplissez les conditions pour bénéficier des aides à
+                  l'installation solaire.
+                </p>
+              </div>
+
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div className="space-y-6">
-                  <div className="flex gap-6 justify-center lg:justify-start">
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center"><Home className="w-7 h-7 text-primary" /></div>
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center"><Building2 className="w-7 h-7 text-primary" /></div>
+                  <div className="flex gap-4 justify-center lg:justify-start">
+                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Home className="w-7 h-7 text-primary" />
+                    </div>
+                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Building2 className="w-7 h-7 text-primary" />
+                    </div>
                   </div>
+
                   <p className="text-base text-muted-foreground leading-relaxed">
-                    Pour pouvoir bénéficier de l'installation de panneaux solaires{isRegional ? ` en ${regionName}` : ""}, il vous faut respecter les critères d'éligibilité suivants:
+                    Pour bénéficier de l'installation de panneaux solaires et des aides associées, vous devez remplir
+                    les critères suivants :
                   </p>
-                  <ul className="space-y-3 text-foreground">
-                    <li className="flex items-start gap-3"><CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" /><span>Être propriétaire d'une maison individuelle.</span></li>
-                    <li className="flex items-start gap-3"><CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" /><span>Être relié aux fournisseur d'électricité</span></li>
+
+                  <ul className="space-y-4 text-foreground">
+                    {[
+                      "Être propriétaire ou copropriétaire d'un logement (maison individuelle ou immeuble).",
+                      "Le logement doit être construit depuis plus de 2 ans.",
+                      "Être raccordé au réseau électrique public (Enedis ou ELD).",
+                      "Faire appel à un installateur certifié RGE (Reconnu Garant de l'Environnement).",
+                      "Le logement doit être situé en France métropolitaine ou en Outre-mer.",
+                      "Ne pas dépasser la puissance maximale de 500 kWc pour les particuliers.",
+                    ].map((text, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                        <span>{text}</span>
+                      </li>
+                    ))}
                   </ul>
-                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/5 font-semibold rounded-full px-8" onClick={scrollToForm}>Testez votre éligibilité</Button>
+
+                  <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-sm text-muted-foreground">
+                    <strong className="text-foreground">💡 Bon à savoir :</strong> Même les locataires peuvent
+                    bénéficier d'aides pour l'installation solaire avec l'accord du propriétaire.
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    className="border-primary text-primary hover:bg-primary/5 font-semibold rounded-full px-8"
+                    onClick={scrollToForm}
+                  >
+                    Testez votre éligibilité gratuitement
+                  </Button>
                 </div>
-                <div className="rounded-2xl overflow-hidden shadow-lg">
-                  <img src={solarPanelsImg} alt="Famille heureuse avec panneaux solaires" className="w-full h-auto object-cover" />
+
+                <div className="rounded-2xl overflow-hidden shadow-xl">
+                  <img
+                    src={solarPanelsImg}
+                    alt="Toiture équipée de panneaux solaires photovoltaïques"
+                    className="w-full h-auto object-cover"
+                    loading="lazy"
+                  />
                 </div>
               </div>
             </div>
@@ -678,27 +724,49 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
           {/* ═══ SECTION 11: Badges défilants ═══ */}
           <section className="py-10 lg:py-14 bg-background">
             <div className="container mx-auto px-4 max-w-5xl">
-              <Carousel opts={{ align: "start", loop: true }} plugins={[Autoplay({ delay: 4000 })]} className="relative">
+              <Carousel
+                opts={{ align: "start", loop: true }}
+                plugins={[Autoplay({ delay: 4000 })]}
+                className="relative"
+              >
                 <CarouselContent>
                   <CarouselItem className="basis-full">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center py-4">
                       {badges.slice(0, 4).map((badge, i) => (
-                        <div key={i} className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow">
-                          <span className={`text-sm md:text-base font-bold text-center ${badge.color}`}>{badge.name}</span>
+                        <div
+                          key={i}
+                          className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow"
+                        >
+                          <img
+                            src={badge.logo}
+                            alt={badge.name}
+                            loading="lazy"
+                            className="h-16 w-auto object-contain"
+                          />
                         </div>
                       ))}
                     </div>
                   </CarouselItem>
                   <CarouselItem className="basis-full">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center py-4">
-                      {badges.slice(4).map((badge, i) => (
-                        <div key={i} className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow">
-                          <span className={`text-sm md:text-base font-bold text-center ${badge.color}`}>{badge.name}</span>
+                      {badges.slice(4, 8).map((badge, i) => (
+                        <div
+                          key={i}
+                          className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow"
+                        >
+                          <img
+                            src={badge.logo}
+                            alt={badge.name}
+                            loading="lazy"
+                            className="h-16 w-auto object-contain"
+                          />
                         </div>
                       ))}
                     </div>
                   </CarouselItem>
                 </CarouselContent>
+                <CarouselPrevious className="hidden md:flex -left-12 opacity-50 hover:opacity-100" />
+                <CarouselNext className="hidden md:flex -right-12 opacity-50 hover:opacity-100" />
               </Carousel>
             </div>
           </section>
