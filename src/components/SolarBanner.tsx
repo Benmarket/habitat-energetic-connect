@@ -1,11 +1,15 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useRegionContext } from "@/hooks/useRegionContext";
 import solarHouseBanner from "@/assets/solar-house-banner.jpg";
 import solarSystemDiagram from "@/assets/solar-system-diagram-new.png";
 import guarantee25Years from "@/assets/guarantee-25-years.png";
 
 const SolarBanner = () => {
+  const { activeRegion } = useRegionContext();
+  const solarLink = activeRegion === "fr" ? "/landing/solaire" : `/landing/solaire/${activeRegion}`;
+
   return (
     <section className="py-6 md:py-12 lg:py-16 bg-gradient-to-b from-blue-50/30 to-background">
       <div className="container mx-auto px-4">
@@ -159,7 +163,7 @@ const SolarBanner = () => {
               
               {/* Button */}
               <div className="flex justify-center">
-                <Link to="/landing/solaire">
+                <Link to={solarLink}>
                   <Button 
                     size="lg"
                     className="bg-primary hover:bg-primary/90 text-white shadow-xl font-semibold gap-2 transition-transform duration-200 hover:scale-105"
