@@ -146,7 +146,7 @@ const App = () => (
 
                   {/* Utility pages - lazy loaded */}
                   <Route path="/installer-app" element={<InstallApp />} />
-                  <Route path="/offres/:thematique" element={<OffresThematique />} />
+                  <Route path="/offre-partenaire/:thematique" element={<OffresThematique />} />
                   <Route path="/offre-partenaire/:advertiserSlug/:id" element={<OffrePartenaire />} />
 
                   {/* Landing pages - lazy loaded */}

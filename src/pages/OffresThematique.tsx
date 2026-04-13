@@ -149,7 +149,7 @@ const OffresThematique = () => {
   const breadcrumbItems = [
     { name: "Accueil", url: "/" },
     { name: "Offres Partenaires", url: "/#offres" },
-    { name: config.label, url: `/offres/${thematique}` },
+    { name: config.label, url: `/offre-partenaire/${thematique}` },
   ];
 
   const getExpiryBadge = (expiresAt: string | null) => {
@@ -173,7 +173,7 @@ const OffresThematique = () => {
       <Helmet>
         <title>{`Offres ${config.label} | Prime Énergies`}</title>
         <meta name="description" content={config.description} />
-        <link rel="canonical" href={`https://prime-energies.fr/offres/${thematique}`} />
+        <link rel="canonical" href={`https://prime-energies.fr/offre-partenaire/${thematique}`} />
       </Helmet>
 
       <Header />
