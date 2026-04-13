@@ -10,7 +10,7 @@ const isValidRegion = (value: string | null | undefined): value is RegionCode =>
   return Boolean(value && VALID_REGIONS.includes(value as RegionCode));
 };
 
-const isHomepagePath = (pathname: string) => pathname === "/";
+const isRegionActivePath = (pathname: string) => pathname === "/" || pathname.startsWith("/offres/");
 
 function getStoredRegion(): RegionCode {
   if (typeof window === "undefined") return "fr";
@@ -33,7 +33,7 @@ const RegionContext = createContext<RegionContextType | undefined>(undefined);
 
 function getInitialRegion(): RegionCode {
   if (typeof window !== "undefined") {
-    if (isHomepagePath(window.location.pathname)) {
+    if (isRegionActivePath(window.location.pathname)) {
       return getHomepageRegion(window.location.search);
     }
 
@@ -45,7 +45,7 @@ function getInitialRegion(): RegionCode {
 
 export function RegionProvider({ children }: { children: ReactNode }) {
   const location = useLocation();
-  const isHomepage = isHomepagePath(location.pathname);
+  const isRegionActive = isRegionActivePath(location.pathname);
   const [selectedRegion, setSelectedRegionState] = useState<RegionCode>(getInitialRegion);
 
   useEffect(() => {
