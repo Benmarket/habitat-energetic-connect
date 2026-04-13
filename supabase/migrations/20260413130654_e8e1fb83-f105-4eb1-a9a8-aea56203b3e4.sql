@@ -1,0 +1,2 @@
+UPDATE landing_pages SET path = '/landing/solaire' WHERE id = '124fa2a0-cf5b-41a4-8c2b-40960cf6cecb';
+UPDATE landing_pages SET path = '/landing/solaire/photovoltaique-batterie' WHERE id = '40ba3f2f-935a-4917-a90c-21f89539ac14';
