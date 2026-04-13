@@ -61,6 +61,7 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isHomePage = location.pathname === "/";
+  const showRegionBar = isHomePage || location.pathname.startsWith("/offres/");
 
   // Génère le lien WhatsApp à partir du paramètre configuré
   const getWhatsappUrl = () => {
@@ -625,7 +626,7 @@ const Header = () => {
       </div>
       
       {/* Region Sub-Header - Only on homepage and if enabled (wait for settings to load) */}
-      {settingsLoaded && isHomePage && headerFooterSettings.showRegionSubHeader && <RegionSubHeader isScrolled={isScrolled} />}
+      {settingsLoaded && showRegionBar && headerFooterSettings.showRegionSubHeader && <RegionSubHeader isScrolled={isScrolled} />}
       
       <AuthModal open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
     </header>

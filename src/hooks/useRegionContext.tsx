@@ -51,7 +51,7 @@ export function RegionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const storedRegion = getStoredRegion();
 
-    if (!isHomepage) {
+    if (!isRegionActive) {
       setSelectedRegionState((currentRegion) => (currentRegion === storedRegion ? currentRegion : storedRegion));
       return;
     }
@@ -76,7 +76,7 @@ export function RegionProvider({ children }: { children: ReactNode }) {
       urlParams.set("region", nextRegion);
       window.history.replaceState({}, "", `${location.pathname}?${urlParams.toString()}`);
     }
-  }, [isHomepage, location.pathname, location.search]);
+  }, [isRegionActive, location.pathname, location.search]);
 
   const setActiveRegion = (region: RegionCode) => {
     if (!VALID_REGIONS.includes(region)) return;
@@ -102,7 +102,7 @@ export function RegionProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const activeRegion: RegionCode = isHomepage ? selectedRegion : "fr";
+  const activeRegion: RegionCode = isRegionActive ? selectedRegion : "fr";
 
   return (
     <RegionContext.Provider value={{ activeRegion, setActiveRegion }}>
