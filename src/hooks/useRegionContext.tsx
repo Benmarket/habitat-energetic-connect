@@ -1,9 +1,28 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 
 export type RegionCode = "fr" | "corse" | "reunion" | "martinique" | "guadeloupe" | "guyane";
 
 const VALID_REGIONS: RegionCode[] = ["fr", "corse", "reunion", "martinique", "guadeloupe", "guyane"];
 const STORAGE_KEY = "prime-energies-region";
+
+const isValidRegion = (value: string | null | undefined): value is RegionCode => {
+  return Boolean(value && VALID_REGIONS.includes(value as RegionCode));
+};
+
+const isHomepagePath = (pathname: string) => pathname === "/";
+
+function getStoredRegion(): RegionCode {
+  if (typeof window === "undefined") return "fr";
+
+  const storedRegion = localStorage.getItem(STORAGE_KEY)?.toLowerCase();
+  return isValidRegion(storedRegion) ? storedRegion : "fr";
+}
+
+function getHomepageRegion(search: string): RegionCode {
+  const regionParam = new URLSearchParams(search).get("region")?.toLowerCase();
+  return isValidRegion(regionParam) ? regionParam : getStoredRegion();
+}
 
 interface RegionContextType {
   activeRegion: RegionCode;
@@ -13,54 +32,58 @@ interface RegionContextType {
 const RegionContext = createContext<RegionContextType | undefined>(undefined);
 
 function getInitialRegion(): RegionCode {
-  // 1. Check query param
   if (typeof window !== "undefined") {
-    if (window.location.pathname === "/") {
-      const urlParams = new URLSearchParams(window.location.search);
-      const regionParam = urlParams.get("region")?.toLowerCase() as RegionCode;
-      if (regionParam && VALID_REGIONS.includes(regionParam)) {
-        return regionParam;
-      }
+    if (isHomepagePath(window.location.pathname)) {
+      return getHomepageRegion(window.location.search);
     }
-    
-    // 2. Check localStorage
-    const storedRegion = localStorage.getItem(STORAGE_KEY) as RegionCode;
-    if (storedRegion && VALID_REGIONS.includes(storedRegion)) {
-      return storedRegion;
-    }
+
+    return getStoredRegion();
   }
-  
-  // 3. Default to "fr"
+
   return "fr";
 }
 
 export function RegionProvider({ children }: { children: ReactNode }) {
-  const [activeRegion, setActiveRegionState] = useState<RegionCode>(getInitialRegion);
+  const location = useLocation();
+  const isHomepage = isHomepagePath(location.pathname);
+  const [selectedRegion, setSelectedRegionState] = useState<RegionCode>(getInitialRegion);
 
-  // On mount, sync initial region to URL if not already present
   useEffect(() => {
-    if (window.location.pathname !== "/") return;
+    const storedRegion = getStoredRegion();
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const currentRegion = urlParams.get("region");
-    
-    if (!currentRegion && activeRegion !== "fr") {
-      // If region is from localStorage but not in URL, update URL
-      urlParams.set("region", activeRegion);
-      const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
-      window.history.replaceState({}, "", newUrl);
+    if (!isHomepage) {
+      setSelectedRegionState((currentRegion) => (currentRegion === storedRegion ? currentRegion : storedRegion));
+      return;
     }
-  }, []);
+
+    const urlParams = new URLSearchParams(location.search);
+    const regionParam = urlParams.get("region")?.toLowerCase();
+    const nextRegion = isValidRegion(regionParam) ? regionParam : storedRegion;
+
+    setSelectedRegionState((currentRegion) => (currentRegion === nextRegion ? currentRegion : nextRegion));
+
+    if (nextRegion === "fr") {
+      if (urlParams.has("region")) {
+        urlParams.delete("region");
+        const queryString = urlParams.toString();
+        const newUrl = queryString ? `${location.pathname}?${queryString}` : location.pathname;
+        window.history.replaceState({}, "", newUrl);
+      }
+      return;
+    }
+
+    if (regionParam !== nextRegion) {
+      urlParams.set("region", nextRegion);
+      window.history.replaceState({}, "", `${location.pathname}?${urlParams.toString()}`);
+    }
+  }, [isHomepage, location.pathname, location.search]);
 
   const setActiveRegion = (region: RegionCode) => {
     if (!VALID_REGIONS.includes(region)) return;
-    
-    setActiveRegionState(region);
-    
-    // Store in localStorage
+
+    setSelectedRegionState(region);
     localStorage.setItem(STORAGE_KEY, region);
-    
-    // Update URL only on homepage
+
     if (window.location.pathname === "/") {
       const urlParams = new URLSearchParams(window.location.search);
 
@@ -78,6 +101,8 @@ export function RegionProvider({ children }: { children: ReactNode }) {
       window.history.pushState({}, "", newUrl);
     }
   };
+
+  const activeRegion: RegionCode = isHomepage ? selectedRegion : "fr";
 
   return (
     <RegionContext.Provider value={{ activeRegion, setActiveRegion }}>
