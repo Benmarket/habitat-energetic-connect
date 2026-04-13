@@ -34,10 +34,7 @@ import factureEdfImg from "@/assets/why-solar/facture-edf-new.png";
 import appliPvImg from "@/assets/why-solar/appli-pv.jpg";
 import smartphoneImg from "@/assets/why-solar/utilise-smartphone.png";
 import fondGris from "@/assets/landing/fond-gris.png";
-import panneauxSolaires from "@/assets/landing/panneaux-solaires.png";
-import onduleur from "@/assets/landing/onduleur.png";
-import marqueFrancaise from "@/assets/landing/marque-francaise.png";
-import macaronPrix from "@/assets/landing/macaron-prix.png";
+import SolarHeroVisual from "@/components/landing/SolarHeroVisual";
 import solarPanelsImg from "@/assets/solar-panels.jpg";
 
 // ─── Icon resolver ───
@@ -345,23 +342,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
                 {content.hero_subtitle || `Faites jusqu'à 70% d'économie sur 30 ans avec une centrale solaire en autoconsommation${isRegional ? ` en ${regionName}` : ""}.`}
               </p>
               <div className="grid lg:grid-cols-[1fr_1fr] gap-6 lg:gap-8 items-center">
-                <div className="flex items-center gap-4 lg:gap-6">
-                  <div className="relative flex-shrink-0">
-                    <img src={macaronPrix} alt="À partir de 35€/mois, primes déduites" className="absolute -top-4 -left-4 w-24 h-24 lg:w-28 lg:h-28 object-contain z-10" />
-                    <img src={panneauxSolaires} alt="Panneaux solaires" className="h-56 md:h-64 lg:h-80 object-contain" />
-                    <img src={onduleur} alt="Onduleur Hoymiles" className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 h-20 lg:h-28 object-contain" />
-                  </div>
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-center gap-3">
-                      <img src={marqueFrancaise} alt="Marque Française" className="h-12 lg:h-14 object-contain" />
-                      <img src={guarantee25Years} alt="Garantie 25 ans" className="w-16 h-16 lg:w-20 lg:h-20" />
-                    </div>
-                    <h2 className="text-lg lg:text-xl font-extrabold leading-tight">Propriétaire d'une maison individuelle ?</h2>
-                    <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">
-                      Passez <strong className="text-foreground">à l'énergie solaire</strong> et faites d'importantes économies sur votre <strong className="text-foreground">facture électrique.</strong>
-                    </p>
-                  </div>
-                </div>
+                <SolarHeroVisual />
                 <div ref={formRef} id="formulaire-solaire" className="bg-card border border-border rounded-2xl p-6 lg:p-8 shadow-lg">
                   {renderWizardContent()}
                 </div>
