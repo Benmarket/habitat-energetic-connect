@@ -68,6 +68,7 @@ const ForumTopic = lazy(() => import("./pages/forum/ForumTopic"));
 const NewTopic = lazy(() => import("./pages/forum/NewTopic"));
 const InstallApp = lazy(() => import("./pages/InstallApp"));
 const OffrePartenaire = lazy(() => import("./pages/OffrePartenaire"));
+const OffresThematique = lazy(() => import("./pages/OffresThematique"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Merci = lazy(() => import("./pages/Merci"));
 const SimulateurSolaire = lazy(() => import("./pages/SimulateurSolaire"));
