@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
+import { useRegionContext } from "@/hooks/useRegionContext";
 import { Helmet } from "react-helmet";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -88,6 +89,7 @@ const OffresThematique = () => {
   const { thematique } = useParams<{ thematique: string }>();
   const [offers, setOffers] = useState<OfferWithAdvertiser[]>([]);
   const [loading, setLoading] = useState(true);
+  const { activeRegion } = useRegionContext();
 
   const config = thematique ? THEMATIQUES[thematique] : undefined;
 
@@ -95,7 +97,7 @@ const OffresThematique = () => {
     if (config) {
       fetchOffers();
     }
-  }, [thematique]);
+  }, [thematique, activeRegion]);
 
   const fetchOffers = async () => {
     if (!config) return;
@@ -117,11 +119,19 @@ const OffresThematique = () => {
       if (error) throw error;
 
       // Filter by matching product_type (case-insensitive partial match)
-      const filtered = (data || []).filter((offer: any) => {
+      let filtered = (data || []).filter((offer: any) => {
         if (!offer.product_type) return false;
         const pt = offer.product_type.toLowerCase();
         return config.productTypes.some(t => pt.includes(t.toLowerCase()) || t.toLowerCase().includes(pt));
       });
+
+      // Filter by region if one is selected
+      if (activeRegion !== "fr") {
+        filtered = filtered.filter((offer: any) => {
+          if (!offer.target_regions || offer.target_regions.length === 0) return true;
+          return offer.target_regions.includes(activeRegion);
+        });
+      }
 
       setOffers(filtered as OfferWithAdvertiser[]);
     } catch (err) {
