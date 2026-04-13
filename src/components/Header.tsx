@@ -61,7 +61,7 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isHomePage = location.pathname === "/";
-  const showRegionBar = isHomePage || location.pathname.startsWith("/offres/");
+  const showRegionBar = isHomePage || location.pathname.startsWith("/offre-partenaire/");
 
   // Génère le lien WhatsApp à partir du paramètre configuré
   const getWhatsappUrl = () => {

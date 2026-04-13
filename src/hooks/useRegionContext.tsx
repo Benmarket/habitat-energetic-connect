@@ -10,7 +10,7 @@ const isValidRegion = (value: string | null | undefined): value is RegionCode =>
   return Boolean(value && VALID_REGIONS.includes(value as RegionCode));
 };
 
-const isRegionActivePath = (pathname: string) => pathname === "/" || pathname.startsWith("/offres/");
+const isRegionActivePath = (pathname: string) => pathname === "/" || pathname.startsWith("/offre-partenaire/");
 
 function getStoredRegion(): RegionCode {
   if (typeof window === "undefined") return "fr";
