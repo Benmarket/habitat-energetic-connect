@@ -827,6 +827,21 @@ const LandingSolaireContent = () => {
               </Carousel>
             </div>
           </section>
+
+          {/* ═══ BAND 8: CTA final ═══ */}
+          <section className="py-12 lg:py-16 bg-primary/5">
+            <div className="container mx-auto px-4 max-w-3xl text-center">
+              <h2 className="text-2xl lg:text-3xl font-extrabold text-foreground mb-4">
+                Prêt à passer au solaire ?
+              </h2>
+              <p className="text-base text-muted-foreground mb-8">
+                Testez votre éligibilité en 1 minute et découvrez les aides auxquelles vous avez droit.
+              </p>
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full px-12 text-lg" onClick={scrollToForm}>
+                Je teste mon éligibilité
+              </Button>
+            </div>
+          </section>
         </main>
 
         <Footer />
