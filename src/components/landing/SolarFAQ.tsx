@@ -5,6 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import solarConsultantImg from "@/assets/landing/solar-consultant-meeting.jpg";
+import { useScrollReveal, revealClass } from "@/hooks/useScrollReveal";
 
 interface FAQItem {
   question: string;
@@ -81,11 +82,13 @@ const SolarFAQ = ({ region = "france" }: SolarFAQProps) => {
     })),
   };
 
+  const { ref, isVisible } = useScrollReveal();
+
   return (
     <section className="py-12 lg:py-20 bg-card">
       <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
-      <div className="container mx-auto px-4 max-w-4xl">
-        <div className="text-center mb-10 lg:mb-14">
+      <div ref={ref} className="container mx-auto px-4 max-w-4xl">
+        <div className={`text-center mb-10 lg:mb-14 ${revealClass(isVisible).className}`}>
           <span className="inline-block px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm font-semibold mb-4">
             ❓ Questions fréquentes
           </span>

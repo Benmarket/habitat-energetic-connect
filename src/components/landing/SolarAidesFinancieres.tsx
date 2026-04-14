@@ -1,5 +1,6 @@
 import { Euro, TrendingDown, BadgePercent, Landmark } from "lucide-react";
 import solarSavingsImg from "@/assets/landing/solar-savings-couple.jpg";
+import { useScrollReveal, revealClass } from "@/hooks/useScrollReveal";
 
 interface SolarAidesFinancieresProps {
   region?: string;
@@ -114,10 +115,12 @@ const aidesData = {
 const SolarAidesFinancieres = ({ region = "france", onCtaClick }: SolarAidesFinancieresProps) => {
   const data = aidesData[region as keyof typeof aidesData] || aidesData.france;
 
+  const { ref, isVisible } = useScrollReveal();
+
   return (
     <section className="py-12 lg:py-20 bg-gradient-to-br from-primary/5 via-background to-primary/5">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="text-center mb-10 lg:mb-14">
+      <div ref={ref} className="container mx-auto px-4 max-w-6xl">
+        <div className={`text-center mb-10 lg:mb-14 ${revealClass(isVisible).className}`}>
           <span className="inline-block px-4 py-1.5 rounded-full bg-amber-100 text-amber-700 text-sm font-semibold mb-4">
             💰 Aides & Subventions
           </span>
@@ -128,7 +131,7 @@ const SolarAidesFinancieres = ({ region = "france", onCtaClick }: SolarAidesFina
         </div>
 
         {/* Visual: couple reviewing savings */}
-        <div className="rounded-2xl overflow-hidden shadow-lg mb-10 grid lg:grid-cols-[1fr_1fr] gap-0">
+        <div className={`rounded-2xl overflow-hidden shadow-lg mb-10 grid lg:grid-cols-[1fr_1fr] gap-0 ${revealClass(isVisible, 150).className}`} style={revealClass(isVisible, 150).style}>
           <img src={solarSavingsImg} alt="Couple constatant ses économies d'énergie" className="w-full h-52 lg:h-64 object-cover" loading="lazy" width={800} height={256} />
           <div className="bg-primary/10 flex flex-col items-center justify-center p-8 text-center">
             <span className="text-4xl lg:text-5xl font-black text-primary">Jusqu'à -50%</span>

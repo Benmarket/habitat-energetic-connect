@@ -1,5 +1,6 @@
 import { CheckCircle2, Star } from "lucide-react";
 import solarHouseAerialImg from "@/assets/landing/solar-house-aerial-med.jpg";
+import { useScrollReveal, revealClass } from "@/hooks/useScrollReveal";
 
 interface SolarComparatifProps {
   onCtaClick?: () => void;
@@ -42,10 +43,12 @@ const puissances = [
 ];
 
 const SolarComparatif = ({ onCtaClick }: SolarComparatifProps) => {
+  const { ref, isVisible } = useScrollReveal();
+
   return (
     <section className="py-12 lg:py-20 bg-muted/50">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="text-center mb-10 lg:mb-14">
+      <div ref={ref} className="container mx-auto px-4 max-w-6xl">
+        <div className={`text-center mb-10 lg:mb-14 ${revealClass(isVisible).className}`}>
           <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4">
             📊 Comparatif
           </span>
@@ -58,15 +61,18 @@ const SolarComparatif = ({ onCtaClick }: SolarComparatifProps) => {
         </div>
 
         {/* Visual banner */}
-        <div className="rounded-2xl overflow-hidden shadow-lg mb-10 max-h-56 lg:max-h-64">
+        <div className={`rounded-2xl overflow-hidden shadow-lg mb-10 max-h-56 lg:max-h-64 ${revealClass(isVisible, 100).className}`} style={revealClass(isVisible, 100).style}>
           <img src={solarHouseAerialImg} alt="Maison avec panneaux solaires vue aérienne" className="w-full h-56 lg:h-64 object-cover" loading="lazy" width={800} height={256} />
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-          {puissances.map((p, i) => (
+          {puissances.map((p, i) => {
+            const reveal = revealClass(isVisible, 200 + i * 200, "up");
+            return (
             <div
               key={i}
-              className={`relative bg-card rounded-2xl border-2 p-6 lg:p-8 flex flex-col transition-all hover:shadow-xl ${
+              style={reveal.style}
+              className={`relative bg-card rounded-2xl border-2 p-6 lg:p-8 flex flex-col hover:shadow-xl ${reveal.className} ${
                 p.popular
                   ? "border-primary shadow-lg scale-[1.02] lg:scale-105"
                   : "border-border hover:border-primary/30"
@@ -105,7 +111,8 @@ const SolarComparatif = ({ onCtaClick }: SolarComparatifProps) => {
                 Demander un devis gratuit
               </button>
             </div>
-          ))}
+          );
+          })}
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-6">

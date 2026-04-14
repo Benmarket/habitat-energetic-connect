@@ -1,5 +1,6 @@
 import { ClipboardCheck, HardHat, Plug, PiggyBank } from "lucide-react";
 import solarInstallerImg from "@/assets/landing/solar-installer-roof.jpg";
+import { useScrollReveal, revealClass } from "@/hooks/useScrollReveal";
 
 const steps = [
   {
@@ -37,11 +38,13 @@ interface SolarHowItWorksProps {
 }
 
 const SolarHowItWorks = ({ onCtaClick }: SolarHowItWorksProps) => {
+  const { ref, isVisible } = useScrollReveal();
+
   return (
     <section className="py-12 lg:py-20 bg-card">
-      <div className="container mx-auto px-4 max-w-6xl">
+      <div ref={ref} className="container mx-auto px-4 max-w-6xl">
         <div className="grid lg:grid-cols-[1fr_auto] gap-10 items-start mb-12 lg:mb-16">
-          <div className="text-center lg:text-left">
+          <div className={`text-center lg:text-left ${revealClass(isVisible, 0, "up").className}`} style={revealClass(isVisible, 0, "up").style}>
             <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4">
               Simple & rapide
             </span>
@@ -52,63 +55,65 @@ const SolarHowItWorks = ({ onCtaClick }: SolarHowItWorksProps) => {
               De l'étude à la mise en service, nous gérons tout pour vous.
             </p>
           </div>
-          <div className="hidden lg:block w-56 h-40 rounded-2xl overflow-hidden shadow-lg flex-shrink-0">
+          <div className={`hidden lg:block w-56 h-40 rounded-2xl overflow-hidden shadow-lg flex-shrink-0 ${revealClass(isVisible, 200, "right").className}`} style={revealClass(isVisible, 200, "right").style}>
             <img src={solarInstallerImg} alt="Installateur posant des panneaux solaires" className="w-full h-full object-cover" loading="lazy" width={224} height={160} />
           </div>
         </div>
 
         {/* Desktop timeline */}
         <div className="hidden lg:block relative">
-          {/* Connector line */}
-          <div className="absolute top-16 left-[10%] right-[10%] h-1 bg-gradient-to-r from-emerald-500 via-blue-500 via-amber-500 to-primary rounded-full" />
+          <div className={`absolute top-16 left-[10%] right-[10%] h-1 bg-gradient-to-r from-emerald-500 via-blue-500 via-amber-500 to-primary rounded-full transition-all duration-1000 ${isVisible ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"}`} style={{ transformOrigin: "left" }} />
 
           <div className="grid grid-cols-4 gap-6 relative">
-            {steps.map((step, i) => (
-              <div key={i} className="flex flex-col items-center text-center group">
-                {/* Circle with icon */}
-                <div className={`relative z-10 w-32 h-32 rounded-full ${step.color} flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300`}>
-                  <step.icon className="w-14 h-14 text-white" strokeWidth={1.5} />
-                  <span className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-card border-4 border-current text-foreground flex items-center justify-center text-sm font-black shadow-md">
-                    {step.number}
-                  </span>
+            {steps.map((step, i) => {
+              const reveal = revealClass(isVisible, 200 + i * 200, "up");
+              return (
+                <div key={i} className={`flex flex-col items-center text-center group ${reveal.className}`} style={reveal.style}>
+                  <div className={`relative z-10 w-32 h-32 rounded-full ${step.color} flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300`}>
+                    <step.icon className="w-14 h-14 text-white" strokeWidth={1.5} />
+                    <span className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-card border-4 border-current text-foreground flex items-center justify-center text-sm font-black shadow-md">
+                      {step.number}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold mt-6 mb-2">{step.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed px-2">{step.description}</p>
                 </div>
-
-                <h3 className="text-lg font-bold mt-6 mb-2">{step.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed px-2">{step.description}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
         {/* Mobile/Tablet */}
         <div className="lg:hidden">
-          {/* Mobile image */}
           <div className="rounded-2xl overflow-hidden shadow-lg mb-8 max-w-sm mx-auto">
             <img src={solarInstallerImg} alt="Installateur posant des panneaux solaires" className="w-full h-48 object-cover" loading="lazy" width={400} height={192} />
           </div>
           <div className="space-y-6">
-            {steps.map((step, i) => (
-              <div key={i} className="flex gap-5 items-start">
-                <div className="flex flex-col items-center flex-shrink-0">
-                  <div className={`w-16 h-16 rounded-full ${step.color} flex items-center justify-center shadow-lg`}>
-                    <step.icon className="w-8 h-8 text-white" strokeWidth={1.5} />
+            {steps.map((step, i) => {
+              const reveal = revealClass(isVisible, i * 150, "left");
+              return (
+                <div key={i} className={`flex gap-5 items-start ${reveal.className}`} style={reveal.style}>
+                  <div className="flex flex-col items-center flex-shrink-0">
+                    <div className={`w-16 h-16 rounded-full ${step.color} flex items-center justify-center shadow-lg`}>
+                      <step.icon className="w-8 h-8 text-white" strokeWidth={1.5} />
+                    </div>
+                    {i < steps.length - 1 && (
+                      <div className="w-0.5 h-12 bg-border mt-2" />
+                    )}
                   </div>
-                  {i < steps.length - 1 && (
-                    <div className="w-0.5 h-12 bg-border mt-2" />
-                  )}
+                  <div className="pt-2">
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Étape {step.number}</span>
+                    <h3 className="text-lg font-bold mt-1 mb-1">{step.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
+                  </div>
                 </div>
-                <div className="pt-2">
-                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Étape {step.number}</span>
-                  <h3 className="text-lg font-bold mt-1 mb-1">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
         {onCtaClick && (
-          <div className="flex justify-center mt-10">
+          <div className={`flex justify-center mt-10 ${revealClass(isVisible, 800, "up").className}`} style={revealClass(isVisible, 800, "up").style}>
             <button
               onClick={onCtaClick}
               className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-10 py-3 rounded-full shadow-xl transition-all hover:shadow-2xl hover:scale-105 text-lg"

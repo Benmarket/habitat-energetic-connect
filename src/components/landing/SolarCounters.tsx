@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Users, Zap, ShieldCheck, TrendingUp } from "lucide-react";
+import { useScrollReveal, revealClass } from "@/hooks/useScrollReveal";
 
 interface CounterItem {
   icon: React.ElementType;
@@ -16,10 +17,14 @@ const counters: CounterItem[] = [
 ];
 
 const useCountUp = (target: number, duration: number = 2000, startCounting: boolean = false) => {
-  const [count, setCount] = useState(0);
+  // IMPORTANT: default to target so if animation never fires, user sees real number
+  const [count, setCount] = useState(target);
+  const hasStarted = useRef(false);
 
   useEffect(() => {
-    if (!startCounting) return;
+    if (!startCounting || hasStarted.current) return;
+    hasStarted.current = true;
+    setCount(0); // Reset to 0 only when we know animation will run
     let start = 0;
     const increment = target / (duration / 16);
     const timer = setInterval(() => {
@@ -37,11 +42,12 @@ const useCountUp = (target: number, duration: number = 2000, startCounting: bool
   return count;
 };
 
-const CounterCard = ({ item, isVisible }: { item: CounterItem; isVisible: boolean }) => {
+const CounterCard = ({ item, isVisible, index }: { item: CounterItem; isVisible: boolean; index: number }) => {
   const count = useCountUp(item.target, 2000, isVisible);
+  const reveal = revealClass(isVisible, index * 150, "up");
 
   return (
-    <div className="flex flex-col items-center text-center group">
+    <div className={`flex flex-col items-center text-center group ${reveal.className}`} style={reveal.style}>
       <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
         <item.icon className="w-8 h-8 text-white" />
       </div>
@@ -54,32 +60,16 @@ const CounterCard = ({ item, isVisible }: { item: CounterItem; isVisible: boolea
 };
 
 const SolarCounters = () => {
-  const ref = useRef<HTMLElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.3 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
+  const { ref, isVisible } = useScrollReveal(0.3);
 
   return (
     <section
-      ref={ref}
       className="py-10 lg:py-14 bg-gradient-to-r from-primary via-emerald-600 to-primary"
     >
-      <div className="container mx-auto px-4 max-w-5xl">
+      <div ref={ref} className="container mx-auto px-4 max-w-5xl">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6">
           {counters.map((item, i) => (
-            <CounterCard key={i} item={item} isVisible={isVisible} />
+            <CounterCard key={i} item={item} isVisible={isVisible} index={i} />
           ))}
         </div>
       </div>
