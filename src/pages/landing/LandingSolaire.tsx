@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -541,6 +541,11 @@ const LandingSolaireContent = () => {
               </div>
             </div>
           </section>
+
+          {/* ═══ BAND 1.5: 3D Solar Showcase ═══ */}
+          <Suspense fallback={<div className="h-screen bg-[#0a1628]" />}>
+            <Solar3DShowcase />
+          </Suspense>
 
           {/* ═══ BAND 2: Générer de l'électricité (from homepage) ═══ */}
           <section className="py-10 lg:py-16 bg-gradient-to-b from-primary/5 to-background">
