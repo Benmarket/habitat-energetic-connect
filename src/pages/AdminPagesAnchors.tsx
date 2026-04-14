@@ -637,6 +637,20 @@ const AdminPagesAnchors = () => {
             onSaved={() => queryClient.invalidateQueries({ queryKey: ["landing-pages"] })}
           />
         )}
+        {/* Landing Page Sections Editor */}
+        {editingSections && (
+          <LandingPageSectionsEditor
+            open={!!editingSections}
+            onOpenChange={(open) => !open && setEditingSections(null)}
+            landingPage={editingSections}
+            parentContent={
+              editingSections.parent_id
+                ? (landingPages.find(lp => lp.id === editingSections.parent_id)?.regional_content as RegionalContent | null) || null
+                : null
+            }
+            onSaved={() => queryClient.invalidateQueries({ queryKey: ["landing-pages"] })}
+          />
+        )}
       </div>
     </>
   );
