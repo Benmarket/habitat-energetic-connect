@@ -229,20 +229,22 @@ const RoofPlate = () => (
 const RoofWithPanels = ({ progress, config, roofType }: { progress: number; config: DebugConfig; roofType: RoofType }) => {
   const animProgress = Math.min(1, progress * 2);
 
+  const effectivePanelY = roofType === "plate" ? (FLAT_PANEL_CONFIG.panelY ?? config.panelY) : config.panelY;
+
   const panels = useMemo(() => {
     const items: { pos: [number, number, number]; delay: number }[] = [];
     let idx = 0;
     for (let r = 0; r < 3; r++) {
       for (let c = 0; c < 6; c++) {
         items.push({
-          pos: [-2.5 + c * 0.95, config.panelY, -1.4 + r * 1.5],
+          pos: [-2.5 + c * 0.95, effectivePanelY, -1.4 + r * 1.5],
           delay: 0.05 + idx * 0.035,
         });
         idx++;
       }
     }
     return items;
-  }, [config.panelY]);
+  }, [effectivePanelY]);
 
   // Flat roof has no tilt
   const effectiveRotX = roofType === "plate" ? 0.15 : config.roofRotX;
