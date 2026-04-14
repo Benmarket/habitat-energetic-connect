@@ -538,7 +538,7 @@ const LandingSolaireContent = () => {
 
               <div className="grid lg:grid-cols-[1fr_1fr] gap-6 lg:gap-8 items-center">
                 {/* Left: Product visual + text side by side */}
-                <SolarHeroVisual />
+                <SolarHeroVisual customSlides={heroSlides} />
 
                 {/* Right: Eligibility wizard */}
                 <div
