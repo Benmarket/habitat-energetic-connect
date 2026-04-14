@@ -533,7 +533,6 @@ const Solar3DShowcase = () => {
         {/* Roof type label above the roof */}
         <div className="absolute top-6 left-1/2 -translate-x-1/2 z-40">
           <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/70 backdrop-blur-md border border-white/50 shadow-md text-slate-700 text-sm font-semibold tracking-wide">
-            <span className="text-base">{ROOF_OPTIONS.find(o => o.type === roofType)?.icon}</span>
             Toiture {roofLabel}
           </span>
         </div>
