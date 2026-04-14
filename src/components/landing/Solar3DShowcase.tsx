@@ -91,15 +91,23 @@ const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuil
     });
     return c;
   }, [scene]);
+  // Use flat-specific config overrides when roofType is "plate"
+  const effectiveConfig = useMemo(() => {
+    if (roofType === "plate") {
+      return { ...config, ...FLAT_PANEL_CONFIG };
+    }
+    return config;
+  }, [config, roofType]);
+
   const panelBaseEuler = useMemo(
-    () => getPanelBaseEuler(config),
+    () => getPanelBaseEuler(effectiveConfig),
     [
-      config.panelRotAX,
-      config.panelRotAY,
-      config.panelRotAZ,
-      config.panelRotBX,
-      config.panelRotBY,
-      config.panelRotBZ,
+      effectiveConfig.panelRotAX,
+      effectiveConfig.panelRotAY,
+      effectiveConfig.panelRotAZ,
+      effectiveConfig.panelRotBX,
+      effectiveConfig.panelRotBY,
+      effectiveConfig.panelRotBZ,
     ]
   );
 
