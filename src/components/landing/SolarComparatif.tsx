@@ -1,5 +1,6 @@
 import { CheckCircle2, Star } from "lucide-react";
 import solarHouseAerialImg from "@/assets/landing/solar-house-aerial-med.jpg";
+import { useScrollReveal, revealClass } from "@/hooks/useScrollReveal";
 
 interface SolarComparatifProps {
   onCtaClick?: () => void;
@@ -42,10 +43,12 @@ const puissances = [
 ];
 
 const SolarComparatif = ({ onCtaClick }: SolarComparatifProps) => {
+  const { ref, isVisible } = useScrollReveal();
+
   return (
     <section className="py-12 lg:py-20 bg-muted/50">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="text-center mb-10 lg:mb-14">
+      <div ref={ref} className="container mx-auto px-4 max-w-6xl">
+        <div className={`text-center mb-10 lg:mb-14 ${revealClass(isVisible).className}`}>
           <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4">
             📊 Comparatif
           </span>
@@ -58,7 +61,7 @@ const SolarComparatif = ({ onCtaClick }: SolarComparatifProps) => {
         </div>
 
         {/* Visual banner */}
-        <div className="rounded-2xl overflow-hidden shadow-lg mb-10 max-h-56 lg:max-h-64">
+        <div className={`rounded-2xl overflow-hidden shadow-lg mb-10 max-h-56 lg:max-h-64 ${revealClass(isVisible, 100).className}`} style={revealClass(isVisible, 100).style}>
           <img src={solarHouseAerialImg} alt="Maison avec panneaux solaires vue aérienne" className="w-full h-56 lg:h-64 object-cover" loading="lazy" width={800} height={256} />
         </div>
 
