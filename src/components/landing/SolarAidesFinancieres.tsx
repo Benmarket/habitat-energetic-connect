@@ -1,4 +1,5 @@
 import { Euro, TrendingDown, BadgePercent, Landmark } from "lucide-react";
+import solarSavingsImg from "@/assets/landing/solar-savings-couple.jpg";
 
 interface SolarAidesFinancieresProps {
   region?: string;
@@ -124,6 +125,15 @@ const SolarAidesFinancieres = ({ region = "france", onCtaClick }: SolarAidesFina
             {data.title}
           </h2>
           <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">{data.subtitle}</p>
+        </div>
+
+        {/* Visual: couple reviewing savings */}
+        <div className="rounded-2xl overflow-hidden shadow-lg mb-10 grid lg:grid-cols-[1fr_1fr] gap-0">
+          <img src={solarSavingsImg} alt="Couple constatant ses économies d'énergie" className="w-full h-52 lg:h-64 object-cover" loading="lazy" width={800} height={256} />
+          <div className="bg-primary/10 flex flex-col items-center justify-center p-8 text-center">
+            <span className="text-4xl lg:text-5xl font-black text-primary">Jusqu'à -50%</span>
+            <span className="text-muted-foreground mt-2 text-sm">sur le coût de votre installation grâce aux aides cumulées</span>
+          </div>
         </div>
 
         {/* Tableau des primes */}
