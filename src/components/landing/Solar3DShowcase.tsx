@@ -189,7 +189,10 @@ const Scene = ({ progress, config, onCameraUpdate }: { progress: number; config:
 );
 
 // ─── Debug Panel ───
-const DebugPanel = ({ config, onChange }: { config: DebugConfig; onChange: (c: DebugConfig) => void }) => {
+const DebugPanel = ({ config, onChange, camPos, camRot }: {
+  config: DebugConfig; onChange: (c: DebugConfig) => void;
+  camPos: [number, number, number]; camRot: [number, number, number];
+}) => {
   const fields: { key: keyof DebugConfig; label: string; step: number; min: number; max: number }[] = [
     { key: "roofPosX", label: "Toit Pos X", step: 0.1, min: -5, max: 5 },
     { key: "roofPosY", label: "Toit Pos Y", step: 0.1, min: -5, max: 5 },
@@ -210,6 +213,20 @@ const DebugPanel = ({ config, onChange }: { config: DebugConfig; onChange: (c: D
   return (
     <div className="absolute top-16 right-4 z-50 bg-black/80 backdrop-blur-md rounded-xl p-4 text-white text-xs font-mono w-64 max-h-[80vh] overflow-y-auto border border-white/20">
       <div className="text-emerald-400 font-bold text-sm mb-3">🔧 Debug 3D</div>
+
+      {/* Camera live values */}
+      <div className="mb-3 p-2 rounded bg-blue-500/10 border border-blue-400/20">
+        <div className="text-blue-300 font-bold mb-1">📷 Caméra (live)</div>
+        <div className="text-white/60">Pos: {camPos[0]}, {camPos[1]}, {camPos[2]}</div>
+        <div className="text-white/60">Rot: {camRot[0]}, {camRot[1]}, {camRot[2]}</div>
+        <button
+          onClick={() => navigator.clipboard.writeText(JSON.stringify({ camPos, camRot }, null, 2))}
+          className="mt-1 w-full bg-blue-500/20 hover:bg-blue-500/30 rounded py-1 text-blue-300 text-xs transition-colors"
+        >
+          Copier caméra
+        </button>
+      </div>
+
       {fields.map(f => (
         <div key={f.key} className="flex items-center gap-2 mb-1.5">
           <label className="w-24 text-white/60 shrink-0">{f.label}</label>
