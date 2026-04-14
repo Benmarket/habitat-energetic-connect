@@ -15,7 +15,7 @@ import {
   Users, MousePointerClick, EyeOff, Ban, Globe, Clock, CheckCircle, Loader2, 
   ExternalLink, Layers, Hash, Newspaper, BookOpen, HandCoins, HelpCircle,
   MessageCircle, Calculator, FileCheck, Anchor, Link2, ChevronDown, ChevronRight,
-  MapPin, Zap
+  MapPin, Zap, ImageIcon
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
