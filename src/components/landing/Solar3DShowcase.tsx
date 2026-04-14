@@ -4,6 +4,7 @@ import { Environment, ContactShadows, useGLTF, OrbitControls } from "@react-thre
 import * as THREE from "three";
 
 useGLTF.preload("/models/solar_panel.glb");
+useGLTF.preload("/models/solar_panel_flat.glb");
 
 // ─── Scroll progress hook ───
 const useScrollProgress = (containerRef: React.RefObject<HTMLElement>) => {
@@ -61,13 +62,14 @@ const getPanelBaseEuler = (config: DebugConfig) => {
 };
 
 // ─── Solar Panel (GLB model) ───
-const SolarPanel = ({ position, delay, progress, index, config }: {
+const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuiles" }: {
   position: [number, number, number]; delay: number; progress: number; index: number;
-  config: DebugConfig;
+  config: DebugConfig; roofType?: RoofType;
 }) => {
   const ref = useRef<THREE.Group>(null);
   const panelRef = useRef<THREE.Group>(null);
-  const { scene } = useGLTF("/models/solar_panel.glb");
+  const modelPath = roofType === "plate" ? "/models/solar_panel_flat.glb" : "/models/solar_panel.glb";
+  const { scene } = useGLTF(modelPath);
   const clone = useMemo(() => {
     const c = scene.clone(true);
     // Reset all transforms on the clone so our rotations are the only ones applied
@@ -239,7 +241,7 @@ const RoofWithPanels = ({ progress, config, roofType }: { progress: number; conf
       {roofType === "plate" && <RoofPlate />}
 
       {panels.map((p, i) => (
-        <SolarPanel key={i} position={p.pos} delay={p.delay} progress={animProgress} index={i} config={config} />
+        <SolarPanel key={`${roofType}-${i}`} position={p.pos} delay={p.delay} progress={animProgress} index={i} config={config} roofType={roofType} />
       ))}
     </group>
   );
