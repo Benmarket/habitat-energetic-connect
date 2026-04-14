@@ -1,6 +1,6 @@
 import { useRef, useMemo, useEffect, useState, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, ContactShadows, useGLTF } from "@react-three/drei";
+import { Environment, ContactShadows, useGLTF, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
 // Preload GLB
