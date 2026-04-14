@@ -119,6 +119,7 @@ const SolarFAQ = ({ region = "france" }: SolarFAQProps) => {
             </AccordionItem>
           ))}
         </Accordion>
+        </div>
       </div>
     </section>
   );
