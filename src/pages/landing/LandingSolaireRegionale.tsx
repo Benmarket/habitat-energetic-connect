@@ -677,137 +677,42 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
             </div>
           </section>
 
-          {/* ═══ SECTION 8: Notre prestation ═══ */}
-          <section className="py-10 lg:py-16 bg-muted/50">
-            <div className="container mx-auto px-4 max-w-4xl">
-              <h2 className="text-2xl lg:text-4xl font-extrabold text-center mb-12">Notre prestation</h2>
-              <div className="space-y-8">
-                {[
-                  { icon: Truck, text: `Primes-energies.fr vous aide à vérifier votre éligibilité à l'installation de panneaux solaires${isRegional ? ` en ${regionName}` : ""}. Cette installation peut être financée en partie grâce au programme de transition énergétique.` },
-                  { icon: Wrench, text: "Nous nous occupons également de toutes les démarches administratives." },
-                  { icon: Power, text: "Afin de savoir le montant de vos aides octroyés, vous pouvez effectuer un test d'éligibilité sur notre site." },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-5">
-                    <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                      <item.icon className="w-6 h-6 text-primary-foreground" />
-                    </div>
-                    <p className="text-base text-muted-foreground leading-relaxed pt-2">{item.text}</p>
-                  </div>
-                ))}
-                <div className="flex justify-center pt-4">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full px-10" onClick={scrollToForm}>Testez votre éligibilité</Button>
-                </div>
-              </div>
-            </div>
-          </section>
+          {/* ═══ SECTION 8: Comment ça marche ═══ */}
+          <SolarHowItWorks onCtaClick={scrollToForm} />
 
-          {/* ═══ SECTION 9: Témoignages ═══ */}
-          <section className="py-10 lg:py-16 bg-muted">
-            <div className="container mx-auto px-4 max-w-6xl">
-              <h2 className="text-2xl lg:text-4xl font-extrabold text-center mb-12">
-                Déjà plus de <span className="text-primary">{clientsCount.toLocaleString("fr-FR")} clients</span> installés et satisfaits
-                {avgRating && <span className="text-base font-normal text-muted-foreground ml-2">({avgRating}/5 ⭐)</span>}
-              </h2>
-              <div className="grid md:grid-cols-3 gap-8">
-                {testimonials.map((t, i) => (
-                  <div key={i} className="text-center space-y-4">
-                    <div className="flex justify-between px-4">
-                      <Quote className="w-8 h-8 text-primary rotate-180" />
-                      <Quote className="w-8 h-8 text-primary" />
-                    </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed px-2">{t.text}</p>
-                    <p className="font-bold text-foreground">{t.name}</p>
-                    {"location" in t && (t as { location?: string }).location && (
-                      <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-                        <MapPin className="w-3 h-3" /> {(t as { location?: string }).location}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
+          {/* ═══ SECTION 9: Compteurs animés ═══ */}
+          <SolarCounters />
 
-          {/* ═══ SECTION 10: FAQ locale ═══ */}
-          {content.faq && content.faq.length > 0 && (
-            <section className="py-10 lg:py-16 bg-card">
-              <div className="container mx-auto px-4 max-w-4xl">
-                <h2 className="text-2xl lg:text-4xl font-extrabold text-center mb-12">
-                  Questions fréquentes{isRegional ? ` — ${regionName}` : ""}
-                </h2>
-                <div className="space-y-4">
-                  {content.faq.map((item, i) => (
-                    <details key={i} className="bg-muted border border-border rounded-xl overflow-hidden group">
-                      <summary className="px-6 py-4 font-semibold text-foreground cursor-pointer hover:bg-primary/5 transition-colors list-none flex items-center justify-between">
-                        {item.question}
-                        <ArrowRight className="w-4 h-4 text-muted-foreground group-open:rotate-90 transition-transform" />
-                      </summary>
-                      <div className="px-6 pb-4 text-sm text-muted-foreground leading-relaxed">
-                        {item.answer}
-                      </div>
-                    </details>
-                  ))}
-                </div>
-                <div className="flex justify-center mt-8">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full px-10" onClick={scrollToForm}>
-                    Demandez votre devis gratuit
-                  </Button>
-                </div>
-              </div>
-            </section>
-          )}
+          {/* ═══ SECTION 10: Comparatif puissances ═══ */}
+          <SolarComparatif onCtaClick={scrollToForm} />
 
-          {/* ═══ SECTION 11: Badges défilants ═══ */}
+          {/* ═══ SECTION 11: Aides financières ═══ */}
+          <SolarAidesFinancieres region={regionCode === "fr" ? "france" : regionCode} onCtaClick={scrollToForm} />
+
+          {/* ═══ SECTION 12: Témoignages ═══ */}
+          <SolarTestimonials region={regionCode === "fr" ? "france" : regionCode} clientCount={clientsCount} />
+
+          {/* ═══ SECTION 13: FAQ ═══ */}
+          <SolarFAQ region={regionCode === "fr" ? "france" : regionCode} />
+
+          {/* ═══ SECTION 14: Badges certifications ═══ */}
           <section className="py-10 lg:py-14 bg-background">
             <div className="container mx-auto px-4 max-w-5xl">
-              <Carousel
-                opts={{ align: "start", loop: true }}
-                plugins={[Autoplay({ delay: 4000 })]}
-                className="relative"
-              >
-                <CarouselContent>
-                  <CarouselItem className="basis-full">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center py-4">
-                      {badges.slice(0, 4).map((badge, i) => (
-                        <div
-                          key={i}
-                          className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow"
-                        >
-                          <img
-                            src={badge.logo}
-                            alt={badge.name}
-                            loading="lazy"
-                            className="h-16 w-auto object-contain"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </CarouselItem>
-                  <CarouselItem className="basis-full">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center py-4">
-                      {badges.slice(4, 8).map((badge, i) => (
-                        <div
-                          key={i}
-                          className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow"
-                        >
-                          <img
-                            src={badge.logo}
-                            alt={badge.name}
-                            loading="lazy"
-                            className="h-16 w-auto object-contain"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </CarouselItem>
-                </CarouselContent>
-                <CarouselPrevious className="hidden md:flex -left-12 opacity-50 hover:opacity-100" />
-                <CarouselNext className="hidden md:flex -right-12 opacity-50 hover:opacity-100" />
-              </Carousel>
+              <h3 className="text-lg font-bold text-center text-muted-foreground mb-6">Nos certifications & partenaires</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {badges.map((badge, i) => (
+                  <div
+                    key={i}
+                    className="bg-card border border-border rounded-xl p-4 flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <img src={badge.logo} alt={badge.name} loading="lazy" className="h-16 w-auto object-contain" />
+                  </div>
+                ))}
+              </div>
             </div>
           </section>
 
-          {/* ═══ SECTION 12: CTA final ═══ */}
+          {/* ═══ SECTION 15: CTA final ═══ */}
           <section className="py-12 lg:py-16 bg-primary/5">
             <div className="container mx-auto px-4 max-w-3xl text-center">
               <h2 className="text-2xl lg:text-3xl font-extrabold text-foreground mb-4">
@@ -824,6 +729,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
 
         </main>
         <Footer />
+        <SolarStickyCTA onCtaClick={scrollToForm} />
       </div>
     </>
   );
