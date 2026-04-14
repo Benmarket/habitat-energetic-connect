@@ -87,6 +87,9 @@ const SolarPanel = ({ position, delay, progress, index }: {
 const RoofWithPanels = ({ progress }: { progress: number }) => {
   const TILT = Math.PI * 0.15; // ~27° tilt facing the viewer
 
+  // Remap progress so animation completes at 50% scroll, then stays stable
+  const animProgress = Math.min(1, progress * 2);
+
   const panels = useMemo(() => {
     const items: { pos: [number, number, number]; delay: number }[] = [];
     let idx = 0;
@@ -94,7 +97,7 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
       for (let c = 0; c < 4; c++) {
         items.push({
           pos: [-2.4 + c * 1.65, 0.14, -1.1 + r * 1.05],
-          delay: 0.1 + idx * 0.055,
+          delay: 0.05 + idx * 0.06,
         });
         idx++;
       }
@@ -132,7 +135,7 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
 
       {/* Panels sit directly on the roof */}
       {panels.map((p, i) => (
-        <SolarPanel key={i} position={p.pos} delay={p.delay} progress={progress} index={i} />
+        <SolarPanel key={i} position={p.pos} delay={p.delay} progress={animProgress} index={i} />
       ))}
     </group>
   );
@@ -158,8 +161,9 @@ const HouseWall = () => (
 // ─── Inverter ───
 const Inverter = ({ progress }: { progress: number }) => {
   const ref = useRef<THREE.Group>(null);
-  const show = progress > 0.82;
-  const t = show ? Math.min(1, (progress - 0.82) / 0.1) : 0;
+  const animP = Math.min(1, progress * 2); // same 50% timing
+  const show = animP > 0.82;
+  const t = show ? Math.min(1, (animP - 0.82) / 0.1) : 0;
   const e = 1 - Math.pow(1 - t, 4);
 
   useFrame((state) => {
@@ -278,11 +282,11 @@ const Solar3DShowcase = () => {
               <div className="h-1.5 w-56 bg-white/5 rounded-full overflow-hidden backdrop-blur-sm">
                 <div
                   className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-150"
-                  style={{ width: `${Math.min(100, progress * 125)}%` }}
+                  style={{ width: `${Math.min(100, Math.min(1, progress * 2) * 105)}%` }}
                 />
               </div>
               <span className="text-white/30 text-sm font-mono tracking-wider">
-                {Math.min(12, Math.floor(progress * 14))}/12 panneaux
+                {Math.min(12, Math.floor(Math.min(1, progress * 2) * 13))}/12 panneaux
               </span>
             </div>
           </div>
