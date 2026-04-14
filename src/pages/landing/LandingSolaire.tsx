@@ -38,6 +38,8 @@ import SolarFAQ from "@/components/landing/SolarFAQ";
 import SolarCounters from "@/components/landing/SolarCounters";
 import SolarComparatif from "@/components/landing/SolarComparatif";
 import SolarStickyCTA from "@/components/landing/SolarStickyCTA";
+import { lazy } from "react";
+const Solar3DShowcase = lazy(() => import("@/components/landing/Solar3DShowcase"));
 
 // ─── Logos partenaires (hébergés sur le stockage cloud) ───
 const STORAGE_BASE = "https://ggucavhanqmdxjqdbcnw.supabase.co/storage/v1/object/public/media/logos";
