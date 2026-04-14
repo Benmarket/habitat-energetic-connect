@@ -38,9 +38,26 @@ const DEFAULT_CONFIG: DebugConfig = {
   roofPosX: 0, roofPosY: 0, roofPosZ: -1.5,
   roofRotX: 0.69, roofRotY: 0, roofRotZ: 0, // 0.69 ≈ PI*0.22
   panelRotAX: 0, panelRotAY: 1.5708, panelRotAZ: 0, // PI/2
-  panelRotBX: 2.02, panelRotBY: 0, panelRotBZ: 1.5708, // PI/2
+  panelRotBX: 2.68, panelRotBY: 0, panelRotBZ: 1.5708, // PI/2
   panelY: 0.31,
   panelScale: 1.4,
+};
+
+const getPanelBaseEuler = (config: DebugConfig) => {
+  const rotA = new THREE.Quaternion().setFromEuler(
+    new THREE.Euler(config.panelRotAX, config.panelRotAY, config.panelRotAZ, "XYZ")
+  );
+  const rotB = new THREE.Quaternion().setFromEuler(
+    new THREE.Euler(config.panelRotBX, config.panelRotBY, config.panelRotBZ, "XYZ")
+  );
+  const combined = rotA.multiply(rotB);
+  const baseEuler = new THREE.Euler().setFromQuaternion(combined, "XYZ");
+
+  return [
+    +baseEuler.x.toFixed(4),
+    +baseEuler.y.toFixed(4),
+    +baseEuler.z.toFixed(4),
+  ] as [number, number, number];
 };
 
 // ─── Solar Panel (GLB model) ───
@@ -49,6 +66,7 @@ const SolarPanel = ({ position, delay, progress, index, config }: {
   config: DebugConfig;
 }) => {
   const ref = useRef<THREE.Group>(null);
+  const panelRef = useRef<THREE.Group>(null);
   const { scene } = useGLTF("/models/solar_panel.glb");
   const clone = useMemo(() => {
     const c = scene.clone(true);
@@ -63,11 +81,27 @@ const SolarPanel = ({ position, delay, progress, index, config }: {
     });
     return c;
   }, [scene]);
+  const panelBaseEuler = useMemo(
+    () => getPanelBaseEuler(config),
+    [
+      config.panelRotAX,
+      config.panelRotAY,
+      config.panelRotAZ,
+      config.panelRotBX,
+      config.panelRotBY,
+      config.panelRotBZ,
+    ]
+  );
 
   const t = Math.max(0, Math.min(1, (progress - delay) / 0.1));
   const e = 1 - Math.pow(1 - t, 3);
   const startY = position[1] + 5 + index * 0.2;
   const y = startY + (position[1] - startY) * e;
+
+  useEffect(() => {
+    if (!panelRef.current) return;
+    panelRef.current.rotation.set(...panelBaseEuler);
+  }, [panelBaseEuler]);
 
   useFrame((state) => {
     if (!ref.current) return;
@@ -81,10 +115,8 @@ const SolarPanel = ({ position, delay, progress, index, config }: {
 
   return (
     <group ref={ref}>
-      <group rotation={[config.panelRotAX, config.panelRotAY, config.panelRotAZ]}>
-        <group rotation={[config.panelRotBX, config.panelRotBY, config.panelRotBZ]}>
-          <primitive object={clone} />
-        </group>
+      <group ref={panelRef}>
+        <primitive object={clone} />
       </group>
     </group>
   );
@@ -193,6 +225,7 @@ const DebugPanel = ({ config, onChange, camPos, camRot }: {
   config: DebugConfig; onChange: (c: DebugConfig) => void;
   camPos: [number, number, number]; camRot: [number, number, number];
 }) => {
+  const panelBaseEuler = useMemo(() => getPanelBaseEuler(config), [config]);
   const fields: { key: keyof DebugConfig; label: string; step: number; min: number; max: number }[] = [
     { key: "roofPosX", label: "Toit Pos X", step: 0.1, min: -5, max: 5 },
     { key: "roofPosY", label: "Toit Pos Y", step: 0.1, min: -5, max: 5 },
@@ -224,6 +257,19 @@ const DebugPanel = ({ config, onChange, camPos, camRot }: {
           className="mt-1 w-full bg-blue-500/20 hover:bg-blue-500/30 rounded py-1 text-blue-300 text-xs transition-colors"
         >
           Copier caméra
+        </button>
+      </div>
+
+      <div className="mb-3 p-2 rounded bg-emerald-500/10 border border-emerald-400/20">
+        <div className="text-emerald-300 font-bold mb-1">🧭 Rotation panneau de base</div>
+        <div className="text-white/60">X: {panelBaseEuler[0]}</div>
+        <div className="text-white/60">Y: {panelBaseEuler[1]}</div>
+        <div className="text-white/60">Z: {panelBaseEuler[2]}</div>
+        <button
+          onClick={() => navigator.clipboard.writeText(JSON.stringify({ panelBaseEuler }, null, 2))}
+          className="mt-1 w-full bg-emerald-500/20 hover:bg-emerald-500/30 rounded py-1 text-emerald-300 text-xs transition-colors"
+        >
+          Copier rotation de base
         </button>
       </div>
 
