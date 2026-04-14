@@ -38,7 +38,7 @@ const DEFAULT_CONFIG: DebugConfig = {
   roofPosX: 0, roofPosY: 0, roofPosZ: -1.5,
   roofRotX: 0.69, roofRotY: 0, roofRotZ: 0, // 0.69 ≈ PI*0.22
   panelRotAX: 0, panelRotAY: 1.5708, panelRotAZ: 0, // PI/2
-  panelRotBX: 0, panelRotBY: 0, panelRotBZ: 1.5708, // PI/2
+  panelRotBX: 2.02, panelRotBY: 0, panelRotBZ: 1.5708, // PI/2
   panelY: 0.31,
   panelScale: 1.4,
 };
@@ -156,7 +156,7 @@ const Scene = ({ progress, config }: { progress: number; config: DebugConfig }) 
     <pointLight position={[0, 8, 0]} intensity={0.3} color="#fff5e0" />
     <Environment preset="sunset" />
     <fog attach="fog" args={["#0a1628", 18, 40]} />
-    <OrbitControls target={[0, 0, -1.5]} />
+    <OrbitControls target={[0, 0, -1.5]} enableZoom={false} />
     {/* <CameraCtrl progress={progress} /> */}
     <RoofWithPanels progress={progress} config={config} />
     <ContactShadows position={[0, -4.8, 0]} opacity={0.5} scale={25} blur={2.5} far={12} />
