@@ -66,10 +66,13 @@ const SolarComparatif = ({ onCtaClick }: SolarComparatifProps) => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-          {puissances.map((p, i) => (
+          {puissances.map((p, i) => {
+            const reveal = revealClass(isVisible, 200 + i * 200, "up");
+            return (
             <div
               key={i}
-              className={`relative bg-card rounded-2xl border-2 p-6 lg:p-8 flex flex-col transition-all hover:shadow-xl ${
+              style={reveal.style}
+              className={`relative bg-card rounded-2xl border-2 p-6 lg:p-8 flex flex-col hover:shadow-xl ${reveal.className} ${
                 p.popular
                   ? "border-primary shadow-lg scale-[1.02] lg:scale-105"
                   : "border-border hover:border-primary/30"
