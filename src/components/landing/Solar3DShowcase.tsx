@@ -161,8 +161,9 @@ const HouseWall = () => (
 // ─── Inverter ───
 const Inverter = ({ progress }: { progress: number }) => {
   const ref = useRef<THREE.Group>(null);
-  const show = progress > 0.82;
-  const t = show ? Math.min(1, (progress - 0.82) / 0.1) : 0;
+  const animP = Math.min(1, progress * 2); // same 50% timing
+  const show = animP > 0.82;
+  const t = show ? Math.min(1, (animP - 0.82) / 0.1) : 0;
   const e = 1 - Math.pow(1 - t, 4);
 
   useFrame((state) => {
