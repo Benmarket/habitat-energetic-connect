@@ -3,19 +3,27 @@ import { useEffect, useState } from "react";
 import guarantee25Years from "@/assets/guarantee-25-years.png";
 import heroToiturePlate from "@/assets/landing/hero-toiture-plate.jpg";
 import heroToitureTuiles from "@/assets/landing/hero-toiture-tuiles.jpg";
+import heroToitureArdoise from "@/assets/landing/hero-toiture-ardoise.jpg";
+import heroVillaSolaire from "@/assets/landing/hero-villa-solaire.jpg";
+import heroSolaireTropical from "@/assets/landing/hero-solaire-tropical.jpg";
+import heroInstallationPose from "@/assets/landing/hero-installation-pose.jpg";
+import realisationAccompagnement from "@/assets/landing/realisation-accompagnement.png";
+import realisationFamille from "@/assets/landing/realisation-famille.png";
+import realisationTropicale from "@/assets/landing/realisation-tropicale.png";
 import macaronPrix from "@/assets/landing/macaron-prix.png";
 import marqueFrancaise from "@/assets/landing/marque-francaise.png";
 import onduleur from "@/assets/landing/onduleur.png";
 
 const heroSlides = [
-  {
-    src: heroToitureTuiles,
-    alt: "Maison avec panneaux solaires sur toiture en tuiles",
-  },
-  {
-    src: heroToiturePlate,
-    alt: "Maison avec installation solaire sur toiture plate",
-  },
+  { src: heroToitureTuiles, alt: "Maison avec panneaux solaires sur toiture en tuiles" },
+  { src: heroToiturePlate, alt: "Maison avec installation solaire sur toiture plate" },
+  { src: heroToitureArdoise, alt: "Installation solaire sur toiture en ardoise" },
+  { src: heroVillaSolaire, alt: "Villa méditerranéenne avec panneaux solaires" },
+  { src: heroSolaireTropical, alt: "Maison tropicale équipée de panneaux solaires" },
+  { src: heroInstallationPose, alt: "Technicien installant des panneaux solaires" },
+  { src: realisationAccompagnement, alt: "Accompagnement installation solaire" },
+  { src: realisationFamille, alt: "Famille avec installation solaire" },
+  { src: realisationTropicale, alt: "Installation solaire en milieu tropical" },
 ];
 
 export const SolarHeroVisual = () => {
