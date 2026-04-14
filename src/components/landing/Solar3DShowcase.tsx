@@ -1,6 +1,6 @@
 import { useRef, useMemo, useEffect, useState, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, ContactShadows, useGLTF } from "@react-three/drei";
+import { Environment, ContactShadows, useGLTF, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
 // Preload GLB
@@ -85,7 +85,7 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
   }, []);
 
   return (
-    <group position={[0, 0, -1.5]} rotation={[TILT, 0, 0.15]}>
+    <group position={[0, 0, -1.5]} rotation={[TILT, 0, 0]}>
       {/* Roof slab */}
       <mesh receiveShadow castShadow>
         <boxGeometry args={[7.5, 0.12, 5.2]} />
@@ -147,7 +147,9 @@ const Scene = ({ progress }: { progress: number }) => (
     <pointLight position={[0, 8, 0]} intensity={0.3} color="#fff5e0" />
     <Environment preset="sunset" />
     <fog attach="fog" args={["#0a1628", 18, 40]} />
-    <CameraCtrl progress={progress} />
+    {/* TEMP: OrbitControls pour explorer – désactive le CameraCtrl */}
+    <OrbitControls target={[0, 0, -1.5]} />
+    {/* <CameraCtrl progress={progress} /> */}
     <RoofWithPanels progress={progress} />
     <ContactShadows position={[0, -4.8, 0]} opacity={0.5} scale={25} blur={2.5} far={12} />
   </>
