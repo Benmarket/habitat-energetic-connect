@@ -50,8 +50,8 @@ const SolarPanel = ({ position, delay, progress, index }: {
 
   return (
     <group ref={ref}>
-      {/* Rotate -90° X to lay flat on roof, panel stands in portrait */}
-      <group rotation={[-Math.PI / 2, 0, 0]}>
+      {/* Lay flat on roof: Z-rot to lay down, Y-rot for portrait orientation */}
+      <group rotation={[0, 0, Math.PI / 2]}>
         <primitive object={clone} />
       </group>
     </group>
