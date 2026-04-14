@@ -339,15 +339,68 @@ const Solar3DShowcase = () => {
   return (
     <section
       ref={containerRef}
-      className="relative bg-gradient-to-b from-[#0a1628] via-[#0f2035] to-[#0a1628] overflow-hidden"
-      style={{ height: "100vh" }}
+      className="relative overflow-hidden"
+      style={{
+        height: "100vh",
+        background: "linear-gradient(180deg, #87CEEB 0%, #B0D4F1 30%, #d4e8f7 60%, #e8f0f8 100%)",
+      }}
     >
+      {/* Sun glow top-right */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          top: "-80px",
+          right: "-80px",
+          width: "400px",
+          height: "400px",
+          background: "radial-gradient(circle, rgba(255,223,100,0.7) 0%, rgba(255,200,50,0.3) 35%, rgba(255,180,0,0.05) 65%, transparent 80%)",
+          borderRadius: "50%",
+          filter: "blur(20px)",
+        }}
+      />
+      {/* Subtle cloud shapes */}
+      <div
+        className="absolute pointer-events-none opacity-40"
+        style={{
+          top: "60px",
+          left: "10%",
+          width: "300px",
+          height: "80px",
+          background: "radial-gradient(ellipse, rgba(255,255,255,0.8) 0%, transparent 70%)",
+          borderRadius: "50%",
+          filter: "blur(15px)",
+        }}
+      />
+      <div
+        className="absolute pointer-events-none opacity-30"
+        style={{
+          top: "120px",
+          left: "45%",
+          width: "350px",
+          height: "90px",
+          background: "radial-gradient(ellipse, rgba(255,255,255,0.7) 0%, transparent 70%)",
+          borderRadius: "50%",
+          filter: "blur(18px)",
+        }}
+      />
+      <div
+        className="absolute pointer-events-none opacity-25"
+        style={{
+          top: "40px",
+          right: "20%",
+          width: "250px",
+          height: "70px",
+          background: "radial-gradient(ellipse, rgba(255,255,255,0.6) 0%, transparent 70%)",
+          borderRadius: "50%",
+          filter: "blur(12px)",
+        }}
+      />
       <div className="sticky top-0 h-screen w-full">
         <Suspense fallback={
-          <div className="w-full h-full flex items-center justify-center bg-[#0a1628]">
+          <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(180deg, #87CEEB 0%, #d4e8f7 100%)" }}>
             <div className="flex flex-col items-center gap-4">
-              <div className="w-12 h-12 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
-              <div className="text-white/50 text-sm font-medium tracking-wide">Chargement de la scène 3D…</div>
+              <div className="w-12 h-12 border-2 border-sky-600/30 border-t-sky-600 rounded-full animate-spin" />
+              <div className="text-sky-900/50 text-sm font-medium tracking-wide">Chargement de la scène 3D…</div>
             </div>
           </div>
         }>
@@ -380,27 +433,27 @@ const Solar3DShowcase = () => {
                 transform: `translateY(${progress > 0.25 ? 0 : 40}px)`,
               }}
             >
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-white/80 text-sm font-semibold mb-4 border border-white/10">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/60 backdrop-blur-md text-sky-800 text-sm font-semibold mb-4 border border-white/40 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 Installation professionnelle
               </span>
-              <h2 className="text-3xl lg:text-6xl font-extrabold text-white leading-tight mb-4">
+              <h2 className="text-3xl lg:text-6xl font-extrabold text-slate-800 leading-tight mb-4">
                 Vos panneaux, posés avec
-                <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent"> précision</span>
+                <span className="bg-gradient-to-r from-emerald-500 to-teal-400 bg-clip-text text-transparent"> précision</span>
               </h2>
-              <p className="text-white/50 text-base lg:text-lg max-w-xl leading-relaxed">
+              <p className="text-slate-600 text-base lg:text-lg max-w-xl leading-relaxed">
                 Chaque panneau est installé par nos techniciens certifiés RGE
                 pour un rendement optimal et une intégration parfaite à votre toiture.
               </p>
             </div>
             <div className="mt-8 flex items-center gap-4">
-              <div className="h-1.5 w-56 bg-white/5 rounded-full overflow-hidden backdrop-blur-sm">
+              <div className="h-1.5 w-56 bg-slate-300/40 rounded-full overflow-hidden backdrop-blur-sm">
                 <div
                   className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-150"
                   style={{ width: `${Math.min(100, Math.min(1, progress * 2) * 105)}%` }}
                 />
               </div>
-              <span className="text-white/30 text-sm font-mono tracking-wider">
+              <span className="text-slate-500 text-sm font-mono tracking-wider">
                 {Math.min(16, Math.floor(Math.min(1, progress * 2) * 17))}/16 panneaux
               </span>
             </div>
