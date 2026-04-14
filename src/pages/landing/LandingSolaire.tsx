@@ -12,12 +12,6 @@ import {
   ArrowRight,
   Home,
   Building2,
-  Quote,
-  ChevronLeft,
-  ChevronRight,
-  Truck,
-  Wrench,
-  Power,
   CheckCircle2,
 } from "lucide-react";
 import LandingPageGuard from "@/components/LandingPageGuard";
@@ -37,6 +31,13 @@ import appliPvImg from "@/assets/why-solar/appli-pv.jpg";
 import smartphoneImg from "@/assets/why-solar/utilise-smartphone.png";
 import fondGris from "@/assets/landing/fond-gris.png";
 import SolarHeroVisual from "@/components/landing/SolarHeroVisual";
+import SolarHowItWorks from "@/components/landing/SolarHowItWorks";
+import SolarAidesFinancieres from "@/components/landing/SolarAidesFinancieres";
+import SolarTestimonials from "@/components/landing/SolarTestimonials";
+import SolarFAQ from "@/components/landing/SolarFAQ";
+import SolarCounters from "@/components/landing/SolarCounters";
+import SolarComparatif from "@/components/landing/SolarComparatif";
+import SolarStickyCTA from "@/components/landing/SolarStickyCTA";
 
 // ─── Logos partenaires (hébergés sur le stockage cloud) ───
 const STORAGE_BASE = "https://ggucavhanqmdxjqdbcnw.supabase.co/storage/v1/object/public/media/logos";
@@ -74,20 +75,7 @@ const step3Schema = z.object({
 // ─── Image éligibilité ───
 const solarPanelsImg = eligibiliteBg;
 
-const testimonials = [
-  {
-    text: "J'ai bénéficié du programme de financement Eco PTZ et je suis passée à l'énergie solaire. Je suis très satisfaite de ce dispositif et de la qualité de l'installation.",
-    name: "Marie B.",
-  },
-  {
-    text: "Prise de contact rapide, mise en place du dossier de financement et installation au top ! Je recommande fortement !",
-    name: "Paul D.",
-  },
-  {
-    text: "Pratique et efficace je peux contrôler ma production photovoltaïque avec l'application.",
-    name: "Sylvie R.",
-  },
-];
+// Testimonials are now handled by SolarTestimonials component
 
 const LandingSolaireContent = () => {
   const { seoStatus, canonicalUrl } = useLandingPageSEO("solaire");
@@ -733,119 +721,42 @@ const LandingSolaireContent = () => {
             </div>
           </section>
 
-          {/* ═══ BAND 5: Notre prestation ═══ */}
-          <section className="py-10 lg:py-16 bg-muted/50">
-            <div className="container mx-auto px-4 max-w-4xl">
-              <h2 className="text-2xl lg:text-4xl font-extrabold text-center mb-12">Notre prestation</h2>
-              <div className="space-y-8">
-                {[
-                  {
-                    icon: Truck,
-                    text: "Primes-energies.fr vous aide à vérifier votre éligibilité à l'installation de panneaux solaires. Cette installation peut être financée en partie grâce au programme de transition énergétique et vous permet de faire l'acquisition de votre installation solaire livrée, installée, mise en service et garantie.",
-                  },
-                  {
-                    icon: Wrench,
-                    text: "Nous nous occupons également de toutes les démarches administratives.",
-                  },
-                  {
-                    icon: Power,
-                    text: "Afin de savoir le montant de vos aides octroyés, vous pouvez effectuer un test d'éligibilité sur notre site.",
-                  },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-5">
-                    <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                      <item.icon className="w-6 h-6 text-primary-foreground" />
-                    </div>
-                    <p className="text-base text-muted-foreground leading-relaxed pt-2">{item.text}</p>
-                  </div>
-                ))}
-                <div className="flex justify-center pt-4">
-                  <Button
-                    size="lg"
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full px-10"
-                    onClick={scrollToForm}
-                  >
-                    Testez votre éligibilité
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </section>
+          {/* ═══ BAND 5: Comment ça marche ═══ */}
+          <SolarHowItWorks onCtaClick={scrollToForm} />
 
-          {/* ═══ BAND 6: Témoignages ═══ */}
-          <section className="py-10 lg:py-16 bg-muted">
-            <div className="container mx-auto px-4 max-w-6xl">
-              <h2 className="text-2xl lg:text-4xl font-extrabold text-center mb-12">
-                Déjà plus de <span className="text-primary">2000 clients</span> installés et satisfaits
-              </h2>
-              <div className="grid md:grid-cols-3 gap-8">
-                {testimonials.map((t, i) => (
-                  <div key={i} className="text-center space-y-4">
-                    <div className="flex justify-between px-4">
-                      <Quote className="w-8 h-8 text-primary rotate-180" />
-                      <Quote className="w-8 h-8 text-primary" />
-                    </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed px-2">{t.text}</p>
-                    <p className="font-bold text-foreground">{t.name}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
+          {/* ═══ BAND 6: Compteurs animés ═══ */}
+          <SolarCounters />
 
-          {/* ═══ BAND 7: Badges défilants ═══ */}
+          {/* ═══ BAND 7: Comparatif puissances ═══ */}
+          <SolarComparatif onCtaClick={scrollToForm} />
+
+          {/* ═══ BAND 8: Aides financières ═══ */}
+          <SolarAidesFinancieres region="france" onCtaClick={scrollToForm} />
+
+          {/* ═══ BAND 9: Témoignages ═══ */}
+          <SolarTestimonials region="france" />
+
+          {/* ═══ BAND 10: FAQ ═══ */}
+          <SolarFAQ region="france" />
+
+          {/* ═══ BAND 11: Badges certifications ═══ */}
           <section className="py-10 lg:py-14 bg-background">
             <div className="container mx-auto px-4 max-w-5xl">
-              <Carousel
-                opts={{ align: "start", loop: true }}
-                plugins={[Autoplay({ delay: 4000 })]}
-                className="relative"
-              >
-                <CarouselContent>
-                  {/* Frame 1: badges 0-3 */}
-                  <CarouselItem className="basis-full">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center py-4">
-                      {badges.slice(0, 4).map((badge, i) => (
-                        <div
-                          key={i}
-                          className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow"
-                        >
-                          <img
-                            src={badge.logo}
-                            alt={badge.name}
-                            loading="lazy"
-                            className="h-16 w-auto object-contain"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </CarouselItem>
-                  {/* Frame 2: badges 4-7 */}
-                  <CarouselItem className="basis-full">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center py-4">
-                      {badges.slice(4, 8).map((badge, i) => (
-                        <div
-                          key={i}
-                          className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow"
-                        >
-                          <img
-                            src={badge.logo}
-                            alt={badge.name}
-                            loading="lazy"
-                            className="h-16 w-auto object-contain"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </CarouselItem>
-                </CarouselContent>
-                <CarouselPrevious className="hidden md:flex -left-12 opacity-50 hover:opacity-100" />
-                <CarouselNext className="hidden md:flex -right-12 opacity-50 hover:opacity-100" />
-              </Carousel>
+              <h3 className="text-lg font-bold text-center text-muted-foreground mb-6">Nos certifications & partenaires</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {badges.map((badge, i) => (
+                  <div
+                    key={i}
+                    className="bg-card border border-border rounded-xl p-4 flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <img src={badge.logo} alt={badge.name} loading="lazy" className="h-16 w-auto object-contain" />
+                  </div>
+                ))}
+              </div>
             </div>
           </section>
 
-          {/* ═══ BAND 8: CTA final ═══ */}
+          {/* ═══ BAND 12: CTA final ═══ */}
           <section className="py-12 lg:py-16 bg-primary/5">
             <div className="container mx-auto px-4 max-w-3xl text-center">
               <h2 className="text-2xl lg:text-3xl font-extrabold text-foreground mb-4">
@@ -862,6 +773,7 @@ const LandingSolaireContent = () => {
         </main>
 
         <Footer />
+        <SolarStickyCTA onCtaClick={scrollToForm} />
       </div>
     </>
   );

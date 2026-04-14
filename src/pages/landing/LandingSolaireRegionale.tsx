@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { 
-  Sun, ArrowRight, Home, Building2, Quote, Zap, TrendingUp, Users,
-  Truck, Wrench, Power, CheckCircle2, MapPin, Award, Shield, Loader2
+  Sun, ArrowRight, Home, Building2, Zap, TrendingUp, Users,
+  CheckCircle2, MapPin, Award, Shield, Loader2
 } from "lucide-react";
 import LandingPageGuard from "@/components/LandingPageGuard";
 import { LandingServiceSchema } from "@/components/SEO/LandingServiceSchema";
@@ -36,6 +36,13 @@ import smartphoneImg from "@/assets/why-solar/utilise-smartphone.png";
 import fondGris from "@/assets/landing/fond-gris.png";
 import SolarHeroVisual from "@/components/landing/SolarHeroVisual";
 import solarPanelsImg from "@/assets/landing/panneaux-solaires.png";
+import SolarHowItWorks from "@/components/landing/SolarHowItWorks";
+import SolarAidesFinancieres from "@/components/landing/SolarAidesFinancieres";
+import SolarTestimonials from "@/components/landing/SolarTestimonials";
+import SolarFAQ from "@/components/landing/SolarFAQ";
+import SolarCounters from "@/components/landing/SolarCounters";
+import SolarComparatif from "@/components/landing/SolarComparatif";
+import SolarStickyCTA from "@/components/landing/SolarStickyCTA";
 
 // ─── Icon resolver ───
 const iconMap: Record<string, React.ElementType> = {
@@ -74,41 +81,6 @@ const badges = [
   { name: "Eco PTZ", logo: `${STORAGE_BASE}/eco-ptz.png` },
 ];
 
-// ─── Testimonials par région ───
-const regionalTestimonials: Record<string, { text: string; name: string }[]> = {
-  martinique: [
-    { text: "En Martinique le soleil ne manque pas, autant en profiter ! Mon installation produit plus que prévu, je revends même le surplus. Très satisfaite du suivi.", name: "Nathalie J." },
-    { text: "L'équipe a été réactive et professionnelle. Installation terminée en une journée, et je vois déjà la différence sur ma facture EDF.", name: "Steeve M." },
-    { text: "Je recommande vivement. Le dossier d'aides a été monté rapidement et l'installation est impeccable. Merci Prime Énergies !", name: "Claudine R." },
-  ],
-  guadeloupe: [
-    { text: "Avec le climat guadeloupéen, le solaire c'est une évidence. Mon installation tourne à plein régime et j'économise chaque mois.", name: "Jean-Marc T." },
-    { text: "Du premier contact à la mise en service, tout a été fluide. Les panneaux sont discrets sur le toit et la production est excellente.", name: "Fabienne L." },
-    { text: "Très bon accompagnement pour les démarches administratives. L'installation fonctionne parfaitement depuis 6 mois maintenant.", name: "Dominique P." },
-  ],
-  guyane: [
-    { text: "En Guyane, le photovoltaïque est la meilleure solution pour réduire ses factures. Installation rapide et professionnelle, je suis ravi.", name: "Carlos B." },
-    { text: "Le suivi post-installation est top. Je peux suivre ma production en temps réel sur l'application, c'est vraiment pratique.", name: "Maryse D." },
-    { text: "Très satisfait de l'accompagnement. Les aides locales combinées aux primes nationales rendent le projet très abordable.", name: "Patrick V." },
-  ],
-  corse: [
-    { text: "Notre maison en Corse est maintenant autonome à 80% grâce aux panneaux solaires. L'ensoleillement de l'île fait le reste !", name: "Antoine C." },
-    { text: "Installation soignée sur notre toiture en tuiles corses. L'équipe a su s'adapter aux contraintes architecturales locales.", name: "Francesca M." },
-    { text: "Le retour sur investissement est plus rapide que prévu. Je recommande à tous les propriétaires corses de franchir le pas.", name: "Jean-Pierre S." },
-  ],
-  reunion: [
-    { text: "À La Réunion, avec notre ensoleillement, le solaire c'est du bon sens. Mon installation couvre 90% de mes besoins en électricité.", name: "Sébastien H." },
-    { text: "Excellent service ! Les techniciens connaissent bien les spécificités climatiques réunionnaises. Installation robuste face aux cyclones.", name: "Marie-Line F." },
-    { text: "Grâce aux aides cumulées, j'ai pu m'équiper sans trop impacter mon budget. La production dépasse mes attentes.", name: "Didier R." },
-  ],
-  fr: [
-    { text: "J'ai bénéficié du programme de financement Eco PTZ et je suis passée à l'énergie solaire. Je suis très satisfaite de ce dispositif et de la qualité de l'installation.", name: "Marie B." },
-    { text: "Prise de contact rapide, mise en place du dossier de financement et installation au top ! Je recommande fortement !", name: "Paul D." },
-    { text: "Pratique et efficace je peux contrôler ma production photovoltaïque avec l'application.", name: "Sylvie R." },
-  ],
-};
-
-const defaultTestimonials = regionalTestimonials.fr;
 
 const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) => {
   const { content, simulatorData, seoStatus, canonicalUrl, loading, isRegional, filledSections } = useRegionalContent(regionCode);
@@ -143,10 +115,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
     { image: appliPvImg, title: "Connecté", description: "Contrôlez la production de votre installation photovoltaïque depuis votre smartphone." },
   ];
 
-  // Testimonials: regional DB > regional hardcoded > fallback
-  const testimonials = content.testimonials?.length
-    ? content.testimonials.map(t => ({ text: t.text, name: t.name, location: t.location }))
-    : (regionalTestimonials[regionCode] || defaultTestimonials);
+  // Testimonials now handled by SolarTestimonials component
 
   // Dynamic vars for social proof
   const clientsCount = content.dynamic_vars?.clients_count || 2000;
@@ -670,137 +639,42 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
             </div>
           </section>
 
-          {/* ═══ SECTION 8: Notre prestation ═══ */}
-          <section className="py-10 lg:py-16 bg-muted/50">
-            <div className="container mx-auto px-4 max-w-4xl">
-              <h2 className="text-2xl lg:text-4xl font-extrabold text-center mb-12">Notre prestation</h2>
-              <div className="space-y-8">
-                {[
-                  { icon: Truck, text: `Primes-energies.fr vous aide à vérifier votre éligibilité à l'installation de panneaux solaires${isRegional ? ` en ${regionName}` : ""}. Cette installation peut être financée en partie grâce au programme de transition énergétique.` },
-                  { icon: Wrench, text: "Nous nous occupons également de toutes les démarches administratives." },
-                  { icon: Power, text: "Afin de savoir le montant de vos aides octroyés, vous pouvez effectuer un test d'éligibilité sur notre site." },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-5">
-                    <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                      <item.icon className="w-6 h-6 text-primary-foreground" />
-                    </div>
-                    <p className="text-base text-muted-foreground leading-relaxed pt-2">{item.text}</p>
-                  </div>
-                ))}
-                <div className="flex justify-center pt-4">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full px-10" onClick={scrollToForm}>Testez votre éligibilité</Button>
-                </div>
-              </div>
-            </div>
-          </section>
+          {/* ═══ SECTION 8: Comment ça marche ═══ */}
+          <SolarHowItWorks onCtaClick={scrollToForm} />
 
-          {/* ═══ SECTION 9: Témoignages ═══ */}
-          <section className="py-10 lg:py-16 bg-muted">
-            <div className="container mx-auto px-4 max-w-6xl">
-              <h2 className="text-2xl lg:text-4xl font-extrabold text-center mb-12">
-                Déjà plus de <span className="text-primary">{clientsCount.toLocaleString("fr-FR")} clients</span> installés et satisfaits
-                {avgRating && <span className="text-base font-normal text-muted-foreground ml-2">({avgRating}/5 ⭐)</span>}
-              </h2>
-              <div className="grid md:grid-cols-3 gap-8">
-                {testimonials.map((t, i) => (
-                  <div key={i} className="text-center space-y-4">
-                    <div className="flex justify-between px-4">
-                      <Quote className="w-8 h-8 text-primary rotate-180" />
-                      <Quote className="w-8 h-8 text-primary" />
-                    </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed px-2">{t.text}</p>
-                    <p className="font-bold text-foreground">{t.name}</p>
-                    {"location" in t && (t as { location?: string }).location && (
-                      <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-                        <MapPin className="w-3 h-3" /> {(t as { location?: string }).location}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
+          {/* ═══ SECTION 9: Compteurs animés ═══ */}
+          <SolarCounters />
 
-          {/* ═══ SECTION 10: FAQ locale ═══ */}
-          {content.faq && content.faq.length > 0 && (
-            <section className="py-10 lg:py-16 bg-card">
-              <div className="container mx-auto px-4 max-w-4xl">
-                <h2 className="text-2xl lg:text-4xl font-extrabold text-center mb-12">
-                  Questions fréquentes{isRegional ? ` — ${regionName}` : ""}
-                </h2>
-                <div className="space-y-4">
-                  {content.faq.map((item, i) => (
-                    <details key={i} className="bg-muted border border-border rounded-xl overflow-hidden group">
-                      <summary className="px-6 py-4 font-semibold text-foreground cursor-pointer hover:bg-primary/5 transition-colors list-none flex items-center justify-between">
-                        {item.question}
-                        <ArrowRight className="w-4 h-4 text-muted-foreground group-open:rotate-90 transition-transform" />
-                      </summary>
-                      <div className="px-6 pb-4 text-sm text-muted-foreground leading-relaxed">
-                        {item.answer}
-                      </div>
-                    </details>
-                  ))}
-                </div>
-                <div className="flex justify-center mt-8">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full px-10" onClick={scrollToForm}>
-                    Demandez votre devis gratuit
-                  </Button>
-                </div>
-              </div>
-            </section>
-          )}
+          {/* ═══ SECTION 10: Comparatif puissances ═══ */}
+          <SolarComparatif onCtaClick={scrollToForm} />
 
-          {/* ═══ SECTION 11: Badges défilants ═══ */}
+          {/* ═══ SECTION 11: Aides financières ═══ */}
+          <SolarAidesFinancieres region={regionCode === "fr" ? "france" : regionCode} onCtaClick={scrollToForm} />
+
+          {/* ═══ SECTION 12: Témoignages ═══ */}
+          <SolarTestimonials region={regionCode === "fr" ? "france" : regionCode} clientCount={clientsCount} />
+
+          {/* ═══ SECTION 13: FAQ ═══ */}
+          <SolarFAQ region={regionCode === "fr" ? "france" : regionCode} />
+
+          {/* ═══ SECTION 14: Badges certifications ═══ */}
           <section className="py-10 lg:py-14 bg-background">
             <div className="container mx-auto px-4 max-w-5xl">
-              <Carousel
-                opts={{ align: "start", loop: true }}
-                plugins={[Autoplay({ delay: 4000 })]}
-                className="relative"
-              >
-                <CarouselContent>
-                  <CarouselItem className="basis-full">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center py-4">
-                      {badges.slice(0, 4).map((badge, i) => (
-                        <div
-                          key={i}
-                          className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow"
-                        >
-                          <img
-                            src={badge.logo}
-                            alt={badge.name}
-                            loading="lazy"
-                            className="h-16 w-auto object-contain"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </CarouselItem>
-                  <CarouselItem className="basis-full">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center py-4">
-                      {badges.slice(4, 8).map((badge, i) => (
-                        <div
-                          key={i}
-                          className="bg-card border border-border rounded-xl p-4 w-full flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow"
-                        >
-                          <img
-                            src={badge.logo}
-                            alt={badge.name}
-                            loading="lazy"
-                            className="h-16 w-auto object-contain"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </CarouselItem>
-                </CarouselContent>
-                <CarouselPrevious className="hidden md:flex -left-12 opacity-50 hover:opacity-100" />
-                <CarouselNext className="hidden md:flex -right-12 opacity-50 hover:opacity-100" />
-              </Carousel>
+              <h3 className="text-lg font-bold text-center text-muted-foreground mb-6">Nos certifications & partenaires</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {badges.map((badge, i) => (
+                  <div
+                    key={i}
+                    className="bg-card border border-border rounded-xl p-4 flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <img src={badge.logo} alt={badge.name} loading="lazy" className="h-16 w-auto object-contain" />
+                  </div>
+                ))}
+              </div>
             </div>
           </section>
 
-          {/* ═══ SECTION 12: CTA final ═══ */}
+          {/* ═══ SECTION 15: CTA final ═══ */}
           <section className="py-12 lg:py-16 bg-primary/5">
             <div className="container mx-auto px-4 max-w-3xl text-center">
               <h2 className="text-2xl lg:text-3xl font-extrabold text-foreground mb-4">
@@ -817,6 +691,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
 
         </main>
         <Footer />
+        <SolarStickyCTA onCtaClick={scrollToForm} />
       </div>
     </>
   );
