@@ -37,7 +37,7 @@ interface DebugConfig {
 const DEFAULT_CONFIG: DebugConfig = {
   roofPosX: 0, roofPosY: 0, roofPosZ: -1.5,
   roofRotX: 0.69, roofRotY: 0, roofRotZ: 0, // 0.69 ≈ PI*0.22
-  panelRotAX: 0, panelRotAY: 1.5708, panelRotAZ: 0, // PI/2
+  panelRotAX: 0, panelRotAY: 1.5708, panelRotAZ: 2.02,
   panelRotBX: 0, panelRotBY: -0.46, panelRotBZ: 1.5708,
   panelY: 0.31,
   panelScale: 1.4,
