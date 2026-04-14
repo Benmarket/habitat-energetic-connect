@@ -146,6 +146,7 @@ const RoofWithPanels = ({ progress, config }: { progress: number; config: DebugC
       position={[config.roofPosX, config.roofPosY, config.roofPosZ]}
       rotation={[config.roofRotX, config.roofRotY, config.roofRotZ]}
     >
+      {/* ── Main roof slope (front, with panels) ── */}
       <mesh receiveShadow castShadow>
         <boxGeometry args={[7.5, 0.12, 5.2]} />
         <meshStandardMaterial color="#b07848" roughness={0.85} metalness={0.05} />
@@ -156,17 +157,148 @@ const RoofWithPanels = ({ progress, config }: { progress: number; config: DebugC
           <meshStandardMaterial color={i % 2 === 0 ? "#a06838" : "#b87848"} roughness={0.92} />
         </mesh>
       ))}
+      {/* Ridge beam (top) */}
       <mesh position={[0, 0.1, -2.65]} castShadow>
         <boxGeometry args={[7.7, 0.16, 0.18]} />
         <meshStandardMaterial color="#8a5530" roughness={0.8} metalness={0.1} />
       </mesh>
+      {/* Eave (bottom) */}
       <mesh position={[0, -0.01, 2.65]} castShadow>
         <boxGeometry args={[7.8, 0.2, 0.16]} />
         <meshStandardMaterial color="#6a4020" roughness={0.8} />
       </mesh>
+      {/* Side trims */}
       <mesh position={[3.8, 0.05, 0]}><boxGeometry args={[0.1, 0.14, 5.3]} /><meshStandardMaterial color="#7a4828" roughness={0.85} /></mesh>
       <mesh position={[-3.8, 0.05, 0]}><boxGeometry args={[0.1, 0.14, 5.3]} /><meshStandardMaterial color="#7a4828" roughness={0.85} /></mesh>
 
+      {/* ── Second roof slope (back) ── */}
+      <group position={[0, 0, -5.2]} rotation={[Math.PI - 0.69 * 2, 0, 0]}>
+        <mesh receiveShadow castShadow>
+          <boxGeometry args={[7.5, 0.12, 5.2]} />
+          <meshStandardMaterial color="#a06838" roughness={0.85} metalness={0.05} />
+        </mesh>
+        {Array.from({ length: 13 }).map((_, i) => (
+          <mesh key={`back-${i}`} position={[0, 0.07, -2.4 + i * 0.4]} receiveShadow>
+            <boxGeometry args={[7.4, 0.035, 0.28]} />
+            <meshStandardMaterial color={i % 2 === 0 ? "#956030" : "#a56838"} roughness={0.92} />
+          </mesh>
+        ))}
+      </group>
+
+      {/* ── Front facade (wall under eave) ── */}
+      <group position={[0, -2.2, 2.65]}>
+        {/* Main wall */}
+        <mesh receiveShadow castShadow>
+          <boxGeometry args={[7.5, 4.2, 0.15]} />
+          <meshStandardMaterial color="#e8ddd0" roughness={0.9} metalness={0} />
+        </mesh>
+        {/* Window left */}
+        <group position={[-2, 0.4, 0.08]}>
+          <mesh>
+            <boxGeometry args={[1.2, 1.4, 0.05]} />
+            <meshStandardMaterial color="#a8d8ea" roughness={0.1} metalness={0.3} transparent opacity={0.7} />
+          </mesh>
+          {/* Window frame */}
+          <mesh position={[0, 0, 0.01]}>
+            <boxGeometry args={[1.3, 0.08, 0.06]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.5} />
+          </mesh>
+          <mesh position={[0, 0.7, 0.01]}>
+            <boxGeometry args={[1.3, 0.08, 0.06]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.5} />
+          </mesh>
+          <mesh position={[0, -0.7, 0.01]}>
+            <boxGeometry args={[1.3, 0.08, 0.06]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.5} />
+          </mesh>
+          <mesh position={[-0.6, 0, 0.01]}>
+            <boxGeometry args={[0.08, 1.5, 0.06]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.5} />
+          </mesh>
+          <mesh position={[0.6, 0, 0.01]}>
+            <boxGeometry args={[0.08, 1.5, 0.06]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.5} />
+          </mesh>
+          <mesh position={[0, 0, 0.01]}>
+            <boxGeometry args={[0.06, 1.5, 0.06]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.5} />
+          </mesh>
+        </group>
+        {/* Window right */}
+        <group position={[2, 0.4, 0.08]}>
+          <mesh>
+            <boxGeometry args={[1.2, 1.4, 0.05]} />
+            <meshStandardMaterial color="#a8d8ea" roughness={0.1} metalness={0.3} transparent opacity={0.7} />
+          </mesh>
+          <mesh position={[0, 0, 0.01]}>
+            <boxGeometry args={[1.3, 0.08, 0.06]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.5} />
+          </mesh>
+          <mesh position={[0, 0.7, 0.01]}>
+            <boxGeometry args={[1.3, 0.08, 0.06]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.5} />
+          </mesh>
+          <mesh position={[0, -0.7, 0.01]}>
+            <boxGeometry args={[1.3, 0.08, 0.06]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.5} />
+          </mesh>
+          <mesh position={[-0.6, 0, 0.01]}>
+            <boxGeometry args={[0.08, 1.5, 0.06]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.5} />
+          </mesh>
+          <mesh position={[0.6, 0, 0.01]}>
+            <boxGeometry args={[0.08, 1.5, 0.06]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.5} />
+          </mesh>
+          <mesh position={[0, 0, 0.01]}>
+            <boxGeometry args={[0.06, 1.5, 0.06]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.5} />
+          </mesh>
+        </group>
+        {/* Door center */}
+        <group position={[0, -0.6, 0.08]}>
+          <mesh>
+            <boxGeometry args={[1, 2.0, 0.06]} />
+            <meshStandardMaterial color="#6b4226" roughness={0.7} metalness={0.05} />
+          </mesh>
+          {/* Door frame */}
+          <mesh position={[0, 1.02, 0]}>
+            <boxGeometry args={[1.15, 0.08, 0.08]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.5} />
+          </mesh>
+          <mesh position={[-0.54, 0, 0]}>
+            <boxGeometry args={[0.08, 2.1, 0.08]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.5} />
+          </mesh>
+          <mesh position={[0.54, 0, 0]}>
+            <boxGeometry args={[0.08, 2.1, 0.08]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.5} />
+          </mesh>
+          {/* Door handle */}
+          <mesh position={[0.35, 0, 0.05]}>
+            <sphereGeometry args={[0.05, 8, 8]} />
+            <meshStandardMaterial color="#c0a060" roughness={0.3} metalness={0.7} />
+          </mesh>
+        </group>
+      </group>
+
+      {/* ── Side walls (triangular gables approximated) ── */}
+      {/* Left gable */}
+      <group position={[-3.8, -2.2, 0]}>
+        <mesh receiveShadow castShadow>
+          <boxGeometry args={[0.15, 4.2, 5.2]} />
+          <meshStandardMaterial color="#ddd0c0" roughness={0.9} />
+        </mesh>
+      </group>
+      {/* Right gable */}
+      <group position={[3.8, -2.2, 0]}>
+        <mesh receiveShadow castShadow>
+          <boxGeometry args={[0.15, 4.2, 5.2]} />
+          <meshStandardMaterial color="#ddd0c0" roughness={0.9} />
+        </mesh>
+      </group>
+
+      {/* Solar panels */}
       {panels.map((p, i) => (
         <SolarPanel key={i} position={p.pos} delay={p.delay} progress={animProgress} index={i} config={config} />
       ))}
