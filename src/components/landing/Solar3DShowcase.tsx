@@ -361,7 +361,7 @@ const Solar3DShowcase = () => {
               toneMapping: THREE.ACESFilmicToneMapping,
               toneMappingExposure: 1.1,
             }}
-            camera={{ position: [9, 6, 9], fov: 35 }}
+            camera={{ position: [-8.16, 3.72, 10.62], fov: 35 }}
           >
             <Scene progress={progress} config={config} onCameraUpdate={handleCameraUpdate} />
           </Canvas>
