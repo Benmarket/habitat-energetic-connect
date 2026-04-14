@@ -85,7 +85,7 @@ const SolarPanel = ({ position, delay, progress, index }: {
 
 // ─── Roof + Panels (all in one tilted group) ───
 const RoofWithPanels = ({ progress }: { progress: number }) => {
-  const TILT = Math.PI * 0.17; // ~30° — looks like 45° in 3D perspective
+  const TILT = Math.PI * 0.15; // ~27° tilt facing the viewer
 
   const panels = useMemo(() => {
     const items: { pos: [number, number, number]; delay: number }[] = [];
@@ -103,7 +103,7 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
   }, []);
 
   return (
-    <group position={[0, 0, 0]} rotation={[-TILT, 0, 0]}>
+    <group position={[0, 0.5, -1]} rotation={[TILT, 0, 0]}>
       {/* Roof slab */}
       <mesh receiveShadow castShadow>
         <boxGeometry args={[7.5, 0.12, 5.2]} />
@@ -185,11 +185,11 @@ const Inverter = ({ progress }: { progress: number }) => {
 const CameraCtrl = ({ progress }: { progress: number }) => {
   const { camera } = useThree();
   useFrame(() => {
-    const angle = -0.4 + progress * 0.5;
-    const radius = 11 - progress * 2.5;
-    const height = 6 - progress * 2;
+    const angle = -0.3 + progress * 0.4;
+    const radius = 12 - progress * 2.5;
+    const height = 4 + progress * 1;
     camera.position.set(Math.sin(angle) * radius, height, Math.cos(angle) * radius);
-    camera.lookAt(0, -1, 0);
+    camera.lookAt(0, -0.5, 0);
   });
   return null;
 };
