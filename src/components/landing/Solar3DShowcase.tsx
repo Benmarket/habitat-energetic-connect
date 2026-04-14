@@ -213,8 +213,6 @@ const Scene = ({ progress }: { progress: number }) => (
     <fog attach="fog" args={["#0a1628", 18, 40]} />
     <CameraCtrl progress={progress} />
     <RoofWithPanels progress={progress} />
-    <HouseWall />
-    <Inverter progress={progress} />
     <ContactShadows position={[0, -4.8, 0]} opacity={0.5} scale={25} blur={2.5} far={12} />
   </>
 );
@@ -228,7 +226,7 @@ const Solar3DShowcase = () => {
     <section
       ref={containerRef}
       className="relative bg-gradient-to-b from-[#0a1628] via-[#0f2035] to-[#0a1628] overflow-hidden"
-      style={{ height: "130vh" }}
+      style={{ height: "100vh" }}
     >
       <div className="sticky top-0 h-screen w-full">
         <Suspense fallback={
