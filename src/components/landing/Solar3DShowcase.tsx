@@ -125,7 +125,7 @@ const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuil
     if (!ref.current) return;
     ref.current.position.set(position[0], y, position[2]);
     const s = 0.5 + 0.5 * e;
-    ref.current.scale.set(s * config.panelScale, s * config.panelScale, s * config.panelScale);
+    ref.current.scale.set(s * effectiveConfig.panelScale, s * effectiveConfig.panelScale, s * effectiveConfig.panelScale);
     if (t >= 1) {
       ref.current.position.y += Math.sin(state.clock.elapsedTime * 0.6 + index) * 0.005;
     }
