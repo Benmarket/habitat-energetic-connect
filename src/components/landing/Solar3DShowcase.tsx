@@ -374,14 +374,15 @@ const DebugPanel = ({ config, onChange, camPos, camRot }: {
 };
 
 // ─── Roof Type Selector ───
-const ROOF_OPTIONS: { type: RoofType; label: string; icon: string }[] = [
-  { type: "tuiles", label: "Tuiles", icon: "🏠" },
-  { type: "tole", label: "Tôle", icon: "🏭" },
-  { type: "plate", label: "Plate", icon: "🏢" },
+const ROOF_OPTIONS: { type: RoofType; label: string }[] = [
+  { type: "tuiles", label: "Tuiles" },
+  { type: "tole", label: "Tôle" },
+  { type: "plate", label: "Plate" },
 ];
 
 const RoofTypeSelector = ({ selected, onSelect }: { selected: RoofType; onSelect: (t: RoofType) => void }) => (
-  <div className="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2">
+  <div className="absolute left-4 lg:left-8 top-[28%] z-40 flex flex-col gap-1.5">
+    <span className="text-[10px] uppercase tracking-[0.15em] text-slate-500 font-semibold mb-1 pl-1">Type de toiture</span>
     {ROOF_OPTIONS.map(opt => {
       const isActive = selected === opt.type;
       return (
@@ -389,19 +390,18 @@ const RoofTypeSelector = ({ selected, onSelect }: { selected: RoofType; onSelect
           key={opt.type}
           onClick={() => onSelect(opt.type)}
           className={`
-            group flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-semibold
-            backdrop-blur-md border transition-all duration-300 cursor-pointer
+            relative flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium
+            border transition-all duration-200 cursor-pointer min-w-[100px]
             ${isActive
-              ? "bg-white/90 border-emerald-400/60 text-slate-800 shadow-lg shadow-emerald-500/15 scale-105"
-              : "bg-white/40 border-white/30 text-slate-600 hover:bg-white/70 hover:border-white/50 hover:scale-[1.02]"
+              ? "bg-white border-slate-300 text-slate-900 shadow-md"
+              : "bg-white/50 border-transparent text-slate-500 hover:bg-white/80 hover:text-slate-700"
             }
           `}
         >
-          <span className="text-lg">{opt.icon}</span>
-          <span className="hidden lg:inline">{opt.label}</span>
           {isActive && (
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 ml-1 animate-pulse" />
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full bg-emerald-500" />
           )}
+          {opt.label}
         </button>
       );
     })}
