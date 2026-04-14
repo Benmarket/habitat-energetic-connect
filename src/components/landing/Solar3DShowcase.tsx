@@ -122,8 +122,93 @@ const SolarPanel = ({ position, delay, progress, index, config }: {
   );
 };
 
+// ─── Roof types ───
+type RoofType = "tuiles" | "tole" | "plate";
+
+// ─── Tuiles Roof ───
+const RoofTuiles = () => (
+  <>
+    <mesh receiveShadow castShadow>
+      <boxGeometry args={[7.5, 0.12, 5.2]} />
+      <meshStandardMaterial color="#b07848" roughness={0.85} metalness={0.05} />
+    </mesh>
+    {Array.from({ length: 13 }).map((_, i) => (
+      <mesh key={i} position={[0, 0.07, -2.4 + i * 0.4]} receiveShadow>
+        <boxGeometry args={[7.4, 0.035, 0.28]} />
+        <meshStandardMaterial color={i % 2 === 0 ? "#a06838" : "#b87848"} roughness={0.92} />
+      </mesh>
+    ))}
+    <mesh position={[0, 0.1, -2.65]} castShadow>
+      <boxGeometry args={[7.7, 0.16, 0.18]} />
+      <meshStandardMaterial color="#8a5530" roughness={0.8} metalness={0.1} />
+    </mesh>
+    <mesh position={[0, -0.01, 2.65]} castShadow>
+      <boxGeometry args={[7.8, 0.2, 0.16]} />
+      <meshStandardMaterial color="#6a4020" roughness={0.8} />
+    </mesh>
+    <mesh position={[3.8, 0.05, 0]}><boxGeometry args={[0.1, 0.14, 5.3]} /><meshStandardMaterial color="#7a4828" roughness={0.85} /></mesh>
+    <mesh position={[-3.8, 0.05, 0]}><boxGeometry args={[0.1, 0.14, 5.3]} /><meshStandardMaterial color="#7a4828" roughness={0.85} /></mesh>
+  </>
+);
+
+// ─── Tôle blanche Roof ───
+const RoofTole = () => (
+  <>
+    <mesh receiveShadow castShadow>
+      <boxGeometry args={[7.5, 0.08, 5.2]} />
+      <meshStandardMaterial color="#e8e8ec" roughness={0.3} metalness={0.7} />
+    </mesh>
+    {/* Metal ridges / ondulations */}
+    {Array.from({ length: 20 }).map((_, i) => (
+      <mesh key={i} position={[0, 0.06, -2.5 + i * 0.26]} receiveShadow>
+        <boxGeometry args={[7.4, 0.025, 0.08]} />
+        <meshStandardMaterial color="#d0d0d8" roughness={0.25} metalness={0.8} />
+      </mesh>
+    ))}
+    {/* Edge trim */}
+    <mesh position={[0, 0.06, -2.65]} castShadow>
+      <boxGeometry args={[7.7, 0.1, 0.12]} />
+      <meshStandardMaterial color="#b0b0b8" roughness={0.3} metalness={0.75} />
+    </mesh>
+    <mesh position={[0, 0, 2.65]} castShadow>
+      <boxGeometry args={[7.8, 0.12, 0.1]} />
+      <meshStandardMaterial color="#a0a0a8" roughness={0.3} metalness={0.75} />
+    </mesh>
+    <mesh position={[3.8, 0.03, 0]}><boxGeometry args={[0.08, 0.1, 5.3]} /><meshStandardMaterial color="#b8b8c0" roughness={0.3} metalness={0.7} /></mesh>
+    <mesh position={[-3.8, 0.03, 0]}><boxGeometry args={[0.08, 0.1, 5.3]} /><meshStandardMaterial color="#b8b8c0" roughness={0.3} metalness={0.7} /></mesh>
+  </>
+);
+
+// ─── Toiture Plate ───
+const RoofPlate = () => (
+  <>
+    <mesh receiveShadow castShadow>
+      <boxGeometry args={[7.5, 0.18, 5.2]} />
+      <meshStandardMaterial color="#c8c0b8" roughness={0.9} metalness={0.02} />
+    </mesh>
+    {/* Membrane texture lines */}
+    {Array.from({ length: 7 }).map((_, i) => (
+      <mesh key={i} position={[0, 0.1, -2.2 + i * 0.72]} receiveShadow>
+        <boxGeometry args={[7.4, 0.005, 0.04]} />
+        <meshStandardMaterial color="#b0a898" roughness={0.95} metalness={0.0} />
+      </mesh>
+    ))}
+    {/* Parapet walls */}
+    <mesh position={[0, 0.18, -2.65]} castShadow>
+      <boxGeometry args={[7.7, 0.25, 0.12]} />
+      <meshStandardMaterial color="#9a9288" roughness={0.85} metalness={0.05} />
+    </mesh>
+    <mesh position={[0, 0.18, 2.65]} castShadow>
+      <boxGeometry args={[7.8, 0.25, 0.12]} />
+      <meshStandardMaterial color="#9a9288" roughness={0.85} metalness={0.05} />
+    </mesh>
+    <mesh position={[3.8, 0.18, 0]}><boxGeometry args={[0.12, 0.25, 5.3]} /><meshStandardMaterial color="#9a9288" roughness={0.85} metalness={0.05} /></mesh>
+    <mesh position={[-3.8, 0.18, 0]}><boxGeometry args={[0.12, 0.25, 5.3]} /><meshStandardMaterial color="#9a9288" roughness={0.85} metalness={0.05} /></mesh>
+  </>
+);
+
 // ─── Roof + Panels ───
-const RoofWithPanels = ({ progress, config }: { progress: number; config: DebugConfig }) => {
+const RoofWithPanels = ({ progress, config, roofType }: { progress: number; config: DebugConfig; roofType: RoofType }) => {
   const animProgress = Math.min(1, progress * 2);
 
   const panels = useMemo(() => {
@@ -141,31 +226,17 @@ const RoofWithPanels = ({ progress, config }: { progress: number; config: DebugC
     return items;
   }, [config.panelY]);
 
+  // Flat roof has no tilt
+  const effectiveRotX = roofType === "plate" ? 0.15 : config.roofRotX;
+
   return (
     <group
       position={[config.roofPosX, config.roofPosY, config.roofPosZ]}
-      rotation={[config.roofRotX, config.roofRotY, config.roofRotZ]}
+      rotation={[effectiveRotX, config.roofRotY, config.roofRotZ]}
     >
-      <mesh receiveShadow castShadow>
-        <boxGeometry args={[7.5, 0.12, 5.2]} />
-        <meshStandardMaterial color="#b07848" roughness={0.85} metalness={0.05} />
-      </mesh>
-      {Array.from({ length: 13 }).map((_, i) => (
-        <mesh key={i} position={[0, 0.07, -2.4 + i * 0.4]} receiveShadow>
-          <boxGeometry args={[7.4, 0.035, 0.28]} />
-          <meshStandardMaterial color={i % 2 === 0 ? "#a06838" : "#b87848"} roughness={0.92} />
-        </mesh>
-      ))}
-      <mesh position={[0, 0.1, -2.65]} castShadow>
-        <boxGeometry args={[7.7, 0.16, 0.18]} />
-        <meshStandardMaterial color="#8a5530" roughness={0.8} metalness={0.1} />
-      </mesh>
-      <mesh position={[0, -0.01, 2.65]} castShadow>
-        <boxGeometry args={[7.8, 0.2, 0.16]} />
-        <meshStandardMaterial color="#6a4020" roughness={0.8} />
-      </mesh>
-      <mesh position={[3.8, 0.05, 0]}><boxGeometry args={[0.1, 0.14, 5.3]} /><meshStandardMaterial color="#7a4828" roughness={0.85} /></mesh>
-      <mesh position={[-3.8, 0.05, 0]}><boxGeometry args={[0.1, 0.14, 5.3]} /><meshStandardMaterial color="#7a4828" roughness={0.85} /></mesh>
+      {roofType === "tuiles" && <RoofTuiles />}
+      {roofType === "tole" && <RoofTole />}
+      {roofType === "plate" && <RoofPlate />}
 
       {panels.map((p, i) => (
         <SolarPanel key={i} position={p.pos} delay={p.delay} progress={animProgress} index={i} config={config} />
@@ -200,7 +271,7 @@ const CameraTracker = ({ onUpdate }: { onUpdate: (pos: [number, number, number],
 };
 
 // ─── Full Scene ───
-const Scene = ({ progress, config, onCameraUpdate }: { progress: number; config: DebugConfig; onCameraUpdate: (pos: [number, number, number], rot: [number, number, number]) => void }) => (
+const Scene = ({ progress, config, roofType, onCameraUpdate }: { progress: number; config: DebugConfig; roofType: RoofType; onCameraUpdate: (pos: [number, number, number], rot: [number, number, number]) => void }) => (
   <>
     <ambientLight intensity={0.35} />
     <directionalLight position={[10, 15, 8]} intensity={2.2} castShadow
@@ -214,8 +285,7 @@ const Scene = ({ progress, config, onCameraUpdate }: { progress: number; config:
     <fog attach="fog" args={["#0a1628", 18, 40]} />
     <OrbitControls target={[0, 0, -1.5]} enableZoom={false} />
     <CameraTracker onUpdate={onCameraUpdate} />
-    {/* <CameraCtrl progress={progress} /> */}
-    <RoofWithPanels progress={progress} config={config} />
+    <RoofWithPanels progress={progress} config={config} roofType={roofType} />
     <ContactShadows position={[0, -4.8, 0]} opacity={0.5} scale={25} blur={2.5} far={12} />
   </>
 );
@@ -303,10 +373,46 @@ const DebugPanel = ({ config, onChange, camPos, camRot }: {
   );
 };
 
+// ─── Roof Type Selector ───
+const ROOF_OPTIONS: { type: RoofType; label: string; icon: string }[] = [
+  { type: "tuiles", label: "Tuiles", icon: "🏠" },
+  { type: "tole", label: "Tôle", icon: "🏭" },
+  { type: "plate", label: "Plate", icon: "🏢" },
+];
+
+const RoofTypeSelector = ({ selected, onSelect }: { selected: RoofType; onSelect: (t: RoofType) => void }) => (
+  <div className="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2">
+    {ROOF_OPTIONS.map(opt => {
+      const isActive = selected === opt.type;
+      return (
+        <button
+          key={opt.type}
+          onClick={() => onSelect(opt.type)}
+          className={`
+            group flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-semibold
+            backdrop-blur-md border transition-all duration-300 cursor-pointer
+            ${isActive
+              ? "bg-white/90 border-emerald-400/60 text-slate-800 shadow-lg shadow-emerald-500/15 scale-105"
+              : "bg-white/40 border-white/30 text-slate-600 hover:bg-white/70 hover:border-white/50 hover:scale-[1.02]"
+            }
+          `}
+        >
+          <span className="text-lg">{opt.icon}</span>
+          <span className="hidden lg:inline">{opt.label}</span>
+          {isActive && (
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 ml-1 animate-pulse" />
+          )}
+        </button>
+      );
+    })}
+  </div>
+);
+
 // ─── Exported Component ───
 const Solar3DShowcase = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const progress = useScrollProgress(containerRef as React.RefObject<HTMLElement>);
+  const [roofType, setRoofType] = useState<RoofType>("tuiles");
   const [config, setConfig] = useState<DebugConfig>(() => {
     try {
       const saved = localStorage.getItem("solar3d_debug");
@@ -328,13 +434,14 @@ const Solar3DShowcase = () => {
     camRotRef.current = rot;
   };
 
-  // Throttle camera display updates to avoid re-rendering every frame
   useEffect(() => {
     const interval = setInterval(() => {
       setCamDisplay({ pos: camPosRef.current, rot: camRotRef.current });
     }, 200);
     return () => clearInterval(interval);
   }, []);
+
+  const roofLabel = ROOF_OPTIONS.find(o => o.type === roofType)?.label ?? "";
 
   return (
     <section
@@ -416,9 +523,20 @@ const Solar3DShowcase = () => {
             }}
             camera={{ position: [-8.16, 3.72, 10.62], fov: 35 }}
           >
-            <Scene progress={progress} config={config} onCameraUpdate={handleCameraUpdate} />
+            <Scene progress={progress} config={config} roofType={roofType} onCameraUpdate={handleCameraUpdate} />
           </Canvas>
         </Suspense>
+
+        {/* Roof Type Selector */}
+        <RoofTypeSelector selected={roofType} onSelect={setRoofType} />
+
+        {/* Roof type label above the roof */}
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-40">
+          <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/70 backdrop-blur-md border border-white/50 shadow-md text-slate-700 text-sm font-semibold tracking-wide">
+            <span className="text-base">{ROOF_OPTIONS.find(o => o.type === roofType)?.icon}</span>
+            Toiture {roofLabel}
+          </span>
+        </div>
 
         {/* Debug Panel */}
         <DebugPanel config={config} onChange={handleConfigChange} camPos={camDisplay.pos} camRot={camDisplay.rot} />
