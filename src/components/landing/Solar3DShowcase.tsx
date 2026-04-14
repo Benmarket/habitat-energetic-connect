@@ -219,7 +219,17 @@ const DebugPanel = ({ config, onChange }: { config: DebugConfig; onChange: (c: D
 const Solar3DShowcase = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const progress = useScrollProgress(containerRef as React.RefObject<HTMLElement>);
-  const [config, setConfig] = useState<DebugConfig>(DEFAULT_CONFIG);
+  const [config, setConfig] = useState<DebugConfig>(() => {
+    try {
+      const saved = localStorage.getItem("solar3d_debug");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return DEFAULT_CONFIG;
+  });
+  const handleConfigChange = (c: DebugConfig) => {
+    setConfig(c);
+    localStorage.setItem("solar3d_debug", JSON.stringify(c));
+  };
 
   return (
     <section
