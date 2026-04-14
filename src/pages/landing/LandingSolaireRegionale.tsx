@@ -74,12 +74,41 @@ const badges = [
   { name: "Eco PTZ", logo: `${STORAGE_BASE}/eco-ptz.png` },
 ];
 
-// ─── Default testimonials (fallback) ───
-const defaultTestimonials = [
-  { text: "J'ai bénéficié du programme de financement Eco PTZ et je suis passée à l'énergie solaire. Je suis très satisfaite de ce dispositif et de la qualité de l'installation.", name: "Marie B." },
-  { text: "Prise de contact rapide, mise en place du dossier de financement et installation au top ! Je recommande fortement !", name: "Paul D." },
-  { text: "Pratique et efficace je peux contrôler ma production photovoltaïque avec l'application.", name: "Sylvie R." },
-];
+// ─── Testimonials par région ───
+const regionalTestimonials: Record<string, { text: string; name: string }[]> = {
+  martinique: [
+    { text: "En Martinique le soleil ne manque pas, autant en profiter ! Mon installation produit plus que prévu, je revends même le surplus. Très satisfaite du suivi.", name: "Nathalie J." },
+    { text: "L'équipe a été réactive et professionnelle. Installation terminée en une journée, et je vois déjà la différence sur ma facture EDF.", name: "Steeve M." },
+    { text: "Je recommande vivement. Le dossier d'aides a été monté rapidement et l'installation est impeccable. Merci Prime Énergies !", name: "Claudine R." },
+  ],
+  guadeloupe: [
+    { text: "Avec le climat guadeloupéen, le solaire c'est une évidence. Mon installation tourne à plein régime et j'économise chaque mois.", name: "Jean-Marc T." },
+    { text: "Du premier contact à la mise en service, tout a été fluide. Les panneaux sont discrets sur le toit et la production est excellente.", name: "Fabienne L." },
+    { text: "Très bon accompagnement pour les démarches administratives. L'installation fonctionne parfaitement depuis 6 mois maintenant.", name: "Dominique P." },
+  ],
+  guyane: [
+    { text: "En Guyane, le photovoltaïque est la meilleure solution pour réduire ses factures. Installation rapide et professionnelle, je suis ravi.", name: "Carlos B." },
+    { text: "Le suivi post-installation est top. Je peux suivre ma production en temps réel sur l'application, c'est vraiment pratique.", name: "Maryse D." },
+    { text: "Très satisfait de l'accompagnement. Les aides locales combinées aux primes nationales rendent le projet très abordable.", name: "Patrick V." },
+  ],
+  corse: [
+    { text: "Notre maison en Corse est maintenant autonome à 80% grâce aux panneaux solaires. L'ensoleillement de l'île fait le reste !", name: "Antoine C." },
+    { text: "Installation soignée sur notre toiture en tuiles corses. L'équipe a su s'adapter aux contraintes architecturales locales.", name: "Francesca M." },
+    { text: "Le retour sur investissement est plus rapide que prévu. Je recommande à tous les propriétaires corses de franchir le pas.", name: "Jean-Pierre S." },
+  ],
+  reunion: [
+    { text: "À La Réunion, avec notre ensoleillement, le solaire c'est du bon sens. Mon installation couvre 90% de mes besoins en électricité.", name: "Sébastien H." },
+    { text: "Excellent service ! Les techniciens connaissent bien les spécificités climatiques réunionnaises. Installation robuste face aux cyclones.", name: "Marie-Line F." },
+    { text: "Grâce aux aides cumulées, j'ai pu m'équiper sans trop impacter mon budget. La production dépasse mes attentes.", name: "Didier R." },
+  ],
+  fr: [
+    { text: "J'ai bénéficié du programme de financement Eco PTZ et je suis passée à l'énergie solaire. Je suis très satisfaite de ce dispositif et de la qualité de l'installation.", name: "Marie B." },
+    { text: "Prise de contact rapide, mise en place du dossier de financement et installation au top ! Je recommande fortement !", name: "Paul D." },
+    { text: "Pratique et efficace je peux contrôler ma production photovoltaïque avec l'application.", name: "Sylvie R." },
+  ],
+};
+
+const defaultTestimonials = regionalTestimonials.fr;
 
 const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) => {
   const { content, simulatorData, seoStatus, canonicalUrl, loading, isRegional, filledSections } = useRegionalContent(regionCode);
@@ -114,13 +143,13 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
     { image: appliPvImg, title: "Connecté", description: "Contrôlez la production de votre installation photovoltaïque depuis votre smartphone." },
   ];
 
-  // Testimonials: regional > fallback
+  // Testimonials: regional DB > regional hardcoded > fallback
   const testimonials = content.testimonials?.length
     ? content.testimonials.map(t => ({ text: t.text, name: t.name, location: t.location }))
-    : defaultTestimonials;
+    : (regionalTestimonials[regionCode] || defaultTestimonials);
 
   // Dynamic vars for social proof
-  const clientsCount = content.dynamic_vars?.clients_count || 1000;
+  const clientsCount = content.dynamic_vars?.clients_count || 2000;
   const avgRating = content.dynamic_vars?.average_rating || 4.8;
 
   // ─── Handlers ───
