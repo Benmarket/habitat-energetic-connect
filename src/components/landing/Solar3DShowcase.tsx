@@ -70,9 +70,9 @@ const getPanelBaseEuler = (config: DebugConfig) => {
 };
 
 // ─── Solar Panel (GLB model) ───
-const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuiles" }: {
+const SolarPanel = ({ position, delay, progress, index, roofType = "tuiles" }: {
   position: [number, number, number]; delay: number; progress: number; index: number;
-  config: DebugConfig; roofType?: RoofType;
+  roofType?: RoofType;
 }) => {
   const ref = useRef<THREE.Group>(null);
   const panelRef = useRef<THREE.Group>(null);
@@ -80,7 +80,6 @@ const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuil
   const { scene } = useGLTF(modelPath);
   const clone = useMemo(() => {
     const c = scene.clone(true);
-    // Reset all transforms on the clone so our rotations are the only ones applied
     c.position.set(0, 0, 0);
     c.rotation.set(0, 0, 0);
     c.scale.set(1, 1, 1);
@@ -91,31 +90,39 @@ const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuil
     });
     return c;
   }, [scene]);
-  // Use flat-specific config overrides when roofType is "plate"
-  const effectiveConfig = useMemo(() => {
-    if (roofType === "plate") {
-      return { ...config, ...FLAT_PANEL_CONFIG };
-    }
-    return config;
-  }, [config, roofType]);
 
-  const panelBaseEuler = useMemo(
-    () => getPanelBaseEuler(effectiveConfig),
-    [
-      effectiveConfig.panelRotAX,
-      effectiveConfig.panelRotAY,
-      effectiveConfig.panelRotAZ,
-      effectiveConfig.panelRotBX,
-      effectiveConfig.panelRotBY,
-      effectiveConfig.panelRotBZ,
-    ]
-  );
+  // Determine config values based on roof type — hardcoded, no debug dependency
+  const isFlat = roofType === "plate";
+  const pRotAX = isFlat ? 0.03 : 0;
+  const pRotAY = isFlat ? 1 : 1.5708;
+  const pRotAZ = isFlat ? -1.76 : 0;
+  const pRotBX = isFlat ? 2.6 : 2.68;
+  const pRotBY = isFlat ? 0.11 : 0;
+  const pRotBZ = isFlat ? 1.41 : 1.5708;
+  const pScale = isFlat ? 1.2 : 1.4;
+
+  const panelBaseEuler = useMemo(() => {
+    const rotA = new THREE.Quaternion().setFromEuler(
+      new THREE.Euler(pRotAX, pRotAY, pRotAZ, "XYZ")
+    );
+    const rotB = new THREE.Quaternion().setFromEuler(
+      new THREE.Euler(pRotBX, pRotBY, pRotBZ, "XYZ")
+    );
+    const combined = rotA.multiply(rotB);
+    const baseEuler = new THREE.Euler().setFromQuaternion(combined, "XYZ");
+    return [
+      +baseEuler.x.toFixed(4),
+      +baseEuler.y.toFixed(4),
+      +baseEuler.z.toFixed(4),
+    ] as [number, number, number];
+  }, [pRotAX, pRotAY, pRotAZ, pRotBX, pRotBY, pRotBZ]);
 
   const t = Math.max(0, Math.min(1, (progress - delay) / 0.1));
   const e = 1 - Math.pow(1 - t, 3);
   const startY = position[1] + 5 + index * 0.2;
   const y = startY + (position[1] - startY) * e;
 
+  // Apply rotation immediately on mount and when euler changes
   useEffect(() => {
     if (!panelRef.current) return;
     panelRef.current.rotation.set(...panelBaseEuler);
@@ -125,7 +132,7 @@ const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuil
     if (!ref.current) return;
     ref.current.position.set(position[0], y, position[2]);
     const s = 0.5 + 0.5 * e;
-    ref.current.scale.set(s * effectiveConfig.panelScale, s * effectiveConfig.panelScale, s * effectiveConfig.panelScale);
+    ref.current.scale.set(s * pScale, s * pScale, s * pScale);
     if (t >= 1) {
       ref.current.position.y += Math.sin(state.clock.elapsedTime * 0.6 + index) * 0.005;
     }
