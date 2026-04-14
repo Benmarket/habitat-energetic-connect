@@ -91,16 +91,16 @@ const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuil
     return c;
   }, [scene]);
 
-  // Tuiles & Tôle : valeurs originales du config (debug)
+  // Tuiles & Tôle : valeurs originales fixes (DEFAULT_CONFIG)
   // Plate : valeurs fixes du screenshot utilisateur
   const isFlat = roofType === "plate";
-  const pRotAX = isFlat ? 0.03 : config.panelRotAX;
-  const pRotAY = isFlat ? 1 : config.panelRotAY;
-  const pRotAZ = isFlat ? -1.76 : config.panelRotAZ;
-  const pRotBX = isFlat ? 2.6 : config.panelRotBX;
-  const pRotBY = isFlat ? 0.11 : config.panelRotBY;
-  const pRotBZ = isFlat ? 1.41 : config.panelRotBZ;
-  const pScale = isFlat ? 1.2 : config.panelScale;
+  const pRotAX = isFlat ? 0.03 : DEFAULT_CONFIG.panelRotAX;
+  const pRotAY = isFlat ? 1 : DEFAULT_CONFIG.panelRotAY;
+  const pRotAZ = isFlat ? -1.76 : DEFAULT_CONFIG.panelRotAZ;
+  const pRotBX = isFlat ? 2.6 : DEFAULT_CONFIG.panelRotBX;
+  const pRotBY = isFlat ? 0.11 : DEFAULT_CONFIG.panelRotBY;
+  const pRotBZ = isFlat ? 1.41 : DEFAULT_CONFIG.panelRotBZ;
+  const pScale = isFlat ? 1.2 : DEFAULT_CONFIG.panelScale;
 
   const panelBaseEuler = useMemo(() => {
     const rotA = new THREE.Quaternion().setFromEuler(
