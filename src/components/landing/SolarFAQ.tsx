@@ -4,6 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import solarConsultantImg from "@/assets/landing/solar-consultant-meeting.jpg";
 
 interface FAQItem {
   question: string;
@@ -93,7 +94,16 @@ const SolarFAQ = ({ region = "france" }: SolarFAQProps) => {
           </h2>
         </div>
 
-        <Accordion type="single" collapsible className="space-y-3">
+        {/* Image + FAQ in 2 cols on desktop */}
+        <div className="grid lg:grid-cols-[280px_1fr] gap-8 items-start">
+          <div className="hidden lg:block rounded-2xl overflow-hidden shadow-lg sticky top-24">
+            <img src={solarConsultantImg} alt="Conseiller solaire avec des clients" className="w-full h-80 object-cover" loading="lazy" width={280} height={320} />
+            <div className="bg-primary p-4 text-center">
+              <p className="text-primary-foreground text-sm font-bold">Un doute ? Nos conseillers vous répondent</p>
+            </div>
+          </div>
+
+          <Accordion type="single" collapsible className="space-y-3">
           {faqs.map((faq, i) => (
             <AccordionItem
               key={i}
@@ -109,6 +119,7 @@ const SolarFAQ = ({ region = "france" }: SolarFAQProps) => {
             </AccordionItem>
           ))}
         </Accordion>
+        </div>
       </div>
     </section>
   );

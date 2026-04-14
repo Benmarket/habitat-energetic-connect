@@ -1,6 +1,7 @@
 import { Star, Quote, MapPin } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import solarFamilyImg from "@/assets/landing/solar-family-house.jpg";
 
 interface Testimonial {
   text: string;
@@ -85,6 +86,11 @@ const SolarTestimonials = ({ region = "france", clientCount = 2000 }: SolarTesti
             <span className="text-lg font-bold text-foreground">4.8/5</span>
             <span className="text-muted-foreground">— basé sur {clientCount.toLocaleString("fr-FR")}+ avis</span>
           </div>
+        </div>
+
+        {/* Visual banner */}
+        <div className="rounded-2xl overflow-hidden shadow-lg mb-10">
+          <img src={solarFamilyImg} alt="Famille devant leur maison équipée de panneaux solaires" className="w-full h-48 lg:h-56 object-cover" loading="lazy" width={800} height={224} />
         </div>
 
         {/* Desktop grid */}

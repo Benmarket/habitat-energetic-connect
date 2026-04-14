@@ -1,4 +1,5 @@
 import { ClipboardCheck, HardHat, Plug, PiggyBank } from "lucide-react";
+import solarInstallerImg from "@/assets/landing/solar-installer-roof.jpg";
 
 const steps = [
   {
@@ -39,16 +40,21 @@ const SolarHowItWorks = ({ onCtaClick }: SolarHowItWorksProps) => {
   return (
     <section className="py-12 lg:py-20 bg-card">
       <div className="container mx-auto px-4 max-w-6xl">
-        <div className="text-center mb-12 lg:mb-16">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4">
-            Simple & rapide
-          </span>
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold">
-            Comment ça marche <span className="text-primary">?</span>
-          </h2>
-          <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
-            De l'étude à la mise en service, nous gérons tout pour vous.
-          </p>
+        <div className="grid lg:grid-cols-[1fr_auto] gap-10 items-start mb-12 lg:mb-16">
+          <div className="text-center lg:text-left">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4">
+              Simple & rapide
+            </span>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold">
+              Comment ça marche <span className="text-primary">?</span>
+            </h2>
+            <p className="text-muted-foreground mt-3 max-w-xl">
+              De l'étude à la mise en service, nous gérons tout pour vous.
+            </p>
+          </div>
+          <div className="hidden lg:block w-56 h-40 rounded-2xl overflow-hidden shadow-lg flex-shrink-0">
+            <img src={solarInstallerImg} alt="Installateur posant des panneaux solaires" className="w-full h-full object-cover" loading="lazy" width={224} height={160} />
+          </div>
         </div>
 
         {/* Desktop timeline */}
@@ -75,24 +81,30 @@ const SolarHowItWorks = ({ onCtaClick }: SolarHowItWorksProps) => {
         </div>
 
         {/* Mobile/Tablet */}
-        <div className="lg:hidden space-y-6">
-          {steps.map((step, i) => (
-            <div key={i} className="flex gap-5 items-start">
-              <div className="flex flex-col items-center flex-shrink-0">
-                <div className={`w-16 h-16 rounded-full ${step.color} flex items-center justify-center shadow-lg`}>
-                  <step.icon className="w-8 h-8 text-white" strokeWidth={1.5} />
+        <div className="lg:hidden">
+          {/* Mobile image */}
+          <div className="rounded-2xl overflow-hidden shadow-lg mb-8 max-w-sm mx-auto">
+            <img src={solarInstallerImg} alt="Installateur posant des panneaux solaires" className="w-full h-48 object-cover" loading="lazy" width={400} height={192} />
+          </div>
+          <div className="space-y-6">
+            {steps.map((step, i) => (
+              <div key={i} className="flex gap-5 items-start">
+                <div className="flex flex-col items-center flex-shrink-0">
+                  <div className={`w-16 h-16 rounded-full ${step.color} flex items-center justify-center shadow-lg`}>
+                    <step.icon className="w-8 h-8 text-white" strokeWidth={1.5} />
+                  </div>
+                  {i < steps.length - 1 && (
+                    <div className="w-0.5 h-12 bg-border mt-2" />
+                  )}
                 </div>
-                {i < steps.length - 1 && (
-                  <div className="w-0.5 h-12 bg-border mt-2" />
-                )}
+                <div className="pt-2">
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Étape {step.number}</span>
+                  <h3 className="text-lg font-bold mt-1 mb-1">{step.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
+                </div>
               </div>
-              <div className="pt-2">
-                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Étape {step.number}</span>
-                <h3 className="text-lg font-bold mt-1 mb-1">{step.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {onCtaClick && (

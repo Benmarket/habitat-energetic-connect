@@ -1,4 +1,5 @@
 import { CheckCircle2, Star } from "lucide-react";
+import solarHouseAerialImg from "@/assets/landing/solar-house-aerial-med.jpg";
 
 interface SolarComparatifProps {
   onCtaClick?: () => void;
@@ -54,6 +55,11 @@ const SolarComparatif = ({ onCtaClick }: SolarComparatifProps) => {
           <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
             Trouvez l'installation adaptée à vos besoins et votre budget.
           </p>
+        </div>
+
+        {/* Visual banner */}
+        <div className="rounded-2xl overflow-hidden shadow-lg mb-10 max-h-56 lg:max-h-64">
+          <img src={solarHouseAerialImg} alt="Maison avec panneaux solaires vue aérienne" className="w-full h-56 lg:h-64 object-cover" loading="lazy" width={800} height={256} />
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
