@@ -1,7 +1,10 @@
 import { useRef, useMemo, useEffect, useState, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, ContactShadows } from "@react-three/drei";
+import { Environment, ContactShadows, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
+
+// Preload GLB
+useGLTF.preload("/models/solar_panel.glb");
 
 // ─── Scroll progress hook ───
 const useScrollProgress = (containerRef: React.RefObject<HTMLElement>) => {
@@ -22,81 +25,48 @@ const useScrollProgress = (containerRef: React.RefObject<HTMLElement>) => {
   return progress;
 };
 
-// ─── Solar Panel ───
+// ─── Solar Panel (GLB model) ───
 const SolarPanel = ({ position, delay, progress, index }: {
   position: [number, number, number]; delay: number; progress: number; index: number;
 }) => {
   const ref = useRef<THREE.Group>(null);
+  const { scene } = useGLTF("/models/solar_panel.glb");
+  const clone = useMemo(() => scene.clone(true), [scene]);
+
   const t = Math.max(0, Math.min(1, (progress - delay) / 0.1));
-  // Cubic ease out
   const e = 1 - Math.pow(1 - t, 3);
   const startY = position[1] + 5 + index * 0.2;
   const y = startY + (position[1] - startY) * e;
-  const opacity = Math.min(1, t * 4);
 
   useFrame((state) => {
     if (!ref.current) return;
     ref.current.position.set(position[0], y, position[2]);
-    ref.current.scale.setScalar(0.5 + 0.5 * e);
-    // tiny float when landed
+    ref.current.scale.setScalar((0.5 + 0.5 * e) * 0.6);
     if (t >= 1) {
       ref.current.position.y += Math.sin(state.clock.elapsedTime * 0.6 + index) * 0.005;
     }
   });
 
   return (
-    <group ref={ref}>
-      {/* Frame */}
-      <mesh castShadow>
-        <boxGeometry args={[1.5, 0.05, 0.92]} />
-        <meshStandardMaterial color="#1e1e2e" metalness={0.9} roughness={0.15} transparent opacity={opacity} />
-      </mesh>
-      {/* Glass */}
-      <mesh position={[0, 0.03, 0]} castShadow>
-        <boxGeometry args={[1.4, 0.01, 0.82]} />
-        <meshPhysicalMaterial
-          color="#0d1f3c"
-          metalness={0.95}
-          roughness={0.05}
-          clearcoat={1}
-          clearcoatRoughness={0.02}
-          envMapIntensity={2.5}
-          transparent
-          opacity={opacity * 0.97}
-        />
-      </mesh>
-      {/* Grid H */}
-      {[0, 1, 2, 3, 4, 5].map(i => (
-        <mesh key={`h${i}`} position={[0, 0.037, -0.34 + i * 0.136]}>
-          <boxGeometry args={[1.4, 0.003, 0.006]} />
-          <meshStandardMaterial color="#1a3355" transparent opacity={opacity * 0.4} />
-        </mesh>
-      ))}
-      {/* Grid V */}
-      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => (
-        <mesh key={`v${i}`} position={[-0.63 + i * 0.14, 0.037, 0]}>
-          <boxGeometry args={[0.006, 0.003, 0.82]} />
-          <meshStandardMaterial color="#1a3355" transparent opacity={opacity * 0.4} />
-        </mesh>
-      ))}
+    <group ref={ref} rotation={[0, 0, 0]}>
+      <primitive object={clone} />
     </group>
   );
 };
 
-// ─── Roof + Panels (all in one tilted group) ───
+// ─── Roof + Panels ───
 const RoofWithPanels = ({ progress }: { progress: number }) => {
-  const TILT = Math.PI * 0.15; // ~27° tilt facing the viewer
-
-  // Remap progress so animation completes at 50% scroll, then stays stable
+  const TILT = Math.PI * 0.15;
   const animProgress = Math.min(1, progress * 2);
 
+  // 3 rows × 4 cols, panels are vertical (portrait) so narrower spacing on X, taller on Z
   const panels = useMemo(() => {
     const items: { pos: [number, number, number]; delay: number }[] = [];
     let idx = 0;
     for (let r = 0; r < 3; r++) {
       for (let c = 0; c < 4; c++) {
         items.push({
-          pos: [-2.4 + c * 1.65, 0.14, -1.1 + r * 1.05],
+          pos: [-2.2 + c * 1.5, 0.14, -1.2 + r * 1.15],
           delay: 0.05 + idx * 0.06,
         });
         idx++;
@@ -133,16 +103,13 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
       <mesh position={[3.8, 0.05, 0]}><boxGeometry args={[0.1, 0.14, 5.3]} /><meshStandardMaterial color="#7a4828" roughness={0.85} /></mesh>
       <mesh position={[-3.8, 0.05, 0]}><boxGeometry args={[0.1, 0.14, 5.3]} /><meshStandardMaterial color="#7a4828" roughness={0.85} /></mesh>
 
-      {/* Panels sit directly on the roof */}
+      {/* Panels */}
       {panels.map((p, i) => (
         <SolarPanel key={i} position={p.pos} delay={p.delay} progress={animProgress} index={i} />
       ))}
     </group>
   );
 };
-
-
-
 
 // ─── Camera ───
 const CameraCtrl = ({ progress }: { progress: number }) => {
