@@ -41,7 +41,7 @@ const DEFAULT_CONFIG: DebugConfig = {
   panelRotAX: 0, panelRotAY: 1.5708, panelRotAZ: 0,
   panelRotBX: 2.68, panelRotBY: 0, panelRotBZ: 1.5708,
   panelY: 0.31,
-  panelScale: 1.4,
+  panelScale: 0.7,
 };
 
 const DEFAULT_FLAT_CONFIG: DebugConfig = {
