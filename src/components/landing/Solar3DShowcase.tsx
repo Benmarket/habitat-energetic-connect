@@ -37,19 +37,31 @@ interface DebugConfig {
 
 const DEFAULT_CONFIG: DebugConfig = {
   roofPosX: 0.05, roofPosY: 1.9, roofPosZ: -1.5,
-  roofRotX: 0.69, roofRotY: 0, roofRotZ: 0, // 0.69 ≈ PI*0.22
-  panelRotAX: 0, panelRotAY: 1.5708, panelRotAZ: 0, // PI/2
-  panelRotBX: 2.68, panelRotBY: 0, panelRotBZ: 1.5708, // PI/2
+  roofRotX: 0.69, roofRotY: 0, roofRotZ: 0,
+  panelRotAX: 0, panelRotAY: 1.5708, panelRotAZ: 0,
+  panelRotBX: 2.68, panelRotBY: 0, panelRotBZ: 1.5708,
   panelY: 0.31,
   panelScale: 1.4,
 };
 
-// Config spécifique pour les panneaux bac à lester (toiture plate)
-const FLAT_PANEL_CONFIG: Partial<DebugConfig> = {
+const DEFAULT_FLAT_CONFIG: DebugConfig = {
+  roofPosX: 0.05, roofPosY: 1.9, roofPosZ: -1.5,
+  roofRotX: 0.15, roofRotY: 0, roofRotZ: 0,
   panelRotAX: 0.03, panelRotAY: 1, panelRotAZ: -1.76,
   panelRotBX: 2.6, panelRotBY: 0.11, panelRotBZ: 1.41,
   panelY: 0.65,
   panelScale: 1.2,
+};
+
+const STORAGE_KEY_STANDARD = "solar3d_debug_standard";
+const STORAGE_KEY_FLAT = "solar3d_debug_flat";
+
+const loadConfig = (key: string, defaults: DebugConfig): DebugConfig => {
+  try {
+    const saved = localStorage.getItem(key);
+    if (saved) return { ...defaults, ...JSON.parse(saved) };
+  } catch {}
+  return defaults;
 };
 
 const getPanelBaseEuler = (config: DebugConfig) => {
