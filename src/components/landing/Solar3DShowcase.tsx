@@ -85,7 +85,7 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
   }, []);
 
   return (
-    <group position={[0, 0, -1.5]} rotation={[TILT, 0, 0]}>
+    <group position={[0, 0, -1.5]} rotation={[TILT, 0, -0.12]}>
       {/* Roof slab */}
       <mesh receiveShadow castShadow>
         <boxGeometry args={[7.5, 0.12, 5.2]} />
