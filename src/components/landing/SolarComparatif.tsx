@@ -61,6 +61,8 @@ const SolarComparatif = ({ onCtaClick }: SolarComparatifProps) => {
         <div className="rounded-2xl overflow-hidden shadow-lg mb-10 max-h-56 lg:max-h-64">
           <img src={solarHouseAerialImg} alt="Maison avec panneaux solaires vue aérienne" className="w-full h-56 lg:h-64 object-cover" loading="lazy" width={800} height={256} />
         </div>
+
+        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
           {puissances.map((p, i) => (
             <div
               key={i}
