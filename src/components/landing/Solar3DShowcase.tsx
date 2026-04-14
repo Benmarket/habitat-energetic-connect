@@ -57,7 +57,6 @@ const SolarPanel = ({ position, delay, progress, index }: {
         <primitive object={clone} />
       </group>
     </group>
-    </group>
   );
 };
 
