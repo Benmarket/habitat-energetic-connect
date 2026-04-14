@@ -213,7 +213,7 @@ const Solar3DShowcase = () => {
         </Suspense>
 
         {/* Overlay */}
-        <div className="absolute inset-0 pointer-events-none flex flex-col justify-end pb-16 lg:pb-24">
+        <div className="absolute inset-0 pointer-events-none flex flex-col justify-end pb-6 lg:pb-10">
           <div className="container mx-auto px-6 max-w-5xl">
             <div
               className="transition-all duration-700"
