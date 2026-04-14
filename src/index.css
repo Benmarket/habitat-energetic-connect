@@ -182,6 +182,15 @@ All colors MUST be HSL.
   }
 }
 
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
 .animate-subtle-bounce {
   animation: subtle-bounce 2s ease-in-out infinite;
 }
