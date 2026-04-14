@@ -70,9 +70,9 @@ const getPanelBaseEuler = (config: DebugConfig) => {
 };
 
 // ─── Solar Panel (GLB model) ───
-const SolarPanel = ({ position, delay, progress, index, roofType = "tuiles" }: {
+const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuiles" }: {
   position: [number, number, number]; delay: number; progress: number; index: number;
-  roofType?: RoofType;
+  config: DebugConfig; roofType?: RoofType;
 }) => {
   const ref = useRef<THREE.Group>(null);
   const panelRef = useRef<THREE.Group>(null);
@@ -91,15 +91,16 @@ const SolarPanel = ({ position, delay, progress, index, roofType = "tuiles" }: {
     return c;
   }, [scene]);
 
-  // Determine config values based on roof type — hardcoded, no debug dependency
+  // Tuiles & Tôle : valeurs originales du config (debug)
+  // Plate : valeurs fixes du screenshot utilisateur
   const isFlat = roofType === "plate";
-  const pRotAX = isFlat ? 0.03 : 0;
-  const pRotAY = isFlat ? 1 : 1.5708;
-  const pRotAZ = isFlat ? -1.76 : 0;
-  const pRotBX = isFlat ? 2.6 : 2.68;
-  const pRotBY = isFlat ? 0.11 : 0;
-  const pRotBZ = isFlat ? 1.41 : 1.5708;
-  const pScale = isFlat ? 1.2 : 1.4;
+  const pRotAX = isFlat ? 0.03 : config.panelRotAX;
+  const pRotAY = isFlat ? 1 : config.panelRotAY;
+  const pRotAZ = isFlat ? -1.76 : config.panelRotAZ;
+  const pRotBX = isFlat ? 2.6 : config.panelRotBX;
+  const pRotBY = isFlat ? 0.11 : config.panelRotBY;
+  const pRotBZ = isFlat ? 1.41 : config.panelRotBZ;
+  const pScale = isFlat ? 1.2 : config.panelScale;
 
   const panelBaseEuler = useMemo(() => {
     const rotA = new THREE.Quaternion().setFromEuler(
@@ -122,7 +123,6 @@ const SolarPanel = ({ position, delay, progress, index, roofType = "tuiles" }: {
   const startY = position[1] + 5 + index * 0.2;
   const y = startY + (position[1] - startY) * e;
 
-  // Apply rotation immediately on mount and when euler changes
   useEffect(() => {
     if (!panelRef.current) return;
     panelRef.current.rotation.set(...panelBaseEuler);
@@ -266,7 +266,7 @@ const RoofWithPanels = ({ progress, config, roofType }: { progress: number; conf
       {roofType === "plate" && <RoofPlate />}
 
       {panels.map((p, i) => (
-        <SolarPanel key={`${roofType}-${i}`} position={p.pos} delay={p.delay} progress={animProgress} index={i} roofType={roofType} />
+        <SolarPanel key={`${roofType}-${i}`} position={p.pos} delay={p.delay} progress={animProgress} index={i} config={config} roofType={roofType} />
       ))}
     </group>
   );
