@@ -303,20 +303,33 @@ const AdminPagesAnchors = () => {
                       className={`transition-all ${product.seo_status === "disabled" ? "opacity-60" : ""} ${isExpanded ? "ring-2 ring-primary/20" : "hover:shadow-lg"}`}
                     >
                       <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <a
-                              href={product.path}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="absolute top-3 right-3 p-2 rounded-lg bg-muted/80 hover:bg-primary hover:text-primary-foreground transition-colors z-10"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
-                          </TooltipTrigger>
-                          <TooltipContent side="left"><p>Ouvrir dans un nouvel onglet</p></TooltipContent>
-                        </Tooltip>
+                        <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setEditingSections(product); }}
+                                className="p-2 rounded-lg bg-muted/80 hover:bg-primary hover:text-primary-foreground transition-colors"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="left"><p>Éditer les sections</p></TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <a
+                                href={product.path}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="p-2 rounded-lg bg-muted/80 hover:bg-primary hover:text-primary-foreground transition-colors"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            </TooltipTrigger>
+                            <TooltipContent side="left"><p>Ouvrir dans un nouvel onglet</p></TooltipContent>
+                          </Tooltip>
+                        </div>
                       </TooltipProvider>
 
                       <CardHeader>
