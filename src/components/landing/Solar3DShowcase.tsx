@@ -6,7 +6,7 @@ import * as THREE from "three";
 // Preload GLB
 useGLTF.preload("/models/solar_panel.glb");
 
-const ROOF_TILT = Math.PI * 0.22;
+const ROOF_TILT = 0.1;
 
 // ─── Scroll progress hook ───
 const useScrollProgress = (containerRef: React.RefObject<HTMLElement>) => {
