@@ -122,8 +122,93 @@ const SolarPanel = ({ position, delay, progress, index, config }: {
   );
 };
 
+// ─── Roof types ───
+type RoofType = "tuiles" | "tole" | "plate";
+
+// ─── Tuiles Roof ───
+const RoofTuiles = () => (
+  <>
+    <mesh receiveShadow castShadow>
+      <boxGeometry args={[7.5, 0.12, 5.2]} />
+      <meshStandardMaterial color="#b07848" roughness={0.85} metalness={0.05} />
+    </mesh>
+    {Array.from({ length: 13 }).map((_, i) => (
+      <mesh key={i} position={[0, 0.07, -2.4 + i * 0.4]} receiveShadow>
+        <boxGeometry args={[7.4, 0.035, 0.28]} />
+        <meshStandardMaterial color={i % 2 === 0 ? "#a06838" : "#b87848"} roughness={0.92} />
+      </mesh>
+    ))}
+    <mesh position={[0, 0.1, -2.65]} castShadow>
+      <boxGeometry args={[7.7, 0.16, 0.18]} />
+      <meshStandardMaterial color="#8a5530" roughness={0.8} metalness={0.1} />
+    </mesh>
+    <mesh position={[0, -0.01, 2.65]} castShadow>
+      <boxGeometry args={[7.8, 0.2, 0.16]} />
+      <meshStandardMaterial color="#6a4020" roughness={0.8} />
+    </mesh>
+    <mesh position={[3.8, 0.05, 0]}><boxGeometry args={[0.1, 0.14, 5.3]} /><meshStandardMaterial color="#7a4828" roughness={0.85} /></mesh>
+    <mesh position={[-3.8, 0.05, 0]}><boxGeometry args={[0.1, 0.14, 5.3]} /><meshStandardMaterial color="#7a4828" roughness={0.85} /></mesh>
+  </>
+);
+
+// ─── Tôle blanche Roof ───
+const RoofTole = () => (
+  <>
+    <mesh receiveShadow castShadow>
+      <boxGeometry args={[7.5, 0.08, 5.2]} />
+      <meshStandardMaterial color="#e8e8ec" roughness={0.3} metalness={0.7} />
+    </mesh>
+    {/* Metal ridges / ondulations */}
+    {Array.from({ length: 20 }).map((_, i) => (
+      <mesh key={i} position={[0, 0.06, -2.5 + i * 0.26]} receiveShadow>
+        <boxGeometry args={[7.4, 0.025, 0.08]} />
+        <meshStandardMaterial color="#d0d0d8" roughness={0.25} metalness={0.8} />
+      </mesh>
+    ))}
+    {/* Edge trim */}
+    <mesh position={[0, 0.06, -2.65]} castShadow>
+      <boxGeometry args={[7.7, 0.1, 0.12]} />
+      <meshStandardMaterial color="#b0b0b8" roughness={0.3} metalness={0.75} />
+    </mesh>
+    <mesh position={[0, 0, 2.65]} castShadow>
+      <boxGeometry args={[7.8, 0.12, 0.1]} />
+      <meshStandardMaterial color="#a0a0a8" roughness={0.3} metalness={0.75} />
+    </mesh>
+    <mesh position={[3.8, 0.03, 0]}><boxGeometry args={[0.08, 0.1, 5.3]} /><meshStandardMaterial color="#b8b8c0" roughness={0.3} metalness={0.7} /></mesh>
+    <mesh position={[-3.8, 0.03, 0]}><boxGeometry args={[0.08, 0.1, 5.3]} /><meshStandardMaterial color="#b8b8c0" roughness={0.3} metalness={0.7} /></mesh>
+  </>
+);
+
+// ─── Toiture Plate ───
+const RoofPlate = () => (
+  <>
+    <mesh receiveShadow castShadow>
+      <boxGeometry args={[7.5, 0.18, 5.2]} />
+      <meshStandardMaterial color="#c8c0b8" roughness={0.9} metalness={0.02} />
+    </mesh>
+    {/* Membrane texture lines */}
+    {Array.from({ length: 7 }).map((_, i) => (
+      <mesh key={i} position={[0, 0.1, -2.2 + i * 0.72]} receiveShadow>
+        <boxGeometry args={[7.4, 0.005, 0.04]} />
+        <meshStandardMaterial color="#b0a898" roughness={0.95} metalness={0.0} />
+      </mesh>
+    ))}
+    {/* Parapet walls */}
+    <mesh position={[0, 0.18, -2.65]} castShadow>
+      <boxGeometry args={[7.7, 0.25, 0.12]} />
+      <meshStandardMaterial color="#9a9288" roughness={0.85} metalness={0.05} />
+    </mesh>
+    <mesh position={[0, 0.18, 2.65]} castShadow>
+      <boxGeometry args={[7.8, 0.25, 0.12]} />
+      <meshStandardMaterial color="#9a9288" roughness={0.85} metalness={0.05} />
+    </mesh>
+    <mesh position={[3.8, 0.18, 0]}><boxGeometry args={[0.12, 0.25, 5.3]} /><meshStandardMaterial color="#9a9288" roughness={0.85} metalness={0.05} /></mesh>
+    <mesh position={[-3.8, 0.18, 0]}><boxGeometry args={[0.12, 0.25, 5.3]} /><meshStandardMaterial color="#9a9288" roughness={0.85} metalness={0.05} /></mesh>
+  </>
+);
+
 // ─── Roof + Panels ───
-const RoofWithPanels = ({ progress, config }: { progress: number; config: DebugConfig }) => {
+const RoofWithPanels = ({ progress, config, roofType }: { progress: number; config: DebugConfig; roofType: RoofType }) => {
   const animProgress = Math.min(1, progress * 2);
 
   const panels = useMemo(() => {
@@ -141,31 +226,17 @@ const RoofWithPanels = ({ progress, config }: { progress: number; config: DebugC
     return items;
   }, [config.panelY]);
 
+  // Flat roof has no tilt
+  const effectiveRotX = roofType === "plate" ? 0.15 : config.roofRotX;
+
   return (
     <group
       position={[config.roofPosX, config.roofPosY, config.roofPosZ]}
-      rotation={[config.roofRotX, config.roofRotY, config.roofRotZ]}
+      rotation={[effectiveRotX, config.roofRotY, config.roofRotZ]}
     >
-      <mesh receiveShadow castShadow>
-        <boxGeometry args={[7.5, 0.12, 5.2]} />
-        <meshStandardMaterial color="#b07848" roughness={0.85} metalness={0.05} />
-      </mesh>
-      {Array.from({ length: 13 }).map((_, i) => (
-        <mesh key={i} position={[0, 0.07, -2.4 + i * 0.4]} receiveShadow>
-          <boxGeometry args={[7.4, 0.035, 0.28]} />
-          <meshStandardMaterial color={i % 2 === 0 ? "#a06838" : "#b87848"} roughness={0.92} />
-        </mesh>
-      ))}
-      <mesh position={[0, 0.1, -2.65]} castShadow>
-        <boxGeometry args={[7.7, 0.16, 0.18]} />
-        <meshStandardMaterial color="#8a5530" roughness={0.8} metalness={0.1} />
-      </mesh>
-      <mesh position={[0, -0.01, 2.65]} castShadow>
-        <boxGeometry args={[7.8, 0.2, 0.16]} />
-        <meshStandardMaterial color="#6a4020" roughness={0.8} />
-      </mesh>
-      <mesh position={[3.8, 0.05, 0]}><boxGeometry args={[0.1, 0.14, 5.3]} /><meshStandardMaterial color="#7a4828" roughness={0.85} /></mesh>
-      <mesh position={[-3.8, 0.05, 0]}><boxGeometry args={[0.1, 0.14, 5.3]} /><meshStandardMaterial color="#7a4828" roughness={0.85} /></mesh>
+      {roofType === "tuiles" && <RoofTuiles />}
+      {roofType === "tole" && <RoofTole />}
+      {roofType === "plate" && <RoofPlate />}
 
       {panels.map((p, i) => (
         <SolarPanel key={i} position={p.pos} delay={p.delay} progress={animProgress} index={i} config={config} />
