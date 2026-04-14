@@ -272,6 +272,23 @@ const Solar3DShowcase = () => {
     setConfig(c);
     localStorage.setItem("solar3d_debug", JSON.stringify(c));
   };
+  const camPosRef = useRef<[number, number, number]>([9, 6, 9]);
+  const camRotRef = useRef<[number, number, number]>([0, 0, 0]);
+  const [camDisplay, setCamDisplay] = useState<{ pos: [number, number, number]; rot: [number, number, number] }>({
+    pos: [9, 6, 9], rot: [0, 0, 0]
+  });
+  const handleCameraUpdate = (pos: [number, number, number], rot: [number, number, number]) => {
+    camPosRef.current = pos;
+    camRotRef.current = rot;
+  };
+
+  // Throttle camera display updates to avoid re-rendering every frame
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCamDisplay({ pos: camPosRef.current, rot: camRotRef.current });
+    }, 200);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <section
@@ -300,12 +317,12 @@ const Solar3DShowcase = () => {
             }}
             camera={{ position: [9, 6, 9], fov: 35 }}
           >
-            <Scene progress={progress} config={config} />
+            <Scene progress={progress} config={config} onCameraUpdate={handleCameraUpdate} />
           </Canvas>
         </Suspense>
 
         {/* Debug Panel */}
-        <DebugPanel config={config} onChange={handleConfigChange} />
+        <DebugPanel config={config} onChange={handleConfigChange} camPos={camDisplay.pos} camRot={camDisplay.rot} />
 
         {/* Overlay */}
         <div className="absolute inset-0 pointer-events-none flex flex-col justify-end pb-6 lg:pb-10">
