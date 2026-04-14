@@ -59,7 +59,7 @@ export const SolarHeroVisual = ({ customSlides }: SolarHeroVisualProps = {}) => 
         />
 
         <div className="relative h-44 w-[13rem] overflow-hidden md:h-52 md:w-[16rem] lg:h-64 lg:w-[22rem]">
-          {heroSlides.map((slide, index) => (
+          {slides.map((slide, index) => (
             <img
               key={slide.src}
               src={slide.src}
