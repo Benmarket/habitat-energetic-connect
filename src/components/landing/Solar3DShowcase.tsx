@@ -6,6 +6,8 @@ import * as THREE from "three";
 // Preload GLB
 useGLTF.preload("/models/solar_panel.glb");
 
+const ROOF_TILT = Math.PI * 0.22;
+
 // ─── Scroll progress hook ───
 const useScrollProgress = (containerRef: React.RefObject<HTMLElement>) => {
   const [progress, setProgress] = useState(0);
@@ -51,7 +53,7 @@ const SolarPanel = ({ position, delay, progress, index }: {
 
   return (
     <group ref={ref}>
-      <group rotation={[0, Math.PI / 2, 0.42]}>
+      <group rotation={[0, Math.PI / 2, ROOF_TILT]}>
         <group rotation={[0, 0, Math.PI / 2]}>
           <primitive object={clone} />
         </group>
@@ -63,7 +65,7 @@ const SolarPanel = ({ position, delay, progress, index }: {
 // ─── Roof + Panels ───
 const RoofWithPanels = ({ progress }: { progress: number }) => {
   // Steeper tilt so the roof faces the camera/sun more directly
-  const TILT = Math.PI * 0.22; // ~40°
+  const TILT = ROOF_TILT; // ~40°
   const animProgress = Math.min(1, progress * 2);
 
   // 3 rows × 4 cols portrait panels, like the reference image
