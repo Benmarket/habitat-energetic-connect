@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { 
-  Sun, ArrowRight, Home, Building2, Quote, Zap, TrendingUp, Users,
-  Truck, Wrench, Power, CheckCircle2, MapPin, Award, Shield, Loader2
+  Sun, ArrowRight, Home, Building2, Zap, TrendingUp, Users,
+  CheckCircle2, MapPin, Award, Shield, Loader2
 } from "lucide-react";
 import LandingPageGuard from "@/components/LandingPageGuard";
 import { LandingServiceSchema } from "@/components/SEO/LandingServiceSchema";
