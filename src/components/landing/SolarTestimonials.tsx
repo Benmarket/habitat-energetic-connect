@@ -2,6 +2,7 @@ import { Star, Quote, MapPin } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import solarFamilyImg from "@/assets/landing/solar-family-house.jpg";
+import { useScrollReveal, revealClass } from "@/hooks/useScrollReveal";
 
 interface Testimonial {
   text: string;
@@ -66,10 +67,12 @@ interface SolarTestimonialsProps {
 const SolarTestimonials = ({ region = "france", clientCount = 2000 }: SolarTestimonialsProps) => {
   const testimonials = allTestimonials[region] || allTestimonials.france;
 
+  const { ref, isVisible } = useScrollReveal();
+
   return (
     <section className="py-12 lg:py-20 bg-muted">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="text-center mb-10 lg:mb-14">
+      <div ref={ref} className="container mx-auto px-4 max-w-6xl">
+        <div className={`text-center mb-10 lg:mb-14 ${revealClass(isVisible).className}`}>
           <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4">
             ⭐ Avis clients vérifiés
           </span>
@@ -89,15 +92,20 @@ const SolarTestimonials = ({ region = "france", clientCount = 2000 }: SolarTesti
         </div>
 
         {/* Visual banner */}
-        <div className="rounded-2xl overflow-hidden shadow-lg mb-10">
+        <div className={`rounded-2xl overflow-hidden shadow-lg mb-10 ${revealClass(isVisible, 100).className}`} style={revealClass(isVisible, 100).style}>
           <img src={solarFamilyImg} alt="Famille devant leur maison équipée de panneaux solaires" className="w-full h-48 lg:h-56 object-cover" loading="lazy" width={800} height={224} />
         </div>
 
         {/* Desktop grid */}
         <div className="hidden lg:grid grid-cols-3 gap-6">
-          {testimonials.slice(0, 6).map((t, i) => (
-            <TestimonialCard key={i} testimonial={t} />
-          ))}
+          {testimonials.slice(0, 6).map((t, i) => {
+            const reveal = revealClass(isVisible, 200 + i * 100, "up");
+            return (
+              <div key={i} className={reveal.className} style={reveal.style}>
+                <TestimonialCard testimonial={t} />
+              </div>
+            );
+          })}
         </div>
 
         {/* Mobile carousel */}
