@@ -81,20 +81,7 @@ const step3Schema = z.object({
 // ─── Image éligibilité ───
 const solarPanelsImg = eligibiliteBg;
 
-const testimonials = [
-  {
-    text: "J'ai bénéficié du programme de financement Eco PTZ et je suis passée à l'énergie solaire. Je suis très satisfaite de ce dispositif et de la qualité de l'installation.",
-    name: "Marie B.",
-  },
-  {
-    text: "Prise de contact rapide, mise en place du dossier de financement et installation au top ! Je recommande fortement !",
-    name: "Paul D.",
-  },
-  {
-    text: "Pratique et efficace je peux contrôler ma production photovoltaïque avec l'application.",
-    name: "Sylvie R.",
-  },
-];
+// Testimonials are now handled by SolarTestimonials component
 
 const LandingSolaireContent = () => {
   const { seoStatus, canonicalUrl } = useLandingPageSEO("solaire");
