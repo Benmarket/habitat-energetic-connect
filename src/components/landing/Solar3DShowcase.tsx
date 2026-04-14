@@ -263,7 +263,7 @@ const Solar3DShowcase = () => {
         </Suspense>
 
         {/* Debug Panel */}
-        <DebugPanel config={config} onChange={setConfig} />
+        <DebugPanel config={config} onChange={handleConfigChange} />
 
         {/* Overlay */}
         <div className="absolute inset-0 pointer-events-none flex flex-col justify-end pb-6 lg:pb-10">
