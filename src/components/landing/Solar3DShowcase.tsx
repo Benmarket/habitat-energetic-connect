@@ -44,6 +44,14 @@ const DEFAULT_CONFIG: DebugConfig = {
   panelScale: 1.4,
 };
 
+// Config spécifique pour les panneaux bac à lester (toiture plate)
+const FLAT_PANEL_CONFIG: Partial<DebugConfig> = {
+  panelRotAX: 0.03, panelRotAY: 1, panelRotAZ: -1.76,
+  panelRotBX: 2.6, panelRotBY: 0.11, panelRotBZ: 1.41,
+  panelY: 0.65,
+  panelScale: 1.2,
+};
+
 const getPanelBaseEuler = (config: DebugConfig) => {
   const rotA = new THREE.Quaternion().setFromEuler(
     new THREE.Euler(config.panelRotAX, config.panelRotAY, config.panelRotAZ, "XYZ")
