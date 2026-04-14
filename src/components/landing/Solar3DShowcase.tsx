@@ -53,8 +53,10 @@ const SolarPanel = ({ position, delay, progress, index }: {
 
   return (
     <group ref={ref}>
-      <group rotation={[-Math.PI / 2, 0, 0]}>
-        <primitive object={clone} />
+      <group rotation={[0, Math.PI / 2, 0]}>
+        <group rotation={[0, 0, Math.PI / 2]}>
+          <primitive object={clone} />
+        </group>
       </group>
     </group>
   );
@@ -73,7 +75,7 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
     for (let r = 0; r < 3; r++) {
       for (let c = 0; c < 4; c++) {
         items.push({
-          pos: [-2.1 + c * 1.4, 0.14, -1.4 + r * 1.5],
+          pos: [-2.1 + c * 1.4, 0.31, -1.4 + r * 1.5],
           delay: 0.05 + idx * 0.06,
         });
         idx++;
