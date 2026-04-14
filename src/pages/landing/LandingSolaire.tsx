@@ -91,6 +91,23 @@ const testimonials = [
 
 const LandingSolaireContent = () => {
   const { seoStatus, canonicalUrl } = useLandingPageSEO("solaire");
+  const [heroSlides, setHeroSlides] = useState<{ src: string; alt: string }[] | undefined>();
+
+  useEffect(() => {
+    const fetchProductContent = async () => {
+      const { data } = await supabase
+        .from("landing_pages")
+        .select("regional_content")
+        .eq("slug", "solaire")
+        .eq("level", "product")
+        .maybeSingle();
+      if (data?.regional_content) {
+        const rc = data.regional_content as any;
+        if (rc.hero_slides?.length) setHeroSlides(rc.hero_slides);
+      }
+    };
+    fetchProductContent();
+  }, []);
 
   // Why solar benefits
   const benefits = [
