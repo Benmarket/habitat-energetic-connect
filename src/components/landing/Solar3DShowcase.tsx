@@ -103,16 +103,14 @@ const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuil
     return c;
   }, [scene]);
 
-  // Tuiles & Tôle : valeurs originales fixes (DEFAULT_CONFIG)
-  // Plate : valeurs fixes du screenshot utilisateur
-  const isFlat = roofType === "plate";
-  const pRotAX = isFlat ? 0.03 : DEFAULT_CONFIG.panelRotAX;
-  const pRotAY = isFlat ? 1 : DEFAULT_CONFIG.panelRotAY;
-  const pRotAZ = isFlat ? -1.76 : DEFAULT_CONFIG.panelRotAZ;
-  const pRotBX = isFlat ? 2.6 : DEFAULT_CONFIG.panelRotBX;
-  const pRotBY = isFlat ? 0.11 : DEFAULT_CONFIG.panelRotBY;
-  const pRotBZ = isFlat ? 1.41 : DEFAULT_CONFIG.panelRotBZ;
-  const pScale = isFlat ? 1.2 : DEFAULT_CONFIG.panelScale;
+  // Le config passé correspond déjà au roofType actif (standard ou flat)
+  const pRotAX = config.panelRotAX;
+  const pRotAY = config.panelRotAY;
+  const pRotAZ = config.panelRotAZ;
+  const pRotBX = config.panelRotBX;
+  const pRotBY = config.panelRotBY;
+  const pRotBZ = config.panelRotBZ;
+  const pScale = config.panelScale;
 
   const panelBaseEuler = useMemo(() => {
     const rotA = new THREE.Quaternion().setFromEuler(
@@ -248,30 +246,25 @@ const RoofPlate = () => (
 const RoofWithPanels = ({ progress, config, roofType }: { progress: number; config: DebugConfig; roofType: RoofType }) => {
   const animProgress = Math.min(1, progress * 2);
 
-  const effectivePanelY = roofType === "plate" ? (FLAT_PANEL_CONFIG.panelY ?? config.panelY) : config.panelY;
-
   const panels = useMemo(() => {
     const items: { pos: [number, number, number]; delay: number }[] = [];
     let idx = 0;
     for (let r = 0; r < 3; r++) {
       for (let c = 0; c < 6; c++) {
         items.push({
-          pos: [-2.5 + c * 0.95, effectivePanelY, -1.4 + r * 1.5],
+          pos: [-2.5 + c * 0.95, config.panelY, -1.4 + r * 1.5],
           delay: 0.05 + idx * 0.035,
         });
         idx++;
       }
     }
     return items;
-  }, [effectivePanelY]);
-
-  // Flat roof has no tilt
-  const effectiveRotX = roofType === "plate" ? 0.15 : config.roofRotX;
+  }, [config.panelY]);
 
   return (
     <group
       position={[config.roofPosX, config.roofPosY, config.roofPosZ]}
-      rotation={[effectiveRotX, config.roofRotY, config.roofRotZ]}
+      rotation={[config.roofRotX, config.roofRotY, config.roofRotZ]}
     >
       {roofType === "tuiles" && <RoofTuiles />}
       {roofType === "tole" && <RoofTole />}
@@ -452,16 +445,22 @@ const Solar3DShowcase = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const progress = useScrollProgress(containerRef as React.RefObject<HTMLElement>);
   const [roofType, setRoofType] = useState<RoofType>("tuiles");
-  const [config, setConfig] = useState<DebugConfig>(() => {
-    try {
-      const saved = localStorage.getItem("solar3d_debug");
-      if (saved) return JSON.parse(saved);
-    } catch {}
-    return DEFAULT_CONFIG;
-  });
+
+  // Deux configs séparées : une pour tuiles/tôle, une pour plate
+  const [standardConfig, setStandardConfig] = useState<DebugConfig>(() => loadConfig(STORAGE_KEY_STANDARD, DEFAULT_CONFIG));
+  const [flatConfig, setFlatConfig] = useState<DebugConfig>(() => loadConfig(STORAGE_KEY_FLAT, DEFAULT_FLAT_CONFIG));
+
+  // Config active selon le type de toiture
+  const config = roofType === "plate" ? flatConfig : standardConfig;
+
   const handleConfigChange = (c: DebugConfig) => {
-    setConfig(c);
-    localStorage.setItem("solar3d_debug", JSON.stringify(c));
+    if (roofType === "plate") {
+      setFlatConfig(c);
+      localStorage.setItem(STORAGE_KEY_FLAT, JSON.stringify(c));
+    } else {
+      setStandardConfig(c);
+      localStorage.setItem(STORAGE_KEY_STANDARD, JSON.stringify(c));
+    }
   };
   const camPosRef = useRef<[number, number, number]>([9, 6, 9]);
   const camRotRef = useRef<[number, number, number]>([0, 0, 0]);
