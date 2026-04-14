@@ -50,7 +50,19 @@ const SolarPanel = ({ position, delay, progress, index, config }: {
 }) => {
   const ref = useRef<THREE.Group>(null);
   const { scene } = useGLTF("/models/solar_panel.glb");
-  const clone = useMemo(() => scene.clone(true), [scene]);
+  const clone = useMemo(() => {
+    const c = scene.clone(true);
+    // Reset all transforms on the clone so our rotations are the only ones applied
+    c.position.set(0, 0, 0);
+    c.rotation.set(0, 0, 0);
+    c.scale.set(1, 1, 1);
+    c.traverse((child) => {
+      child.position.set(0, 0, 0);
+      child.rotation.set(0, 0, 0);
+      child.scale.set(1, 1, 1);
+    });
+    return c;
+  }, [scene]);
 
   const t = Math.max(0, Math.min(1, (progress - delay) / 0.1));
   const e = 1 - Math.pow(1 - t, 3);
