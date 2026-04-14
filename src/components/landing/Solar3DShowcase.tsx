@@ -108,7 +108,7 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
       ))}
       {/* Ridge */}
       <mesh position={[0, 0.1, -2.65]} castShadow>
-        <boxGeometry args={[7.7, 0.16, 0.18]} />
+        <boxGeometry args={[7.7, 0.16, 0.19]} />
         <meshStandardMaterial color="#8a5530" roughness={0.8} metalness={0.1} />
       </mesh>
       {/* Eave */}
