@@ -339,9 +339,62 @@ const Solar3DShowcase = () => {
   return (
     <section
       ref={containerRef}
-      className="relative bg-gradient-to-b from-[#0a1628] via-[#0f2035] to-[#0a1628] overflow-hidden"
-      style={{ height: "100vh" }}
+      className="relative overflow-hidden"
+      style={{
+        height: "100vh",
+        background: "linear-gradient(180deg, #87CEEB 0%, #B0D4F1 30%, #d4e8f7 60%, #e8f0f8 100%)",
+      }}
     >
+      {/* Sun glow top-right */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          top: "-80px",
+          right: "-80px",
+          width: "400px",
+          height: "400px",
+          background: "radial-gradient(circle, rgba(255,223,100,0.7) 0%, rgba(255,200,50,0.3) 35%, rgba(255,180,0,0.05) 65%, transparent 80%)",
+          borderRadius: "50%",
+          filter: "blur(20px)",
+        }}
+      />
+      {/* Subtle cloud shapes */}
+      <div
+        className="absolute pointer-events-none opacity-40"
+        style={{
+          top: "60px",
+          left: "10%",
+          width: "300px",
+          height: "80px",
+          background: "radial-gradient(ellipse, rgba(255,255,255,0.8) 0%, transparent 70%)",
+          borderRadius: "50%",
+          filter: "blur(15px)",
+        }}
+      />
+      <div
+        className="absolute pointer-events-none opacity-30"
+        style={{
+          top: "120px",
+          left: "45%",
+          width: "350px",
+          height: "90px",
+          background: "radial-gradient(ellipse, rgba(255,255,255,0.7) 0%, transparent 70%)",
+          borderRadius: "50%",
+          filter: "blur(18px)",
+        }}
+      />
+      <div
+        className="absolute pointer-events-none opacity-25"
+        style={{
+          top: "40px",
+          right: "20%",
+          width: "250px",
+          height: "70px",
+          background: "radial-gradient(ellipse, rgba(255,255,255,0.6) 0%, transparent 70%)",
+          borderRadius: "50%",
+          filter: "blur(12px)",
+        }}
+      />
       <div className="sticky top-0 h-screen w-full">
         <Suspense fallback={
           <div className="w-full h-full flex items-center justify-center bg-[#0a1628]">
