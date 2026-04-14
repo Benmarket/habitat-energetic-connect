@@ -3,10 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, ContactShadows, useGLTF, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
-// Preload GLB
 useGLTF.preload("/models/solar_panel.glb");
-
-const ROOF_TILT = Math.PI * 0.22;
 
 // ─── Scroll progress hook ───
 const useScrollProgress = (containerRef: React.RefObject<HTMLElement>) => {
@@ -27,9 +24,29 @@ const useScrollProgress = (containerRef: React.RefObject<HTMLElement>) => {
   return progress;
 };
 
+// ─── Debug config type ───
+interface DebugConfig {
+  roofPosX: number; roofPosY: number; roofPosZ: number;
+  roofRotX: number; roofRotY: number; roofRotZ: number;
+  panelRotAX: number; panelRotAY: number; panelRotAZ: number;
+  panelRotBX: number; panelRotBY: number; panelRotBZ: number;
+  panelY: number;
+  panelScale: number;
+}
+
+const DEFAULT_CONFIG: DebugConfig = {
+  roofPosX: 0, roofPosY: 0, roofPosZ: -1.5,
+  roofRotX: 0.69, roofRotY: 0, roofRotZ: 0, // 0.69 ≈ PI*0.22
+  panelRotAX: 0, panelRotAY: 1.5708, panelRotAZ: 0, // PI/2
+  panelRotBX: 0, panelRotBY: 0, panelRotBZ: 1.5708, // PI/2
+  panelY: 0.31,
+  panelScale: 1.4,
+};
+
 // ─── Solar Panel (GLB model) ───
-const SolarPanel = ({ position, delay, progress, index }: {
+const SolarPanel = ({ position, delay, progress, index, config }: {
   position: [number, number, number]; delay: number; progress: number; index: number;
+  config: DebugConfig;
 }) => {
   const ref = useRef<THREE.Group>(null);
   const { scene } = useGLTF("/models/solar_panel.glb");
@@ -44,8 +61,7 @@ const SolarPanel = ({ position, delay, progress, index }: {
     if (!ref.current) return;
     ref.current.position.set(position[0], y, position[2]);
     const s = 0.5 + 0.5 * e;
-    // Scale: panel model is ~0.29×0.98×0.57, at 1.4 → ~0.41×1.37×0.80
-    ref.current.scale.set(s * 1.4, s * 1.4, s * 1.4);
+    ref.current.scale.set(s * config.panelScale, s * config.panelScale, s * config.panelScale);
     if (t >= 1) {
       ref.current.position.y += Math.sin(state.clock.elapsedTime * 0.6 + index) * 0.005;
     }
@@ -53,8 +69,8 @@ const SolarPanel = ({ position, delay, progress, index }: {
 
   return (
     <group ref={ref}>
-      <group rotation={[0, Math.PI / 2, 0]}>
-        <group rotation={[0, 0, Math.PI / 2]}>
+      <group rotation={[config.panelRotAX, config.panelRotAY, config.panelRotAZ]}>
+        <group rotation={[config.panelRotBX, config.panelRotBY, config.panelRotBZ]}>
           <primitive object={clone} />
         </group>
       </group>
@@ -63,58 +79,52 @@ const SolarPanel = ({ position, delay, progress, index }: {
 };
 
 // ─── Roof + Panels ───
-const RoofWithPanels = ({ progress }: { progress: number }) => {
-  // Steeper tilt so the roof faces the camera/sun more directly
-  const TILT = ROOF_TILT; // ~40°
+const RoofWithPanels = ({ progress, config }: { progress: number; config: DebugConfig }) => {
   const animProgress = Math.min(1, progress * 2);
 
-  // 3 rows × 4 cols portrait panels, like the reference image
   const panels = useMemo(() => {
     const items: { pos: [number, number, number]; delay: number }[] = [];
     let idx = 0;
     for (let r = 0; r < 3; r++) {
       for (let c = 0; c < 4; c++) {
         items.push({
-          pos: [-2.1 + c * 1.4, 0.31, -1.4 + r * 1.5],
+          pos: [-2.1 + c * 1.4, config.panelY, -1.4 + r * 1.5],
           delay: 0.05 + idx * 0.06,
         });
         idx++;
       }
     }
     return items;
-  }, []);
+  }, [config.panelY]);
 
   return (
-    <group position={[0, 0, -1.5]} rotation={[TILT, 0, 0]}>
-      {/* Roof slab */}
+    <group
+      position={[config.roofPosX, config.roofPosY, config.roofPosZ]}
+      rotation={[config.roofRotX, config.roofRotY, config.roofRotZ]}
+    >
       <mesh receiveShadow castShadow>
         <boxGeometry args={[7.5, 0.12, 5.2]} />
         <meshStandardMaterial color="#b07848" roughness={0.85} metalness={0.05} />
       </mesh>
-      {/* Tile rows */}
       {Array.from({ length: 13 }).map((_, i) => (
         <mesh key={i} position={[0, 0.07, -2.4 + i * 0.4]} receiveShadow>
           <boxGeometry args={[7.4, 0.035, 0.28]} />
           <meshStandardMaterial color={i % 2 === 0 ? "#a06838" : "#b87848"} roughness={0.92} />
         </mesh>
       ))}
-      {/* Ridge */}
       <mesh position={[0, 0.1, -2.65]} castShadow>
         <boxGeometry args={[7.7, 0.16, 0.18]} />
         <meshStandardMaterial color="#8a5530" roughness={0.8} metalness={0.1} />
       </mesh>
-      {/* Eave */}
       <mesh position={[0, -0.01, 2.65]} castShadow>
         <boxGeometry args={[7.8, 0.2, 0.16]} />
         <meshStandardMaterial color="#6a4020" roughness={0.8} />
       </mesh>
-      {/* Side trims */}
       <mesh position={[3.8, 0.05, 0]}><boxGeometry args={[0.1, 0.14, 5.3]} /><meshStandardMaterial color="#7a4828" roughness={0.85} /></mesh>
       <mesh position={[-3.8, 0.05, 0]}><boxGeometry args={[0.1, 0.14, 5.3]} /><meshStandardMaterial color="#7a4828" roughness={0.85} /></mesh>
 
-      {/* Panels */}
       {panels.map((p, i) => (
-        <SolarPanel key={i} position={p.pos} delay={p.delay} progress={animProgress} index={i} />
+        <SolarPanel key={i} position={p.pos} delay={p.delay} progress={animProgress} index={i} config={config} />
       ))}
     </group>
   );
@@ -124,7 +134,6 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
 const CameraCtrl = ({ progress }: { progress: number }) => {
   const { camera } = useThree();
   useFrame(() => {
-    // Camera positioned lower and more in front to see panels face-on
     const angle = -0.15 + progress * 0.2;
     const radius = 10 - progress * 1.5;
     const height = 6 + progress * 1.5;
@@ -135,7 +144,7 @@ const CameraCtrl = ({ progress }: { progress: number }) => {
 };
 
 // ─── Full Scene ───
-const Scene = ({ progress }: { progress: number }) => (
+const Scene = ({ progress, config }: { progress: number; config: DebugConfig }) => (
   <>
     <ambientLight intensity={0.35} />
     <directionalLight position={[10, 15, 8]} intensity={2.2} castShadow
@@ -147,18 +156,70 @@ const Scene = ({ progress }: { progress: number }) => (
     <pointLight position={[0, 8, 0]} intensity={0.3} color="#fff5e0" />
     <Environment preset="sunset" />
     <fog attach="fog" args={["#0a1628", 18, 40]} />
-    {/* TEMP: OrbitControls pour explorer – désactive le CameraCtrl */}
     <OrbitControls target={[0, 0, -1.5]} />
     {/* <CameraCtrl progress={progress} /> */}
-    <RoofWithPanels progress={progress} />
+    <RoofWithPanels progress={progress} config={config} />
     <ContactShadows position={[0, -4.8, 0]} opacity={0.5} scale={25} blur={2.5} far={12} />
   </>
 );
+
+// ─── Debug Panel ───
+const DebugPanel = ({ config, onChange }: { config: DebugConfig; onChange: (c: DebugConfig) => void }) => {
+  const fields: { key: keyof DebugConfig; label: string; step: number; min: number; max: number }[] = [
+    { key: "roofPosX", label: "Toit Pos X", step: 0.1, min: -5, max: 5 },
+    { key: "roofPosY", label: "Toit Pos Y", step: 0.1, min: -5, max: 5 },
+    { key: "roofPosZ", label: "Toit Pos Z", step: 0.1, min: -10, max: 5 },
+    { key: "roofRotX", label: "Toit Rot X", step: 0.01, min: -3.15, max: 3.15 },
+    { key: "roofRotY", label: "Toit Rot Y", step: 0.01, min: -3.15, max: 3.15 },
+    { key: "roofRotZ", label: "Toit Rot Z", step: 0.01, min: -3.15, max: 3.15 },
+    { key: "panelRotAX", label: "Panel RotA X", step: 0.01, min: -3.15, max: 3.15 },
+    { key: "panelRotAY", label: "Panel RotA Y", step: 0.01, min: -3.15, max: 3.15 },
+    { key: "panelRotAZ", label: "Panel RotA Z", step: 0.01, min: -3.15, max: 3.15 },
+    { key: "panelRotBX", label: "Panel RotB X", step: 0.01, min: -3.15, max: 3.15 },
+    { key: "panelRotBY", label: "Panel RotB Y", step: 0.01, min: -3.15, max: 3.15 },
+    { key: "panelRotBZ", label: "Panel RotB Z", step: 0.01, min: -3.15, max: 3.15 },
+    { key: "panelY", label: "Panel Hauteur", step: 0.01, min: -1, max: 2 },
+    { key: "panelScale", label: "Panel Scale", step: 0.05, min: 0.5, max: 3 },
+  ];
+
+  return (
+    <div className="absolute top-16 right-4 z-50 bg-black/80 backdrop-blur-md rounded-xl p-4 text-white text-xs font-mono w-64 max-h-[80vh] overflow-y-auto border border-white/20">
+      <div className="text-emerald-400 font-bold text-sm mb-3">🔧 Debug 3D</div>
+      {fields.map(f => (
+        <div key={f.key} className="flex items-center gap-2 mb-1.5">
+          <label className="w-24 text-white/60 shrink-0">{f.label}</label>
+          <input
+            type="number"
+            step={f.step}
+            min={f.min}
+            max={f.max}
+            value={config[f.key]}
+            onChange={e => onChange({ ...config, [f.key]: parseFloat(e.target.value) || 0 })}
+            className="w-full bg-white/10 border border-white/20 rounded px-2 py-1 text-white text-xs"
+          />
+        </div>
+      ))}
+      <button
+        onClick={() => onChange({ ...DEFAULT_CONFIG })}
+        className="mt-3 w-full bg-white/10 hover:bg-white/20 rounded py-1.5 text-white/80 text-xs transition-colors"
+      >
+        Reset
+      </button>
+      <button
+        onClick={() => navigator.clipboard.writeText(JSON.stringify(config, null, 2))}
+        className="mt-1 w-full bg-emerald-500/20 hover:bg-emerald-500/30 rounded py-1.5 text-emerald-300 text-xs transition-colors"
+      >
+        Copier les valeurs
+      </button>
+    </div>
+  );
+};
 
 // ─── Exported Component ───
 const Solar3DShowcase = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const progress = useScrollProgress(containerRef as React.RefObject<HTMLElement>);
+  const [config, setConfig] = useState<DebugConfig>(DEFAULT_CONFIG);
 
   return (
     <section
@@ -187,9 +248,12 @@ const Solar3DShowcase = () => {
             }}
             camera={{ position: [9, 6, 9], fov: 35 }}
           >
-            <Scene progress={progress} />
+            <Scene progress={progress} config={config} />
           </Canvas>
         </Suspense>
+
+        {/* Debug Panel */}
+        <DebugPanel config={config} onChange={setConfig} />
 
         {/* Overlay */}
         <div className="absolute inset-0 pointer-events-none flex flex-col justify-end pb-6 lg:pb-10">
