@@ -87,6 +87,9 @@ const SolarPanel = ({ position, delay, progress, index }: {
 const RoofWithPanels = ({ progress }: { progress: number }) => {
   const TILT = Math.PI * 0.15; // ~27° tilt facing the viewer
 
+  // Remap progress so animation completes at 50% scroll, then stays stable
+  const animProgress = Math.min(1, progress * 2);
+
   const panels = useMemo(() => {
     const items: { pos: [number, number, number]; delay: number }[] = [];
     let idx = 0;
@@ -94,7 +97,7 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
       for (let c = 0; c < 4; c++) {
         items.push({
           pos: [-2.4 + c * 1.65, 0.14, -1.1 + r * 1.05],
-          delay: 0.1 + idx * 0.055,
+          delay: 0.05 + idx * 0.06,
         });
         idx++;
       }
@@ -132,7 +135,7 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
 
       {/* Panels sit directly on the roof */}
       {panels.map((p, i) => (
-        <SolarPanel key={i} position={p.pos} delay={p.delay} progress={progress} index={i} />
+        <SolarPanel key={i} position={p.pos} delay={p.delay} progress={animProgress} index={i} />
       ))}
     </group>
   );
