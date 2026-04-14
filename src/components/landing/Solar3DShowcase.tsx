@@ -50,7 +50,7 @@ const DEFAULT_FLAT_CONFIG: DebugConfig = {
   panelRotAX: 0.03, panelRotAY: 1, panelRotAZ: -1.76,
   panelRotBX: 2.6, panelRotBY: 0.11, panelRotBZ: 1.41,
   panelY: 0.65,
-  panelScale: 1.2,
+  panelScale: 1.05,
 };
 
 const STORAGE_KEY_STANDARD = "solar3d_debug_standard";
