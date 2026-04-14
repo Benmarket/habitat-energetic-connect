@@ -86,10 +86,10 @@ const RoofWithPanels = ({ progress, config }: { progress: number; config: DebugC
     const items: { pos: [number, number, number]; delay: number }[] = [];
     let idx = 0;
     for (let r = 0; r < 3; r++) {
-      for (let c = 0; c < 5; c++) {
+      for (let c = 0; c < 6; c++) {
         items.push({
-          pos: [-2.4 + c * 1.15, config.panelY, -1.4 + r * 1.5],
-          delay: 0.05 + idx * 0.04,
+          pos: [-2.5 + c * 0.95, config.panelY, -1.4 + r * 1.5],
+          delay: 0.05 + idx * 0.035,
         });
         idx++;
       }
