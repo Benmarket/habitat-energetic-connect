@@ -141,49 +141,8 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
   );
 };
 
-// ─── House wall ───
-const HouseWall = () => (
-  <group position={[0, -3.2, 3.2]}>
-    <mesh receiveShadow>
-      <boxGeometry args={[7.8, 3, 0.18]} />
-      <meshStandardMaterial color="#e8ddd0" roughness={0.95} />
-    </mesh>
-    {/* Windows */}
-    {[-1.8, 1.8].map(x => (
-      <mesh key={x} position={[x, 0.2, 0.1]}>
-        <boxGeometry args={[1.1, 1.3, 0.02]} />
-        <meshPhysicalMaterial color="#87CEEB" metalness={0.1} roughness={0.05} clearcoat={1} transmission={0.3} />
-      </mesh>
-    ))}
-  </group>
-);
 
-// ─── Inverter ───
-const Inverter = ({ progress }: { progress: number }) => {
-  const ref = useRef<THREE.Group>(null);
-  const animP = Math.min(1, progress * 2); // same 50% timing
-  const show = animP > 0.82;
-  const t = show ? Math.min(1, (animP - 0.82) / 0.1) : 0;
-  const e = 1 - Math.pow(1 - t, 4);
 
-  useFrame((state) => {
-    if (!ref.current) return;
-    ref.current.scale.setScalar(e);
-    ref.current.position.y = -2.8 + (1 - e) * 1.5;
-    const led = ref.current.children[2] as THREE.Mesh;
-    if (led?.material && 'emissiveIntensity' in (led.material as THREE.MeshStandardMaterial)) {
-      (led.material as THREE.MeshStandardMaterial).emissiveIntensity = 1.5 + Math.sin(state.clock.elapsedTime * 3) * 0.8;
-    }
-  });
-
-  return (
-    <group ref={ref} position={[4.8, -2.8, 3.3]}>
-      <mesh castShadow><boxGeometry args={[0.5, 0.7, 0.16]} /><meshStandardMaterial color="#f0f0f0" metalness={0.4} roughness={0.35} /></mesh>
-      <mesh position={[0, 0.1, 0.09]}><boxGeometry args={[0.3, 0.16, 0.01]} /><meshStandardMaterial color="#00cc66" emissive="#00cc66" emissiveIntensity={0.6} /></mesh>
-      <mesh position={[0, -0.16, 0.09]}><sphereGeometry args={[0.02, 12, 12]} /><meshStandardMaterial color="#00ff88" emissive="#00ff88" emissiveIntensity={2} /></mesh>
-    </group>
-  );
-};
 
 // ─── Camera ───
 const CameraCtrl = ({ progress }: { progress: number }) => {
