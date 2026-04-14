@@ -41,15 +41,19 @@ const SolarPanel = ({ position, delay, progress, index }: {
   useFrame((state) => {
     if (!ref.current) return;
     ref.current.position.set(position[0], y, position[2]);
-    ref.current.scale.setScalar((0.5 + 0.5 * e) * 0.6);
+    const s = 0.5 + 0.5 * e;
+    ref.current.scale.set(s * 1.8, s * 1.8, s * 1.8);
     if (t >= 1) {
       ref.current.position.y += Math.sin(state.clock.elapsedTime * 0.6 + index) * 0.005;
     }
   });
 
   return (
-    <group ref={ref} rotation={[0, 0, 0]}>
-      <primitive object={clone} />
+    <group ref={ref}>
+      {/* Rotate -90° X to lay flat on roof, panel stands in portrait */}
+      <group rotation={[-Math.PI / 2, 0, 0]}>
+        <primitive object={clone} />
+      </group>
     </group>
   );
 };
@@ -59,14 +63,14 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
   const TILT = Math.PI * 0.15;
   const animProgress = Math.min(1, progress * 2);
 
-  // 3 rows × 4 cols, panels are vertical (portrait) so narrower spacing on X, taller on Z
+  // 3 rows × 4 cols, portrait panels (~0.52 wide × 1.76 deep at scale 1.8)
   const panels = useMemo(() => {
     const items: { pos: [number, number, number]; delay: number }[] = [];
     let idx = 0;
     for (let r = 0; r < 3; r++) {
       for (let c = 0; c < 4; c++) {
         items.push({
-          pos: [-2.2 + c * 1.5, 0.14, -1.2 + r * 1.15],
+          pos: [-1.8 + c * 1.2, 0.14, -1.5 + r * 1.55],
           delay: 0.05 + idx * 0.06,
         });
         idx++;
