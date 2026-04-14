@@ -155,8 +155,20 @@ const CameraCtrl = ({ progress }: { progress: number }) => {
   return null;
 };
 
+// ─── Camera tracker ───
+const CameraTracker = ({ onUpdate }: { onUpdate: (pos: [number, number, number], rot: [number, number, number]) => void }) => {
+  const { camera } = useThree();
+  useFrame(() => {
+    onUpdate(
+      [+camera.position.x.toFixed(2), +camera.position.y.toFixed(2), +camera.position.z.toFixed(2)],
+      [+camera.rotation.x.toFixed(3), +camera.rotation.y.toFixed(3), +camera.rotation.z.toFixed(3)]
+    );
+  });
+  return null;
+};
+
 // ─── Full Scene ───
-const Scene = ({ progress, config }: { progress: number; config: DebugConfig }) => (
+const Scene = ({ progress, config, onCameraUpdate }: { progress: number; config: DebugConfig; onCameraUpdate: (pos: [number, number, number], rot: [number, number, number]) => void }) => (
   <>
     <ambientLight intensity={0.35} />
     <directionalLight position={[10, 15, 8]} intensity={2.2} castShadow
@@ -169,6 +181,7 @@ const Scene = ({ progress, config }: { progress: number; config: DebugConfig }) 
     <Environment preset="sunset" />
     <fog attach="fog" args={["#0a1628", 18, 40]} />
     <OrbitControls target={[0, 0, -1.5]} enableZoom={false} />
+    <CameraTracker onUpdate={onCameraUpdate} />
     {/* <CameraCtrl progress={progress} /> */}
     <RoofWithPanels progress={progress} config={config} />
     <ContactShadows position={[0, -4.8, 0]} opacity={0.5} scale={25} blur={2.5} far={12} />
