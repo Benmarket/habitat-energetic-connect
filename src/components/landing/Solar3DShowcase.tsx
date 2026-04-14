@@ -271,7 +271,7 @@ const CameraTracker = ({ onUpdate }: { onUpdate: (pos: [number, number, number],
 };
 
 // ─── Full Scene ───
-const Scene = ({ progress, config, onCameraUpdate }: { progress: number; config: DebugConfig; onCameraUpdate: (pos: [number, number, number], rot: [number, number, number]) => void }) => (
+const Scene = ({ progress, config, roofType, onCameraUpdate }: { progress: number; config: DebugConfig; roofType: RoofType; onCameraUpdate: (pos: [number, number, number], rot: [number, number, number]) => void }) => (
   <>
     <ambientLight intensity={0.35} />
     <directionalLight position={[10, 15, 8]} intensity={2.2} castShadow
@@ -285,8 +285,7 @@ const Scene = ({ progress, config, onCameraUpdate }: { progress: number; config:
     <fog attach="fog" args={["#0a1628", 18, 40]} />
     <OrbitControls target={[0, 0, -1.5]} enableZoom={false} />
     <CameraTracker onUpdate={onCameraUpdate} />
-    {/* <CameraCtrl progress={progress} /> */}
-    <RoofWithPanels progress={progress} config={config} />
+    <RoofWithPanels progress={progress} config={config} roofType={roofType} />
     <ContactShadows position={[0, -4.8, 0]} opacity={0.5} scale={25} blur={2.5} far={12} />
   </>
 );
@@ -374,10 +373,46 @@ const DebugPanel = ({ config, onChange, camPos, camRot }: {
   );
 };
 
+// ─── Roof Type Selector ───
+const ROOF_OPTIONS: { type: RoofType; label: string; icon: string }[] = [
+  { type: "tuiles", label: "Tuiles", icon: "🏠" },
+  { type: "tole", label: "Tôle", icon: "🏭" },
+  { type: "plate", label: "Plate", icon: "🏢" },
+];
+
+const RoofTypeSelector = ({ selected, onSelect }: { selected: RoofType; onSelect: (t: RoofType) => void }) => (
+  <div className="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2">
+    {ROOF_OPTIONS.map(opt => {
+      const isActive = selected === opt.type;
+      return (
+        <button
+          key={opt.type}
+          onClick={() => onSelect(opt.type)}
+          className={`
+            group flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-semibold
+            backdrop-blur-md border transition-all duration-300 cursor-pointer
+            ${isActive
+              ? "bg-white/90 border-emerald-400/60 text-slate-800 shadow-lg shadow-emerald-500/15 scale-105"
+              : "bg-white/40 border-white/30 text-slate-600 hover:bg-white/70 hover:border-white/50 hover:scale-[1.02]"
+            }
+          `}
+        >
+          <span className="text-lg">{opt.icon}</span>
+          <span className="hidden lg:inline">{opt.label}</span>
+          {isActive && (
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 ml-1 animate-pulse" />
+          )}
+        </button>
+      );
+    })}
+  </div>
+);
+
 // ─── Exported Component ───
 const Solar3DShowcase = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const progress = useScrollProgress(containerRef as React.RefObject<HTMLElement>);
+  const [roofType, setRoofType] = useState<RoofType>("tuiles");
   const [config, setConfig] = useState<DebugConfig>(() => {
     try {
       const saved = localStorage.getItem("solar3d_debug");
@@ -399,13 +434,14 @@ const Solar3DShowcase = () => {
     camRotRef.current = rot;
   };
 
-  // Throttle camera display updates to avoid re-rendering every frame
   useEffect(() => {
     const interval = setInterval(() => {
       setCamDisplay({ pos: camPosRef.current, rot: camRotRef.current });
     }, 200);
     return () => clearInterval(interval);
   }, []);
+
+  const roofLabel = ROOF_OPTIONS.find(o => o.type === roofType)?.label ?? "";
 
   return (
     <section
@@ -487,9 +523,20 @@ const Solar3DShowcase = () => {
             }}
             camera={{ position: [-8.16, 3.72, 10.62], fov: 35 }}
           >
-            <Scene progress={progress} config={config} onCameraUpdate={handleCameraUpdate} />
+            <Scene progress={progress} config={config} roofType={roofType} onCameraUpdate={handleCameraUpdate} />
           </Canvas>
         </Suspense>
+
+        {/* Roof Type Selector */}
+        <RoofTypeSelector selected={roofType} onSelect={setRoofType} />
+
+        {/* Roof type label above the roof */}
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-40">
+          <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/70 backdrop-blur-md border border-white/50 shadow-md text-slate-700 text-sm font-semibold tracking-wide">
+            <span className="text-base">{ROOF_OPTIONS.find(o => o.type === roofType)?.icon}</span>
+            Toiture {roofLabel}
+          </span>
+        </div>
 
         {/* Debug Panel */}
         <DebugPanel config={config} onChange={handleConfigChange} camPos={camDisplay.pos} camRot={camDisplay.rot} />
