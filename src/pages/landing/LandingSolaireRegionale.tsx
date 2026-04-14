@@ -115,10 +115,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
     { image: appliPvImg, title: "Connecté", description: "Contrôlez la production de votre installation photovoltaïque depuis votre smartphone." },
   ];
 
-  // Testimonials: regional DB > regional hardcoded > fallback
-  const testimonials = content.testimonials?.length
-    ? content.testimonials.map(t => ({ text: t.text, name: t.name, location: t.location }))
-    : (regionalTestimonials[regionCode] || defaultTestimonials);
+  // Testimonials now handled by SolarTestimonials component
 
   // Dynamic vars for social proof
   const clientsCount = content.dynamic_vars?.clients_count || 2000;
