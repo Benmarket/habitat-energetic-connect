@@ -266,7 +266,7 @@ const RoofWithPanels = ({ progress, config, roofType }: { progress: number; conf
       {roofType === "plate" && <RoofPlate />}
 
       {panels.map((p, i) => (
-        <SolarPanel key={`${roofType}-${i}`} position={p.pos} delay={p.delay} progress={animProgress} index={i} config={config} roofType={roofType} />
+        <SolarPanel key={`${roofType}-${i}`} position={p.pos} delay={p.delay} progress={animProgress} index={i} roofType={roofType} />
       ))}
     </group>
   );
