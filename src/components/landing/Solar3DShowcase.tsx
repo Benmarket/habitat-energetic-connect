@@ -156,7 +156,7 @@ const Scene = ({ progress, config }: { progress: number; config: DebugConfig }) 
     <pointLight position={[0, 8, 0]} intensity={0.3} color="#fff5e0" />
     <Environment preset="sunset" />
     <fog attach="fog" args={["#0a1628", 18, 40]} />
-    <OrbitControls target={[0, 0, -1.5]} />
+    <OrbitControls target={[0, 0, -1.5]} enableZoom={false} />
     {/* <CameraCtrl progress={progress} /> */}
     <RoofWithPanels progress={progress} config={config} />
     <ContactShadows position={[0, -4.8, 0]} opacity={0.5} scale={25} blur={2.5} far={12} />
