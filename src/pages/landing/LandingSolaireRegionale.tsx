@@ -657,18 +657,12 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
           {/* ═══ SECTION 13: FAQ ═══ */}
           <SolarFAQ region={regionCode === "fr" ? "france" : regionCode} />
 
-          {/* ═══ SECTION 14: Badges certifications ═══ */}
-          <section className="py-10 lg:py-14 bg-background">
-            <div className="container mx-auto px-4 max-w-5xl">
-              <h3 className="text-lg font-bold text-center text-muted-foreground mb-6">Nos certifications & partenaires</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {badges.map((badge, i) => (
-                  <div
-                    key={i}
-                    className="bg-card border border-border rounded-xl p-4 flex items-center justify-center h-24 shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <img src={badge.logo} alt={badge.name} loading="lazy" className="h-16 w-auto object-contain" />
-                  </div>
+          {/* ═══ SECTION 14: Badges défilants ═══ */}
+          <section className="py-8 lg:py-10 bg-background overflow-hidden">
+            <div className="relative flex items-center">
+              <div className="flex animate-[scroll_25s_linear_infinite] gap-12 items-center whitespace-nowrap">
+                {[...badges, ...badges].map((badge, i) => (
+                  <img key={i} src={badge.logo} alt={badge.name} loading="lazy" className="h-12 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity shrink-0" />
                 ))}
               </div>
             </div>
