@@ -61,18 +61,18 @@ const SolarPanel = ({ position, delay, progress, index }: {
 
 // ─── Roof + Panels ───
 const RoofWithPanels = ({ progress }: { progress: number }) => {
-  const TILT = Math.PI * 0.15;
+  // Steeper tilt so the roof faces the camera/sun more directly
+  const TILT = Math.PI * 0.22; // ~40°
   const animProgress = Math.min(1, progress * 2);
 
-  // 4 rows × 3 cols, portrait panels with clear gaps between each
-  // At scale 1.4: each panel ~0.80 wide (X) × 1.37 deep (Z)
+  // 3 rows × 4 cols portrait panels, like the reference image
   const panels = useMemo(() => {
     const items: { pos: [number, number, number]; delay: number }[] = [];
     let idx = 0;
-    for (let r = 0; r < 4; r++) {
-      for (let c = 0; c < 3; c++) {
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 4; c++) {
         items.push({
-          pos: [-1.5 + c * 1.5, 0.14, -2.0 + r * 1.2],
+          pos: [-2.1 + c * 1.4, 0.14, -1.4 + r * 1.5],
           delay: 0.05 + idx * 0.06,
         });
         idx++;
@@ -82,7 +82,7 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
   }, []);
 
   return (
-    <group position={[0, 0.5, -1]} rotation={[TILT, 0, 0]}>
+    <group position={[0, 0, -1.5]} rotation={[TILT, 0, 0]}>
       {/* Roof slab */}
       <mesh receiveShadow castShadow>
         <boxGeometry args={[7.5, 0.12, 5.2]} />
@@ -121,11 +121,12 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
 const CameraCtrl = ({ progress }: { progress: number }) => {
   const { camera } = useThree();
   useFrame(() => {
-    const angle = -0.3 + progress * 0.4;
-    const radius = 12 - progress * 2.5;
-    const height = 4 + progress * 1;
+    // Camera positioned lower and more in front to see panels face-on
+    const angle = -0.15 + progress * 0.2;
+    const radius = 10 - progress * 1.5;
+    const height = 6 + progress * 1.5;
     camera.position.set(Math.sin(angle) * radius, height, Math.cos(angle) * radius);
-    camera.lookAt(0, -0.5, 0);
+    camera.lookAt(0, 0, -1.5);
   });
   return null;
 };
