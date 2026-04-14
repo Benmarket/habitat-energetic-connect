@@ -37,6 +37,13 @@ import appliPvImg from "@/assets/why-solar/appli-pv.jpg";
 import smartphoneImg from "@/assets/why-solar/utilise-smartphone.png";
 import fondGris from "@/assets/landing/fond-gris.png";
 import SolarHeroVisual from "@/components/landing/SolarHeroVisual";
+import SolarHowItWorks from "@/components/landing/SolarHowItWorks";
+import SolarAidesFinancieres from "@/components/landing/SolarAidesFinancieres";
+import SolarTestimonials from "@/components/landing/SolarTestimonials";
+import SolarFAQ from "@/components/landing/SolarFAQ";
+import SolarCounters from "@/components/landing/SolarCounters";
+import SolarComparatif from "@/components/landing/SolarComparatif";
+import SolarStickyCTA from "@/components/landing/SolarStickyCTA";
 
 // ─── Logos partenaires (hébergés sur le stockage cloud) ───
 const STORAGE_BASE = "https://ggucavhanqmdxjqdbcnw.supabase.co/storage/v1/object/public/media/logos";
