@@ -300,7 +300,7 @@ const AdminPagesAnchors = () => {
                   return (
                     <Card 
                       key={product.id} 
-                      className={`transition-all ${product.seo_status === "disabled" ? "opacity-60" : ""} ${isExpanded ? "ring-2 ring-primary/20" : "hover:shadow-lg"}`}
+                      className={`relative transition-all ${product.seo_status === "disabled" ? "opacity-60" : ""} ${isExpanded ? "ring-2 ring-primary/20" : "hover:shadow-lg"}`}
                     >
                       <TooltipProvider>
                         <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
