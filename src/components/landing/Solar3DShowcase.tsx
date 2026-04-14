@@ -6,7 +6,7 @@ import * as THREE from "three";
 // Preload GLB
 useGLTF.preload("/models/solar_panel.glb");
 
-const ROOF_TILT = 0.1;
+const ROOF_TILT = Math.PI * 0.22;
 
 // ─── Scroll progress hook ───
 const useScrollProgress = (containerRef: React.RefObject<HTMLElement>) => {
@@ -28,16 +28,8 @@ const useScrollProgress = (containerRef: React.RefObject<HTMLElement>) => {
 };
 
 // ─── Solar Panel (GLB model) ───
-const SolarPanel = ({
-  position,
-  delay,
-  progress,
-  index,
-}: {
-  position: [number, number, number];
-  delay: number;
-  progress: number;
-  index: number;
+const SolarPanel = ({ position, delay, progress, index }: {
+  position: [number, number, number]; delay: number; progress: number; index: number;
 }) => {
   const ref = useRef<THREE.Group>(null);
   const { scene } = useGLTF("/models/solar_panel.glb");
@@ -61,7 +53,7 @@ const SolarPanel = ({
 
   return (
     <group ref={ref}>
-      <group rotation={[0, Math.PI / 2, ROOF_TILT]}>
+      <group rotation={[0, Math.PI / 2, 0.18]}>
         <group rotation={[0, 0, Math.PI / 2]}>
           <primitive object={clone} />
         </group>
@@ -83,7 +75,7 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
     for (let r = 0; r < 3; r++) {
       for (let c = 0; c < 4; c++) {
         items.push({
-          pos: [-2.1 + c * 1.4, 0.14, -1.4 + r * 1.5],
+          pos: [-2.1 + c * 1.4, 0.31, -1.4 + r * 1.5],
           delay: 0.05 + idx * 0.06,
         });
         idx++;
@@ -108,7 +100,7 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
       ))}
       {/* Ridge */}
       <mesh position={[0, 0.1, -2.65]} castShadow>
-        <boxGeometry args={[7.7, 0.16, 0.19]} />
+        <boxGeometry args={[7.7, 0.16, 0.18]} />
         <meshStandardMaterial color="#8a5530" roughness={0.8} metalness={0.1} />
       </mesh>
       {/* Eave */}
@@ -117,14 +109,8 @@ const RoofWithPanels = ({ progress }: { progress: number }) => {
         <meshStandardMaterial color="#6a4020" roughness={0.8} />
       </mesh>
       {/* Side trims */}
-      <mesh position={[3.8, 0.05, 0]}>
-        <boxGeometry args={[0.1, 0.14, 5.3]} />
-        <meshStandardMaterial color="#7a4828" roughness={0.85} />
-      </mesh>
-      <mesh position={[-3.8, 0.05, 0]}>
-        <boxGeometry args={[0.1, 0.14, 5.3]} />
-        <meshStandardMaterial color="#7a4828" roughness={0.85} />
-      </mesh>
+      <mesh position={[3.8, 0.05, 0]}><boxGeometry args={[0.1, 0.14, 5.3]} /><meshStandardMaterial color="#7a4828" roughness={0.85} /></mesh>
+      <mesh position={[-3.8, 0.05, 0]}><boxGeometry args={[0.1, 0.14, 5.3]} /><meshStandardMaterial color="#7a4828" roughness={0.85} /></mesh>
 
       {/* Panels */}
       {panels.map((p, i) => (
@@ -152,18 +138,10 @@ const CameraCtrl = ({ progress }: { progress: number }) => {
 const Scene = ({ progress }: { progress: number }) => (
   <>
     <ambientLight intensity={0.35} />
-    <directionalLight
-      position={[10, 15, 8]}
-      intensity={2.2}
-      castShadow
-      shadow-mapSize-width={2048}
-      shadow-mapSize-height={2048}
-      shadow-camera-far={40}
-      shadow-camera-left={-12}
-      shadow-camera-right={12}
-      shadow-camera-top={12}
-      shadow-camera-bottom={-12}
-      shadow-bias={-0.0005}
+    <directionalLight position={[10, 15, 8]} intensity={2.2} castShadow
+      shadow-mapSize-width={2048} shadow-mapSize-height={2048}
+      shadow-camera-far={40} shadow-camera-left={-12} shadow-camera-right={12}
+      shadow-camera-top={12} shadow-camera-bottom={-12} shadow-bias={-0.0005}
     />
     <directionalLight position={[-6, 10, -4]} intensity={0.5} color="#ffd4a0" />
     <pointLight position={[0, 8, 0]} intensity={0.3} color="#fff5e0" />
@@ -187,16 +165,14 @@ const Solar3DShowcase = () => {
       style={{ height: "100vh" }}
     >
       <div className="sticky top-0 h-screen w-full">
-        <Suspense
-          fallback={
-            <div className="w-full h-full flex items-center justify-center bg-[#0a1628]">
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-12 h-12 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
-                <div className="text-white/50 text-sm font-medium tracking-wide">Chargement de la scène 3D…</div>
-              </div>
+        <Suspense fallback={
+          <div className="w-full h-full flex items-center justify-center bg-[#0a1628]">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-12 h-12 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
+              <div className="text-white/50 text-sm font-medium tracking-wide">Chargement de la scène 3D…</div>
             </div>
-          }
-        >
+          </div>
+        }>
           <Canvas
             shadows
             dpr={[1, 2]}
@@ -229,14 +205,11 @@ const Solar3DShowcase = () => {
               </span>
               <h2 className="text-3xl lg:text-6xl font-extrabold text-white leading-tight mb-4">
                 Vos panneaux, posés avec
-                <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
-                  {" "}
-                  précision
-                </span>
+                <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent"> précision</span>
               </h2>
               <p className="text-white/50 text-base lg:text-lg max-w-xl leading-relaxed">
-                Chaque panneau est installé par nos techniciens certifiés RGE pour un rendement optimal et une
-                intégration parfaite à votre toiture.
+                Chaque panneau est installé par nos techniciens certifiés RGE
+                pour un rendement optimal et une intégration parfaite à votre toiture.
               </p>
             </div>
             <div className="mt-8 flex items-center gap-4">
