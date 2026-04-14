@@ -14,7 +14,7 @@ import macaronPrix from "@/assets/landing/macaron-prix.png";
 import marqueFrancaise from "@/assets/landing/marque-francaise.png";
 import onduleur from "@/assets/landing/onduleur.png";
 
-const heroSlides = [
+const defaultHeroSlides = [
   { src: heroToitureTuiles, alt: "Maison avec panneaux solaires sur toiture en tuiles" },
   { src: heroToiturePlate, alt: "Maison avec installation solaire sur toiture plate" },
   { src: heroToitureArdoise, alt: "Installation solaire sur toiture en ardoise" },
@@ -26,7 +26,14 @@ const heroSlides = [
   { src: realisationTropicale, alt: "Installation solaire en milieu tropical" },
 ];
 
-export const SolarHeroVisual = () => {
+export { defaultHeroSlides };
+
+interface SolarHeroVisualProps {
+  customSlides?: { src: string; alt: string }[];
+}
+
+export const SolarHeroVisual = ({ customSlides }: SolarHeroVisualProps = {}) => {
+  const slides = customSlides && customSlides.length > 0 ? customSlides : defaultHeroSlides;
   const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
@@ -36,11 +43,11 @@ export const SolarHeroVisual = () => {
     if (prefersReducedMotion) return;
 
     const interval = window.setInterval(() => {
-      setActiveSlide((current) => (current + 1) % heroSlides.length);
+      setActiveSlide((current) => (current + 1) % slides.length);
     }, 3000);
 
     return () => window.clearInterval(interval);
-  }, []);
+  }, [slides.length]);
 
   return (
     <div className="flex items-center gap-4 lg:gap-6">
@@ -52,7 +59,7 @@ export const SolarHeroVisual = () => {
         />
 
         <div className="relative h-44 w-[13rem] overflow-hidden md:h-52 md:w-[16rem] lg:h-64 lg:w-[22rem]">
-          {heroSlides.map((slide, index) => (
+          {slides.map((slide, index) => (
             <img
               key={slide.src}
               src={slide.src}

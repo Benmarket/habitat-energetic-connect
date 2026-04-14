@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -91,6 +91,23 @@ const testimonials = [
 
 const LandingSolaireContent = () => {
   const { seoStatus, canonicalUrl } = useLandingPageSEO("solaire");
+  const [heroSlides, setHeroSlides] = useState<{ src: string; alt: string }[] | undefined>();
+
+  useEffect(() => {
+    const fetchProductContent = async () => {
+      const { data } = await supabase
+        .from("landing_pages")
+        .select("regional_content")
+        .eq("slug", "solaire")
+        .eq("level", "product")
+        .maybeSingle();
+      if (data?.regional_content) {
+        const rc = data.regional_content as any;
+        if (rc.hero_slides?.length) setHeroSlides(rc.hero_slides);
+      }
+    };
+    fetchProductContent();
+  }, []);
 
   // Why solar benefits
   const benefits = [
@@ -521,7 +538,7 @@ const LandingSolaireContent = () => {
 
               <div className="grid lg:grid-cols-[1fr_1fr] gap-6 lg:gap-8 items-center">
                 {/* Left: Product visual + text side by side */}
-                <SolarHeroVisual />
+                <SolarHeroVisual customSlides={heroSlides} />
 
                 {/* Right: Eligibility wizard */}
                 <div

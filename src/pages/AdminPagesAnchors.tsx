@@ -15,13 +15,14 @@ import {
   Users, MousePointerClick, EyeOff, Ban, Globe, Clock, CheckCircle, Loader2, 
   ExternalLink, Layers, Hash, Newspaper, BookOpen, HandCoins, HelpCircle,
   MessageCircle, Calculator, FileCheck, Anchor, Link2, ChevronDown, ChevronRight,
-  MapPin, Zap
+  MapPin, Zap, ImageIcon
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import RegionalContentEditor from "@/components/RegionalContentEditor";
+import LandingPageSectionsEditor from "@/components/LandingPageSectionsEditor";
 import type { RegionalContent } from "@/hooks/useRegionalContent";
 import { Pencil } from "lucide-react";
 
@@ -139,6 +140,7 @@ const AdminPagesAnchors = () => {
   const [expandedProducts, setExpandedProducts] = useState<Set<string>>(new Set());
   const [expandedRegions, setExpandedRegions] = useState<Set<string>>(new Set());
   const [editingRegional, setEditingRegional] = useState<LandingPage | null>(null);
+  const [editingSections, setEditingSections] = useState<LandingPage | null>(null);
 
   const { data: landingPages = [], isLoading } = useQuery({
     queryKey: ["landing-pages"],
@@ -301,20 +303,33 @@ const AdminPagesAnchors = () => {
                       className={`transition-all ${product.seo_status === "disabled" ? "opacity-60" : ""} ${isExpanded ? "ring-2 ring-primary/20" : "hover:shadow-lg"}`}
                     >
                       <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <a
-                              href={product.path}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="absolute top-3 right-3 p-2 rounded-lg bg-muted/80 hover:bg-primary hover:text-primary-foreground transition-colors z-10"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
-                          </TooltipTrigger>
-                          <TooltipContent side="left"><p>Ouvrir dans un nouvel onglet</p></TooltipContent>
-                        </Tooltip>
+                        <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setEditingSections(product); }}
+                                className="p-2 rounded-lg bg-muted/80 hover:bg-primary hover:text-primary-foreground transition-colors"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="left"><p>Éditer les sections</p></TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <a
+                                href={product.path}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="p-2 rounded-lg bg-muted/80 hover:bg-primary hover:text-primary-foreground transition-colors"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            </TooltipTrigger>
+                            <TooltipContent side="left"><p>Ouvrir dans un nouvel onglet</p></TooltipContent>
+                          </Tooltip>
+                        </div>
                       </TooltipProvider>
 
                       <CardHeader>
@@ -415,11 +430,19 @@ const AdminPagesAnchors = () => {
                                         <SeoMicroBadge status={region.seo_status} />
                                         <Tooltip>
                                           <TooltipTrigger asChild>
+                                            <button onClick={() => setEditingSections(region)} className="p-1 rounded hover:bg-muted transition-colors">
+                                              <ImageIcon className="w-3.5 h-3.5 text-muted-foreground hover:text-amber-600" />
+                                            </button>
+                                          </TooltipTrigger>
+                                          <TooltipContent>Gérer les sections (images hero...)</TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
                                             <button onClick={() => setEditingRegional(region)} className="p-1 rounded hover:bg-muted transition-colors">
                                               <Pencil className="w-3.5 h-3.5 text-muted-foreground hover:text-primary" />
                                             </button>
                                           </TooltipTrigger>
-                                          <TooltipContent>Éditer le contenu</TooltipContent>
+                                          <TooltipContent>Éditer le contenu régional</TooltipContent>
                                         </Tooltip>
                                         <Tooltip>
                                           <TooltipTrigger asChild>
@@ -611,6 +634,20 @@ const AdminPagesAnchors = () => {
             initialContent={(editingRegional.regional_content || {}) as RegionalContent}
             variantSlug={editingRegional.variant_slug}
             pagePath={editingRegional.path}
+            onSaved={() => queryClient.invalidateQueries({ queryKey: ["landing-pages"] })}
+          />
+        )}
+        {/* Landing Page Sections Editor */}
+        {editingSections && (
+          <LandingPageSectionsEditor
+            open={!!editingSections}
+            onOpenChange={(open) => !open && setEditingSections(null)}
+            landingPage={editingSections}
+            parentContent={
+              editingSections.parent_id
+                ? (landingPages.find(lp => lp.id === editingSections.parent_id)?.regional_content as RegionalContent | null) || null
+                : null
+            }
             onSaved={() => queryClient.invalidateQueries({ queryKey: ["landing-pages"] })}
           />
         )}
