@@ -12,12 +12,6 @@ import {
   ArrowRight,
   Home,
   Building2,
-  Quote,
-  ChevronLeft,
-  ChevronRight,
-  Truck,
-  Wrench,
-  Power,
   CheckCircle2,
 } from "lucide-react";
 import LandingPageGuard from "@/components/LandingPageGuard";
