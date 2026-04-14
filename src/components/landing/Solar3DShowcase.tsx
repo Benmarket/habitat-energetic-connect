@@ -371,7 +371,7 @@ const Solar3DShowcase = () => {
         <DebugPanel config={config} onChange={handleConfigChange} camPos={camDisplay.pos} camRot={camDisplay.rot} />
 
         {/* Overlay */}
-        <div className="absolute inset-0 pointer-events-none flex flex-col justify-end pb-6 lg:pb-10">
+        <div className="absolute inset-0 pointer-events-none flex flex-col justify-end pb-6 lg:pb-16">
           <div className="container mx-auto px-6 max-w-5xl">
             <div
               className="transition-all duration-700"
@@ -401,7 +401,7 @@ const Solar3DShowcase = () => {
                 />
               </div>
               <span className="text-white/30 text-sm font-mono tracking-wider">
-                {Math.min(12, Math.floor(Math.min(1, progress * 2) * 13))}/12 panneaux
+                {Math.min(16, Math.floor(Math.min(1, progress * 2) * 17))}/16 panneaux
               </span>
             </div>
           </div>
