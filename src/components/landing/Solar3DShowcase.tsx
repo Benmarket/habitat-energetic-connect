@@ -282,11 +282,11 @@ const Solar3DShowcase = () => {
               <div className="h-1.5 w-56 bg-white/5 rounded-full overflow-hidden backdrop-blur-sm">
                 <div
                   className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-150"
-                  style={{ width: `${Math.min(100, progress * 125)}%` }}
+                  style={{ width: `${Math.min(100, Math.min(1, progress * 2) * 105)}%` }}
                 />
               </div>
               <span className="text-white/30 text-sm font-mono tracking-wider">
-                {Math.min(12, Math.floor(progress * 14))}/12 panneaux
+                {Math.min(12, Math.floor(Math.min(1, progress * 2) * 13))}/12 panneaux
               </span>
             </div>
           </div>
