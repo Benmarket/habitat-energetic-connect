@@ -430,11 +430,19 @@ const AdminPagesAnchors = () => {
                                         <SeoMicroBadge status={region.seo_status} />
                                         <Tooltip>
                                           <TooltipTrigger asChild>
+                                            <button onClick={() => setEditingSections(region)} className="p-1 rounded hover:bg-muted transition-colors">
+                                              <ImageIcon className="w-3.5 h-3.5 text-muted-foreground hover:text-amber-600" />
+                                            </button>
+                                          </TooltipTrigger>
+                                          <TooltipContent>Gérer les sections (images hero...)</TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
                                             <button onClick={() => setEditingRegional(region)} className="p-1 rounded hover:bg-muted transition-colors">
                                               <Pencil className="w-3.5 h-3.5 text-muted-foreground hover:text-primary" />
                                             </button>
                                           </TooltipTrigger>
-                                          <TooltipContent>Éditer le contenu</TooltipContent>
+                                          <TooltipContent>Éditer le contenu régional</TooltipContent>
                                         </Tooltip>
                                         <Tooltip>
                                           <TooltipTrigger asChild>
