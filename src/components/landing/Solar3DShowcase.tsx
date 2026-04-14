@@ -44,6 +44,14 @@ const DEFAULT_CONFIG: DebugConfig = {
   panelScale: 1.4,
 };
 
+// Config spécifique pour les panneaux bac à lester (toiture plate)
+const FLAT_PANEL_CONFIG: Partial<DebugConfig> = {
+  panelRotAX: 0.03, panelRotAY: 1, panelRotAZ: -1.76,
+  panelRotBX: 2.6, panelRotBY: 0.11, panelRotBZ: 1.41,
+  panelY: 0.65,
+  panelScale: 1.2,
+};
+
 const getPanelBaseEuler = (config: DebugConfig) => {
   const rotA = new THREE.Quaternion().setFromEuler(
     new THREE.Euler(config.panelRotAX, config.panelRotAY, config.panelRotAZ, "XYZ")
@@ -83,15 +91,23 @@ const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuil
     });
     return c;
   }, [scene]);
+  // Use flat-specific config overrides when roofType is "plate"
+  const effectiveConfig = useMemo(() => {
+    if (roofType === "plate") {
+      return { ...config, ...FLAT_PANEL_CONFIG };
+    }
+    return config;
+  }, [config, roofType]);
+
   const panelBaseEuler = useMemo(
-    () => getPanelBaseEuler(config),
+    () => getPanelBaseEuler(effectiveConfig),
     [
-      config.panelRotAX,
-      config.panelRotAY,
-      config.panelRotAZ,
-      config.panelRotBX,
-      config.panelRotBY,
-      config.panelRotBZ,
+      effectiveConfig.panelRotAX,
+      effectiveConfig.panelRotAY,
+      effectiveConfig.panelRotAZ,
+      effectiveConfig.panelRotBX,
+      effectiveConfig.panelRotBY,
+      effectiveConfig.panelRotBZ,
     ]
   );
 
@@ -109,7 +125,7 @@ const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuil
     if (!ref.current) return;
     ref.current.position.set(position[0], y, position[2]);
     const s = 0.5 + 0.5 * e;
-    ref.current.scale.set(s * config.panelScale, s * config.panelScale, s * config.panelScale);
+    ref.current.scale.set(s * effectiveConfig.panelScale, s * effectiveConfig.panelScale, s * effectiveConfig.panelScale);
     if (t >= 1) {
       ref.current.position.y += Math.sin(state.clock.elapsedTime * 0.6 + index) * 0.005;
     }
@@ -213,20 +229,22 @@ const RoofPlate = () => (
 const RoofWithPanels = ({ progress, config, roofType }: { progress: number; config: DebugConfig; roofType: RoofType }) => {
   const animProgress = Math.min(1, progress * 2);
 
+  const effectivePanelY = roofType === "plate" ? (FLAT_PANEL_CONFIG.panelY ?? config.panelY) : config.panelY;
+
   const panels = useMemo(() => {
     const items: { pos: [number, number, number]; delay: number }[] = [];
     let idx = 0;
     for (let r = 0; r < 3; r++) {
       for (let c = 0; c < 6; c++) {
         items.push({
-          pos: [-2.5 + c * 0.95, config.panelY, -1.4 + r * 1.5],
+          pos: [-2.5 + c * 0.95, effectivePanelY, -1.4 + r * 1.5],
           delay: 0.05 + idx * 0.035,
         });
         idx++;
       }
     }
     return items;
-  }, [config.panelY]);
+  }, [effectivePanelY]);
 
   // Flat roof has no tilt
   const effectiveRotX = roofType === "plate" ? 0.15 : config.roofRotX;
