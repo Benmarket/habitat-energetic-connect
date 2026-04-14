@@ -51,7 +51,7 @@ const SolarPanel = ({ position, delay, progress, index }: {
 
   return (
     <group ref={ref}>
-      <group rotation={[0, Math.PI / 2, -0.15]}>
+      <group rotation={[0, Math.PI / 2, -0.05]}>
         <group rotation={[0, 0, Math.PI / 2]}>
           <primitive object={clone} />
         </group>
