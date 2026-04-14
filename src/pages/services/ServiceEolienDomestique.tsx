@@ -18,9 +18,9 @@ const faqs = [
 
 const ServiceEolienDomestique = () => {
   const breadcrumbItems = [
-    { label: "Accueil", path: "/" },
-    { label: "Services", path: "/" },
-    { label: "Éolien domestique" },
+    { name: "Accueil", url: "/" },
+    { name: "Services", url: "/" },
+    { name: "Éolien domestique", url: "/services/eolien-domestique" },
   ];
 
   const jsonLd = {

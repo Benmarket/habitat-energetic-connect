@@ -18,9 +18,9 @@ const faqs = [
 
 const ServiceInstallationSolaire = () => {
   const breadcrumbItems = [
-    { label: "Accueil", path: "/" },
-    { label: "Services", path: "/" },
-    { label: "Installation solaire" },
+    { name: "Accueil", url: "/" },
+    { name: "Services", url: "/" },
+    { name: "Installation solaire", url: "/services/installation-solaire" },
   ];
 
   const jsonLd = {

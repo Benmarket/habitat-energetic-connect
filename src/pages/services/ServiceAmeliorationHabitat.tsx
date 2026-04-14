@@ -18,9 +18,9 @@ const faqs = [
 
 const ServiceAmeliorationHabitat = () => {
   const breadcrumbItems = [
-    { label: "Accueil", path: "/" },
-    { label: "Services", path: "/" },
-    { label: "Amélioration de l'habitat" },
+    { name: "Accueil", url: "/" },
+    { name: "Services", url: "/" },
+    { name: "Amélioration de l'habitat", url: "/services/amelioration-habitat" },
   ];
 
   const jsonLd = {

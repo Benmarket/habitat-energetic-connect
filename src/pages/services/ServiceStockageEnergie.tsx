@@ -18,9 +18,9 @@ const faqs = [
 
 const ServiceStockageEnergie = () => {
   const breadcrumbItems = [
-    { label: "Accueil", path: "/" },
-    { label: "Services", path: "/" },
-    { label: "Stockage d'énergie" },
+    { name: "Accueil", url: "/" },
+    { name: "Services", url: "/" },
+    { name: "Stockage d'énergie", url: "/services/stockage-energie" },
   ];
 
   const jsonLd = {

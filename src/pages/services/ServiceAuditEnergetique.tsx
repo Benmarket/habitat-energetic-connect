@@ -18,9 +18,9 @@ const faqs = [
 
 const ServiceAuditEnergetique = () => {
   const breadcrumbItems = [
-    { label: "Accueil", path: "/" },
-    { label: "Services", path: "/" },
-    { label: "Audit énergétique" },
+    { name: "Accueil", url: "/" },
+    { name: "Services", url: "/" },
+    { name: "Audit énergétique", url: "/services/audit-energetique" },
   ];
 
   const jsonLd = {

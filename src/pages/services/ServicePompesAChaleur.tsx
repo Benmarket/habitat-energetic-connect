@@ -18,9 +18,9 @@ const faqs = [
 
 const ServicePompesAChaleur = () => {
   const breadcrumbItems = [
-    { label: "Accueil", path: "/" },
-    { label: "Services", path: "/" },
-    { label: "Pompes à chaleur" },
+    { name: "Accueil", url: "/" },
+    { name: "Services", url: "/" },
+    { name: "Pompes à chaleur", url: "/services/pompes-a-chaleur" },
   ];
 
   const jsonLd = {
