@@ -584,8 +584,8 @@ const Solar3DShowcase = () => {
         <DebugPanel config={config} onChange={handleConfigChange} camPos={camDisplay.pos} camRot={camDisplay.rot} />
 
         {/* Overlay */}
-        <div className="absolute inset-0 pointer-events-none flex flex-col justify-start pt-6 lg:pt-8">
-          <div className="container mx-auto px-6 max-w-5xl pl-[140px] lg:pl-[160px]">
+        <div className="absolute inset-0 pointer-events-none flex flex-col justify-start pt-3 lg:pt-4">
+          <div className="container mx-auto px-6 max-w-5xl pl-[40px] lg:pl-[50px]">
             <div
               className="transition-all duration-700"
               style={{
