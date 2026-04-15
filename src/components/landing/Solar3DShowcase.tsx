@@ -45,7 +45,7 @@ const DEFAULT_CONFIG: DebugConfig = {
 };
 
 const DEFAULT_FLAT_CONFIG: DebugConfig = {
-  roofPosX: 0.05, roofPosY: -1, roofPosZ: -1.5,
+  roofPosX: 0.05, roofPosY: -1.2, roofPosZ: -1.5,
   roofRotX: 0.15, roofRotY: 0, roofRotZ: 0,
   panelRotAX: 0.03, panelRotAY: 1, panelRotAZ: -1.76,
   panelRotBX: 2.6, panelRotBY: 0.11, panelRotBZ: 1.41,
