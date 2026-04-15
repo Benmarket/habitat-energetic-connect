@@ -589,7 +589,7 @@ const Solar3DShowcase = () => {
             <div
               className="transition-opacity duration-500"
               style={{
-                opacity: Math.max(0.15, progress > 0.2 ? Math.min(1, (progress - 0.2) / 0.15) : 0.15 + progress * 0.3),
+                opacity: Math.max(0.15, progress > 0.08 ? Math.min(1, (progress - 0.08) / 0.1) : 0.15 + progress * 1.5),
               }}
             >
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/60 backdrop-blur-md text-sky-800 text-sm font-semibold mb-4 border border-white/40 shadow-sm">
