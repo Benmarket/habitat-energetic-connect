@@ -60,16 +60,10 @@ const DEFAULT_TOLE_CONFIG: DebugConfig = {
   panelScale: 0.7,
 };
 
-const STORAGE_KEY_TUILES = "solar3d_debug_tuiles";
-const STORAGE_KEY_TOLE = "solar3d_debug_tole";
-const STORAGE_KEY_FLAT = "solar3d_debug_flat";
-
-const loadConfig = (key: string, defaults: DebugConfig): DebugConfig => {
-  try {
-    const saved = localStorage.getItem(key);
-    if (saved) return { ...defaults, ...JSON.parse(saved) };
-  } catch {}
-  return defaults;
+const getDefaultConfig = (roofType: "tuiles" | "tole" | "plate"): DebugConfig => {
+  if (roofType === "plate") return { ...DEFAULT_FLAT_CONFIG };
+  if (roofType === "tole") return { ...DEFAULT_TOLE_CONFIG };
+  return { ...DEFAULT_CONFIG };
 };
 
 const getPanelBaseEuler = (config: DebugConfig) => {
