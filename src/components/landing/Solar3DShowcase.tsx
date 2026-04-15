@@ -325,8 +325,8 @@ const Scene = ({ progress, config, roofType, onCameraUpdate }: { progress: numbe
 );
 
 // ─── Debug Panel ───
-const DebugPanel = ({ config, onChange, camPos, camRot }: {
-  config: DebugConfig; onChange: (c: DebugConfig) => void;
+const DebugPanel = ({ config, onChange, onReset, camPos, camRot }: {
+  config: DebugConfig; onChange: (c: DebugConfig) => void; onReset: () => void;
   camPos: [number, number, number]; camRot: [number, number, number];
 }) => {
   const panelBaseEuler = useMemo(() => getPanelBaseEuler(config), [config]);
@@ -351,7 +351,6 @@ const DebugPanel = ({ config, onChange, camPos, camRot }: {
     <div className="absolute top-16 right-4 z-50 bg-black/80 backdrop-blur-md rounded-xl p-4 text-white text-xs font-mono w-64 max-h-[80vh] overflow-y-auto border border-white/20">
       <div className="text-emerald-400 font-bold text-sm mb-3">🔧 Debug 3D</div>
 
-      {/* Camera live values */}
       <div className="mb-3 p-2 rounded bg-blue-500/10 border border-blue-400/20">
         <div className="text-blue-300 font-bold mb-1">📷 Caméra (live)</div>
         <div className="text-white/60">Pos: {camPos[0]}, {camPos[1]}, {camPos[2]}</div>
@@ -392,7 +391,7 @@ const DebugPanel = ({ config, onChange, camPos, camRot }: {
         </div>
       ))}
       <button
-        onClick={() => onChange({ ...DEFAULT_CONFIG })}
+        onClick={onReset}
         className="mt-3 w-full bg-white/10 hover:bg-white/20 rounded py-1.5 text-white/80 text-xs transition-colors"
       >
         Reset
@@ -448,25 +447,25 @@ const Solar3DShowcase = () => {
   const progress = useScrollProgress(containerRef as React.RefObject<HTMLElement>);
   const [roofType, setRoofType] = useState<RoofType>("tuiles");
 
-  // Trois configs séparées : tuiles, tôle, plate
-  const [tuilesConfig, setTuilesConfig] = useState<DebugConfig>(() => loadConfig(STORAGE_KEY_TUILES, DEFAULT_CONFIG));
-  const [toleConfig, setToleConfig] = useState<DebugConfig>(() => loadConfig(STORAGE_KEY_TOLE, DEFAULT_TOLE_CONFIG));
-  const [flatConfig, setFlatConfig] = useState<DebugConfig>(() => loadConfig(STORAGE_KEY_FLAT, DEFAULT_FLAT_CONFIG));
+  const [tuilesConfig, setTuilesConfig] = useState<DebugConfig>(() => getDefaultConfig("tuiles"));
+  const [toleConfig, setToleConfig] = useState<DebugConfig>(() => getDefaultConfig("tole"));
+  const [flatConfig, setFlatConfig] = useState<DebugConfig>(() => getDefaultConfig("plate"));
 
-  // Config active selon le type de toiture
   const config = roofType === "plate" ? flatConfig : roofType === "tole" ? toleConfig : tuilesConfig;
 
   const handleConfigChange = (c: DebugConfig) => {
     if (roofType === "plate") {
       setFlatConfig(c);
-      localStorage.setItem(STORAGE_KEY_FLAT, JSON.stringify(c));
     } else if (roofType === "tole") {
       setToleConfig(c);
-      localStorage.setItem(STORAGE_KEY_TOLE, JSON.stringify(c));
     } else {
       setTuilesConfig(c);
-      localStorage.setItem(STORAGE_KEY_TUILES, JSON.stringify(c));
     }
+  };
+
+  const handleReset = () => {
+    const resetConfig = getDefaultConfig(roofType);
+    handleConfigChange(resetConfig);
   };
   const camPosRef = useRef<[number, number, number]>([9, 6, 9]);
   const camRotRef = useRef<[number, number, number]>([0, 0, 0]);
@@ -576,7 +575,7 @@ const Solar3DShowcase = () => {
 
 
         {/* Debug Panel */}
-        <DebugPanel config={config} onChange={handleConfigChange} camPos={camDisplay.pos} camRot={camDisplay.rot} />
+        <DebugPanel config={config} onChange={handleConfigChange} onReset={handleReset} camPos={camDisplay.pos} camRot={camDisplay.rot} />
 
         {/* Overlay */}
         <div className="absolute inset-0 pointer-events-none flex flex-col justify-start pt-6 lg:pt-8">
