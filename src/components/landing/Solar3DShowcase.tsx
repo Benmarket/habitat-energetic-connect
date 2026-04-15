@@ -15,7 +15,7 @@ const useScrollProgress = (containerRef: React.RefObject<HTMLElement>) => {
     const onScroll = () => {
       const rect = el.getBoundingClientRect();
       const viewH = window.innerHeight;
-      const raw = 1 - (rect.bottom - viewH * 0.5) / (rect.height + viewH * 0.2);
+      const raw = 1 - (rect.bottom - viewH * 0.3) / (rect.height + viewH * 0.3);
       setProgress(Math.max(0, Math.min(1, raw)));
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -137,7 +137,7 @@ const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuil
 
   const t = Math.max(0, Math.min(1, (progress - delay) / 0.1));
   const e = 1 - Math.pow(1 - t, 3);
-  const startY = position[1] + 5 + index * 0.2;
+  const startY = position[1] + 12 + index * 0.3;
   const y = startY + (position[1] - startY) * e;
 
   useEffect(() => {
@@ -584,13 +584,12 @@ const Solar3DShowcase = () => {
         <DebugPanel config={config} onChange={handleConfigChange} camPos={camDisplay.pos} camRot={camDisplay.rot} />
 
         {/* Overlay */}
-        <div className="absolute inset-0 pointer-events-none flex flex-col justify-start pt-3 lg:pt-4">
-          <div className="container mx-auto px-6 max-w-5xl pl-[40px] lg:pl-[50px]">
+        <div className="absolute inset-0 pointer-events-none flex flex-col justify-start pt-6 lg:pt-8">
+          <div className="container mx-auto px-6 max-w-5xl pl-[140px] lg:pl-[160px]">
             <div
-              className="transition-all duration-700"
+              className="transition-opacity duration-500"
               style={{
-                opacity: Math.max(0.15, progress > 0.25 ? Math.min(1, (progress - 0.25) / 0.15) : 0.15 + progress * 0.4),
-                transform: `translateY(${progress > 0.25 ? 0 : -30}px)`,
+                opacity: Math.max(0.15, progress > 0.2 ? Math.min(1, (progress - 0.2) / 0.15) : 0.15 + progress * 0.3),
               }}
             >
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/60 backdrop-blur-md text-sky-800 text-sm font-semibold mb-4 border border-white/40 shadow-sm">
