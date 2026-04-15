@@ -50,7 +50,8 @@ export const SolarHeroVisual = ({ customSlides }: SolarHeroVisualProps = {}) => 
   }, [slides.length]);
 
   return (
-    <div className="flex items-center gap-4 lg:gap-6">
+    <div className="flex flex-col gap-5 h-full justify-center">
+      {/* Image slideshow - taller */}
       <div className="relative flex-shrink-0">
         <img
           src={macaronPrix}
@@ -58,7 +59,7 @@ export const SolarHeroVisual = ({ customSlides }: SolarHeroVisualProps = {}) => 
           className="absolute -top-4 -left-4 w-24 h-24 lg:w-28 lg:h-28 object-contain z-10"
         />
 
-        <div className="relative h-44 w-[13rem] overflow-hidden md:h-52 md:w-[16rem] lg:h-64 lg:w-[22rem]">
+        <div className="relative h-52 w-full overflow-hidden rounded-xl md:h-60 lg:h-72">
           {slides.map((slide, index) => (
             <img
               key={slide.src}
@@ -78,20 +79,22 @@ export const SolarHeroVisual = ({ customSlides }: SolarHeroVisualProps = {}) => 
         />
       </div>
 
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-3">
-          <img src={marqueFrancaise} alt="Marque Française" className="h-10 lg:h-11 object-contain" />
+      {/* Logos + text below image */}
+      <div className="flex items-start gap-5 mt-2">
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <img src={marqueFrancaise} alt="Marque Française" className="h-10 lg:h-12 object-contain" />
           <img src={guarantee25Years} alt="Garantie 25 ans" className="w-16 h-16 lg:w-20 lg:h-20" />
         </div>
 
-        <h2 className="text-lg lg:text-xl font-extrabold leading-tight">
-          Propriétaire d&apos;une maison individuelle ?
-        </h2>
-
-        <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">
-          Passez <strong className="text-foreground">à l&apos;énergie solaire</strong> et faites d&apos;importantes
-          économies sur votre <strong className="text-foreground">facture électrique.</strong>
-        </p>
+        <div className="flex flex-col gap-1">
+          <h2 className="text-lg lg:text-xl font-extrabold leading-tight">
+            Propriétaire d&apos;une maison individuelle ?
+          </h2>
+          <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">
+            Passez <strong className="text-foreground">à l&apos;énergie solaire</strong> et faites d&apos;importantes
+            économies sur votre <strong className="text-foreground">facture électrique.</strong>
+          </p>
+        </div>
       </div>
     </div>
   );
