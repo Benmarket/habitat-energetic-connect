@@ -579,19 +579,13 @@ const Solar3DShowcase = () => {
         {/* Roof Type Selector */}
         <RoofTypeSelector selected={roofType} onSelect={setRoofType} />
 
-        {/* Roof type label above the roof */}
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-40">
-          <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/70 backdrop-blur-md border border-white/50 shadow-md text-slate-700 text-sm font-semibold tracking-wide">
-            Toiture {roofLabel}
-          </span>
-        </div>
 
         {/* Debug Panel */}
         <DebugPanel config={config} onChange={handleConfigChange} camPos={camDisplay.pos} camRot={camDisplay.rot} />
 
         {/* Overlay */}
-        <div className="absolute inset-0 pointer-events-none flex flex-col justify-start pt-16 lg:pt-20">
-          <div className="container mx-auto px-6 max-w-5xl">
+        <div className="absolute inset-0 pointer-events-none flex flex-col justify-start pt-10 lg:pt-14">
+          <div className="container mx-auto px-6 max-w-5xl pl-[180px] lg:pl-[200px]">
             <div
               className="transition-all duration-700"
               style={{
