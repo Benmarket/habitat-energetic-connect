@@ -15,7 +15,7 @@ const useScrollProgress = (containerRef: React.RefObject<HTMLElement>) => {
     const onScroll = () => {
       const rect = el.getBoundingClientRect();
       const viewH = window.innerHeight;
-      const raw = 1 - (rect.bottom - viewH * 0.3) / (rect.height + viewH * 0.3);
+      const raw = 1 - (rect.bottom - viewH * 0.5) / (rect.height + viewH * 0.2);
       setProgress(Math.max(0, Math.min(1, raw)));
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -589,7 +589,7 @@ const Solar3DShowcase = () => {
             <div
               className="transition-all duration-700"
               style={{
-                opacity: progress > 0.25 ? Math.min(1, (progress - 0.25) / 0.15) : 0,
+                opacity: Math.max(0.15, progress > 0.25 ? Math.min(1, (progress - 0.25) / 0.15) : 0.15 + progress * 0.4),
                 transform: `translateY(${progress > 0.25 ? 0 : -30}px)`,
               }}
             >
