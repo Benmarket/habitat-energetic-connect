@@ -53,7 +53,13 @@ const DEFAULT_FLAT_CONFIG: DebugConfig = {
   panelScale: 1.05,
 };
 
-const STORAGE_KEY_STANDARD = "solar3d_debug_standard";
+const DEFAULT_TOLE_CONFIG: DebugConfig = {
+  ...DEFAULT_CONFIG,
+  panelY: 0.17,
+};
+
+const STORAGE_KEY_TUILES = "solar3d_debug_tuiles";
+const STORAGE_KEY_TOLE = "solar3d_debug_tole";
 const STORAGE_KEY_FLAT = "solar3d_debug_flat";
 
 const loadConfig = (key: string, defaults: DebugConfig): DebugConfig => {
