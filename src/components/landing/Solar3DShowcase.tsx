@@ -590,13 +590,13 @@ const Solar3DShowcase = () => {
         <DebugPanel config={config} onChange={handleConfigChange} camPos={camDisplay.pos} camRot={camDisplay.rot} />
 
         {/* Overlay */}
-        <div className="absolute inset-0 pointer-events-none flex flex-col justify-end pb-6 lg:pb-16">
+        <div className="absolute inset-0 pointer-events-none flex flex-col justify-start pt-16 lg:pt-20">
           <div className="container mx-auto px-6 max-w-5xl">
             <div
               className="transition-all duration-700"
               style={{
                 opacity: progress > 0.25 ? Math.min(1, (progress - 0.25) / 0.15) : 0,
-                transform: `translateY(${progress > 0.25 ? 0 : 40}px)`,
+                transform: `translateY(${progress > 0.25 ? 0 : -30}px)`,
               }}
             >
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/60 backdrop-blur-md text-sky-800 text-sm font-semibold mb-4 border border-white/40 shadow-sm">
@@ -612,7 +612,7 @@ const Solar3DShowcase = () => {
                 pour un rendement optimal et une intégration parfaite à votre toiture.
               </p>
             </div>
-            <div className="mt-8 flex items-center gap-4">
+            <div className="mt-6 flex items-center gap-4">
               <div className="h-1.5 w-56 bg-slate-300/40 rounded-full overflow-hidden backdrop-blur-sm">
                 <div
                   className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-150"
