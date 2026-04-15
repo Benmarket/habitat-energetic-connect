@@ -137,7 +137,7 @@ const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuil
 
   const t = Math.max(0, Math.min(1, (progress - delay) / 0.1));
   const e = 1 - Math.pow(1 - t, 3);
-  const startY = position[1] + 5 + index * 0.2;
+  const startY = position[1] + 12 + index * 0.3;
   const y = startY + (position[1] - startY) * e;
 
   useEffect(() => {
