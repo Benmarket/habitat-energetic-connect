@@ -39,7 +39,15 @@ import SolarCounters from "@/components/landing/SolarCounters";
 import SolarComparatif from "@/components/landing/SolarComparatif";
 import SolarStickyCTA from "@/components/landing/SolarStickyCTA";
 import { lazy } from "react";
-const Solar3DShowcase = lazy(() => import("@/components/landing/Solar3DShowcase"));
+import { useGLTF } from "@react-three/drei";
+
+// Preload GLB models immediately (doesn't block render, just starts fetch)
+useGLTF.preload("/models/solar_panel.glb");
+useGLTF.preload("/models/solar_panel_flat.glb");
+
+// Eagerly start loading the chunk (but render lazily with Suspense)
+const solar3DPromise = import("@/components/landing/Solar3DShowcase");
+const Solar3DShowcase = lazy(() => solar3DPromise);
 
 // ─── Logos partenaires (hébergés sur le stockage cloud) ───
 const STORAGE_BASE = "https://ggucavhanqmdxjqdbcnw.supabase.co/storage/v1/object/public/media/logos";
