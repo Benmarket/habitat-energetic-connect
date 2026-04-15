@@ -518,25 +518,27 @@ const LandingSolaireContent = () => {
 
         <main>
           {/* ═══ BAND 1: Hero Banner ═══ */}
-          <section className="relative pt-24 pb-12 lg:pt-28 lg:pb-20 px-4 overflow-hidden">
+          <section className="relative pt-20 pb-10 lg:pt-22 lg:pb-14 px-4 overflow-hidden">
             {/* Background image */}
             <img src={fondGris} alt="" className="absolute inset-0 w-full h-full object-cover" aria-hidden="true" />
             <div className="absolute inset-0 bg-background/30" aria-hidden="true" />
 
             <div className="container mx-auto max-w-7xl relative z-10">
               <h1
-                className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-center mb-2"
+                className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-center mb-1"
                 style={{ color: "#3d8b37" }}
               >
                 Faites installer vos panneaux solaires
               </h1>
-              <p className="text-center text-base lg:text-lg text-foreground mb-8">
+              <p className="text-center text-base lg:text-lg text-foreground mb-6">
                 Faites jusqu'à 70% d'économie sur 30 ans avec une centrale solaire en autoconsommation.
               </p>
 
-              <div className="grid lg:grid-cols-[1fr_1fr] gap-6 lg:gap-8 items-center">
+              <div className="grid lg:grid-cols-[3fr_2fr] gap-6 lg:gap-10 items-stretch">
                 {/* Left: Product visual + text side by side */}
-                <SolarHeroVisual customSlides={heroSlides} />
+                <div className="flex items-center">
+                  <SolarHeroVisual customSlides={heroSlides} />
+                </div>
 
                 {/* Right: Eligibility wizard */}
                 <div
