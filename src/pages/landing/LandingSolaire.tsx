@@ -530,7 +530,7 @@ const LandingSolaireContent = () => {
                 Faites installer vos panneaux solaires
               </h1>
               <p className="text-center text-base lg:text-lg text-foreground mb-6">
-                Faites jusqu'à 70% d'économie sur 30 ans avec une centrale solaire en autoconsommation.
+                Faites jusqu'à <strong className="text-emerald-600">70% d'économie</strong> tous les mois pendant <span className="bg-gradient-to-r from-amber-400 to-orange-500 px-2 py-0.5 rounded-md text-white font-bold shadow-sm">30 ans</span> avec une centrale solaire en autoconsommation.
               </p>
 
               <div className="grid lg:grid-cols-[3fr_2fr] gap-6 lg:gap-10 items-stretch">
