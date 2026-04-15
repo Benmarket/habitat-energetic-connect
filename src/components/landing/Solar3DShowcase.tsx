@@ -36,7 +36,7 @@ interface DebugConfig {
 }
 
 const DEFAULT_CONFIG: DebugConfig = {
-  roofPosX: 0.05, roofPosY: 0.9, roofPosZ: -1.5,
+  roofPosX: 0.05, roofPosY: -1, roofPosZ: -1.5,
   roofRotX: 0.69, roofRotY: 0, roofRotZ: 0,
   panelRotAX: 0, panelRotAY: 1.5708, panelRotAZ: 0,
   panelRotBX: 2.68, panelRotBY: 0, panelRotBZ: 1.5708,
@@ -45,7 +45,7 @@ const DEFAULT_CONFIG: DebugConfig = {
 };
 
 const DEFAULT_FLAT_CONFIG: DebugConfig = {
-  roofPosX: 0.05, roofPosY: 0.9, roofPosZ: -1.5,
+  roofPosX: 0.05, roofPosY: -1, roofPosZ: -1.5,
   roofRotX: 0.15, roofRotY: 0, roofRotZ: 0,
   panelRotAX: 0.03, panelRotAY: 1, panelRotAZ: -1.76,
   panelRotBX: 2.6, panelRotBY: 0.11, panelRotBZ: 1.41,
@@ -584,8 +584,8 @@ const Solar3DShowcase = () => {
         <DebugPanel config={config} onChange={handleConfigChange} camPos={camDisplay.pos} camRot={camDisplay.rot} />
 
         {/* Overlay */}
-        <div className="absolute inset-0 pointer-events-none flex flex-col justify-start pt-10 lg:pt-14">
-          <div className="container mx-auto px-6 max-w-5xl pl-[180px] lg:pl-[200px]">
+        <div className="absolute inset-0 pointer-events-none flex flex-col justify-start pt-6 lg:pt-8">
+          <div className="container mx-auto px-6 max-w-5xl pl-[140px] lg:pl-[160px]">
             <div
               className="transition-all duration-700"
               style={{
