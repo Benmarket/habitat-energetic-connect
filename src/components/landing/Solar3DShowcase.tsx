@@ -53,7 +53,13 @@ const DEFAULT_FLAT_CONFIG: DebugConfig = {
   panelScale: 1.05,
 };
 
-const STORAGE_KEY_STANDARD = "solar3d_debug_standard";
+const DEFAULT_TOLE_CONFIG: DebugConfig = {
+  ...DEFAULT_CONFIG,
+  panelY: 0.17,
+};
+
+const STORAGE_KEY_TUILES = "solar3d_debug_tuiles";
+const STORAGE_KEY_TOLE = "solar3d_debug_tole";
 const STORAGE_KEY_FLAT = "solar3d_debug_flat";
 
 const loadConfig = (key: string, defaults: DebugConfig): DebugConfig => {
@@ -446,20 +452,24 @@ const Solar3DShowcase = () => {
   const progress = useScrollProgress(containerRef as React.RefObject<HTMLElement>);
   const [roofType, setRoofType] = useState<RoofType>("tuiles");
 
-  // Deux configs séparées : une pour tuiles/tôle, une pour plate
-  const [standardConfig, setStandardConfig] = useState<DebugConfig>(() => loadConfig(STORAGE_KEY_STANDARD, DEFAULT_CONFIG));
+  // Trois configs séparées : tuiles, tôle, plate
+  const [tuilesConfig, setTuilesConfig] = useState<DebugConfig>(() => loadConfig(STORAGE_KEY_TUILES, DEFAULT_CONFIG));
+  const [toleConfig, setToleConfig] = useState<DebugConfig>(() => loadConfig(STORAGE_KEY_TOLE, DEFAULT_TOLE_CONFIG));
   const [flatConfig, setFlatConfig] = useState<DebugConfig>(() => loadConfig(STORAGE_KEY_FLAT, DEFAULT_FLAT_CONFIG));
 
   // Config active selon le type de toiture
-  const config = roofType === "plate" ? flatConfig : standardConfig;
+  const config = roofType === "plate" ? flatConfig : roofType === "tole" ? toleConfig : tuilesConfig;
 
   const handleConfigChange = (c: DebugConfig) => {
     if (roofType === "plate") {
       setFlatConfig(c);
       localStorage.setItem(STORAGE_KEY_FLAT, JSON.stringify(c));
+    } else if (roofType === "tole") {
+      setToleConfig(c);
+      localStorage.setItem(STORAGE_KEY_TOLE, JSON.stringify(c));
     } else {
-      setStandardConfig(c);
-      localStorage.setItem(STORAGE_KEY_STANDARD, JSON.stringify(c));
+      setTuilesConfig(c);
+      localStorage.setItem(STORAGE_KEY_TUILES, JSON.stringify(c));
     }
   };
   const camPosRef = useRef<[number, number, number]>([9, 6, 9]);
