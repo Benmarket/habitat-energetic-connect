@@ -40,7 +40,7 @@ const DEFAULT_CONFIG: DebugConfig = {
   roofRotX: 0.69, roofRotY: 0, roofRotZ: 0,
   panelRotAX: 0, panelRotAY: 1.5708, panelRotAZ: 0,
   panelRotBX: 2.68, panelRotBY: 0, panelRotBZ: 1.5708,
-  panelY: 0.31,
+  panelY: 0.21,
   panelScale: 0.7,
 };
 
@@ -49,13 +49,13 @@ const DEFAULT_FLAT_CONFIG: DebugConfig = {
   roofRotX: 0.15, roofRotY: 0, roofRotZ: 0,
   panelRotAX: 0.03, panelRotAY: 1, panelRotAZ: -1.76,
   panelRotBX: 2.6, panelRotBY: 0.11, panelRotBZ: 1.41,
-  panelY: 0.65,
+  panelY: 0.55,
   panelScale: 1.05,
 };
 
 const DEFAULT_TOLE_CONFIG: DebugConfig = {
   ...DEFAULT_CONFIG,
-  panelY: 0.17,
+  panelY: 0.07,
   panelScale: 0.5,
 };
 
