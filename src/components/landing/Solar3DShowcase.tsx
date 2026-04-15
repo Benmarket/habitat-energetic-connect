@@ -452,20 +452,24 @@ const Solar3DShowcase = () => {
   const progress = useScrollProgress(containerRef as React.RefObject<HTMLElement>);
   const [roofType, setRoofType] = useState<RoofType>("tuiles");
 
-  // Deux configs séparées : une pour tuiles/tôle, une pour plate
-  const [standardConfig, setStandardConfig] = useState<DebugConfig>(() => loadConfig(STORAGE_KEY_STANDARD, DEFAULT_CONFIG));
+  // Trois configs séparées : tuiles, tôle, plate
+  const [tuilesConfig, setTuilesConfig] = useState<DebugConfig>(() => loadConfig(STORAGE_KEY_TUILES, DEFAULT_CONFIG));
+  const [toleConfig, setToleConfig] = useState<DebugConfig>(() => loadConfig(STORAGE_KEY_TOLE, DEFAULT_TOLE_CONFIG));
   const [flatConfig, setFlatConfig] = useState<DebugConfig>(() => loadConfig(STORAGE_KEY_FLAT, DEFAULT_FLAT_CONFIG));
 
   // Config active selon le type de toiture
-  const config = roofType === "plate" ? flatConfig : standardConfig;
+  const config = roofType === "plate" ? flatConfig : roofType === "tole" ? toleConfig : tuilesConfig;
 
   const handleConfigChange = (c: DebugConfig) => {
     if (roofType === "plate") {
       setFlatConfig(c);
       localStorage.setItem(STORAGE_KEY_FLAT, JSON.stringify(c));
+    } else if (roofType === "tole") {
+      setToleConfig(c);
+      localStorage.setItem(STORAGE_KEY_TOLE, JSON.stringify(c));
     } else {
-      setStandardConfig(c);
-      localStorage.setItem(STORAGE_KEY_STANDARD, JSON.stringify(c));
+      setTuilesConfig(c);
+      localStorage.setItem(STORAGE_KEY_TUILES, JSON.stringify(c));
     }
   };
   const camPosRef = useRef<[number, number, number]>([9, 6, 9]);
