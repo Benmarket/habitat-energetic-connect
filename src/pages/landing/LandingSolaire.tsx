@@ -525,8 +525,7 @@ const LandingSolaireContent = () => {
 
             <div className="container mx-auto max-w-7xl relative z-10">
               <h1
-                className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-center mb-1"
-                style={{ color: "#3d8b37" }}
+                className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-center mb-1 bg-gradient-to-r from-emerald-600 via-green-500 to-teal-600 bg-clip-text text-transparent drop-shadow-sm"
               >
                 Faites installer vos panneaux solaires
               </h1>

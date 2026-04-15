@@ -56,7 +56,7 @@ export const SolarHeroVisual = ({ customSlides }: SolarHeroVisualProps = {}) => 
         <img
           src={macaronPrix}
           alt="À partir de 35€/mois, primes déduites"
-          className="absolute -top-4 -left-4 w-24 h-24 lg:w-28 lg:h-28 object-contain z-10"
+          className="absolute -top-5 -left-5 w-28 h-28 lg:w-36 lg:h-36 object-contain z-10 drop-shadow-lg"
         />
 
         <div className="relative h-52 w-full overflow-hidden rounded-xl md:h-60 lg:h-72">
