@@ -69,6 +69,7 @@ const LandingPageSectionsEditor = ({
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [cropSlideIndex, setCropSlideIndex] = useState<number | null>(null);
   const [cropImageSrc, setCropImageSrc] = useState("");
+  const [fileNameDrafts, setFileNameDrafts] = useState<Record<string, string>>({});
 
   const isProduct = landingPage.level === "product";
   const isRegional = landingPage.level === "region";
@@ -95,6 +96,31 @@ const LandingPageSectionsEditor = ({
   const updateContent = useCallback((updates: Partial<RegionalContent>) => {
     setContent(prev => ({ ...prev, ...updates }));
   }, []);
+
+  const getStoragePathFromPublicUrl = (url: string) => {
+    try {
+      const pathname = new URL(url).pathname;
+      const marker = "/storage/v1/object/public/media/";
+      const markerIndex = pathname.indexOf(marker);
+      if (markerIndex === -1) return null;
+      return decodeURIComponent(pathname.slice(markerIndex + marker.length));
+    } catch {
+      return null;
+    }
+  };
+
+  const getActualFileName = (slide: HeroSlide) => {
+    const storagePath = getStoragePathFromPublicUrl(slide.src);
+    if (storagePath) return storagePath.split("/").pop() || "image";
+    return slide.src.split("/").pop()?.split("?")[0] || "image";
+  };
+
+  const sanitizeFileName = (value: string, fallbackExtension?: string) => {
+    const trimmed = value.trim().replace(/[\\/]/g, "-");
+    if (!trimmed) return `image${fallbackExtension ? `.${fallbackExtension}` : ""}`;
+    if (trimmed.includes(".")) return trimmed;
+    return fallbackExtension ? `${trimmed}.${fallbackExtension}` : trimmed;
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -224,7 +250,6 @@ const LandingPageSectionsEditor = ({
   const handleCropComplete = async (croppedDataUrl: string) => {
     if (cropSlideIndex === null) return;
     try {
-      // Upload cropped image to storage
       const blob = await (await fetch(croppedDataUrl)).blob();
       const filePath = `hero-slides/${landingPage.slug}/crop-${Date.now()}.jpg`;
       const { error: uploadError } = await supabase.storage
@@ -235,12 +260,58 @@ const LandingPageSectionsEditor = ({
       const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
 
       const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
-      baseSlides[cropSlideIndex] = { ...baseSlides[cropSlideIndex], src: urlData.publicUrl };
+      baseSlides[cropSlideIndex] = {
+        ...baseSlides[cropSlideIndex],
+        src: urlData.publicUrl,
+        name: filePath.split("/").pop() || `crop-${Date.now()}.jpg`,
+      };
       updateContent({ hero_slides: baseSlides });
       toast.success("Image recadrée !");
     } catch (err) {
       toast.error("Erreur lors du recadrage");
       console.error(err);
+    }
+  };
+
+  const renameSlideFile = async (index: number, requestedName: string) => {
+    const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
+    const slide = baseSlides[index];
+    const oldPath = getStoragePathFromPublicUrl(slide.src);
+
+    if (!oldPath) {
+      toast.error("Cette image vient du code local : son fichier ne peut pas être renommé ici.");
+      setFileNameDrafts((prev) => {
+        const next = { ...prev };
+        delete next[slide.src];
+        return next;
+      });
+      return;
+    }
+
+    const currentName = oldPath.split("/").pop() || "image";
+    const extension = currentName.includes(".") ? currentName.split(".").pop() : undefined;
+    const safeName = sanitizeFileName(requestedName, extension);
+    if (safeName === currentName) return;
+
+    const targetPath = `${oldPath.split("/").slice(0, -1).join("/")}/${safeName}`;
+
+    try {
+      const { error } = await supabase.storage.from("media").move(oldPath, targetPath);
+      if (error) throw error;
+
+      const { data } = supabase.storage.from("media").getPublicUrl(targetPath);
+      baseSlides[index] = {
+        ...slide,
+        src: data.publicUrl,
+        name: safeName,
+      };
+      updateContent({ hero_slides: baseSlides });
+      setFileNameDrafts((prev) => ({ ...prev, [data.publicUrl]: safeName }));
+      toast.success("Fichier renommé.");
+    } catch (err) {
+      toast.error("Impossible de renommer ce fichier.");
+      console.error(err);
+      setFileNameDrafts((prev) => ({ ...prev, [slide.src]: currentName }));
     }
   };
 
@@ -299,15 +370,19 @@ const LandingPageSectionsEditor = ({
           <div className="px-2 py-1.5 bg-muted/50 border-t space-y-0.5" onClick={(e) => e.stopPropagation()}>
             <input
               type="text"
-              value={slide.name || slide.src.split("/").pop()?.split("?")[0] || "image"}
-              onChange={(e) => {
-                const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
-                baseSlides[index] = { ...baseSlides[index], name: e.target.value };
-                updateContent({ hero_slides: baseSlides });
+              value={fileNameDrafts[slide.src] ?? slide.name ?? getActualFileName(slide)}
+              onChange={(e) => setFileNameDrafts((prev) => ({ ...prev, [slide.src]: e.target.value }))}
+              onBlur={() => renameSlideFile(index, fileNameDrafts[slide.src] ?? slide.name ?? getActualFileName(slide))}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  void renameSlideFile(index, fileNameDrafts[slide.src] ?? slide.name ?? getActualFileName(slide));
+                  (e.currentTarget as HTMLInputElement).blur();
+                }
               }}
               className="w-full text-[10px] font-medium bg-transparent border-0 outline-none truncate text-foreground placeholder:text-muted-foreground focus:ring-0 p-0"
               placeholder="Nom du fichier"
-              title="Cliquez pour renommer"
+              title="Renommer le fichier"
             />
             <input
               type="text"
