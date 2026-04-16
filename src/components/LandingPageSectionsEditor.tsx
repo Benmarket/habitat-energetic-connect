@@ -256,7 +256,7 @@ const LandingPageSectionsEditor = ({
             editable ? "border-border hover:border-primary cursor-grab active:cursor-grabbing" : "border-border/50"
           } ${draggedIndex === index ? "ring-2 ring-primary opacity-60" : ""}`}
         >
-          <div className="aspect-[4/3] bg-muted">
+          <div className="aspect-[4/3] bg-muted relative">
             <img
               src={slide.src}
               alt={slide.alt}
@@ -266,65 +266,56 @@ const LandingPageSectionsEditor = ({
                 (e.target as HTMLImageElement).src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150' fill='%23ddd'%3E%3Crect width='200' height='150'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='14'%3EImage manquante%3C/text%3E%3C/svg%3E";
               }}
             />
+            {editable && (
+              <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="p-1 bg-white/90 rounded shadow-sm">
+                  <GripVertical className="w-3 h-3 text-muted-foreground" />
+                </div>
+              </div>
+            )}
+            <button
+              onClick={() => openCropModal(index)}
+              className="absolute top-1 right-8 p-1 bg-blue-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600"
+              title="Recadrer cette image"
+            >
+              <Crop className="w-3 h-3" />
+            </button>
+            <button
+              onClick={() => removeSlide(index)}
+              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+              title="Retirer cette image"
+            >
+              <X className="w-3 h-3" />
+            </button>
+            {slide.caption && (
+              <div className="absolute bottom-1 left-1 pointer-events-none">
+                <span className="text-amber-300 text-[9px] font-semibold bg-black/60 rounded px-1.5 py-0.5">📍 {slide.caption}</span>
+              </div>
+            )}
           </div>
-
-          {/* Overlay info (non-hover) */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-            <div className="absolute bottom-0 left-0 right-0 p-2 pb-[52px]">
-              {slide.caption && (
-                <p className="text-amber-300 text-[10px] font-semibold leading-tight truncate">📍 {slide.caption}</p>
-              )}
-              <p className="text-white/60 text-[9px] mt-0.5">#{index + 1}</p>
-            </div>
-          </div>
-
-          {/* Editable inputs on hover: alt text + caption */}
-          <div className="absolute bottom-0 left-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity z-20" onClick={(e) => e.stopPropagation()}>
+          {/* Permanent editable name + caption below thumbnail */}
+          <div className="px-2 py-1.5 bg-muted/50 border-t space-y-0.5" onClick={(e) => e.stopPropagation()}>
             <input
               type="text"
-              placeholder="Nom / texte alternatif"
               value={slide.alt}
               onChange={(e) => {
                 const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
                 baseSlides[index] = { ...baseSlides[index], alt: e.target.value };
                 updateContent({ hero_slides: baseSlides });
               }}
-              className="w-full text-[10px] px-2 py-1 bg-black/90 text-white placeholder:text-white/40 border-0 outline-none focus:ring-1 focus:ring-primary"
+              className="w-full text-[10px] font-medium bg-transparent border-0 outline-none truncate text-foreground placeholder:text-muted-foreground focus:ring-0 p-0"
+              placeholder="Nom de l'image"
+              title="Cliquez pour renommer"
             />
             <input
               type="text"
               placeholder="Note (ex: La Réunion 974)"
               value={slide.caption || ""}
               onChange={(e) => updateSlideCaption(index, e.target.value)}
-              className="w-full text-[10px] px-2 py-1 bg-black/80 text-white/80 placeholder:text-white/40 border-0 border-t border-white/10 outline-none focus:ring-1 focus:ring-amber-400"
+              className="w-full text-[9px] bg-transparent border-0 outline-none truncate text-muted-foreground placeholder:text-muted-foreground/50 focus:ring-0 p-0"
             />
           </div>
-
-          {/* Edit controls */}
-          {editable && (
-            <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="p-1 bg-white/90 rounded shadow-sm">
-                <GripVertical className="w-3 h-3 text-muted-foreground" />
-              </div>
-            </div>
-          )}
-          {/* Crop button */}
-          <button
-            onClick={() => openCropModal(index)}
-            className="absolute top-1 right-8 p-1 bg-blue-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600"
-            title="Recadrer cette image"
-          >
-            <Crop className="w-3 h-3" />
-          </button>
-          {/* Remove button always visible on hover */}
-          <button
-            onClick={() => removeSlide(index)}
-            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-            title="Retirer cette image"
-          >
-            <X className="w-3 h-3" />
-          </button>
-        </div>
+          </div>
       ))}
     </div>
   );
