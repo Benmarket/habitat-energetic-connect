@@ -15,55 +15,24 @@ interface ImageCropModalProps {
 
 function getCroppedCanvas(
   image: HTMLImageElement,
-  crop: PixelCrop,
-  targetAspect: number
+  crop: PixelCrop
 ): string {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("No 2d context");
 
-  // The cropped region from the source
-  const sx = crop.x;
-  const sy = crop.y;
-  const sw = crop.width;
-  const sh = crop.height;
-
-  // Output: fit into target aspect ratio (4:3 for LP)
-  // The cropped content is placed inside, padded if needed
-  const cropAspect = sw / sh;
-  let outW: number, outH: number, dx: number, dy: number, dw: number, dh: number;
-
-  if (Math.abs(cropAspect - targetAspect) < 0.01) {
-    // Already matches — direct mapping
-    outW = Math.min(sw, 1200);
-    outH = Math.round(outW / targetAspect);
-    dx = 0; dy = 0; dw = outW; dh = outH;
-  } else if (cropAspect > targetAspect) {
-    // Wider than target — fit by width, letterbox top/bottom
-    outW = Math.min(sw, 1200);
-    outH = Math.round(outW / targetAspect);
-    dw = outW;
-    dh = Math.round(outW / cropAspect);
-    dx = 0;
-    dy = Math.round((outH - dh) / 2);
-  } else {
-    // Taller than target — fit by height, pillarbox left/right
-    outH = Math.min(sh, 900);
-    outW = Math.round(outH * targetAspect);
-    dh = outH;
-    dw = Math.round(outH * cropAspect);
-    dx = Math.round((outW - dw) / 2);
-    dy = 0;
-  }
+  // Simply extract the cropped region at its natural size
+  const outW = Math.round(crop.width);
+  const outH = Math.round(crop.height);
 
   canvas.width = outW;
   canvas.height = outH;
 
-  // Fill with a subtle background in case of letterbox/pillarbox
-  ctx.fillStyle = "#111";
-  ctx.fillRect(0, 0, outW, outH);
-
-  ctx.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
+  ctx.drawImage(
+    image,
+    crop.x, crop.y, crop.width, crop.height,
+    0, 0, outW, outH
+  );
 
   return canvas.toDataURL("image/jpeg", 0.92);
 }
