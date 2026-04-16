@@ -89,7 +89,7 @@ export interface RegionalContent {
   hero_title?: string;
   hero_subtitle?: string;
   hero_image?: string;
-  hero_slides?: { src: string; alt: string; caption?: string }[];
+  hero_slides?: { src: string; alt: string; caption?: string; name?: string }[];
   context?: RegionalContext;
   profitability?: RegionalProfitability;
   aids?: RegionalAids;
