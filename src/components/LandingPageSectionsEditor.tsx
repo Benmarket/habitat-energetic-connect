@@ -299,14 +299,14 @@ const LandingPageSectionsEditor = ({
           <div className="px-2 py-1.5 bg-muted/50 border-t space-y-0.5" onClick={(e) => e.stopPropagation()}>
             <input
               type="text"
-              value={slide.alt}
+              value={slide.name || slide.src.split("/").pop()?.split("?")[0] || "image"}
               onChange={(e) => {
                 const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
-                baseSlides[index] = { ...baseSlides[index], alt: e.target.value };
+                baseSlides[index] = { ...baseSlides[index], name: e.target.value };
                 updateContent({ hero_slides: baseSlides });
               }}
               className="w-full text-[10px] font-medium bg-transparent border-0 outline-none truncate text-foreground placeholder:text-muted-foreground focus:ring-0 p-0"
-              placeholder="Nom de l'image"
+              placeholder="Nom du fichier"
               title="Cliquez pour renommer"
             />
             <input
