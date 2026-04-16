@@ -268,25 +268,35 @@ const LandingPageSectionsEditor = ({
             />
           </div>
 
-          {/* Overlay info */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="absolute bottom-0 left-0 right-0 p-2">
+          {/* Overlay info (non-hover) */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            <div className="absolute bottom-0 left-0 right-0 p-2 pb-[52px]">
               {slide.caption && (
                 <p className="text-amber-300 text-[10px] font-semibold leading-tight truncate">📍 {slide.caption}</p>
               )}
-              <p className="text-white text-[10px] leading-tight truncate">{slide.alt}</p>
               <p className="text-white/60 text-[9px] mt-0.5">#{index + 1}</p>
             </div>
           </div>
 
-          {/* Caption edit input on hover */}
+          {/* Editable inputs on hover: alt text + caption */}
           <div className="absolute bottom-0 left-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity z-20" onClick={(e) => e.stopPropagation()}>
+            <input
+              type="text"
+              placeholder="Nom / texte alternatif"
+              value={slide.alt}
+              onChange={(e) => {
+                const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
+                baseSlides[index] = { ...baseSlides[index], alt: e.target.value };
+                updateContent({ hero_slides: baseSlides });
+              }}
+              className="w-full text-[10px] px-2 py-1 bg-black/90 text-white placeholder:text-white/40 border-0 outline-none focus:ring-1 focus:ring-primary"
+            />
             <input
               type="text"
               placeholder="Note (ex: La Réunion 974)"
               value={slide.caption || ""}
               onChange={(e) => updateSlideCaption(index, e.target.value)}
-              className="w-full text-[10px] px-2 py-1 bg-black/80 text-white placeholder:text-white/40 border-0 outline-none focus:ring-1 focus:ring-amber-400"
+              className="w-full text-[10px] px-2 py-1 bg-black/80 text-white/80 placeholder:text-white/40 border-0 border-t border-white/10 outline-none focus:ring-1 focus:ring-amber-400"
             />
           </div>
 
