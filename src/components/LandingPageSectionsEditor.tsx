@@ -324,6 +324,16 @@ const LandingPageSectionsEditor = ({
               </div>
             </div>
           )}
+          {/* Restore original button (only if cropped) */}
+          {slide.originalSrc && (
+            <button
+              onClick={() => restoreOriginal(index)}
+              className="absolute top-1 right-[3.75rem] p-1 bg-amber-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-amber-600"
+              title="Restaurer l'image originale"
+            >
+              <RotateCcw className="w-3 h-3" />
+            </button>
+          )}
           {/* Crop button */}
           <button
             onClick={() => openCropModal(index)}
@@ -332,7 +342,7 @@ const LandingPageSectionsEditor = ({
           >
             <Crop className="w-3 h-3" />
           </button>
-          {/* Remove button always visible on hover */}
+          {/* Remove button */}
           <button
             onClick={() => removeSlide(index)}
             className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
