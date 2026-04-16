@@ -13,7 +13,7 @@ import {
   Save, Plus, Trash2, ImageIcon, Eye, GripVertical, Upload,
   Loader2, CheckCircle, ArrowLeft, Globe, MapPin, Layers,
   Sun, Quote, Shield, HelpCircle, Megaphone, ChevronRight,
-  X, ExternalLink, Copy, AlertCircle, Crop
+  X, ExternalLink, Copy, AlertCircle, Crop, Award
 } from "lucide-react";
 import ImageCropModal from "@/components/ImageCropModal";
 import type { RegionalContent } from "@/hooks/useRegionalContent";
