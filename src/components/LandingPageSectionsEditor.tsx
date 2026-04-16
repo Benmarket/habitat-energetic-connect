@@ -79,9 +79,13 @@ const LandingPageSectionsEditor = ({
     ? normalizeHeroSlides(content.hero_slides)
     : [];
 
+  const isSolarProduct = landingPage.slug.includes("solaire");
+
   const inheritedSlides: HeroSlide[] = parentContent?.hero_slides && parentContent.hero_slides.length > 0
     ? normalizeHeroSlides(parentContent.hero_slides)
-    : normalizeHeroSlides(defaultHeroSlides);
+    : isSolarProduct
+      ? normalizeHeroSlides(defaultHeroSlides)
+      : [];
 
   const effectiveSlides = currentSlides.length > 0 ? currentSlides : inheritedSlides;
   const isUsingCustomSlides = currentSlides.length > 0;
