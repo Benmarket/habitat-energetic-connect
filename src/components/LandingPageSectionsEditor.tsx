@@ -315,8 +315,9 @@ const LandingPageSectionsEditor = ({
               className="w-full text-[9px] bg-transparent border-0 outline-none truncate text-muted-foreground placeholder:text-muted-foreground/50 focus:ring-0 p-0"
             />
           </div>
+          </div>
+        </div>
       ))}
-    </div>
   );
 
   return (
