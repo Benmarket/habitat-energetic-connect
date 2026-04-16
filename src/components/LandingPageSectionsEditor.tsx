@@ -119,9 +119,10 @@ const LandingPageSectionsEditor = ({
   };
 
   const removeSlide = (index: number) => {
-    const slides = [...(content.hero_slides || [])];
-    slides.splice(index, 1);
-    updateContent({ hero_slides: slides });
+    // If not yet using custom slides, copy effective slides first then remove
+    const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
+    baseSlides.splice(index, 1);
+    updateContent({ hero_slides: baseSlides });
   };
 
   const updateSlideAlt = (index: number, alt: string) => {
@@ -236,20 +237,20 @@ const LandingPageSectionsEditor = ({
 
           {/* Edit controls */}
           {editable && (
-            <>
-              <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="p-1 bg-white/90 rounded shadow-sm">
-                  <GripVertical className="w-3 h-3 text-muted-foreground" />
-                </div>
+            <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="p-1 bg-white/90 rounded shadow-sm">
+                <GripVertical className="w-3 h-3 text-muted-foreground" />
               </div>
-              <button
-                onClick={() => removeSlide(index)}
-                className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </>
+            </div>
           )}
+          {/* Remove button always visible on hover */}
+          <button
+            onClick={() => removeSlide(index)}
+            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+            title="Retirer cette image"
+          >
+            <X className="w-3 h-3" />
+          </button>
         </div>
       ))}
     </div>
