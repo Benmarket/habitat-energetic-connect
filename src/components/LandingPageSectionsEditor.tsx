@@ -609,7 +609,38 @@ const LandingPageSectionsEditor = ({
                     {/* Default badge */}
                     <div className="p-3 rounded-lg bg-muted/40 border border-border space-y-3">
                       <div className="flex items-center gap-3">
-                        <img src={macaronPrixDefault} alt="Badge par défaut" className="w-16 h-16 object-contain flex-shrink-0" />
+                        <label className="relative group cursor-pointer flex-shrink-0">
+                          <img src={macaronPrixDefault} alt="Badge par défaut" className="w-16 h-16 object-contain rounded transition-opacity group-hover:opacity-60" />
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Upload className="w-5 h-5 text-primary" />
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              setUploadingBadge(true);
+                              try {
+                                const ext = file.name.split(".").pop();
+                                const filePath = `hero-badges/${landingPage.slug}/default-${Date.now()}.${ext}`;
+                                const { error: uploadError } = await supabase.storage
+                                  .from("media")
+                                  .upload(filePath, file, { upsert: true });
+                                if (uploadError) throw uploadError;
+                                const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
+                                updateContent({ hero_badge: urlData.publicUrl });
+                                toast.success("Badge par défaut mis à jour !");
+                              } catch (err) {
+                                toast.error("Erreur lors de l'upload");
+                                console.error(err);
+                              } finally {
+                                setUploadingBadge(false);
+                              }
+                            }}
+                          />
+                        </label>
                         <div>
                           <p className="text-sm font-semibold">Badge par défaut</p>
                           <p className="text-[11px] text-muted-foreground">
