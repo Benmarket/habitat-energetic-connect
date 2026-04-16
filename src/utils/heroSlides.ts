@@ -8,6 +8,8 @@ import realisationAccompagnement from "@/assets/landing/realisation-accompagneme
 import realisationFamille from "@/assets/landing/realisation-famille.png";
 import realisationTropicale from "@/assets/landing/realisation-tropicale.png";
 
+export const HERO_BAND_ASPECT_RATIO = 9 / 4;
+
 export interface HeroSlideData {
   src: string;
   alt: string;
