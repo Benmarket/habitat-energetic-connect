@@ -219,13 +219,20 @@ export const useRegionalContent = (regionCode: string): ResolvedRegionalContent 
         const nationalContent = (nationalRes.data?.regional_content as RegionalContent) || {};
 
         // Merge: regional overrides national
+        // Resolve badge from hero_badges array (product-level) based on region
+        const allBadges = nationalContent.hero_badges || [];
+        const resolvedBadge = regionalContent.hero_badge
+          || allBadges.find(b => b.regions?.includes(regionCode))?.src
+          || nationalContent.hero_badge;
+
         const resolved: RegionalContent = {
           region_name: regionalContent.region_name || regionName,
           region_demonym: regionalContent.region_demonym || regionName.toLowerCase(),
           hero_title: regionalContent.hero_title || nationalContent.hero_title,
           hero_subtitle: regionalContent.hero_subtitle || nationalContent.hero_subtitle,
           hero_image: regionalContent.hero_image || nationalContent.hero_image,
-          hero_badge: regionalContent.hero_badge || nationalContent.hero_badge,
+          hero_badge: resolvedBadge,
+          hero_badges: nationalContent.hero_badges,
           context: regionalContent.context || nationalContent.context,
           profitability: regionalContent.profitability || nationalContent.profitability,
           aids: regionalContent.aids || nationalContent.aids,
