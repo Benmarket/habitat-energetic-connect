@@ -316,8 +316,8 @@ const LandingPageSectionsEditor = ({
             />
           </div>
           </div>
-        </div>
       ))}
+    </div>
   );
 
   return (
