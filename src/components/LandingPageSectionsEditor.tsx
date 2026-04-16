@@ -370,15 +370,19 @@ const LandingPageSectionsEditor = ({
           <div className="px-2 py-1.5 bg-muted/50 border-t space-y-0.5" onClick={(e) => e.stopPropagation()}>
             <input
               type="text"
-              value={slide.name || slide.src.split("/").pop()?.split("?")[0] || "image"}
-              onChange={(e) => {
-                const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
-                baseSlides[index] = { ...baseSlides[index], name: e.target.value };
-                updateContent({ hero_slides: baseSlides });
+              value={fileNameDrafts[slide.src] ?? slide.name ?? getActualFileName(slide)}
+              onChange={(e) => setFileNameDrafts((prev) => ({ ...prev, [slide.src]: e.target.value }))}
+              onBlur={() => renameSlideFile(index, fileNameDrafts[slide.src] ?? slide.name ?? getActualFileName(slide))}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  void renameSlideFile(index, fileNameDrafts[slide.src] ?? slide.name ?? getActualFileName(slide));
+                  (e.currentTarget as HTMLInputElement).blur();
+                }
               }}
               className="w-full text-[10px] font-medium bg-transparent border-0 outline-none truncate text-foreground placeholder:text-muted-foreground focus:ring-0 p-0"
               placeholder="Nom du fichier"
-              title="Cliquez pour renommer"
+              title="Renommer le fichier"
             />
             <input
               type="text"
