@@ -40,7 +40,6 @@ interface HeroSlide {
   src: string;
   alt: string;
   caption?: string;
-  name?: string;
 }
 
 // Section definitions for the LP
@@ -69,7 +68,6 @@ const LandingPageSectionsEditor = ({
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [cropSlideIndex, setCropSlideIndex] = useState<number | null>(null);
   const [cropImageSrc, setCropImageSrc] = useState("");
-  const [fileNameDrafts, setFileNameDrafts] = useState<Record<string, string>>({});
 
   const isProduct = landingPage.level === "product";
   const isRegional = landingPage.level === "region";
@@ -96,31 +94,6 @@ const LandingPageSectionsEditor = ({
   const updateContent = useCallback((updates: Partial<RegionalContent>) => {
     setContent(prev => ({ ...prev, ...updates }));
   }, []);
-
-  const getStoragePathFromPublicUrl = (url: string) => {
-    try {
-      const pathname = new URL(url).pathname;
-      const marker = "/storage/v1/object/public/media/";
-      const markerIndex = pathname.indexOf(marker);
-      if (markerIndex === -1) return null;
-      return decodeURIComponent(pathname.slice(markerIndex + marker.length));
-    } catch {
-      return null;
-    }
-  };
-
-  const getActualFileName = (slide: HeroSlide) => {
-    const storagePath = getStoragePathFromPublicUrl(slide.src);
-    if (storagePath) return storagePath.split("/").pop() || "image";
-    return slide.src.split("/").pop()?.split("?")[0] || "image";
-  };
-
-  const sanitizeFileName = (value: string, fallbackExtension?: string) => {
-    const trimmed = value.trim().replace(/[\\/]/g, "-");
-    if (!trimmed) return `image${fallbackExtension ? `.${fallbackExtension}` : ""}`;
-    if (trimmed.includes(".")) return trimmed;
-    return fallbackExtension ? `${trimmed}.${fallbackExtension}` : trimmed;
-  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -211,7 +184,6 @@ const LandingPageSectionsEditor = ({
       const slides = [...(content.hero_slides || []), {
         src: urlData.publicUrl,
         alt: file.name.replace(/\.[^.]+$/, "").replace(/[-_]/g, " "),
-        name: file.name,
       }];
       updateContent({ hero_slides: slides });
       toast.success("Image uploadée !");
@@ -250,6 +222,7 @@ const LandingPageSectionsEditor = ({
   const handleCropComplete = async (croppedDataUrl: string) => {
     if (cropSlideIndex === null) return;
     try {
+      // Upload cropped image to storage
       const blob = await (await fetch(croppedDataUrl)).blob();
       const filePath = `hero-slides/${landingPage.slug}/crop-${Date.now()}.jpg`;
       const { error: uploadError } = await supabase.storage
@@ -260,58 +233,12 @@ const LandingPageSectionsEditor = ({
       const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
 
       const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
-      baseSlides[cropSlideIndex] = {
-        ...baseSlides[cropSlideIndex],
-        src: urlData.publicUrl,
-        name: filePath.split("/").pop() || `crop-${Date.now()}.jpg`,
-      };
+      baseSlides[cropSlideIndex] = { ...baseSlides[cropSlideIndex], src: urlData.publicUrl };
       updateContent({ hero_slides: baseSlides });
       toast.success("Image recadrée !");
     } catch (err) {
       toast.error("Erreur lors du recadrage");
       console.error(err);
-    }
-  };
-
-  const renameSlideFile = async (index: number, requestedName: string) => {
-    const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
-    const slide = baseSlides[index];
-    const oldPath = getStoragePathFromPublicUrl(slide.src);
-
-    if (!oldPath) {
-      toast.error("Cette image vient du code local : son fichier ne peut pas être renommé ici.");
-      setFileNameDrafts((prev) => {
-        const next = { ...prev };
-        delete next[slide.src];
-        return next;
-      });
-      return;
-    }
-
-    const currentName = oldPath.split("/").pop() || "image";
-    const extension = currentName.includes(".") ? currentName.split(".").pop() : undefined;
-    const safeName = sanitizeFileName(requestedName, extension);
-    if (safeName === currentName) return;
-
-    const targetPath = `${oldPath.split("/").slice(0, -1).join("/")}/${safeName}`;
-
-    try {
-      const { error } = await supabase.storage.from("media").move(oldPath, targetPath);
-      if (error) throw error;
-
-      const { data } = supabase.storage.from("media").getPublicUrl(targetPath);
-      baseSlides[index] = {
-        ...slide,
-        src: data.publicUrl,
-        name: safeName,
-      };
-      updateContent({ hero_slides: baseSlides });
-      setFileNameDrafts((prev) => ({ ...prev, [data.publicUrl]: safeName }));
-      toast.success("Fichier renommé.");
-    } catch (err) {
-      toast.error("Impossible de renommer ce fichier.");
-      console.error(err);
-      setFileNameDrafts((prev) => ({ ...prev, [slide.src]: currentName }));
     }
   };
 
@@ -329,7 +256,7 @@ const LandingPageSectionsEditor = ({
             editable ? "border-border hover:border-primary cursor-grab active:cursor-grabbing" : "border-border/50"
           } ${draggedIndex === index ? "ring-2 ring-primary opacity-60" : ""}`}
         >
-          <div className="aspect-[4/3] bg-muted relative">
+          <div className="aspect-[4/3] bg-muted">
             <img
               src={slide.src}
               alt={slide.alt}
@@ -339,60 +266,65 @@ const LandingPageSectionsEditor = ({
                 (e.target as HTMLImageElement).src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150' fill='%23ddd'%3E%3Crect width='200' height='150'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='14'%3EImage manquante%3C/text%3E%3C/svg%3E";
               }}
             />
-            {editable && (
-              <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="p-1 bg-white/90 rounded shadow-sm">
-                  <GripVertical className="w-3 h-3 text-muted-foreground" />
-                </div>
-              </div>
-            )}
-            <button
-              onClick={() => openCropModal(index)}
-              className="absolute top-1 right-8 p-1 bg-blue-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600"
-              title="Recadrer cette image"
-            >
-              <Crop className="w-3 h-3" />
-            </button>
-            <button
-              onClick={() => removeSlide(index)}
-              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-              title="Retirer cette image"
-            >
-              <X className="w-3 h-3" />
-            </button>
-            {slide.caption && (
-              <div className="absolute bottom-1 left-1 pointer-events-none">
-                <span className="text-amber-300 text-[9px] font-semibold bg-black/60 rounded px-1.5 py-0.5">📍 {slide.caption}</span>
-              </div>
-            )}
           </div>
-          {/* Permanent editable name + caption below thumbnail */}
-          <div className="px-2 py-1.5 bg-muted/50 border-t space-y-0.5" onClick={(e) => e.stopPropagation()}>
+
+          {/* Overlay info (non-hover) */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            <div className="absolute bottom-0 left-0 right-0 p-2 pb-[52px]">
+              {slide.caption && (
+                <p className="text-amber-300 text-[10px] font-semibold leading-tight truncate">📍 {slide.caption}</p>
+              )}
+              <p className="text-white/60 text-[9px] mt-0.5">#{index + 1}</p>
+            </div>
+          </div>
+
+          {/* Editable inputs on hover: alt text + caption */}
+          <div className="absolute bottom-0 left-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity z-20" onClick={(e) => e.stopPropagation()}>
             <input
               type="text"
-              value={fileNameDrafts[slide.src] ?? slide.name ?? getActualFileName(slide)}
-              onChange={(e) => setFileNameDrafts((prev) => ({ ...prev, [slide.src]: e.target.value }))}
-              onBlur={() => renameSlideFile(index, fileNameDrafts[slide.src] ?? slide.name ?? getActualFileName(slide))}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  void renameSlideFile(index, fileNameDrafts[slide.src] ?? slide.name ?? getActualFileName(slide));
-                  (e.currentTarget as HTMLInputElement).blur();
-                }
+              placeholder="Nom / texte alternatif"
+              value={slide.alt}
+              onChange={(e) => {
+                const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
+                baseSlides[index] = { ...baseSlides[index], alt: e.target.value };
+                updateContent({ hero_slides: baseSlides });
               }}
-              className="w-full text-[10px] font-medium bg-transparent border-0 outline-none truncate text-foreground placeholder:text-muted-foreground focus:ring-0 p-0"
-              placeholder="Nom du fichier"
-              title="Renommer le fichier"
+              className="w-full text-[10px] px-2 py-1 bg-black/90 text-white placeholder:text-white/40 border-0 outline-none focus:ring-1 focus:ring-primary"
             />
             <input
               type="text"
               placeholder="Note (ex: La Réunion 974)"
               value={slide.caption || ""}
               onChange={(e) => updateSlideCaption(index, e.target.value)}
-              className="w-full text-[9px] bg-transparent border-0 outline-none truncate text-muted-foreground placeholder:text-muted-foreground/50 focus:ring-0 p-0"
+              className="w-full text-[10px] px-2 py-1 bg-black/80 text-white/80 placeholder:text-white/40 border-0 border-t border-white/10 outline-none focus:ring-1 focus:ring-amber-400"
             />
           </div>
-          </div>
+
+          {/* Edit controls */}
+          {editable && (
+            <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="p-1 bg-white/90 rounded shadow-sm">
+                <GripVertical className="w-3 h-3 text-muted-foreground" />
+              </div>
+            </div>
+          )}
+          {/* Crop button */}
+          <button
+            onClick={() => openCropModal(index)}
+            className="absolute top-1 right-8 p-1 bg-blue-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600"
+            title="Recadrer cette image"
+          >
+            <Crop className="w-3 h-3" />
+          </button>
+          {/* Remove button always visible on hover */}
+          <button
+            onClick={() => removeSlide(index)}
+            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+            title="Retirer cette image"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
       ))}
     </div>
   );
