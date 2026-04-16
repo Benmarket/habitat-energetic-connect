@@ -603,6 +603,15 @@ const Solar3DShowcase = () => {
                   </span>
                 </div>
               </div>
+              <h2 className="text-3xl lg:text-6xl font-extrabold text-slate-800 leading-tight mb-4">
+                Vos panneaux, posés avec
+                <span className="bg-gradient-to-r from-emerald-500 to-teal-400 bg-clip-text text-transparent"> précision</span>
+              </h2>
+              <p className="text-slate-600 text-base lg:text-lg max-w-xl leading-relaxed">
+                Chaque panneau est installé par nos techniciens certifiés RGE
+                pour un rendement optimal et une intégration parfaite à votre toiture.
+              </p>
+            </div>
           </div>
         </div>
 
