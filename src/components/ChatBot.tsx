@@ -26,6 +26,7 @@ const HIDDEN_ROUTES = [
   '/guides',     // Guides list page (for consistency)
   '/actualites/', // Articles detail pages
   '/aide/',      // Aides detail pages
+  '/landing/',   // Landing pages
 ];
 
 type Message = {
