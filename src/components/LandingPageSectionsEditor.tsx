@@ -13,8 +13,9 @@ import {
   Save, Plus, Trash2, ImageIcon, Eye, GripVertical, Upload,
   Loader2, CheckCircle, ArrowLeft, Globe, MapPin, Layers,
   Sun, Quote, Shield, HelpCircle, Megaphone, ChevronRight,
-  X, ExternalLink, Copy, AlertCircle
+  X, ExternalLink, Copy, AlertCircle, Crop
 } from "lucide-react";
+import ImageCropModal from "@/components/ImageCropModal";
 import type { RegionalContent } from "@/hooks/useRegionalContent";
 import { defaultHeroSlides } from "@/components/landing/SolarHeroVisual";
 
@@ -64,6 +65,9 @@ const LandingPageSectionsEditor = ({
   const [newSlideUrl, setNewSlideUrl] = useState("");
   const [newSlideAlt, setNewSlideAlt] = useState("");
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [cropSlideIndex, setCropSlideIndex] = useState<number | null>(null);
+  const [cropImageSrc, setCropImageSrc] = useState("");
 
   const isProduct = landingPage.level === "product";
   const isRegional = landingPage.level === "region";
@@ -208,6 +212,36 @@ const LandingPageSectionsEditor = ({
     toast.success("Slides personnalisés supprimés — retour aux images héritées");
   };
 
+  const openCropModal = (index: number) => {
+    const slides = effectiveSlides;
+    setCropSlideIndex(index);
+    setCropImageSrc(slides[index].src);
+    setCropModalOpen(true);
+  };
+
+  const handleCropComplete = async (croppedDataUrl: string) => {
+    if (cropSlideIndex === null) return;
+    try {
+      // Upload cropped image to storage
+      const blob = await (await fetch(croppedDataUrl)).blob();
+      const filePath = `hero-slides/${landingPage.slug}/crop-${Date.now()}.jpg`;
+      const { error: uploadError } = await supabase.storage
+        .from("media")
+        .upload(filePath, blob, { upsert: true, contentType: "image/jpeg" });
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
+
+      const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
+      baseSlides[cropSlideIndex] = { ...baseSlides[cropSlideIndex], src: urlData.publicUrl };
+      updateContent({ hero_slides: baseSlides });
+      toast.success("Image recadrée !");
+    } catch (err) {
+      toast.error("Erreur lors du recadrage");
+      console.error(err);
+    }
+  };
+
   // ─── Slide Preview Grid ───
   const renderSlideGrid = (slides: HeroSlide[], editable: boolean) => (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -264,6 +298,14 @@ const LandingPageSectionsEditor = ({
               </div>
             </div>
           )}
+          {/* Crop button */}
+          <button
+            onClick={() => openCropModal(index)}
+            className="absolute top-1 right-8 p-1 bg-blue-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600"
+            title="Recadrer cette image"
+          >
+            <Crop className="w-3 h-3" />
+          </button>
           {/* Remove button always visible on hover */}
           <button
             onClick={() => removeSlide(index)}
@@ -537,6 +579,14 @@ const LandingPageSectionsEditor = ({
           </div>
         </div>
       </DialogContent>
+
+      <ImageCropModal
+        open={cropModalOpen}
+        onOpenChange={setCropModalOpen}
+        imageSrc={cropImageSrc}
+        onCropComplete={handleCropComplete}
+        aspectRatio={4 / 3}
+      />
     </Dialog>
   );
 };
