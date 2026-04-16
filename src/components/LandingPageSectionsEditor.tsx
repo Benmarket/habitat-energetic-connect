@@ -250,7 +250,6 @@ const LandingPageSectionsEditor = ({
   const handleCropComplete = async (croppedDataUrl: string) => {
     if (cropSlideIndex === null) return;
     try {
-      // Upload cropped image to storage
       const blob = await (await fetch(croppedDataUrl)).blob();
       const filePath = `hero-slides/${landingPage.slug}/crop-${Date.now()}.jpg`;
       const { error: uploadError } = await supabase.storage
@@ -261,12 +260,58 @@ const LandingPageSectionsEditor = ({
       const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
 
       const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
-      baseSlides[cropSlideIndex] = { ...baseSlides[cropSlideIndex], src: urlData.publicUrl };
+      baseSlides[cropSlideIndex] = {
+        ...baseSlides[cropSlideIndex],
+        src: urlData.publicUrl,
+        name: filePath.split("/").pop() || `crop-${Date.now()}.jpg`,
+      };
       updateContent({ hero_slides: baseSlides });
       toast.success("Image recadrée !");
     } catch (err) {
       toast.error("Erreur lors du recadrage");
       console.error(err);
+    }
+  };
+
+  const renameSlideFile = async (index: number, requestedName: string) => {
+    const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
+    const slide = baseSlides[index];
+    const oldPath = getStoragePathFromPublicUrl(slide.src);
+
+    if (!oldPath) {
+      toast.error("Cette image vient du code local : son fichier ne peut pas être renommé ici.");
+      setFileNameDrafts((prev) => {
+        const next = { ...prev };
+        delete next[slide.src];
+        return next;
+      });
+      return;
+    }
+
+    const currentName = oldPath.split("/").pop() || "image";
+    const extension = currentName.includes(".") ? currentName.split(".").pop() : undefined;
+    const safeName = sanitizeFileName(requestedName, extension);
+    if (safeName === currentName) return;
+
+    const targetPath = `${oldPath.split("/").slice(0, -1).join("/")}/${safeName}`;
+
+    try {
+      const { error } = await supabase.storage.from("media").move(oldPath, targetPath);
+      if (error) throw error;
+
+      const { data } = supabase.storage.from("media").getPublicUrl(targetPath);
+      baseSlides[index] = {
+        ...slide,
+        src: data.publicUrl,
+        name: safeName,
+      };
+      updateContent({ hero_slides: baseSlides });
+      setFileNameDrafts((prev) => ({ ...prev, [data.publicUrl]: safeName }));
+      toast.success("Fichier renommé.");
+    } catch (err) {
+      toast.error("Impossible de renommer ce fichier.");
+      console.error(err);
+      setFileNameDrafts((prev) => ({ ...prev, [slide.src]: currentName }));
     }
   };
 
