@@ -298,6 +298,14 @@ const LandingPageSectionsEditor = ({
               </div>
             </div>
           )}
+          {/* Crop button */}
+          <button
+            onClick={() => openCropModal(index)}
+            className="absolute top-1 right-8 p-1 bg-blue-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600"
+            title="Recadrer cette image"
+          >
+            <Crop className="w-3 h-3" />
+          </button>
           {/* Remove button always visible on hover */}
           <button
             onClick={() => removeSlide(index)}
