@@ -69,6 +69,7 @@ const LandingPageSectionsEditor = ({
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [cropSlideIndex, setCropSlideIndex] = useState<number | null>(null);
   const [cropImageSrc, setCropImageSrc] = useState("");
+  const [fileNameDrafts, setFileNameDrafts] = useState<Record<string, string>>({});
 
   const isProduct = landingPage.level === "product";
   const isRegional = landingPage.level === "region";
@@ -95,6 +96,31 @@ const LandingPageSectionsEditor = ({
   const updateContent = useCallback((updates: Partial<RegionalContent>) => {
     setContent(prev => ({ ...prev, ...updates }));
   }, []);
+
+  const getStoragePathFromPublicUrl = (url: string) => {
+    try {
+      const pathname = new URL(url).pathname;
+      const marker = "/storage/v1/object/public/media/";
+      const markerIndex = pathname.indexOf(marker);
+      if (markerIndex === -1) return null;
+      return decodeURIComponent(pathname.slice(markerIndex + marker.length));
+    } catch {
+      return null;
+    }
+  };
+
+  const getActualFileName = (slide: HeroSlide) => {
+    const storagePath = getStoragePathFromPublicUrl(slide.src);
+    if (storagePath) return storagePath.split("/").pop() || "image";
+    return slide.src.split("/").pop()?.split("?")[0] || "image";
+  };
+
+  const sanitizeFileName = (value: string, fallbackExtension?: string) => {
+    const trimmed = value.trim().replace(/[\\/]/g, "-");
+    if (!trimmed) return `image${fallbackExtension ? `.${fallbackExtension}` : ""}`;
+    if (trimmed.includes(".")) return trimmed;
+    return fallbackExtension ? `${trimmed}.${fallbackExtension}` : trimmed;
+  };
 
   const handleSave = async () => {
     setSaving(true);
