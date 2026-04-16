@@ -14,7 +14,7 @@ import macaronPrix from "@/assets/landing/macaron-prix.png";
 import marqueFrancaise from "@/assets/landing/marque-francaise.png";
 import onduleur from "@/assets/landing/onduleur.png";
 
-const defaultHeroSlides: { src: string; alt: string; caption?: string }[] = [
+const defaultHeroSlides: { src: string; alt: string; caption?: string; originalSrc?: string }[] = [
   { src: heroToitureTuiles, alt: "Maison avec panneaux solaires sur toiture en tuiles" },
   { src: heroToiturePlate, alt: "Maison avec installation solaire sur toiture plate" },
   { src: heroToitureArdoise, alt: "Installation solaire sur toiture en ardoise" },
@@ -29,7 +29,7 @@ const defaultHeroSlides: { src: string; alt: string; caption?: string }[] = [
 export { defaultHeroSlides };
 
 interface SolarHeroVisualProps {
-  customSlides?: { src: string; alt: string; caption?: string }[];
+  customSlides?: { src: string; alt: string; caption?: string; originalSrc?: string }[];
 }
 
 export const SolarHeroVisual = ({ customSlides }: SolarHeroVisualProps = {}) => {
