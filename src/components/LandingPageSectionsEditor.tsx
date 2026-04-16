@@ -16,9 +16,11 @@ import {
   X, ExternalLink, Copy, AlertCircle, Crop, Award
 } from "lucide-react";
 import ImageCropModal from "@/components/ImageCropModal";
-import type { RegionalContent } from "@/hooks/useRegionalContent";
+import type { RegionalContent, HeroBadgeItem } from "@/hooks/useRegionalContent";
 import { defaultHeroSlides } from "@/components/landing/SolarHeroVisual";
 import { normalizeHeroSlides, type HeroSlideData, HERO_BAND_ASPECT_RATIO } from "@/utils/heroSlides";
+import macaronPrixDefault from "@/assets/landing/macaron-prix.png";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface LandingPageSectionsEditorProps {
   open: boolean;
