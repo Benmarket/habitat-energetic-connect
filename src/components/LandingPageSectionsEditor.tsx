@@ -610,7 +610,7 @@ const LandingPageSectionsEditor = ({
                     <div className="p-3 rounded-lg bg-muted/40 border border-border space-y-3">
                       <div className="flex items-center gap-3">
                         <label className="relative group cursor-pointer flex-shrink-0">
-                          <img src={macaronPrixDefault} alt="Badge par défaut" className="w-16 h-16 object-contain rounded transition-opacity group-hover:opacity-60" />
+                          <img src={content.hero_badge || macaronPrixDefault} alt="Badge par défaut" className="w-16 h-16 object-contain rounded transition-opacity group-hover:opacity-60" />
                           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                             <Upload className="w-5 h-5 text-primary" />
                           </div>
