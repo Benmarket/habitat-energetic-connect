@@ -40,6 +40,7 @@ interface HeroSlide {
   src: string;
   alt: string;
   caption?: string;
+  originalSrc?: string;
 }
 
 // Section definitions for the LP
