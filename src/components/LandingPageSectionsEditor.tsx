@@ -66,6 +66,7 @@ const LandingPageSectionsEditor = ({
   const [cropSlideIndex, setCropSlideIndex] = useState<number | null>(null);
   const [cropImageSrc, setCropImageSrc] = useState("");
   const [cropOriginalImageSrc, setCropOriginalImageSrc] = useState<string | undefined>(undefined);
+  const [uploadingBadge, setUploadingBadge] = useState(false);
 
   const isProduct = landingPage.level === "product";
   const isRegional = landingPage.level === "region";
