@@ -598,82 +598,149 @@ const LandingPageSectionsEditor = ({
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm flex items-center gap-2">
                       <Award className="w-4 h-4 text-amber-600" />
-                      Badge prix (macaron)
-                      <Badge variant="outline" className="text-[10px] ml-auto">Obligatoire</Badge>
+                      Badges prix (macarons)
+                      <Badge variant="outline" className="text-[10px] ml-auto">Obligatoire — 1 par région</Badge>
                     </CardTitle>
                     <p className="text-xs text-muted-foreground">
-                      Le badge affiché en haut à gauche du diaporama. Si aucun badge n'est défini ici, le badge par défaut sera utilisé.
+                      Uploadez vos badges et cochez les régions sur lesquelles les afficher. Max 1 badge par région. Les régions sans badge afficheront le badge par défaut.
                     </p>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {/* Current badge preview */}
-                    <div className="flex items-center gap-4">
-                      <div className="w-24 h-24 rounded-lg border-2 border-dashed border-border bg-muted/30 flex items-center justify-center overflow-hidden flex-shrink-0">
-                        {content.hero_badge ? (
-                          <img src={content.hero_badge} alt="Badge prix" className="w-full h-full object-contain p-1" />
-                        ) : (
-                          <div className="text-center p-2">
-                            <Award className="w-6 h-6 mx-auto text-muted-foreground/50 mb-1" />
-                            <p className="text-[9px] text-muted-foreground">Badge par défaut</p>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex flex-col gap-2 flex-1">
-                        <label>
-                          <div className="flex items-center gap-2 px-4 py-3 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
-                            {uploadingBadge ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <Upload className="w-4 h-4 text-muted-foreground" />
-                            )}
-                            <span className="text-sm text-muted-foreground">
-                              {uploadingBadge ? "Upload en cours..." : "Uploader un badge"}
-                            </span>
-                          </div>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            disabled={uploadingBadge}
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              setUploadingBadge(true);
-                              try {
-                                const ext = file.name.split(".").pop();
-                                const filePath = `hero-badges/${landingPage.slug}/${Date.now()}.${ext}`;
-                                const { error: uploadError } = await supabase.storage
-                                  .from("media")
-                                  .upload(filePath, file, { upsert: true });
-                                if (uploadError) throw uploadError;
-                                const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
-                                updateContent({ hero_badge: urlData.publicUrl });
-                                toast.success("Badge uploadé !");
-                              } catch (err) {
-                                toast.error("Erreur lors de l'upload du badge");
-                                console.error(err);
-                              } finally {
-                                setUploadingBadge(false);
-                              }
-                            }}
-                          />
-                        </label>
-                        {content.hero_badge && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-xs gap-1 w-fit"
-                            onClick={() => {
-                              updateContent({ hero_badge: undefined });
-                              toast.success("Badge personnalisé supprimé — le badge par défaut sera utilisé");
-                            }}
-                          >
-                            <Trash2 className="w-3 h-3" />
-                            Revenir au badge par défaut
-                          </Button>
-                        )}
+                    {/* Default badge */}
+                    <div className="p-3 rounded-lg bg-muted/40 border border-border">
+                      <div className="flex items-center gap-3 mb-2">
+                        <img src={macaronPrixDefault} alt="Badge par défaut" className="w-16 h-16 object-contain flex-shrink-0" />
+                        <div>
+                          <p className="text-sm font-semibold">Badge par défaut</p>
+                          <p className="text-[11px] text-muted-foreground">
+                            Utilisé automatiquement pour toutes les régions sans badge personnalisé assigné.
+                          </p>
+                        </div>
                       </div>
                     </div>
+
+                    {/* Custom badges list */}
+                    {(content.hero_badges || []).map((badge, badgeIdx) => {
+                      const badges = content.hero_badges || [];
+                      return (
+                        <div key={badgeIdx} className="p-3 rounded-lg border border-border bg-background space-y-3">
+                          <div className="flex items-center gap-3">
+                            <img src={badge.src} alt={badge.label || `Badge ${badgeIdx + 1}`} className="w-16 h-16 object-contain flex-shrink-0 rounded" />
+                            <div className="flex-1">
+                              <Input
+                                value={badge.label || ""}
+                                onChange={(e) => {
+                                  const updated = [...badges];
+                                  updated[badgeIdx] = { ...updated[badgeIdx], label: e.target.value };
+                                  updateContent({ hero_badges: updated });
+                                }}
+                                placeholder="Nom du badge (optionnel)"
+                                className="h-8 text-xs"
+                              />
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive hover:text-destructive"
+                              onClick={() => {
+                                const updated = badges.filter((_, i) => i !== badgeIdx);
+                                updateContent({ hero_badges: updated });
+                                toast.success("Badge supprimé");
+                              }}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          {/* Region checkboxes */}
+                          <div>
+                            <p className="text-[11px] font-medium text-muted-foreground mb-1.5">Afficher sur :</p>
+                            <div className="flex flex-wrap gap-2">
+                              {ALL_REGIONS.map((region) => {
+                                const isChecked = badge.regions?.includes(region.code) || false;
+                                // Check if another badge already has this region
+                                const otherBadgeHasRegion = badges.some((b, i) => i !== badgeIdx && b.regions?.includes(region.code));
+                                return (
+                                  <label
+                                    key={region.code}
+                                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-xs cursor-pointer transition-colors ${
+                                      isChecked
+                                        ? "bg-primary/10 border-primary text-primary font-medium"
+                                        : otherBadgeHasRegion
+                                          ? "bg-muted/50 border-border text-muted-foreground/50 cursor-not-allowed"
+                                          : "bg-background border-border hover:border-primary/50"
+                                    }`}
+                                  >
+                                    <Checkbox
+                                      checked={isChecked}
+                                      disabled={otherBadgeHasRegion && !isChecked}
+                                      onCheckedChange={(checked) => {
+                                        const updated = [...badges];
+                                        const currentRegions = [...(updated[badgeIdx].regions || [])];
+                                        if (checked) {
+                                          currentRegions.push(region.code);
+                                        } else {
+                                          const idx = currentRegions.indexOf(region.code);
+                                          if (idx >= 0) currentRegions.splice(idx, 1);
+                                        }
+                                        updated[badgeIdx] = { ...updated[badgeIdx], regions: currentRegions };
+                                        updateContent({ hero_badges: updated });
+                                      }}
+                                      className="h-3.5 w-3.5"
+                                    />
+                                    <span>{region.label}</span>
+                                    {otherBadgeHasRegion && !isChecked && (
+                                      <span className="text-[9px]">(pris)</span>
+                                    )}
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Upload new badge */}
+                    <label>
+                      <div className="flex items-center gap-2 px-4 py-3 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
+                        {uploadingBadge ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Plus className="w-4 h-4 text-muted-foreground" />
+                        )}
+                        <span className="text-sm text-muted-foreground">
+                          {uploadingBadge ? "Upload en cours..." : "Ajouter un nouveau badge"}
+                        </span>
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        disabled={uploadingBadge}
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          setUploadingBadge(true);
+                          try {
+                            const ext = file.name.split(".").pop();
+                            const filePath = `hero-badges/${landingPage.slug}/${Date.now()}.${ext}`;
+                            const { error: uploadError } = await supabase.storage
+                              .from("media")
+                              .upload(filePath, file, { upsert: true });
+                            if (uploadError) throw uploadError;
+                            const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
+                            const badges = [...(content.hero_badges || []), { src: urlData.publicUrl, label: "", regions: [] }];
+                            updateContent({ hero_badges: badges });
+                            toast.success("Badge ajouté ! Cochez les régions où l'afficher.");
+                          } catch (err) {
+                            toast.error("Erreur lors de l'upload du badge");
+                            console.error(err);
+                          } finally {
+                            setUploadingBadge(false);
+                          }
+                        }}
+                      />
+                    </label>
                   </CardContent>
                 </Card>
               </div>
