@@ -103,7 +103,10 @@ const LandingSolaireContent = () => {
       if (data?.regional_content) {
         const rc = data.regional_content as any;
         if (rc.hero_slides?.length) setHeroSlides(rc.hero_slides);
-        if (rc.hero_badge) setHeroBadge(rc.hero_badge);
+        // Resolve badge: direct hero_badge or from hero_badges for "fr"
+        const badge = rc.hero_badge
+          || (rc.hero_badges as any[])?.find((b: any) => b.regions?.includes("fr"))?.src;
+        if (badge) setHeroBadge(badge);
       }
     };
     fetchProductContent();
