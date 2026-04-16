@@ -87,7 +87,7 @@ const ImageCropModal = ({
     if (!completedCrop || !imgRef.current) return;
     setSaving(true);
     try {
-      const dataUrl = getCroppedCanvas(imgRef.current, completedCrop, aspectRatio);
+      const dataUrl = getCroppedCanvas(imgRef.current, completedCrop);
       onCropComplete(dataUrl);
       onOpenChange(false);
     } catch (err) {
