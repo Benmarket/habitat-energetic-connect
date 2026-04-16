@@ -215,14 +215,14 @@ const LandingPageSectionsEditor = ({
   const openCropModal = (index: number) => {
     const slides = effectiveSlides;
     setCropSlideIndex(index);
-    setCropImageSrc(slides[index].src);
+    // Always crop from the original image if available
+    setCropImageSrc(slides[index].originalSrc || slides[index].src);
     setCropModalOpen(true);
   };
 
   const handleCropComplete = async (croppedDataUrl: string) => {
     if (cropSlideIndex === null) return;
     try {
-      // Upload cropped image to storage
       const blob = await (await fetch(croppedDataUrl)).blob();
       const filePath = `hero-slides/${landingPage.slug}/crop-${Date.now()}.jpg`;
       const { error: uploadError } = await supabase.storage
@@ -233,13 +233,28 @@ const LandingPageSectionsEditor = ({
       const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
 
       const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
-      baseSlides[cropSlideIndex] = { ...baseSlides[cropSlideIndex], src: urlData.publicUrl };
+      const currentSlide = baseSlides[cropSlideIndex];
+      baseSlides[cropSlideIndex] = {
+        ...currentSlide,
+        src: urlData.publicUrl,
+        // Preserve the original source for future resets
+        originalSrc: currentSlide.originalSrc || currentSlide.src,
+      };
       updateContent({ hero_slides: baseSlides });
       toast.success("Image recadrée !");
     } catch (err) {
       toast.error("Erreur lors du recadrage");
       console.error(err);
     }
+  };
+
+  const restoreOriginal = (index: number) => {
+    const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
+    const slide = baseSlides[index];
+    if (!slide.originalSrc) return;
+    baseSlides[index] = { ...slide, src: slide.originalSrc, originalSrc: undefined };
+    updateContent({ hero_slides: baseSlides });
+    toast.success("Image originale restaurée");
   };
 
   // ─── Slide Preview Grid ───
