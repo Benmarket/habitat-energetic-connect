@@ -607,14 +607,38 @@ const LandingPageSectionsEditor = ({
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {/* Default badge */}
-                    <div className="p-3 rounded-lg bg-muted/40 border border-border">
-                      <div className="flex items-center gap-3 mb-2">
+                    <div className="p-3 rounded-lg bg-muted/40 border border-border space-y-3">
+                      <div className="flex items-center gap-3">
                         <img src={macaronPrixDefault} alt="Badge par défaut" className="w-16 h-16 object-contain flex-shrink-0" />
                         <div>
                           <p className="text-sm font-semibold">Badge par défaut</p>
                           <p className="text-[11px] text-muted-foreground">
-                            Utilisé automatiquement pour toutes les régions sans badge personnalisé assigné.
+                            Coché = ce badge s'affiche sur la région. Décochez pour utiliser un badge personnalisé à la place.
                           </p>
+                        </div>
+                      </div>
+                      {/* Region checkboxes for default badge */}
+                      <div>
+                        <p className="text-[11px] font-medium text-muted-foreground mb-1.5">Actif sur :</p>
+                        <div className="flex flex-wrap gap-2">
+                          {ALL_REGIONS.map((region) => {
+                            const customBadgeHasRegion = (content.hero_badges || []).some(b => b.regions?.includes(region.code));
+                            const isDefaultForRegion = !customBadgeHasRegion;
+                            return (
+                              <div
+                                key={region.code}
+                                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-xs ${
+                                  isDefaultForRegion
+                                    ? "bg-amber-50 border-amber-300 text-amber-700 font-medium"
+                                    : "bg-muted/50 border-border text-muted-foreground/50"
+                                }`}
+                              >
+                                <span className={`w-2 h-2 rounded-full ${isDefaultForRegion ? "bg-amber-500" : "bg-muted-foreground/30"}`} />
+                                <span>{region.label}</span>
+                                {!isDefaultForRegion && <span className="text-[9px]">(badge custom)</span>}
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>
