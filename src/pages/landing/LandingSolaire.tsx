@@ -90,6 +90,7 @@ const solarPanelsImg = eligibiliteBg;
 const LandingSolaireContent = () => {
   const { seoStatus, canonicalUrl } = useLandingPageSEO("solaire");
   const [heroSlides, setHeroSlides] = useState<{ src: string; alt: string }[] | undefined>();
+  const [heroBadge, setHeroBadge] = useState<string | undefined>();
 
   useEffect(() => {
     const fetchProductContent = async () => {
@@ -102,6 +103,7 @@ const LandingSolaireContent = () => {
       if (data?.regional_content) {
         const rc = data.regional_content as any;
         if (rc.hero_slides?.length) setHeroSlides(rc.hero_slides);
+        if (rc.hero_badge) setHeroBadge(rc.hero_badge);
       }
     };
     fetchProductContent();
@@ -536,7 +538,7 @@ const LandingSolaireContent = () => {
               <div className="grid lg:grid-cols-[3fr_2fr] gap-6 lg:gap-10 items-stretch">
                 {/* Left: Product visual + text side by side */}
                 <div className="flex items-center">
-                  <SolarHeroVisual customSlides={heroSlides} />
+                  <SolarHeroVisual customSlides={heroSlides} badgeSrc={heroBadge} />
                 </div>
 
                 {/* Right: Eligibility wizard */}
