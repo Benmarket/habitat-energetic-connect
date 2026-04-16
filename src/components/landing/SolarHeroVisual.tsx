@@ -14,7 +14,7 @@ import macaronPrix from "@/assets/landing/macaron-prix.png";
 import marqueFrancaise from "@/assets/landing/marque-francaise.png";
 import onduleur from "@/assets/landing/onduleur.png";
 
-const defaultHeroSlides = [
+const defaultHeroSlides: { src: string; alt: string; caption?: string }[] = [
   { src: heroToitureTuiles, alt: "Maison avec panneaux solaires sur toiture en tuiles" },
   { src: heroToiturePlate, alt: "Maison avec installation solaire sur toiture plate" },
   { src: heroToitureArdoise, alt: "Installation solaire sur toiture en ardoise" },
