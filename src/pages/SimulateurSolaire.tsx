@@ -795,7 +795,7 @@ const SimulateurSolaire = () => {
           }} />
         </div>
         {/* Step Breadcrumb Navigation - Always narrow */}
-        <div className="container mx-auto px-4 max-w-2xl mb-8">
+        <div className="relative z-10 container mx-auto px-4 max-w-2xl mb-8">
           <div className="bg-white/90 backdrop-blur-sm rounded-xl py-5 px-8 shadow-lg border border-white/50">
             {/* Progress lines row */}
             <div className="flex items-center mb-3 px-4">
