@@ -528,6 +528,11 @@ const Solar3DShowcase = () => {
   const [camDisplay, setCamDisplay] = useState<{ pos: [number, number, number]; rot: [number, number, number] }>({
     pos: [9, 6, 9], rot: [0, 0, 0]
   });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(roofConfigs));
+  }, [roofConfigs]);
   const handleCameraUpdate = (pos: [number, number, number], rot: [number, number, number]) => {
     camPosRef.current = pos;
     camRotRef.current = rot;
