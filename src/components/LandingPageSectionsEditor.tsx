@@ -212,6 +212,36 @@ const LandingPageSectionsEditor = ({
     toast.success("Slides personnalisés supprimés — retour aux images héritées");
   };
 
+  const openCropModal = (index: number) => {
+    const slides = effectiveSlides;
+    setCropSlideIndex(index);
+    setCropImageSrc(slides[index].src);
+    setCropModalOpen(true);
+  };
+
+  const handleCropComplete = async (croppedDataUrl: string) => {
+    if (cropSlideIndex === null) return;
+    try {
+      // Upload cropped image to storage
+      const blob = await (await fetch(croppedDataUrl)).blob();
+      const filePath = `hero-slides/${landingPage.slug}/crop-${Date.now()}.jpg`;
+      const { error: uploadError } = await supabase.storage
+        .from("media")
+        .upload(filePath, blob, { upsert: true, contentType: "image/jpeg" });
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
+
+      const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
+      baseSlides[cropSlideIndex] = { ...baseSlides[cropSlideIndex], src: urlData.publicUrl };
+      updateContent({ hero_slides: baseSlides });
+      toast.success("Image recadrée !");
+    } catch (err) {
+      toast.error("Erreur lors du recadrage");
+      console.error(err);
+    }
+  };
+
   // ─── Slide Preview Grid ───
   const renderSlideGrid = (slides: HeroSlide[], editable: boolean) => (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
