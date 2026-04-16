@@ -579,6 +579,14 @@ const LandingPageSectionsEditor = ({
           </div>
         </div>
       </DialogContent>
+
+      <ImageCropModal
+        open={cropModalOpen}
+        onOpenChange={setCropModalOpen}
+        imageSrc={cropImageSrc}
+        onCropComplete={handleCropComplete}
+        aspectRatio={4 / 3}
+      />
     </Dialog>
   );
 };
