@@ -50,7 +50,7 @@ const DEFAULT_FLAT_CONFIG: DebugConfig = {
   panelRotAX: 0.03, panelRotAY: 1, panelRotAZ: -1.76,
   panelRotBX: 2.6, panelRotBY: 0.11, panelRotBZ: 1.41,
   panelY: 0.55,
-  panelScale: 1.05,
+  panelScale: 0.5,
 };
 
 const DEFAULT_TOLE_CONFIG: DebugConfig = {
@@ -60,10 +60,70 @@ const DEFAULT_TOLE_CONFIG: DebugConfig = {
   panelScale: 0.7,
 };
 
-const getDefaultConfig = (roofType: "tuiles" | "tole" | "plate"): DebugConfig => {
-  if (roofType === "plate") return { ...DEFAULT_FLAT_CONFIG };
-  if (roofType === "tole") return { ...DEFAULT_TOLE_CONFIG };
-  return { ...DEFAULT_CONFIG };
+type RoofConfigMap = Record<"tuiles" | "tole" | "plate", DebugConfig>;
+
+const DEFAULT_CONFIGS: RoofConfigMap = {
+  tuiles: DEFAULT_CONFIG,
+  tole: DEFAULT_TOLE_CONFIG,
+  plate: DEFAULT_FLAT_CONFIG,
+};
+
+const STORAGE_KEY = "solar-3d-roof-configs-v2";
+
+const getDefaultConfig = (roofType: "tuiles" | "tole" | "plate"): DebugConfig => ({
+  ...DEFAULT_CONFIGS[roofType],
+});
+
+const sanitizeDebugConfig = (value: unknown, fallback: DebugConfig): DebugConfig => {
+  const candidate = typeof value === "object" && value !== null
+    ? (value as Partial<Record<keyof DebugConfig, unknown>>)
+    : {};
+
+  return {
+    roofPosX: typeof candidate.roofPosX === "number" ? candidate.roofPosX : fallback.roofPosX,
+    roofPosY: typeof candidate.roofPosY === "number" ? candidate.roofPosY : fallback.roofPosY,
+    roofPosZ: typeof candidate.roofPosZ === "number" ? candidate.roofPosZ : fallback.roofPosZ,
+    roofRotX: typeof candidate.roofRotX === "number" ? candidate.roofRotX : fallback.roofRotX,
+    roofRotY: typeof candidate.roofRotY === "number" ? candidate.roofRotY : fallback.roofRotY,
+    roofRotZ: typeof candidate.roofRotZ === "number" ? candidate.roofRotZ : fallback.roofRotZ,
+    panelRotAX: typeof candidate.panelRotAX === "number" ? candidate.panelRotAX : fallback.panelRotAX,
+    panelRotAY: typeof candidate.panelRotAY === "number" ? candidate.panelRotAY : fallback.panelRotAY,
+    panelRotAZ: typeof candidate.panelRotAZ === "number" ? candidate.panelRotAZ : fallback.panelRotAZ,
+    panelRotBX: typeof candidate.panelRotBX === "number" ? candidate.panelRotBX : fallback.panelRotBX,
+    panelRotBY: typeof candidate.panelRotBY === "number" ? candidate.panelRotBY : fallback.panelRotBY,
+    panelRotBZ: typeof candidate.panelRotBZ === "number" ? candidate.panelRotBZ : fallback.panelRotBZ,
+    panelY: typeof candidate.panelY === "number" ? candidate.panelY : fallback.panelY,
+    panelScale: typeof candidate.panelScale === "number" ? candidate.panelScale : fallback.panelScale,
+  };
+};
+
+const loadStoredRoofConfigs = (): RoofConfigMap => {
+  const defaults: RoofConfigMap = {
+    tuiles: getDefaultConfig("tuiles"),
+    tole: getDefaultConfig("tole"),
+    plate: getDefaultConfig("plate"),
+  };
+
+  if (typeof window === "undefined") {
+    return defaults;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      return defaults;
+    }
+
+    const parsed = JSON.parse(raw) as Partial<Record<keyof RoofConfigMap, unknown>>;
+
+    return {
+      tuiles: sanitizeDebugConfig(parsed.tuiles, defaults.tuiles),
+      tole: sanitizeDebugConfig(parsed.tole, defaults.tole),
+      plate: sanitizeDebugConfig(parsed.plate, defaults.plate),
+    };
+  } catch {
+    return defaults;
+  }
 };
 
 const getPanelBaseEuler = (config: DebugConfig) => {
