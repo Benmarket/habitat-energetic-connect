@@ -13,8 +13,9 @@ import realisationTropicale from "@/assets/landing/realisation-tropicale.png";
 import macaronPrix from "@/assets/landing/macaron-prix.png";
 import marqueFrancaise from "@/assets/landing/marque-francaise.png";
 import onduleur from "@/assets/landing/onduleur.png";
+import { normalizeHeroSlides, type HeroSlideData } from "@/utils/heroSlides";
 
-const defaultHeroSlides: { src: string; alt: string; caption?: string; originalSrc?: string }[] = [
+const defaultHeroSlides: HeroSlideData[] = [
   { src: heroToitureTuiles, alt: "Maison avec panneaux solaires sur toiture en tuiles" },
   { src: heroToiturePlate, alt: "Maison avec installation solaire sur toiture plate" },
   { src: heroToitureArdoise, alt: "Installation solaire sur toiture en ardoise" },
@@ -29,11 +30,13 @@ const defaultHeroSlides: { src: string; alt: string; caption?: string; originalS
 export { defaultHeroSlides };
 
 interface SolarHeroVisualProps {
-  customSlides?: { src: string; alt: string; caption?: string; originalSrc?: string }[];
+  customSlides?: HeroSlideData[];
 }
 
 export const SolarHeroVisual = ({ customSlides }: SolarHeroVisualProps = {}) => {
-  const slides = customSlides && customSlides.length > 0 ? customSlides : defaultHeroSlides;
+  const slides = customSlides && customSlides.length > 0
+    ? normalizeHeroSlides(customSlides)
+    : defaultHeroSlides;
   const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {

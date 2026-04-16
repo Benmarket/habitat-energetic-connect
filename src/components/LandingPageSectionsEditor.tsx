@@ -13,11 +13,12 @@ import {
   Save, Plus, Trash2, ImageIcon, Eye, GripVertical, Upload,
   Loader2, CheckCircle, ArrowLeft, Globe, MapPin, Layers,
   Sun, Quote, Shield, HelpCircle, Megaphone, ChevronRight,
-  X, ExternalLink, Copy, AlertCircle, Crop, RotateCcw
+  X, ExternalLink, Copy, AlertCircle, Crop
 } from "lucide-react";
 import ImageCropModal from "@/components/ImageCropModal";
 import type { RegionalContent } from "@/hooks/useRegionalContent";
 import { defaultHeroSlides } from "@/components/landing/SolarHeroVisual";
+import { normalizeHeroSlides, type HeroSlideData } from "@/utils/heroSlides";
 
 interface LandingPageSectionsEditorProps {
   open: boolean;
@@ -36,12 +37,7 @@ interface LandingPageSectionsEditorProps {
   onSaved: () => void;
 }
 
-interface HeroSlide {
-  src: string;
-  alt: string;
-  caption?: string;
-  originalSrc?: string;
-}
+interface HeroSlide extends HeroSlideData {}
 
 // Section definitions for the LP
 const LP_SECTIONS = [
@@ -69,6 +65,7 @@ const LandingPageSectionsEditor = ({
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [cropSlideIndex, setCropSlideIndex] = useState<number | null>(null);
   const [cropImageSrc, setCropImageSrc] = useState("");
+  const [cropOriginalImageSrc, setCropOriginalImageSrc] = useState<string | undefined>(undefined);
 
   const isProduct = landingPage.level === "product";
   const isRegional = landingPage.level === "region";
@@ -78,12 +75,12 @@ const LandingPageSectionsEditor = ({
 
   // Resolve hero slides: this page's content > parent > defaults
   const currentSlides: HeroSlide[] = content.hero_slides && content.hero_slides.length > 0
-    ? content.hero_slides
+    ? normalizeHeroSlides(content.hero_slides)
     : [];
 
   const inheritedSlides: HeroSlide[] = parentContent?.hero_slides && parentContent.hero_slides.length > 0
-    ? parentContent.hero_slides
-    : defaultHeroSlides;
+    ? normalizeHeroSlides(parentContent.hero_slides)
+    : normalizeHeroSlides(defaultHeroSlides);
 
   const effectiveSlides = currentSlides.length > 0 ? currentSlides : inheritedSlides;
   const isUsingCustomSlides = currentSlides.length > 0;
@@ -99,12 +96,18 @@ const LandingPageSectionsEditor = ({
   const handleSave = async () => {
     setSaving(true);
     try {
+      const normalizedContent: RegionalContent = {
+        ...content,
+        hero_slides: normalizeHeroSlides(content.hero_slides),
+      };
+
       const { error } = await supabase
         .from("landing_pages")
-        .update({ regional_content: content as any, updated_at: new Date().toISOString() })
+        .update({ regional_content: normalizedContent as any, updated_at: new Date().toISOString() })
         .eq("id", landingPage.id);
 
       if (error) throw error;
+      setContent(normalizedContent);
       toast.success("Modifications enregistrées !");
       onSaved();
     } catch (err) {
@@ -215,9 +218,10 @@ const LandingPageSectionsEditor = ({
 
   const openCropModal = (index: number) => {
     const slides = effectiveSlides;
+    const slide = slides[index];
     setCropSlideIndex(index);
-    // Always crop from the original image if available
-    setCropImageSrc(slides[index].originalSrc || slides[index].src);
+    setCropImageSrc(slide.src);
+    setCropOriginalImageSrc(slide.originalSrc && slide.originalSrc !== slide.src ? slide.originalSrc : undefined);
     setCropModalOpen(true);
   };
 
@@ -233,12 +237,11 @@ const LandingPageSectionsEditor = ({
 
       const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
 
-      const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
+      const baseSlides = normalizeHeroSlides(isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides]);
       const currentSlide = baseSlides[cropSlideIndex];
       baseSlides[cropSlideIndex] = {
         ...currentSlide,
         src: urlData.publicUrl,
-        // Preserve the original source for future resets
         originalSrc: currentSlide.originalSrc || currentSlide.src,
       };
       updateContent({ hero_slides: baseSlides });
@@ -249,12 +252,14 @@ const LandingPageSectionsEditor = ({
     }
   };
 
-  const restoreOriginal = (index: number) => {
-    const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
-    const slide = baseSlides[index];
-    if (!slide.originalSrc) return;
-    baseSlides[index] = { ...slide, src: slide.originalSrc, originalSrc: undefined };
+  const restoreOriginal = () => {
+    if (cropSlideIndex === null) return;
+    const baseSlides = normalizeHeroSlides(isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides]);
+    const slide = baseSlides[cropSlideIndex];
+    if (!slide?.originalSrc) return;
+    baseSlides[cropSlideIndex] = { ...slide, src: slide.originalSrc, originalSrc: undefined };
     updateContent({ hero_slides: baseSlides });
+    setCropModalOpen(false);
     toast.success("Image originale restaurée");
   };
 
@@ -323,16 +328,6 @@ const LandingPageSectionsEditor = ({
                 <GripVertical className="w-3 h-3 text-muted-foreground" />
               </div>
             </div>
-          )}
-          {/* Restore original button (only if cropped) */}
-          {slide.originalSrc && (
-            <button
-              onClick={() => restoreOriginal(index)}
-              className="absolute top-1 right-[3.75rem] p-1 bg-amber-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-amber-600"
-              title="Restaurer l'image originale"
-            >
-              <RotateCcw className="w-3 h-3" />
-            </button>
           )}
           {/* Crop button */}
           <button
@@ -620,7 +615,9 @@ const LandingPageSectionsEditor = ({
         open={cropModalOpen}
         onOpenChange={setCropModalOpen}
         imageSrc={cropImageSrc}
+        originalImageSrc={cropOriginalImageSrc}
         onCropComplete={handleCropComplete}
+        onRestoreOriginal={restoreOriginal}
         aspectRatio={4 / 3}
       />
     </Dialog>
