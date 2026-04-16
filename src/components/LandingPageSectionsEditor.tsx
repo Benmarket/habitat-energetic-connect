@@ -185,6 +185,7 @@ const LandingPageSectionsEditor = ({
       const slides = [...(content.hero_slides || []), {
         src: urlData.publicUrl,
         alt: file.name.replace(/\.[^.]+$/, "").replace(/[-_]/g, " "),
+        name: file.name,
       }];
       updateContent({ hero_slides: slides });
       toast.success("Image uploadée !");
