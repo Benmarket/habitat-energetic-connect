@@ -32,9 +32,10 @@ export { defaultHeroSlides };
 
 interface SolarHeroVisualProps {
   customSlides?: HeroSlideData[];
+  badgeSrc?: string;
 }
 
-export const SolarHeroVisual = ({ customSlides }: SolarHeroVisualProps = {}) => {
+export const SolarHeroVisual = ({ customSlides, badgeSrc }: SolarHeroVisualProps) => {
   const slides = customSlides && customSlides.length > 0
     ? normalizeHeroSlides(customSlides)
     : defaultHeroSlides;
@@ -58,7 +59,7 @@ export const SolarHeroVisual = ({ customSlides }: SolarHeroVisualProps = {}) => 
       {/* Image slideshow - taller */}
       <div className="relative flex-shrink-0">
         <img
-          src={macaronPrix}
+          src={badgeSrc || macaronPrix}
           alt="À partir de 35€/mois, primes déduites"
           className="absolute -top-5 -left-5 w-28 h-28 lg:w-36 lg:h-36 object-contain z-10 drop-shadow-lg"
         />
