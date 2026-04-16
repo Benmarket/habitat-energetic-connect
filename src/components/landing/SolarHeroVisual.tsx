@@ -29,7 +29,7 @@ const defaultHeroSlides = [
 export { defaultHeroSlides };
 
 interface SolarHeroVisualProps {
-  customSlides?: { src: string; alt: string }[];
+  customSlides?: { src: string; alt: string; caption?: string }[];
 }
 
 export const SolarHeroVisual = ({ customSlides }: SolarHeroVisualProps = {}) => {
@@ -61,14 +61,25 @@ export const SolarHeroVisual = ({ customSlides }: SolarHeroVisualProps = {}) => 
 
         <div className="relative h-52 w-full overflow-hidden rounded-xl md:h-60 lg:h-72">
           {slides.map((slide, index) => (
-            <img
+            <div
               key={slide.src}
-              src={slide.src}
-              alt={slide.alt}
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+              className={`absolute inset-0 transition-opacity duration-700 ${
                 index === activeSlide ? "opacity-100" : "opacity-0"
               }`}
-            />
+            >
+              <img
+                src={slide.src}
+                alt={slide.alt}
+                className="h-full w-full object-cover"
+              />
+              {slide.caption && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-3 pb-2 pt-5">
+                  <span className="text-white text-xs font-medium drop-shadow-md">
+                    📍 {slide.caption}
+                  </span>
+                </div>
+              )}
+            </div>
           ))}
         </div>
 
