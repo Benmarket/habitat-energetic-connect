@@ -778,12 +778,12 @@ const SimulateurSolaire = () => {
           <img
             src={solarSimBg}
             alt=""
-            className="absolute inset-0 w-full h-full object-cover opacity-30"
+            className="absolute inset-0 w-full h-full object-cover opacity-50"
             loading="lazy"
             width={1920}
             height={1080}
           />
-          <div className="absolute inset-0 bg-white/60" />
+          <div className="absolute inset-0 bg-white/35" />
         </div>
         {/* Step Breadcrumb Navigation - Always narrow */}
         <div className="relative z-10 container mx-auto px-4 max-w-2xl mb-8">
