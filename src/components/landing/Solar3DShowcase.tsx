@@ -586,30 +586,23 @@ const Solar3DShowcase = () => {
                 opacity: Math.max(0.15, progress > 0.08 ? Math.min(1, (progress - 0.08) / 0.1) : 0.15 + progress * 1.5),
               }}
             >
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/60 backdrop-blur-md text-sky-800 text-sm font-semibold mb-4 border border-white/40 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Installation professionnelle
-              </span>
-              <h2 className="text-3xl lg:text-6xl font-extrabold text-slate-800 leading-tight mb-4">
-                Vos panneaux, posés avec
-                <span className="bg-gradient-to-r from-emerald-500 to-teal-400 bg-clip-text text-transparent"> précision</span>
-              </h2>
-              <p className="text-slate-600 text-base lg:text-lg max-w-xl leading-relaxed">
-                Chaque panneau est installé par nos techniciens certifiés RGE
-                pour un rendement optimal et une intégration parfaite à votre toiture.
-              </p>
-            </div>
-            <div className="mt-6 flex items-center gap-4">
-              <div className="h-1.5 w-56 bg-slate-300/40 rounded-full overflow-hidden backdrop-blur-sm">
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-150"
-                  style={{ width: `${Math.min(100, Math.min(1, progress * 2) * 105)}%` }}
-                />
+              <div className="flex items-center gap-4 mb-4 flex-wrap">
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/60 backdrop-blur-md text-sky-800 text-sm font-semibold border border-white/40 shadow-sm">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Installation professionnelle
+                </span>
+                <div className="flex items-center gap-3">
+                  <div className="h-1.5 w-40 bg-slate-300/40 rounded-full overflow-hidden backdrop-blur-sm">
+                    <div
+                      className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-150"
+                      style={{ width: `${Math.min(100, Math.min(1, progress * 2) * 105)}%` }}
+                    />
+                  </div>
+                  <span className="text-slate-500 text-sm font-mono tracking-wider">
+                    {Math.min(16, Math.floor(Math.min(1, progress * 2) * 17))}/16 panneaux
+                  </span>
+                </div>
               </div>
-              <span className="text-slate-500 text-sm font-mono tracking-wider">
-                {Math.min(16, Math.floor(Math.min(1, progress * 2) * 17))}/16 panneaux
-              </span>
-            </div>
           </div>
         </div>
 
