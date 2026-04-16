@@ -13,7 +13,7 @@ import {
   Save, Plus, Trash2, ImageIcon, Eye, GripVertical, Upload,
   Loader2, CheckCircle, ArrowLeft, Globe, MapPin, Layers,
   Sun, Quote, Shield, HelpCircle, Megaphone, ChevronRight,
-  X, ExternalLink, Copy, AlertCircle, Crop
+  X, ExternalLink, Copy, AlertCircle, Crop, Award
 } from "lucide-react";
 import ImageCropModal from "@/components/ImageCropModal";
 import type { RegionalContent } from "@/hooks/useRegionalContent";
@@ -66,6 +66,7 @@ const LandingPageSectionsEditor = ({
   const [cropSlideIndex, setCropSlideIndex] = useState<number | null>(null);
   const [cropImageSrc, setCropImageSrc] = useState("");
   const [cropOriginalImageSrc, setCropOriginalImageSrc] = useState<string | undefined>(undefined);
+  const [uploadingBadge, setUploadingBadge] = useState(false);
 
   const isProduct = landingPage.level === "product";
   const isRegional = landingPage.level === "region";
@@ -576,6 +577,90 @@ const LandingPageSectionsEditor = ({
                     </CardContent>
                   </Card>
                 )}
+
+                {/* ─── Badge prix (macaron) ─── */}
+                <Card className="border-amber-200">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Award className="w-4 h-4 text-amber-600" />
+                      Badge prix (macaron)
+                      <Badge variant="outline" className="text-[10px] ml-auto">Obligatoire</Badge>
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground">
+                      Le badge affiché en haut à gauche du diaporama. Si aucun badge n'est défini ici, le badge par défaut sera utilisé.
+                    </p>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Current badge preview */}
+                    <div className="flex items-center gap-4">
+                      <div className="w-24 h-24 rounded-lg border-2 border-dashed border-border bg-muted/30 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        {content.hero_badge ? (
+                          <img src={content.hero_badge} alt="Badge prix" className="w-full h-full object-contain p-1" />
+                        ) : (
+                          <div className="text-center p-2">
+                            <Award className="w-6 h-6 mx-auto text-muted-foreground/50 mb-1" />
+                            <p className="text-[9px] text-muted-foreground">Badge par défaut</p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-2 flex-1">
+                        <label>
+                          <div className="flex items-center gap-2 px-4 py-3 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
+                            {uploadingBadge ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Upload className="w-4 h-4 text-muted-foreground" />
+                            )}
+                            <span className="text-sm text-muted-foreground">
+                              {uploadingBadge ? "Upload en cours..." : "Uploader un badge"}
+                            </span>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={uploadingBadge}
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              setUploadingBadge(true);
+                              try {
+                                const ext = file.name.split(".").pop();
+                                const filePath = `hero-badges/${landingPage.slug}/${Date.now()}.${ext}`;
+                                const { error: uploadError } = await supabase.storage
+                                  .from("media")
+                                  .upload(filePath, file, { upsert: true });
+                                if (uploadError) throw uploadError;
+                                const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
+                                updateContent({ hero_badge: urlData.publicUrl });
+                                toast.success("Badge uploadé !");
+                              } catch (err) {
+                                toast.error("Erreur lors de l'upload du badge");
+                                console.error(err);
+                              } finally {
+                                setUploadingBadge(false);
+                              }
+                            }}
+                          />
+                        </label>
+                        {content.hero_badge && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs gap-1 w-fit"
+                            onClick={() => {
+                              updateContent({ hero_badge: undefined });
+                              toast.success("Badge personnalisé supprimé — le badge par défaut sera utilisé");
+                            }}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            Revenir au badge par défaut
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             )}
 

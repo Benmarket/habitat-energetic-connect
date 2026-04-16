@@ -343,7 +343,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
                 {content.hero_subtitle || `Faites jusqu'à 70% d'économie sur 30 ans avec une centrale solaire en autoconsommation${isRegional ? ` en ${regionName}` : ""}.`}
               </p>
               <div className="grid lg:grid-cols-[1fr_1fr] gap-6 lg:gap-8 items-center">
-                <SolarHeroVisual customSlides={content.hero_slides} />
+                <SolarHeroVisual customSlides={content.hero_slides} badgeSrc={content.hero_badge} />
                 <div ref={formRef} id="formulaire-solaire" className="bg-card border border-border rounded-2xl p-6 lg:p-8 shadow-lg">
                   {renderWizardContent()}
                 </div>

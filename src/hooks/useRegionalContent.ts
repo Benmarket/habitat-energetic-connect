@@ -89,6 +89,7 @@ export interface RegionalContent {
   hero_title?: string;
   hero_subtitle?: string;
   hero_image?: string;
+  hero_badge?: string;
   hero_slides?: { src: string; alt: string; caption?: string; originalSrc?: string }[];
   context?: RegionalContext;
   profitability?: RegionalProfitability;
@@ -217,6 +218,7 @@ export const useRegionalContent = (regionCode: string): ResolvedRegionalContent 
           hero_title: regionalContent.hero_title || nationalContent.hero_title,
           hero_subtitle: regionalContent.hero_subtitle || nationalContent.hero_subtitle,
           hero_image: regionalContent.hero_image || nationalContent.hero_image,
+          hero_badge: regionalContent.hero_badge || nationalContent.hero_badge,
           context: regionalContent.context || nationalContent.context,
           profitability: regionalContent.profitability || nationalContent.profitability,
           aids: regionalContent.aids || nationalContent.aids,
