@@ -18,7 +18,7 @@ import {
 import ImageCropModal from "@/components/ImageCropModal";
 import type { RegionalContent } from "@/hooks/useRegionalContent";
 import { defaultHeroSlides } from "@/components/landing/SolarHeroVisual";
-import { normalizeHeroSlides, type HeroSlideData } from "@/utils/heroSlides";
+import { normalizeHeroSlides, type HeroSlideData, HERO_BAND_ASPECT_RATIO } from "@/utils/heroSlides";
 
 interface LandingPageSectionsEditorProps {
   open: boolean;
@@ -618,7 +618,7 @@ const LandingPageSectionsEditor = ({
         originalImageSrc={cropOriginalImageSrc}
         onCropComplete={handleCropComplete}
         onRestoreOriginal={restoreOriginal}
-        aspectRatio={4 / 3}
+        aspectRatio={HERO_BAND_ASPECT_RATIO}
       />
     </Dialog>
   );
