@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle, Bot, FileCheck, FileText, Mail, Newspaper, BookOpen, HandCoins, Megaphone, Send, MessageSquare, Shield, Calculator, Smartphone, Layers, MousePointerClick, LayoutTemplate, BarChart3, UserCircle } from "lucide-react";
+import { Loader2, FolderTree, Tags, Settings, Users, ArrowLeft, MessageCircle, Bot, FileCheck, FileText, Mail, Newspaper, BookOpen, HandCoins, Megaphone, Send, MessageSquare, Shield, Calculator, Smartphone, Layers, MousePointerClick, LayoutTemplate, BarChart3, UserCircle, Image } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import TrafficDashboard from "@/components/TrafficDashboard";
@@ -24,7 +24,7 @@ const Administration = () => {
     { id: "support", label: "Support", icon: MessageCircle, color: "bg-green-500" },
     { id: "communication", label: "Communication", icon: Mail, color: "bg-purple-500" },
     { id: "annonces", label: "Annonces", icon: Megaphone, color: "bg-amber-500" },
-    { id: "landing-pages", label: "Pages & Ancres", icon: Layers, color: "bg-cyan-500" },
+    { id: "landing-pages", label: "Pages & Contenu", icon: Layers, color: "bg-cyan-500" },
     { id: "app", label: "App", icon: Smartphone, color: "bg-primary" },
     { id: "parametres", label: "Paramètres", icon: Settings, color: "bg-slate-700" },
     { id: "logs", label: "Logs", icon: Shield, color: "bg-slate-500" },
@@ -550,11 +550,11 @@ const Administration = () => {
               </div>
             </div>
 
-            {/* 7. Gestion des Pages & Ancres - TURQUOISE */}
+            {/* 7. Pages & Contenu - TURQUOISE */}
             <div id="landing-pages" className="mt-8 md:mt-12 animate-fade-in scroll-mt-24" style={{ animationDelay: '0.6s' }}>
               <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
                 <div className="h-1 w-8 md:w-12 bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-full"></div>
-                <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Gestion des Pages et Ancres</h2>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Pages & Contenu</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 <Card className="group hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-300 border-l-4 border-l-cyan-500 hover:scale-[1.02] hover:-translate-y-1">
@@ -571,6 +571,27 @@ const Administration = () => {
                   </CardHeader>
                   <CardContent>
                     <Link to="/admin/pages-ancres">
+                      <Button className="w-full bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 shadow-lg shadow-cyan-500/30">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                <Card className="group hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-300 border-l-4 border-l-cyan-500 hover:scale-[1.02] hover:-translate-y-1">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-gradient-to-br from-cyan-500/10 to-cyan-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <Image className="w-6 h-6 text-cyan-600" />
+                      </div>
+                    </div>
+                    <CardTitle className="group-hover:text-cyan-600 transition-colors">Médiathèque</CardTitle>
+                    <CardDescription>
+                      Visualisez et uploadez vos images, vidéos et fichiers hébergés
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/admin/mediatheque">
                       <Button className="w-full bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 shadow-lg shadow-cyan-500/30">
                         Accéder
                       </Button>
