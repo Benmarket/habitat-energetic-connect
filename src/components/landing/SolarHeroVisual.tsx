@@ -13,6 +13,7 @@ import realisationTropicale from "@/assets/landing/realisation-tropicale.png";
 import macaronPrix from "@/assets/landing/macaron-prix.png";
 import marqueFrancaise from "@/assets/landing/marque-francaise.png";
 import onduleur from "@/assets/landing/onduleur.png";
+import panneauPV from "@/assets/landing/panneau-photovoltaique.png";
 import { normalizeHeroSlides, type HeroSlideData } from "@/utils/heroSlides";
 
 const defaultHeroSlides: HeroSlideData[] = [
@@ -86,11 +87,19 @@ export const SolarHeroVisual = ({ customSlides }: SolarHeroVisualProps = {}) => 
           ))}
         </div>
 
-        <img
-          src={onduleur}
-          alt="Onduleur Hoymiles"
-          className="absolute bottom-0 right-0 translate-x-[10%] translate-y-1/4 h-20 lg:h-28 object-contain"
-        />
+        {/* Panneau + onduleur superposés en bas à droite */}
+        <div className="absolute bottom-0 right-0 translate-x-[10%] translate-y-1/4 z-10">
+          <img
+            src={panneauPV}
+            alt="Panneau photovoltaïque"
+            className="h-24 lg:h-36 object-contain"
+          />
+          <img
+            src={onduleur}
+            alt="Onduleur Hoymiles"
+            className="absolute bottom-0 right-0 h-14 lg:h-20 object-contain translate-x-[15%] translate-y-[10%]"
+          />
+        </div>
       </div>
 
       {/* Logos + text below image */}
