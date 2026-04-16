@@ -83,6 +83,12 @@ export interface RegionalImages {
   cta?: string;
 }
 
+export interface HeroBadgeItem {
+  src: string;
+  label?: string;
+  regions: string[];
+}
+
 export interface RegionalContent {
   region_name?: string;
   region_demonym?: string;
@@ -90,6 +96,7 @@ export interface RegionalContent {
   hero_subtitle?: string;
   hero_image?: string;
   hero_badge?: string;
+  hero_badges?: HeroBadgeItem[];
   hero_slides?: { src: string; alt: string; caption?: string; originalSrc?: string }[];
   context?: RegionalContext;
   profitability?: RegionalProfitability;
