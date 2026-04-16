@@ -864,7 +864,7 @@ const SimulateurSolaire = () => {
         </div>
 
         {/* Content area - wider for steps 2 and 3 */}
-        <div className={`container mx-auto px-4 ${[2, 3, 4].includes(currentStep) ? 'max-w-6xl' : 'max-w-2xl'}`}>
+        <div className={`relative z-10 container mx-auto px-4 ${[2, 3, 4].includes(currentStep) ? 'max-w-6xl' : 'max-w-2xl'}`}>
 
           {/* Step 1: Name */}
           {currentStep === 1 && (
