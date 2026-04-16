@@ -771,9 +771,31 @@ const SimulateurSolaire = () => {
 
       <Header />
 
-      <main className="min-h-screen bg-gradient-to-br from-orange-50 via-background to-yellow-50 py-12">
+      <main className="relative min-h-screen py-12 overflow-hidden" style={{
+        background: 'linear-gradient(160deg, #fdf8f0 0%, #fefcf7 30%, #f0f7ff 60%, #fefaf3 100%)'
+      }}>
+        {/* Subtle solar decorative background */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          {/* Large soft sun glow top-right */}
+          <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full" style={{
+            background: 'radial-gradient(circle, rgba(251,191,36,0.08) 0%, rgba(251,191,36,0.03) 40%, transparent 70%)'
+          }} />
+          {/* Smaller warm accent bottom-left */}
+          <div className="absolute -bottom-20 -left-20 w-[350px] h-[350px] rounded-full" style={{
+            background: 'radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 60%)'
+          }} />
+          {/* Very subtle grid pattern */}
+          <div className="absolute inset-0 opacity-[0.03]" style={{
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)`,
+            backgroundSize: '60px 60px'
+          }} />
+          {/* Diagonal sun rays */}
+          <div className="absolute top-0 right-0 w-full h-full opacity-[0.025]" style={{
+            backgroundImage: `repeating-linear-gradient(135deg, transparent, transparent 80px, rgba(251,191,36,0.3) 80px, rgba(251,191,36,0.3) 81px)`
+          }} />
+        </div>
         {/* Step Breadcrumb Navigation - Always narrow */}
-        <div className="container mx-auto px-4 max-w-2xl mb-8">
+        <div className="relative z-10 container mx-auto px-4 max-w-2xl mb-8">
           <div className="bg-white/90 backdrop-blur-sm rounded-xl py-5 px-8 shadow-lg border border-white/50">
             {/* Progress lines row */}
             <div className="flex items-center mb-3 px-4">
@@ -842,7 +864,7 @@ const SimulateurSolaire = () => {
         </div>
 
         {/* Content area - wider for steps 2 and 3 */}
-        <div className={`container mx-auto px-4 ${[2, 3, 4].includes(currentStep) ? 'max-w-6xl' : 'max-w-2xl'}`}>
+        <div className={`relative z-10 container mx-auto px-4 ${[2, 3, 4].includes(currentStep) ? 'max-w-6xl' : 'max-w-2xl'}`}>
 
           {/* Step 1: Name */}
           {currentStep === 1 && (
