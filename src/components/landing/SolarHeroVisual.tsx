@@ -13,6 +13,7 @@ import realisationTropicale from "@/assets/landing/realisation-tropicale.png";
 import macaronPrix from "@/assets/landing/macaron-prix.png";
 import marqueFrancaise from "@/assets/landing/marque-francaise.png";
 import onduleur from "@/assets/landing/onduleur.png";
+import panneauPV from "@/assets/landing/panneau-photovoltaique.png";
 import { normalizeHeroSlides, type HeroSlideData } from "@/utils/heroSlides";
 
 const defaultHeroSlides: HeroSlideData[] = [
