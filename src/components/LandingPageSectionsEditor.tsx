@@ -13,7 +13,7 @@ import {
   Save, Plus, Trash2, ImageIcon, Eye, GripVertical, Upload,
   Loader2, CheckCircle, ArrowLeft, Globe, MapPin, Layers,
   Sun, Quote, Shield, HelpCircle, Megaphone, ChevronRight,
-  X, ExternalLink, Copy, AlertCircle, Crop
+  X, ExternalLink, Copy, AlertCircle, Crop, RotateCcw
 } from "lucide-react";
 import ImageCropModal from "@/components/ImageCropModal";
 import type { RegionalContent } from "@/hooks/useRegionalContent";
@@ -40,6 +40,7 @@ interface HeroSlide {
   src: string;
   alt: string;
   caption?: string;
+  originalSrc?: string;
 }
 
 // Section definitions for the LP
@@ -215,14 +216,14 @@ const LandingPageSectionsEditor = ({
   const openCropModal = (index: number) => {
     const slides = effectiveSlides;
     setCropSlideIndex(index);
-    setCropImageSrc(slides[index].src);
+    // Always crop from the original image if available
+    setCropImageSrc(slides[index].originalSrc || slides[index].src);
     setCropModalOpen(true);
   };
 
   const handleCropComplete = async (croppedDataUrl: string) => {
     if (cropSlideIndex === null) return;
     try {
-      // Upload cropped image to storage
       const blob = await (await fetch(croppedDataUrl)).blob();
       const filePath = `hero-slides/${landingPage.slug}/crop-${Date.now()}.jpg`;
       const { error: uploadError } = await supabase.storage
@@ -233,13 +234,28 @@ const LandingPageSectionsEditor = ({
       const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
 
       const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
-      baseSlides[cropSlideIndex] = { ...baseSlides[cropSlideIndex], src: urlData.publicUrl };
+      const currentSlide = baseSlides[cropSlideIndex];
+      baseSlides[cropSlideIndex] = {
+        ...currentSlide,
+        src: urlData.publicUrl,
+        // Preserve the original source for future resets
+        originalSrc: currentSlide.originalSrc || currentSlide.src,
+      };
       updateContent({ hero_slides: baseSlides });
       toast.success("Image recadrée !");
     } catch (err) {
       toast.error("Erreur lors du recadrage");
       console.error(err);
     }
+  };
+
+  const restoreOriginal = (index: number) => {
+    const baseSlides = isUsingCustomSlides ? [...(content.hero_slides || [])] : [...effectiveSlides];
+    const slide = baseSlides[index];
+    if (!slide.originalSrc) return;
+    baseSlides[index] = { ...slide, src: slide.originalSrc, originalSrc: undefined };
+    updateContent({ hero_slides: baseSlides });
+    toast.success("Image originale restaurée");
   };
 
   // ─── Slide Preview Grid ───
@@ -308,6 +324,16 @@ const LandingPageSectionsEditor = ({
               </div>
             </div>
           )}
+          {/* Restore original button (only if cropped) */}
+          {slide.originalSrc && (
+            <button
+              onClick={() => restoreOriginal(index)}
+              className="absolute top-1 right-[3.75rem] p-1 bg-amber-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-amber-600"
+              title="Restaurer l'image originale"
+            >
+              <RotateCcw className="w-3 h-3" />
+            </button>
+          )}
           {/* Crop button */}
           <button
             onClick={() => openCropModal(index)}
@@ -316,7 +342,7 @@ const LandingPageSectionsEditor = ({
           >
             <Crop className="w-3 h-3" />
           </button>
-          {/* Remove button always visible on hover */}
+          {/* Remove button */}
           <button
             onClick={() => removeSlide(index)}
             className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
