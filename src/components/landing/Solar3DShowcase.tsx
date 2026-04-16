@@ -506,26 +506,22 @@ const Solar3DShowcase = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const progress = useScrollProgress(containerRef as React.RefObject<HTMLElement>);
   const [roofType, setRoofType] = useState<RoofType>("tuiles");
+  const [roofConfigs, setRoofConfigs] = useState<RoofConfigMap>(() => loadStoredRoofConfigs());
 
-  const [tuilesConfig, setTuilesConfig] = useState<DebugConfig>(() => getDefaultConfig("tuiles"));
-  const [toleConfig, setToleConfig] = useState<DebugConfig>(() => getDefaultConfig("tole"));
-  const [flatConfig, setFlatConfig] = useState<DebugConfig>(() => getDefaultConfig("plate"));
+  const config = roofConfigs[roofType];
 
-  const config = roofType === "plate" ? flatConfig : roofType === "tole" ? toleConfig : tuilesConfig;
-
-  const handleConfigChange = (c: DebugConfig) => {
-    if (roofType === "plate") {
-      setFlatConfig(c);
-    } else if (roofType === "tole") {
-      setToleConfig(c);
-    } else {
-      setTuilesConfig(c);
-    }
+  const handleConfigChange = (nextConfig: DebugConfig) => {
+    setRoofConfigs((current) => ({
+      ...current,
+      [roofType]: sanitizeDebugConfig(nextConfig, getDefaultConfig(roofType)),
+    }));
   };
 
   const handleReset = () => {
-    const resetConfig = getDefaultConfig(roofType);
-    handleConfigChange(resetConfig);
+    setRoofConfigs((current) => ({
+      ...current,
+      [roofType]: getDefaultConfig(roofType),
+    }));
   };
   const camPosRef = useRef<[number, number, number]>([9, 6, 9]);
   const camRotRef = useRef<[number, number, number]>([0, 0, 0]);
