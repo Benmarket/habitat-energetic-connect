@@ -41,6 +41,15 @@ interface LandingPageSectionsEditorProps {
 
 interface HeroSlide extends HeroSlideData {}
 
+const ALL_REGIONS = [
+  { code: "fr", label: "France" },
+  { code: "corse", label: "Corse" },
+  { code: "reunion", label: "Réunion" },
+  { code: "martinique", label: "Martinique" },
+  { code: "guadeloupe", label: "Guadeloupe" },
+  { code: "guyane", label: "Guyane" },
+];
+
 // Section definitions for the LP
 const LP_SECTIONS = [
   { id: "hero", label: "Hero", icon: Sun, color: "text-amber-600", bgColor: "bg-amber-50", description: "Bandeau principal avec diapo d'images et formulaire" },
