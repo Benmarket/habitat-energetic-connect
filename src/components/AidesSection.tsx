@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Lightbulb, Calculator, Zap, ArrowRight, Users } from "lucide-react";
+import { CheckCircle2, Lightbulb, Calculator, Zap, ArrowRight, Users, User, Briefcase } from "lucide-react";
 
 interface Aide {
   id: string;
@@ -12,6 +12,7 @@ interface Aide {
   excerpt: string;
   slug: string;
   content: string;
+  target_audience?: string[] | null;
   categories?: { name: string }[];
   tags?: { name: string }[];
 }
