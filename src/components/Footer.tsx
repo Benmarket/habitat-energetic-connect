@@ -111,9 +111,6 @@ const Footer = () => {
                 <Link to="/simulateurs" className="text-white/70 hover:text-white transition-colors text-sm">
                   Simulateurs
                 </Link>
-                <Link to="/a-propos" className="text-white/70 hover:text-white transition-colors text-sm">
-                  À propos
-                </Link>
               </nav>
             </div>
 
@@ -132,12 +129,6 @@ const Footer = () => {
                   className="text-white/70 hover:text-white transition-colors text-sm"
                 >
                   Pompes à chaleur
-                </Link>
-                <Link
-                  to="/services/eolien-domestique"
-                  className="text-white/70 hover:text-white transition-colors text-sm"
-                >
-                  Éolien domestique
                 </Link>
                 <Link
                   to="/services/stockage-energie"
