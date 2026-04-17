@@ -75,7 +75,7 @@ const Merci = lazy(() => import("./pages/Merci"));
 const SimulateurSolaire = lazy(() => import("./pages/SimulateurSolaire"));
 const ServiceInstallationSolaire = lazy(() => import("./pages/services/ServiceInstallationSolaire"));
 const ServicePompesAChaleur = lazy(() => import("./pages/services/ServicePompesAChaleur"));
-const ServiceEolienDomestique = lazy(() => import("./pages/services/ServiceEolienDomestique"));
+
 const ServiceStockageEnergie = lazy(() => import("./pages/services/ServiceStockageEnergie"));
 const ServiceAuditEnergetique = lazy(() => import("./pages/services/ServiceAuditEnergetique"));
 const ServiceAmeliorationHabitat = lazy(() => import("./pages/services/ServiceAmeliorationHabitat"));
@@ -160,7 +160,7 @@ const App = () => (
                   {/* Service pages - lazy loaded */}
                   <Route path="/services/installation-solaire" element={<ServiceInstallationSolaire />} />
                   <Route path="/services/pompes-a-chaleur" element={<ServicePompesAChaleur />} />
-                  <Route path="/services/eolien-domestique" element={<ServiceEolienDomestique />} />
+                  
                   <Route path="/services/stockage-energie" element={<ServiceStockageEnergie />} />
                   <Route path="/services/audit-energetique" element={<ServiceAuditEnergetique />} />
                   <Route path="/services/amelioration-habitat" element={<ServiceAmeliorationHabitat />} />
