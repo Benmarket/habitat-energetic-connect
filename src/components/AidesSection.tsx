@@ -222,37 +222,36 @@ const AidesSection = () => {
                           <CardTitle className="text-base md:text-lg mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors font-bold leading-tight">
                             {aide.title}
                           </CardTitle>
-                          {aide.categories && aide.categories.length > 0 && (
-                            <div className="mb-1.5">
-                              <Badge
-                                variant="outline"
-                                className="text-[10px] bg-blue-500/10 text-blue-700 border-blue-500/30 font-semibold px-2 py-0.5"
-                              >
-                                {aide.categories[0].name}
-                              </Badge>
-                            </div>
-                          )}
-                          {aide.tags && aide.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {aide.tags.slice(0, 2).map((tag, idx) => (
+                          {(aide.categories && aide.categories.length > 0) || aide.target_audience?.length ? (
+                            <div className="flex flex-wrap gap-1.5 mb-1.5">
+                              {aide.categories && aide.categories.length > 0 && (
                                 <Badge
-                                  key={idx}
                                   variant="outline"
-                                  className="text-[10px] rounded-full bg-muted/80 border-border text-foreground/80 px-1.5 py-0"
+                                  className="text-[10px] bg-blue-500/10 text-blue-700 border-blue-500/30 font-semibold px-2 py-0.5"
                                 >
-                                  {tag.name}
+                                  {aide.categories[0].name}
                                 </Badge>
-                              ))}
-                              {aide.tags.length > 2 && (
+                              )}
+                              {aide.target_audience?.includes('particulier') && (
                                 <Badge
                                   variant="outline"
-                                  className="text-[10px] rounded-full bg-muted/80 border-border text-foreground/80 px-1.5 py-0"
+                                  className="text-[10px] bg-green-500/10 text-green-700 border-green-500/30 font-semibold px-2 py-0.5"
                                 >
-                                  +{aide.tags.length - 2}
+                                  <User className="w-2.5 h-2.5 mr-1" />
+                                  Particulier
+                                </Badge>
+                              )}
+                              {aide.target_audience?.includes('professionnel') && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-[10px] bg-amber-500/10 text-amber-700 border-amber-500/30 font-semibold px-2 py-0.5"
+                                >
+                                  <Briefcase className="w-2.5 h-2.5 mr-1" />
+                                  Professionnel
                                 </Badge>
                               )}
                             </div>
-                          )}
+                          ) : null}
                         </div>
                       </div>
                       <CardDescription className="text-xs md:text-sm line-clamp-2 leading-snug">
@@ -307,7 +306,7 @@ const AidesSection = () => {
                   className="group border-2 border-blue-500/30 hover:border-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-blue-500/30 font-semibold"
                 >
                   <Link to="/aides" className="flex items-center gap-2">
-                    Voir toutes les aides ({totalActiveAides})
+                    Voir toutes les aides
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
