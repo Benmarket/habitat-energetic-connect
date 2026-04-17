@@ -1067,9 +1067,9 @@ export default function SitePopup() {
                 onClick={() => {
                   handleClose();
                   setTimeout(() => {
-                    const el = document.getElementById('offres-partenaires');
+                    const el = document.getElementById('offres');
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    else navigate("/#offres-partenaires");
+                    else navigate("/#offres");
                   }, 100);
                 }}
                 className="group p-3 sm:p-4 rounded-xl border-2 border-slate-200 hover:border-amber-400 bg-white hover:bg-amber-50/50 transition-all duration-200 text-center"
