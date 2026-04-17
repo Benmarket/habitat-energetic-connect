@@ -66,6 +66,7 @@ const AidesSection = () => {
             excerpt, 
             slug, 
             content,
+            target_audience,
             post_categories(categories(name)),
             post_tags(tags(name))
           `,
@@ -94,6 +95,7 @@ const AidesSection = () => {
             excerpt, 
             slug, 
             content,
+            target_audience,
             post_categories(categories(name)),
             post_tags(tags(name))
           `,
