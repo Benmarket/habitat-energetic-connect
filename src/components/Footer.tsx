@@ -108,7 +108,7 @@ const Footer = () => {
                 <Link to="/#offres" className="text-white/70 hover:text-white transition-colors text-sm">
                   Offres
                 </Link>
-                <Link to="/simulateurs" className="text-white/70 hover:text-white transition-colors text-sm">
+                <Link to="/#simulateurs" className="text-white/70 hover:text-white transition-colors text-sm">
                   Simulateurs
                 </Link>
               </nav>
