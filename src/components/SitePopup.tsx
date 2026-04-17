@@ -997,19 +997,26 @@ export default function SitePopup() {
 
             {/* 4 Options Grid - Always 2 columns */}
             <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-              {/* Option 1: Demande de contact */}
+              {/* Option 1: Vérifier éligibilité */}
               <button
-                onClick={() => setParcoursStep("contact-choice")}
+                onClick={() => {
+                  handleClose();
+                  setTimeout(() => {
+                    const el = document.getElementById('eligibility');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    else navigate("/#eligibility");
+                  }, 100);
+                }}
                 className="group p-3 sm:p-4 rounded-xl border-2 border-slate-200 hover:border-blue-400 bg-white hover:bg-blue-50/50 transition-all duration-200 text-center"
               >
                 <div className="w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-md mb-2 group-hover:scale-105 transition-transform">
                   <Mail className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <h3 className="font-semibold text-slate-800 text-sm sm:text-base leading-tight mb-1">
-                  Contact
+                  Vérifier éligibilité
                 </h3>
                 <p className="text-[11px] sm:text-xs text-blue-600 font-medium">
-                  Rappel 24-48h
+                  Prime énergie
                 </p>
               </button>
 
