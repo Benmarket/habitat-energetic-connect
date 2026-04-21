@@ -1002,9 +1002,9 @@ export default function SitePopup() {
                 onClick={() => {
                   handleClose();
                   setTimeout(() => {
-                    const el = document.getElementById('eligibility');
+                    const el = document.getElementById('etude');
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    else navigate("/#eligibility");
+                    else navigate("/#etude");
                   }, 100);
                 }}
                 className="group p-3 sm:p-4 rounded-xl border-2 border-slate-200 hover:border-blue-400 bg-white hover:bg-blue-50/50 transition-all duration-200 text-center"
