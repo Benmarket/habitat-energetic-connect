@@ -772,7 +772,7 @@ const SimulateurSolaire = () => {
 
       <Header />
 
-      <main className="relative min-h-screen pt-10 pb-12 overflow-hidden">
+      <main className="relative min-h-screen pt-6 pb-12 overflow-hidden">
         {/* Background image */}
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
           <img
@@ -786,54 +786,45 @@ const SimulateurSolaire = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/30 to-white/60" />
         </div>
 
-        {/* Hero / Page Title */}
-        <section className="relative z-10 container mx-auto px-4 max-w-4xl mb-10 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-amber-200 shadow-sm mb-5">
-            <Sun className="w-4 h-4 text-amber-500" />
-            <span className="text-xs font-semibold tracking-wide uppercase text-amber-700">
-              Simulation 100% gratuite & sans engagement
-            </span>
-          </div>
-
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-slate-900 mb-4">
+        {/* Hero / Page Title — compact */}
+        <section className="relative z-10 container mx-auto px-4 max-w-3xl mb-5 text-center">
+          <h1 className="text-2xl md:text-3xl lg:text-[2rem] font-bold leading-tight tracking-tight text-slate-900 mb-2">
             Combien pourriez-vous{" "}
-            <span className="relative inline-block">
-              <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
-                économiser
-              </span>
-              <span
-                aria-hidden="true"
-                className="absolute -bottom-1 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400/40 via-orange-400/40 to-yellow-400/40 rounded-full blur-sm"
-              />
-            </span>
-            <br className="hidden md:block" />
-            <span className="text-slate-800"> grâce au solaire ?</span>
+            <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
+              économiser
+            </span>{" "}
+            grâce au solaire&nbsp;?
           </h1>
 
-          <p className="text-base md:text-lg text-slate-600 max-w-2xl mx-auto mb-6 leading-relaxed">
-            Obtenez en <strong className="text-slate-900">2 minutes</strong> une estimation
-            personnalisée de votre production, vos économies et les aides
-            auxquelles vous avez droit — calculée selon votre région et votre logement.
+          <p className="text-sm md:text-base text-slate-600 mb-3">
+            Estimation personnalisée en <strong className="text-slate-900">2 minutes</strong> — production, économies et aides selon votre région.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-5 text-sm">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm">
-              <Check className="w-4 h-4 text-green-600" />
-              <span className="text-slate-700 font-medium">Résultats instantanés</span>
-            </div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm">
-              <Check className="w-4 h-4 text-green-600" />
-              <span className="text-slate-700 font-medium">Données 100% sécurisées</span>
-            </div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm">
-              <Check className="w-4 h-4 text-green-600" />
-              <span className="text-slate-700 font-medium">Aucun engagement</span>
-            </div>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs md:text-[13px] text-slate-600">
+            <span className="inline-flex items-center gap-1.5">
+              <Sun className="w-3.5 h-3.5 text-amber-500" />
+              <span className="font-medium">100% gratuit</span>
+            </span>
+            <span className="text-slate-300">•</span>
+            <span className="inline-flex items-center gap-1.5">
+              <Check className="w-3.5 h-3.5 text-green-600" />
+              <span className="font-medium">Sans engagement</span>
+            </span>
+            <span className="text-slate-300">•</span>
+            <span className="inline-flex items-center gap-1.5">
+              <Check className="w-3.5 h-3.5 text-green-600" />
+              <span className="font-medium">Résultats instantanés</span>
+            </span>
+            <span className="text-slate-300 hidden md:inline">•</span>
+            <span className="hidden md:inline-flex items-center gap-1.5">
+              <Check className="w-3.5 h-3.5 text-green-600" />
+              <span className="font-medium">Données sécurisées</span>
+            </span>
           </div>
         </section>
 
         {/* Step Breadcrumb Navigation - Always narrow */}
-        <div className="relative z-10 container mx-auto px-4 max-w-2xl mb-8">
+        <div className="relative z-10 container mx-auto px-4 max-w-2xl mb-6">
           <div className="bg-white/90 backdrop-blur-sm rounded-xl py-5 px-8 shadow-lg border border-white/50">
             {/* Progress lines row */}
             <div className="flex items-center mb-3 px-4">
