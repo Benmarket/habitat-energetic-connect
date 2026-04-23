@@ -56,7 +56,7 @@ export const WorkGallery: React.FC<Props> = ({ hint, workType, images, title }) 
     title ??
     (detected === 'mix'
       ? 'Aperçu de nos solutions'
-      : 'Aperçu de votre projet')
+      : 'Aperçu de quelques projets')
 
   return (
     <tr>
