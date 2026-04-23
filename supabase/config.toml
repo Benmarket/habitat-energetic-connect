@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.send-form-confirmation]
 verify_jwt = false
+
+[functions.admin-preview-emails]
+verify_jwt = true

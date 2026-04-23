@@ -46,6 +46,7 @@ const AdminNewsletter = lazy(() => import("./pages/AdminNewsletter"));
 const AdminChatbot = lazy(() => import("./pages/AdminChatbot"));
 const AdminChatHistory = lazy(() => import("./pages/AdminChatHistory"));
 const AdminForms = lazy(() => import("./pages/AdminForms"));
+const AdminConfirmation = lazy(() => import("./pages/AdminConfirmation"));
 const AdminPopups = lazy(() => import("./pages/AdminPopups"));
 const AdminApp = lazy(() => import("./pages/AdminApp"));
 const AdminLandingPages = lazy(() => import("./pages/AdminLandingPages"));
@@ -146,6 +147,7 @@ const App = () => (
                   <Route path="/admin/chatbot" element={<AdminGuard allowedRoles={["super_admin"]}><AdminChatbot /></AdminGuard>} />
                   <Route path="/admin/chat-history" element={<AdminGuard allowedRoles={["super_admin"]}><AdminChatHistory /></AdminGuard>} />
                   <Route path="/admin/formulaires" element={<AdminGuard allowedRoles={["super_admin"]}><AdminForms /></AdminGuard>} />
+                  <Route path="/admin/confirmation" element={<AdminGuard allowedRoles={["super_admin"]}><AdminConfirmation /></AdminGuard>} />
                   <Route path="/admin/popups" element={<AdminGuard allowedRoles={["super_admin"]}><AdminPopups /></AdminGuard>} />
                   <Route path="/admin/landing-pages" element={<AdminGuard allowedRoles={["super_admin"]}><AdminLandingPages /></AdminGuard>} />
                   <Route path="/admin/pages-ancres" element={<AdminGuard allowedRoles={["super_admin"]}><AdminPagesAnchors /></AdminGuard>} />

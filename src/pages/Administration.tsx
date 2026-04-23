@@ -411,6 +411,27 @@ const Administration = () => {
                     </Link>
                   </CardContent>
                 </Card>
+
+                <Card className="group hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 border-l-4 border-l-orange-500 hover:scale-[1.02] hover:-translate-y-1">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-gradient-to-br from-orange-500/10 to-orange-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <Mail className="w-6 h-6 text-orange-600" />
+                      </div>
+                    </div>
+                    <CardTitle className="group-hover:text-orange-600 transition-colors">Confirmation (page merci + emails)</CardTitle>
+                    <CardDescription>
+                      Aperçu des templates email automatiques et page /merci
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/admin/confirmation">
+                      <Button className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 shadow-lg shadow-orange-500/30">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
               </div>
             </div>
 
