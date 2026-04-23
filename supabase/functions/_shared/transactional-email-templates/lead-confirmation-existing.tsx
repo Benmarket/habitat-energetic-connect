@@ -72,10 +72,10 @@ const LeadConfirmationExistingEmail = ({
         <Hr style={hr} />
 
         <Section style={ctaSection}>
-          <Heading style={h2}>👋 Continuez votre parcours dans votre espace membre</Heading>
+          <Heading style={h2}>Retrouvez votre demande dans votre espace</Heading>
           <Text style={text}>
-            Connectez-vous pour suivre cette demande, accéder à votre historique
-            et profiter de toutes les fonctionnalités de votre espace.
+            Connectez-vous pour consulter cette demande, retrouver votre historique
+            et poursuivre votre parcours depuis votre espace personnel.
           </Text>
           <Section style={{ textAlign: 'center', margin: '24px 0' }}>
             <Button href={loginUrl} style={button}>

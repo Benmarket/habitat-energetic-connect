@@ -74,11 +74,10 @@ const LeadConfirmationSignupEmail = ({
         <Hr style={hr} />
 
         <Section style={ctaSection}>
-          <Heading style={h2}>🚀 Allez plus loin avec votre espace membre</Heading>
+          <Heading style={h2}>Activez votre espace personnel</Heading>
           <Text style={text}>
-            Créez votre compte en un clic pour suivre votre demande, accéder
-            aux aides personnalisées, recevoir nos guides exclusifs et bénéficier
-            de simulateurs avancés.
+            Définissez votre mot de passe pour retrouver cette demande, suivre
+            son avancement et centraliser vos informations en toute sécurité.
           </Text>
           <Section style={{ textAlign: 'center', margin: '24px 0' }}>
             <Button href={activationUrl} style={button}>
@@ -86,8 +85,8 @@ const LeadConfirmationSignupEmail = ({
             </Button>
           </Section>
           <Text style={smallText}>
-            Ce lien est valable 7 jours et personnel. Si vous n'êtes pas à
-            l'origine de cette demande, ignorez ce message.
+            Ce lien personnel est valable 7 jours. Si vous n'êtes pas à l'origine
+            de cette demande, ignorez simplement cet email.
           </Text>
         </Section>
 

@@ -102,7 +102,7 @@ const AdminConfirmation = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="font-mono text-sm">noreply@prime-energies.fr</p>
+                <p className="font-mono text-sm">Prime Energies &lt;noreply@prime-energies.fr&gt;</p>
                 <Badge variant="outline" className="mt-2 bg-green-50 text-green-700 border-green-200">
                   <CheckCircle2 className="w-3 h-3 mr-1" /> DNS vérifié
                 </Badge>
@@ -118,7 +118,7 @@ const AdminConfirmation = () => {
               <CardContent>
                 <p className="text-2xl font-bold">{templates.length}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Lead + signup, lead existant, simple
+                  Lead + activation, lead existant, confirmation simple
                 </p>
               </CardContent>
             </Card>
