@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, Mail, CheckCircle2, AlertCircle, Loader2, ExternalLink, FileText, RefreshCw, Eye } from "lucide-react";
+import { ArrowLeft, Mail, CheckCircle2, AlertCircle, Loader2, ExternalLink, FileText, RefreshCw, Eye, Sun, Snowflake, Flame, Hammer, HelpCircle, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -22,18 +22,74 @@ interface PreviewedTemplate {
   errorMessage?: string;
 }
 
+type WorkType = "mix" | "solaire" | "isolation" | "chauffage" | "renovation" | "none";
+
+const WORK_TYPE_OPTIONS: Array<{
+  value: WorkType;
+  label: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+}> = [
+  {
+    value: "mix",
+    label: "Je ne sais pas",
+    description: "Mix d'images (défaut)",
+    icon: HelpCircle,
+    color: "text-amber-600 border-amber-300 bg-amber-50",
+  },
+  {
+    value: "solaire",
+    label: "Solaire / PV",
+    description: "Panneaux photovoltaïques",
+    icon: Sun,
+    color: "text-orange-600 border-orange-300 bg-orange-50",
+  },
+  {
+    value: "isolation",
+    label: "Isolation",
+    description: "Combles, ITE, murs",
+    icon: Snowflake,
+    color: "text-sky-600 border-sky-300 bg-sky-50",
+  },
+  {
+    value: "chauffage",
+    label: "Chauffage",
+    description: "PAC, poêle, chaudière",
+    icon: Flame,
+    color: "text-red-600 border-red-300 bg-red-50",
+  },
+  {
+    value: "renovation",
+    label: "Rénovation globale",
+    description: "Travaux d'ampleur",
+    icon: Hammer,
+    color: "text-emerald-600 border-emerald-300 bg-emerald-50",
+  },
+  {
+    value: "none",
+    label: "Autre / aucun",
+    description: "Sans galerie d'images",
+    icon: Phone,
+    color: "text-slate-600 border-slate-300 bg-slate-50",
+  },
+];
+
 const AdminConfirmation = () => {
   const { toast } = useToast();
   const [templates, setTemplates] = useState<PreviewedTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("");
+  const [workType, setWorkType] = useState<WorkType>("mix");
 
-  const loadTemplates = async () => {
+  const loadTemplates = async (selectedWorkType: WorkType = workType) => {
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabase.functions.invoke("admin-preview-emails");
+      const { data, error } = await supabase.functions.invoke("admin-preview-emails", {
+        body: { workType: selectedWorkType },
+      });
       if (error) throw error;
       const list: PreviewedTemplate[] = data?.templates ?? [];
       setTemplates(list);
@@ -50,9 +106,9 @@ const AdminConfirmation = () => {
   };
 
   useEffect(() => {
-    loadTemplates();
+    loadTemplates(workType);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [workType]);
 
   return (
     <>
