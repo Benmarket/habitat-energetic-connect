@@ -39,6 +39,7 @@ import {
   footerLink,
 } from './_email-design.ts'
 import { WorkGallery } from './_work-gallery.tsx'
+import type { WorkType } from './_email-design.ts'
 
 interface Props {
   firstName?: string
@@ -46,6 +47,7 @@ interface Props {
   email?: string
   formLabel?: string
   requestSummary?: string
+  workType?: WorkType
 }
 
 const LeadConfirmationSimpleEmail = ({
@@ -54,6 +56,7 @@ const LeadConfirmationSimpleEmail = ({
   email,
   formLabel = 'votre demande',
   requestSummary,
+  workType,
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
@@ -127,7 +130,10 @@ const LeadConfirmationSimpleEmail = ({
                   </tr>
 
                   {/* GALERIE selon type de travaux */}
-                  <WorkGallery hint={`${formLabel} ${requestSummary ?? ''}`} />
+                  <WorkGallery
+                    workType={workType}
+                    hint={`${formLabel} ${requestSummary ?? ''}`}
+                  />
 
                   <tr>
                     <td style={hrSection}>
