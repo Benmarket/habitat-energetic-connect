@@ -440,6 +440,22 @@ export const ChatBot = () => {
           needs: projectAnswer ? [projectAnswer] : flowHistory.filter(h => h.question.toLowerCase().includes("type de projet")).map(h => h.answer),
           notes: `Chatbot - ${flowHistory.map(h => `${h.question}: ${h.answer}`).join(" | ")}`,
         });
+
+        // Fire-and-forget confirmation email
+        try {
+          const { sendFormConfirmationEmail } = await import("@/lib/sendFormConfirmationEmail");
+          sendFormConfirmationEmail({
+            formIdentifier: "chatbot_contacter_prime_energies",
+            recipient: {
+              email: collectedData.email,
+              firstName: collectedData.first_name,
+              lastName: collectedData.last_name,
+              phone: collectedData.phone,
+            },
+            formLabel: "votre demande via le chatbot",
+            requestSummary: projectAnswer ? `Projet: ${projectAnswer}` : undefined,
+          });
+        } catch {}
       } catch (err) {
         console.error("Error saving lead:", err);
       }
