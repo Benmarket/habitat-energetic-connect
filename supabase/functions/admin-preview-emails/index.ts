@@ -3,6 +3,7 @@ import * as React from 'npm:react@18.3.1'
 import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0'
 import { TEMPLATES } from '../_shared/transactional-email-templates/registry.ts'
+import { loadGalleryForWorkType } from '../_shared/email-gallery.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -119,6 +120,11 @@ Deno.serve(async (req) => {
       errorMessage?: string
     }> = []
 
+    // Charge la galerie persistée pour ce workType (si fourni)
+    const galleryImages = workType
+      ? await loadGalleryForWorkType(adminClient, workType)
+      : []
+
     for (const name of templateNames) {
       const entry = TEMPLATES[name]
       const displayName = entry.displayName || name
@@ -130,6 +136,7 @@ Deno.serve(async (req) => {
             formLabel: preset.formLabel,
             requestSummary: preset.requestSummary,
             workType,
+            galleryImages,
           }
         : basePreview
 
