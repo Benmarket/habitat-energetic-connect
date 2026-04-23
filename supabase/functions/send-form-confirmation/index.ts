@@ -100,19 +100,22 @@ Deno.serve(async (req) => {
   }
 
   // 2) Detect if a user account already exists for this email
+  // We query auth.users via a SECURITY DEFINER RPC because admin.getUserByEmail
+  // does NOT exist in supabase-js v2 (only listUsers with paging).
   let userExists = false
   try {
-    const { data: existing } = await admin.auth.admin.listUsers({
-      page: 1,
-      perPage: 1,
-      // listUsers does not filter server-side; fall back to manual check below
+    const normalizedEmail = recipient.email.trim().toLowerCase()
+    const { data: existsData, error: existsErr } = await admin.rpc('email_has_account', {
+      _email: normalizedEmail,
     })
-    // Workaround: getUserByEmail
-    // @ts-ignore — admin.getUserByEmail exists in supabase-js v2
-    const { data: byEmail } = await admin.auth.admin.getUserByEmail?.(recipient.email) ?? { data: null }
-    if (byEmail?.user) userExists = true
-  } catch {
-    // best effort — fall through
+    if (existsErr) {
+      console.warn('[send-form-confirmation] email_has_account RPC error:', existsErr)
+    } else {
+      userExists = existsData === true
+    }
+    console.log(`[send-form-confirmation] email=${normalizedEmail} userExists=${userExists}`)
+  } catch (e) {
+    console.warn('[send-form-confirmation] user existence check failed:', e)
   }
 
   // 3) Choose template
