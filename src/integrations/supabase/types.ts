@@ -789,6 +789,45 @@ export type Database = {
         }
         Relationships: []
       }
+      email_template_gallery: {
+        Row: {
+          id: string
+          image_1_alt: string | null
+          image_1_url: string | null
+          image_2_alt: string | null
+          image_2_url: string | null
+          image_3_alt: string | null
+          image_3_url: string | null
+          updated_at: string
+          updated_by: string | null
+          work_type: string
+        }
+        Insert: {
+          id?: string
+          image_1_alt?: string | null
+          image_1_url?: string | null
+          image_2_alt?: string | null
+          image_2_url?: string | null
+          image_3_alt?: string | null
+          image_3_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          work_type: string
+        }
+        Update: {
+          id?: string
+          image_1_alt?: string | null
+          image_1_url?: string | null
+          image_2_alt?: string | null
+          image_2_url?: string | null
+          image_3_alt?: string | null
+          image_3_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          work_type?: string
+        }
+        Relationships: []
+      }
       email_unsubscribe_tokens: {
         Row: {
           created_at: string

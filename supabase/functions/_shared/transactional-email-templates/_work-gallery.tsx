@@ -8,14 +8,23 @@ import {
   galleryTitle,
   galleryImage,
   galleryCell,
+  type WorkType,
 } from './_email-design.ts'
+
+export interface CustomGalleryImage {
+  src: string
+  alt: string
+}
 
 interface Props {
   // libellé libre du formulaire ou résumé de la demande,
-  // utilisé pour deviner le type de travaux.
+  // utilisé pour deviner le type de travaux (fallback uniquement).
   hint?: string
   // Permet de forcer un type sans détection automatique.
-  workType?: ReturnType<typeof detectWorkType>
+  workType?: WorkType
+  // Images personnalisées passées explicitement (issues de la BDD).
+  // Si fournies, elles ont priorité sur les images par défaut.
+  images?: CustomGalleryImage[]
   title?: string
 }
 
@@ -23,13 +32,25 @@ interface Props {
  * Galerie d'images thématique selon le produit demandé.
  * Rendu en table HTML 3 colonnes pour compatibilité email maximale.
  *
- * Si aucun type n'est détecté → renvoie null (rendu sobre, sans galerie).
+ * Priorité :
+ *   1. `images` explicites (depuis la BDD `email_template_gallery`)
+ *   2. Sinon, défaut selon `workType`
+ *   3. Sinon, détection à partir de `hint`
+ *
+ * Si aucune image n'est résolue → rendu null (sobre, sans galerie).
  */
-export const WorkGallery: React.FC<Props> = ({ hint, workType, title }) => {
+export const WorkGallery: React.FC<Props> = ({ hint, workType, images, title }) => {
   const detected = workType ?? detectWorkType(hint)
-  const images = getGalleryImages(detected)
 
-  if (images.length === 0) return null
+  // Filtrer les images vides (slots non remplis dans la BDD)
+  const customImages = (images ?? []).filter(
+    (img) => img && typeof img.src === 'string' && img.src.trim().length > 0
+  )
+
+  const resolvedImages =
+    customImages.length > 0 ? customImages : getGalleryImages(detected)
+
+  if (resolvedImages.length === 0) return null
 
   const resolvedTitle =
     title ??
@@ -51,7 +72,7 @@ export const WorkGallery: React.FC<Props> = ({ hint, workType, title }) => {
         >
           <tbody>
             <tr>
-              {images.slice(0, 3).map((img, i) => (
+              {resolvedImages.slice(0, 3).map((img, i) => (
                 <td key={i} style={galleryCell} align="center">
                   <Img
                     src={img.src}

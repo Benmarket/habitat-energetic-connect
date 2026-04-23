@@ -3,6 +3,8 @@ import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { buildVerifiedTransactionalEmailPayload } from '../_shared/localized-email-api.ts'
 import { TEMPLATES } from '../_shared/transactional-email-templates/registry.ts'
+import { loadGalleryForWorkType } from '../_shared/email-gallery.ts'
+import { detectWorkType } from '../_shared/transactional-email-templates/_email-design.ts'
 
 // Configuration baked in at scaffold time — do NOT change these manually.
 // To update, re-run the email domain setup flow.
@@ -283,19 +285,38 @@ Deno.serve(async (req) => {
     )
   }
 
+  // Résolution de la galerie d'images depuis la BDD (image_template_gallery).
+  // Priorité : templateData.workType explicite > détection auto via formLabel/requestSummary.
+  let resolvedWorkType: string | undefined =
+    typeof templateData.workType === 'string' ? templateData.workType : undefined
+  if (!resolvedWorkType) {
+    const hint = `${templateData.formLabel ?? ''} ${templateData.requestSummary ?? ''}`.trim()
+    if (hint) {
+      const detected = detectWorkType(hint)
+      // 'none' n'a pas d'images -> pas la peine de charger
+      if (detected && detected !== 'none') resolvedWorkType = detected
+    }
+  }
+  const galleryImages = await loadGalleryForWorkType(supabase, resolvedWorkType)
+  const enrichedTemplateData = {
+    ...templateData,
+    workType: resolvedWorkType ?? templateData.workType,
+    galleryImages,
+  }
+
   // 4. Render React Email template to HTML and plain text
   const html = await renderAsync(
-    React.createElement(template.component, templateData)
+    React.createElement(template.component, enrichedTemplateData)
   )
   const plainText = await renderAsync(
-    React.createElement(template.component, templateData),
+    React.createElement(template.component, enrichedTemplateData),
     { plainText: true }
   )
 
   // Resolve subject — supports static string or dynamic function
   const resolvedSubject =
     typeof template.subject === 'function'
-      ? template.subject(templateData)
+      ? template.subject(enrichedTemplateData)
       : template.subject
 
   // 5. Enqueue the pre-rendered email for async processing by the dispatcher.
