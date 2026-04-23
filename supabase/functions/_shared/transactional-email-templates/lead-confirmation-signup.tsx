@@ -6,17 +6,43 @@ import {
   Container,
   Head,
   Heading,
-  Hr,
   Html,
   Img,
+  Link,
   Preview,
   Section,
   Text,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
-
-const SITE_NAME = 'Prime Energies'
-const SITE_URL = 'https://prime-energies.fr'
+import {
+  BRAND,
+  main,
+  wrapper,
+  card,
+  header,
+  headerBrand,
+  headerTagline,
+  accentBar,
+  footerBar,
+  contentSection,
+  h1,
+  h2,
+  text,
+  strongAccent,
+  smallText,
+  recapBox,
+  recapTitle,
+  recapItem,
+  ctaSection,
+  button,
+  hrSection,
+  hr,
+  signature,
+  signatureText,
+  footerSection,
+  footerText,
+  footerLink,
+} from './_email-design.ts'
 
 interface Props {
   firstName?: string
@@ -34,69 +60,138 @@ const LeadConfirmationSignupEmail = ({
   email,
   formLabel = 'votre demande',
   requestSummary,
-  activationUrl = SITE_URL,
+  activationUrl = BRAND.siteUrl,
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Votre demande a bien été reçue par Prime Energies</Preview>
+    <Preview>
+      Votre demande a bien été reçue — activez votre espace {BRAND.siteName}
+    </Preview>
     <Body style={main}>
-      <Container style={container}>
-        <Section style={logoSection}>
-          <Heading style={brand}>{SITE_NAME}</Heading>
-        </Section>
+      <table role="presentation" width="100%" cellPadding={0} cellSpacing={0} border={0} style={wrapper}>
+        <tbody>
+          <tr>
+            <td align="center">
+              <table role="presentation" width="640" cellPadding={0} cellSpacing={0} border={0} style={card}>
+                <tbody>
+                  {/* HEADER */}
+                  <tr>
+                    <td style={header}>
+                      <Heading as="h1" style={headerBrand}>{BRAND.siteName}</Heading>
+                      <Text style={headerTagline}>{BRAND.tagline}</Text>
+                    </td>
+                  </tr>
+                  {/* Bande dorée accent */}
+                  <tr>
+                    <td style={accentBar}>&nbsp;</td>
+                  </tr>
 
-        <Heading style={h1}>
-          {firstName ? `Merci ${firstName} !` : 'Merci pour votre demande !'}
-        </Heading>
+                  {/* CONTENU */}
+                  <tr>
+                    <td style={contentSection}>
+                      <Heading as="h2" style={h1}>
+                        {firstName ? `Merci ${firstName} !` : 'Merci pour votre demande !'}
+                      </Heading>
 
-        <Text style={text}>
-          Nous avons bien reçu {formLabel.toLowerCase()}. Un de nos conseillers
-          vous recontacte sous 24-48 heures ouvrées pour étudier votre projet.
-        </Text>
+                      <Text style={text}>
+                        Nous avons bien reçu <strong style={strongAccent}>{formLabel.toLowerCase()}</strong>.
+                        Un de nos conseillers vous recontactera sous{' '}
+                        <strong>24 à 48 heures ouvrées</strong> pour étudier votre projet
+                        et vous proposer la solution la plus adaptée.
+                      </Text>
 
-        {(requestSummary || email || phone) && (
-          <Section style={recapBox}>
-            <Text style={recapTitle}>Récapitulatif de votre demande</Text>
-            {requestSummary && <Text style={recapItem}>{requestSummary}</Text>}
-            {email && (
-              <Text style={recapItem}>
-                <strong>Email :</strong> {email}
-              </Text>
-            )}
-            {phone && (
-              <Text style={recapItem}>
-                <strong>Téléphone :</strong> {phone}
-              </Text>
-            )}
-          </Section>
-        )}
+                      {(requestSummary || email || phone) && (
+                        <Section style={recapBox}>
+                          <Text style={recapTitle}>📋 Récapitulatif de votre demande</Text>
+                          {requestSummary && (
+                            <Text style={recapItem}>
+                              <strong>Projet :</strong> {requestSummary}
+                            </Text>
+                          )}
+                          {email && (
+                            <Text style={recapItem}>
+                              <strong>Email :</strong> {email}
+                            </Text>
+                          )}
+                          {phone && (
+                            <Text style={recapItem}>
+                              <strong>Téléphone :</strong> {phone}
+                            </Text>
+                          )}
+                        </Section>
+                      )}
 
-        <Hr style={hr} />
+                      <Text style={text}>
+                        En attendant notre appel, profitez-en pour activer votre{' '}
+                        <strong style={strongAccent}>espace personnel sécurisé</strong> :
+                      </Text>
+                    </td>
+                  </tr>
 
-        <Section style={ctaSection}>
-          <Heading style={h2}>Activez votre espace personnel</Heading>
-          <Text style={text}>
-            Définissez votre mot de passe pour retrouver cette demande, suivre
-            son avancement et centraliser vos informations en toute sécurité.
-          </Text>
-          <Section style={{ textAlign: 'center', margin: '24px 0' }}>
-            <Button href={activationUrl} style={button}>
-              Créer mon espace membre
-            </Button>
-          </Section>
-          <Text style={smallText}>
-            Ce lien personnel est valable 7 jours. Si vous n'êtes pas à l'origine
-            de cette demande, ignorez simplement cet email.
-          </Text>
-        </Section>
+                  {/* CTA */}
+                  <tr>
+                    <td style={{ padding: '0 36px' }}>
+                      <Section style={ctaSection}>
+                        <Heading as="h3" style={h2}>
+                          Activez votre espace personnel
+                        </Heading>
+                        <Text style={{ ...text, margin: '0 0 20px 0' }}>
+                          Définissez votre mot de passe pour suivre votre demande,
+                          centraliser vos documents et accéder à toutes nos aides en
+                          un clic.
+                        </Text>
+                        <Button href={activationUrl} style={button}>
+                          Créer mon espace membre →
+                        </Button>
+                        <Text style={smallText}>
+                          Lien personnel valable 7 jours. Si vous n'êtes pas à
+                          l'origine de cette demande, ignorez simplement cet email.
+                        </Text>
+                      </Section>
+                    </td>
+                  </tr>
 
-        <Hr style={hr} />
+                  {/* Séparateur */}
+                  <tr>
+                    <td style={hrSection}>
+                      <div style={hr}>&nbsp;</div>
+                    </td>
+                  </tr>
 
-        <Text style={footer}>
-          À très vite,<br />
-          L'équipe {SITE_NAME}
-        </Text>
-      </Container>
+                  {/* SIGNATURE */}
+                  <tr>
+                    <td style={signature}>
+                      <Text style={signatureText}>
+                        À très vite,<br />
+                        <strong style={strongAccent}>L'équipe {BRAND.siteName}</strong>
+                      </Text>
+                    </td>
+                  </tr>
+
+                  {/* FOOTER */}
+                  <tr>
+                    <td style={footerSection}>
+                      <Text style={footerText}>
+                        Cet email vous est envoyé suite à votre demande sur{' '}
+                        <Link href={BRAND.siteUrl} style={footerLink}>
+                          prime-energies.fr
+                        </Link>
+                        <br />
+                        © {new Date().getFullYear()} {BRAND.siteName} — Tous droits réservés
+                      </Text>
+                    </td>
+                  </tr>
+
+                  {/* Bande de fermeture verte */}
+                  <tr>
+                    <td style={footerBar}>&nbsp;</td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </Body>
   </Html>
 )
@@ -104,7 +199,7 @@ const LeadConfirmationSignupEmail = ({
 export const template = {
   component: LeadConfirmationSignupEmail,
   subject: ({ formLabel }: Props = {}) =>
-    `Votre demande ${formLabel ? `pour ${formLabel.toLowerCase()}` : ''} a bien été reçue | ${SITE_NAME}`.replace('  ', ' '),
+    `Votre demande ${formLabel ? `pour ${formLabel.toLowerCase()} ` : ''}a bien été reçue | ${BRAND.siteName}`,
   displayName: 'Confirmation lead + lien inscription',
   previewData: {
     firstName: 'Jean',
@@ -116,48 +211,3 @@ export const template = {
     activationUrl: 'https://prime-energies.fr/inscription/activer?token=preview',
   },
 } satisfies TemplateEntry
-
-const main = {
-  backgroundColor: '#ffffff',
-  fontFamily:
-    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-}
-const container = { padding: '24px', maxWidth: '600px', margin: '0 auto' }
-const logoSection = { textAlign: 'center' as const, paddingBottom: '8px' }
-const brand = {
-  fontSize: '20px',
-  fontWeight: 700,
-  color: '#0a6b3f',
-  letterSpacing: '0.5px',
-  margin: '0 0 16px',
-}
-const h1 = { fontSize: '24px', fontWeight: 700, color: '#0f172a', margin: '0 0 16px' }
-const h2 = { fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: '0 0 12px' }
-const text = { fontSize: '15px', color: '#334155', lineHeight: '1.6', margin: '0 0 16px' }
-const smallText = { fontSize: '12px', color: '#64748b', lineHeight: '1.5', textAlign: 'center' as const, margin: '12px 0 0' }
-const recapBox = {
-  backgroundColor: '#f1f5f9',
-  borderRadius: '8px',
-  padding: '16px 20px',
-  margin: '16px 0',
-}
-const recapTitle = { fontSize: '14px', fontWeight: 700, color: '#0f172a', margin: '0 0 8px' }
-const recapItem = { fontSize: '14px', color: '#334155', margin: '4px 0' }
-const ctaSection = {
-  backgroundColor: '#ecfdf5',
-  borderRadius: '12px',
-  padding: '20px 24px',
-  margin: '20px 0',
-}
-const button = {
-  backgroundColor: '#0a6b3f',
-  color: '#ffffff',
-  padding: '12px 28px',
-  borderRadius: '8px',
-  fontSize: '15px',
-  fontWeight: 600,
-  textDecoration: 'none',
-  display: 'inline-block',
-}
-const hr = { borderColor: '#e2e8f0', margin: '24px 0' }
-const footer = { fontSize: '14px', color: '#64748b', margin: '8px 0 0' }

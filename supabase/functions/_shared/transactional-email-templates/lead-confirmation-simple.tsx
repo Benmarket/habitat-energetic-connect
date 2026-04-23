@@ -5,15 +5,38 @@ import {
   Container,
   Head,
   Heading,
-  Hr,
   Html,
+  Link,
   Preview,
   Section,
   Text,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
-
-const SITE_NAME = 'Prime Energies'
+import {
+  BRAND,
+  main,
+  wrapper,
+  card,
+  header,
+  headerBrand,
+  headerTagline,
+  accentBar,
+  footerBar,
+  contentSection,
+  h1,
+  text,
+  strongAccent,
+  recapBox,
+  recapTitle,
+  recapItem,
+  hrSection,
+  hr,
+  signature,
+  signatureText,
+  footerSection,
+  footerText,
+  footerLink,
+} from './_email-design.ts'
 
 interface Props {
   firstName?: string
@@ -32,46 +55,107 @@ const LeadConfirmationSimpleEmail = ({
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Votre demande a bien été reçue par Prime Energies</Preview>
+    <Preview>Votre demande a bien été reçue par {BRAND.siteName}</Preview>
     <Body style={main}>
-      <Container style={container}>
-        <Section style={logoSection}>
-          <Heading style={brand}>{SITE_NAME}</Heading>
-        </Section>
+      <table role="presentation" width="100%" cellPadding={0} cellSpacing={0} border={0} style={wrapper}>
+        <tbody>
+          <tr>
+            <td align="center">
+              <table role="presentation" width="640" cellPadding={0} cellSpacing={0} border={0} style={card}>
+                <tbody>
+                  {/* HEADER */}
+                  <tr>
+                    <td style={header}>
+                      <Heading as="h1" style={headerBrand}>{BRAND.siteName}</Heading>
+                      <Text style={headerTagline}>{BRAND.tagline}</Text>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={accentBar}>&nbsp;</td>
+                  </tr>
 
-        <Heading style={h1}>
-          {firstName ? `Merci ${firstName} !` : 'Merci pour votre demande !'}
-        </Heading>
+                  {/* CONTENU */}
+                  <tr>
+                    <td style={contentSection}>
+                      <Heading as="h2" style={h1}>
+                        {firstName ? `Merci ${firstName} !` : 'Merci pour votre demande !'}
+                      </Heading>
 
-        <Text style={text}>
-          Nous avons bien reçu {formLabel.toLowerCase()}. Un de nos conseillers
-          vous recontacte sous 24-48 heures ouvrées pour étudier votre projet.
-        </Text>
+                      <Text style={text}>
+                        Nous avons bien reçu <strong style={strongAccent}>{formLabel.toLowerCase()}</strong>.
+                        Un de nos conseillers vous recontactera sous{' '}
+                        <strong>24 à 48 heures ouvrées</strong> pour étudier
+                        votre projet et vous proposer la solution la plus adaptée.
+                      </Text>
 
-        {(requestSummary || email || phone) && (
-          <Section style={recapBox}>
-            <Text style={recapTitle}>Récapitulatif de votre demande</Text>
-            {requestSummary && <Text style={recapItem}>{requestSummary}</Text>}
-            {email && (
-              <Text style={recapItem}>
-                <strong>Email :</strong> {email}
-              </Text>
-            )}
-            {phone && (
-              <Text style={recapItem}>
-                <strong>Téléphone :</strong> {phone}
-              </Text>
-            )}
-          </Section>
-        )}
+                      {(requestSummary || email || phone) && (
+                        <Section style={recapBox}>
+                          <Text style={recapTitle}>📋 Récapitulatif de votre demande</Text>
+                          {requestSummary && (
+                            <Text style={recapItem}>
+                              <strong>Projet :</strong> {requestSummary}
+                            </Text>
+                          )}
+                          {email && (
+                            <Text style={recapItem}>
+                              <strong>Email :</strong> {email}
+                            </Text>
+                          )}
+                          {phone && (
+                            <Text style={recapItem}>
+                              <strong>Téléphone :</strong> {phone}
+                            </Text>
+                          )}
+                        </Section>
+                      )}
 
-        <Hr style={hr} />
+                      <Text style={text}>
+                        En attendant notre appel, n'hésitez pas à préparer les
+                        informations utiles à l'étude (factures d'énergie, surface
+                        habitable, type de chauffage actuel, etc.).
+                      </Text>
+                    </td>
+                  </tr>
 
-        <Text style={footer}>
-          À très vite,<br />
-          L'équipe {SITE_NAME}
-        </Text>
-      </Container>
+                  <tr>
+                    <td style={hrSection}>
+                      <div style={hr}>&nbsp;</div>
+                    </td>
+                  </tr>
+
+                  {/* SIGNATURE */}
+                  <tr>
+                    <td style={signature}>
+                      <Text style={signatureText}>
+                        À très vite,<br />
+                        <strong style={strongAccent}>L'équipe {BRAND.siteName}</strong>
+                      </Text>
+                    </td>
+                  </tr>
+
+                  {/* FOOTER */}
+                  <tr>
+                    <td style={footerSection}>
+                      <Text style={footerText}>
+                        Cet email vous est envoyé suite à votre demande sur{' '}
+                        <Link href={BRAND.siteUrl} style={footerLink}>
+                          prime-energies.fr
+                        </Link>
+                        <br />
+                        © {new Date().getFullYear()} {BRAND.siteName} — Tous droits réservés
+                      </Text>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style={footerBar}>&nbsp;</td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </Body>
   </Html>
 )
@@ -79,7 +163,7 @@ const LeadConfirmationSimpleEmail = ({
 export const template = {
   component: LeadConfirmationSimpleEmail,
   subject: ({ formLabel }: Props = {}) =>
-    `Votre demande ${formLabel ? `pour ${formLabel.toLowerCase()}` : ''} a bien été reçue | ${SITE_NAME}`.replace('  ', ' '),
+    `Votre demande ${formLabel ? `pour ${formLabel.toLowerCase()} ` : ''}a bien été reçue | ${BRAND.siteName}`,
   displayName: 'Confirmation lead (sans inscription)',
   previewData: {
     firstName: 'Jean',
@@ -89,30 +173,3 @@ export const template = {
     requestSummary: 'Demande de rappel téléphonique',
   },
 } satisfies TemplateEntry
-
-const main = {
-  backgroundColor: '#ffffff',
-  fontFamily:
-    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-}
-const container = { padding: '24px', maxWidth: '600px', margin: '0 auto' }
-const logoSection = { textAlign: 'center' as const, paddingBottom: '8px' }
-const brand = {
-  fontSize: '20px',
-  fontWeight: 700,
-  color: '#0a6b3f',
-  letterSpacing: '0.5px',
-  margin: '0 0 16px',
-}
-const h1 = { fontSize: '24px', fontWeight: 700, color: '#0f172a', margin: '0 0 16px' }
-const text = { fontSize: '15px', color: '#334155', lineHeight: '1.6', margin: '0 0 16px' }
-const recapBox = {
-  backgroundColor: '#f1f5f9',
-  borderRadius: '8px',
-  padding: '16px 20px',
-  margin: '16px 0',
-}
-const recapTitle = { fontSize: '14px', fontWeight: 700, color: '#0f172a', margin: '0 0 8px' }
-const recapItem = { fontSize: '14px', color: '#334155', margin: '4px 0' }
-const hr = { borderColor: '#e2e8f0', margin: '24px 0' }
-const footer = { fontSize: '14px', color: '#64748b', margin: '8px 0 0' }
