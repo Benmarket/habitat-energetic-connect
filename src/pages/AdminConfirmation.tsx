@@ -137,7 +137,7 @@ const AdminConfirmation = () => {
               </p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={loadTemplates} disabled={loading}>
+              <Button variant="outline" onClick={() => loadTemplates(workType)} disabled={loading}>
                 <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
                 Recharger
               </Button>
@@ -210,6 +210,59 @@ const AdminConfirmation = () => {
               <p>4. La page <code>/merci</code> s'affiche avec un récapitulatif personnalisé.</p>
             </AlertDescription>
           </Alert>
+
+          {/* Sélecteur visuel de produit pour la prévisualisation */}
+          <Card className="mb-6 border-2 border-primary/20">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Eye className="w-5 h-5 text-primary" />
+                Choisir le produit affiché dans l'aperçu
+              </CardTitle>
+              <CardDescription>
+                Sélectionnez le type de projet pour voir comment l'email s'adapte (galerie d'images + récapitulatif). Le contenu est <strong>déterministe</strong>, jamais aléatoire.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                {WORK_TYPE_OPTIONS.map((opt) => {
+                  const Icon = opt.icon;
+                  const isActive = workType === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setWorkType(opt.value)}
+                      disabled={loading}
+                      className={`group relative flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 transition-all text-center ${
+                        isActive
+                          ? `${opt.color} border-current shadow-md scale-[1.02]`
+                          : "border-border bg-card hover:border-primary/40 hover:bg-muted/50"
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      aria-pressed={isActive}
+                    >
+                      <Icon className={`w-7 h-7 ${isActive ? "" : "text-muted-foreground"}`} />
+                      <div className="space-y-0.5">
+                        <p className={`text-sm font-semibold leading-tight ${isActive ? "" : "text-foreground"}`}>
+                          {opt.label}
+                        </p>
+                        <p className={`text-[11px] leading-tight ${isActive ? "opacity-80" : "text-muted-foreground"}`}>
+                          {opt.description}
+                        </p>
+                      </div>
+                      {isActive && (
+                        <Badge className="absolute -top-2 -right-2 h-5 px-1.5 text-[10px] bg-primary text-primary-foreground">
+                          <CheckCircle2 className="w-3 h-3 mr-0.5" /> Actif
+                        </Badge>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-muted-foreground mt-3">
+                💡 Ce choix simule ce qu'un lead recevrait selon le formulaire qu'il a rempli. En production, le type est détecté automatiquement à partir du libellé du formulaire et du résumé de la demande.
+              </p>
+            </CardContent>
+          </Card>
 
           {/* Templates preview */}
           <Card>
