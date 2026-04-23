@@ -1,0 +1,1 @@
+ALTER VIEW public.form_configurations_public SET (security_invoker = true);
