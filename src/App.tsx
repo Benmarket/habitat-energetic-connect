@@ -79,6 +79,8 @@ const ServicePompesAChaleur = lazy(() => import("./pages/services/ServicePompesA
 const ServiceStockageEnergie = lazy(() => import("./pages/services/ServiceStockageEnergie"));
 const ServiceAuditEnergetique = lazy(() => import("./pages/services/ServiceAuditEnergetique"));
 const ServiceAmeliorationHabitat = lazy(() => import("./pages/services/ServiceAmeliorationHabitat"));
+const ActivateAccount = lazy(() => import("./pages/ActivateAccount"));
+const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 
 const queryClient = new QueryClient();
 
@@ -189,6 +191,11 @@ const App = () => (
                   <Route path="/merci" element={<Merci />} />
                   <Route path="/simulateurs/solaire" element={<SimulateurSolaire />} />
                   <Route path="/simulateur-solaire" element={<Navigate to="/simulateurs/solaire" replace />} />
+
+                  {/* Email lifecycle pages */}
+                  <Route path="/inscription/activer" element={<ActivateAccount />} />
+                  <Route path="/desinscription" element={<Unsubscribe />} />
+                  <Route path="/unsubscribe" element={<Unsubscribe />} />
 
                   {/* Catch-all */}
                   <Route path="*" element={<NotFound />} />

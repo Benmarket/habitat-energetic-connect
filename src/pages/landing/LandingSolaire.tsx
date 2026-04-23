@@ -228,6 +228,20 @@ const LandingSolaireContent = () => {
         status: "new",
       });
 
+      // Fire-and-forget confirmation email
+      const { sendFormConfirmationEmail } = await import("@/lib/sendFormConfirmationEmail");
+      sendFormConfirmationEmail({
+        formIdentifier: "landing_solaire_national",
+        recipient: {
+          email: wizardData.email,
+          firstName: wizardData.firstName,
+          lastName: wizardData.lastName,
+          phone: wizardData.phone,
+        },
+        formLabel: "votre demande de devis solaire",
+        requestSummary: `Panneaux solaires • ${wizardData.postalCode} ${wizardData.city}`,
+      });
+
       const params = new URLSearchParams({
         name: `${wizardData.firstName} ${wizardData.lastName}`,
         workType: "panneaux-solaires",

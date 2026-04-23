@@ -178,6 +178,21 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
         data: { ...wizardData, region: regionCode },
         status: "new",
       });
+
+      // Fire-and-forget confirmation email
+      const { sendFormConfirmationEmail } = await import("@/lib/sendFormConfirmationEmail");
+      sendFormConfirmationEmail({
+        formIdentifier: `landing_solaire_${regionCode || "regionale"}`,
+        recipient: {
+          email: wizardData.email,
+          firstName: wizardData.firstName,
+          lastName: wizardData.lastName,
+          phone: wizardData.phone,
+        },
+        formLabel: "votre demande de devis solaire",
+        requestSummary: `Panneaux solaires • ${wizardData.postalCode} ${wizardData.city}${isRegional ? ` (${regionName})` : ""}`,
+      });
+
       const params = new URLSearchParams({ name: `${wizardData.firstName} ${wizardData.lastName}`, workType: "panneaux-solaires" });
       navigate(`/merci?${params.toString()}`);
     } catch {
