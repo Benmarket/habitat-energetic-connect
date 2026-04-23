@@ -126,12 +126,32 @@ const HeroSection = () => {
       }
 
       // Soumettre les données
+      const submissionId = crypto.randomUUID();
       const { error } = await supabase.from("form_submissions").insert({
+        id: submissionId,
         form_id: formConfig.id,
         data: validated,
       });
 
       if (error) throw error;
+
+      // Fire-and-forget confirmation email (uses admin toggles)
+      const nameParts = (validated.fullName || "").trim().split(" ");
+      const firstName = nameParts[0] || validated.fullName;
+      const lastName = nameParts.slice(1).join(" ") || "";
+      const { sendFormConfirmationEmail } = await import("@/lib/sendFormConfirmationEmail");
+      sendFormConfirmationEmail({
+        formIdentifier: "hero-form-accueil",
+        submissionId,
+        recipient: {
+          email: (validated as any).email,
+          firstName,
+          lastName,
+          phone: (validated as any).phone,
+        },
+        formLabel: "votre étude énergétique",
+        requestSummary: `${(validated as any).workType ?? ""}`.trim(),
+      });
 
       // Rediriger avec le nom et le type de travaux pour personnaliser
       const params = new URLSearchParams({ 
