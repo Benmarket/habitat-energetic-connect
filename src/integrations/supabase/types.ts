@@ -820,7 +820,9 @@ export type Database = {
           fields_schema: Json
           form_identifier: string
           id: string
+          include_signup_link: boolean
           name: string
+          send_confirmation_email: boolean
           updated_at: string
           webhook_enabled: boolean
           webhook_url: string | null
@@ -831,7 +833,9 @@ export type Database = {
           fields_schema?: Json
           form_identifier: string
           id?: string
+          include_signup_link?: boolean
           name: string
+          send_confirmation_email?: boolean
           updated_at?: string
           webhook_enabled?: boolean
           webhook_url?: string | null
@@ -842,7 +846,9 @@ export type Database = {
           fields_schema?: Json
           form_identifier?: string
           id?: string
+          include_signup_link?: boolean
           name?: string
+          send_confirmation_email?: boolean
           updated_at?: string
           webhook_enabled?: boolean
           webhook_url?: string | null
@@ -1772,6 +1778,48 @@ export type Database = {
         }
         Relationships: []
       }
+      signup_activation_tokens: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          source_form_identifier: string | null
+          source_submission_id: string | null
+          token_hash: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          source_form_identifier?: string | null
+          source_submission_id?: string | null
+          token_hash: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          source_form_identifier?: string | null
+          source_submission_id?: string | null
+          token_hash?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       simulator_settings: {
         Row: {
           created_at: string
@@ -2131,7 +2179,9 @@ export type Database = {
           fields_schema: Json | null
           form_identifier: string | null
           id: string | null
+          include_signup_link: boolean | null
           name: string | null
+          send_confirmation_email: boolean | null
           updated_at: string | null
         }
         Insert: {
@@ -2140,7 +2190,9 @@ export type Database = {
           fields_schema?: Json | null
           form_identifier?: string | null
           id?: string | null
+          include_signup_link?: boolean | null
           name?: string | null
+          send_confirmation_email?: boolean | null
           updated_at?: string | null
         }
         Update: {
@@ -2149,7 +2201,9 @@ export type Database = {
           fields_schema?: Json | null
           form_identifier?: string | null
           id?: string | null
+          include_signup_link?: boolean | null
           name?: string | null
+          send_confirmation_email?: boolean | null
           updated_at?: string | null
         }
         Relationships: []
