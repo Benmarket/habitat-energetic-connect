@@ -322,6 +322,8 @@ Deno.serve(async (req) => {
       label: templateName,
       idempotency_key: idempotencyKey,
       unsubscribe_token: unsubscribeToken,
+      locale: 'fr',
+      language: 'fr',
       queued_at: new Date().toISOString(),
     },
   })
