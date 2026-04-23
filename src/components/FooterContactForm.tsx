@@ -80,6 +80,21 @@ const FooterContactForm = () => {
       });
 
       if (formError) console.error("Form submission tracking error:", formError);
+
+      // Fire-and-forget confirmation email (uses admin toggles)
+      const { sendFormConfirmationEmail } = await import("@/lib/sendFormConfirmationEmail");
+      sendFormConfirmationEmail({
+        formIdentifier: "footer_contact_prime_energies",
+        recipient: {
+          email: formData.email,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          phone: formData.phone,
+        },
+        formLabel: "votre demande Prime énergies",
+        requestSummary: `${formData.workType} • ${formData.postalCode}`,
+      });
+
       toast.success("Votre demande a bien été envoyée !");
       setFormData({
         lastName: "",
