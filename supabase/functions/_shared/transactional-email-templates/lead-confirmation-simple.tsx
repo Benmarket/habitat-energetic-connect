@@ -134,6 +134,7 @@ const LeadConfirmationSimpleEmail = ({
                   {/* GALERIE selon type de travaux */}
                   <WorkGallery
                     workType={workType}
+                    images={galleryImages}
                     hint={`${formLabel} ${requestSummary ?? ''}`}
                   />
 
