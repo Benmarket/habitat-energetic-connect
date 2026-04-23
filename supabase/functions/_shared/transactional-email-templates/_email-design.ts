@@ -385,16 +385,21 @@ export const galleryTitle = {
 
 export const galleryImage = {
   display: 'block',
-  width: '100%',
-  height: 'auto',
+  width: '180px',
+  height: '135px',
+  maxWidth: '100%',
+  objectFit: 'cover' as const,
+  objectPosition: 'center' as const,
   borderRadius: '8px',
   border: `1px solid ${BRAND.borderLight}`,
+  margin: '0 auto',
 }
 
 export const galleryCell = {
   padding: '0 4px',
   width: '33.33%',
-  verticalAlign: 'top' as const,
+  verticalAlign: 'middle' as const,
+  textAlign: 'center' as const,
 }
 
 // ===== Séparateur =====
