@@ -3,7 +3,6 @@ import * as React from 'npm:react@18.3.1'
 import {
   Body,
   Button,
-  Container,
   Head,
   Heading,
   Html,
@@ -20,6 +19,7 @@ import {
   wrapper,
   card,
   header,
+  logoImg,
   headerBrand,
   headerTagline,
   accentBar,
@@ -43,6 +43,7 @@ import {
   footerText,
   footerLink,
 } from './_email-design.ts'
+import { WorkGallery } from './_work-gallery.tsx'
 
 interface Props {
   firstName?: string
@@ -74,14 +75,20 @@ const LeadConfirmationSignupEmail = ({
             <td align="center">
               <table role="presentation" width="640" cellPadding={0} cellSpacing={0} border={0} style={card}>
                 <tbody>
-                  {/* HEADER */}
+                  {/* HEADER sombre + logo */}
                   <tr>
                     <td style={header}>
+                      <Img
+                        src={BRAND.logoUrl}
+                        alt={BRAND.siteName}
+                        width={140}
+                        height={52}
+                        style={logoImg}
+                      />
                       <Heading as="h1" style={headerBrand}>{BRAND.siteName}</Heading>
                       <Text style={headerTagline}>{BRAND.tagline}</Text>
                     </td>
                   </tr>
-                  {/* Bande dorée accent */}
                   <tr>
                     <td style={accentBar}>&nbsp;</td>
                   </tr>
@@ -102,7 +109,7 @@ const LeadConfirmationSignupEmail = ({
 
                       {(requestSummary || email || phone) && (
                         <Section style={recapBox}>
-                          <Text style={recapTitle}>📋 Récapitulatif de votre demande</Text>
+                          <Text style={recapTitle}>Récapitulatif de votre demande</Text>
                           {requestSummary && (
                             <Text style={recapItem}>
                               <strong>Projet :</strong> {requestSummary}
@@ -120,17 +127,15 @@ const LeadConfirmationSignupEmail = ({
                           )}
                         </Section>
                       )}
-
-                      <Text style={text}>
-                        En attendant notre appel, profitez-en pour activer votre{' '}
-                        <strong style={strongAccent}>espace personnel sécurisé</strong> :
-                      </Text>
                     </td>
                   </tr>
 
+                  {/* GALERIE selon type de travaux */}
+                  <WorkGallery hint={`${formLabel} ${requestSummary ?? ''}`} />
+
                   {/* CTA */}
                   <tr>
-                    <td style={{ padding: '0 36px' }}>
+                    <td style={{ padding: '0 40px' }}>
                       <Section style={ctaSection}>
                         <Heading as="h3" style={h2}>
                           Activez votre espace personnel
@@ -151,7 +156,6 @@ const LeadConfirmationSignupEmail = ({
                     </td>
                   </tr>
 
-                  {/* Séparateur */}
                   <tr>
                     <td style={hrSection}>
                       <div style={hr}>&nbsp;</div>
@@ -182,7 +186,6 @@ const LeadConfirmationSignupEmail = ({
                     </td>
                   </tr>
 
-                  {/* Bande de fermeture verte */}
                   <tr>
                     <td style={footerBar}>&nbsp;</td>
                   </tr>
