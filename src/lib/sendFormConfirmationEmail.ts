@@ -26,7 +26,12 @@ export interface SendFormConfirmationParams {
  */
 export async function sendFormConfirmationEmail(params: SendFormConfirmationParams): Promise<void> {
   try {
-    const origin = typeof window !== "undefined" ? window.location.origin : undefined;
+    const origin =
+      typeof window !== "undefined"
+        ? (window.location.hostname.includes("lovable.app") || window.location.hostname === "localhost"
+            ? undefined
+            : window.location.origin)
+        : undefined;
     const { error } = await supabase.functions.invoke("send-form-confirmation", {
       body: { ...params, siteOrigin: origin },
     });

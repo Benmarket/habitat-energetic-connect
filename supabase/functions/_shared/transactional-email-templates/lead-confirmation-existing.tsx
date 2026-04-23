@@ -14,7 +14,7 @@ import {
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 
-const SITE_NAME = 'Prime Énergies'
+const SITE_NAME = 'Prime Energies'
 const SITE_URL = 'https://prime-energies.fr'
 
 interface Props {
@@ -36,7 +36,7 @@ const LeadConfirmationExistingEmail = ({
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Merci pour votre demande — retrouvez-la dans votre espace</Preview>
+    <Preview>Votre demande a bien été reçue par Prime Energies</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
@@ -54,7 +54,7 @@ const LeadConfirmationExistingEmail = ({
 
         {(requestSummary || email || phone) && (
           <Section style={recapBox}>
-            <Text style={recapTitle}>📋 Récapitulatif de votre demande</Text>
+            <Text style={recapTitle}>Récapitulatif de votre demande</Text>
             {requestSummary && <Text style={recapItem}>{requestSummary}</Text>}
             {email && (
               <Text style={recapItem}>
@@ -72,10 +72,10 @@ const LeadConfirmationExistingEmail = ({
         <Hr style={hr} />
 
         <Section style={ctaSection}>
-          <Heading style={h2}>👋 Continuez votre parcours dans votre espace membre</Heading>
+          <Heading style={h2}>Retrouvez votre demande dans votre espace</Heading>
           <Text style={text}>
-            Connectez-vous pour suivre cette demande, accéder à votre historique
-            et profiter de toutes les fonctionnalités de votre espace.
+            Connectez-vous pour consulter cette demande, retrouver votre historique
+            et poursuivre votre parcours depuis votre espace personnel.
           </Text>
           <Section style={{ textAlign: 'center', margin: '24px 0' }}>
             <Button href={loginUrl} style={button}>
@@ -98,7 +98,7 @@ const LeadConfirmationExistingEmail = ({
 export const template = {
   component: LeadConfirmationExistingEmail,
   subject: ({ formLabel }: Props = {}) =>
-    `Merci pour ${formLabel ? formLabel.toLowerCase() : 'votre demande'} — ${SITE_NAME}`,
+    `Votre demande ${formLabel ? `pour ${formLabel.toLowerCase()}` : ''} a bien été reçue | ${SITE_NAME}`.replace('  ', ' '),
   displayName: 'Confirmation lead (utilisateur existant)',
   previewData: {
     firstName: 'Jean',
