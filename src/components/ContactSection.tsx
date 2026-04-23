@@ -81,6 +81,15 @@ const ContactSection = () => {
 
       if (error) throw error;
 
+      // Fire-and-forget confirmation email
+      const { sendFormConfirmationEmail } = await import("@/lib/sendFormConfirmationEmail");
+      sendFormConfirmationEmail({
+        formIdentifier: "contact_general",
+        recipient: { email: formData.email, firstName, lastName, phone: formData.phone },
+        formLabel: "votre message",
+        requestSummary: `Sujet: ${formData.subject}`,
+      });
+
       // Rediriger avec le nom pour personnaliser
       const params = new URLSearchParams({ name: formData.fullName });
       navigate(`/merci?${params.toString()}`);
