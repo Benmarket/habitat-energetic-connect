@@ -216,10 +216,10 @@ const AdminConfirmation = () => {
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Eye className="w-5 h-5 text-primary" />
-                Choisir le produit affiché dans l'aperçu
+                Prévisualiser un produit
               </CardTitle>
               <CardDescription>
-                Sélectionnez le type de projet pour voir comment l'email s'adapte (galerie d'images + récapitulatif). Le contenu est <strong>déterministe</strong>, jamais aléatoire.
+                <strong>Tous les produits sont actifs en production.</strong> Ce sélecteur sert uniquement à <em>prévisualiser</em> ici comment l'email s'adapte selon le projet du lead. La détection se fait automatiquement à l'envoi.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -251,18 +251,24 @@ const AdminConfirmation = () => {
                       </div>
                       {isActive && (
                         <Badge className="absolute -top-2 -right-2 h-5 px-1.5 text-[10px] bg-primary text-primary-foreground">
-                          <CheckCircle2 className="w-3 h-3 mr-0.5" /> Actif
+                          <Eye className="w-3 h-3 mr-0.5" /> Aperçu
                         </Badge>
                       )}
                     </button>
                   );
                 })}
               </div>
-              <p className="text-xs text-muted-foreground mt-3">
-                💡 Ce choix simule ce qu'un lead recevrait selon le formulaire qu'il a rempli. En production, le type est détecté automatiquement à partir du libellé du formulaire et du résumé de la demande.
-              </p>
             </CardContent>
           </Card>
+
+          {/* Éditeur de galerie pour le produit sélectionné */}
+          {workType !== "none" && (
+            <EmailGalleryEditor
+              workType={workType}
+              workTypeLabel={WORK_TYPE_OPTIONS.find((o) => o.value === workType)?.label ?? workType}
+              onSaved={() => loadTemplates(workType)}
+            />
+          )}
 
           {/* Templates preview */}
           <Card>
