@@ -1,4 +1,3 @@
-import 'https://deno.land/std@0.224.0/dotenv/load.ts'
 import {
   buildVerifiedTransactionalEmailRequest,
   VERIFIED_TRANSACTIONAL_EMAIL_ACCEPT_LANGUAGE,
