@@ -1,5 +1,5 @@
-import { sendLovableEmail } from 'npm:@lovable.dev/email-js'
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { sendVerifiedTransactionalEmail } from '../_shared/localized-email-api.ts'
 
 const MAX_RETRIES = 5
 const DEFAULT_BATCH_SIZE = 10
@@ -249,7 +249,7 @@ Deno.serve(async (req) => {
       }
 
       try {
-        await sendLovableEmail(
+        await sendVerifiedTransactionalEmail(
           {
             run_id: payload.run_id,
             to: payload.to,
@@ -263,6 +263,8 @@ Deno.serve(async (req) => {
             idempotency_key: payload.idempotency_key,
             unsubscribe_token: payload.unsubscribe_token,
             message_id: payload.message_id,
+            locale: payload.locale,
+            language: payload.language,
           },
           // sendUrl is optional — when LOVABLE_SEND_URL is not set, the library
           // falls back to the default Lovable API endpoint (https://api.lovable.dev).
