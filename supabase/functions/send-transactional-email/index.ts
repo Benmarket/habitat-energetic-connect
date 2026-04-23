@@ -1,6 +1,7 @@
 import * as React from 'npm:react@18.3.1'
 import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { buildVerifiedTransactionalEmailPayload } from '../_shared/localized-email-api.ts'
 import { TEMPLATES } from '../_shared/transactional-email-templates/registry.ts'
 
 // Configuration baked in at scaffold time — do NOT change these manually.
@@ -308,24 +309,24 @@ Deno.serve(async (req) => {
     status: 'pending',
   })
 
+  const verifiedPayload = buildVerifiedTransactionalEmailPayload({
+    message_id: messageId,
+    to: effectiveRecipient,
+    from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+    sender_domain: SENDER_DOMAIN,
+    subject: resolvedSubject,
+    html,
+    text: plainText,
+    purpose: 'transactional',
+    label: templateName,
+    idempotency_key: idempotencyKey,
+    unsubscribe_token: unsubscribeToken,
+    queued_at: new Date().toISOString(),
+  })
+
   const { error: enqueueError } = await supabase.rpc('enqueue_email', {
     queue_name: 'transactional_emails',
-    payload: {
-      message_id: messageId,
-      to: effectiveRecipient,
-      from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
-      sender_domain: SENDER_DOMAIN,
-      subject: resolvedSubject,
-      html,
-      text: plainText,
-      purpose: 'transactional',
-      label: templateName,
-      idempotency_key: idempotencyKey,
-      unsubscribe_token: unsubscribeToken,
-      locale: 'fr',
-      language: 'fr',
-      queued_at: new Date().toISOString(),
-    },
+    payload: verifiedPayload,
   })
 
   if (enqueueError) {
