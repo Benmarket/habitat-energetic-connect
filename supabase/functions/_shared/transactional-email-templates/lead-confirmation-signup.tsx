@@ -56,7 +56,7 @@ const LeadConfirmationSignupEmail = ({
 
         {(requestSummary || email || phone) && (
           <Section style={recapBox}>
-            <Text style={recapTitle}>📋 Récapitulatif de votre demande</Text>
+            <Text style={recapTitle}>Récapitulatif de votre demande</Text>
             {requestSummary && <Text style={recapItem}>{requestSummary}</Text>}
             {email && (
               <Text style={recapItem}>
