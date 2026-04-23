@@ -125,12 +125,32 @@ const EligibilityFormSection = () => {
       }
 
       // Soumettre les données
+      const submissionId = crypto.randomUUID();
       const { error } = await supabase.from("form_submissions").insert({
+        id: submissionId,
         form_id: formConfig.id,
         data: validated,
       });
 
       if (error) throw error;
+
+      // Fire-and-forget confirmation email
+      const v: any = validated;
+      if (v.email) {
+        const { sendFormConfirmationEmail } = await import("@/lib/sendFormConfirmationEmail");
+        sendFormConfirmationEmail({
+          formIdentifier: "eligibility-form-accueil",
+          submissionId,
+          recipient: {
+            email: v.email,
+            firstName: v.firstName,
+            lastName: v.lastName,
+            phone: v.phone,
+          },
+          formLabel: "votre demande d'éligibilité",
+          requestSummary: `${v.installationType ?? ""}`.trim(),
+        });
+      }
 
       // Mapper le type d'installation vers le workType de la page Merci
       const workTypeMap: Record<string, string> = {

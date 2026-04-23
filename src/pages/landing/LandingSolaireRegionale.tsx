@@ -182,7 +182,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
       // Fire-and-forget confirmation email
       const { sendFormConfirmationEmail } = await import("@/lib/sendFormConfirmationEmail");
       sendFormConfirmationEmail({
-        formIdentifier: `landing_solaire_${regionCode || "regionale"}`,
+        formIdentifier: "landing-solaire",
         recipient: {
           email: wizardData.email,
           firstName: wizardData.firstName,

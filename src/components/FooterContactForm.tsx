@@ -84,7 +84,7 @@ const FooterContactForm = () => {
       // Fire-and-forget confirmation email (uses admin toggles)
       const { sendFormConfirmationEmail } = await import("@/lib/sendFormConfirmationEmail");
       sendFormConfirmationEmail({
-        formIdentifier: "footer_contact_prime_energies",
+        formIdentifier: "footer-contact",
         recipient: {
           email: formData.email,
           firstName: formData.firstName,

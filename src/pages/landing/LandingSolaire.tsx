@@ -231,7 +231,7 @@ const LandingSolaireContent = () => {
       // Fire-and-forget confirmation email
       const { sendFormConfirmationEmail } = await import("@/lib/sendFormConfirmationEmail");
       sendFormConfirmationEmail({
-        formIdentifier: "landing_solaire_national",
+        formIdentifier: "landing-solaire",
         recipient: {
           email: wizardData.email,
           firstName: wizardData.firstName,
