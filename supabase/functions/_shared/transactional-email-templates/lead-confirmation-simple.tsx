@@ -13,7 +13,7 @@ import {
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 
-const SITE_NAME = 'Prime Énergies'
+const SITE_NAME = 'Prime Energies'
 
 interface Props {
   firstName?: string
@@ -32,7 +32,7 @@ const LeadConfirmationSimpleEmail = ({
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Nous avons bien reçu votre demande — Prime Énergies</Preview>
+    <Preview>Votre demande a bien été reçue par Prime Energies</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
@@ -79,7 +79,7 @@ const LeadConfirmationSimpleEmail = ({
 export const template = {
   component: LeadConfirmationSimpleEmail,
   subject: ({ formLabel }: Props = {}) =>
-    `Merci pour ${formLabel ? formLabel.toLowerCase() : 'votre demande'} — ${SITE_NAME}`,
+    `Votre demande ${formLabel ? `pour ${formLabel.toLowerCase()}` : ''} a bien été reçue | ${SITE_NAME}`.replace('  ', ' '),
   displayName: 'Confirmation lead (sans inscription)',
   previewData: {
     firstName: 'Jean',

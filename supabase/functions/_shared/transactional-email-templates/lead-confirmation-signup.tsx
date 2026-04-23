@@ -15,7 +15,7 @@ import {
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 
-const SITE_NAME = 'Prime Énergies'
+const SITE_NAME = 'Prime Energies'
 const SITE_URL = 'https://prime-energies.fr'
 
 interface Props {
@@ -38,7 +38,7 @@ const LeadConfirmationSignupEmail = ({
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Merci pour votre demande — créez votre espace membre Prime Énergies</Preview>
+    <Preview>Votre demande a bien été reçue par Prime Energies</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
@@ -105,7 +105,7 @@ const LeadConfirmationSignupEmail = ({
 export const template = {
   component: LeadConfirmationSignupEmail,
   subject: ({ formLabel }: Props = {}) =>
-    `Merci pour ${formLabel ? formLabel.toLowerCase() : 'votre demande'} — créez votre espace ${SITE_NAME}`,
+    `Votre demande ${formLabel ? `pour ${formLabel.toLowerCase()}` : ''} a bien été reçue | ${SITE_NAME}`.replace('  ', ' '),
   displayName: 'Confirmation lead + lien inscription',
   previewData: {
     firstName: 'Jean',
