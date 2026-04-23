@@ -40,6 +40,11 @@ interface MediaLibraryProps {
   onOpenChange: (open: boolean) => void;
 }
 
+type MediaTab = "all" | "uploaded" | "generated";
+
+const isGenerated = (item: Media) =>
+  (item.filename ?? "").toLowerCase().startsWith("generated-");
+
 export function MediaLibrary({ onSelect, open, onOpenChange }: MediaLibraryProps) {
   const [media, setMedia] = useState<Media[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +53,7 @@ export function MediaLibrary({ onSelect, open, onOpenChange }: MediaLibraryProps
   const [deleteMedia, setDeleteMedia] = useState<Media | null>(null);
   const [editFilename, setEditFilename] = useState("");
   const [editAltText, setEditAltText] = useState("");
+  const [activeTab, setActiveTab] = useState<MediaTab>("all");
   const { toast } = useToast();
 
   useEffect(() => {
