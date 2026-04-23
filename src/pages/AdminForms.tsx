@@ -25,6 +25,8 @@ type FormConfig = {
   description: string | null;
   webhook_url: string | null;
   webhook_enabled: boolean;
+  send_confirmation_email: boolean;
+  include_signup_link: boolean;
   fields_schema: any;
   created_at: string;
   updated_at: string;
@@ -55,6 +57,8 @@ export default function AdminForms() {
     description: "",
     webhook_url: "",
     webhook_enabled: false,
+    send_confirmation_email: true,
+    include_signup_link: true,
   });
   const [currentPage, setCurrentPage] = useState(1);
   const formsPerPage = 10;
@@ -323,6 +327,8 @@ export default function AdminForms() {
       description: "",
       webhook_url: "",
       webhook_enabled: false,
+      send_confirmation_email: true,
+      include_signup_link: true,
     });
   };
 
@@ -334,6 +340,8 @@ export default function AdminForms() {
       description: form.description || "",
       webhook_url: form.webhook_url || "",
       webhook_enabled: form.webhook_enabled,
+      send_confirmation_email: form.send_confirmation_email ?? true,
+      include_signup_link: form.include_signup_link ?? true,
     });
     setIsEditOpen(true);
   };
@@ -1121,6 +1129,49 @@ export default function AdminForms() {
                 />
                 <Label htmlFor="edit-webhook-enabled">Activer le webhook</Label>
               </div>
+
+              <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="edit-send-email"
+                    checked={formData.send_confirmation_email}
+                    onCheckedChange={(checked) =>
+                      setFormData({
+                        ...formData,
+                        send_confirmation_email: checked,
+                        include_signup_link: checked ? formData.include_signup_link : false,
+                      })
+                    }
+                  />
+                  <Label htmlFor="edit-send-email" className="font-medium">
+                    📧 Envoyer un email de confirmation
+                  </Label>
+                </div>
+                <p className="text-xs text-muted-foreground ml-10">
+                  Email automatique de remerciement envoyé au lead avec récap de sa demande.
+                </p>
+                {formData.send_confirmation_email && (
+                  <div className="flex items-start space-x-2 pt-2 border-t">
+                    <Switch
+                      id="edit-signup-link"
+                      checked={formData.include_signup_link}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, include_signup_link: checked })
+                      }
+                    />
+                    <div>
+                      <Label htmlFor="edit-signup-link" className="font-medium">
+                        ✨ Inclure un lien d'inscription espace membre
+                      </Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Lien magique unique (valable 7j) pour créer un compte en un clic.
+                        Si le lead existe déjà, un lien de connexion est utilisé à la place.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setIsEditOpen(false)}>
                   Annuler
