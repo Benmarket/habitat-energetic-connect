@@ -42,7 +42,7 @@ import {
   footerText,
   footerLink,
 } from './_email-design.ts'
-import { WorkGallery } from './_work-gallery.tsx'
+import { WorkGallery, type CustomGalleryImage } from './_work-gallery.tsx'
 import type { WorkType } from './_email-design.ts'
 
 interface Props {
@@ -53,6 +53,7 @@ interface Props {
   requestSummary?: string
   loginUrl?: string
   workType?: WorkType
+  galleryImages?: CustomGalleryImage[]
 }
 
 const LeadConfirmationExistingEmail = ({
@@ -63,6 +64,7 @@ const LeadConfirmationExistingEmail = ({
   requestSummary,
   loginUrl = `${BRAND.siteUrl}/auth`,
   workType,
+  galleryImages,
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
@@ -139,6 +141,7 @@ const LeadConfirmationExistingEmail = ({
                   {/* GALERIE */}
                   <WorkGallery
                     workType={workType}
+                    images={galleryImages}
                     hint={`${formLabel} ${requestSummary ?? ''}`}
                   />
 
