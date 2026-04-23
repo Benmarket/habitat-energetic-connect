@@ -11,6 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +40,11 @@ interface MediaLibraryProps {
   onOpenChange: (open: boolean) => void;
 }
 
+type MediaTab = "all" | "uploaded" | "generated";
+
+const isGenerated = (item: Media) =>
+  (item.filename ?? "").toLowerCase().startsWith("generated-");
+
 export function MediaLibrary({ onSelect, open, onOpenChange }: MediaLibraryProps) {
   const [media, setMedia] = useState<Media[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,6 +53,7 @@ export function MediaLibrary({ onSelect, open, onOpenChange }: MediaLibraryProps
   const [deleteMedia, setDeleteMedia] = useState<Media | null>(null);
   const [editFilename, setEditFilename] = useState("");
   const [editAltText, setEditAltText] = useState("");
+  const [activeTab, setActiveTab] = useState<MediaTab>("all");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -228,58 +236,110 @@ export function MediaLibrary({ onSelect, open, onOpenChange }: MediaLibraryProps
             />
           </div>
 
-          <div className="flex-1 overflow-y-auto">
-            {loading ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin" />
-              </div>
-            ) : media.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
-                Aucune image dans votre bibliothèque
-              </p>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {media.map((item) => (
-                  <div
-                    key={item.id}
-                    className="group relative border rounded-lg overflow-hidden hover:border-primary transition-colors cursor-pointer"
-                    onClick={() => onSelect(item.storage_path, item.alt_text || item.filename)}
-                  >
-                    <img
-                      src={item.storage_path}
-                      alt={item.alt_text || item.filename}
-                      className="w-full h-40 object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openEditDialog(item);
-                        }}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDeleteMedia(item);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) => setActiveTab(v as MediaTab)}
+            className="flex-1 flex flex-col overflow-hidden"
+          >
+            <TabsList className="self-start">
+              <TabsTrigger value="all">
+                Tous <Badge variant="secondary" className="ml-2">{media.length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="uploaded">
+                Uploadés{" "}
+                <Badge variant="secondary" className="ml-2">
+                  {media.filter((m) => !isGenerated(m)).length}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger value="generated">
+                Générés{" "}
+                <Badge variant="secondary" className="ml-2">
+                  {media.filter(isGenerated).length}
+                </Badge>
+              </TabsTrigger>
+            </TabsList>
+
+            <div className="flex-1 overflow-y-auto mt-3">
+              {loading ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+              ) : (
+                (() => {
+                  const filtered =
+                    activeTab === "all"
+                      ? media
+                      : activeTab === "uploaded"
+                      ? media.filter((m) => !isGenerated(m))
+                      : media.filter(isGenerated);
+
+                  if (filtered.length === 0) {
+                    return (
+                      <p className="text-center text-muted-foreground py-8">
+                        {activeTab === "uploaded"
+                          ? "Aucune image uploadée pour le moment."
+                          : activeTab === "generated"
+                          ? "Aucune image générée par IA pour le moment."
+                          : "Aucune image dans votre bibliothèque."}
+                      </p>
+                    );
+                  }
+
+                  return (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {filtered.map((item) => {
+                        const generated = isGenerated(item);
+                        return (
+                          <div
+                            key={item.id}
+                            className="group relative border rounded-lg overflow-hidden hover:border-primary transition-colors cursor-pointer"
+                            onClick={() => onSelect(item.storage_path, item.alt_text || item.filename)}
+                          >
+                            <img
+                              src={item.storage_path}
+                              alt={item.alt_text || item.filename}
+                              className="w-full h-40 object-cover"
+                            />
+                            <Badge
+                              variant={generated ? "default" : "secondary"}
+                              className="absolute top-2 left-2 text-[10px] uppercase tracking-wide"
+                            >
+                              {generated ? "IA" : "Upload"}
+                            </Badge>
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openEditDialog(item);
+                                }}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDeleteMedia(item);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <div className="p-2 bg-background">
+                              <p className="text-xs truncate">{item.filename}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                    <div className="p-2 bg-background">
-                      <p className="text-xs truncate">{item.filename}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                  );
+                })()
+              )}
+            </div>
+          </Tabs>
         </DialogContent>
       </Dialog>
 
