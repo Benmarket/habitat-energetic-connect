@@ -3,10 +3,10 @@ import * as React from 'npm:react@18.3.1'
 import {
   Body,
   Button,
-  Container,
   Head,
   Heading,
   Html,
+  Img,
   Link,
   Preview,
   Section,
@@ -19,6 +19,7 @@ import {
   wrapper,
   card,
   header,
+  logoImg,
   headerBrand,
   headerTagline,
   accentBar,
@@ -41,6 +42,7 @@ import {
   footerText,
   footerLink,
 } from './_email-design.ts'
+import { WorkGallery } from './_work-gallery.tsx'
 
 interface Props {
   firstName?: string
@@ -74,6 +76,13 @@ const LeadConfirmationExistingEmail = ({
                   {/* HEADER */}
                   <tr>
                     <td style={header}>
+                      <Img
+                        src={BRAND.logoUrl}
+                        alt={BRAND.siteName}
+                        width={140}
+                        height={52}
+                        style={logoImg}
+                      />
                       <Heading as="h1" style={headerBrand}>{BRAND.siteName}</Heading>
                       <Text style={headerTagline}>{BRAND.tagline}</Text>
                     </td>
@@ -103,7 +112,7 @@ const LeadConfirmationExistingEmail = ({
 
                       {(requestSummary || email || phone) && (
                         <Section style={recapBox}>
-                          <Text style={recapTitle}>📋 Récapitulatif de votre demande</Text>
+                          <Text style={recapTitle}>Récapitulatif de votre demande</Text>
                           {requestSummary && (
                             <Text style={recapItem}>
                               <strong>Projet :</strong> {requestSummary}
@@ -124,9 +133,12 @@ const LeadConfirmationExistingEmail = ({
                     </td>
                   </tr>
 
+                  {/* GALERIE */}
+                  <WorkGallery hint={`${formLabel} ${requestSummary ?? ''}`} />
+
                   {/* CTA */}
                   <tr>
-                    <td style={{ padding: '0 36px' }}>
+                    <td style={{ padding: '0 40px' }}>
                       <Section style={ctaSection}>
                         <Heading as="h3" style={h2}>
                           Accédez à votre espace
@@ -194,8 +206,8 @@ export const template = {
     firstName: 'Jean',
     phone: '06 12 34 56 78',
     email: 'jean.dupont@example.com',
-    formLabel: 'votre demande de devis solaire',
-    requestSummary: 'Installation panneaux solaires • Maison individuelle • 75001 Paris',
+    formLabel: 'votre demande pour isolation des combles',
+    requestSummary: 'Isolation combles perdus • Maison 110 m² • 33000 Bordeaux',
     loginUrl: 'https://prime-energies.fr/auth',
   },
 } satisfies TemplateEntry

@@ -2,10 +2,10 @@
 import * as React from 'npm:react@18.3.1'
 import {
   Body,
-  Container,
   Head,
   Heading,
   Html,
+  Img,
   Link,
   Preview,
   Section,
@@ -18,6 +18,7 @@ import {
   wrapper,
   card,
   header,
+  logoImg,
   headerBrand,
   headerTagline,
   accentBar,
@@ -37,6 +38,7 @@ import {
   footerText,
   footerLink,
 } from './_email-design.ts'
+import { WorkGallery } from './_work-gallery.tsx'
 
 interface Props {
   firstName?: string
@@ -66,6 +68,13 @@ const LeadConfirmationSimpleEmail = ({
                   {/* HEADER */}
                   <tr>
                     <td style={header}>
+                      <Img
+                        src={BRAND.logoUrl}
+                        alt={BRAND.siteName}
+                        width={140}
+                        height={52}
+                        style={logoImg}
+                      />
                       <Heading as="h1" style={headerBrand}>{BRAND.siteName}</Heading>
                       <Text style={headerTagline}>{BRAND.tagline}</Text>
                     </td>
@@ -90,7 +99,7 @@ const LeadConfirmationSimpleEmail = ({
 
                       {(requestSummary || email || phone) && (
                         <Section style={recapBox}>
-                          <Text style={recapTitle}>📋 Récapitulatif de votre demande</Text>
+                          <Text style={recapTitle}>Récapitulatif de votre demande</Text>
                           {requestSummary && (
                             <Text style={recapItem}>
                               <strong>Projet :</strong> {requestSummary}
@@ -116,6 +125,9 @@ const LeadConfirmationSimpleEmail = ({
                       </Text>
                     </td>
                   </tr>
+
+                  {/* GALERIE selon type de travaux */}
+                  <WorkGallery hint={`${formLabel} ${requestSummary ?? ''}`} />
 
                   <tr>
                     <td style={hrSection}>
@@ -169,7 +181,7 @@ export const template = {
     firstName: 'Jean',
     phone: '06 12 34 56 78',
     email: 'jean.dupont@example.com',
-    formLabel: 'votre demande de contact',
+    formLabel: 'votre demande de rappel',
     requestSummary: 'Demande de rappel téléphonique',
   },
 } satisfies TemplateEntry
