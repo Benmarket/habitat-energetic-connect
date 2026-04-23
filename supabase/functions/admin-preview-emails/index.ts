@@ -59,6 +59,55 @@ Deno.serve(async (req) => {
       })
     }
 
+    // Optional body: { workType: 'solaire' | 'isolation' | 'chauffage' | 'renovation' | 'mix' | 'none' }
+    let workType: string | undefined
+    if (req.method === 'POST') {
+      try {
+        const body = await req.json()
+        if (body && typeof body.workType === 'string') {
+          workType = body.workType
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+
+    // Per workType deterministic overrides for preview content (formLabel + requestSummary)
+    const WORK_TYPE_PRESETS: Record<
+      string,
+      { formLabel: string; requestSummary: string }
+    > = {
+      solaire: {
+        formLabel: 'votre demande de devis solaire',
+        requestSummary:
+          'Installation panneaux photovoltaïques • Maison individuelle • 75001 Paris',
+      },
+      isolation: {
+        formLabel: 'votre demande d’isolation',
+        requestSummary:
+          'Isolation des combles + ITE • Maison 1985 • 33000 Bordeaux',
+      },
+      chauffage: {
+        formLabel: 'votre demande de chauffage',
+        requestSummary:
+          'Pompe à chaleur air/eau • Remplacement chaudière fioul • 69000 Lyon',
+      },
+      renovation: {
+        formLabel: 'votre demande de rénovation globale',
+        requestSummary:
+          'Rénovation énergétique d’ampleur • Maison 120 m² • 31000 Toulouse',
+      },
+      mix: {
+        formLabel: 'votre demande de conseil énergétique',
+        requestSummary:
+          'Plusieurs projets envisagés (je ne sais pas encore) • Maison principale • 44000 Nantes',
+      },
+      none: {
+        formLabel: 'votre demande',
+        requestSummary: 'Demande d’information générale • Rappel téléphonique souhaité',
+      },
+    }
+
     const templateNames = Object.keys(TEMPLATES)
     const results: Array<{
       templateName: string
@@ -73,7 +122,16 @@ Deno.serve(async (req) => {
     for (const name of templateNames) {
       const entry = TEMPLATES[name]
       const displayName = entry.displayName || name
-      const previewData = entry.previewData || {}
+      const basePreview = entry.previewData || {}
+      const preset = workType ? WORK_TYPE_PRESETS[workType] : undefined
+      const previewData = preset
+        ? {
+            ...basePreview,
+            formLabel: preset.formLabel,
+            requestSummary: preset.requestSummary,
+            workType,
+          }
+        : basePreview
 
       try {
         const html = await renderAsync(
