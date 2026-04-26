@@ -5,7 +5,6 @@ import {
   Head,
   Heading,
   Html,
-  Img,
   Link,
   Preview,
   Section,
@@ -18,9 +17,6 @@ import {
   wrapper,
   card,
   header,
-  logoImg,
-  headerBrand,
-  headerTagline,
   accentBar,
   footerBar,
   contentSection,
@@ -40,6 +36,7 @@ import {
 } from './_email-design.ts'
 import { WorkGallery, type CustomGalleryImage } from './_work-gallery.tsx'
 import type { WorkType } from './_email-design.ts'
+import { EmailBrandLogo } from './_email-brand-logo.tsx'
 
 interface Props {
   firstName?: string
@@ -73,15 +70,7 @@ const LeadConfirmationSimpleEmail = ({
                   {/* HEADER */}
                   <tr>
                     <td style={header}>
-                      <Img
-                        src={BRAND.logoUrl}
-                        alt={BRAND.siteName}
-                        width={140}
-                        height={52}
-                        style={logoImg}
-                      />
-                      <Heading as="h1" style={headerBrand}>{BRAND.siteName}</Heading>
-                      <Text style={headerTagline}>{BRAND.tagline}</Text>
+                      <EmailBrandLogo />
                     </td>
                   </tr>
                   <tr>
