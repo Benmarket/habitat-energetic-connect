@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Link } from "react-router-dom";
-import { Home, CheckCircle, ArrowRight, Paintbrush, DoorOpen, Droplets, Flame, HelpCircle, Euro, Shield, BarChart3, Lightbulb, AlertTriangle, Wrench, ThermometerSnowflake, Wind } from "lucide-react";
+import { Home, CheckCircle, ArrowRight, Paintbrush, DoorOpen, Droplets, Flame, HelpCircle, Euro, Shield, BarChart3, Lightbulb, AlertTriangle, Wrench, ThermometerSnowflake, Wind, TrendingUp, FileText, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -84,6 +84,58 @@ const ServiceAmeliorationHabitat = () => {
                   <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
                 </div>
               ))}
+            </div>
+          </section>
+
+          {/* Comprendre DPE & CEE — objectif gain de classe */}
+          <section className="mb-12">
+            <div className="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 via-white to-indigo-50 p-6 md:p-8 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-violet-600 text-white text-xs font-semibold uppercase tracking-wide">
+                  <Award className="w-3.5 h-3.5" /> À comprendre avant de se lancer
+                </span>
+              </div>
+              <h2 className="text-2xl font-bold text-foreground mb-3">DPE, CEE et gain de classe énergétique : l'essentiel</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+                Tout projet de rénovation performant repose sur deux notions clés : le <strong className="text-foreground">DPE</strong> (Diagnostic de Performance Énergétique), qui mesure la performance de votre logement de A (très performant) à G (passoire thermique), et les <strong className="text-foreground">CEE</strong> (Certificats d'Économies d'Énergie), une prime versée par les fournisseurs d'énergie pour financer vos travaux. <strong className="text-foreground">L'objectif officiel d'une rénovation aidée est de gagner au moins une classe DPE — idéalement deux</strong>, condition indispensable pour débloquer les aides les plus généreuses comme MaPrimeRénov' Parcours accompagné.
+              </p>
+
+              <div className="grid md:grid-cols-3 gap-4 mb-5">
+                <div className="rounded-xl bg-white border border-violet-100 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-md bg-violet-100 text-violet-600"><FileText className="w-4 h-4" /></div>
+                    <h3 className="font-semibold text-foreground text-sm">DPE</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    <strong className="text-foreground">Diagnostic de Performance Énergétique</strong>. Note votre logement de A à G selon sa consommation et ses émissions de CO₂. Obligatoire à la vente et à la location, valable 10 ans.
+                  </p>
+                </div>
+                <div className="rounded-xl bg-white border border-violet-100 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-md bg-violet-100 text-violet-600"><Euro className="w-4 h-4" /></div>
+                    <h3 className="font-semibold text-foreground text-sm">CEE</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    <strong className="text-foreground">Certificats d'Économies d'Énergie</strong>. Prime financée par les vendeurs d'énergie (EDF, TotalEnergies, etc.). 6ᵉ période 2026-2030, cumulable avec MaPrimeRénov' et l'éco-PTZ.
+                  </p>
+                </div>
+                <div className="rounded-xl bg-white border border-violet-100 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-md bg-violet-100 text-violet-600"><TrendingUp className="w-4 h-4" /></div>
+                    <h3 className="font-semibold text-foreground text-sm">Gain de classe</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    L'objectif d'une rénovation globale est de <strong className="text-foreground">gagner au moins 2 classes DPE</strong> (ex. F → D). C'est le seuil exigé pour MaPrimeRénov' Parcours accompagné et la sortie du statut "passoire".
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-violet-600/5 border border-violet-200 p-4 flex gap-3">
+                <Lightbulb className="w-5 h-5 text-violet-600 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">À retenir :</strong> plus le saut de classes est important, plus les aides sont élevées. Un saut de 4 classes (G → C) peut couvrir jusqu'à 90 % du coût des travaux pour les ménages très modestes via le Parcours accompagné. Les CEE viennent compléter ce financement, sans condition de ressources.
+                </p>
+              </div>
             </div>
           </section>
 
