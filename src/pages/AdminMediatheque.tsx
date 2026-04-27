@@ -19,7 +19,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Upload, Loader2, Trash2, Copy, Search, Image as ImageIcon, FileVideo, FileText, File, X, Check } from "lucide-react";
+import { ArrowLeft, Upload, Loader2, Trash2, Copy, Search, Image as ImageIcon, FileVideo, FileText, File, X, Check, Download, Pencil } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 interface MediaItem {
   id: string;
@@ -57,6 +66,9 @@ const AdminMediatheque = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteItem, setDeleteItem] = useState<MediaItem | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [renameItem, setRenameItem] = useState<MediaItem | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [renaming, setRenaming] = useState(false);
 
   const fetchMedia = useCallback(async () => {
     setLoading(true);
@@ -149,6 +161,52 @@ const AdminMediatheque = () => {
     setCopiedId(item.id);
     toast.success("URL copiée !");
     setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleDownload = async (item: MediaItem) => {
+    try {
+      const response = await fetch(item.storage_path);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = item.filename || "fichier";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Téléchargement impossible");
+    }
+  };
+
+  const openRename = (item: MediaItem) => {
+    setRenameItem(item);
+    setRenameValue(item.filename);
+  };
+
+  const handleRename = async () => {
+    if (!renameItem) return;
+    const newName = renameValue.trim();
+    if (!newName) {
+      toast.error("Le nom ne peut pas être vide");
+      return;
+    }
+    setRenaming(true);
+    try {
+      const { error } = await supabase
+        .from("media")
+        .update({ filename: newName })
+        .eq("id", renameItem.id);
+      if (error) throw error;
+      setMedia(prev => prev.map(m => (m.id === renameItem.id ? { ...m, filename: newName } : m)));
+      toast.success("Fichier renommé");
+      setRenameItem(null);
+    } catch {
+      toast.error("Renommage impossible");
+    } finally {
+      setRenaming(false);
+    }
   };
 
   const filtered = media.filter(m =>
@@ -278,19 +336,39 @@ const AdminMediatheque = () => {
                       )}
 
                       {/* Hover overlay */}
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-wrap items-center justify-center gap-2 p-2">
                         <Button
                           size="icon"
                           variant="secondary"
                           className="h-8 w-8"
+                          title="Copier l'URL"
                           onClick={() => handleCopyUrl(item)}
                         >
                           {copiedId === item.id ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
                         </Button>
                         <Button
                           size="icon"
+                          variant="secondary"
+                          className="h-8 w-8"
+                          title="Télécharger"
+                          onClick={() => handleDownload(item)}
+                        >
+                          <Download className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="h-8 w-8"
+                          title="Renommer"
+                          onClick={() => openRename(item)}
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="icon"
                           variant="destructive"
                           className="h-8 w-8"
+                          title="Supprimer"
                           onClick={() => setDeleteItem(item)}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -333,6 +411,39 @@ const AdminMediatheque = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Rename dialog */}
+      <Dialog open={!!renameItem} onOpenChange={(o) => !o && setRenameItem(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Renommer le fichier</DialogTitle>
+            <DialogDescription>
+              Modifiez le nom affiché dans la médiathèque. Le fichier dans le stockage n'est pas déplacé.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="rename-input">Nom du fichier</Label>
+            <Input
+              id="rename-input"
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !renaming) handleRename();
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRenameItem(null)} disabled={renaming}>
+              Annuler
+            </Button>
+            <Button onClick={handleRename} disabled={renaming}>
+              {renaming ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+              Enregistrer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
