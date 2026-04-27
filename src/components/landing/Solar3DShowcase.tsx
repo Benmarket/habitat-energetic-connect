@@ -1,12 +1,19 @@
 import { Component, ErrorInfo, ReactNode, useRef, useMemo, useEffect, useState, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, ContactShadows, useGLTF, OrbitControls } from "@react-three/drei";
+import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import * as THREE from "three";
 
-// Préchargement uniquement du modèle "tuiles/tôle" (le plus utilisé).
-// Le modèle "flat" est chargé à la demande lorsque l'utilisateur sélectionne "Plate"
-// pour éviter de saturer le réseau au mount initial (chaque .glb fait ~40Mo).
-useGLTF.preload("/models/solar_panel.glb");
+// Configure le décodeur Meshopt pour les modèles compressés (~4MB au lieu de ~38MB).
+const configureLoader = (loader: any) => {
+  if (loader.setMeshoptDecoder) {
+    loader.setMeshoptDecoder(MeshoptDecoder);
+  }
+};
+
+// Préchargement des deux modèles compressés (légers : ~4MB chacun).
+useGLTF.preload("/models/solar_panel.glb", undefined, undefined, configureLoader);
+useGLTF.preload("/models/solar_panel_flat.glb", undefined, undefined, configureLoader);
 
 // ─── Error Boundary pour la scène 3D ───
 class Scene3DErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { hasError: boolean }> {
