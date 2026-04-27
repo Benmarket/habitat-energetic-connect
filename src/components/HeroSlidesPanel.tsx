@@ -47,6 +47,7 @@ const HeroSlidesPanel = ({
   const [cropSlideIndex, setCropSlideIndex] = useState<number | null>(null);
   const [cropImageSrc, setCropImageSrc] = useState("");
   const [cropOriginalImageSrc, setCropOriginalImageSrc] = useState<string | undefined>(undefined);
+  const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
 
   const currentSlides: HeroSlideData[] = slides && slides.length > 0
     ? normalizeHeroSlides(slides)
