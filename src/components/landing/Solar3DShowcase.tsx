@@ -627,29 +627,43 @@ const Solar3DShowcase = () => {
         }}
       />
       <div className="sticky top-0 h-screen w-full">
-        <Suspense fallback={
-          <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(180deg, #87CEEB 0%, #d4e8f7 100%)" }}>
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-12 h-12 border-2 border-sky-600/30 border-t-sky-600 rounded-full animate-spin" />
-              <div className="text-sky-900/50 text-sm font-medium tracking-wide">Chargement de la scène 3D…</div>
+        <Scene3DErrorBoundary
+          fallback={
+            <div className="w-full h-full flex items-center justify-center px-6" style={{ background: "linear-gradient(180deg, #87CEEB 0%, #d4e8f7 100%)" }}>
+              <div className="flex flex-col items-center gap-3 text-center max-w-md">
+                <div className="w-14 h-14 rounded-full bg-white/50 backdrop-blur-md flex items-center justify-center text-3xl shadow">☀️</div>
+                <div className="text-sky-900 text-base font-semibold">Visualisation 3D indisponible</div>
+                <div className="text-sky-900/70 text-sm">
+                  La scène 3D n'a pas pu se charger sur votre connexion. Cela n'empêche pas votre projet : nos techniciens RGE installent vos panneaux avec précision sur tous types de toiture.
+                </div>
+              </div>
             </div>
-          </div>
-        }>
-          <Canvas
-            shadows
-            dpr={[1, 2]}
-            gl={{
-              antialias: true,
-              alpha: true,
-              powerPreference: "high-performance",
-              toneMapping: THREE.ACESFilmicToneMapping,
-              toneMappingExposure: 1.1,
-            }}
-            camera={{ position: [-8.16, 3.72, 10.62], fov: 35 }}
-          >
-            <Scene progress={progress} config={config} roofType={roofType} onCameraUpdate={handleCameraUpdate} />
-          </Canvas>
-        </Suspense>
+          }
+        >
+          <Suspense fallback={
+            <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(180deg, #87CEEB 0%, #d4e8f7 100%)" }}>
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-2 border-sky-600/30 border-t-sky-600 rounded-full animate-spin" />
+                <div className="text-sky-900/50 text-sm font-medium tracking-wide">Chargement de la scène 3D…</div>
+              </div>
+            </div>
+          }>
+            <Canvas
+              shadows
+              dpr={[1, 2]}
+              gl={{
+                antialias: true,
+                alpha: true,
+                powerPreference: "high-performance",
+                toneMapping: THREE.ACESFilmicToneMapping,
+                toneMappingExposure: 1.1,
+              }}
+              camera={{ position: [-8.16, 3.72, 10.62], fov: 35 }}
+            >
+              <Scene progress={progress} config={config} roofType={roofType} onCameraUpdate={handleCameraUpdate} />
+            </Canvas>
+          </Suspense>
+        </Scene3DErrorBoundary>
 
         {/* Roof Type Selector */}
         <RoofTypeSelector selected={roofType} onSelect={setRoofType} />
