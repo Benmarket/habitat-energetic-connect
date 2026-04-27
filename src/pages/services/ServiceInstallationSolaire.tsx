@@ -10,6 +10,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import solarRoofImg from "@/assets/services/solar-roof-aerial.jpg";
 import solarWorkerImg from "@/assets/services/solar-installation-worker.jpg";
 import solarMonitoringImg from "@/assets/services/solar-monitoring.jpg";
+import solarOnduleurImg from "@/assets/services/solar-onduleur.jpg";
 
 const faqs = [
   { q: "Combien coûte une installation solaire en 2026 ?", a: "Le prix d'une installation solaire photovoltaïque varie entre 7 500 € et 18 000 € pour une puissance de 3 à 9 kWc, pose incluse. Les aides comme la prime à l'autoconsommation et l'obligation d'achat peuvent réduire significativement le coût net." },
@@ -335,6 +336,9 @@ const ServiceInstallationSolaire = () => {
             <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex gap-3">
               <Lightbulb className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
               <p className="text-sm text-muted-foreground"><strong className="text-foreground">Notre conseil :</strong> En 2026, les panneaux monocristallins offrent le meilleur rapport qualité/prix pour la majorité des installations résidentielles. Privilégiez les marques offrant une garantie produit de 25 ans minimum et une garantie de performance linéaire.</p>
+            </div>
+            <div className="rounded-2xl overflow-hidden mt-6">
+              <img src={solarOnduleurImg} alt="Onduleur photovoltaïque mural moderne installé dans un garage avec affichage de la production en kWh" width={1280} height={720} loading="lazy" className="w-full h-auto object-cover" />
             </div>
           </section>
 

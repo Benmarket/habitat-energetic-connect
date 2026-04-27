@@ -10,6 +10,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import pacExtImg from "@/assets/services/pac-exterieur.jpg";
 import pacIntImg from "@/assets/services/pac-interieur-confort.jpg";
 import pacTechImg from "@/assets/services/pac-installation-technicien.jpg";
+import pacThermostatImg from "@/assets/services/pac-thermostat-connecte.jpg";
 
 const faqs = [
   { q: "Quelle pompe à chaleur choisir : air-air, air-eau ou géothermique ?", a: "La PAC air-eau est la plus polyvalente : elle assure chauffage et eau chaude sanitaire. La PAC air-air est idéale pour le rafraîchissement. La géothermie offre les meilleures performances mais nécessite un investissement plus élevé et un terrain adapté." },
@@ -326,6 +327,9 @@ const ServicePompesAChaleur = () => {
               </table>
             </div>
             <p className="text-xs text-muted-foreground italic">* Pour un logement de 100 m² moyennement isolé en zone climatique H2.</p>
+            <div className="rounded-2xl overflow-hidden mt-6">
+              <img src={pacThermostatImg} alt="Thermostat connecté moderne pilotant la pompe à chaleur dans un salon contemporain" width={1280} height={720} loading="lazy" className="w-full h-auto object-cover" />
+            </div>
           </section>
 
           {/* CTA */}

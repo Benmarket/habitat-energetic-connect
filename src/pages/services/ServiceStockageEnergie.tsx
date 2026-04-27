@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import batterieImg from "@/assets/services/batterie-stockage.jpg";
+import autoconsoImg from "@/assets/services/stockage-autoconsommation.jpg";
 
 const faqs = [
   { q: "Pourquoi installer une batterie de stockage solaire ?", a: "Une batterie permet de stocker l'électricité produite par vos panneaux solaires pendant la journée pour la consommer le soir et la nuit. Vous augmentez ainsi votre taux d'autoconsommation de 30 % à 70-80 %, réduisant davantage votre facture." },
@@ -230,6 +231,9 @@ const ServiceStockageEnergie = () => {
               </Card>
             </div>
             <p className="text-xs text-muted-foreground italic mt-4">Simulation pour un foyer de 5 000 kWh/an avec installation 6 kWc, tarif réseau 0,27 €/kWh, hausse annuelle de 4 %. Les résultats réels peuvent varier.</p>
+            <div className="rounded-2xl overflow-hidden mt-6">
+              <img src={autoconsoImg} alt="Famille profitant de l'autoconsommation solaire avec batterie domestique le soir" width={1280} height={720} loading="lazy" className="w-full h-auto object-cover" />
+            </div>
           </section>
 
           {/* Batterie physique vs virtuelle */}

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import renovationImg from "@/assets/services/renovation-isolation.jpg";
+import maisonRenoveeImg from "@/assets/services/renovation-maison-renovee.jpg";
 
 const faqs = [
   { q: "Quels travaux d'amélioration de l'habitat sont éligibles aux aides ?", a: "Les travaux éligibles incluent l'isolation thermique (murs, toiture, plancher), le remplacement du chauffage (PAC, chaudière biomasse, poêle à granulés), la ventilation (VMC double flux), le remplacement des fenêtres et portes, et l'installation de systèmes d'énergie renouvelable." },
@@ -246,6 +247,9 @@ const ServiceAmeliorationHabitat = () => {
             <div className="bg-violet-50 border border-violet-200 rounded-xl p-4 flex gap-3">
               <BarChart3 className="w-5 h-5 text-violet-600 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-muted-foreground"><strong className="text-foreground">Bon à savoir :</strong> À l'inverse, une « passoire thermique » (F ou G) subit une décote de 5 à 20 % sur le marché. Avec l'interdiction progressive de location, la rénovation n'est plus une option mais une nécessité pour les propriétaires bailleurs.</p>
+            </div>
+            <div className="rounded-2xl overflow-hidden mt-6">
+              <img src={maisonRenoveeImg} alt="Comparatif avant/après d'une maison française rénovée avec isolation extérieure et fenêtres double vitrage" width={1280} height={720} loading="lazy" className="w-full h-auto object-cover" />
             </div>
           </section>
 

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import auditImg from "@/assets/services/audit-thermique.jpg";
+import auditDpeImg from "@/assets/services/audit-conseil-dpe.jpg";
 
 const faqs = [
   { q: "L'audit énergétique est-il obligatoire ?", a: "Depuis avril 2023, l'audit énergétique est obligatoire lors de la vente d'un logement classé F ou G au DPE. Depuis 2025, cette obligation s'étend aux logements classés E. Il est aussi requis pour bénéficier de MaPrimeRénov' Parcours accompagné." },
@@ -256,6 +257,9 @@ const ServiceAuditEnergetique = () => {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+            <div className="rounded-2xl overflow-hidden mt-6">
+              <img src={auditDpeImg} alt="Auditeur énergétique présentant le rapport DPE avec étiquettes énergie A à G à un couple de propriétaires" width={1280} height={720} loading="lazy" className="w-full h-auto object-cover" />
             </div>
           </section>
 
