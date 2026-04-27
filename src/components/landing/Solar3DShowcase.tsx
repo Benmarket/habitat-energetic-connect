@@ -161,16 +161,14 @@ const getPanelBaseEuler = (config: DebugConfig) => {
 };
 
 // ─── Solar Panel (GLB model) ───
-const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuiles" }: {
+const SolarPanel = ({ position, delay, progress, index, config, panelScene }: {
   position: [number, number, number]; delay: number; progress: number; index: number;
-  config: DebugConfig; roofType?: RoofType;
+  config: DebugConfig; panelScene: THREE.Object3D;
 }) => {
   const ref = useRef<THREE.Group>(null);
   const panelRef = useRef<THREE.Group>(null);
-  const modelPath = roofType === "plate" ? "/models/solar_panel_flat.glb" : "/models/solar_panel.glb";
-  const { scene } = useGLTF(modelPath);
   const clone = useMemo(() => {
-    const c = scene.clone(true);
+    const c = panelScene.clone(true);
     c.position.set(0, 0, 0);
     c.rotation.set(0, 0, 0);
     c.scale.set(1, 1, 1);
@@ -180,7 +178,7 @@ const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuil
       child.scale.set(1, 1, 1);
     });
     return c;
-  }, [scene]);
+  }, [panelScene]);
 
   // Le config passé correspond déjà au roofType actif (standard ou flat)
   const pRotAX = config.panelRotAX;
