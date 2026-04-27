@@ -15,14 +15,17 @@ import {
   Shield, Search, BarChart3, Loader2, Sparkles, ImageIcon, Eye, Maximize2
 } from "lucide-react";
 import type { RegionalContent, RegionalHighlight, RegionalAidItem, RegionalTestimonial, RegionalFAQ } from "@/hooks/useRegionalContent";
+import HeroSlidesPanel from "@/components/HeroSlidesPanel";
 
 interface RegionalContentEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   landingPageId: string;
+  landingPageSlug: string;
   regionName: string;
   regionCode: string;
   initialContent: RegionalContent;
+  parentContent?: RegionalContent | null;
   variantSlug?: string | null;
   pagePath?: string;
   onSaved: () => void;
@@ -55,7 +58,7 @@ const SectionPreview = ({ label, content, imageUrl }: { label: string; content: 
 );
 
 const RegionalContentEditor = ({
-  open, onOpenChange, landingPageId, regionName, regionCode, initialContent, variantSlug, pagePath, onSaved,
+  open, onOpenChange, landingPageId, landingPageSlug, regionName, regionCode, initialContent, parentContent, variantSlug, pagePath, onSaved,
 }: RegionalContentEditorProps) => {
   const [content, setContent] = useState<RegionalContent>(initialContent);
   const [saving, setSaving] = useState(false);
