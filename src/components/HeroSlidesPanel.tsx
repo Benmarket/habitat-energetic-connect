@@ -11,6 +11,7 @@ import {
   Loader2, CheckCircle, Copy, AlertCircle, Crop, X,
 } from "lucide-react";
 import ImageCropModal from "@/components/ImageCropModal";
+import { MediaLibrary } from "@/components/MediaLibrary";
 import type { RegionalContent } from "@/hooks/useRegionalContent";
 import { defaultHeroSlides } from "@/components/landing/SolarHeroVisual";
 import { normalizeHeroSlides, type HeroSlideData, HERO_BAND_ASPECT_RATIO } from "@/utils/heroSlides";
