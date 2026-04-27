@@ -163,6 +163,52 @@ const AdminMediatheque = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const handleDownload = async (item: MediaItem) => {
+    try {
+      const response = await fetch(item.storage_path);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = item.filename || "fichier";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Téléchargement impossible");
+    }
+  };
+
+  const openRename = (item: MediaItem) => {
+    setRenameItem(item);
+    setRenameValue(item.filename);
+  };
+
+  const handleRename = async () => {
+    if (!renameItem) return;
+    const newName = renameValue.trim();
+    if (!newName) {
+      toast.error("Le nom ne peut pas être vide");
+      return;
+    }
+    setRenaming(true);
+    try {
+      const { error } = await supabase
+        .from("media")
+        .update({ filename: newName })
+        .eq("id", renameItem.id);
+      if (error) throw error;
+      setMedia(prev => prev.map(m => (m.id === renameItem.id ? { ...m, filename: newName } : m)));
+      toast.success("Fichier renommé");
+      setRenameItem(null);
+    } catch {
+      toast.error("Renommage impossible");
+    } finally {
+      setRenaming(false);
+    }
+  };
+
   const filtered = media.filter(m =>
     m.filename.toLowerCase().includes(searchQuery.toLowerCase())
   );
