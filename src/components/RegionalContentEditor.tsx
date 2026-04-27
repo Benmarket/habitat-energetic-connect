@@ -425,8 +425,8 @@ const RegionalContentEditor = ({
           <TabsContent value="hero" className="space-y-4 mt-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Section Hero</CardTitle>
-                <CardDescription>Titre et sous-titre. Laissez vide pour le fallback national.</CardDescription>
+                <CardTitle className="text-base">Section Hero — Textes</CardTitle>
+                <CardDescription>Titre et sous-titre régionaux. Laissez vide pour utiliser le fallback national.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -437,11 +437,28 @@ const RegionalContentEditor = ({
                   <Label>Sous-titre</Label>
                   <Textarea value={content.hero_subtitle || ""} onChange={e => updateField("hero_subtitle", e.target.value)} placeholder="Faites jusqu'à 70% d'économie..." rows={2} />
                 </div>
-                <div>
-                  <Label>Image Hero</Label>
-                  <Input value={content.hero_image || ""} onChange={e => updateField("hero_image", e.target.value)} placeholder="https://..." />
-                  {content.hero_image && <img src={content.hero_image} alt="Hero" className="mt-2 rounded-lg h-32 object-cover w-full" />}
-                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4" />
+                  Diapo d'images du Hero
+                </CardTitle>
+                <CardDescription>
+                  Gérez les images qui défilent dans le bandeau hero de cette landing page régionale.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <HeroSlidesPanel
+                  pageSlug={landingPageSlug}
+                  isRegional={true}
+                  parentContent={parentContent}
+                  useSolarDefaults={landingPageSlug.includes("solaire")}
+                  slides={content.hero_slides}
+                  onChange={(slides) => updateField("hero_slides", slides)}
+                />
               </CardContent>
             </Card>
           </TabsContent>
