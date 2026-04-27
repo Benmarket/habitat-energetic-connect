@@ -465,6 +465,13 @@ const HeroSlidesPanel = ({
         onCropComplete={handleCropComplete}
         onRestoreOriginal={cropOriginalImageSrc ? restoreOriginal : undefined}
       />
+
+      {/* Media library modal */}
+      <MediaLibrary
+        open={mediaLibraryOpen}
+        onOpenChange={setMediaLibraryOpen}
+        onSelect={addSlideFromMedia}
+      />
     </div>
   );
 };
