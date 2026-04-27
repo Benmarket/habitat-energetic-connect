@@ -1,10 +1,27 @@
-import { useRef, useMemo, useEffect, useState, Suspense } from "react";
+import { Component, ErrorInfo, ReactNode, useRef, useMemo, useEffect, useState, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, ContactShadows, useGLTF, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
+// Préchargement uniquement du modèle "tuiles/tôle" (le plus utilisé).
+// Le modèle "flat" est chargé à la demande lorsque l'utilisateur sélectionne "Plate"
+// pour éviter de saturer le réseau au mount initial (chaque .glb fait ~40Mo).
 useGLTF.preload("/models/solar_panel.glb");
-useGLTF.preload("/models/solar_panel_flat.glb");
+
+// ─── Error Boundary pour la scène 3D ───
+class Scene3DErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.warn("[Solar3DShowcase] Scene 3D error caught:", error.message);
+  }
+  render() {
+    if (this.state.hasError) return this.props.fallback;
+    return this.props.children;
+  }
+}
 
 // ─── Scroll progress hook ───
 const useScrollProgress = (containerRef: React.RefObject<HTMLElement>) => {
