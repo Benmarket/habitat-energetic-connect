@@ -48,13 +48,21 @@ export const EmailBrandLogo: React.FC = () => (
                 '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
               fontSize: '12px',
               lineHeight: 1.4,
-              color: '#a8b3c7',
+              color: '#ffffff',
               marginTop: '4px',
               textAlign: 'center' as const,
               letterSpacing: '0.2px',
             }}
           >
-            prime-energies.fr
+            <a
+              href="https://prime-energies.fr"
+              style={{
+                color: '#ffffff',
+                textDecoration: 'none',
+              }}
+            >
+              https://prime-energies.fr
+            </a>
           </div>
         </td>
       </tr>
