@@ -233,6 +233,9 @@ export const useRegionalContent = (regionCode: string): ResolvedRegionalContent 
           hero_image: regionalContent.hero_image || nationalContent.hero_image,
           hero_badge: resolvedBadge,
           hero_badges: nationalContent.hero_badges,
+          hero_slides: regionalContent.hero_slides?.length
+            ? regionalContent.hero_slides
+            : nationalContent.hero_slides,
           context: regionalContent.context || nationalContent.context,
           profitability: regionalContent.profitability || nationalContent.profitability,
           aids: regionalContent.aids || nationalContent.aids,
