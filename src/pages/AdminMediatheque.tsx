@@ -336,19 +336,39 @@ const AdminMediatheque = () => {
                       )}
 
                       {/* Hover overlay */}
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-wrap items-center justify-center gap-2 p-2">
                         <Button
                           size="icon"
                           variant="secondary"
                           className="h-8 w-8"
+                          title="Copier l'URL"
                           onClick={() => handleCopyUrl(item)}
                         >
                           {copiedId === item.id ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
                         </Button>
                         <Button
                           size="icon"
+                          variant="secondary"
+                          className="h-8 w-8"
+                          title="Télécharger"
+                          onClick={() => handleDownload(item)}
+                        >
+                          <Download className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="h-8 w-8"
+                          title="Renommer"
+                          onClick={() => openRename(item)}
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="icon"
                           variant="destructive"
                           className="h-8 w-8"
+                          title="Supprimer"
                           onClick={() => setDeleteItem(item)}
                         >
                           <Trash2 className="w-4 h-4" />
