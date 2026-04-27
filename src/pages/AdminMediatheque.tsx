@@ -66,6 +66,9 @@ const AdminMediatheque = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteItem, setDeleteItem] = useState<MediaItem | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [renameItem, setRenameItem] = useState<MediaItem | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [renaming, setRenaming] = useState(false);
 
   const fetchMedia = useCallback(async () => {
     setLoading(true);
