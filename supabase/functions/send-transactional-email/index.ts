@@ -5,6 +5,7 @@ import { buildVerifiedTransactionalEmailPayload } from '../_shared/localized-ema
 import { TEMPLATES } from '../_shared/transactional-email-templates/registry.ts'
 import { loadGalleryForWorkType } from '../_shared/email-gallery.ts'
 import { detectWorkType } from '../_shared/transactional-email-templates/_email-design.ts'
+import { humanizeRequestSummary, formatWorkTypeLabel } from '../_shared/format-work-type.ts'
 
 // Configuration baked in at scaffold time — do NOT change these manually.
 // To update, re-run the email domain setup flow.
@@ -298,9 +299,23 @@ Deno.serve(async (req) => {
     }
   }
   const galleryImages = await loadGalleryForWorkType(supabase, resolvedWorkType)
+
+  // Réécriture du récap : transforme les slugs techniques (ex: "energie-solaire")
+  // venant des <Select> des formulaires en libellés humains (ex: "Panneaux photovoltaïques").
+  const humanizedSummary =
+    typeof templateData.requestSummary === 'string'
+      ? humanizeRequestSummary(templateData.requestSummary)
+      : templateData.requestSummary
+  const humanizedFormLabel =
+    typeof templateData.formLabel === 'string' && /^[a-z0-9-_]+$/i.test(templateData.formLabel.trim())
+      ? formatWorkTypeLabel(templateData.formLabel)
+      : templateData.formLabel
+
   const enrichedTemplateData = {
     ...templateData,
     workType: resolvedWorkType ?? templateData.workType,
+    requestSummary: humanizedSummary,
+    formLabel: humanizedFormLabel,
     galleryImages,
   }
 
