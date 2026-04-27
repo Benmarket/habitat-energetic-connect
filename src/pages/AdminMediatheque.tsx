@@ -411,6 +411,39 @@ const AdminMediatheque = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Rename dialog */}
+      <Dialog open={!!renameItem} onOpenChange={(o) => !o && setRenameItem(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Renommer le fichier</DialogTitle>
+            <DialogDescription>
+              Modifiez le nom affiché dans la médiathèque. Le fichier dans le stockage n'est pas déplacé.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="rename-input">Nom du fichier</Label>
+            <Input
+              id="rename-input"
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !renaming) handleRename();
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRenameItem(null)} disabled={renaming}>
+              Annuler
+            </Button>
+            <Button onClick={handleRename} disabled={renaming}>
+              {renaming ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+              Enregistrer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
