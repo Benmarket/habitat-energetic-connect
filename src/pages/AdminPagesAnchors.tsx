@@ -629,9 +629,15 @@ const AdminPagesAnchors = () => {
             open={!!editingRegional}
             onOpenChange={(open) => !open && setEditingRegional(null)}
             landingPageId={editingRegional.id}
+            landingPageSlug={editingRegional.slug}
             regionName={regionLabels[editingRegional.region_code || ""] || editingRegional.region_code || ""}
             regionCode={editingRegional.region_code || ""}
             initialContent={(editingRegional.regional_content || {}) as RegionalContent}
+            parentContent={
+              editingRegional.parent_id
+                ? (landingPages.find(lp => lp.id === editingRegional.parent_id)?.regional_content as RegionalContent | null) || null
+                : null
+            }
             variantSlug={editingRegional.variant_slug}
             pagePath={editingRegional.path}
             onSaved={() => queryClient.invalidateQueries({ queryKey: ["landing-pages"] })}
