@@ -438,7 +438,7 @@ const HeroSlidesPanel = ({
         onOpenChange={setCropModalOpen}
         imageSrc={cropImageSrc}
         originalImageSrc={cropOriginalImageSrc}
-        aspect={HERO_BAND_ASPECT_RATIO}
+        aspectRatio={HERO_BAND_ASPECT_RATIO}
         onCropComplete={handleCropComplete}
         onRestoreOriginal={cropOriginalImageSrc ? restoreOriginal : undefined}
       />
