@@ -1,10 +1,27 @@
-import { useRef, useMemo, useEffect, useState, Suspense } from "react";
+import { Component, ErrorInfo, ReactNode, useRef, useMemo, useEffect, useState, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, ContactShadows, useGLTF, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
+// Préchargement uniquement du modèle "tuiles/tôle" (le plus utilisé).
+// Le modèle "flat" est chargé à la demande lorsque l'utilisateur sélectionne "Plate"
+// pour éviter de saturer le réseau au mount initial (chaque .glb fait ~40Mo).
 useGLTF.preload("/models/solar_panel.glb");
-useGLTF.preload("/models/solar_panel_flat.glb");
+
+// ─── Error Boundary pour la scène 3D ───
+class Scene3DErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.warn("[Solar3DShowcase] Scene 3D error caught:", error.message);
+  }
+  render() {
+    if (this.state.hasError) return this.props.fallback;
+    return this.props.children;
+  }
+}
 
 // ─── Scroll progress hook ───
 const useScrollProgress = (containerRef: React.RefObject<HTMLElement>) => {
@@ -144,16 +161,14 @@ const getPanelBaseEuler = (config: DebugConfig) => {
 };
 
 // ─── Solar Panel (GLB model) ───
-const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuiles" }: {
+const SolarPanel = ({ position, delay, progress, index, config, panelScene }: {
   position: [number, number, number]; delay: number; progress: number; index: number;
-  config: DebugConfig; roofType?: RoofType;
+  config: DebugConfig; panelScene: THREE.Object3D;
 }) => {
   const ref = useRef<THREE.Group>(null);
   const panelRef = useRef<THREE.Group>(null);
-  const modelPath = roofType === "plate" ? "/models/solar_panel_flat.glb" : "/models/solar_panel.glb";
-  const { scene } = useGLTF(modelPath);
   const clone = useMemo(() => {
-    const c = scene.clone(true);
+    const c = panelScene.clone(true);
     c.position.set(0, 0, 0);
     c.rotation.set(0, 0, 0);
     c.scale.set(1, 1, 1);
@@ -163,7 +178,7 @@ const SolarPanel = ({ position, delay, progress, index, config, roofType = "tuil
       child.scale.set(1, 1, 1);
     });
     return c;
-  }, [scene]);
+  }, [panelScene]);
 
   // Le config passé correspond déjà au roofType actif (standard ou flat)
   const pRotAX = config.panelRotAX;
@@ -308,6 +323,11 @@ const RoofPlate = () => (
 const RoofWithPanels = ({ progress, config, roofType }: { progress: number; config: DebugConfig; roofType: RoofType }) => {
   const animProgress = Math.min(1, progress * 2);
 
+  // Charger UNE SEULE FOIS le modèle GLB approprié au type de toiture
+  // (au lieu de 18 fois — une par panneau).
+  const modelPath = roofType === "plate" ? "/models/solar_panel_flat.glb" : "/models/solar_panel.glb";
+  const { scene: panelScene } = useGLTF(modelPath);
+
   const panels = useMemo(() => {
     const items: { pos: [number, number, number]; delay: number }[] = [];
     let idx = 0;
@@ -333,7 +353,7 @@ const RoofWithPanels = ({ progress, config, roofType }: { progress: number; conf
       {roofType === "plate" && <RoofPlate />}
 
       {panels.map((p, i) => (
-        <SolarPanel key={`${roofType}-${i}`} position={p.pos} delay={p.delay} progress={animProgress} index={i} config={config} roofType={roofType} />
+        <SolarPanel key={`${roofType}-${i}`} position={p.pos} delay={p.delay} progress={animProgress} index={i} config={config} panelScene={panelScene} />
       ))}
     </group>
   );
@@ -607,29 +627,43 @@ const Solar3DShowcase = () => {
         }}
       />
       <div className="sticky top-0 h-screen w-full">
-        <Suspense fallback={
-          <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(180deg, #87CEEB 0%, #d4e8f7 100%)" }}>
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-12 h-12 border-2 border-sky-600/30 border-t-sky-600 rounded-full animate-spin" />
-              <div className="text-sky-900/50 text-sm font-medium tracking-wide">Chargement de la scène 3D…</div>
+        <Scene3DErrorBoundary
+          fallback={
+            <div className="w-full h-full flex items-center justify-center px-6" style={{ background: "linear-gradient(180deg, #87CEEB 0%, #d4e8f7 100%)" }}>
+              <div className="flex flex-col items-center gap-3 text-center max-w-md">
+                <div className="w-14 h-14 rounded-full bg-white/50 backdrop-blur-md flex items-center justify-center text-3xl shadow">☀️</div>
+                <div className="text-sky-900 text-base font-semibold">Visualisation 3D indisponible</div>
+                <div className="text-sky-900/70 text-sm">
+                  La scène 3D n'a pas pu se charger sur votre connexion. Cela n'empêche pas votre projet : nos techniciens RGE installent vos panneaux avec précision sur tous types de toiture.
+                </div>
+              </div>
             </div>
-          </div>
-        }>
-          <Canvas
-            shadows
-            dpr={[1, 2]}
-            gl={{
-              antialias: true,
-              alpha: true,
-              powerPreference: "high-performance",
-              toneMapping: THREE.ACESFilmicToneMapping,
-              toneMappingExposure: 1.1,
-            }}
-            camera={{ position: [-8.16, 3.72, 10.62], fov: 35 }}
-          >
-            <Scene progress={progress} config={config} roofType={roofType} onCameraUpdate={handleCameraUpdate} />
-          </Canvas>
-        </Suspense>
+          }
+        >
+          <Suspense fallback={
+            <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(180deg, #87CEEB 0%, #d4e8f7 100%)" }}>
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-2 border-sky-600/30 border-t-sky-600 rounded-full animate-spin" />
+                <div className="text-sky-900/50 text-sm font-medium tracking-wide">Chargement de la scène 3D…</div>
+              </div>
+            </div>
+          }>
+            <Canvas
+              shadows
+              dpr={[1, 2]}
+              gl={{
+                antialias: true,
+                alpha: true,
+                powerPreference: "high-performance",
+                toneMapping: THREE.ACESFilmicToneMapping,
+                toneMappingExposure: 1.1,
+              }}
+              camera={{ position: [-8.16, 3.72, 10.62], fov: 35 }}
+            >
+              <Scene progress={progress} config={config} roofType={roofType} onCameraUpdate={handleCameraUpdate} />
+            </Canvas>
+          </Suspense>
+        </Scene3DErrorBoundary>
 
         {/* Roof Type Selector */}
         <RoofTypeSelector selected={roofType} onSelect={setRoofType} />
