@@ -333,7 +333,7 @@ const RoofWithPanels = ({ progress, config, roofType }: { progress: number; conf
   // Charger UNE SEULE FOIS le modèle GLB approprié au type de toiture
   // (au lieu de 18 fois — une par panneau).
   const modelPath = roofType === "plate" ? "/models/solar_panel_flat.glb" : "/models/solar_panel.glb";
-  const { scene: panelScene } = useGLTF(modelPath);
+  const { scene: panelScene } = useGLTF(modelPath, undefined, undefined, configureLoader);
 
   const panels = useMemo(() => {
     const items: { pos: [number, number, number]; delay: number }[] = [];
