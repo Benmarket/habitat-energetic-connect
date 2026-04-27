@@ -323,6 +323,11 @@ const RoofPlate = () => (
 const RoofWithPanels = ({ progress, config, roofType }: { progress: number; config: DebugConfig; roofType: RoofType }) => {
   const animProgress = Math.min(1, progress * 2);
 
+  // Charger UNE SEULE FOIS le modèle GLB approprié au type de toiture
+  // (au lieu de 18 fois — une par panneau).
+  const modelPath = roofType === "plate" ? "/models/solar_panel_flat.glb" : "/models/solar_panel.glb";
+  const { scene: panelScene } = useGLTF(modelPath);
+
   const panels = useMemo(() => {
     const items: { pos: [number, number, number]; delay: number }[] = [];
     let idx = 0;
@@ -348,7 +353,7 @@ const RoofWithPanels = ({ progress, config, roofType }: { progress: number; conf
       {roofType === "plate" && <RoofPlate />}
 
       {panels.map((p, i) => (
-        <SolarPanel key={`${roofType}-${i}`} position={p.pos} delay={p.delay} progress={animProgress} index={i} config={config} roofType={roofType} />
+        <SolarPanel key={`${roofType}-${i}`} position={p.pos} delay={p.delay} progress={animProgress} index={i} config={config} panelScene={panelScene} />
       ))}
     </group>
   );
