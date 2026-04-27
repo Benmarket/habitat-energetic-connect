@@ -73,6 +73,13 @@ const HeroSlidesPanel = ({
     setNewSlideAlt("");
   };
 
+  const addSlideFromMedia = (url: string, altText: string) => {
+    const next = [...(slides || []), { src: url, alt: altText || "Image" }];
+    updateSlides(next);
+    setMediaLibraryOpen(false);
+    toast.success("Image ajoutée depuis la médiathèque");
+  };
+
   const removeSlide = (index: number) => {
     const baseSlides = isUsingCustomSlides ? [...(slides || [])] : [...effectiveSlides];
     baseSlides.splice(index, 1);
