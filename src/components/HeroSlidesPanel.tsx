@@ -11,6 +11,7 @@ import {
   Loader2, CheckCircle, Copy, AlertCircle, Crop, X,
 } from "lucide-react";
 import ImageCropModal from "@/components/ImageCropModal";
+import { MediaLibrary } from "@/components/MediaLibrary";
 import type { RegionalContent } from "@/hooks/useRegionalContent";
 import { defaultHeroSlides } from "@/components/landing/SolarHeroVisual";
 import { normalizeHeroSlides, type HeroSlideData, HERO_BAND_ASPECT_RATIO } from "@/utils/heroSlides";
@@ -46,6 +47,7 @@ const HeroSlidesPanel = ({
   const [cropSlideIndex, setCropSlideIndex] = useState<number | null>(null);
   const [cropImageSrc, setCropImageSrc] = useState("");
   const [cropOriginalImageSrc, setCropOriginalImageSrc] = useState<string | undefined>(undefined);
+  const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
 
   const currentSlides: HeroSlideData[] = slides && slides.length > 0
     ? normalizeHeroSlides(slides)
@@ -69,6 +71,13 @@ const HeroSlidesPanel = ({
     updateSlides(next);
     setNewSlideUrl("");
     setNewSlideAlt("");
+  };
+
+  const addSlideFromMedia = (url: string, altText: string) => {
+    const next = [...(slides || []), { src: url, alt: altText || "Image" }];
+    updateSlides(next);
+    setMediaLibraryOpen(false);
+    toast.success("Image ajoutée depuis la médiathèque");
   };
 
   const removeSlide = (index: number) => {
@@ -345,66 +354,80 @@ const HeroSlidesPanel = ({
         {renderSlideGrid(effectiveSlides, isUsingCustomSlides)}
       </div>
 
-      {/* Add new slide */}
-      {isUsingCustomSlides && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              Ajouter une image
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-3">
-              <label className="flex-1">
-                <div className="flex items-center gap-2 px-4 py-3 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
-                  {uploading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Upload className="w-4 h-4 text-muted-foreground" />
-                  )}
-                  <span className="text-sm text-muted-foreground">
-                    {uploading ? "Upload en cours..." : "Uploader une image"}
-                  </span>
-                </div>
-                <input type="file" accept="image/*" className="hidden" onChange={handleUploadSlide} disabled={uploading} />
-              </label>
-            </div>
+      {/* Add new slide — toujours visible pour permettre d'ajouter des images personnalisées (même quand la page hérite) */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            Ajouter une image à cette page
+          </CardTitle>
+          {!isUsingCustomSlides && (
+            <p className="text-xs text-muted-foreground mt-1">
+              💡 Ajouter une image créera une version personnalisée pour cette page (les images héritées seront remplacées).
+            </p>
+          )}
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label className="block">
+              <div className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors h-full">
+                {uploading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Upload className="w-4 h-4 text-muted-foreground" />
+                )}
+                <span className="text-sm text-muted-foreground">
+                  {uploading ? "Upload en cours..." : "Uploader une nouvelle image"}
+                </span>
+              </div>
+              <input type="file" accept="image/*" className="hidden" onChange={handleUploadSlide} disabled={uploading} />
+            </label>
 
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <div className="flex-1 h-px bg-border" />
-              <span>ou ajouter par URL</span>
-              <div className="flex-1 h-px bg-border" />
-            </div>
+            <button
+              type="button"
+              onClick={() => setMediaLibraryOpen(true)}
+              className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+            >
+              <ImageIcon className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                Choisir depuis la médiathèque
+              </span>
+            </button>
+          </div>
 
-            <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
-              <div>
-                <Label className="text-xs">URL de l'image</Label>
-                <Input
-                  value={newSlideUrl}
-                  onChange={(e) => setNewSlideUrl(e.target.value)}
-                  placeholder="https://..."
-                  className="h-9 text-sm"
-                />
-              </div>
-              <div>
-                <Label className="text-xs">Texte alternatif</Label>
-                <Input
-                  value={newSlideAlt}
-                  onChange={(e) => setNewSlideAlt(e.target.value)}
-                  placeholder="Description de l'image"
-                  className="h-9 text-sm"
-                />
-              </div>
-              <div className="flex items-end">
-                <Button size="sm" onClick={addSlideFromUrl} disabled={!newSlideUrl.trim()} className="h-9">
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex-1 h-px bg-border" />
+            <span>ou ajouter par URL</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
+          <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
+            <div>
+              <Label className="text-xs">URL de l'image</Label>
+              <Input
+                value={newSlideUrl}
+                onChange={(e) => setNewSlideUrl(e.target.value)}
+                placeholder="https://..."
+                className="h-9 text-sm"
+              />
             </div>
-          </CardContent>
-        </Card>
-      )}
+            <div>
+              <Label className="text-xs">Texte alternatif</Label>
+              <Input
+                value={newSlideAlt}
+                onChange={(e) => setNewSlideAlt(e.target.value)}
+                placeholder="Description de l'image"
+                className="h-9 text-sm"
+              />
+            </div>
+            <div className="flex items-end">
+              <Button size="sm" onClick={addSlideFromUrl} disabled={!newSlideUrl.trim()} className="h-9">
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Alt text editor */}
       {isUsingCustomSlides && currentSlides.length > 0 && (
@@ -441,6 +464,13 @@ const HeroSlidesPanel = ({
         aspectRatio={HERO_BAND_ASPECT_RATIO}
         onCropComplete={handleCropComplete}
         onRestoreOriginal={cropOriginalImageSrc ? restoreOriginal : undefined}
+      />
+
+      {/* Media library modal */}
+      <MediaLibrary
+        open={mediaLibraryOpen}
+        onOpenChange={setMediaLibraryOpen}
+        onSelect={addSlideFromMedia}
       />
     </div>
   );
