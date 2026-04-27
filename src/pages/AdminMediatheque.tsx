@@ -19,7 +19,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Upload, Loader2, Trash2, Copy, Search, Image as ImageIcon, FileVideo, FileText, File, X, Check } from "lucide-react";
+import { ArrowLeft, Upload, Loader2, Trash2, Copy, Search, Image as ImageIcon, FileVideo, FileText, File, X, Check, Download, Pencil } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 interface MediaItem {
   id: string;
