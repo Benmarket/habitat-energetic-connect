@@ -375,6 +375,11 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
             </div>
           </section>
 
+          {/* ═══ SECTION 1.5: 3D Solar Showcase ═══ */}
+          <Suspense fallback={<div className="h-screen bg-[#0a1628]" />}>
+            <Solar3DShowcase />
+          </Suspense>
+
           {/* ═══ SECTION 2: Contexte Local (regional only) ═══ */}
           {content.context && (
             <section className="py-10 lg:py-16 bg-gradient-to-b from-primary/5 to-background">
