@@ -1,6 +1,7 @@
 import { Helmet } from "react-helmet";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense, lazy } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useGLTF } from "@react-three/drei";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,14 @@ import SolarFAQ from "@/components/landing/SolarFAQ";
 import SolarCounters from "@/components/landing/SolarCounters";
 import SolarComparatif from "@/components/landing/SolarComparatif";
 import SolarStickyCTA from "@/components/landing/SolarStickyCTA";
+
+// Preload GLB models immediately (doesn't block render, just starts fetch)
+useGLTF.preload("/models/solar_panel.glb");
+useGLTF.preload("/models/solar_panel_flat.glb");
+
+// Eagerly start loading the chunk (but render lazily with Suspense)
+const solar3DPromise = import("@/components/landing/Solar3DShowcase");
+const Solar3DShowcase = lazy(() => solar3DPromise);
 
 // ─── Icon resolver ───
 const iconMap: Record<string, React.ElementType> = {
