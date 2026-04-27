@@ -26,15 +26,31 @@ function KeywordsField({ formData, setFormData, onGenerateArticle, onOpenAiInstr
   const generateButtonLabel = contentType === 'guide' ? 'Générer le guide (IA)' : 'Générer l\'article (IA)';
   const [keywordInput, setKeywordInput] = useState("");
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <Label htmlFor="focus_keywords">Mots-clés ciblés (SEO, IA & GEO)</Label>
+    <div className="relative overflow-hidden rounded-xl border border-violet-300/50 bg-gradient-to-br from-violet-500/10 via-fuchsia-500/10 to-indigo-500/10 p-5 shadow-sm space-y-3">
+      {/* Decorative glow */}
+      <div className="pointer-events-none absolute -top-12 -right-12 h-40 w-40 rounded-full bg-fuchsia-400/20 blur-3xl" aria-hidden="true" />
+      <div className="pointer-events-none absolute -bottom-16 -left-10 h-44 w-44 rounded-full bg-violet-500/20 blur-3xl" aria-hidden="true" />
+
+      <div className="relative flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-md">
+            <Sparkles className="w-4 h-4" />
+          </span>
+          <Label htmlFor="focus_keywords" className="font-semibold text-foreground">
+            Mots-clés ciblés (SEO, IA & GEO)
+          </Label>
+        </div>
         <div className="flex gap-2">
-          <Button type="button" variant="outline" size="sm" onClick={onOpenAiInstructions} className="gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={onOpenAiInstructions} className="gap-2 bg-background/80 backdrop-blur">
             <FileText className="w-4 h-4" /> Instruction article IA
           </Button>
-          <Button type="button" variant="outline" size="sm" onClick={onGenerateArticle}
-            disabled={generatingArticle || formData.focus_keywords.length === 0} className="gap-2">
+          <Button
+            type="button"
+            size="sm"
+            onClick={onGenerateArticle}
+            disabled={generatingArticle || formData.focus_keywords.length === 0}
+            className="gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-md hover:opacity-90 disabled:opacity-50"
+          >
             <Sparkles className="w-4 h-4" /> {generateButtonLabel}
           </Button>
         </div>
@@ -54,11 +70,12 @@ function KeywordsField({ formData, setFormData, onGenerateArticle, onOpenAiInstr
           }
         }}
         placeholder="Tapez un mot-clé et appuyez sur Entrée"
+        className="relative bg-background/80 backdrop-blur"
       />
       {formData.focus_keywords.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="relative flex flex-wrap gap-2">
           {formData.focus_keywords.map((keyword, index) => (
-            <Badge key={index} variant="secondary" className="gap-1 pr-1">
+            <Badge key={index} variant="secondary" className="gap-1 pr-1 bg-background/80">
               {keyword}
               <button type="button" onClick={() => setFormData({ ...formData, focus_keywords: formData.focus_keywords.filter((_, i) => i !== index) })} className="ml-1 hover:bg-muted rounded-full p-0.5">
                 <X className="w-3 h-3" />
@@ -67,7 +84,7 @@ function KeywordsField({ formData, setFormData, onGenerateArticle, onOpenAiInstr
           ))}
         </div>
       )}
-      <p className="text-xs text-muted-foreground">
+      <p className="relative text-xs text-muted-foreground">
         Ces mots-clés aident votre article à mieux ranker sur Google, Bing et les IA comme ChatGPT.
       </p>
     </div>
