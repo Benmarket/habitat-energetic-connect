@@ -1123,6 +1123,51 @@ export type Database = {
           },
         ]
       }
+      guide_downloads: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string | null
+          guide_id: string
+          guide_slug: string | null
+          guide_title: string | null
+          id: string
+          ip_address: string | null
+          last_name: string | null
+          method: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name?: string | null
+          guide_id: string
+          guide_slug?: string | null
+          guide_title?: string | null
+          id?: string
+          ip_address?: string | null
+          last_name?: string | null
+          method?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          guide_id?: string
+          guide_slug?: string | null
+          guide_title?: string | null
+          id?: string
+          ip_address?: string | null
+          last_name?: string | null
+          method?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       landing_pages: {
         Row: {
           bg_color: string
@@ -1642,6 +1687,11 @@ export type Database = {
           featured_image: string | null
           focus_keywords: string[] | null
           generation_cost: number | null
+          guide_depth: string | null
+          guide_duration: string | null
+          guide_level: string | null
+          guide_objective: string | null
+          guide_options: Json | null
           guide_template: string | null
           hide_author: boolean
           id: string
@@ -1679,6 +1729,11 @@ export type Database = {
           featured_image?: string | null
           focus_keywords?: string[] | null
           generation_cost?: number | null
+          guide_depth?: string | null
+          guide_duration?: string | null
+          guide_level?: string | null
+          guide_objective?: string | null
+          guide_options?: Json | null
           guide_template?: string | null
           hide_author?: boolean
           id?: string
@@ -1716,6 +1771,11 @@ export type Database = {
           featured_image?: string | null
           focus_keywords?: string[] | null
           generation_cost?: number | null
+          guide_depth?: string | null
+          guide_duration?: string | null
+          guide_level?: string | null
+          guide_objective?: string | null
+          guide_options?: Json | null
           guide_template?: string | null
           hide_author?: boolean
           id?: string
