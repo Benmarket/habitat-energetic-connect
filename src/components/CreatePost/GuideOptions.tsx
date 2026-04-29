@@ -74,7 +74,14 @@ export function GuideOptions({ formData, setFormData }: GuideOptionsProps) {
       <h3 className="font-semibold text-primary flex items-center gap-2">
         📚 Options du guide
       </h3>
-      
+
+      <div className="rounded-md bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-900 leading-relaxed">
+        <strong>✨ Génération premium activée pour les guides.</strong> L'IA produit
+        un contenu long format (4 000 à 6 000 mots) avec sommaire enrichi, étapes pas-à-pas
+        numérotées, checklists actionnables, 2 à 4 tableaux de données, mini-glossaire et
+        au moins 5 sources officielles. Le rendu est optimisé pour la lecture web et l'export PDF.
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="guide_template">Template du guide</Label>
         <Select
