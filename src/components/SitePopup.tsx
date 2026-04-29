@@ -63,6 +63,12 @@ export default function SitePopup() {
   const [activePopup, setActivePopup] = useState<Popup | null>(null);
   const [parcoursStep, setParcoursStep] = useState<"main" | "contact-choice">("main");
   const [attribution, setAttribution] = useState<{ refArticle?: string; refCta?: string }>({});
+  const [guideContext, setGuideContext] = useState<{
+    id: string;
+    slug: string;
+    title: string;
+    triggerPrintAfterSubmit?: boolean;
+  } | null>(null);
 
   // Capture attribution from URL params
   const urlParams = new URLSearchParams(location.search);
