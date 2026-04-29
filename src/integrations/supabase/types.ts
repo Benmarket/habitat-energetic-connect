@@ -1135,6 +1135,8 @@ export type Database = {
           ip_address: string | null
           last_name: string | null
           method: string
+          phone: string | null
+          popup_id: string | null
           user_agent: string | null
           user_id: string | null
         }
@@ -1149,6 +1151,8 @@ export type Database = {
           ip_address?: string | null
           last_name?: string | null
           method?: string
+          phone?: string | null
+          popup_id?: string | null
           user_agent?: string | null
           user_id?: string | null
         }
@@ -1163,6 +1167,8 @@ export type Database = {
           ip_address?: string | null
           last_name?: string | null
           method?: string
+          phone?: string | null
+          popup_id?: string | null
           user_agent?: string | null
           user_id?: string | null
         }
