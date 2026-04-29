@@ -427,9 +427,7 @@ export default function SitePopup() {
           recipient: { email, firstName, lastName, phone },
           formLabel: "votre téléchargement de guide",
           requestSummary: guideContext?.title || undefined,
-          // @ts-expect-error - extra fields forwarded to edge function
           guideTitle: guideContext?.title || undefined,
-          // @ts-expect-error
           guideSlug: guideContext?.slug || undefined,
         } as any);
 
