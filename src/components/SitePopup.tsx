@@ -221,8 +221,8 @@ export default function SitePopup() {
 
   // Handle CLICK popups (listen for custom events)
   useEffect(() => {
-    const handleTriggerPopup = (event: CustomEvent<{ triggerId: string }>) => {
-      const { triggerId } = event.detail;
+    const handleTriggerPopup = (event: CustomEvent<{ triggerId: string; guideContext?: typeof guideContext }>) => {
+      const { triggerId, guideContext: gc } = event.detail;
       
       if (!clickPopups) {
         return;
@@ -230,13 +230,14 @@ export default function SitePopup() {
       
       const matchingPopup = clickPopups.find(p => p.trigger_id === triggerId);
       if (matchingPopup) {
+        if (gc) setGuideContext(gc);
         showPopup(matchingPopup);
       }
     };
 
     // Handler pour les bandeaux CTA avec popupId (ouvre par ID de popup)
-    const handleOpenPopup = (event: CustomEvent<{ popupId: string; refArticle?: string; refCta?: string }>) => {
-      const { popupId, refArticle, refCta } = event.detail;
+    const handleOpenPopup = (event: CustomEvent<{ popupId: string; refArticle?: string; refCta?: string; guideContext?: typeof guideContext }>) => {
+      const { popupId, refArticle, refCta, guideContext: gc } = event.detail;
       
       if (!popupId) return;
 
@@ -244,6 +245,7 @@ export default function SitePopup() {
       if (refArticle || refCta) {
         setAttribution({ refArticle, refCta });
       }
+      if (gc) setGuideContext(gc);
       
       // Chercher le popup par son ID directement
       supabase
