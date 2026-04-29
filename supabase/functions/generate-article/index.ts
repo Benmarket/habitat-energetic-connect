@@ -348,8 +348,18 @@ MAUVAIS EXEMPLES (À NE JAMAIS FAIRE) :
           classique: "professionnel et sobre", premium: "haut de gamme", expert: "technique et précis",
           epure: "minimaliste", vibrant: "dynamique et coloré", sombre: "moderne et sombre"
         };
-        guideBlock = `\nSTYLE: ${themes[guideTemplate] || guideTemplate}\nSTRUCTURE: 5-8 sections <h2 id="slug">Titre</h2>. Guide autonome et actionnable.`;
+        guideBlock = `
+STYLE: ${themes[guideTemplate] || guideTemplate}
+STRUCTURE GUIDE PREMIUM: 7 à 10 sections <h2 id="slug">Titre</h2>, dont au moins :
+  - une section "Comprendre l'essentiel" (vulgarisation),
+  - une section "Étapes pas à pas" (numérotées 1, 2, 3… avec sous-titres <h3>),
+  - une section "Combien ça coûte / combien ça rapporte" (chiffrée + tableau),
+  - une section "Aides & subventions ${new Date().getFullYear()}" (uniquement si le sujet le justifie),
+  - une section "Pièges et erreurs à éviter" (5 à 8 erreurs concrètes),
+  - une section "Checklist avant de se lancer" (8-12 items <li> cochables).
+TON: pédagogique, expert, exhaustif. Le lecteur doit ressortir AUTONOME, sans avoir besoin d'un autre article.`;
       }
+
 
       const objectiveLabels: Record<string, string> = {
         lead: 'génération de leads', reassure: 'rassurer', educate: 'éduquer',
@@ -546,13 +556,19 @@ RÈGLES TABLEAUX:
 ═══════════════════════════════════════════
 RÈGLES GÉNÉRALES
 ═══════════════════════════════════════════
-• Entre 2 et 4 [IMAGE:...] intelligemment placés selon la stratégie (pertinence > quantité)
+• Entre 2 et 4 [IMAGE:...] intelligemment placés selon la stratégie (pertinence > quantité)${contentType === 'guide' ? ' — pour un GUIDE PREMIUM, vise 3 à 5 images réparties sur tout le contenu.' : ''}
 • HTML pur (<p>, <ul>, <h2>, <h3>, <table>). Jamais de markdown.
-• ${contentType === 'guide' ? '2000-3000 mots' : '1500-2200 mots'} — assez long pour être exhaustif, assez concis pour garder l'attention
+• ${contentType === 'guide'
+  ? `🟢 LONGUEUR GUIDE PREMIUM : 4000 à 6000 mots (OBLIGATOIRE — un guide < 4000 mots est REJETÉ). Le guide doit être la référence définitive sur le sujet — un lecteur ne doit avoir BESOIN d'aucun autre article pour passer à l'action.`
+  : '1500-2200 mots — assez long pour être exhaustif, assez concis pour garder l\'attention'}
 • Style direct, impactant, zéro blabla — chaque phrase doit APPORTER quelque chose
 • Chaque section sert l'objectif lead ET répond à une vraie question
 • Pas de paraphrase inutile, pas de phrases creuses ("il est important de noter que...")
-• ⚠️ MINIMUM 1 tableau de données HTML (OBLIGATOIRE), idéalement 2-3. UN ARTICLE SANS TABLEAU EST REJETÉ.
+• ⚠️ MINIMUM ${contentType === 'guide' ? '2 tableaux' : '1 tableau'} de données HTML (OBLIGATOIRE), idéalement ${contentType === 'guide' ? '3 à 4' : '2-3'}. UN ARTICLE SANS TABLEAU EST REJETÉ.
+${contentType === 'guide' ? `• ⚠️ AU MOINS UNE CHECKLIST <ul> "à cocher" (8 à 12 items courts, actionnables) dans la section "Checklist avant de se lancer".
+• ⚠️ AU MOINS UNE LISTE D'ÉTAPES NUMÉROTÉES (1️⃣ 2️⃣ 3️⃣) dans la section "Étapes pas à pas", chaque étape avec un sous-titre <h3>, un objectif clair, une durée estimée, et 2-3 phrases d'explication.
+• ⚠️ MINIMUM 5 SOURCES officielles distinctes dans la section "Sources et références" (ADEME, France Rénov', service-public.fr, photovoltaique.info, Enedis, ANAH, Journal Officiel, INSEE…) — chacune datée.
+• ⚠️ Inclure un mini-glossaire (3-5 termes techniques expliqués en 1 phrase) si le sujet contient du vocabulaire spécialisé.` : ''}
 • Les CTA doivent avoir des MESSAGES VARIÉS et CONTEXTUELS (pas 3x "Demander un devis" — adapter au contexte de la section)
 • HONNÊTETÉ : mentionner les limites et inconvénients quand ils existent — ça renforce la crédibilité
 • SPÉCIFICITÉ : préférer "2 847€ en moyenne selon l'ADEME (2025)" à "plusieurs milliers d'euros"
@@ -588,7 +604,8 @@ Retourne UNIQUEMENT le HTML.`;
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
         body: JSON.stringify({
-          model, max_tokens: 8192,
+          // Guides premium = contenu long (4-6k mots) → tokens augmentés
+          model, max_tokens: contentType === 'guide' ? 16000 : 8192,
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: `Rédige l'article complet avec l'angle [${selectedAngle.type}]: "${selectedAngle.title}"` }
