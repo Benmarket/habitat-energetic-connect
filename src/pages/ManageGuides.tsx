@@ -219,11 +219,53 @@ const ManageGuides = () => {
       const { data, error } = await query;
       
       if (error) throw error;
-      if (data) setPosts(data);
+      if (data) {
+        setPosts(data);
+        // Charger en parallèle les stats vues + downloads pour les guides affichés
+        void loadStats(data.map((p: any) => ({ id: p.id, slug: p.slug })));
+      }
     } catch {
       toast.error("Erreur lors du chargement des guides");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadStats = async (guides: { id: string; slug: string }[]) => {
+    if (guides.length === 0) return;
+    try {
+      const ids = guides.map((g) => g.id);
+      const paths = guides.map((g) => `/guides/${g.slug}`);
+
+      const [{ data: dlRows }, { data: viewRows }] = await Promise.all([
+        supabase
+          .from("guide_downloads")
+          .select("guide_id")
+          .in("guide_id", ids),
+        supabase
+          .from("page_views")
+          .select("page_url")
+          .in("page_url", paths),
+      ]);
+
+      const counts: Record<string, { views: number; downloads: number }> = {};
+      guides.forEach((g) => {
+        counts[g.id] = { views: 0, downloads: 0 };
+      });
+      (dlRows || []).forEach((r: any) => {
+        if (counts[r.guide_id]) counts[r.guide_id].downloads += 1;
+      });
+      const slugById: Record<string, string> = {};
+      guides.forEach((g) => (slugById[g.id] = g.slug));
+      const idByPath: Record<string, string> = {};
+      guides.forEach((g) => (idByPath[`/guides/${g.slug}`] = g.id));
+      (viewRows || []).forEach((r: any) => {
+        const id = idByPath[r.page_url];
+        if (id && counts[id]) counts[id].views += 1;
+      });
+      setStatsByGuide(counts);
+    } catch (e) {
+      console.warn("[ManageGuides] loadStats failed", e);
     }
   };
 
