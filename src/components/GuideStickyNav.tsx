@@ -100,9 +100,11 @@ export function GuideStickyNav({
   toc, 
   isDownloadable, 
   activeId,
-  onScrollToSection 
+  onScrollToSection,
+  guide,
 }: GuideStickyNavProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -113,9 +115,34 @@ export function GuideStickyNav({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleDownload = () => {
-    // TODO: Implémenter le téléchargement PDF
-    console.log("Télécharger le guide:", guideTitle);
+  const handleDownload = async () => {
+    if (user && guide) {
+      // Membre connecté : log direct + impression PDF (rendu identique au web)
+      await supabase.from("guide_downloads").insert({
+        guide_id: guide.id,
+        guide_slug: guide.slug,
+        guide_title: guide.title,
+        email: user.email || "",
+        first_name: (user.user_metadata as any)?.first_name || null,
+        last_name: (user.user_metadata as any)?.last_name || null,
+        user_id: user.id,
+        method: "direct",
+      });
+      window.print();
+      return;
+    }
+    // Visiteur non-connecté : popup pour capter le lead, puis print
+    window.dispatchEvent(new CustomEvent("trigger-popup", {
+      detail: {
+        triggerId: "guide-download",
+        guideContext: guide ? {
+          id: guide.id,
+          slug: guide.slug,
+          title: guide.title,
+          triggerPrintAfterSubmit: true,
+        } : undefined,
+      },
+    }));
   };
 
   const styles = templateStyles[template] || templateStyles.classique;
