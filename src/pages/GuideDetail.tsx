@@ -81,6 +81,18 @@ const GuideDetail = () => {
     fetchGuide();
   }, [slug]);
 
+  // Écoute "guide-unlocked" pour recharger après inscription via paywall
+  useEffect(() => {
+    const onUnlock = (e: any) => {
+      if (e?.detail?.guideId && guide?.id === e.detail.guideId) {
+        // Recharge pour bénéficier du contenu intégral
+        window.location.reload();
+      }
+    };
+    window.addEventListener("guide-unlocked", onUnlock as EventListener);
+    return () => window.removeEventListener("guide-unlocked", onUnlock as EventListener);
+  }, [guide?.id]);
+
   const fetchGuide = async () => {
     setLoading(true);
     try {
@@ -288,7 +300,7 @@ const GuideDetail = () => {
       toc,
       readingTime,
       isPaywalled,
-      children: isPaywalled ? <PaywallOverlay percentRemaining={70} /> : undefined,
+      children: isPaywalled ? <PaywallOverlay percentRemaining={70} guide={{ id: guide.id, slug: guide.slug, title: guide.title }} /> : undefined,
     };
 
     switch (guide.guide_template) {
@@ -363,10 +375,13 @@ const GuideDetail = () => {
             isDownloadable={guide.is_downloadable}
             activeId={activeId}
             onScrollToSection={scrollToSection}
+            guide={{ id: guide.id, slug: guide.slug, title: guide.title }}
           />
         )}
         
-        {renderTemplate()}
+        <div className="guide-print-content">
+          {renderTemplate()}
+        </div>
       </div>
       
       <Footer />

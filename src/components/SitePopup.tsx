@@ -63,6 +63,12 @@ export default function SitePopup() {
   const [activePopup, setActivePopup] = useState<Popup | null>(null);
   const [parcoursStep, setParcoursStep] = useState<"main" | "contact-choice">("main");
   const [attribution, setAttribution] = useState<{ refArticle?: string; refCta?: string }>({});
+  const [guideContext, setGuideContext] = useState<{
+    id: string;
+    slug: string;
+    title: string;
+    triggerPrintAfterSubmit?: boolean;
+  } | null>(null);
 
   // Capture attribution from URL params
   const urlParams = new URLSearchParams(location.search);
@@ -215,8 +221,8 @@ export default function SitePopup() {
 
   // Handle CLICK popups (listen for custom events)
   useEffect(() => {
-    const handleTriggerPopup = (event: CustomEvent<{ triggerId: string }>) => {
-      const { triggerId } = event.detail;
+    const handleTriggerPopup = (event: CustomEvent<{ triggerId: string; guideContext?: typeof guideContext }>) => {
+      const { triggerId, guideContext: gc } = event.detail;
       
       if (!clickPopups) {
         return;
@@ -224,13 +230,14 @@ export default function SitePopup() {
       
       const matchingPopup = clickPopups.find(p => p.trigger_id === triggerId);
       if (matchingPopup) {
+        if (gc) setGuideContext(gc);
         showPopup(matchingPopup);
       }
     };
 
     // Handler pour les bandeaux CTA avec popupId (ouvre par ID de popup)
-    const handleOpenPopup = (event: CustomEvent<{ popupId: string; refArticle?: string; refCta?: string }>) => {
-      const { popupId, refArticle, refCta } = event.detail;
+    const handleOpenPopup = (event: CustomEvent<{ popupId: string; refArticle?: string; refCta?: string; guideContext?: typeof guideContext }>) => {
+      const { popupId, refArticle, refCta, guideContext: gc } = event.detail;
       
       if (!popupId) return;
 
@@ -238,6 +245,7 @@ export default function SitePopup() {
       if (refArticle || refCta) {
         setAttribution({ refArticle, refCta });
       }
+      if (gc) setGuideContext(gc);
       
       // Chercher le popup par son ID directement
       supabase
@@ -301,6 +309,7 @@ export default function SitePopup() {
       setActivePopup(null);
       setParcoursStep("main");
       setAttribution({});
+      setGuideContext(null);
     }, 300);
   };
 
@@ -364,6 +373,64 @@ export default function SitePopup() {
         setIsSuccess(true);
         toast.success("Inscription réussie !");
         setTimeout(handleClose, 2000);
+      } else if (form.form_identifier === "guide-download") {
+        // Cas spécial : téléchargement de guide
+        const email = (formData.email || "").trim();
+        const firstName = (formData.first_name || "").trim();
+        const lastName = (formData.last_name || "").trim();
+        const phone = (formData.phone || "").trim();
+
+        if (!email || !email.includes("@")) {
+          toast.error("Adresse email invalide");
+          setIsSubmitting(false);
+          return;
+        }
+
+        // 1. Insérer la soumission de formulaire (lead admin)
+        const submissionData = {
+          email, first_name: firstName, last_name: lastName, phone,
+          _attribution: {
+            ref_page: location.pathname,
+            ref_referrer: document.referrer || null,
+            guide_id: guideContext?.id || null,
+            guide_slug: guideContext?.slug || null,
+            guide_title: guideContext?.title || null,
+          },
+        };
+
+        await supabase.from("form_submissions").insert([{
+          form_id: form.id,
+          data: submissionData,
+        }]);
+
+        // 2. Enregistrer le téléchargement (si on a un contexte guide)
+        if (guideContext?.id) {
+          await supabase.from("guide_downloads").insert({
+            guide_id: guideContext.id,
+            guide_slug: guideContext.slug,
+            guide_title: guideContext.title,
+            email, first_name: firstName, last_name: lastName, phone,
+            method: "email",
+            popup_id: activePopup.id,
+          });
+        }
+
+        setIsSuccess(true);
+        toast.success("Merci ! Votre guide arrive…");
+
+        // 3. Si on doit déclencher l'impression PDF (cas bouton "Télécharger PDF")
+        const shouldPrint = guideContext?.triggerPrintAfterSubmit;
+        const shouldUnlock = !shouldPrint; // cas paywall : déverrouille
+        const guideId = guideContext?.id;
+        setTimeout(() => {
+          handleClose();
+          if (shouldPrint) {
+            window.print();
+          } else if (shouldUnlock && guideId) {
+            // Notifier la page guide pour déverrouiller le paywall
+            window.dispatchEvent(new CustomEvent("guide-unlocked", { detail: { guideId } }));
+          }
+        }, 1500);
       } else {
         // Construire les données avec attribution
         const currentAttribution = attribution.refArticle || attribution.refCta || urlRefArticle || urlRefCta

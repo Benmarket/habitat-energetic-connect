@@ -411,3 +411,58 @@ details summary {
     padding: 0.5rem 0.625rem;
   }
 }
+
+/* ============================================================
+   PRINT — Téléchargement PDF guide "comme le web"
+   Masque header/footer/sticky/paywall/CTA flottants/breadcrumb
+   ============================================================ */
+@media print {
+  @page { margin: 1.5cm; }
+
+  /* Reset visuel */
+  html, body {
+    background: #ffffff !important;
+    color: #000 !important;
+    font-size: 11pt;
+  }
+
+  /* Masquer tout le chrome du site */
+  header, footer, nav,
+  .no-print,
+  [class*="MaintenanceBanner"],
+  [data-radix-popper-content-wrapper],
+  .fixed,
+  .sticky {
+    display: none !important;
+  }
+
+  /* Afficher uniquement le contenu du guide */
+  .guide-print-content {
+    display: block !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .guide-print-content * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Liens : afficher l'URL */
+  .guide-print-content a[href]:not([href^="#"])::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    color: #555;
+  }
+
+  /* Évite les coupures moches */
+  h1, h2, h3, h4 { page-break-after: avoid; break-after: avoid; }
+  table, figure, img, pre, blockquote { page-break-inside: avoid; break-inside: avoid; }
+
+  /* Paywall et overlays totalement masqués */
+  .guide-print-content [class*="Paywall"],
+  .guide-print-content .blur-sm,
+  .guide-print-content .backdrop-blur-sm { display: none !important; filter: none !important; }
+}
+

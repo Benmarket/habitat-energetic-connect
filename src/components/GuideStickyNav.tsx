@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Download, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TOCItem {
   id: string;
@@ -16,6 +18,7 @@ interface GuideStickyNavProps {
   isDownloadable: boolean;
   activeId?: string;
   onScrollToSection: (id: string) => void;
+  guide?: { id: string; slug: string; title: string };
 }
 
 // Styles par template
@@ -97,9 +100,11 @@ export function GuideStickyNav({
   toc, 
   isDownloadable, 
   activeId,
-  onScrollToSection 
+  onScrollToSection,
+  guide,
 }: GuideStickyNavProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -110,9 +115,34 @@ export function GuideStickyNav({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleDownload = () => {
-    // TODO: Implémenter le téléchargement PDF
-    console.log("Télécharger le guide:", guideTitle);
+  const handleDownload = async () => {
+    if (user && guide) {
+      // Membre connecté : log direct + impression PDF (rendu identique au web)
+      await supabase.from("guide_downloads").insert({
+        guide_id: guide.id,
+        guide_slug: guide.slug,
+        guide_title: guide.title,
+        email: user.email || "",
+        first_name: (user.user_metadata as any)?.first_name || null,
+        last_name: (user.user_metadata as any)?.last_name || null,
+        user_id: user.id,
+        method: "direct",
+      });
+      window.print();
+      return;
+    }
+    // Visiteur non-connecté : popup pour capter le lead, puis print
+    window.dispatchEvent(new CustomEvent("trigger-popup", {
+      detail: {
+        triggerId: "guide-download",
+        guideContext: guide ? {
+          id: guide.id,
+          slug: guide.slug,
+          title: guide.title,
+          triggerPrintAfterSubmit: true,
+        } : undefined,
+      },
+    }));
   };
 
   const styles = templateStyles[template] || templateStyles.classique;
@@ -123,7 +153,7 @@ export function GuideStickyNav({
   return (
     <div
       className={cn(
-        "fixed top-28 right-4 z-40 transition-all duration-500 hidden lg:block w-72",
+        "fixed top-28 right-4 z-40 transition-all duration-500 hidden lg:block w-72 no-print",
         isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8 pointer-events-none"
       )}
     >
