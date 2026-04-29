@@ -48,16 +48,6 @@ export interface CreatePostFormData {
   is_members_only: boolean;
   guide_template: "" | "classique" | "premium" | "expert" | "epure" | "vibrant" | "sombre";
   is_downloadable: boolean;
-  guide_depth: "" | "light" | "standard" | "expert";
-  guide_level: "" | "debutant" | "intermediaire" | "expert";
-  guide_duration: string;
-  guide_objective: string;
-  guide_options: {
-    checklist: boolean;
-    glossaire: boolean;
-    tableaux: boolean;
-    etapes: boolean;
-  };
   guide_sections: GuideSection[];
   topline: string;
   topline_bg_color: string;
@@ -197,11 +187,6 @@ const initialFormData: CreatePostFormData = {
   is_members_only: false,
   guide_template: "",
   is_downloadable: true,
-  guide_depth: "standard",
-  guide_level: "intermediaire",
-  guide_duration: "",
-  guide_objective: "",
-  guide_options: { checklist: true, glossaire: false, tableaux: true, etapes: false },
   guide_sections: [{ id: 'section-initial', title: '', content: '' }],
   topline: "",
   topline_bg_color: "#22c55e",
@@ -354,13 +339,6 @@ export function useCreatePost() {
           is_members_only: post.is_members_only ?? false,
           guide_template: (post.guide_template as CreatePostFormData['guide_template']) || "",
           is_downloadable: post.is_downloadable ?? true,
-          guide_depth: ((post as any).guide_depth as CreatePostFormData['guide_depth']) || "standard",
-          guide_level: ((post as any).guide_level as CreatePostFormData['guide_level']) || "intermediaire",
-          guide_duration: (post as any).guide_duration || "",
-          guide_objective: (post as any).guide_objective || "",
-          guide_options: ((post as any).guide_options && typeof (post as any).guide_options === 'object'
-            ? (post as any).guide_options
-            : { checklist: true, glossaire: false, tableaux: true, etapes: false }),
           guide_sections: guideSections,
           topline: (post as any).topline || "",
           topline_bg_color: (post as any).topline_bg_color || "#22c55e",
@@ -476,11 +454,6 @@ export function useCreatePost() {
         postData.topline_bg_color = formData.topline_bg_color || "#22c55e";
         postData.topline_text_color = formData.topline_text_color || "#ffffff";
         postData.badge_image = formData.badge_image || null;
-        postData.guide_depth = formData.guide_depth || "standard";
-        postData.guide_level = formData.guide_level || "intermediaire";
-        postData.guide_duration = formData.guide_duration || null;
-        postData.guide_objective = formData.guide_objective || null;
-        postData.guide_options = formData.guide_options || {};
       }
 
       if (validatedData.excerpt) postData.excerpt = validatedData.excerpt;

@@ -183,11 +183,6 @@ export function useArticleGeneration(
           contentType,
           customInstructions: currentAiInstructions,
           guideTemplate: contentType === 'guide' ? formData.guide_template : undefined,
-          guideDepth: contentType === 'guide' ? formData.guide_depth : undefined,
-          guideLevel: contentType === 'guide' ? formData.guide_level : undefined,
-          guideDuration: contentType === 'guide' ? formData.guide_duration : undefined,
-          guideObjective: contentType === 'guide' ? formData.guide_objective : undefined,
-          guideOptions: contentType === 'guide' ? formData.guide_options : undefined,
           userId,
           selectedAngle: {
             type: angle.type,
