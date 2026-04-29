@@ -188,6 +188,7 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
       const {
         product, subject, theme, objective, keywords, freePrompt, targetRegions,
         contentType, customInstructions, guideTemplate,
+        guideDepth, guideLevel, guideDuration, guideObjective, guideOptions,
         selectedAngle, availableCategories, availableTags
       } = body;
 
@@ -348,7 +349,54 @@ MAUVAIS EXEMPLES (À NE JAMAIS FAIRE) :
           classique: "professionnel et sobre", premium: "haut de gamme", expert: "technique et précis",
           epure: "minimaliste", vibrant: "dynamique et coloré", sombre: "moderne et sombre"
         };
-        guideBlock = `\nSTYLE: ${themes[guideTemplate] || guideTemplate}\nSTRUCTURE: 5-8 sections <h2 id="slug">Titre</h2>. Guide autonome et actionnable.`;
+        const depthMap: Record<string, { range: string; tokens: number; tables: string; sections: string }> = {
+          light:    { range: '2500-3500 mots',  tokens: 8192,  tables: '2 tableaux minimum', sections: '5-7 sections H2' },
+          standard: { range: '3500-5000 mots',  tokens: 10000, tables: '3-4 tableaux',       sections: '7-9 sections H2' },
+          expert:   { range: '5000-8000 mots',  tokens: 14000, tables: '4-6 tableaux',       sections: '9-12 sections H2' },
+        };
+        const levelMap: Record<string, string> = {
+          debutant: "Lecteur DÉBUTANT — vulgariser au maximum, expliquer chaque terme technique entre parenthèses, multiplier les analogies du quotidien, partir du principe que le lecteur ne connaît rien au sujet.",
+          intermediaire: "Lecteur INTERMÉDIAIRE — il connaît les bases, va plus loin sur les calculs, comparatifs, retours terrain, sans condescendre.",
+          expert: "Lecteur EXPERT/PROFESSIONNEL — vocabulaire technique assumé, données précises, normes, références réglementaires (CCH, NF, DTU), benchmarks chiffrés, sans paraphraser l'évidence.",
+        };
+        const depth = depthMap[guideDepth as string] || depthMap.standard;
+        const level = levelMap[guideLevel as string] || levelMap.intermediaire;
+        const opts = guideOptions || {};
+
+        guideBlock = `
+═══════════════════════════════════════════
+🎯 MODE GUIDE PRATIQUE — STRUCTURE PÉDAGOGIQUE EXIGEANTE
+═══════════════════════════════════════════
+STYLE VISUEL: ${themes[guideTemplate] || guideTemplate}
+NIVEAU LECTEUR: ${level}
+${guideObjective ? `OBJECTIF DU GUIDE (à servir dans CHAQUE section): ${guideObjective}` : ''}
+${guideDuration ? `DURÉE LECTURE INDIQUÉE AU LECTEUR: ${guideDuration}` : ''}
+
+⚠️ CE N'EST PAS UNE ACTUALITÉ. C'est un GUIDE PRATIQUE qui doit AIDER à passer à l'action.
+Différence fondamentale : une actu INFORME (qu'est-ce qui se passe), un guide AIDE (comment faire, quoi choisir, comment éviter les pièges, combien ça coûte vraiment).
+
+LONGUEUR OBLIGATOIRE: ${depth.range} (${depth.sections}). Ne JAMAIS être en-dessous.
+
+STRUCTURE OBLIGATOIRE D'UN GUIDE (en plus de la structure générale) :
+1. Introduction qui POSE LE PROBLÈME concret du lecteur (pas de blabla intro)
+2. Section "À qui s'adresse ce guide" (1 paragraphe) — qualifier le lecteur, exclure ceux pour qui ce n'est pas adapté
+3. Sections H2 principales — CHAQUE section doit contenir AU MOINS UNE sous-section H3 et UNE info actionnable
+${opts.etapes ? `4. Section "Étapes pas-à-pas" avec une liste numérotée <ol> détaillée (8-15 étapes concrètes, chaque étape 2-3 phrases avec action + résultat attendu + piège à éviter)` : ''}
+${opts.tableaux ? `5. ${depth.tables} HTML obligatoires (prix, comparatifs, barèmes, durées, rendements). Chaque tableau doit avoir une SOURCE citée en dessous.` : ''}
+${opts.checklist ? `6. Section "Checklist avant de se lancer" avec une liste <ul> de cases à cocher pédagogiques (10-15 items au format "☐ Vérifier X — précision concrète"), encadrée dans <div class="guide-checklist" style="background:#ecfdf5;border-left:4px solid #10b981;padding:1.5rem;margin:2rem 0;border-radius:8px;">` : ''}
+${opts.glossaire ? `7. Section "Glossaire" en fin d'article : <h2>Glossaire</h2> suivi de <dl class="guide-glossary"><dt>Terme</dt><dd>Définition courte et claire (max 30 mots)</dd></dl> — minimum 8 termes techniques du sujet` : ''}
+8. Section "Erreurs fréquentes / Pièges à éviter" — minimum 4 pièges concrets avec retour terrain
+9. FAQ enrichie (la FAQ standard reste obligatoire) — pour un guide, viser 6-8 questions au lieu de 4-5
+10. Conclusion ACTIONNABLE : 3 prochaines étapes concrètes que le lecteur peut faire MAINTENANT
+
+EXIGENCES PÉDAGOGIQUES :
+• Chaque section H2 doit contenir au moins UN exemple chiffré CONCRET (montant, durée, surface, kWh…)
+• Chaque section H2 doit contenir au moins UN encadré "💡 À retenir" ou "⚠️ Attention" stylisé : <div class="guide-callout" style="background:#fef3c7;border-left:4px solid #f59e0b;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:6px;"><strong>💡 À retenir :</strong> phrase clé</div>
+• Multiplier les sous-sections H3 (3 à 5 H3 par H2 sur les sections lourdes)
+• Tableaux comparatifs prix / rendements / barèmes — RÉELS et DATÉS
+• Cas concret chiffré : "Pour une maison de 100m² en Île-de-France, voici le calcul détaillé :"
+• Toujours expliquer le POURQUOI derrière chaque recommandation
+• Vocabulaire : pas de jargon non expliqué (selon le niveau lecteur ci-dessus)`;
       }
 
       const objectiveLabels: Record<string, string> = {
@@ -548,7 +596,7 @@ RÈGLES GÉNÉRALES
 ═══════════════════════════════════════════
 • Entre 2 et 4 [IMAGE:...] intelligemment placés selon la stratégie (pertinence > quantité)
 • HTML pur (<p>, <ul>, <h2>, <h3>, <table>). Jamais de markdown.
-• ${contentType === 'guide' ? '2000-3000 mots' : '1500-2200 mots'} — assez long pour être exhaustif, assez concis pour garder l'attention
+• ${contentType === 'guide' ? `Longueur PILOTÉE PAR LE BLOC MODE GUIDE ci-dessus (${guideDepth === 'expert' ? '5000-8000 mots' : guideDepth === 'light' ? '2500-3500 mots' : '3500-5000 mots'}). Atteindre cette longueur est OBLIGATOIRE — un guide trop court est REJETÉ.` : '1500-2200 mots — assez long pour être exhaustif, assez concis pour garder l\'attention'}
 • Style direct, impactant, zéro blabla — chaque phrase doit APPORTER quelque chose
 • Chaque section sert l'objectif lead ET répond à une vraie question
 • Pas de paraphrase inutile, pas de phrases creuses ("il est important de noter que...")
@@ -588,7 +636,10 @@ Retourne UNIQUEMENT le HTML.`;
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
         body: JSON.stringify({
-          model, max_tokens: 8192,
+          model,
+          max_tokens: contentType === 'guide'
+            ? (guideDepth === 'expert' ? 16000 : guideDepth === 'light' ? 9000 : 12000)
+            : 8192,
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: `Rédige l'article complet avec l'angle [${selectedAngle.type}]: "${selectedAngle.title}"` }
