@@ -41,6 +41,7 @@ import { ButtonPresetsLibrary } from "@/components/ButtonPresetsLibrary";
 import { ArticlePreviewModal } from "@/components/ArticlePreviewModal";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { GuideStatsModal } from "@/components/GuideStatsModal";
 
 const ManageGuides = () => {
   const { user, loading: authLoading } = useAuth();
