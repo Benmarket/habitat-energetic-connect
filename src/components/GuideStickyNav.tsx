@@ -153,7 +153,7 @@ export function GuideStickyNav({
   return (
     <div
       className={cn(
-        "fixed top-28 right-4 z-40 transition-all duration-500 hidden lg:block w-72",
+        "fixed top-28 right-4 z-40 transition-all duration-500 hidden lg:block w-72 no-print",
         isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8 pointer-events-none"
       )}
     >
