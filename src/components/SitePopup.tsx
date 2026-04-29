@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { sendFormConfirmationEmail } from "@/lib/sendFormConfirmationEmail";
 
 type Popup = {
   id: string;
@@ -398,10 +399,14 @@ export default function SitePopup() {
           },
         };
 
-        await supabase.from("form_submissions").insert([{
-          form_id: form.id,
-          data: submissionData,
-        }]);
+        const { data: insertedSubmission } = await supabase
+          .from("form_submissions")
+          .insert([{
+            form_id: form.id,
+            data: submissionData,
+          }])
+          .select("id")
+          .single();
 
         // 2. Enregistrer le téléchargement (si on a un contexte guide)
         if (guideContext?.id) {
@@ -414,6 +419,17 @@ export default function SitePopup() {
             popup_id: activePopup.id,
           });
         }
+
+        // 3. Envoi email de confirmation avec lien d'accès au guide
+        await sendFormConfirmationEmail({
+          formIdentifier: "guide-download",
+          submissionId: insertedSubmission?.id,
+          recipient: { email, firstName, lastName, phone },
+          formLabel: "votre téléchargement de guide",
+          requestSummary: guideContext?.title || undefined,
+          guideTitle: guideContext?.title || undefined,
+          guideSlug: guideContext?.slug || undefined,
+        } as any);
 
         setIsSuccess(true);
         toast.success("Merci ! Votre guide arrive…");

@@ -41,6 +41,7 @@ import { ButtonPresetsLibrary } from "@/components/ButtonPresetsLibrary";
 import { ArticlePreviewModal } from "@/components/ArticlePreviewModal";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { GuideStatsModal } from "@/components/GuideStatsModal";
 
 const ManageGuides = () => {
   const { user, loading: authLoading } = useAuth();
@@ -62,6 +63,14 @@ const ManageGuides = () => {
   const [featuredGuideId, setFeaturedGuideId] = useState<string | null>(null);
   const [secondaryGuideIds, setSecondaryGuideIds] = useState<string[]>([]);
   const [savingFeatured, setSavingFeatured] = useState(false);
+
+  // Stats réelles (vues + downloads) par guide
+  const [statsByGuide, setStatsByGuide] = useState<Record<string, { views: number; downloads: number }>>({});
+  const [statsModal, setStatsModal] = useState<{ open: boolean; mode: "views" | "downloads"; guide: { id: string; slug: string; title: string } | null }>({
+    open: false,
+    mode: "downloads",
+    guide: null,
+  });
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -210,11 +219,53 @@ const ManageGuides = () => {
       const { data, error } = await query;
       
       if (error) throw error;
-      if (data) setPosts(data);
+      if (data) {
+        setPosts(data);
+        // Charger en parallèle les stats vues + downloads pour les guides affichés
+        void loadStats(data.map((p: any) => ({ id: p.id, slug: p.slug })));
+      }
     } catch {
       toast.error("Erreur lors du chargement des guides");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadStats = async (guides: { id: string; slug: string }[]) => {
+    if (guides.length === 0) return;
+    try {
+      const ids = guides.map((g) => g.id);
+      const paths = guides.map((g) => `/guides/${g.slug}`);
+
+      const [{ data: dlRows }, { data: viewRows }] = await Promise.all([
+        supabase
+          .from("guide_downloads")
+          .select("guide_id")
+          .in("guide_id", ids),
+        supabase
+          .from("page_views")
+          .select("page_url")
+          .in("page_url", paths),
+      ]);
+
+      const counts: Record<string, { views: number; downloads: number }> = {};
+      guides.forEach((g) => {
+        counts[g.id] = { views: 0, downloads: 0 };
+      });
+      (dlRows || []).forEach((r: any) => {
+        if (counts[r.guide_id]) counts[r.guide_id].downloads += 1;
+      });
+      const slugById: Record<string, string> = {};
+      guides.forEach((g) => (slugById[g.id] = g.slug));
+      const idByPath: Record<string, string> = {};
+      guides.forEach((g) => (idByPath[`/guides/${g.slug}`] = g.id));
+      (viewRows || []).forEach((r: any) => {
+        const id = idByPath[r.page_url];
+        if (id && counts[id]) counts[id].views += 1;
+      });
+      setStatsByGuide(counts);
+    } catch (e) {
+      console.warn("[ManageGuides] loadStats failed", e);
     }
   };
 
@@ -519,6 +570,7 @@ const ManageGuides = () => {
                         <TableHead>Titre</TableHead>
                         <TableHead className="w-28">Template</TableHead>
                         <TableHead className="w-24">Accès</TableHead>
+                        <TableHead className="w-24 text-center">Vues</TableHead>
                         <TableHead className="w-28 text-center">Téléchargements</TableHead>
                         <TableHead className="w-32">Catégorie</TableHead>
                         <TableHead className="w-32">Statut</TableHead>
@@ -592,10 +644,38 @@ const ManageGuides = () => {
                               )}
                             </TableCell>
                             <TableCell className="text-center">
-                              <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setStatsModal({
+                                    open: true,
+                                    mode: "views",
+                                    guide: { id: post.id, slug: post.slug, title: post.title },
+                                  })
+                                }
+                                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors"
+                                title="Voir les sessions"
+                              >
+                                <Eye className="w-4 h-4" />
+                                {statsByGuide[post.id]?.views ?? 0}
+                              </button>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setStatsModal({
+                                    open: true,
+                                    mode: "downloads",
+                                    guide: { id: post.id, slug: post.slug, title: post.title },
+                                  })
+                                }
+                                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors"
+                                title="Voir les leads / membres"
+                              >
                                 <Download className="w-4 h-4" />
-                                {post.download_count || 0}
-                              </span>
+                                {statsByGuide[post.id]?.downloads ?? post.download_count ?? 0}
+                              </button>
                             </TableCell>
                             <TableCell>
                               {post.post_categories?.[0]?.categories?.name || "-"}
@@ -759,6 +839,13 @@ const ManageGuides = () => {
           categoryName={selectedPostForPreview.post_categories?.[0]?.categories?.name}
         />
       )}
+
+      <GuideStatsModal
+        open={statsModal.open}
+        mode={statsModal.mode}
+        guide={statsModal.guide}
+        onClose={() => setStatsModal((s) => ({ ...s, open: false }))}
+      />
     </>
   );
 };
