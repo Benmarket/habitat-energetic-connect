@@ -132,7 +132,35 @@ Deno.serve(async (req) => {
     requestSummary,
   }
 
-  if (userExists) {
+  const isGuideDownload = formIdentifier === 'guide-download'
+
+  if (isGuideDownload) {
+    // Template dédié téléchargement guide
+    templateName = 'guide-download-confirmation'
+    templateData.guideTitle = guideTitle || 'votre guide'
+    templateData.guideUrl = guideSlug ? `${origin}/guides/${guideSlug}` : `${origin}/guides`
+
+    // Si le user n'a pas de compte ET que le form active include_signup_link,
+    // on ajoute un lien d'activation optionnel (le template l'affiche en bonus).
+    if (!userExists && includeSignup) {
+      const rawToken = generateToken()
+      const tokenHash = await sha256Hex(rawToken)
+      const { error: tokenErr } = await admin.from('signup_activation_tokens').insert({
+        token_hash: tokenHash,
+        email: recipient.email,
+        first_name: recipient.firstName ?? null,
+        last_name: recipient.lastName ?? null,
+        phone: recipient.phone ?? null,
+        source_form_identifier: formIdentifier,
+        source_submission_id: submissionId ?? null,
+      })
+      if (!tokenErr) {
+        templateData.activationUrl = `${origin}/inscription/activer?token=${rawToken}`
+      } else {
+        console.warn('[send-form-confirmation] guide token insert failed:', tokenErr)
+      }
+    }
+  } else if (userExists) {
     templateName = 'lead-confirmation-existing'
     templateData.loginUrl = `${origin}/auth`
   } else if (includeSignup) {
