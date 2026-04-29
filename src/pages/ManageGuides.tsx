@@ -644,10 +644,38 @@ const ManageGuides = () => {
                               )}
                             </TableCell>
                             <TableCell className="text-center">
-                              <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setStatsModal({
+                                    open: true,
+                                    mode: "views",
+                                    guide: { id: post.id, slug: post.slug, title: post.title },
+                                  })
+                                }
+                                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors"
+                                title="Voir les sessions"
+                              >
+                                <Eye className="w-4 h-4" />
+                                {statsByGuide[post.id]?.views ?? 0}
+                              </button>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setStatsModal({
+                                    open: true,
+                                    mode: "downloads",
+                                    guide: { id: post.id, slug: post.slug, title: post.title },
+                                  })
+                                }
+                                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors"
+                                title="Voir les leads / membres"
+                              >
                                 <Download className="w-4 h-4" />
-                                {post.download_count || 0}
-                              </span>
+                                {statsByGuide[post.id]?.downloads ?? post.download_count ?? 0}
+                              </button>
                             </TableCell>
                             <TableCell>
                               {post.post_categories?.[0]?.categories?.name || "-"}
