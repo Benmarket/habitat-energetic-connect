@@ -300,7 +300,7 @@ const GuideDetail = () => {
       toc,
       readingTime,
       isPaywalled,
-      children: isPaywalled ? <PaywallOverlay percentRemaining={70} /> : undefined,
+      children: isPaywalled ? <PaywallOverlay percentRemaining={70} guide={{ id: guide.id, slug: guide.slug, title: guide.title }} /> : undefined,
     };
 
     switch (guide.guide_template) {
