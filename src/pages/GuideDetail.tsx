@@ -375,10 +375,13 @@ const GuideDetail = () => {
             isDownloadable={guide.is_downloadable}
             activeId={activeId}
             onScrollToSection={scrollToSection}
+            guide={{ id: guide.id, slug: guide.slug, title: guide.title }}
           />
         )}
         
-        {renderTemplate()}
+        <div className="guide-print-content">
+          {renderTemplate()}
+        </div>
       </div>
       
       <Footer />
