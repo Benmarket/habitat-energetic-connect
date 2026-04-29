@@ -309,6 +309,7 @@ export default function SitePopup() {
       setActivePopup(null);
       setParcoursStep("main");
       setAttribution({});
+      setGuideContext(null);
     }, 300);
   };
 
