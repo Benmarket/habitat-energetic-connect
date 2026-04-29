@@ -839,6 +839,13 @@ const ManageGuides = () => {
           categoryName={selectedPostForPreview.post_categories?.[0]?.categories?.name}
         />
       )}
+
+      <GuideStatsModal
+        open={statsModal.open}
+        mode={statsModal.mode}
+        guide={statsModal.guide}
+        onClose={() => setStatsModal((s) => ({ ...s, open: false }))}
+      />
     </>
   );
 };
