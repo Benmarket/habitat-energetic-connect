@@ -596,7 +596,7 @@ RÈGLES GÉNÉRALES
 ═══════════════════════════════════════════
 • Entre 2 et 4 [IMAGE:...] intelligemment placés selon la stratégie (pertinence > quantité)
 • HTML pur (<p>, <ul>, <h2>, <h3>, <table>). Jamais de markdown.
-• ${contentType === 'guide' ? '2000-3000 mots' : '1500-2200 mots'} — assez long pour être exhaustif, assez concis pour garder l'attention
+• ${contentType === 'guide' ? `Longueur PILOTÉE PAR LE BLOC MODE GUIDE ci-dessus (${guideDepth === 'expert' ? '5000-8000 mots' : guideDepth === 'light' ? '2500-3500 mots' : '3500-5000 mots'}). Atteindre cette longueur est OBLIGATOIRE — un guide trop court est REJETÉ.` : '1500-2200 mots — assez long pour être exhaustif, assez concis pour garder l\'attention'}
 • Style direct, impactant, zéro blabla — chaque phrase doit APPORTER quelque chose
 • Chaque section sert l'objectif lead ET répond à une vraie question
 • Pas de paraphrase inutile, pas de phrases creuses ("il est important de noter que...")
@@ -636,7 +636,10 @@ Retourne UNIQUEMENT le HTML.`;
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
         body: JSON.stringify({
-          model, max_tokens: 8192,
+          model,
+          max_tokens: contentType === 'guide'
+            ? (guideDepth === 'expert' ? 16000 : guideDepth === 'light' ? 9000 : 12000)
+            : 8192,
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: `Rédige l'article complet avec l'angle [${selectedAngle.type}]: "${selectedAngle.title}"` }
