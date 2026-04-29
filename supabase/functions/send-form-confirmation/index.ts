@@ -25,6 +25,9 @@ interface RequestBody {
   formLabel?: string
   // optional override (defaults to https://prime-energies.fr)
   siteOrigin?: string
+  // Contexte spécifique téléchargement guide
+  guideTitle?: string
+  guideSlug?: string
 }
 
 const DEFAULT_ORIGIN = 'https://prime-energies.fr'
