@@ -373,6 +373,64 @@ export default function SitePopup() {
         setIsSuccess(true);
         toast.success("Inscription réussie !");
         setTimeout(handleClose, 2000);
+      } else if (form.form_identifier === "guide-download") {
+        // Cas spécial : téléchargement de guide
+        const email = (formData.email || "").trim();
+        const firstName = (formData.first_name || "").trim();
+        const lastName = (formData.last_name || "").trim();
+        const phone = (formData.phone || "").trim();
+
+        if (!email || !email.includes("@")) {
+          toast.error("Adresse email invalide");
+          setIsSubmitting(false);
+          return;
+        }
+
+        // 1. Insérer la soumission de formulaire (lead admin)
+        const submissionData = {
+          email, first_name: firstName, last_name: lastName, phone,
+          _attribution: {
+            ref_page: location.pathname,
+            ref_referrer: document.referrer || null,
+            guide_id: guideContext?.id || null,
+            guide_slug: guideContext?.slug || null,
+            guide_title: guideContext?.title || null,
+          },
+        };
+
+        await supabase.from("form_submissions").insert([{
+          form_id: form.id,
+          data: submissionData,
+        }]);
+
+        // 2. Enregistrer le téléchargement (si on a un contexte guide)
+        if (guideContext?.id) {
+          await supabase.from("guide_downloads").insert({
+            guide_id: guideContext.id,
+            guide_slug: guideContext.slug,
+            guide_title: guideContext.title,
+            email, first_name: firstName, last_name: lastName, phone,
+            method: "email",
+            popup_id: activePopup.id,
+          });
+        }
+
+        setIsSuccess(true);
+        toast.success("Merci ! Votre guide arrive…");
+
+        // 3. Si on doit déclencher l'impression PDF (cas bouton "Télécharger PDF")
+        const shouldPrint = guideContext?.triggerPrintAfterSubmit;
+        const shouldUnlock = !shouldPrint; // cas paywall : déverrouille
+        const guideId = guideContext?.id;
+        setTimeout(() => {
+          handleClose();
+          if (shouldPrint) {
+            window.print();
+          } else if (shouldUnlock && guideId) {
+            // Notifier la page guide pour déverrouiller le paywall
+            window.dispatchEvent(new CustomEvent("guide-unlocked", { detail: { guideId } }));
+          }
+        }, 1500);
       } else {
         // Construire les données avec attribution
         const currentAttribution = attribution.refArticle || attribution.refCta || urlRefArticle || urlRefCta
