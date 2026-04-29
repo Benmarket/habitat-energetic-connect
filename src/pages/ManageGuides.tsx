@@ -570,6 +570,7 @@ const ManageGuides = () => {
                         <TableHead>Titre</TableHead>
                         <TableHead className="w-28">Template</TableHead>
                         <TableHead className="w-24">Accès</TableHead>
+                        <TableHead className="w-24 text-center">Vues</TableHead>
                         <TableHead className="w-28 text-center">Téléchargements</TableHead>
                         <TableHead className="w-32">Catégorie</TableHead>
                         <TableHead className="w-32">Statut</TableHead>
