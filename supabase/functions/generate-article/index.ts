@@ -604,7 +604,8 @@ Retourne UNIQUEMENT le HTML.`;
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
         body: JSON.stringify({
-          model, max_tokens: 8192,
+          // Guides premium = contenu long (4-6k mots) → tokens augmentés
+          model, max_tokens: contentType === 'guide' ? 16000 : 8192,
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: `Rédige l'article complet avec l'angle [${selectedAngle.type}]: "${selectedAngle.title}"` }
