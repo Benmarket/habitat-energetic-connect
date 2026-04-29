@@ -64,6 +64,14 @@ const ManageGuides = () => {
   const [secondaryGuideIds, setSecondaryGuideIds] = useState<string[]>([]);
   const [savingFeatured, setSavingFeatured] = useState(false);
 
+  // Stats réelles (vues + downloads) par guide
+  const [statsByGuide, setStatsByGuide] = useState<Record<string, { views: number; downloads: number }>>({});
+  const [statsModal, setStatsModal] = useState<{ open: boolean; mode: "views" | "downloads"; guide: { id: string; slug: string; title: string } | null }>({
+    open: false,
+    mode: "downloads",
+    guide: null,
+  });
+
   useEffect(() => {
     const checkAuth = async () => {
       if (!authLoading && !user) {
