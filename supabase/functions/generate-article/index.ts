@@ -348,8 +348,18 @@ MAUVAIS EXEMPLES (À NE JAMAIS FAIRE) :
           classique: "professionnel et sobre", premium: "haut de gamme", expert: "technique et précis",
           epure: "minimaliste", vibrant: "dynamique et coloré", sombre: "moderne et sombre"
         };
-        guideBlock = `\nSTYLE: ${themes[guideTemplate] || guideTemplate}\nSTRUCTURE: 5-8 sections <h2 id="slug">Titre</h2>. Guide autonome et actionnable.`;
+        guideBlock = `
+STYLE: ${themes[guideTemplate] || guideTemplate}
+STRUCTURE GUIDE PREMIUM: 7 à 10 sections <h2 id="slug">Titre</h2>, dont au moins :
+  - une section "Comprendre l'essentiel" (vulgarisation),
+  - une section "Étapes pas à pas" (numérotées 1, 2, 3… avec sous-titres <h3>),
+  - une section "Combien ça coûte / combien ça rapporte" (chiffrée + tableau),
+  - une section "Aides & subventions ${new Date().getFullYear()}" (uniquement si le sujet le justifie),
+  - une section "Pièges et erreurs à éviter" (5 à 8 erreurs concrètes),
+  - une section "Checklist avant de se lancer" (8-12 items <li> cochables).
+TON: pédagogique, expert, exhaustif. Le lecteur doit ressortir AUTONOME, sans avoir besoin d'un autre article.`;
       }
+
 
       const objectiveLabels: Record<string, string> = {
         lead: 'génération de leads', reassure: 'rassurer', educate: 'éduquer',
