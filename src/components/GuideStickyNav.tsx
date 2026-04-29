@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Download, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TOCItem {
   id: string;
@@ -16,6 +18,7 @@ interface GuideStickyNavProps {
   isDownloadable: boolean;
   activeId?: string;
   onScrollToSection: (id: string) => void;
+  guide?: { id: string; slug: string; title: string };
 }
 
 // Styles par template
