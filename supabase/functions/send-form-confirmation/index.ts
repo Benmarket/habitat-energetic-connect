@@ -66,7 +66,7 @@ Deno.serve(async (req) => {
     })
   }
 
-  const { formIdentifier, submissionId, recipient, requestSummary, formLabel } = body
+  const { formIdentifier, submissionId, recipient, requestSummary, formLabel, guideTitle, guideSlug } = body
   const origin = body.siteOrigin || DEFAULT_ORIGIN
 
   if (!formIdentifier || !recipient?.email) {
