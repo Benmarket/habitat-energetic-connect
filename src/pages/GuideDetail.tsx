@@ -81,6 +81,18 @@ const GuideDetail = () => {
     fetchGuide();
   }, [slug]);
 
+  // Écoute "guide-unlocked" pour recharger après inscription via paywall
+  useEffect(() => {
+    const onUnlock = (e: any) => {
+      if (e?.detail?.guideId && guide?.id === e.detail.guideId) {
+        // Recharge pour bénéficier du contenu intégral
+        window.location.reload();
+      }
+    };
+    window.addEventListener("guide-unlocked", onUnlock as EventListener);
+    return () => window.removeEventListener("guide-unlocked", onUnlock as EventListener);
+  }, [guide?.id]);
+
   const fetchGuide = async () => {
     setLoading(true);
     try {
