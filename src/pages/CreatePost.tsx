@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft, AlertTriangle } from "lucide-react";
 import { ArticlePreviewModal } from "@/components/ArticlePreviewModal";
 import { ArticleReviewModal } from "@/components/ArticleReviewModal";
+import { GuideRegenerateCompareModal } from "@/components/GuideRegenerateCompareModal";
 import { AIInstructionsModal } from "@/components/AIInstructionsModal";
 import { AuthorSelectModal } from "@/components/AuthorSelectModal";
 import { ArticleGenerationWizard } from "@/components/ArticleGenerationWizard";
@@ -45,6 +46,10 @@ const CreatePost = () => {
     loadingReview, articleReview, handleStartReview,
     // Fix
     loadingFix, handleApplyFixes,
+    // Full regeneration (guides)
+    loadingFullRegen, handleFullRegenerate,
+    pendingRegeneration, regenCompareOpen, setRegenCompareOpen,
+    applyRegeneration, discardRegeneration,
   } = useArticleGeneration(
     formData, setFormData, contentType,
     currentAiInstructions, user?.id, { categories, tags }
