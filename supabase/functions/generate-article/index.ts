@@ -716,6 +716,65 @@ Retourne UNIQUEMENT le HTML.`;
       // Remove classify comment from content (if present)
       content = content.replace(/<!--\s*CLASSIFY:[^>]*-->/gi, '').trim();
 
+      // ─────────────────────────────────────────────
+      // FALLBACK IMAGES — guarantee placeholders exist
+      // Some long generations (esp. guides 4-6k words) skip [IMAGE:...] entirely.
+      // We auto-inject 3-5 placeholders for guides / 2-3 for articles based on H2.
+      // ─────────────────────────────────────────────
+      const hasPlaceholders = /\[IMAGE:[^\]]+\]/.test(content);
+      if (!hasPlaceholders) {
+        const targetCount = contentType === 'guide' ? 4 : 2;
+        const h2Matches = [...content.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/gi)];
+        const titleText = (selectedAngle?.title || subject || product || 'rénovation énergétique').toString();
+
+        const buildPrompt = (sectionTitle: string, idx: number) => {
+          const cleanSection = sectionTitle.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() || titleText;
+          const styles = [
+            `Photo éditoriale professionnelle haute qualité illustrant "${cleanSection}" dans le contexte de "${titleText}", lumière naturelle dorée, cadrage large environnemental, propriétaire ou technicien français en situation réelle, maison individuelle, style reportage magazine architecture et énergie, rendu réaliste premium, aucun texte visible`,
+            `Vue détaillée et précise illustrant "${cleanSection}" liée à "${titleText}", focus serré sur l'élément clé, éclairage studio diffus, rendu hyper-réaliste, palette de couleurs naturelles vert/bleu/terre, style photo documentaire professionnelle française, aucun logo ni texte`,
+            `Mise en situation concrète d'un foyer français bénéficiant de "${cleanSection}" dans le cadre de "${titleText}", intérieur lumineux contemporain, personnes naturelles souriantes, ambiance chaleureuse réaliste, lumière douce du matin, style photo de presse magazine habitat`,
+            `Infographie minimaliste sur fond blanc expliquant visuellement "${cleanSection}" dans le contexte "${titleText}", icônes flat design vertes et bleues, flèches directionnelles, chiffres clés annotés, style graphique épuré professionnel français, lisibilité maximale`,
+            `Schéma technique illustré clair et pédagogique de "${cleanSection}" pour "${titleText}", vue isométrique colorée, composants étiquetés sobrement, fond gradient pastel, style infographie éditoriale professionnelle, design moderne et accessible`,
+          ];
+          return styles[idx % styles.length];
+        };
+
+        const buildPlaceholder = (sectionTitle: string, idx: number) => {
+          const clean = sectionTitle.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 80) || `Illustration ${idx + 1}`;
+          const types = ['Mise en situation', 'Vue détail', 'Mise en situation humaine', 'Schéma explicatif', 'Infographie'];
+          return `[IMAGE:${types[idx % types.length]}|Illustrer la section "${clean}"|${buildPrompt(sectionTitle, idx)}|${clean}|Illustration : ${clean}]`;
+        };
+
+        // 1) Hero image at the very top (before first <h2> or at content start)
+        const heroPlaceholder = buildPlaceholder(titleText, 0);
+        const firstH2 = content.search(/<h2[^>]*>/i);
+        if (firstH2 > -1) {
+          content = content.slice(0, firstH2) + `\n${heroPlaceholder}\n` + content.slice(firstH2);
+        } else {
+          content = `${heroPlaceholder}\n${content}`;
+        }
+
+        // 2) Distribute remaining images across H2 sections (skip the first one to avoid duplication near hero)
+        const remaining = Math.max(0, targetCount - 1);
+        if (remaining > 0 && h2Matches.length > 1) {
+          const sectionsToIllustrate = h2Matches.slice(1, 1 + remaining);
+          for (let i = 0; i < sectionsToIllustrate.length; i++) {
+            const match = sectionsToIllustrate[i];
+            const placeholder = buildPlaceholder(match[1], i + 1);
+            // Insert AFTER the closing </h2> of the matched section
+            const fullTag = match[0];
+            const insertionToken = `${fullTag}__IMG_INJECT_${i}__`;
+            // Replace only the FIRST occurrence of this exact h2 to avoid collisions
+            const idx = content.indexOf(fullTag);
+            if (idx > -1) {
+              content = content.slice(0, idx + fullTag.length) + `\n${placeholder}\n` + content.slice(idx + fullTag.length);
+            }
+          }
+        }
+
+        console.log(`[generate-article] Auto-injected ${targetCount} image placeholders (model skipped images)`);
+      }
+
       const normalize = (value: string) =>
         (value || '')
           .toLowerCase()
