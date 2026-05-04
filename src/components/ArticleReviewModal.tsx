@@ -40,6 +40,10 @@ interface ArticleReviewModalProps {
   onStartReview: (userCorrections?: string) => void;
   onApplyFixes?: (userCorrections?: string) => void;
   loadingFix?: boolean;
+  // Full regeneration (guides only)
+  contentType?: string;
+  onFullRegenerate?: () => void;
+  loadingFullRegen?: boolean;
 }
 
 const getNoteColor = (note: number) => {
@@ -63,7 +67,7 @@ const getScoreBadge = (score: number) => {
   return { label: "Insuffisant", variant: "destructive" as const, className: "" };
 };
 
-export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStartReview, onApplyFixes, loadingFix }: ArticleReviewModalProps) => {
+export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStartReview, onApplyFixes, loadingFix, contentType, onFullRegenerate, loadingFullRegen }: ArticleReviewModalProps) => {
   const scoreBadge = review ? getScoreBadge(review.score_global) : null;
   const hasIssues = review && (review.problemes.length > 0 || review.suggestions.length > 0);
 
