@@ -37,6 +37,10 @@ export function useArticleGeneration(
   const [loadingReview, setLoadingReview] = useState(false);
   const [articleReview, setArticleReview] = useState<ArticleReview | null>(null);
   const [loadingFix, setLoadingFix] = useState(false);
+  // Full regeneration (guides only)
+  const [loadingFullRegen, setLoadingFullRegen] = useState(false);
+  const [pendingRegeneration, setPendingRegeneration] = useState<any | null>(null);
+  const [regenCompareOpen, setRegenCompareOpen] = useState(false);
 
   const getAccessToken = async () => {
     const { data } = await supabase.auth.getSession();
