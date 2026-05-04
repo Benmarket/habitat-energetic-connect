@@ -225,6 +225,28 @@ const CreatePost = () => {
           onStartReview={handleStartReview}
           onApplyFixes={handleApplyFixes}
           loadingFix={loadingFix}
+          contentType={contentType}
+          onFullRegenerate={handleFullRegenerate}
+          loadingFullRegen={loadingFullRegen}
+        />
+
+        <GuideRegenerateCompareModal
+          open={regenCompareOpen}
+          onOpenChange={setRegenCompareOpen}
+          current={{
+            title: formData.title,
+            excerpt: formData.excerpt,
+            content: contentType === "guide" ? sectionsToContent(formData.guide_sections) : formData.content,
+            featured_image: formData.featured_image,
+            meta_title: formData.meta_title,
+            meta_description: formData.meta_description,
+            tldr: formData.tldr,
+            faq: formData.faq || [],
+            focus_keywords: formData.focus_keywords || [],
+          }}
+          pending={pendingRegeneration}
+          onApply={applyRegeneration}
+          onDiscard={discardRegeneration}
         />
 
         <AuthorSelectModal open={authorModalOpen} onOpenChange={setAuthorModalOpen}
