@@ -134,11 +134,38 @@ export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStar
               )}
             </div>
 
-            <div className="text-center">
+            <div className="flex flex-col items-center gap-3">
               <Button onClick={() => onStartReview(userCorrections.trim() || undefined)} className="gap-2">
                 <Star className="w-4 h-4" />
                 Lancer la relecture
               </Button>
+
+              {contentType === 'guide' && onFullRegenerate && (
+                <>
+                  <div className="flex items-center gap-2 w-full max-w-md my-1">
+                    <div className="flex-1 h-px bg-border" />
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">ou</span>
+                    <div className="flex-1 h-px bg-border" />
+                  </div>
+                  <div className="text-center space-y-2 w-full max-w-md">
+                    <Button
+                      variant="outline"
+                      onClick={onFullRegenerate}
+                      disabled={loadingFullRegen}
+                      className="gap-2 w-full border-primary/40 text-primary hover:bg-primary/5"
+                    >
+                      {loadingFullRegen ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Régénération en cours… (1-2 min)</>
+                      ) : (
+                        <>✨ Régénérer le guide complet (Premium)</>
+                      )}
+                    </Button>
+                    <p className="text-xs text-muted-foreground leading-snug">
+                      Crée un guide tout neuf de 4&nbsp;000 à 6&nbsp;000 mots avec tableaux, checklists, étapes numérotées, sources et 3-5 images. Vous pourrez ensuite comparer et choisir ce que vous remplacez.
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
