@@ -688,6 +688,10 @@ Retourne UNIQUEMENT le HTML.`;
       const articleUsage = data.usage || {};
       let content = data.choices[0].message.content;
 
+      // Diagnostic: log how many image placeholders the model produced
+      const initialImgCount = (content.match(/\[IMAGE:[^\]]+\]/g) || []).length;
+      console.log(`[generate-article] Model produced ${initialImgCount} [IMAGE:...] placeholders (contentType=${contentType})`);
+
       // Clean & convert
       content = cleanHtml(content, ctaBanners, buttonPresets, defaultPopupId);
       const faq = extractFaq(content);
