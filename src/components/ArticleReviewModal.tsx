@@ -299,16 +299,36 @@ export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStar
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-center gap-3 pt-2">
-                <Button variant="outline" onClick={() => onStartReview(userCorrections.trim() || undefined)} size="sm" className="gap-2">
-                  <Star className="w-4 h-4" />
-                  Relancer l'analyse
-                </Button>
-                {hasIssues && onApplyFixes && (
-                  <Button onClick={() => onApplyFixes(userCorrections.trim() || undefined)} size="sm" className="gap-2 bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-700">
-                    <Wand2 className="w-4 h-4" />
-                    Appliquer les corrections
+              <div className="flex flex-col items-center gap-3 pt-2">
+                <div className="flex items-center justify-center gap-3 flex-wrap">
+                  <Button variant="outline" onClick={() => onStartReview(userCorrections.trim() || undefined)} size="sm" className="gap-2">
+                    <Star className="w-4 h-4" />
+                    Relancer l'analyse
                   </Button>
+                  {hasIssues && onApplyFixes && (
+                    <Button onClick={() => onApplyFixes(userCorrections.trim() || undefined)} size="sm" className="gap-2 bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-700">
+                      <Wand2 className="w-4 h-4" />
+                      Appliquer les corrections
+                    </Button>
+                  )}
+                </div>
+                {contentType === 'guide' && onFullRegenerate && (
+                  <div className="w-full pt-2 border-t flex flex-col items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={onFullRegenerate}
+                      disabled={loadingFullRegen}
+                      className="gap-2 border-primary/40 text-primary hover:bg-primary/5"
+                    >
+                      {loadingFullRegen ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Régénération en cours…</>
+                      ) : (
+                        <>✨ Régénérer le guide complet (Premium)</>
+                      )}
+                    </Button>
+                    <p className="text-[11px] text-muted-foreground">Crée un guide tout neuf — vous pourrez comparer avant d'appliquer.</p>
+                  </div>
                 )}
               </div>
             </div>
