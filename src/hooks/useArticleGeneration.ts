@@ -37,6 +37,10 @@ export function useArticleGeneration(
   const [loadingReview, setLoadingReview] = useState(false);
   const [articleReview, setArticleReview] = useState<ArticleReview | null>(null);
   const [loadingFix, setLoadingFix] = useState(false);
+  // Full regeneration (guides only)
+  const [loadingFullRegen, setLoadingFullRegen] = useState(false);
+  const [pendingRegeneration, setPendingRegeneration] = useState<any | null>(null);
+  const [regenCompareOpen, setRegenCompareOpen] = useState(false);
 
   const getAccessToken = async () => {
     const { data } = await supabase.auth.getSession();
@@ -466,6 +470,119 @@ export function useArticleGeneration(
     }
   };
 
+  // ─────────────────────────────────────────────
+  // FULL REGENERATION — Guides only
+  // Generates a brand-new premium guide and stages it for comparison.
+  // Does NOT touch formData until the user confirms which fields to apply.
+  // ─────────────────────────────────────────────
+  const handleFullRegenerate = async () => {
+    if (contentType !== 'guide') {
+      toast.error("La régénération complète est réservée aux guides.");
+      return;
+    }
+    if (!formData.title) {
+      toast.error("Le guide doit avoir un titre pour être régénéré.");
+      return;
+    }
+    setLoadingFullRegen(true);
+    setPendingRegeneration(null);
+    try {
+      const accessToken = await getAccessToken();
+      if (!accessToken) { setLoadingFullRegen(false); return; }
+
+      const categoryName = options?.categories?.find(c => c.id === formData.category_id)?.name || '';
+      const tagNames = (options?.tags || [])
+        .filter(t => (formData.tag_ids || []).includes(t.id))
+        .map(t => t.name);
+
+      const { data, error } = await supabase.functions.invoke('generate-article', {
+        body: {
+          mode: 'regenerate_full',
+          title: formData.title,
+          excerpt: formData.excerpt || '',
+          focusKeywords: formData.focus_keywords || [],
+          targetRegions: formData.target_regions || [],
+          categoryName,
+          tagNames,
+          contentType: 'guide',
+          guideTemplate: formData.guide_template || 'premium',
+          customInstructions: currentAiInstructions,
+        },
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Erreur lors de la régénération");
+
+      const article = data.article;
+      const usage = data.usage || {};
+
+      toast.info("Génération des images du nouveau guide…");
+      const { contentWithImages, featuredImageUrl, generatedCount } =
+        await resolveGeneratedImages(article.content || '', accessToken);
+
+      setPendingRegeneration({
+        ...article,
+        content: contentWithImages,
+        featuredImageUrl,
+        generationCost: usage.estimatedCost || 0,
+        generatedImagesCount: generatedCount,
+      });
+      setRegenCompareOpen(true);
+      setReviewModalOpen(false);
+      toast.success(`Nouveau guide prêt ! Comparez et choisissez ce que vous gardez.`);
+    } catch (error: any) {
+      toast.error(error.message || "Erreur lors de la régénération complète");
+    } finally {
+      setLoadingFullRegen(false);
+    }
+  };
+
+  // Apply the user-selected fields from the pending regeneration to formData
+  const applyRegeneration = (selection: {
+    title?: boolean; excerpt?: boolean; content?: boolean;
+    featured_image?: boolean; meta_title?: boolean; meta_description?: boolean;
+    tldr?: boolean; faq?: boolean; focus_keywords?: boolean;
+  }) => {
+    if (!pendingRegeneration) return;
+    const r = pendingRegeneration;
+    const previousCost = formData.generation_cost || 0;
+    const addedCost = r.generationCost || 0;
+
+    setFormData(prev => {
+      const next: any = { ...prev };
+      if (selection.title && r.title) next.title = r.title;
+      if (selection.excerpt && r.excerpt) next.excerpt = r.excerpt;
+      if (selection.content && r.content) {
+        next.content = r.content;
+        if (contentType === 'guide') {
+          const parsed = parseContentToSections(r.content);
+          next.guide_sections = parsed.length > 0
+            ? parsed
+            : [{ id: `section-${Date.now()}`, title: 'Introduction', content: r.content }];
+        }
+      }
+      if (selection.featured_image && r.featuredImageUrl) next.featured_image = r.featuredImageUrl;
+      if (selection.meta_title && r.metaTitle) next.meta_title = r.metaTitle;
+      if (selection.meta_description && r.metaDescription) next.meta_description = r.metaDescription;
+      if (selection.tldr && r.tldr) next.tldr = r.tldr;
+      if (selection.faq && r.faq) next.faq = r.faq;
+      if (selection.focus_keywords && r.focusKeywords?.length) next.focus_keywords = r.focusKeywords;
+      next.generation_cost = previousCost + addedCost;
+      return next;
+    });
+
+    setPendingRegeneration(null);
+    setRegenCompareOpen(false);
+    toast.success("Modifications appliquées au guide !");
+  };
+
+  const discardRegeneration = () => {
+    setPendingRegeneration(null);
+    setRegenCompareOpen(false);
+    toast.info("Régénération annulée.");
+  };
+
   return {
     wizardOpen, setWizardOpen, openWizard,
     loadingAngles, angles,
@@ -477,5 +594,9 @@ export function useArticleGeneration(
     loadingReview, articleReview, handleStartReview,
     // Fix
     loadingFix, handleApplyFixes,
+    // Full regeneration (guides)
+    loadingFullRegen, handleFullRegenerate,
+    pendingRegeneration, regenCompareOpen, setRegenCompareOpen,
+    applyRegeneration, discardRegeneration,
   };
 }

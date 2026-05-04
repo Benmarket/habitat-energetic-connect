@@ -68,7 +68,72 @@ serve(async (req) => {
     await supabaseAdmin.rpc('record_ai_call', { p_user_id: userId, p_endpoint: 'generate-article' });
 
     const body = await req.json();
-    const { mode } = body;
+    let { mode } = body;
+
+    // ══════════════════════════════════════════
+    // MODE: REGENERATE_FULL — Re-generate a guide from scratch
+    // Reuses the entire 'article' premium pipeline (4-6k words, tables,
+    // checklists, sources, images) using the existing guide metadata.
+    // Guides only — no impact on classic articles.
+    // ══════════════════════════════════════════
+    if (mode === 'regenerate_full') {
+      const {
+        title, excerpt, focusKeywords, targetRegions,
+        categoryName, tagNames, contentType: rgContentType,
+        guideTemplate, customInstructions,
+      } = body;
+
+      if (rgContentType !== 'guide') {
+        return new Response(
+          JSON.stringify({ success: false, error: "regenerate_full est réservé aux guides." }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      if (!title) {
+        return new Response(
+          JSON.stringify({ success: false, error: "Titre requis pour la régénération." }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Synthesize wizard inputs from existing guide metadata
+      const product = (focusKeywords && focusKeywords[0]) || categoryName || title;
+      const subject = title;
+      const theme = excerpt || title;
+      const objective = 'lead';
+      const selectedAngle = {
+        type: 'Guide pas-à-pas',
+        title,
+        intention: excerpt || `Guide complet et actionnable sur ${title}`,
+      };
+
+      // Load categories & tags so AI can re-classify
+      const [catsRes, tagsRes] = await Promise.all([
+        fetch(`${supabaseUrl}/rest/v1/categories?select=id,name,slug`, {
+          headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+        }),
+        fetch(`${supabaseUrl}/rest/v1/tags?select=id,name,slug`, {
+          headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+        }),
+      ]);
+      const availableCategories = await catsRes.json().catch(() => []);
+      const availableTags = await tagsRes.json().catch(() => []);
+
+      // Rewrite body & switch to article mode for the rest of the pipeline
+      Object.assign(body, {
+        product, subject, theme, objective,
+        keywords: focusKeywords || [],
+        freePrompt: '',
+        targetRegions: targetRegions || [],
+        contentType: 'guide',
+        customInstructions: customInstructions || '',
+        guideTemplate: guideTemplate || 'premium',
+        selectedAngle,
+        availableCategories,
+        availableTags,
+      });
+      mode = 'article';
+    }
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY is not configured');

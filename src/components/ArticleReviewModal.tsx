@@ -40,6 +40,10 @@ interface ArticleReviewModalProps {
   onStartReview: (userCorrections?: string) => void;
   onApplyFixes?: (userCorrections?: string) => void;
   loadingFix?: boolean;
+  // Full regeneration (guides only)
+  contentType?: string;
+  onFullRegenerate?: () => void;
+  loadingFullRegen?: boolean;
 }
 
 const getNoteColor = (note: number) => {
@@ -63,7 +67,7 @@ const getScoreBadge = (score: number) => {
   return { label: "Insuffisant", variant: "destructive" as const, className: "" };
 };
 
-export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStartReview, onApplyFixes, loadingFix }: ArticleReviewModalProps) => {
+export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStartReview, onApplyFixes, loadingFix, contentType, onFullRegenerate, loadingFullRegen }: ArticleReviewModalProps) => {
   const scoreBadge = review ? getScoreBadge(review.score_global) : null;
   const hasIssues = review && (review.problemes.length > 0 || review.suggestions.length > 0);
 
@@ -130,11 +134,38 @@ export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStar
               )}
             </div>
 
-            <div className="text-center">
+            <div className="flex flex-col items-center gap-3">
               <Button onClick={() => onStartReview(userCorrections.trim() || undefined)} className="gap-2">
                 <Star className="w-4 h-4" />
                 Lancer la relecture
               </Button>
+
+              {contentType === 'guide' && onFullRegenerate && (
+                <>
+                  <div className="flex items-center gap-2 w-full max-w-md my-1">
+                    <div className="flex-1 h-px bg-border" />
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">ou</span>
+                    <div className="flex-1 h-px bg-border" />
+                  </div>
+                  <div className="text-center space-y-2 w-full max-w-md">
+                    <Button
+                      variant="outline"
+                      onClick={onFullRegenerate}
+                      disabled={loadingFullRegen}
+                      className="gap-2 w-full border-primary/40 text-primary hover:bg-primary/5"
+                    >
+                      {loadingFullRegen ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Régénération en cours… (1-2 min)</>
+                      ) : (
+                        <>✨ Régénérer le guide complet (Premium)</>
+                      )}
+                    </Button>
+                    <p className="text-xs text-muted-foreground leading-snug">
+                      Crée un guide tout neuf de 4&nbsp;000 à 6&nbsp;000 mots avec tableaux, checklists, étapes numérotées, sources et 3-5 images. Vous pourrez ensuite comparer et choisir ce que vous remplacez.
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -268,16 +299,36 @@ export const ArticleReviewModal = ({ open, onOpenChange, review, loading, onStar
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-center gap-3 pt-2">
-                <Button variant="outline" onClick={() => onStartReview(userCorrections.trim() || undefined)} size="sm" className="gap-2">
-                  <Star className="w-4 h-4" />
-                  Relancer l'analyse
-                </Button>
-                {hasIssues && onApplyFixes && (
-                  <Button onClick={() => onApplyFixes(userCorrections.trim() || undefined)} size="sm" className="gap-2 bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-700">
-                    <Wand2 className="w-4 h-4" />
-                    Appliquer les corrections
+              <div className="flex flex-col items-center gap-3 pt-2">
+                <div className="flex items-center justify-center gap-3 flex-wrap">
+                  <Button variant="outline" onClick={() => onStartReview(userCorrections.trim() || undefined)} size="sm" className="gap-2">
+                    <Star className="w-4 h-4" />
+                    Relancer l'analyse
                   </Button>
+                  {hasIssues && onApplyFixes && (
+                    <Button onClick={() => onApplyFixes(userCorrections.trim() || undefined)} size="sm" className="gap-2 bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-700">
+                      <Wand2 className="w-4 h-4" />
+                      Appliquer les corrections
+                    </Button>
+                  )}
+                </div>
+                {contentType === 'guide' && onFullRegenerate && (
+                  <div className="w-full pt-2 border-t flex flex-col items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={onFullRegenerate}
+                      disabled={loadingFullRegen}
+                      className="gap-2 border-primary/40 text-primary hover:bg-primary/5"
+                    >
+                      {loadingFullRegen ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Régénération en cours…</>
+                      ) : (
+                        <>✨ Régénérer le guide complet (Premium)</>
+                      )}
+                    </Button>
+                    <p className="text-[11px] text-muted-foreground">Crée un guide tout neuf — vous pourrez comparer avant d'appliquer.</p>
+                  </div>
                 )}
               </div>
             </div>

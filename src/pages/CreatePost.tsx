@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft, AlertTriangle } from "lucide-react";
 import { ArticlePreviewModal } from "@/components/ArticlePreviewModal";
 import { ArticleReviewModal } from "@/components/ArticleReviewModal";
+import { GuideRegenerateCompareModal } from "@/components/GuideRegenerateCompareModal";
 import { AIInstructionsModal } from "@/components/AIInstructionsModal";
 import { AuthorSelectModal } from "@/components/AuthorSelectModal";
 import { ArticleGenerationWizard } from "@/components/ArticleGenerationWizard";
@@ -45,6 +46,10 @@ const CreatePost = () => {
     loadingReview, articleReview, handleStartReview,
     // Fix
     loadingFix, handleApplyFixes,
+    // Full regeneration (guides)
+    loadingFullRegen, handleFullRegenerate,
+    pendingRegeneration, regenCompareOpen, setRegenCompareOpen,
+    applyRegeneration, discardRegeneration,
   } = useArticleGeneration(
     formData, setFormData, contentType,
     currentAiInstructions, user?.id, { categories, tags }
@@ -220,6 +225,28 @@ const CreatePost = () => {
           onStartReview={handleStartReview}
           onApplyFixes={handleApplyFixes}
           loadingFix={loadingFix}
+          contentType={contentType}
+          onFullRegenerate={handleFullRegenerate}
+          loadingFullRegen={loadingFullRegen}
+        />
+
+        <GuideRegenerateCompareModal
+          open={regenCompareOpen}
+          onOpenChange={setRegenCompareOpen}
+          current={{
+            title: formData.title,
+            excerpt: formData.excerpt,
+            content: contentType === "guide" ? sectionsToContent(formData.guide_sections) : formData.content,
+            featured_image: formData.featured_image,
+            meta_title: formData.meta_title,
+            meta_description: formData.meta_description,
+            tldr: formData.tldr,
+            faq: formData.faq || [],
+            focus_keywords: formData.focus_keywords || [],
+          }}
+          pending={pendingRegeneration}
+          onApply={applyRegeneration}
+          onDiscard={discardRegeneration}
         />
 
         <AuthorSelectModal open={authorModalOpen} onOpenChange={setAuthorModalOpen}
