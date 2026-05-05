@@ -687,6 +687,56 @@ Retourne UNIQUEMENT le HTML.`;
       const data = await response.json();
       const articleUsage = data.usage || {};
       let content = data.choices[0].message.content;
+      const finishReason = data.choices?.[0]?.finish_reason || data.choices?.[0]?.finishReason || 'unknown';
+
+      console.log(`[generate-article] finish_reason=${finishReason} | usage=${JSON.stringify(articleUsage)} | contentType=${contentType} | length=${(content || '').length}`);
+
+      // ─────────────────────────────────────────────
+      // FIX C — Continuation on MAX_TOKENS (GUIDES ONLY, never touches articles)
+      // If the model was truncated mid-guide, ask it to continue from where it
+      // stopped, then concatenate. We try at most ONCE to keep cost bounded.
+      // ─────────────────────────────────────────────
+      if (
+        contentType === 'guide' &&
+        typeof finishReason === 'string' &&
+        /max[_-]?tokens|length/i.test(finishReason) &&
+        content && content.length > 200
+      ) {
+        try {
+          console.log('[generate-article] Guide truncated → requesting continuation...');
+          const tail = content.slice(-1500);
+          const contResp = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
+            body: JSON.stringify({
+              model,
+              max_tokens: 8000,
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: `Rédige l'article complet avec l'angle [${selectedAngle.type}]: "${selectedAngle.title}"` },
+                { role: 'assistant', content },
+                { role: 'user', content: `Continue EXACTEMENT le HTML là où tu t'es arrêté (juste après: "${tail.replace(/"/g, '\\"')}"). Ne répète RIEN, ne ré-écris pas le début. Termine proprement le guide avec les sections manquantes (sources, FAQ si demandée, conclusion). Retourne UNIQUEMENT la suite HTML.` }
+              ]
+            })
+          });
+          if (contResp.ok) {
+            const contData = await contResp.json();
+            const contText = contData.choices?.[0]?.message?.content || '';
+            if (contText && contText.length > 100) {
+              content = content + '\n' + contText;
+              const u = contData.usage || {};
+              articleUsage.prompt_tokens = (articleUsage.prompt_tokens || 0) + (u.prompt_tokens || 0);
+              articleUsage.completion_tokens = (articleUsage.completion_tokens || 0) + (u.completion_tokens || 0);
+              articleUsage.total_tokens = (articleUsage.total_tokens || 0) + (u.total_tokens || 0);
+              console.log(`[generate-article] Continuation OK (+${contText.length} chars)`);
+            }
+          } else {
+            console.warn(`[generate-article] Continuation failed: ${contResp.status}`);
+          }
+        } catch (e) {
+          console.warn('[generate-article] Continuation error:', (e as Error).message);
+        }
+      }
 
       // Diagnostic: log how many image placeholders the model produced
       const initialImgCount = (content.match(/\[IMAGE:[^\]]+\]/g) || []).length;
