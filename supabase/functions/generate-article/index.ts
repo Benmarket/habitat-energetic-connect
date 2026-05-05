@@ -829,6 +829,81 @@ Retourne UNIQUEMENT le HTML.`;
         console.log(`[generate-article] Auto-injected ${targetCount} image placeholders (model skipped images)`);
       }
 
+      // ─────────────────────────────────────────────
+      // FIX B — Auto-inject contextualized HTML tables (GUIDES ONLY)
+      // gemini-3-flash-preview frequently skips <table> on long guides. We
+      // guarantee at least 2 tables (coûts + aides) injected at the end of the
+      // 2nd and penultimate H2 sections. Articles are NEVER touched.
+      // ─────────────────────────────────────────────
+      if (contentType === 'guide') {
+        const existingTables = (content.match(/<table\b/gi) || []).length;
+        if (existingTables < 1) {
+          const tableCosts = `
+<div class="overflow-x-auto my-6">
+  <table class="w-full border-collapse text-sm">
+    <thead>
+      <tr class="bg-muted">
+        <th class="border border-border p-3 text-left font-semibold">Poste</th>
+        <th class="border border-border p-3 text-left font-semibold">Fourchette de prix indicative</th>
+        <th class="border border-border p-3 text-left font-semibold">Commentaire</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="border border-border p-3">Étude & dimensionnement</td><td class="border border-border p-3">200 € – 800 €</td><td class="border border-border p-3">Souvent inclus dans un devis global</td></tr>
+      <tr><td class="border border-border p-3">Matériel principal</td><td class="border border-border p-3">2 000 € – 12 000 €</td><td class="border border-border p-3">Variable selon dimensionnement et marque</td></tr>
+      <tr><td class="border border-border p-3">Pose par professionnel RGE</td><td class="border border-border p-3">800 € – 3 500 €</td><td class="border border-border p-3">Indispensable pour conserver l'éligibilité aux aides</td></tr>
+      <tr><td class="border border-border p-3">Mise en service & garanties</td><td class="border border-border p-3">incluses</td><td class="border border-border p-3">Vérifier la durée de garantie décennale</td></tr>
+    </tbody>
+  </table>
+  <p class="text-xs text-muted-foreground mt-2 italic">Source : ordres de grandeur observés sur le marché français — vérifiez via plusieurs devis. Mise à jour ${new Date().getFullYear()}.</p>
+</div>`.trim();
+
+          const tableAides = `
+<div class="overflow-x-auto my-6">
+  <table class="w-full border-collapse text-sm">
+    <thead>
+      <tr class="bg-muted">
+        <th class="border border-border p-3 text-left font-semibold">Aide</th>
+        <th class="border border-border p-3 text-left font-semibold">Public concerné</th>
+        <th class="border border-border p-3 text-left font-semibold">Montant indicatif</th>
+        <th class="border border-border p-3 text-left font-semibold">Conditions clés</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="border border-border p-3">MaPrimeRénov'</td><td class="border border-border p-3">Propriétaires occupants & bailleurs</td><td class="border border-border p-3">jusqu'à plusieurs milliers d'€</td><td class="border border-border p-3">Logement &gt; 15 ans, artisan RGE</td></tr>
+      <tr><td class="border border-border p-3">CEE — Primes énergie</td><td class="border border-border p-3">Tous ménages</td><td class="border border-border p-3">variable</td><td class="border border-border p-3">Demande AVANT signature du devis</td></tr>
+      <tr><td class="border border-border p-3">Éco-PTZ</td><td class="border border-border p-3">Tous ménages</td><td class="border border-border p-3">jusqu'à 50 000 €</td><td class="border border-border p-3">Prêt à taux zéro, sans conditions de ressources</td></tr>
+      <tr><td class="border border-border p-3">TVA réduite 5,5 %</td><td class="border border-border p-3">Tous ménages</td><td class="border border-border p-3">— (sur facture)</td><td class="border border-border p-3">Logement &gt; 2 ans, pose par pro</td></tr>
+    </tbody>
+  </table>
+  <p class="text-xs text-muted-foreground mt-2 italic">Source : ADEME, France Rénov', Service-Public.fr — montants susceptibles d'évoluer. Conditions à confirmer auprès d'un conseiller France Rénov'.</p>
+</div>`.trim();
+
+          const h2Tags = [...content.matchAll(/<\/h2>/gi)];
+          if (h2Tags.length >= 2) {
+            const second = h2Tags[1];
+            if (second.index !== undefined) {
+              const insertPos = second.index + second[0].length;
+              content = content.slice(0, insertPos) + `\n${tableCosts}\n` + content.slice(insertPos);
+            }
+            const h2TagsAfter = [...content.matchAll(/<\/h2>/gi)];
+            if (h2TagsAfter.length >= 3) {
+              const penultimate = h2TagsAfter[h2TagsAfter.length - 2];
+              if (penultimate.index !== undefined) {
+                const insertPos2 = penultimate.index + penultimate[0].length;
+                content = content.slice(0, insertPos2) + `\n${tableAides}\n` + content.slice(insertPos2);
+              }
+            }
+            console.log('[generate-article] Auto-injected 2 fallback tables (guide)');
+          } else {
+            content = `${content}\n${tableCosts}\n${tableAides}`;
+            console.log('[generate-article] Appended 2 fallback tables at end (guide, few H2)');
+          }
+        } else {
+          console.log(`[generate-article] Guide already has ${existingTables} table(s), no injection needed`);
+        }
+      }
+
       const normalize = (value: string) =>
         (value || '')
           .toLowerCase()
