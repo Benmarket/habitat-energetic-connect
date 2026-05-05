@@ -104,40 +104,55 @@ export const postSchema = z.object({
 });
 
 // Helper functions
+// Strip HTML tags & decode common entities to obtain a clean section title
+const stripHtml = (s: string): string =>
+  (s || '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+
 export const parseContentToSections = (htmlContent: string): GuideSection[] => {
   const sections: GuideSection[] = [];
-  const sectionRegex = /<h2[^>]*id="([^"]*)"[^>]*>([^<]*)<\/h2>([\s\S]*?)(?=<h2|$)/gi;
-  let match;
+  if (!htmlContent || !htmlContent.trim()) return sections;
+
+  // 1) Preserve the preamble (intro paragraphs, hero <figure>, opening tables/CTA)
+  //    Everything BEFORE the first <h2> is captured into a virtual "intro" section
+  //    with an EMPTY title so it renders without an extra <h2>.
+  const firstH2Match = htmlContent.match(/<h2\b[^>]*>/i);
+  if (firstH2Match && typeof firstH2Match.index === 'number' && firstH2Match.index > 0) {
+    const preamble = htmlContent.slice(0, firstH2Match.index).trim();
+    if (preamble) {
+      sections.push({ id: 'intro', title: '', content: preamble });
+    }
+  } else if (!firstH2Match) {
+    // No <h2> at all → keep the whole content as a single intro section
+    sections.push({ id: 'intro', title: '', content: htmlContent.trim() });
+    return sections;
+  }
+
+  // 2) Capture every <h2>...</h2> + its body, allowing inline HTML inside the title
+  //    (strong, em, span, emoji wrappers, etc.). Use [\s\S]*? for the title.
+  const sectionRegex = /<h2\b([^>]*)>([\s\S]*?)<\/h2>([\s\S]*?)(?=<h2\b|$)/gi;
+  let match: RegExpExecArray | null;
   let index = 0;
-  
   while ((match = sectionRegex.exec(htmlContent)) !== null) {
-    const id = match[1] || `section-${Date.now()}-${index}`;
-    const title = match[2].trim();
+    const attrs = match[1] || '';
+    const idMatch = attrs.match(/\bid\s*=\s*["']([^"']*)["']/i);
+    const id = (idMatch && idMatch[1]) || `section-${Date.now()}-${index}`;
+    const title = stripHtml(match[2]);
     const content = match[3].trim();
-    
     if (title || content) {
       sections.push({ id, title, content });
       index++;
     }
   }
-  
-  if (sections.length === 0) {
-    const simpleRegex = /<h2[^>]*>([^<]*)<\/h2>([\s\S]*?)(?=<h2|$)/gi;
-    while ((match = simpleRegex.exec(htmlContent)) !== null) {
-      const title = match[1].trim();
-      const content = match[2].trim();
-      
-      if (title || content) {
-        sections.push({
-          id: `section-${Date.now()}-${index}`,
-          title,
-          content
-        });
-        index++;
-      }
-    }
-  }
-  
+
   return sections;
 };
 
@@ -145,13 +160,22 @@ export const sectionsToContent = (sections: GuideSection[]): string => {
   return sections
     .filter(s => s.title.trim() || s.content.trim())
     .map(section => {
-      const sectionId = section.title
+      // Intro / preamble section → no <h2>, just inline its content
+      if (!section.title.trim()) {
+        return section.content;
+      }
+
+      // Preserve existing anchor when it's already a clean slug; otherwise re-derive
+      const derivedId = section.title
         .toLowerCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "") || section.id;
-      
+        .replace(/^-+|-+$/g, "");
+      const sectionId = (section.id && /^[a-z0-9][a-z0-9-]*$/i.test(section.id) && section.id !== 'intro')
+        ? section.id
+        : (derivedId || section.id);
+
       return `<h2 id="${sectionId}">${section.title}</h2>\n${section.content}`;
     })
     .join('\n\n');
