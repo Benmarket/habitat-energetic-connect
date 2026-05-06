@@ -247,6 +247,7 @@ const CreatePost = () => {
           pending={pendingRegeneration}
           onApply={applyRegeneration}
           onDiscard={discardRegeneration}
+          onUpdatePending={updatePendingRegeneration}
         />
 
         <AuthorSelectModal open={authorModalOpen} onOpenChange={setAuthorModalOpen}
