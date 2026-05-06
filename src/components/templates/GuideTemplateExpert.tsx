@@ -61,16 +61,32 @@ export const GuideTemplateExpert = ({
         user_id: user.id,
         method: "direct",
       });
-      toast.success("Téléchargement lancé", { description: "Votre guide arrive…" });
-      window.print();
+      // Pop-up de remerciement (admin-managé) + téléchargement direct
+      window.dispatchEvent(new CustomEvent("trigger-popup", {
+        detail: {
+          triggerId: "guide-download-thanks",
+          guideContext: {
+            id: guide.id, slug: guide.slug, title: guide.title,
+            contentHtml: contentWithIds,
+            featuredImage: guide.featured_image || null,
+            excerpt: guide.excerpt || null,
+            category: category?.name || null,
+          },
+        },
+      }));
       return;
     }
+    // Visiteur non-connecté : popup paywall pour capter le lead, puis téléchargement
     window.dispatchEvent(new CustomEvent("trigger-popup", {
       detail: {
         triggerId: "guide-download",
         guideContext: guide.id ? {
           id: guide.id, slug: guide.slug, title: guide.title,
-          triggerPrintAfterSubmit: true,
+          contentHtml: contentWithIds,
+          featuredImage: guide.featured_image || null,
+          excerpt: guide.excerpt || null,
+          category: category?.name || null,
+          triggerDownloadAfterSubmit: true,
         } : undefined,
       },
     }));
