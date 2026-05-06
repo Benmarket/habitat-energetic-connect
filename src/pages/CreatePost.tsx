@@ -49,7 +49,7 @@ const CreatePost = () => {
     // Full regeneration (guides)
     loadingFullRegen, handleFullRegenerate,
     pendingRegeneration, regenCompareOpen, setRegenCompareOpen,
-    applyRegeneration, discardRegeneration,
+    applyRegeneration, discardRegeneration, updatePendingRegeneration,
   } = useArticleGeneration(
     formData, setFormData, contentType,
     currentAiInstructions, user?.id, { categories, tags }
