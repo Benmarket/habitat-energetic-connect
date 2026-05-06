@@ -1184,6 +1184,32 @@ export default function SitePopup() {
           </div>
         );
       
+      case "guide_download_thanks": {
+        return (
+          <div className="text-center space-y-5 py-4">
+            <div
+              className="mx-auto w-20 h-20 rounded-full flex items-center justify-center animate-[bounceIn_0.6s_ease-out]"
+              style={{ background: `linear-gradient(135deg, ${activePopup.accent_color}, ${activePopup.accent_color}dd)`, boxShadow: `0 10px 40px ${activePopup.accent_color}40` }}
+            >
+              <Download className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold" style={{ color: activePopup.text_color }}>
+              {activePopup.title || "Merci de faire confiance à Prime Énergies !"}
+            </h2>
+            <p className="opacity-80 px-2" style={{ color: activePopup.text_color }}>
+              {activePopup.subtitle || "Votre guide est en cours de téléchargement."}
+            </p>
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium"
+              style={{ backgroundColor: `${activePopup.accent_color}15`, color: activePopup.accent_color }}
+            >
+              <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: activePopup.accent_color }} />
+              Téléchargement {thanksCountdown > 0 ? `dans ${thanksCountdown}s…` : "lancé !"}
+            </div>
+          </div>
+        );
+      }
+
       case "newsletter_success":
         return (
           <div className="relative overflow-hidden">
