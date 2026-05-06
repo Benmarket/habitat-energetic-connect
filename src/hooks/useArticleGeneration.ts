@@ -13,6 +13,7 @@ interface ImagePlaceholder {
   prompt: string;
   title: string;
   caption: string;
+  format?: string;
 }
 
 interface ArticleGenerationOptions {
@@ -69,6 +70,10 @@ export function useArticleGeneration(
         .split('|')
         .map((part) => part.trim());
 
+      const allowedFormats = ['hero', 'wide', 'square', 'inline', 'badge'];
+      const rawFormat = (parts[5] || '').toLowerCase();
+      const format = allowedFormats.includes(rawFormat) ? rawFormat : '';
+
       return {
         raw,
         type: parts[0] || 'illustration',
@@ -76,8 +81,17 @@ export function useArticleGeneration(
         prompt: parts[2] || raw,
         title: parts[3] || '',
         caption: parts[4] || '',
-      };
+        format,
+      } as ImagePlaceholder;
     });
+  };
+
+  const formatStyles: Record<string, { aspect: string; maxWidth: string }> = {
+    hero:   { aspect: '16/9', maxWidth: '100%' },
+    wide:   { aspect: '21/9', maxWidth: '100%' },
+    square: { aspect: '1/1',  maxWidth: '420px' },
+    inline: { aspect: '4/3',  maxWidth: '100%' },
+    badge:  { aspect: '21/9', maxWidth: '100%' },
   };
 
   const buildImageFigureHtml = (url: string, placeholder: ImagePlaceholder) => {
@@ -86,8 +100,17 @@ export function useArticleGeneration(
     const escapedAlt = escapeHtml(altText);
     const escapedTitle = placeholder.title ? escapeHtml(placeholder.title) : '';
     const escapedCaption = placeholder.caption ? escapeHtml(placeholder.caption) : '';
+    const fmt = (placeholder as any).format as string | undefined;
+    const style = fmt && formatStyles[fmt] ? formatStyles[fmt] : null;
+    const figureStyle = style
+      ? `text-align:center;max-width:${style.maxWidth};margin-left:auto;margin-right:auto;`
+      : `text-align: center;`;
+    const imgStyle = style
+      ? `width:100%;aspect-ratio:${style.aspect};object-fit:cover;border-radius:12px;`
+      : `max-width: 100%; height: auto; border-radius: 8px;`;
+    const dataFmt = fmt ? ` data-image-format="${fmt}"` : '';
 
-    return `<figure data-custom-image="" class="custom-image-wrapper my-4" style="text-align: center;"><img src="${escapedUrl}" alt="${escapedAlt}"${escapedTitle ? ` title="${escapedTitle}"` : ''} style="max-width: 100%; height: auto; border-radius: 8px;" />${escapedCaption ? `<figcaption style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem; text-align: center; font-style: italic;">${escapedCaption}</figcaption>` : ''}</figure>`;
+    return `<figure data-custom-image=""${dataFmt} class="custom-image-wrapper my-4" style="${figureStyle}"><img src="${escapedUrl}" alt="${escapedAlt}"${escapedTitle ? ` title="${escapedTitle}"` : ''} style="${imgStyle}" />${escapedCaption ? `<figcaption style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem; text-align: center; font-style: italic;">${escapedCaption}</figcaption>` : ''}</figure>`;
   };
 
   const resolveGeneratedImages = async (html: string, accessToken: string) => {
@@ -98,8 +121,20 @@ export function useArticleGeneration(
       return { contentWithImages, featuredImageUrl: '', generatedCount: 0 };
     }
 
+    const formatHints: Record<string, string> = {
+      hero: 'cadrage horizontal cinéma 16:9, vue large d\'ouverture',
+      wide: 'cadrage panoramique ultra-large 21:9, composition horizontale étirée',
+      square: 'composition carrée 1:1 centrée, sujet unique au centre',
+      inline: 'cadrage horizontal classique 4:3, photo illustrative',
+      badge: 'bandeau horizontal plat 21:9, alignement de pictogrammes/badges/icônes sur fond clair épuré, style infographie premium',
+    };
+    const enrichedPrompts = placeholders.map((p) => {
+      const hint = p.format && formatHints[p.format] ? ` — ${formatHints[p.format]}` : '';
+      return `${p.prompt}${hint}`;
+    });
+
     const { data: imgData, error: imgError } = await supabase.functions.invoke('generate-images', {
-      body: { imageDescriptions: placeholders.map((placeholder) => placeholder.prompt) },
+      body: { imageDescriptions: enrichedPrompts },
       headers: { Authorization: `Bearer ${accessToken}` }
     });
 

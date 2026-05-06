@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface TOCItem {
   id: string;
@@ -128,6 +129,7 @@ export function GuideStickyNav({
         user_id: user.id,
         method: "direct",
       });
+      toast.success("Téléchargement lancé", { description: "Votre guide arrive…" });
       window.print();
       return;
     }
