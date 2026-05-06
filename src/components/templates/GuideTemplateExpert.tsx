@@ -13,6 +13,7 @@ import { transformCtaBannersInHtml } from "@/utils/contentRenderer";
 
 interface GuideTemplateExpertProps {
   guide: {
+    id?: string;
     title: string;
     slug: string;
     excerpt?: string;
@@ -45,8 +46,35 @@ export const GuideTemplateExpert = ({
   isPaywalled = false,
 }: GuideTemplateExpertProps) => {
   const category = guide.post_categories?.[0]?.categories;
-  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+  const { user } = useAuth();
   const { activeId, scrollProgress, scrollToSection } = useActiveSection(toc);
+
+  const handleDownload = async () => {
+    if (user && guide.id) {
+      await supabase.from("guide_downloads").insert({
+        guide_id: guide.id,
+        guide_slug: guide.slug,
+        guide_title: guide.title,
+        email: user.email || "",
+        first_name: (user.user_metadata as any)?.first_name || null,
+        last_name: (user.user_metadata as any)?.last_name || null,
+        user_id: user.id,
+        method: "direct",
+      });
+      toast.success("Téléchargement lancé", { description: "Votre guide arrive…" });
+      window.print();
+      return;
+    }
+    window.dispatchEvent(new CustomEvent("trigger-popup", {
+      detail: {
+        triggerId: "guide-download",
+        guideContext: guide.id ? {
+          id: guide.id, slug: guide.slug, title: guide.title,
+          triggerPrintAfterSubmit: true,
+        } : undefined,
+      },
+    }));
+  };
   
   const activeIndex = toc.findIndex(item => item.id === activeId);
   
