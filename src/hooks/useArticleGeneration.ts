@@ -13,6 +13,7 @@ interface ImagePlaceholder {
   prompt: string;
   title: string;
   caption: string;
+  format?: string;
 }
 
 interface ArticleGenerationOptions {
