@@ -442,15 +442,18 @@ export default function SitePopup() {
         toast.success("Merci ! Votre guide arrive…");
 
         // 3. Si on doit déclencher l'impression PDF (cas bouton "Télécharger PDF")
-        const shouldPrint = guideContext?.triggerPrintAfterSubmit;
-        const shouldUnlock = !shouldPrint; // cas paywall : déverrouille
+        const shouldDownload = guideContext?.triggerDownloadAfterSubmit || guideContext?.triggerPrintAfterSubmit;
+        const shouldUnlock = !shouldDownload;
         const guideId = guideContext?.id;
+        const gc = guideContext;
         setTimeout(() => {
           handleClose();
-          if (shouldPrint) {
-            window.print();
+          if (shouldDownload && gc?.contentHtml) {
+            downloadGuideAsHtml({
+              title: gc.title, slug: gc.slug, contentHtml: gc.contentHtml,
+              featuredImage: gc.featuredImage, excerpt: gc.excerpt, category: gc.category,
+            });
           } else if (shouldUnlock && guideId) {
-            // Notifier la page guide pour déverrouiller le paywall
             window.dispatchEvent(new CustomEvent("guide-unlocked", { detail: { guideId } }));
           }
         }, 1500);
