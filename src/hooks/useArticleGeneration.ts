@@ -636,5 +636,7 @@ export function useArticleGeneration(
     loadingFullRegen, handleFullRegenerate,
     pendingRegeneration, regenCompareOpen, setRegenCompareOpen,
     applyRegeneration, discardRegeneration,
+    updatePendingRegeneration: (patch: any) =>
+      setPendingRegeneration((prev: any) => prev ? { ...prev, ...patch } : prev),
   };
 }
