@@ -129,6 +129,7 @@ export function GuideStickyNav({
         user_id: user.id,
         method: "direct",
       });
+      toast.success("Téléchargement lancé", { description: "Votre guide arrive…" });
       window.print();
       return;
     }
