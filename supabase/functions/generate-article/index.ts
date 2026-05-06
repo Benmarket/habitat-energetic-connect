@@ -787,7 +787,7 @@ Retourne UNIQUEMENT le HTML.`;
       // ─────────────────────────────────────────────
       const hasPlaceholders = /\[IMAGE:[^\]]+\]/.test(content);
       if (!hasPlaceholders) {
-        const targetCount = contentType === 'guide' ? 4 : 2;
+        const targetCount = contentType === 'guide' ? 6 : 2;
         const h2Matches = [...content.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/gi)];
         const titleText = (selectedAngle?.title || subject || product || 'rénovation énergétique').toString();
 
@@ -799,14 +799,21 @@ Retourne UNIQUEMENT le HTML.`;
             `Mise en situation concrète d'un foyer français bénéficiant de "${cleanSection}" dans le cadre de "${titleText}", intérieur lumineux contemporain, personnes naturelles souriantes, ambiance chaleureuse réaliste, lumière douce du matin, style photo de presse magazine habitat`,
             `Infographie minimaliste sur fond blanc expliquant visuellement "${cleanSection}" dans le contexte "${titleText}", icônes flat design vertes et bleues, flèches directionnelles, chiffres clés annotés, style graphique épuré professionnel français, lisibilité maximale`,
             `Schéma technique illustré clair et pédagogique de "${cleanSection}" pour "${titleText}", vue isométrique colorée, composants étiquetés sobrement, fond gradient pastel, style infographie éditoriale professionnelle, design moderne et accessible`,
+            `Bandeau horizontal de badges et certifications pertinents pour "${cleanSection}" dans le contexte "${titleText}", icônes plates alignées sur fond clair, style infographie premium éditoriale, palette verte et bleue sobre`,
           ];
           return styles[idx % styles.length];
         };
 
+        // GUIDE only: vary formats. Articles stay on default (no FORMAT field).
+        const formats = contentType === 'guide'
+          ? ['hero', 'inline', 'wide', 'square', 'inline', 'badge', 'wide']
+          : [];
+
         const buildPlaceholder = (sectionTitle: string, idx: number) => {
           const clean = sectionTitle.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 80) || `Illustration ${idx + 1}`;
-          const types = ['Mise en situation', 'Vue détail', 'Mise en situation humaine', 'Schéma explicatif', 'Infographie'];
-          return `[IMAGE:${types[idx % types.length]}|Illustrer la section "${clean}"|${buildPrompt(sectionTitle, idx)}|${clean}|Illustration : ${clean}]`;
+          const types = ['Mise en situation', 'Vue détail', 'Mise en situation humaine', 'Schéma explicatif', 'Infographie', 'Bandeau badges'];
+          const formatField = contentType === 'guide' ? `|${formats[idx] || 'inline'}` : '';
+          return `[IMAGE:${types[idx % types.length]}|Illustrer la section "${clean}"|${buildPrompt(sectionTitle, idx)}|${clean}|Illustration : ${clean}${formatField}]`;
         };
 
         // 1) Hero image at the very top (before first <h2> or at content start)
@@ -825,10 +832,7 @@ Retourne UNIQUEMENT le HTML.`;
           for (let i = 0; i < sectionsToIllustrate.length; i++) {
             const match = sectionsToIllustrate[i];
             const placeholder = buildPlaceholder(match[1], i + 1);
-            // Insert AFTER the closing </h2> of the matched section
             const fullTag = match[0];
-            const insertionToken = `${fullTag}__IMG_INJECT_${i}__`;
-            // Replace only the FIRST occurrence of this exact h2 to avoid collisions
             const idx = content.indexOf(fullTag);
             if (idx > -1) {
               content = content.slice(0, idx + fullTag.length) + `\n${placeholder}\n` + content.slice(idx + fullTag.length);
@@ -836,7 +840,7 @@ Retourne UNIQUEMENT le HTML.`;
           }
         }
 
-        console.log(`[generate-article] Auto-injected ${targetCount} image placeholders (model skipped images)`);
+        console.log(`[generate-article] Auto-injected ${targetCount} image placeholders (model skipped images, contentType=${contentType})`);
       }
 
       // ─────────────────────────────────────────────
