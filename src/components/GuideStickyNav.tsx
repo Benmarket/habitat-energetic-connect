@@ -118,7 +118,6 @@ export function GuideStickyNav({
 
   const handleDownload = async () => {
     if (user && guide) {
-      // Membre connecté : log direct + impression PDF (rendu identique au web)
       await supabase.from("guide_downloads").insert({
         guide_id: guide.id,
         guide_slug: guide.slug,
@@ -129,19 +128,20 @@ export function GuideStickyNav({
         user_id: user.id,
         method: "direct",
       });
-      toast.success("Téléchargement lancé", { description: "Votre guide arrive…" });
-      window.print();
+      window.dispatchEvent(new CustomEvent("trigger-popup", {
+        detail: {
+          triggerId: "guide-download-thanks",
+          guideContext: { id: guide.id, slug: guide.slug, title: guide.title },
+        },
+      }));
       return;
     }
-    // Visiteur non-connecté : popup pour capter le lead, puis print
     window.dispatchEvent(new CustomEvent("trigger-popup", {
       detail: {
         triggerId: "guide-download",
         guideContext: guide ? {
-          id: guide.id,
-          slug: guide.slug,
-          title: guide.title,
-          triggerPrintAfterSubmit: true,
+          id: guide.id, slug: guide.slug, title: guide.title,
+          triggerDownloadAfterSubmit: true,
         } : undefined,
       },
     }));

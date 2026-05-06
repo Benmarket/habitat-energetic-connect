@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { X, Mail, Sparkles, CheckCircle2, FileText } from "lucide-react";
+import { X, Mail, Sparkles, CheckCircle2, FileText, Download } from "lucide-react";
+import { downloadGuideAsHtml } from "@/utils/downloadGuide";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -68,8 +69,14 @@ export default function SitePopup() {
     id: string;
     slug: string;
     title: string;
+    contentHtml?: string;
+    featuredImage?: string | null;
+    excerpt?: string | null;
+    category?: string | null;
     triggerPrintAfterSubmit?: boolean;
+    triggerDownloadAfterSubmit?: boolean;
   } | null>(null);
+  const [thanksCountdown, setThanksCountdown] = useState(3);
 
   // Capture attribution from URL params
   const urlParams = new URLSearchParams(location.search);
@@ -311,8 +318,29 @@ export default function SitePopup() {
       setParcoursStep("main");
       setAttribution({});
       setGuideContext(null);
+      setThanksCountdown(3);
     }, 300);
   };
+
+  // Countdown + auto download for "guide_download_thanks" template
+  useEffect(() => {
+    if (!isVisible || activePopup?.template !== "guide_download_thanks") return;
+    setThanksCountdown(3);
+    const gc = guideContext;
+    const interval = setInterval(() => {
+      setThanksCountdown((c) => (c > 0 ? c - 1 : 0));
+    }, 1000);
+    const dlTimer = setTimeout(() => {
+      if (gc?.contentHtml) {
+        downloadGuideAsHtml({
+          title: gc.title, slug: gc.slug, contentHtml: gc.contentHtml,
+          featuredImage: gc.featuredImage, excerpt: gc.excerpt, category: gc.category,
+        });
+      }
+    }, 3000);
+    const closeTimer = setTimeout(() => handleClose(), 5000);
+    return () => { clearInterval(interval); clearTimeout(dlTimer); clearTimeout(closeTimer); };
+  }, [isVisible, activePopup?.template, guideContext]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -435,15 +463,18 @@ export default function SitePopup() {
         toast.success("Merci ! Votre guide arrive…");
 
         // 3. Si on doit déclencher l'impression PDF (cas bouton "Télécharger PDF")
-        const shouldPrint = guideContext?.triggerPrintAfterSubmit;
-        const shouldUnlock = !shouldPrint; // cas paywall : déverrouille
+        const shouldDownload = guideContext?.triggerDownloadAfterSubmit || guideContext?.triggerPrintAfterSubmit;
+        const shouldUnlock = !shouldDownload;
         const guideId = guideContext?.id;
+        const gc = guideContext;
         setTimeout(() => {
           handleClose();
-          if (shouldPrint) {
-            window.print();
+          if (shouldDownload && gc?.contentHtml) {
+            downloadGuideAsHtml({
+              title: gc.title, slug: gc.slug, contentHtml: gc.contentHtml,
+              featuredImage: gc.featuredImage, excerpt: gc.excerpt, category: gc.category,
+            });
           } else if (shouldUnlock && guideId) {
-            // Notifier la page guide pour déverrouiller le paywall
             window.dispatchEvent(new CustomEvent("guide-unlocked", { detail: { guideId } }));
           }
         }, 1500);
@@ -1174,6 +1205,32 @@ export default function SitePopup() {
           </div>
         );
       
+      case "guide_download_thanks": {
+        return (
+          <div className="text-center space-y-5 py-4">
+            <div
+              className="mx-auto w-20 h-20 rounded-full flex items-center justify-center animate-[bounceIn_0.6s_ease-out]"
+              style={{ background: `linear-gradient(135deg, ${activePopup.accent_color}, ${activePopup.accent_color}dd)`, boxShadow: `0 10px 40px ${activePopup.accent_color}40` }}
+            >
+              <Download className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold" style={{ color: activePopup.text_color }}>
+              {activePopup.title || "Merci de faire confiance à Prime Énergies !"}
+            </h2>
+            <p className="opacity-80 px-2" style={{ color: activePopup.text_color }}>
+              {activePopup.subtitle || "Votre guide est en cours de téléchargement."}
+            </p>
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium"
+              style={{ backgroundColor: `${activePopup.accent_color}15`, color: activePopup.accent_color }}
+            >
+              <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: activePopup.accent_color }} />
+              Téléchargement {thanksCountdown > 0 ? `dans ${thanksCountdown}s…` : "lancé !"}
+            </div>
+          </div>
+        );
+      }
+
       case "newsletter_success":
         return (
           <div className="relative overflow-hidden">
