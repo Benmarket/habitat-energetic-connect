@@ -519,14 +519,14 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
    IMPORTANT: Le contenu texte de ce bloc "En résumé" (TL;DR) ne doit PAS dépasser 500 caractères au total (tous les <li> combinés).
    Ce bloc doit contenir les réponses directes aux questions principales — c'est ce que les IA citeront.
 
-3. Introduction (150-200 mots) — Commencer par la VRAIE QUESTION que se pose l'internaute. Montrer qu'on comprend son problème. Promettre une réponse concrète, pas du blabla.
+3. Introduction ${contentType === 'guide' ? '(300-400 mots)' : '(150-200 mots)'} — Commencer par la VRAIE QUESTION que se pose l'internaute. Montrer qu'on comprend son problème. Promettre une réponse concrète, pas du blabla.${contentType === 'guide' ? ' Pour un guide premium : poser le contexte, les enjeux, à qui s\'adresse le guide, ce qu\'on va y trouver, et un aperçu chiffré de ce que ça représente.' : ''}
 
-4. Sections H2/H3 (4-7 sections) — CHAQUE section doit :
+4. Sections H2/H3 ${contentType === 'guide' ? '(8 à 12 sections H2 OBLIGATOIRES, chacune avec 2-3 sous-sections H3)' : '(4-7 sections)'} — CHAQUE section doit :
    - Avoir un H2 formulé comme une question ou problématique réelle (pas "Les avantages de X", mais "Combien économise-t-on réellement avec X ?")
    - Commencer par une RÉPONSE DIRECTE en 1-2 phrases (pour les extraits IA/featured snippets)
    - Contenir des données chiffrées SOURCÉES et DATÉES
    - Inclure au moins UN élément qu'on ne trouve pas facilement ailleurs (calcul concret, piège méconnu, retour terrain)
-   - 200-350 mots par section
+   - ${contentType === 'guide' ? '450 à 650 mots par section H2 (sous-sections H3 incluses) — un guide premium DOIT être exhaustif, développer chaque point avec exemples concrets, cas chiffrés, retours terrain, mises en garde, alternatives' : '200-350 mots par section'}
 
 5. [BUTTON:CTA] — Call-to-action stratégiquement placés (2-3 dans l'article) avec des messages VARIÉS et contextuels
 
