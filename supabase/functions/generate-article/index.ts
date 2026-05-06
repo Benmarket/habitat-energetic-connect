@@ -1453,7 +1453,76 @@ Retourne UNIQUEMENT le prompt, rien d'autre.` },
       );
     }
 
-    throw new Error(`Mode inconnu: ${mode}. Utilisez "angles", "article", "review", "review_fix" ou "image_prompt".`);
+    // ══════════════════════════════════════════
+    // MODE: EDIT_PENDING_GUIDE — Free-text refinement of a pending guide
+    // The user describes what they want changed in natural language.
+    // Returns the full updated HTML, preserving all interactive elements.
+    // ══════════════════════════════════════════
+    if (mode === 'edit_pending_guide') {
+      const { content: editContent, title: editTitle, userInstruction } = body;
+      if (!editContent) throw new Error('Contenu requis');
+      if (!userInstruction || !userInstruction.trim()) throw new Error('Instruction requise');
+
+      const editPrompt = `Tu es un rédacteur expert en énergies renouvelables. Tu dois MODIFIER un guide HTML existant en suivant STRICTEMENT les instructions de l'utilisateur.
+
+DATE: ${todayDate}
+TITRE: ${editTitle || 'Sans titre'}
+
+═══════════════════════════════════════
+INSTRUCTION DE L'UTILISATEUR (PRIORITÉ ABSOLUE)
+═══════════════════════════════════════
+${userInstruction}
+
+═══════════════════════════════════════
+RÈGLES STRICTES
+═══════════════════════════════════════
+- Retourne le HTML COMPLET modifié (pas seulement les morceaux changés).
+- CONSERVE tous les éléments interactifs existants : data-custom-button, data-custom-image, data-cta-banner, <table>.
+- N'ajoute aucun [BUTTON:...] ou [CTA_BANNER:...] nouveau (on garde l'existant).
+- Tu PEUX modifier les attributs data-title, data-subtitle, data-button-text, data-bg-color, data-secondary-color, data-accent-color des bannières CTA si l'utilisateur le demande (ex: "couleurs dégradé DPE", "mets en avant X").
+- Tu PEUX ajouter/déplacer/réécrire du texte, ajouter ou modifier des H2/H3/<table>/<ul>/<ol> selon la demande.
+- Garde le style éditorial premium (gras stratégiques, listes, exemples concrets).
+- Pas de balises <html>/<head>/<body>, juste le HTML interne du guide.
+
+HTML ACTUEL DU GUIDE:
+${editContent}
+
+Retourne UNIQUEMENT le HTML modifié, sans markdown, sans \`\`\`, sans commentaire.`;
+
+      const editResponse = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
+        body: JSON.stringify({
+          model,
+          max_tokens: 16000,
+          temperature: 0.6,
+          messages: [
+            { role: 'system', content: 'Tu modifies un guide HTML en suivant à la lettre les instructions utilisateur. Tu retournes uniquement le HTML final.' },
+            { role: 'user', content: editPrompt }
+          ]
+        })
+      });
+
+      if (!editResponse.ok) {
+        const errTxt = await editResponse.text();
+        throw new Error(`Erreur édition guide: ${editResponse.status} ${errTxt}`);
+      }
+      const editData = await editResponse.json();
+      let editedHtml = editData.choices?.[0]?.message?.content?.trim() || '';
+      editedHtml = editedHtml.replace(/^```html\s*/i, '').replace(/```\s*$/i, '').trim();
+
+      const editUsage = editData.usage || {};
+      const inputTokens = editUsage.prompt_tokens || 0;
+      const outputTokens = editUsage.completion_tokens || 0;
+      const editCost = (inputTokens / 1_000_000) * 0.30 + (outputTokens / 1_000_000) * 2.50;
+
+      return new Response(
+        JSON.stringify({ success: true, editedContent: editedHtml, editCost, usage: editUsage }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      );
+    }
+
+    throw new Error(`Mode inconnu: ${mode}. Utilisez "angles", "article", "review", "review_fix", "edit_pending_guide" ou "image_prompt".`);
 
   } catch (error) {
     console.error('Error in generate-article:', error);
