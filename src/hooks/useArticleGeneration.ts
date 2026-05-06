@@ -121,8 +121,20 @@ export function useArticleGeneration(
       return { contentWithImages, featuredImageUrl: '', generatedCount: 0 };
     }
 
+    const formatHints: Record<string, string> = {
+      hero: 'cadrage horizontal cinéma 16:9, vue large d\'ouverture',
+      wide: 'cadrage panoramique ultra-large 21:9, composition horizontale étirée',
+      square: 'composition carrée 1:1 centrée, sujet unique au centre',
+      inline: 'cadrage horizontal classique 4:3, photo illustrative',
+      badge: 'bandeau horizontal plat 21:9, alignement de pictogrammes/badges/icônes sur fond clair épuré, style infographie premium',
+    };
+    const enrichedPrompts = placeholders.map((p) => {
+      const hint = p.format && formatHints[p.format] ? ` — ${formatHints[p.format]}` : '';
+      return `${p.prompt}${hint}`;
+    });
+
     const { data: imgData, error: imgError } = await supabase.functions.invoke('generate-images', {
-      body: { imageDescriptions: placeholders.map((placeholder) => placeholder.prompt) },
+      body: { imageDescriptions: enrichedPrompts },
       headers: { Authorization: `Bearer ${accessToken}` }
     });
 
