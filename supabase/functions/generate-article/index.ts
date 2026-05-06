@@ -535,21 +535,21 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
 7. <h2>Questions fréquentes</h2>
     <div class="faq-item"><h3>Question ?</h3><p>Réponse.</p></div>
     RÈGLES FAQ CRITIQUES :
-    - EXACTEMENT 4-5 questions (pas plus, pas moins). Sélectionner les MEILLEURES questions à fort potentiel de conversion.
+    - ${contentType === 'guide' ? 'EXACTEMENT 8 à 10 questions (un guide premium doit couvrir un large spectre)' : 'EXACTEMENT 4-5 questions (pas plus, pas moins)'}. Sélectionner les MEILLEURES questions à fort potentiel de conversion.
     - Formulées EXACTEMENT comme un internaute les taperait sur Google ou demanderait à ChatGPT
     - Inclure les questions "gênantes" que les concurrents évitent (ex: "Est-ce que ça vaut vraiment le coup ?", "Quels sont les vrais inconvénients ?")
     - Réponses factuelles, précises, avec chiffres quand possible
     - Au moins 1 question doit aborder un aspect NÉGATIF ou une LIMITE (honnêteté = crédibilité)
-    - Chaque réponse : 50-80 mots (concis et impactant)
+    - Chaque réponse : ${contentType === 'guide' ? '120-180 mots (développées, avec exemples)' : '50-80 mots (concis et impactant)'}
     - ⚠️ NE PAS ajouter de questions FAQ ailleurs dans l'article. TOUTES les questions doivent être dans cette UNIQUE section FAQ.
 
 8. <h2>Sources et références</h2>
    - Citer des sources VÉRIFIABLES et OFFICIELLES (ADEME, France Rénov, Journal Officiel, INSEE, etc.)
    - Donner les URLs complètes quand possible
-   - Minimum 3 sources distinctes
+   - Minimum ${contentType === 'guide' ? '6' : '3'} sources distinctes
    - Dater chaque source
 
-9. Conclusion (100-150 mots) — Synthèse actionnable + passage à l'action CLAIR
+9. Conclusion ${contentType === 'guide' ? '(250-350 mots)' : '(100-150 mots)'} — Synthèse actionnable + passage à l'action CLAIR
 
 ═══════════════════════════════════════════
 STRATÉGIE D'IMAGES (PERTINENCE > QUANTITÉ)
