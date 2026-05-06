@@ -294,7 +294,7 @@ export const GuideTemplateExpert = ({
                     <Button 
                       size="lg" 
                       className="bg-emerald-500 hover:bg-emerald-600 text-white gap-2 font-bold"
-                      onClick={() => setDownloadModalOpen(true)}
+                      onClick={handleDownload}
                     >
                       <Download className="w-5 h-5" />
                       Télécharger PDF
@@ -306,12 +306,6 @@ export const GuideTemplateExpert = ({
           </div>
         </div>
       </article>
-
-      <GuideDownloadModal
-        open={downloadModalOpen}
-        onOpenChange={setDownloadModalOpen}
-        guideTitle={guide.title}
-      />
     </main>
   );
 };
