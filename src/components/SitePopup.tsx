@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { X, Mail, Sparkles, CheckCircle2, FileText } from "lucide-react";
+import { X, Mail, Sparkles, CheckCircle2, FileText, Download } from "lucide-react";
+import { downloadGuideAsHtml } from "@/utils/downloadGuide";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -68,8 +69,14 @@ export default function SitePopup() {
     id: string;
     slug: string;
     title: string;
+    contentHtml?: string;
+    featuredImage?: string | null;
+    excerpt?: string | null;
+    category?: string | null;
     triggerPrintAfterSubmit?: boolean;
+    triggerDownloadAfterSubmit?: boolean;
   } | null>(null);
+  const [thanksCountdown, setThanksCountdown] = useState(3);
 
   // Capture attribution from URL params
   const urlParams = new URLSearchParams(location.search);
