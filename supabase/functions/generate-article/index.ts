@@ -519,14 +519,14 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
    IMPORTANT: Le contenu texte de ce bloc "En résumé" (TL;DR) ne doit PAS dépasser 500 caractères au total (tous les <li> combinés).
    Ce bloc doit contenir les réponses directes aux questions principales — c'est ce que les IA citeront.
 
-3. Introduction (150-200 mots) — Commencer par la VRAIE QUESTION que se pose l'internaute. Montrer qu'on comprend son problème. Promettre une réponse concrète, pas du blabla.
+3. Introduction ${contentType === 'guide' ? '(300-400 mots)' : '(150-200 mots)'} — Commencer par la VRAIE QUESTION que se pose l'internaute. Montrer qu'on comprend son problème. Promettre une réponse concrète, pas du blabla.${contentType === 'guide' ? ' Pour un guide premium : poser le contexte, les enjeux, à qui s\'adresse le guide, ce qu\'on va y trouver, et un aperçu chiffré de ce que ça représente.' : ''}
 
-4. Sections H2/H3 (4-7 sections) — CHAQUE section doit :
+4. Sections H2/H3 ${contentType === 'guide' ? '(8 à 12 sections H2 OBLIGATOIRES, chacune avec 2-3 sous-sections H3)' : '(4-7 sections)'} — CHAQUE section doit :
    - Avoir un H2 formulé comme une question ou problématique réelle (pas "Les avantages de X", mais "Combien économise-t-on réellement avec X ?")
    - Commencer par une RÉPONSE DIRECTE en 1-2 phrases (pour les extraits IA/featured snippets)
    - Contenir des données chiffrées SOURCÉES et DATÉES
    - Inclure au moins UN élément qu'on ne trouve pas facilement ailleurs (calcul concret, piège méconnu, retour terrain)
-   - 200-350 mots par section
+   - ${contentType === 'guide' ? '450 à 650 mots par section H2 (sous-sections H3 incluses) — un guide premium DOIT être exhaustif, développer chaque point avec exemples concrets, cas chiffrés, retours terrain, mises en garde, alternatives' : '200-350 mots par section'}
 
 5. [BUTTON:CTA] — Call-to-action stratégiquement placés (2-3 dans l'article) avec des messages VARIÉS et contextuels
 
@@ -535,21 +535,21 @@ STRUCTURE OBLIGATOIRE (suivre cet ordre)
 7. <h2>Questions fréquentes</h2>
     <div class="faq-item"><h3>Question ?</h3><p>Réponse.</p></div>
     RÈGLES FAQ CRITIQUES :
-    - EXACTEMENT 4-5 questions (pas plus, pas moins). Sélectionner les MEILLEURES questions à fort potentiel de conversion.
+    - ${contentType === 'guide' ? 'EXACTEMENT 8 à 10 questions (un guide premium doit couvrir un large spectre)' : 'EXACTEMENT 4-5 questions (pas plus, pas moins)'}. Sélectionner les MEILLEURES questions à fort potentiel de conversion.
     - Formulées EXACTEMENT comme un internaute les taperait sur Google ou demanderait à ChatGPT
     - Inclure les questions "gênantes" que les concurrents évitent (ex: "Est-ce que ça vaut vraiment le coup ?", "Quels sont les vrais inconvénients ?")
     - Réponses factuelles, précises, avec chiffres quand possible
     - Au moins 1 question doit aborder un aspect NÉGATIF ou une LIMITE (honnêteté = crédibilité)
-    - Chaque réponse : 50-80 mots (concis et impactant)
+    - Chaque réponse : ${contentType === 'guide' ? '120-180 mots (développées, avec exemples)' : '50-80 mots (concis et impactant)'}
     - ⚠️ NE PAS ajouter de questions FAQ ailleurs dans l'article. TOUTES les questions doivent être dans cette UNIQUE section FAQ.
 
 8. <h2>Sources et références</h2>
    - Citer des sources VÉRIFIABLES et OFFICIELLES (ADEME, France Rénov, Journal Officiel, INSEE, etc.)
    - Donner les URLs complètes quand possible
-   - Minimum 3 sources distinctes
+   - Minimum ${contentType === 'guide' ? '6' : '3'} sources distinctes
    - Dater chaque source
 
-9. Conclusion (100-150 mots) — Synthèse actionnable + passage à l'action CLAIR
+9. Conclusion ${contentType === 'guide' ? '(250-350 mots)' : '(100-150 mots)'} — Synthèse actionnable + passage à l'action CLAIR
 
 ═══════════════════════════════════════════
 STRATÉGIE D'IMAGES (PERTINENCE > QUANTITÉ)
@@ -634,7 +634,10 @@ RÈGLES GÉNÉRALES
 • Entre 2 et 4 [IMAGE:...] intelligemment placés selon la stratégie (pertinence > quantité)${contentType === 'guide' ? ' — pour un GUIDE PREMIUM, vise 3 à 5 images réparties sur tout le contenu.' : ''}
 • HTML pur (<p>, <ul>, <h2>, <h3>, <table>). Jamais de markdown.
 • ${contentType === 'guide'
-  ? `🟢 LONGUEUR GUIDE PREMIUM : 4000 à 6000 mots (OBLIGATOIRE — un guide < 4000 mots est REJETÉ). Le guide doit être la référence définitive sur le sujet — un lecteur ne doit avoir BESOIN d'aucun autre article pour passer à l'action.`
+  ? `🟢 LONGUEUR GUIDE PREMIUM : 4000 à 6000 mots STRICT (OBLIGATOIRE — un guide < 4000 mots est REJETÉ et tu devras tout recommencer). 
+  ⚠️ AUTO-CONTRÔLE AVANT DE RENDRE : compte mentalement tes mots. Si tu es en dessous de 4000, RALLONGE chaque section avec : exemples chiffrés supplémentaires, mini études de cas, tableaux comparatifs additionnels, retours terrain, mises en garde, alternatives, questions implicites du lecteur. 
+  RÉPARTITION CIBLE : intro 350 + 9 sections × 550 + FAQ 9×150 + sources 200 + conclusion 300 ≈ 5200 mots.
+  Le guide doit être la référence définitive sur le sujet — un lecteur ne doit avoir BESOIN d'aucun autre article pour passer à l'action.`
   : '1500-2200 mots — assez long pour être exhaustif, assez concis pour garder l\'attention'}
 • Style direct, impactant, zéro blabla — chaque phrase doit APPORTER quelque chose
 • Chaque section sert l'objectif lead ET répond à une vraie question
@@ -679,8 +682,8 @@ Retourne UNIQUEMENT le HTML.`;
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
         body: JSON.stringify({
-          // Guides premium = contenu long (4-6k mots) → tokens augmentés
-          model, max_tokens: contentType === 'guide' ? 16000 : 8192,
+          // Guides premium = contenu long (4-6k mots ≈ 8-10k tokens FR + HTML) → tokens largement augmentés
+          model, max_tokens: contentType === 'guide' ? 24000 : 8192,
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: `Rédige l'article complet avec l'angle [${selectedAngle.type}]: "${selectedAngle.title}"` }
