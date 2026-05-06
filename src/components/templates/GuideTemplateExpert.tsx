@@ -1,11 +1,13 @@
-import { ReactNode, useState, useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, ArrowLeft, Tag, BookOpen, Lightbulb, CheckCircle, Download, ChevronRight, Terminal } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { GuideDownloadModal } from "@/components/GuideDownloadModal";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { useActiveSection } from "@/hooks/useActiveSection";
 import { transformCtaBannersInHtml } from "@/utils/contentRenderer";
 
