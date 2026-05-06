@@ -318,8 +318,29 @@ export default function SitePopup() {
       setParcoursStep("main");
       setAttribution({});
       setGuideContext(null);
+      setThanksCountdown(3);
     }, 300);
   };
+
+  // Countdown + auto download for "guide_download_thanks" template
+  useEffect(() => {
+    if (!isVisible || activePopup?.template !== "guide_download_thanks") return;
+    setThanksCountdown(3);
+    const gc = guideContext;
+    const interval = setInterval(() => {
+      setThanksCountdown((c) => (c > 0 ? c - 1 : 0));
+    }, 1000);
+    const dlTimer = setTimeout(() => {
+      if (gc?.contentHtml) {
+        downloadGuideAsHtml({
+          title: gc.title, slug: gc.slug, contentHtml: gc.contentHtml,
+          featuredImage: gc.featuredImage, excerpt: gc.excerpt, category: gc.category,
+        });
+      }
+    }, 3000);
+    const closeTimer = setTimeout(() => handleClose(), 5000);
+    return () => { clearInterval(interval); clearTimeout(dlTimer); clearTimeout(closeTimer); };
+  }, [isVisible, activePopup?.template, guideContext]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
