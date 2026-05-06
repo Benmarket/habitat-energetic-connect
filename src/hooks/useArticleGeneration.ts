@@ -284,7 +284,10 @@ export function useArticleGeneration(
     };
 
     const semanticRules = [
-      { terms: ['solaire', 'photovolt', 'panneau', 'batterie', 'autoconsommation', 'edf-oa', 'surplus'], slugs: ['solaire', 'photovoltaique', 'electricite'] },
+      // Éclairage / LED → Économies d'énergie (prioritaire avant solaire)
+      { terms: ['led', 'eclairage', 'ampoule', 'luminaire', 'lampe', 'lumiere', 'tube-fluo', 'halogene'], slugs: ['economies-energie', 'economies-d-energie', 'electricite'] },
+      { terms: ['solaire', 'photovolt', 'panneau-solaire', 'autoconsommation', 'edf-oa', 'surplus'], slugs: ['solaire', 'photovoltaique', 'electricite'] },
+      { terms: ['batterie', 'stockage'], slugs: ['solaire', 'electricite'] },
       { terms: ['pompe-a-chaleur', 'pac', 'air-eau', 'air-air'], slugs: ['pompe-a-chaleur'] },
       { terms: ['isolation', 'combles', 'ite', 'toiture'], slugs: ['isolation'] },
       { terms: ['ventilation', 'vmc', 'double-flux'], slugs: ['ventilation'] },
