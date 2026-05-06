@@ -634,7 +634,10 @@ RÈGLES GÉNÉRALES
 • Entre 2 et 4 [IMAGE:...] intelligemment placés selon la stratégie (pertinence > quantité)${contentType === 'guide' ? ' — pour un GUIDE PREMIUM, vise 3 à 5 images réparties sur tout le contenu.' : ''}
 • HTML pur (<p>, <ul>, <h2>, <h3>, <table>). Jamais de markdown.
 • ${contentType === 'guide'
-  ? `🟢 LONGUEUR GUIDE PREMIUM : 4000 à 6000 mots (OBLIGATOIRE — un guide < 4000 mots est REJETÉ). Le guide doit être la référence définitive sur le sujet — un lecteur ne doit avoir BESOIN d'aucun autre article pour passer à l'action.`
+  ? `🟢 LONGUEUR GUIDE PREMIUM : 4000 à 6000 mots STRICT (OBLIGATOIRE — un guide < 4000 mots est REJETÉ et tu devras tout recommencer). 
+  ⚠️ AUTO-CONTRÔLE AVANT DE RENDRE : compte mentalement tes mots. Si tu es en dessous de 4000, RALLONGE chaque section avec : exemples chiffrés supplémentaires, mini études de cas, tableaux comparatifs additionnels, retours terrain, mises en garde, alternatives, questions implicites du lecteur. 
+  RÉPARTITION CIBLE : intro 350 + 9 sections × 550 + FAQ 9×150 + sources 200 + conclusion 300 ≈ 5200 mots.
+  Le guide doit être la référence définitive sur le sujet — un lecteur ne doit avoir BESOIN d'aucun autre article pour passer à l'action.`
   : '1500-2200 mots — assez long pour être exhaustif, assez concis pour garder l\'attention'}
 • Style direct, impactant, zéro blabla — chaque phrase doit APPORTER quelque chose
 • Chaque section sert l'objectif lead ET répond à une vraie question
