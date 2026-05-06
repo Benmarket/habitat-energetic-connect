@@ -569,15 +569,25 @@ TYPES D'IMAGES possibles (choisis le plus adapté) :
 
 RÈGLES IMAGES :
 - Maximum 1 image par section (pas plus)
-- Entre 2 et 4 images TOTAL dans l'article (pas systématiquement 3)
-- Chaque image doit être RADICALEMENT DIFFÉRENTE des autres (cadrage, sujet, type)
+- ${contentType === 'guide' ? 'Pour un GUIDE PREMIUM : 5 à 7 images réparties intelligemment, avec FORMATS VARIÉS (hero, wide, square, inline, badge)' : 'Entre 2 et 4 images TOTAL dans l\'article (pas systématiquement 3)'}
+- Chaque image doit être RADICALEMENT DIFFÉRENTE des autres (cadrage, sujet, type, FORMAT)
 - La PREMIÈRE image doit être une vue large/hero en rapport DIRECT avec le sujet spécifique
 - Les prompts doivent être ULTRA-PRÉCIS : 40+ mots, mention du cadrage, éclairage, style, éléments spécifiques
 - JAMAIS d'images génériques (pas de "panneaux solaires sur un toit" si le sujet est les batteries)
 - Style : photo éditoriale professionnelle, lumière naturelle, rendu magazine — PAS de rendu 3D/fake/IA visible
+${contentType === 'guide' ? `
+FORMATS DISPONIBLES (6e champ, OBLIGATOIRE pour guide — choisis selon le contexte) :
+- "hero"   → 16:9, vue large d'ouverture (1 seule par guide, en première image)
+- "wide"   → 21:9, bandeau ultra-large pour transitions, panoramas, comparatifs côte-à-côte
+- "square" → 1:1, infographie compacte, portrait, badge isolé, pictogramme central
+- "inline" → 4:3, photo classique illustrative dans le corps d'une section
+- "badge"  → 21:9 horizontal plat, idéal pour rangée de badges/labels/certifications/icônes alignées
+ALTERNE les formats — ne mets pas 5 "inline" d'affilée. Adapte le format au contenu réel de la section.` : ''}
 
 FORMAT du placeholder :
-[IMAGE:TYPE_IMAGE|OBJECTIF_SECTION|Prompt détaillé ultra-précis de 40+ mots|Titre court de l'image|Légende descriptive visible sous l'image (source, contexte, crédit)]
+${contentType === 'guide'
+  ? '[IMAGE:TYPE_IMAGE|OBJECTIF_SECTION|Prompt détaillé ultra-précis de 40+ mots|Titre court de l\'image|Légende descriptive|FORMAT]'
+  : '[IMAGE:TYPE_IMAGE|OBJECTIF_SECTION|Prompt détaillé ultra-précis de 40+ mots|Titre court de l\'image|Légende descriptive visible sous l\'image (source, contexte, crédit)]'}
 
 Exemples :
 [IMAGE:Mise en situation|Montrer le résultat concret d'une installation|Vue en contre-plongée d'une toiture résidentielle en tuiles terre cuite avec 12 panneaux solaires monocristallins noirs parfaitement alignés, ciel bleu avec quelques nuages, jardin verdoyant visible en premier plan, maison de style provençal, lumière dorée de fin d'après-midi, style photo reportage magazine architecture|Installation solaire résidentielle en Provence|Exemple d'une installation de 6 kWc sur une maison individuelle — Source : reportage terrain 2025]
