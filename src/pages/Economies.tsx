@@ -112,6 +112,7 @@ const Economies = () => {
           equipments={equipments}
           reference={reference}
           onEdit={() => {
+            setEditing(true);
             setShowDashboard(false);
             setStep(0);
           }}
