@@ -113,9 +113,8 @@ export function useMemberHomeProfile() {
   );
 
   const setEquipmentSelection = useCallback(
-    async (profileId: string, items: { equipment_key: string; category: EquipmentCategory; status: EquipmentStatus; installed_by?: string | null }[]) => {
+    async (profileId: string, items: { equipment_key: string; category: EquipmentCategory; status: EquipmentStatus; installed_by?: string | null; details?: Record<string, any> }[]) => {
       if (!user) return;
-      // Wipe + re-insert (simple, fiable pour < 50 lignes)
       await supabase.from("member_home_equipments").delete().eq("profile_id", profileId);
       if (items.length > 0) {
         const rows = items.map((i) => ({
@@ -125,7 +124,7 @@ export function useMemberHomeProfile() {
           category: i.category,
           status: i.status,
           installed_by: i.installed_by ?? null,
-          details: {},
+          details: i.details ?? {},
         }));
         const { data } = await supabase.from("member_home_equipments").insert(rows).select();
         setEquipments((data as HomeEquipment[]) || []);
