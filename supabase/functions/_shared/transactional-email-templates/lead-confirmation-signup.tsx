@@ -66,7 +66,7 @@ const LeadConfirmationSignupEmail = ({
   galleryImages,
 }: Props) => (
   <Html lang="fr" dir="ltr">
-    <Head />
+    <Head><meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" /><meta charSet="utf-8" /></Head>
     <Preview>
       Votre demande a bien été reçue — activez votre espace {BRAND.siteName}
     </Preview>

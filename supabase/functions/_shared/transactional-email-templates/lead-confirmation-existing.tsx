@@ -64,7 +64,7 @@ const LeadConfirmationExistingEmail = ({
   galleryImages,
 }: Props) => (
   <Html lang="fr" dir="ltr">
-    <Head />
+    <Head><meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" /><meta charSet="utf-8" /></Head>
     <Preview>
       Votre nouvelle demande a bien été reçue — retrouvez-la dans votre espace
     </Preview>
