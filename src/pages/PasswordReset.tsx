@@ -64,12 +64,24 @@ export default function PasswordReset() {
     if (!email) return;
     setStatus("submitting");
     try {
-      await supabase.functions.invoke("request-password-reset", {
+      const { data, error } = await supabase.functions.invoke("request-password-reset", {
         body: { email, siteOrigin: window.location.origin },
       });
-      setStatus("request_sent");
-    } catch {
-      setStatus("request_sent"); // generic, never reveal
+      if (error) throw error;
+      if (data?.sent) {
+        setStatus("request_sent");
+      } else if (data?.reason === "no_account") {
+        setStatus("no_account");
+      } else if (data?.reason === "rate_limited") {
+        toast({ title: "Trop de demandes", description: data.message, variant: "destructive" });
+        setStatus("request");
+      } else {
+        toast({ title: "Erreur", description: data?.message || "Réessayez.", variant: "destructive" });
+        setStatus("request");
+      }
+    } catch (err: any) {
+      toast({ title: "Erreur", description: err?.message || "Réessayez.", variant: "destructive" });
+      setStatus("request");
     }
   };
 
