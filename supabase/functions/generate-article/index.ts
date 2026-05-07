@@ -1559,7 +1559,74 @@ Retourne UNIQUEMENT le HTML modifié, sans markdown, sans \`\`\`, sans commentai
       );
     }
 
-    throw new Error(`Mode inconnu: ${mode}. Utilisez "angles", "article", "review", "review_fix", "edit_pending_guide" ou "image_prompt".`);
+    // ══════════════════════════════════════════
+    // MODE: ADD IMAGES TO PENDING GUIDE
+    // Insère N nouveaux placeholders [IMAGE:...] dans un guide HTML existant,
+    // optionnellement guidés par une instruction utilisateur (ex: "renforcer la
+    // section coûts", "plus de visuels dans la FAQ"). Retourne le HTML modifié
+    // — la résolution réelle des images est faite côté client.
+    // ══════════════════════════════════════════
+    if (mode === 'add_images_to_pending_guide') {
+      const { content: addContent, title: addTitle, count, userInstruction } = body;
+      if (!addContent) throw new Error('Contenu requis');
+      const nb = Math.max(1, Math.min(10, Number(count) || 2));
+
+      const addPrompt = `Tu modifies un guide HTML pour y AJOUTER ${nb} nouveau(x) placeholder(s) image au format [IMAGE:...].
+
+DATE: ${todayDate}
+TITRE DU GUIDE: ${addTitle || 'Sans titre'}
+
+INSTRUCTION DE L'UTILISATEUR (où renforcer en images):
+${userInstruction?.trim() || 'Aucune préférence — choisis les ' + nb + ' sections où des images apporteraient le plus de valeur (sections actuellement sans image, ou idées clés).'}
+
+RÈGLES STRICTES:
+- Retourne le HTML COMPLET modifié (pas seulement les ajouts).
+- N'ENLÈVE AUCUN [IMAGE:...] existant. AJOUTE EXACTEMENT ${nb} nouveau(x) [IMAGE:...].
+- Place chaque nouveau [IMAGE:...] sur sa propre ligne, juste après le paragraphe pertinent (jamais à l'intérieur d'une balise).
+- Varie les FORMATS entre : hero, wide, square, inline, badge.
+- Varie les TYPES (Mise en situation, Schéma explicatif, Avant/Après, Infographie, Photo produit, etc.).
+- NE TOUCHE PAS au reste du contenu (texte, boutons, CTA banners, tableaux). Garde-le strictement identique.
+
+FORMAT EXACT du placeholder (6 champs séparés par |) :
+[IMAGE:TYPE|OBJECTIF_SECTION|Prompt détaillé ultra-précis de 40+ mots|Titre court de l'image|Légende descriptive visible sous l'image|FORMAT]
+
+HTML ACTUEL:
+${addContent}
+
+Retourne UNIQUEMENT le HTML modifié, sans markdown, sans \`\`\`, sans commentaire.`;
+
+      const addResponse = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
+        body: JSON.stringify({
+          model,
+          max_tokens: 16000,
+          temperature: 0.7,
+          messages: [
+            { role: 'system', content: 'Tu ajoutes des placeholders image dans un guide HTML sans modifier le reste. Tu retournes uniquement le HTML final.' },
+            { role: 'user', content: addPrompt }
+          ]
+        })
+      });
+      if (!addResponse.ok) {
+        const errTxt = await addResponse.text();
+        throw new Error(`Erreur ajout images: ${addResponse.status} ${errTxt}`);
+      }
+      const addData = await addResponse.json();
+      let addedHtml = addData.choices?.[0]?.message?.content?.trim() || '';
+      addedHtml = addedHtml.replace(/^```html\s*/i, '').replace(/```\s*$/i, '').trim();
+
+      const addUsage = addData.usage || {};
+      const addCost = ((addUsage.prompt_tokens || 0) / 1_000_000) * 0.30
+                    + ((addUsage.completion_tokens || 0) / 1_000_000) * 2.50;
+
+      return new Response(
+        JSON.stringify({ success: true, updatedContent: addedHtml, addCost, requestedCount: nb }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      );
+    }
+
+    throw new Error(`Mode inconnu: ${mode}. Utilisez "angles", "article", "review", "review_fix", "edit_pending_guide", "add_images_to_pending_guide" ou "image_prompt".`);
 
   } catch (error) {
     console.error('Error in generate-article:', error);
