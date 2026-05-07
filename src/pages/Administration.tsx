@@ -619,6 +619,27 @@ const Administration = () => {
                     </Link>
                   </CardContent>
                 </Card>
+
+                <Card className="group hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 border-l-4 border-l-emerald-500 hover:scale-[1.02] hover:-translate-y-1">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-gradient-to-br from-emerald-500/10 to-emerald-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <Image className="w-6 h-6 text-emerald-600" />
+                      </div>
+                    </div>
+                    <CardTitle className="group-hover:text-emerald-600 transition-colors">Accès « Mes économies »</CardTitle>
+                    <CardDescription>
+                      Autorisez ou bloquez l'accès aux locataires et appartements
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/admin/economies-acces">
+                      <Button className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 shadow-lg shadow-emerald-500/30">
+                        Configurer
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
               </div>
             </div>
 
