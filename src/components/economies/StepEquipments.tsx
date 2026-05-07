@@ -1,16 +1,24 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Flame, Sun, Layers, Droplets, Wind } from "lucide-react";
 import type { EquipmentCategory, EquipmentStatus, SavingsReference } from "@/hooks/useMemberHomeProfile";
 import { CATEGORY_LABELS } from "@/lib/economiesCalculator";
 
+interface Details {
+  year?: string;
+  model?: string;
+  power?: string;
+}
+
 interface Selection {
   equipment_key: string;
   category: EquipmentCategory;
   status: EquipmentStatus;
+  details?: Details;
 }
 
 interface Props {
@@ -33,6 +41,9 @@ const StepEquipments = ({ reference, initial, onSave, onNext, onBack }: Props) =
   const [sel, setSel] = useState<Map<string, EquipmentStatus>>(
     new Map(initial.map((i) => [i.equipment_key, i.status]))
   );
+  const [details, setDetails] = useState<Map<string, Details>>(
+    new Map(initial.filter((i) => i.details).map((i) => [i.equipment_key, i.details!]))
+  );
 
   const grouped = reference.reduce((acc, r) => {
     (acc[r.category] = acc[r.category] || []).push(r);
@@ -47,8 +58,16 @@ const StepEquipments = ({ reference, initial, onSave, onNext, onBack }: Props) =
       const next = new Map(prev);
       if (next.get(key) === status) next.delete(key);
       else next.set(key, status);
-      // If PV panels are removed, also remove the battery
       if (key === PV_KEY && !next.has(PV_KEY)) next.delete(BATTERY_KEY);
+      return next;
+    });
+  };
+
+  const updateDetail = (key: string, field: keyof Details, value: string) => {
+    setDetails((prev) => {
+      const next = new Map(prev);
+      const cur = next.get(key) || {};
+      next.set(key, { ...cur, [field]: value });
       return next;
     });
   };
@@ -57,7 +76,12 @@ const StepEquipments = ({ reference, initial, onSave, onNext, onBack }: Props) =
     const items: Selection[] = [];
     sel.forEach((status, equipment_key) => {
       const ref = reference.find((r) => r.equipment_key === equipment_key);
-      if (ref) items.push({ equipment_key, category: ref.category, status });
+      if (ref) items.push({
+        equipment_key,
+        category: ref.category,
+        status,
+        details: status === "owned" ? details.get(equipment_key) : undefined,
+      });
     });
     await onSave(items);
     onNext();
@@ -89,55 +113,98 @@ const StepEquipments = ({ reference, initial, onSave, onNext, onBack }: Props) =
                   const current = sel.get(r.equipment_key);
                   const isBattery = r.equipment_key === BATTERY_KEY;
                   const disabled = isBattery && !sel.has(PV_KEY);
+                  const showDetails = current === "owned";
+                  const isInsulation = cat === "insulation";
+                  const d = details.get(r.equipment_key) || {};
                   return (
                     <div
                       key={r.equipment_key}
                       className={cn(
-                        "flex items-center justify-between gap-3 p-3 rounded-lg border-2 transition-colors",
+                        "rounded-lg border-2 transition-colors",
                         current === "owned" && "border-emerald-500 bg-emerald-50",
                         current === "wanted" && "border-blue-500 bg-blue-50",
                         !current && "border-border",
                         disabled && "opacity-50"
                       )}
                     >
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm">{r.label}</div>
-                        {disabled ? (
-                          <div className="text-xs text-muted-foreground line-clamp-1">
-                            Sélectionnez d'abord des panneaux photovoltaïques.
+                      <div className="flex items-center justify-between gap-3 p-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm">{r.label}</div>
+                          {disabled ? (
+                            <div className="text-xs text-muted-foreground line-clamp-1">
+                              Sélectionnez d'abord des panneaux photovoltaïques.
+                            </div>
+                          ) : (
+                            r.description && <div className="text-xs text-muted-foreground line-clamp-1">{r.description}</div>
+                          )}
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          <button
+                            disabled={disabled}
+                            onClick={() => toggle(r.equipment_key, "owned")}
+                            className={cn(
+                              "px-3 py-1.5 text-xs rounded-md font-medium transition-colors",
+                              current === "owned"
+                                ? "bg-emerald-500 text-white"
+                                : "bg-muted text-muted-foreground hover:bg-emerald-100 hover:text-emerald-700",
+                              disabled && "cursor-not-allowed hover:bg-muted hover:text-muted-foreground"
+                            )}
+                          >
+                            J'ai déjà
+                          </button>
+                          <button
+                            disabled={disabled}
+                            onClick={() => toggle(r.equipment_key, "wanted")}
+                            className={cn(
+                              "px-3 py-1.5 text-xs rounded-md font-medium transition-colors",
+                              current === "wanted"
+                                ? "bg-blue-500 text-white"
+                                : "bg-muted text-muted-foreground hover:bg-blue-100 hover:text-blue-700",
+                              disabled && "cursor-not-allowed hover:bg-muted hover:text-muted-foreground"
+                            )}
+                          >
+                            J'envisage
+                          </button>
+                        </div>
+                      </div>
+                      {showDetails && (
+                        <div className="px-3 pb-3 pt-1 border-t border-emerald-200/60 grid grid-cols-1 sm:grid-cols-3 gap-3 bg-emerald-50/50">
+                          <div className="space-y-1">
+                            <Label className="text-xs">Année d'installation</Label>
+                            <Input
+                              type="number"
+                              placeholder="ex: 2018"
+                              min={1950}
+                              max={new Date().getFullYear()}
+                              value={d.year || ""}
+                              onChange={(e) => updateDetail(r.equipment_key, "year", e.target.value)}
+                              className="h-9"
+                            />
                           </div>
-                        ) : (
-                          r.description && <div className="text-xs text-muted-foreground line-clamp-1">{r.description}</div>
-                        )}
-                      </div>
-                      <div className="flex gap-2 shrink-0">
-                        <button
-                          disabled={disabled}
-                          onClick={() => toggle(r.equipment_key, "owned")}
-                          className={cn(
-                            "px-3 py-1.5 text-xs rounded-md font-medium transition-colors",
-                            current === "owned"
-                              ? "bg-emerald-500 text-white"
-                              : "bg-muted text-muted-foreground hover:bg-emerald-100 hover:text-emerald-700",
-                            disabled && "cursor-not-allowed hover:bg-muted hover:text-muted-foreground"
+                          {!isInsulation && (
+                            <>
+                              <div className="space-y-1">
+                                <Label className="text-xs">Modèle</Label>
+                                <Input
+                                  placeholder="ex: Daikin Altherma"
+                                  value={d.model || ""}
+                                  onChange={(e) => updateDetail(r.equipment_key, "model", e.target.value)}
+                                  className="h-9"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-xs">Puissance <span className="text-muted-foreground">(facultatif)</span></Label>
+                                <Input
+                                  placeholder="ex: 8 kW"
+                                  value={d.power || ""}
+                                  onChange={(e) => updateDetail(r.equipment_key, "power", e.target.value)}
+                                  className="h-9"
+                                />
+                              </div>
+                            </>
                           )}
-                        >
-                          J'ai déjà
-                        </button>
-                        <button
-                          disabled={disabled}
-                          onClick={() => toggle(r.equipment_key, "wanted")}
-                          className={cn(
-                            "px-3 py-1.5 text-xs rounded-md font-medium transition-colors",
-                            current === "wanted"
-                              ? "bg-blue-500 text-white"
-                              : "bg-muted text-muted-foreground hover:bg-blue-100 hover:text-blue-700",
-                            disabled && "cursor-not-allowed hover:bg-muted hover:text-muted-foreground"
-                          )}
-                        >
-                          J'envisage
-                        </button>
-                      </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
