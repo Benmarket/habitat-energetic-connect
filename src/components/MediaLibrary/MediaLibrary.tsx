@@ -55,7 +55,35 @@ export function MediaLibrary({ onSelect, open, onOpenChange }: MediaLibraryProps
   const [editFilename, setEditFilename] = useState("");
   const [editAltText, setEditAltText] = useState("");
   const [activeTab, setActiveTab] = useState<MediaTab>("all");
+  const [generateOpen, setGenerateOpen] = useState(false);
+  const [generatePrompt, setGeneratePrompt] = useState("");
+  const [generating, setGenerating] = useState(false);
   const { toast } = useToast();
+
+  const handleGenerate = async () => {
+    if (!generatePrompt.trim()) return;
+    setGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-images", {
+        body: { imageDescriptions: [generatePrompt.trim()] },
+      });
+      if (error) throw error;
+      const failed = data?.images?.find((i: any) => !i.success);
+      if (failed) throw new Error(failed.error || "Échec de la génération");
+      toast({ title: "Image générée", description: "Ajoutée à votre bibliothèque" });
+      setGenerateOpen(false);
+      setGeneratePrompt("");
+      fetchMedia();
+    } catch (err: any) {
+      toast({
+        title: "Erreur de génération",
+        description: err.message || "Impossible de générer l'image",
+        variant: "destructive",
+      });
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   useEffect(() => {
     if (open) {
