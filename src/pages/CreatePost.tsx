@@ -249,6 +249,8 @@ const CreatePost = () => {
           onApply={applyRegeneration}
           onDiscard={discardRegeneration}
           onUpdatePending={updatePendingRegeneration}
+          onAddImages={handleAddImagesToPending}
+          guideTemplate={formData.guide_template || 'premium'}
         />
 
         <AuthorSelectModal open={authorModalOpen} onOpenChange={setAuthorModalOpen}
