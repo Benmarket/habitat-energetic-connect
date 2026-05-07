@@ -410,6 +410,7 @@ const ManageActualites = () => {
                         <TableHead className="w-20">Coût</TableHead>
                         <TableHead className="w-32">Statut</TableHead>
                         <TableHead className="w-40">Date</TableHead>
+                        <TableHead className="w-40">Édité le</TableHead>
                         <TableHead className="w-24 text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -515,6 +516,11 @@ const ManageActualites = () => {
                               {post.published_at
                                 ? format(new Date(post.published_at), "d MMM yyyy", { locale: fr })
                                 : format(new Date(post.created_at), "d MMM yyyy", { locale: fr })}
+                            </TableCell>
+                            <TableCell className="text-muted-foreground text-sm">
+                              {post.updated_at && post.updated_at !== post.created_at
+                                ? format(new Date(post.updated_at), "d MMM yyyy 'à' HH:mm", { locale: fr })
+                                : "—"}
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex gap-2 justify-end">

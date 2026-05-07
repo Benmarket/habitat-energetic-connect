@@ -507,6 +507,8 @@ export function useCreatePost() {
       let postId = editId;
 
       if (editId) {
+        // Toujours mettre à jour la date d'édition lors d'une modification
+        postData.updated_at = new Date().toISOString();
         const { error: updateError } = await supabase
           .from("posts")
           .update(postData)
