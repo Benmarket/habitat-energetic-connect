@@ -5,6 +5,7 @@ Disallow: /dashboard/
 Disallow: /profil/
 Disallow: /gerer-*
 Disallow: /merci
+Disallow: /economies
 
 Sitemap: https://prime-energies.fr/sitemap.xml
 
