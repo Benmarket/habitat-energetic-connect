@@ -1413,6 +1413,39 @@ export type Database = {
         }
         Relationships: []
       }
+      password_reset_tokens: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          ip_address: string | null
+          token_hash: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          token_hash: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          token_hash?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       permissions: {
         Row: {
           code: string
@@ -2387,6 +2420,10 @@ export type Database = {
         Args: { p_ip: string; p_visitor_id: string }
         Returns: boolean
       }
+      check_password_reset_rate: {
+        Args: { p_email: string; p_ip: string }
+        Returns: boolean
+      }
       current_visitor_id: { Args: never; Returns: string }
       delete_email: {
         Args: { message_id: number; queue_name: string }
@@ -2399,6 +2436,7 @@ export type Database = {
         Returns: number
       }
       expire_stale_agent_requests: { Args: never; Returns: undefined }
+      get_user_id_by_email: { Args: { _email: string }; Returns: string }
       has_permission:
         | {
             Args: { _permission_code: string; _user_id: string }
