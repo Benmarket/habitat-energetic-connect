@@ -340,6 +340,14 @@ export const ArticleGenerationWizard = ({
                   onChange={e => setInput(prev => ({ ...prev, freePrompt: e.target.value }))} rows={3} />
               </div>
 
+              <div className="space-y-2">
+                <Label>Titre imposé <span className="text-muted-foreground text-xs">(optionnel — sera reformulé proprement)</span></Label>
+                <Input placeholder="Ex: les subventions baisse mais ne disparaisse pas"
+                  value={input.imposedTitle || ""}
+                  onChange={e => setInput(prev => ({ ...prev, imposedTitle: e.target.value }))} />
+                <p className="text-xs text-muted-foreground">Si renseigné, les 5 angles respecteront ce titre (reformulé sans fautes). Laissez vide pour des angles libres.</p>
+              </div>
+
               <div className="flex justify-end pt-2">
                 <Button onClick={handleStep1Submit} disabled={!isStep1Valid || loadingAngles} className="gap-2">
                   {loadingAngles ? <><Loader2 className="w-4 h-4 animate-spin" /><TimerDisplay /></> : <><ArrowRight className="w-4 h-4" />Proposer 5 angles</>}
