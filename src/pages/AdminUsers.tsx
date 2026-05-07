@@ -36,6 +36,18 @@ const AdminUsers = () => {
     last_name: "",
     role: "user",
   });
+  const [createOpen, setCreateOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    email: "",
+    first_name: "",
+    last_name: "",
+    phone: "",
+    password: "",
+    role: "user",
+    account_type: "particulier",
+    company_name: "",
+  });
 
   const [isAuthorized, setIsAuthorized] = useState(false);
 
