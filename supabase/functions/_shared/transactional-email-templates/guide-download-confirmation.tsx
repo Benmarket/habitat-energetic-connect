@@ -57,7 +57,7 @@ const GuideDownloadConfirmationEmail = ({
   activationUrl,
 }: Props) => (
   <Html lang="fr" dir="ltr">
-    <Head />
+    <Head><meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" /><meta charSet="utf-8" /></Head>
     <Preview>Votre guide « {guideTitle} » est prêt à être consulté</Preview>
     <Body style={main}>
       <table role="presentation" width="100%" cellPadding={0} cellSpacing={0} border={0} style={wrapper}>

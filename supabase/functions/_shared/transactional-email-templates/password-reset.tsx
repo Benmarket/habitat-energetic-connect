@@ -50,7 +50,7 @@ const PasswordResetEmail = ({
   resetUrl = BRAND.siteUrl,
 }: Props) => (
   <Html lang="fr" dir="ltr">
-    <Head />
+    <Head><meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" /><meta charSet="utf-8" /></Head>
     <Preview>Réinitialisation de votre mot de passe {BRAND.siteName}</Preview>
     <Body style={main}>
       <table role="presentation" width="100%" cellPadding={0} cellSpacing={0} border={0} style={wrapper}>

@@ -58,7 +58,7 @@ const LeadConfirmationSimpleEmail = ({
   galleryImages,
 }: Props) => (
   <Html lang="fr" dir="ltr">
-    <Head />
+    <Head><meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" /><meta charSet="utf-8" /></Head>
     <Preview>Votre demande a bien été reçue par {BRAND.siteName}</Preview>
     <Body style={main}>
       <table role="presentation" width="100%" cellPadding={0} cellSpacing={0} border={0} style={wrapper}>
