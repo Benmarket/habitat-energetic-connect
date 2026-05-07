@@ -96,6 +96,7 @@ export const ArticleGenerationWizard = ({
     keywords: initialKeywords,
     freePrompt: "",
     targetRegions: initialRegions,
+    imposedTitle: "",
   });
   const [keywordInput, setKeywordInput] = useState("");
   const [selectedAngle, setSelectedAngle] = useState<EditorialAngle | null>(null);
