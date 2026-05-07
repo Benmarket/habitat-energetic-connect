@@ -23,6 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import RegionalContentEditor from "@/components/RegionalContentEditor";
 import LandingPageSectionsEditor from "@/components/LandingPageSectionsEditor";
+import SpeedTestBadge from "@/components/admin/SpeedTestBadge";
 import type { RegionalContent } from "@/hooks/useRegionalContent";
 import { Pencil } from "lucide-react";
 
@@ -348,9 +349,10 @@ const AdminPagesAnchors = () => {
                       </CardHeader>
 
                       <CardContent className="space-y-4">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
                           <span className="font-medium">URL:</span>
                           <code className="px-2 py-1 bg-muted rounded text-xs">{product.path}</code>
+                          <SpeedTestBadge pageId={product.id} pageTitle={product.title} pagePath={product.path} />
                         </div>
 
                         {/* SEO Status Selector */}
@@ -427,6 +429,7 @@ const AdminPagesAnchors = () => {
                                         <MapPin className="w-3.5 h-3.5 text-primary" />
                                         <span className="font-medium text-sm flex-1">{regionName}</span>
                                         <code className="text-[10px] px-1.5 py-0.5 bg-muted rounded text-muted-foreground hidden sm:inline">{region.path}</code>
+                                        <SpeedTestBadge pageId={region.id} pageTitle={`${product.title} — ${regionName}`} pagePath={region.path} size="sm" />
                                         <SeoMicroBadge status={region.seo_status} />
                                         <Tooltip>
                                           <TooltipTrigger asChild>
@@ -465,6 +468,7 @@ const AdminPagesAnchors = () => {
                                                 {variantLabels[variant.variant_slug || ""] || variant.variant_slug}
                                               </span>
                                               <code className="text-[10px] px-1.5 py-0.5 bg-muted rounded text-muted-foreground hidden sm:inline">{variant.path}</code>
+                                              <SpeedTestBadge pageId={variant.id} pageTitle={variantLabels[variant.variant_slug || ""] || variant.variant_slug || ""} pagePath={variant.path} size="sm" />
                                               <SeoMicroBadge status={variant.seo_status} />
                                               <Tooltip>
                                                 <TooltipTrigger asChild>
