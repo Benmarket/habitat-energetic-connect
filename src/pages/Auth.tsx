@@ -5,41 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Loader2, AlertTriangle, ArrowLeft } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { PasswordStrengthIndicator } from "@/components/PasswordStrengthIndicator";
 
 const signInSchema = z.object({
   email: z.string().email("Email invalide"),
   password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
 });
 
-const signUpSchema = z
-  .object({
-    firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
-    lastName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-    email: z.string().email("Email invalide"),
-    password: z
-      .string()
-      .min(8, "8 caractères minimum")
-      .regex(/[A-Z]/, "Au moins une majuscule"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Les mots de passe ne correspondent pas",
-    path: ["confirmPassword"],
-  });
-
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [signupPassword, setSignupPassword] = useState("");
   const [showMemberDisabled, setShowMemberDisabled] = useState(false);
   const isAuthenticatingRef = useRef(false);
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -145,87 +126,6 @@ const Auth = () => {
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    
-    try {
-      const data = signUpSchema.parse({
-        firstName: formData.get("firstName"),
-        lastName: formData.get("lastName"),
-        email: formData.get("email"),
-        password: formData.get("password"),
-        confirmPassword: formData.get("confirmPassword"),
-      });
-
-      setIsLoading(true);
-
-      // Vérifier si l'espace membre est activé AVANT inscription
-      const { data: headerFooterData } = await supabase
-        .from("site_settings")
-        .select("value")
-        .eq("key", "header_footer")
-        .maybeSingle();
-
-      const isMemberSpaceEnabled = headerFooterData?.value 
-        ? (headerFooterData.value as any).showMemberSpace ?? true
-        : true;
-
-      if (!isMemberSpaceEnabled) {
-        // Espace membre désactivé : ne pas permettre l'inscription
-        setShowMemberDisabled(true);
-        setIsLoading(false);
-        return;
-      }
-
-      const { error } = await signUp(data.email, data.password, data.firstName, data.lastName, "", "particulier");
-      
-      if (error) {
-        toast.error("Erreur d'inscription", {
-          description: error.message === "User already registered"
-            ? "Cette adresse email est déjà utilisée"
-            : error.message,
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // CRITICAL SECURITY: Vérifier le mode maintenance après inscription
-      const { data: maintenanceData } = await supabase
-        .from("site_settings")
-        .select("value")
-        .eq("key", "maintenance_mode")
-        .maybeSingle();
-
-      const isMaintenanceMode = maintenanceData?.value 
-        ? (maintenanceData.value as { enabled: boolean }).enabled 
-        : false;
-
-      if (isMaintenanceMode) {
-        // Les nouveaux comptes créés pendant la maintenance ne sont jamais admin
-        // Déconnecter et refuser l'accès
-        await supabase.auth.signOut();
-        toast.error("Inscription bloquée", {
-          description: "Le site est actuellement en maintenance. Les nouvelles inscriptions sont temporairement désactivées.",
-        });
-        navigate("/");
-        setIsLoading(false);
-        return;
-      }
-
-      toast.success("Inscription réussie", {
-        description: "Vous pouvez maintenant vous connecter",
-      });
-      navigate("/dashboard");
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        toast.error(error.errors[0].message);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Afficher la page "espace membre désactivé" après tentative de connexion refusée
   if (showMemberDisabled) {
     return (
@@ -299,115 +199,47 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="signin">Connexion</TabsTrigger>
-                <TabsTrigger value="signup">Inscription</TabsTrigger>
-              </TabsList>
+            <form onSubmit={handleSignIn} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="signin-email">Email</Label>
+                <Input
+                  id="signin-email"
+                  name="email"
+                  type="email"
+                  placeholder="votre@email.com"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="signin-password">Mot de passe</Label>
+                <Input
+                  id="signin-password"
+                  name="password"
+                  type="password"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Connexion...
+                  </>
+                ) : (
+                  "Se connecter"
+                )}
+              </Button>
 
-              <TabsContent value="signin">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
-                    <Input
-                      id="signin-email"
-                      name="email"
-                      type="email"
-                      placeholder="votre@email.com"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-password">Mot de passe</Label>
-                    <Input
-                      id="signin-password"
-                      name="password"
-                      type="password"
-                      placeholder="••••••••"
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Connexion...
-                      </>
-                    ) : (
-                      "Se connecter"
-                    )}
-                  </Button>
-                </form>
-              </TabsContent>
-
-              <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName">Prénom</Label>
-                      <Input
-                        id="firstName"
-                        name="firstName"
-                        placeholder="Jean"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lastName">Nom</Label>
-                      <Input
-                        id="lastName"
-                        name="lastName"
-                        placeholder="Dupont"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <Input
-                      id="signup-email"
-                      name="email"
-                      type="email"
-                      placeholder="votre@email.com"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Mot de passe</Label>
-                    <Input
-                      id="signup-password"
-                      name="password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={signupPassword}
-                      onChange={(e) => setSignupPassword(e.target.value)}
-                      required
-                    />
-                    <PasswordStrengthIndicator password={signupPassword} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-                    <Input
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      type="password"
-                      placeholder="••••••••"
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Inscription...
-                      </>
-                    ) : (
-                      "S'inscrire"
-                    )}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
+              <div className="text-center pt-4 border-t">
+                <a
+                  href="/mot-de-passe-oublie"
+                  className="text-sm text-primary hover:underline"
+                >
+                  Mot de passe oublié ?
+                </a>
+              </div>
+            </form>
           </CardContent>
         </Card>
       </div>

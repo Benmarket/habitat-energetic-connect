@@ -82,6 +82,7 @@ const ServiceAuditEnergetique = lazy(() => import("./pages/services/ServiceAudit
 const ServiceAmeliorationHabitat = lazy(() => import("./pages/services/ServiceAmeliorationHabitat"));
 const ActivateAccount = lazy(() => import("./pages/ActivateAccount"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
+const PasswordReset = lazy(() => import("./pages/PasswordReset"));
 
 const queryClient = new QueryClient();
 
@@ -196,6 +197,8 @@ const App = () => (
 
                   {/* Email lifecycle pages */}
                   <Route path="/inscription/activer" element={<ActivateAccount />} />
+                  <Route path="/mot-de-passe-oublie" element={<PasswordReset />} />
+                  <Route path="/reinitialiser-mot-de-passe" element={<PasswordReset />} />
                   <Route path="/desinscription" element={<Unsubscribe />} />
                   <Route path="/unsubscribe" element={<Unsubscribe />} />
 
