@@ -320,13 +320,27 @@ Deno.serve(async (req) => {
   }
 
   // 4. Render React Email template to HTML and plain text
-  const html = await renderAsync(
+  let html = await renderAsync(
     React.createElement(template.component, enrichedTemplateData)
   )
   const plainText = await renderAsync(
     React.createElement(template.component, enrichedTemplateData),
     { plainText: true }
   )
+
+  // Encode all non-ASCII characters as numeric HTML entities to guarantee correct
+  // rendering in every email client regardless of the Content-Type charset they
+  // assume (some clients fall back to Latin-1 and turn UTF-8 "é" into "��").
+  html = html.replace(/[\u0080-\uFFFF]/g, (ch) => `&#${ch.charCodeAt(0)};`)
+
+  // Ensure the HTML declares UTF-8 explicitly (defensive — most clients ignore this
+  // but it helps webmail previews).
+  if (!/charset\s*=\s*"?utf-8"?/i.test(html)) {
+    html = html.replace(
+      /<head([^>]*)>/i,
+      '<head$1><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />'
+    )
+  }
 
   // Resolve subject — supports static string or dynamic function
   const resolvedSubject =
