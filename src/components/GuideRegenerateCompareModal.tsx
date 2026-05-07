@@ -51,7 +51,18 @@ interface Props {
   onApply: (selection: Record<FieldKey, boolean>) => void;
   onDiscard: () => void;
   onUpdatePending?: (patch: Partial<PendingData>) => void;
+  onAddImages?: (count: number, instruction: string) => Promise<void> | void;
+  guideTemplate?: string;
 }
+
+const TEMPLATE_PROFILES: Record<string, { label: string; words: string; images: string; imagesMin: number; imagesMax: number }> = {
+  premium:   { label: 'Premium',   words: '4500-6000 mots', images: '6 à 8 images', imagesMin: 6, imagesMax: 8 },
+  expert:    { label: 'Expert',    words: '5000-7000 mots', images: '5 à 7 images', imagesMin: 5, imagesMax: 7 },
+  classique: { label: 'Classique', words: '3000-4200 mots', images: '4 à 6 images', imagesMin: 4, imagesMax: 6 },
+  vibrant:   { label: 'Vibrant',   words: '2800-4000 mots', images: '5 à 7 images', imagesMin: 5, imagesMax: 7 },
+  sombre:    { label: 'Sombre',    words: '3000-4200 mots', images: '5 à 7 images', imagesMin: 5, imagesMax: 7 },
+  epure:     { label: 'Épuré',     words: '2200-3000 mots', images: '3 à 5 images', imagesMin: 3, imagesMax: 5 },
+};
 
 const FIELDS: { key: FieldKey; label: string; description: string; defaultChecked: boolean }[] = [
   { key: "title",            label: "Titre",                 description: "H1 du guide", defaultChecked: false },
