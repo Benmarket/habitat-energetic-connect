@@ -92,66 +92,61 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
     const formData = new FormData(e.currentTarget);
 
     try {
+      const email = formData.get("email") as string;
+      const phone = formData.get("phone") as string;
+
+      const [{ data: emailUsed }, { data: phoneUsed }] = await Promise.all([
+        supabase.rpc("email_already_used", { _email: email }),
+        supabase.rpc("phone_already_used", { _phone: phone }),
+      ]);
+      if (emailUsed) {
+        toast.error("Un compte existe déjà avec cet email.");
+        return;
+      }
+      if (phoneUsed) {
+        toast.error("Un compte existe déjà avec ce numéro de téléphone.");
+        return;
+      }
+
       if (accountType === "particulier") {
         const data = {
           fullName: formData.get("fullName") as string,
-          phone: formData.get("phone") as string,
-          email: formData.get("email") as string,
+          phone,
+          email,
           password: formData.get("password") as string,
         };
 
         signUpParticulierSchema.parse(data);
-        
-        // Split full name into first and last name
+
         const nameParts = data.fullName.trim().split(" ");
         const firstName = nameParts[0] || data.fullName;
         const lastName = nameParts.slice(1).join(" ") || "";
 
         const { error } = await signUp(
-          data.email,
-          data.password,
-          firstName,
-          lastName,
-          data.phone,
-          "particulier"
+          data.email, data.password, firstName, lastName, data.phone, "particulier"
         );
-        
-        if (error) {
-          toast.error(error.message);
-          return;
-        }
+        if (error) { toast.error(error.message); return; }
       } else {
         const data = {
           contactName: formData.get("contactName") as string,
           companyName: formData.get("companyName") as string,
-          phone: formData.get("phone") as string,
-          email: formData.get("email") as string,
+          phone,
+          email,
           password: formData.get("password") as string,
         };
 
         signUpProfessionnelSchema.parse(data);
-        
-        // Split contact name into first and last name
+
         const nameParts = data.contactName.trim().split(" ");
         const firstName = nameParts[0] || data.contactName;
         const lastName = nameParts.slice(1).join(" ") || "";
 
         const { error } = await signUp(
-          data.email,
-          data.password,
-          firstName,
-          lastName,
-          data.phone,
-          "professionnel",
-          data.companyName
+          data.email, data.password, firstName, lastName, data.phone, "professionnel", data.companyName
         );
-        
-        if (error) {
-          toast.error(error.message);
-          return;
-        }
+        if (error) { toast.error(error.message); return; }
       }
-      
+
       toast.success("Inscription réussie ! Vous pouvez maintenant vous connecter.");
       setActiveTab("signin");
     } catch (error) {
