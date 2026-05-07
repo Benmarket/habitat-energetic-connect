@@ -239,10 +239,23 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
         throw new Error(`Erreur API IA: ${response.status} - ${errText}`);
       }
       const data = await response.json();
-      const raw = data.choices[0].message.content.trim().replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+      const rawContent = data.choices?.[0]?.message?.content || '';
+      let raw = rawContent.trim().replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+      // Extract JSON array if model wrapped it in prose
+      const arrMatch = raw.match(/\[[\s\S]*\]/);
+      if (arrMatch) raw = arrMatch[0];
 
       let angles;
-      try { angles = JSON.parse(raw); } catch { throw new Error('Format de réponse invalide'); }
+      try {
+        angles = JSON.parse(raw);
+      } catch (e) {
+        console.error('[generate-article] angles JSON parse failed. finish_reason=', data.choices?.[0]?.finish_reason, 'raw=', rawContent.slice(0, 500));
+        throw new Error('Format de réponse invalide');
+      }
+      if (!Array.isArray(angles) || angles.length === 0) {
+        console.error('[generate-article] angles empty or not array. raw=', rawContent.slice(0, 500));
+        throw new Error('Aucun angle généré');
+      }
 
       return new Response(
         JSON.stringify({ success: true, angles }),
