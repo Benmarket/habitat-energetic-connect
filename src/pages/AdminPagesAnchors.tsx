@@ -23,6 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import RegionalContentEditor from "@/components/RegionalContentEditor";
 import LandingPageSectionsEditor from "@/components/LandingPageSectionsEditor";
+import SpeedTestBadge from "@/components/admin/SpeedTestBadge";
 import type { RegionalContent } from "@/hooks/useRegionalContent";
 import { Pencil } from "lucide-react";
 
