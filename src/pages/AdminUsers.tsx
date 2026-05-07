@@ -275,8 +275,12 @@ const AdminUsers = () => {
             </div>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between gap-4">
                 <CardTitle>Liste des utilisateurs ({users.length})</CardTitle>
+                <Button size="sm" onClick={() => setCreateOpen(true)}>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Créer un utilisateur
+                </Button>
               </CardHeader>
               <CardContent>
                 {loading ? (
