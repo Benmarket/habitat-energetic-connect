@@ -30,6 +30,7 @@ const Economies = () => {
   const [draft, setDraft] = useState<{ housing_status?: any; housing_type?: any }>({});
   const [leadSurface, setLeadSurface] = useState<number | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   // Auth guard
   useEffect(() => {
