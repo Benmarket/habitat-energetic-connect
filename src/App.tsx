@@ -197,6 +197,8 @@ const App = () => (
 
                   {/* Email lifecycle pages */}
                   <Route path="/inscription/activer" element={<ActivateAccount />} />
+                  <Route path="/mot-de-passe-oublie" element={<PasswordReset />} />
+                  <Route path="/reinitialiser-mot-de-passe" element={<PasswordReset />} />
                   <Route path="/desinscription" element={<Unsubscribe />} />
                   <Route path="/unsubscribe" element={<Unsubscribe />} />
 
