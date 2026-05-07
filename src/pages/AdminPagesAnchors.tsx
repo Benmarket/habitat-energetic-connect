@@ -349,9 +349,10 @@ const AdminPagesAnchors = () => {
                       </CardHeader>
 
                       <CardContent className="space-y-4">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
                           <span className="font-medium">URL:</span>
                           <code className="px-2 py-1 bg-muted rounded text-xs">{product.path}</code>
+                          <SpeedTestBadge pageId={product.id} pageTitle={product.title} pagePath={product.path} />
                         </div>
 
                         {/* SEO Status Selector */}
