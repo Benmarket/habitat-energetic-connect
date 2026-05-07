@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, AlertTriangle, ArrowLeft, CheckCircle2, ImageIcon, Wand2, Library, Loader2, MessageSquarePlus } from "lucide-react";
+import { Sparkles, AlertTriangle, ArrowLeft, CheckCircle2, ImageIcon, Wand2, Library, Loader2, MessageSquarePlus, Plus, Minus } from "lucide-react";
 import DOMPurify from "dompurify";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -51,7 +51,18 @@ interface Props {
   onApply: (selection: Record<FieldKey, boolean>) => void;
   onDiscard: () => void;
   onUpdatePending?: (patch: Partial<PendingData>) => void;
+  onAddImages?: (count: number, instruction: string) => Promise<void> | void;
+  guideTemplate?: string;
 }
+
+const TEMPLATE_PROFILES: Record<string, { label: string; words: string; images: string; imagesMin: number; imagesMax: number }> = {
+  premium:   { label: 'Premium',   words: '4500-6000 mots', images: '6 à 8 images', imagesMin: 6, imagesMax: 8 },
+  expert:    { label: 'Expert',    words: '5000-7000 mots', images: '5 à 7 images', imagesMin: 5, imagesMax: 7 },
+  classique: { label: 'Classique', words: '3000-4200 mots', images: '4 à 6 images', imagesMin: 4, imagesMax: 6 },
+  vibrant:   { label: 'Vibrant',   words: '2800-4000 mots', images: '5 à 7 images', imagesMin: 5, imagesMax: 7 },
+  sombre:    { label: 'Sombre',    words: '3000-4200 mots', images: '5 à 7 images', imagesMin: 5, imagesMax: 7 },
+  epure:     { label: 'Épuré',     words: '2200-3000 mots', images: '3 à 5 images', imagesMin: 3, imagesMax: 5 },
+};
 
 const FIELDS: { key: FieldKey; label: string; description: string; defaultChecked: boolean }[] = [
   { key: "title",            label: "Titre",                 description: "H1 du guide", defaultChecked: false },
@@ -87,7 +98,10 @@ const replaceImageInHtml = (html: string, oldUrl: string, newUrl: string): strin
 
 export const GuideRegenerateCompareModal = ({
   open, onOpenChange, current, pending, onApply, onDiscard, onUpdatePending,
+  onAddImages, guideTemplate,
 }: Props) => {
+  const profile = TEMPLATE_PROFILES[guideTemplate || 'premium'] || TEMPLATE_PROFILES.premium;
+
   const [selection, setSelection] = useState<Record<FieldKey, boolean>>(() =>
     FIELDS.reduce((acc, f) => ({ ...acc, [f.key]: f.defaultChecked }), {} as Record<FieldKey, boolean>)
   );
@@ -104,6 +118,11 @@ export const GuideRegenerateCompareModal = ({
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
 
+  // Add-images console state
+  const [addCount, setAddCount] = useState(2);
+  const [addInstruction, setAddInstruction] = useState("");
+  const [addLoading, setAddLoading] = useState(false);
+
   const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -112,6 +131,8 @@ export const GuideRegenerateCompareModal = ({
       setConfirmStep(false);
       setSide("new");
       setAiPrompt("");
+      setAddCount(2);
+      setAddInstruction("");
     }
   }, [open]);
 
@@ -244,35 +265,44 @@ export const GuideRegenerateCompareModal = ({
       <Dialog open={open} onOpenChange={(o) => { if (!o) onDiscard(); onOpenChange(o); }}>
         <DialogContent className="max-w-6xl max-h-[92vh] overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 flex-wrap">
               <Sparkles className="w-5 h-5 text-primary" />
               Comparer & appliquer la régénération du guide
+              <Badge className="ml-2 bg-primary/10 text-primary border-primary/30 hover:bg-primary/15">
+                Template : {profile.label}
+              </Badge>
             </DialogTitle>
             <DialogDescription>
-              Le nouveau guide a été généré en mode <strong>Premium</strong>. Survolez une image pour la remplacer, ou utilisez la console IA en bas pour modifier le contenu.
+              Profil <strong>{profile.label}</strong> — cible : {profile.words}, {profile.images}.
+              Survolez une image pour la remplacer, ajoutez-en plus avec le compteur, ou utilisez la console IA pour ajuster le contenu.
             </DialogDescription>
           </DialogHeader>
 
-          {stats && (
-            <div className="grid grid-cols-4 gap-3 py-2">
-              <div className="text-center p-2 rounded-lg border bg-muted/30">
-                <p className="text-xs text-muted-foreground">Actuel</p>
-                <p className="font-semibold">{stats.currentWords} mots</p>
+          {stats && (() => {
+            const imgOk = stats.newImages >= profile.imagesMin;
+            return (
+              <div className="grid grid-cols-4 gap-3 py-2">
+                <div className="text-center p-2 rounded-lg border bg-muted/30">
+                  <p className="text-xs text-muted-foreground">Actuel</p>
+                  <p className="font-semibold">{stats.currentWords} mots</p>
+                </div>
+                <div className="text-center p-2 rounded-lg border-2 border-primary/30 bg-primary/5">
+                  <p className="text-xs text-primary">Nouveau ({profile.label.toLowerCase()})</p>
+                  <p className="font-semibold text-primary">{stats.newWords} mots</p>
+                </div>
+                <div className={`text-center p-2 rounded-lg border ${imgOk ? 'bg-muted/30' : 'border-amber-400 bg-amber-50 dark:bg-amber-950/30'}`}>
+                  <p className={`text-xs ${imgOk ? 'text-muted-foreground' : 'text-amber-700 dark:text-amber-300'}`}>
+                    Images {imgOk ? '✓' : `(cible ${profile.imagesMin}-${profile.imagesMax})`}
+                  </p>
+                  <p className={`font-semibold ${imgOk ? '' : 'text-amber-700 dark:text-amber-300'}`}>{stats.newImages}</p>
+                </div>
+                <div className="text-center p-2 rounded-lg border bg-muted/30">
+                  <p className="text-xs text-muted-foreground">Coût IA</p>
+                  <p className="font-semibold">+{stats.cost.toFixed(4)} €</p>
+                </div>
               </div>
-              <div className="text-center p-2 rounded-lg border-2 border-primary/30 bg-primary/5">
-                <p className="text-xs text-primary">Nouveau (premium)</p>
-                <p className="font-semibold text-primary">{stats.newWords} mots</p>
-              </div>
-              <div className="text-center p-2 rounded-lg border bg-muted/30">
-                <p className="text-xs text-muted-foreground">Images générées</p>
-                <p className="font-semibold">{stats.newImages}</p>
-              </div>
-              <div className="text-center p-2 rounded-lg border bg-muted/30">
-                <p className="text-xs text-muted-foreground">Coût IA</p>
-                <p className="font-semibold">+{stats.cost.toFixed(4)} €</p>
-              </div>
-            </div>
-          )}
+            );
+          })()}
 
           <Separator />
 
@@ -398,6 +428,57 @@ export const GuideRegenerateCompareModal = ({
               </div>
               <p className="text-[11px] text-muted-foreground">
                 Astuce : ⌘/Ctrl + Entrée pour envoyer. La modification touche uniquement le nouveau guide ; vous pourrez ensuite cocher ce que vous gardez.
+              </p>
+            </div>
+          )}
+
+          {/* Add-images console */}
+          {side === "new" && onAddImages && (
+            <div className="border-2 border-dashed border-emerald-400/40 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-lg p-3 space-y-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <ImageIcon className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                <h3 className="text-sm font-semibold">Ajouter des images au guide</h3>
+                <Badge variant="outline" className="text-[10px]">
+                  {stats?.newImages ?? 0} / cible {profile.imagesMin}-{profile.imagesMax}
+                </Badge>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button type="button" size="icon" variant="outline" className="h-9 w-9"
+                    onClick={() => setAddCount(c => Math.max(1, c - 1))}
+                    disabled={addLoading || addCount <= 1}>
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                  <div className="w-12 text-center font-semibold tabular-nums">{addCount}</div>
+                  <Button type="button" size="icon" variant="outline" className="h-9 w-9"
+                    onClick={() => setAddCount(c => Math.min(10, c + 1))}
+                    disabled={addLoading || addCount >= 10}>
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+                <Textarea
+                  value={addInstruction}
+                  onChange={(e) => setAddInstruction(e.target.value)}
+                  placeholder='Optionnel — ex: "Renforcer les sections coûts et étapes pas à pas, ajouter une infographie dans la FAQ."'
+                  rows={2}
+                  className="flex-1 text-sm resize-none"
+                  disabled={addLoading}
+                />
+                <Button
+                  onClick={async () => {
+                    setAddLoading(true);
+                    try { await onAddImages(addCount, addInstruction); setAddInstruction(""); }
+                    finally { setAddLoading(false); }
+                  }}
+                  disabled={addLoading}
+                  className="gap-2 self-stretch bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
+                  {addLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                  {addLoading ? "Génération…" : `Générer ${addCount} image${addCount > 1 ? 's' : ''}`}
+                </Button>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                L'IA insère {addCount} placeholder(s) image dans les sections les plus pertinentes (ou suit votre consigne), puis génère les visuels. Le reste du contenu n'est pas touché.
               </p>
             </div>
           )}

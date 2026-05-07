@@ -50,6 +50,7 @@ const CreatePost = () => {
     loadingFullRegen, handleFullRegenerate,
     pendingRegeneration, regenCompareOpen, setRegenCompareOpen,
     applyRegeneration, discardRegeneration, updatePendingRegeneration,
+    handleAddImagesToPending,
   } = useArticleGeneration(
     formData, setFormData, contentType,
     currentAiInstructions, user?.id, { categories, tags }
@@ -248,6 +249,8 @@ const CreatePost = () => {
           onApply={applyRegeneration}
           onDiscard={discardRegeneration}
           onUpdatePending={updatePendingRegeneration}
+          onAddImages={handleAddImagesToPending}
+          guideTemplate={formData.guide_template || 'premium'}
         />
 
         <AuthorSelectModal open={authorModalOpen} onOpenChange={setAuthorModalOpen}
