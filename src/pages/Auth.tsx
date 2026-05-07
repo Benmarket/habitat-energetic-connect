@@ -16,22 +16,6 @@ const signInSchema = z.object({
   password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
 });
 
-const signUpSchema = z
-  .object({
-    firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
-    lastName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-    email: z.string().email("Email invalide"),
-    password: z
-      .string()
-      .min(8, "8 caractères minimum")
-      .regex(/[A-Z]/, "Au moins une majuscule"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Les mots de passe ne correspondent pas",
-    path: ["confirmPassword"],
-  });
-
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [signupPassword, setSignupPassword] = useState("");
