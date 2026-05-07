@@ -50,6 +50,7 @@ const CreatePost = () => {
     loadingFullRegen, handleFullRegenerate,
     pendingRegeneration, regenCompareOpen, setRegenCompareOpen,
     applyRegeneration, discardRegeneration, updatePendingRegeneration,
+    handleAddImagesToPending,
   } = useArticleGeneration(
     formData, setFormData, contentType,
     currentAiInstructions, user?.id, { categories, tags }
