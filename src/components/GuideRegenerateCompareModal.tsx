@@ -265,35 +265,44 @@ export const GuideRegenerateCompareModal = ({
       <Dialog open={open} onOpenChange={(o) => { if (!o) onDiscard(); onOpenChange(o); }}>
         <DialogContent className="max-w-6xl max-h-[92vh] overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 flex-wrap">
               <Sparkles className="w-5 h-5 text-primary" />
               Comparer & appliquer la régénération du guide
+              <Badge className="ml-2 bg-primary/10 text-primary border-primary/30 hover:bg-primary/15">
+                Template : {profile.label}
+              </Badge>
             </DialogTitle>
             <DialogDescription>
-              Le nouveau guide a été généré en mode <strong>Premium</strong>. Survolez une image pour la remplacer, ou utilisez la console IA en bas pour modifier le contenu.
+              Profil <strong>{profile.label}</strong> — cible : {profile.words}, {profile.images}.
+              Survolez une image pour la remplacer, ajoutez-en plus avec le compteur, ou utilisez la console IA pour ajuster le contenu.
             </DialogDescription>
           </DialogHeader>
 
-          {stats && (
-            <div className="grid grid-cols-4 gap-3 py-2">
-              <div className="text-center p-2 rounded-lg border bg-muted/30">
-                <p className="text-xs text-muted-foreground">Actuel</p>
-                <p className="font-semibold">{stats.currentWords} mots</p>
+          {stats && (() => {
+            const imgOk = stats.newImages >= profile.imagesMin;
+            return (
+              <div className="grid grid-cols-4 gap-3 py-2">
+                <div className="text-center p-2 rounded-lg border bg-muted/30">
+                  <p className="text-xs text-muted-foreground">Actuel</p>
+                  <p className="font-semibold">{stats.currentWords} mots</p>
+                </div>
+                <div className="text-center p-2 rounded-lg border-2 border-primary/30 bg-primary/5">
+                  <p className="text-xs text-primary">Nouveau ({profile.label.toLowerCase()})</p>
+                  <p className="font-semibold text-primary">{stats.newWords} mots</p>
+                </div>
+                <div className={`text-center p-2 rounded-lg border ${imgOk ? 'bg-muted/30' : 'border-amber-400 bg-amber-50 dark:bg-amber-950/30'}`}>
+                  <p className={`text-xs ${imgOk ? 'text-muted-foreground' : 'text-amber-700 dark:text-amber-300'}`}>
+                    Images {imgOk ? '✓' : `(cible ${profile.imagesMin}-${profile.imagesMax})`}
+                  </p>
+                  <p className={`font-semibold ${imgOk ? '' : 'text-amber-700 dark:text-amber-300'}`}>{stats.newImages}</p>
+                </div>
+                <div className="text-center p-2 rounded-lg border bg-muted/30">
+                  <p className="text-xs text-muted-foreground">Coût IA</p>
+                  <p className="font-semibold">+{stats.cost.toFixed(4)} €</p>
+                </div>
               </div>
-              <div className="text-center p-2 rounded-lg border-2 border-primary/30 bg-primary/5">
-                <p className="text-xs text-primary">Nouveau (premium)</p>
-                <p className="font-semibold text-primary">{stats.newWords} mots</p>
-              </div>
-              <div className="text-center p-2 rounded-lg border bg-muted/30">
-                <p className="text-xs text-muted-foreground">Images générées</p>
-                <p className="font-semibold">{stats.newImages}</p>
-              </div>
-              <div className="text-center p-2 rounded-lg border bg-muted/30">
-                <p className="text-xs text-muted-foreground">Coût IA</p>
-                <p className="font-semibold">+{stats.cost.toFixed(4)} €</p>
-              </div>
-            </div>
-          )}
+            );
+          })()}
 
           <Separator />
 
