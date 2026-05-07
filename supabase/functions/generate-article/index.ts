@@ -190,16 +190,16 @@ ${keywords?.length > 0 ? `- Mots-clés SEO: ${keywords.join(', ')}` : ''}
 ${targetRegions?.length > 0 ? `- Régions cibles: ${targetRegions.join(', ')} (adapte le contenu, les aides locales et les références géographiques)` : ''}
 ${freePrompt ? `- Contraintes: ${freePrompt}` : ''}
 ${imposedTitle ? `- TITRE IMPOSÉ PAR L'UTILISATEUR (brut, possiblement avec fautes): "${imposedTitle}"
-  → Tu DOIS reformuler ce titre proprement (orthographe, grammaire, accroche SEO) et l'utiliser comme base pour les 5 angles.
-  → Les 5 angles doivent TOUS respecter le sens et l'intention de ce titre. Varie l'approche/le format mais reste fidèle au sujet imposé.
-  → NE T'ÉCARTE PAS du sujet du titre imposé.` : ''}
+  → Reformule ce titre proprement (orthographe, grammaire, accroche SEO) et utilise-le comme base.
+  → Les 5 premiers angles doivent respecter le sens et l'intention globale de ce titre, en variant l'approche.
+  → ⚠️ Tu DOIS AUSSI proposer un 6ème angle (id: 6) qui colle EXACTEMENT, AU MOT PRÈS, à TOUS les détails du titre imposé : chaque date, chiffre, lieu, sigle, nuance, exception ou cas particulier mentionné DOIT être repris fidèlement. Ne supprime AUCUN détail, n'en INVENTE AUCUN. Le 6ème titre est la version proprement reformulée et SEO-optimisée du titre imposé, et l'intention décrit explicitement la couverture de chaque détail (ex: si le titre mentionne "ZNI", l'angle doit traiter spécifiquement le cas des Zones Non Interconnectées).` : ''}
 ${customInstructions ? `- Instructions: ${customInstructions}` : ''}
 
 RÈGLES:
-- 5 angles RADICALEMENT DIFFÉRENTS
+- ${imposedTitle ? '6 angles au total (5 angles variés + 1 angle "miroir" fidèle au titre imposé en id 6)' : '5 angles RADICALEMENT DIFFÉRENTS'}
 - Chaque angle doit servir l'objectif "${objectiveLabels[objective] || objective}"
-- Au moins 1 angle doit aborder un aspect NÉGATIF ou HONNÊTE (limites, pièges, ce qu'on ne vous dit pas)
-- Au moins 1 angle doit contenir des CHIFFRES CONCRETS dans le titre
+- Au moins 1 angle (parmi les 5 premiers) doit aborder un aspect NÉGATIF ou HONNÊTE (limites, pièges, ce qu'on ne vous dit pas)
+- Au moins 1 angle (parmi les 5 premiers) doit contenir des CHIFFRES CONCRETS dans le titre
 - Les titres doivent ressembler à ce qu'un internaute CHERCHE VRAIMENT (pas du jargon marketing)
 - Penser conversion ET crédibilité
 ${contentType === 'actualite' ? `- C'est une ACTUALITÉ (news), PAS un guide. Les angles doivent être journalistiques, informatifs, viraux.
@@ -212,7 +212,7 @@ ${contentType === 'aide' ? `- C'est un article sur les AIDES/SUBVENTIONS. Les an
 RETOURNE un JSON VALIDE (sans markdown ni backticks) :
 [
   { "id": 1, "type": "TYPE_ANGLE", "title": "Titre proposé pour l'article", "intention": "Description courte de l'approche, la problématique réelle adressée, et pourquoi ça convertit" },
-  ...
+  ...${imposedTitle ? `\n  { "id": 6, "type": "Titre imposé (fidèle)", "title": "Reformulation propre et SEO du titre imposé, AU DÉTAIL PRÈS", "intention": "Confirme la prise en compte de chaque détail du titre imposé (dates, chiffres, lieux, sigles, exceptions)" }` : ''}
 ]
 
 ${contentType === 'actualite' ? 'Types possibles: Décryptage, Analyse, Tendance, Alerte, Révélation, Comparatif, Question directe, Témoignage, Chiffres clés, Dossier' : ''}
