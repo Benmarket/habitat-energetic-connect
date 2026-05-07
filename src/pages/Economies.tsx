@@ -30,6 +30,7 @@ const Economies = () => {
   const [draft, setDraft] = useState<{ housing_status?: any; housing_type?: any }>({});
   const [leadSurface, setLeadSurface] = useState<number | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   // Auth guard
   useEffect(() => {
@@ -40,9 +41,8 @@ const Economies = () => {
   useEffect(() => {
     if (!profile) return;
     setDraft({ housing_status: profile.housing_status, housing_type: profile.housing_type });
-    if (profile.completed_at) setShowDashboard(true);
-    else setStep(profile.wizard_step_completed || 0);
-  }, [profile]);
+    if (profile.completed_at && !editing) setShowDashboard(true);
+  }, [profile, editing]);
 
   // Pré-remplissage surface depuis le dernier lead de l'utilisateur
   useEffect(() => {
@@ -112,6 +112,7 @@ const Economies = () => {
           equipments={equipments}
           reference={reference}
           onEdit={() => {
+            setEditing(true);
             setShowDashboard(false);
             setStep(0);
           }}
@@ -198,6 +199,7 @@ const Economies = () => {
               completed_at: new Date().toISOString(),
             });
             await reload();
+            setEditing(false);
             setShowDashboard(true);
           }}
           onNext={() => {}}
