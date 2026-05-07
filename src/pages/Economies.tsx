@@ -221,7 +221,7 @@ const Economies = () => {
       <main className="min-h-screen bg-muted/30 pt-24 pb-16">
         <div className="container max-w-5xl mx-auto px-4">
           {!showDashboard && (
-            <div className="mb-8">
+            <div className="mb-8 text-center">
               <h1 className="text-3xl md:text-4xl font-bold mb-2">Mes économies réalisées</h1>
               <p className="text-muted-foreground">
                 Construisez votre fiche logement pour visualiser vos économies actuelles et votre potentiel.
