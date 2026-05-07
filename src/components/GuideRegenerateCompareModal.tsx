@@ -98,7 +98,10 @@ const replaceImageInHtml = (html: string, oldUrl: string, newUrl: string): strin
 
 export const GuideRegenerateCompareModal = ({
   open, onOpenChange, current, pending, onApply, onDiscard, onUpdatePending,
+  onAddImages, guideTemplate,
 }: Props) => {
+  const profile = TEMPLATE_PROFILES[guideTemplate || 'premium'] || TEMPLATE_PROFILES.premium;
+
   const [selection, setSelection] = useState<Record<FieldKey, boolean>>(() =>
     FIELDS.reduce((acc, f) => ({ ...acc, [f.key]: f.defaultChecked }), {} as Record<FieldKey, boolean>)
   );
@@ -115,6 +118,11 @@ export const GuideRegenerateCompareModal = ({
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
 
+  // Add-images console state
+  const [addCount, setAddCount] = useState(2);
+  const [addInstruction, setAddInstruction] = useState("");
+  const [addLoading, setAddLoading] = useState(false);
+
   const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -123,6 +131,8 @@ export const GuideRegenerateCompareModal = ({
       setConfirmStep(false);
       setSide("new");
       setAiPrompt("");
+      setAddCount(2);
+      setAddInstruction("");
     }
   }, [open]);
 
