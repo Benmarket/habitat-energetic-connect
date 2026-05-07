@@ -75,8 +75,8 @@ const PasswordResetEmail = ({
                       </Heading>
 
                       <Text style={text}>
-                        Vous avez demandé la <strong style={strongAccent}>réinitialisation de votre mot de passe</strong>
-                        {email ? <> pour le compte <strong>{email}</strong></> : ''}.
+                        {'Vous avez demand\u00E9 la '}<strong style={strongAccent}>{'r\u00E9initialisation de votre mot de passe'}</strong>
+                        {email ? <>{' pour le compte '}<strong>{email}</strong></> : ''}.
                       </Text>
 
                       <Text style={text}>
