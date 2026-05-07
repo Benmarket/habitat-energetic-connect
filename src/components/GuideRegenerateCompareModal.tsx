@@ -432,6 +432,57 @@ export const GuideRegenerateCompareModal = ({
             </div>
           )}
 
+          {/* Add-images console */}
+          {side === "new" && onAddImages && (
+            <div className="border-2 border-dashed border-emerald-400/40 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-lg p-3 space-y-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <ImageIcon className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                <h3 className="text-sm font-semibold">Ajouter des images au guide</h3>
+                <Badge variant="outline" className="text-[10px]">
+                  {stats?.newImages ?? 0} / cible {profile.imagesMin}-{profile.imagesMax}
+                </Badge>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button type="button" size="icon" variant="outline" className="h-9 w-9"
+                    onClick={() => setAddCount(c => Math.max(1, c - 1))}
+                    disabled={addLoading || addCount <= 1}>
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                  <div className="w-12 text-center font-semibold tabular-nums">{addCount}</div>
+                  <Button type="button" size="icon" variant="outline" className="h-9 w-9"
+                    onClick={() => setAddCount(c => Math.min(10, c + 1))}
+                    disabled={addLoading || addCount >= 10}>
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+                <Textarea
+                  value={addInstruction}
+                  onChange={(e) => setAddInstruction(e.target.value)}
+                  placeholder='Optionnel — ex: "Renforcer les sections coûts et étapes pas à pas, ajouter une infographie dans la FAQ."'
+                  rows={2}
+                  className="flex-1 text-sm resize-none"
+                  disabled={addLoading}
+                />
+                <Button
+                  onClick={async () => {
+                    setAddLoading(true);
+                    try { await onAddImages(addCount, addInstruction); setAddInstruction(""); }
+                    finally { setAddLoading(false); }
+                  }}
+                  disabled={addLoading}
+                  className="gap-2 self-stretch bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
+                  {addLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                  {addLoading ? "Génération…" : `Générer ${addCount} image${addCount > 1 ? 's' : ''}`}
+                </Button>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                L'IA insère {addCount} placeholder(s) image dans les sections les plus pertinentes (ou suit votre consigne), puis génère les visuels. Le reste du contenu n'est pas touché.
+              </p>
+            </div>
+          )}
+
           <Separator />
 
           {!confirmStep ? (
