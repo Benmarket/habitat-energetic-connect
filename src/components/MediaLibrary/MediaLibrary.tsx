@@ -242,9 +242,9 @@ export function MediaLibrary({ onSelect, open, onOpenChange }: MediaLibraryProps
             <DialogTitle>Bibliothèque de médias</DialogTitle>
           </DialogHeader>
 
-          <div className="mb-4">
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-3">
             <Label htmlFor="file-upload" className="cursor-pointer">
-              <div className="flex items-center justify-center border-2 border-dashed border-border rounded-lg p-6 hover:border-primary transition-colors">
+              <div className="flex items-center justify-center border-2 border-dashed border-border rounded-lg p-6 hover:border-primary transition-colors h-full">
                 {uploading ? (
                   <Loader2 className="h-6 w-6 animate-spin" />
                 ) : (
@@ -263,6 +263,14 @@ export function MediaLibrary({ onSelect, open, onOpenChange }: MediaLibraryProps
               className="hidden"
               disabled={uploading}
             />
+            <button
+              type="button"
+              onClick={() => setGenerateOpen(true)}
+              className="flex items-center justify-center border-2 border-dashed border-primary/40 rounded-lg p-6 hover:border-primary hover:bg-primary/5 transition-colors text-primary"
+            >
+              <Sparkles className="h-6 w-6 mr-2" />
+              <span>Générer une image avec l'IA</span>
+            </button>
           </div>
 
           <Tabs
