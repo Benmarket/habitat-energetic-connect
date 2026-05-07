@@ -199,6 +199,7 @@ const Economies = () => {
               completed_at: new Date().toISOString(),
             });
             await reload();
+            setEditing(false);
             setShowDashboard(true);
           }}
           onNext={() => {}}
