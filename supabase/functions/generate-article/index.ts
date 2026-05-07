@@ -189,6 +189,10 @@ ${subject ? `- Sujet / Trame de l'article: ${subject}` : ''}
 ${keywords?.length > 0 ? `- Mots-clés SEO: ${keywords.join(', ')}` : ''}
 ${targetRegions?.length > 0 ? `- Régions cibles: ${targetRegions.join(', ')} (adapte le contenu, les aides locales et les références géographiques)` : ''}
 ${freePrompt ? `- Contraintes: ${freePrompt}` : ''}
+${imposedTitle ? `- TITRE IMPOSÉ PAR L'UTILISATEUR (brut, possiblement avec fautes): "${imposedTitle}"
+  → Tu DOIS reformuler ce titre proprement (orthographe, grammaire, accroche SEO) et l'utiliser comme base pour les 5 angles.
+  → Les 5 angles doivent TOUS respecter le sens et l'intention de ce titre. Varie l'approche/le format mais reste fidèle au sujet imposé.
+  → NE T'ÉCARTE PAS du sujet du titre imposé.` : ''}
 ${customInstructions ? `- Instructions: ${customInstructions}` : ''}
 
 RÈGLES:
