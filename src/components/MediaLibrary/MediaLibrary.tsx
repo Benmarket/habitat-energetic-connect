@@ -428,6 +428,45 @@ export function MediaLibrary({ onSelect, open, onOpenChange }: MediaLibraryProps
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={generateOpen} onOpenChange={(o) => !generating && setGenerateOpen(o)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              Générer une image avec l'IA
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="generate-prompt">Description de l'image</Label>
+              <Textarea
+                id="generate-prompt"
+                value={generatePrompt}
+                onChange={(e) => setGeneratePrompt(e.target.value)}
+                placeholder="Ex: Une maison moderne avec des panneaux solaires sur le toit, ciel bleu, photo réaliste"
+                rows={5}
+                disabled={generating}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Soyez précis : sujet, style, ambiance, cadrage.
+              </p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setGenerateOpen(false)} disabled={generating}>
+                Annuler
+              </Button>
+              <Button onClick={handleGenerate} disabled={generating || generatePrompt.trim().length < 5}>
+                {generating ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Génération…</>
+                ) : (
+                  <><Sparkles className="h-4 w-4 mr-2" /> Générer</>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
