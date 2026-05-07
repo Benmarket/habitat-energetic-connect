@@ -219,6 +219,7 @@ export function useArticleGeneration(
           objective: input.objective,
           keywords: input.keywords,
           freePrompt: input.freePrompt,
+          imposedTitle: input.imposedTitle,
           targetRegions: input.targetRegions,
           contentType,
           customInstructions: currentAiInstructions,
