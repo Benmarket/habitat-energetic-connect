@@ -22,6 +22,7 @@ export interface GenerationInput {
   keywords: string[];
   freePrompt: string;
   targetRegions: string[];
+  imposedTitle?: string;
 }
 
 export interface EditorialAngle {
@@ -95,6 +96,7 @@ export const ArticleGenerationWizard = ({
     keywords: initialKeywords,
     freePrompt: "",
     targetRegions: initialRegions,
+    imposedTitle: "",
   });
   const [keywordInput, setKeywordInput] = useState("");
   const [selectedAngle, setSelectedAngle] = useState<EditorialAngle | null>(null);
@@ -126,7 +128,7 @@ export const ArticleGenerationWizard = ({
 
   const resetWizard = () => {
     setStep(1);
-    setInput({ product: "", subject: "", theme: "", objective: "lead", keywords: initialKeywords, freePrompt: "", targetRegions: initialRegions });
+    setInput({ product: "", subject: "", theme: "", objective: "lead", keywords: initialKeywords, freePrompt: "", targetRegions: initialRegions, imposedTitle: "" });
     setKeywordInput("");
     setSelectedAngle(null);
     setElapsedSeconds(0);
@@ -336,6 +338,14 @@ export const ArticleGenerationWizard = ({
                 <Label>Prompt libre <span className="text-muted-foreground text-xs">(optionnel)</span></Label>
                 <Textarea placeholder="Angle spécifique, contraintes…" value={input.freePrompt}
                   onChange={e => setInput(prev => ({ ...prev, freePrompt: e.target.value }))} rows={3} />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Titre imposé <span className="text-muted-foreground text-xs">(optionnel — sera reformulé proprement)</span></Label>
+                <Input placeholder="Ex: les subventions baisse mais ne disparaisse pas"
+                  value={input.imposedTitle || ""}
+                  onChange={e => setInput(prev => ({ ...prev, imposedTitle: e.target.value }))} />
+                <p className="text-xs text-muted-foreground">Si renseigné, les 5 angles respecteront ce titre (reformulé sans fautes). Laissez vide pour des angles libres.</p>
               </div>
 
               <div className="flex justify-end pt-2">

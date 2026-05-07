@@ -147,7 +147,7 @@ serve(async (req) => {
     // MODE: ANGLES — Propose 5 editorial angles
     // ══════════════════════════════════════════
     if (mode === 'angles') {
-      const { product, subject, theme, objective, keywords, freePrompt, contentType, customInstructions, targetRegions } = body;
+      const { product, subject, theme, objective, keywords, freePrompt, imposedTitle, contentType, customInstructions, targetRegions } = body;
 
       if (!product || !theme || !objective) throw new Error('Produit, thème et objectif sont obligatoires');
 
@@ -189,6 +189,10 @@ ${subject ? `- Sujet / Trame de l'article: ${subject}` : ''}
 ${keywords?.length > 0 ? `- Mots-clés SEO: ${keywords.join(', ')}` : ''}
 ${targetRegions?.length > 0 ? `- Régions cibles: ${targetRegions.join(', ')} (adapte le contenu, les aides locales et les références géographiques)` : ''}
 ${freePrompt ? `- Contraintes: ${freePrompt}` : ''}
+${imposedTitle ? `- TITRE IMPOSÉ PAR L'UTILISATEUR (brut, possiblement avec fautes): "${imposedTitle}"
+  → Tu DOIS reformuler ce titre proprement (orthographe, grammaire, accroche SEO) et l'utiliser comme base pour les 5 angles.
+  → Les 5 angles doivent TOUS respecter le sens et l'intention de ce titre. Varie l'approche/le format mais reste fidèle au sujet imposé.
+  → NE T'ÉCARTE PAS du sujet du titre imposé.` : ''}
 ${customInstructions ? `- Instructions: ${customInstructions}` : ''}
 
 RÈGLES:
@@ -251,7 +255,7 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
     // ══════════════════════════════════════════
     if (mode === 'article') {
       const {
-        product, subject, theme, objective, keywords, freePrompt, targetRegions,
+        product, subject, theme, objective, keywords, freePrompt, imposedTitle, targetRegions,
         contentType, customInstructions, guideTemplate,
         selectedAngle, availableCategories, availableTags
       } = body;
@@ -486,6 +490,9 @@ IMPORTANT: Adapte le contenu aux spécificités de ces régions (aides locales, 
 ${guideBlock}
 ${customInstructions ? `INSTRUCTIONS: ${customInstructions}` : ''}
 ${freePrompt ? `CONTRAINTES: ${freePrompt}` : ''}
+${imposedTitle ? `🎯 TITRE IMPOSÉ PAR L'UTILISATEUR (brut, à reformuler proprement sans fautes): "${imposedTitle}"
+   → Le H1 final DOIT être une reformulation propre et SEO de ce titre imposé.
+   → Tout l'article doit respecter le sujet/sens de ce titre. Ne t'en écarte pas.` : ''}
 
 ═══════════════════════════════════════════
 🚨 RÈGLE ANTI-HALLUCINATION — ZÉRO BULLSHIT (ÉLIMINATOIRE)
