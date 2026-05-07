@@ -14,6 +14,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Home, Building2 } from "lucide-react";
+import { PasswordStrengthIndicator } from "@/components/PasswordStrengthIndicator";
+
+const strongPassword = z
+  .string()
+  .min(8, "8 caractères minimum")
+  .regex(/[A-Z]/, "Au moins une majuscule");
 
 const signInSchema = z.object({
   email: z.string().email("Email invalide"),
@@ -24,7 +30,7 @@ const signUpParticulierSchema = z.object({
   fullName: z.string().min(2, "Le nom complet doit contenir au moins 2 caractères"),
   phone: z.string().min(10, "Numéro de téléphone invalide"),
   email: z.string().email("Email invalide"),
-  password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
+  password: strongPassword,
 });
 
 const signUpProfessionnelSchema = z.object({
@@ -32,7 +38,7 @@ const signUpProfessionnelSchema = z.object({
   companyName: z.string().min(2, "Le nom de l'entreprise doit contenir au moins 2 caractères"),
   phone: z.string().min(10, "Numéro de téléphone invalide"),
   email: z.string().email("Email invalide"),
-  password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
+  password: strongPassword,
 });
 
 interface AuthModalProps {
@@ -43,6 +49,7 @@ interface AuthModalProps {
 export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
   const [activeTab, setActiveTab] = useState<"signin" | "signup">("signin");
   const [accountType, setAccountType] = useState<"particulier" | "professionnel">("particulier");
+  const [signupPassword, setSignupPassword] = useState("");
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
 
@@ -284,9 +291,12 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                       id="signup-password"
                       name="password"
                       type="password"
-                      placeholder="exemple123"
+                      placeholder="••••••••"
+                      value={signupPassword}
+                      onChange={(e) => setSignupPassword(e.target.value)}
                       required
                     />
+                    <PasswordStrengthIndicator password={signupPassword} />
                   </div>
                 </>
               ) : (
@@ -341,9 +351,12 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                       id="signup-password-pro"
                       name="password"
                       type="password"
-                      placeholder="exemple123"
+                      placeholder="••••••••"
+                      value={signupPassword}
+                      onChange={(e) => setSignupPassword(e.target.value)}
                       required
                     />
+                    <PasswordStrengthIndicator password={signupPassword} />
                   </div>
                 </>
               )}

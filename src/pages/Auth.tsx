@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Loader2, AlertTriangle, ArrowLeft } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { PasswordStrengthIndicator } from "@/components/PasswordStrengthIndicator";
 
 const signInSchema = z.object({
   email: z.string().email("Email invalide"),
@@ -22,7 +23,10 @@ const signUpSchema = z
     firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
     lastName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
     email: z.string().email("Email invalide"),
-    password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
+    password: z
+      .string()
+      .min(8, "8 caractères minimum")
+      .regex(/[A-Z]/, "Au moins une majuscule"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -32,6 +36,7 @@ const signUpSchema = z
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [signupPassword, setSignupPassword] = useState("");
   const [showMemberDisabled, setShowMemberDisabled] = useState(false);
   const isAuthenticatingRef = useRef(false);
   const { signIn, signUp, user } = useAuth();
@@ -374,8 +379,11 @@ const Auth = () => {
                       name="password"
                       type="password"
                       placeholder="••••••••"
+                      value={signupPassword}
+                      onChange={(e) => setSignupPassword(e.target.value)}
                       required
                     />
+                    <PasswordStrengthIndicator password={signupPassword} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
