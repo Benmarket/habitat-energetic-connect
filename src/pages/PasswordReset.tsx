@@ -161,9 +161,18 @@ export default function PasswordReset() {
             {status === "request_sent" && (
               <div className="text-center py-6 space-y-3">
                 <Mail className="h-12 w-12 text-primary mx-auto" />
-                <p className="font-medium">Si un compte existe avec cette adresse, un email vient de partir.</p>
+                <p className="font-medium">Un email de réinitialisation vient de partir.</p>
                 <p className="text-sm text-muted-foreground">Vérifiez votre boîte de réception (et vos spams). Le lien est valable 1 heure.</p>
                 <Button asChild variant="outline"><Link to="/connexion">Retour à la connexion</Link></Button>
+              </div>
+            )}
+
+            {status === "no_account" && (
+              <div className="text-center py-6 space-y-3">
+                <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
+                <p className="font-medium">Aucun compte n'est associé à cette adresse email.</p>
+                <p className="text-sm text-muted-foreground">Vérifiez l'orthographe ou contactez-nous si vous pensez qu'il s'agit d'une erreur.</p>
+                <Button variant="outline" onClick={() => setStatus("request")}>Réessayer</Button>
               </div>
             )}
 
