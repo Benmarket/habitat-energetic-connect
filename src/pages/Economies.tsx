@@ -177,7 +177,7 @@ const Economies = () => {
       return (
         <StepEquipments
           reference={reference}
-          initial={equipments.map((e) => ({ equipment_key: e.equipment_key, category: e.category, status: e.status }))}
+          initial={equipments.map((e) => ({ equipment_key: e.equipment_key, category: e.category, status: e.status, details: e.details as any }))}
           onSave={async (items) => {
             if (!profile) return;
             await setEquipmentSelection(profile.id, items);
