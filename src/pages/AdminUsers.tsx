@@ -181,6 +181,37 @@ const AdminUsers = () => {
     }
   };
 
+
+  const handleCreateUser = async () => {
+    if (!createForm.email || !createForm.password) {
+      toast({ title: "Email et mot de passe requis", variant: "destructive" });
+      return;
+    }
+    if (createForm.password.length < 8 || !/[A-Z]/.test(createForm.password)) {
+      toast({ title: "Mot de passe trop faible", description: "Min. 8 caractères + 1 majuscule.", variant: "destructive" });
+      return;
+    }
+    setCreating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-create-user", {
+        body: createForm,
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      toast({ title: "Utilisateur créé" });
+      setCreateOpen(false);
+      setCreateForm({
+        email: "", first_name: "", last_name: "", phone: "",
+        password: "", role: "user", account_type: "particulier", company_name: "",
+      });
+      fetchUsers();
+    } catch (e: any) {
+      toast({ title: "Erreur", description: e.message || "Création impossible", variant: "destructive" });
+    } finally {
+      setCreating(false);
+    }
+  };
+
   if (authLoading || !user || !isAuthorized) {
     return (
       <div className="min-h-screen flex items-center justify-center">
