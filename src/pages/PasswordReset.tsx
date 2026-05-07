@@ -11,10 +11,11 @@ import { Loader2, CheckCircle2, AlertCircle, Mail } from "lucide-react";
 import { PasswordStrengthIndicator, isPasswordValid } from "@/components/PasswordStrengthIndicator";
 
 type Status =
-  | "request"        // no token: ask for email
-  | "request_sent"   // email submitted
-  | "loading"        // validating token
-  | "valid"          // token valid: show new pwd form
+  | "request"
+  | "request_sent"
+  | "no_account"
+  | "loading"
+  | "valid"
   | "invalid"
   | "expired"
   | "used"
@@ -63,12 +64,24 @@ export default function PasswordReset() {
     if (!email) return;
     setStatus("submitting");
     try {
-      await supabase.functions.invoke("request-password-reset", {
+      const { data, error } = await supabase.functions.invoke("request-password-reset", {
         body: { email, siteOrigin: window.location.origin },
       });
-      setStatus("request_sent");
-    } catch {
-      setStatus("request_sent"); // generic, never reveal
+      if (error) throw error;
+      if (data?.sent) {
+        setStatus("request_sent");
+      } else if (data?.reason === "no_account") {
+        setStatus("no_account");
+      } else if (data?.reason === "rate_limited") {
+        toast({ title: "Trop de demandes", description: data.message, variant: "destructive" });
+        setStatus("request");
+      } else {
+        toast({ title: "Erreur", description: data?.message || "Réessayez.", variant: "destructive" });
+        setStatus("request");
+      }
+    } catch (err: any) {
+      toast({ title: "Erreur", description: err?.message || "Réessayez.", variant: "destructive" });
+      setStatus("request");
     }
   };
 
@@ -148,9 +161,18 @@ export default function PasswordReset() {
             {status === "request_sent" && (
               <div className="text-center py-6 space-y-3">
                 <Mail className="h-12 w-12 text-primary mx-auto" />
-                <p className="font-medium">Si un compte existe avec cette adresse, un email vient de partir.</p>
+                <p className="font-medium">Un email de réinitialisation vient de partir.</p>
                 <p className="text-sm text-muted-foreground">Vérifiez votre boîte de réception (et vos spams). Le lien est valable 1 heure.</p>
                 <Button asChild variant="outline"><Link to="/connexion">Retour à la connexion</Link></Button>
+              </div>
+            )}
+
+            {status === "no_account" && (
+              <div className="text-center py-6 space-y-3">
+                <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
+                <p className="font-medium">Aucun compte n'est associé à cette adresse email.</p>
+                <p className="text-sm text-muted-foreground">Vérifiez l'orthographe ou contactez-nous si vous pensez qu'il s'agit d'une erreur.</p>
+                <Button variant="outline" onClick={() => setStatus("request")}>Réessayer</Button>
               </div>
             )}
 

@@ -62,15 +62,22 @@ Deno.serve(async (req) => {
     })
   }
 
-  // Generic success response (anti account-enumeration)
-  const genericResponse = new Response(
-    JSON.stringify({
-      success: true,
-      message:
-        'Si un compte existe avec cette adresse, un email de réinitialisation vous a été envoyé.',
-    }),
-    { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-  )
+  const json = (status: number, body: Record<string, unknown>) =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+
+  // Look up the user by email FIRST — do not send anything if no account
+  const { data: userId } = await admin.rpc('get_user_id_by_email', { _email: rawEmail })
+  if (!userId) {
+    return json(200, {
+      success: false,
+      sent: false,
+      reason: 'no_account',
+      message: "Aucun compte n'est associé à cette adresse email.",
+    })
+  }
 
   // Rate limit (per email + IP, max 5/hour)
   const { data: rateOk } = await admin.rpc('check_password_reset_rate', {
@@ -78,15 +85,12 @@ Deno.serve(async (req) => {
     p_ip: ip,
   })
   if (rateOk === false) {
-    // Still respond generically — but skip sending
-    return genericResponse
-  }
-
-  // Look up the user by email
-  const { data: userId } = await admin.rpc('get_user_id_by_email', { _email: rawEmail })
-  if (!userId) {
-    // No account: return generic response without sending anything
-    return genericResponse
+    return json(429, {
+      success: false,
+      sent: false,
+      reason: 'rate_limited',
+      message: 'Trop de demandes récentes. Réessayez dans 1 heure.',
+    })
   }
 
   // Fetch first_name from profiles (best-effort)
@@ -107,7 +111,7 @@ Deno.serve(async (req) => {
   })
   if (insertErr) {
     console.error('[request-password-reset] token insert failed:', insertErr)
-    return genericResponse
+    return json(500, { success: false, sent: false, reason: 'server_error', message: 'Erreur serveur. Réessayez.' })
   }
 
   const resetUrl = `${origin}/mot-de-passe-oublie?token=${rawToken}`
@@ -127,7 +131,12 @@ Deno.serve(async (req) => {
   })
   if (sendErr) {
     console.error('[request-password-reset] send failed:', sendErr)
+    return json(500, { success: false, sent: false, reason: 'send_error', message: "L'envoi de l'email a échoué. Réessayez." })
   }
 
-  return genericResponse
+  return json(200, {
+    success: true,
+    sent: true,
+    message: 'Un email de réinitialisation vient de partir.',
+  })
 })
