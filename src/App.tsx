@@ -83,6 +83,8 @@ const ServiceAmeliorationHabitat = lazy(() => import("./pages/services/ServiceAm
 const ActivateAccount = lazy(() => import("./pages/ActivateAccount"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const PasswordReset = lazy(() => import("./pages/PasswordReset"));
+const Economies = lazy(() => import("./pages/Economies"));
+const AdminEconomiesAccess = lazy(() => import("./pages/AdminEconomiesAccess"));
 
 const queryClient = new QueryClient();
 
@@ -125,6 +127,7 @@ const App = () => (
                   <Route path="/tableau-de-bord" element={<Dashboard />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/profil" element={<Profil />} />
+                  <Route path="/economies" element={<Economies />} />
                   <Route path="/creer-contenu" element={<AdminGuard allowedRoles={["super_admin"]}><CreatePost /></AdminGuard>} />
 
                   {/* Management pages - super_admin only */}
@@ -156,6 +159,7 @@ const App = () => (
                   <Route path="/admin/app" element={<AdminGuard allowedRoles={["super_admin"]}><AdminApp /></AdminGuard>} />
                   <Route path="/admin/auteurs" element={<AdminGuard allowedRoles={["super_admin"]}><AdminAuthors /></AdminGuard>} />
                   <Route path="/admin/mediatheque" element={<AdminGuard allowedRoles={["super_admin"]}><AdminMediatheque /></AdminGuard>} />
+                  <Route path="/admin/economies-acces" element={<AdminGuard allowedRoles={["super_admin"]}><AdminEconomiesAccess /></AdminGuard>} />
 
                   {/* Utility pages - lazy loaded */}
                   <Route path="/installer-app" element={<InstallApp />} />
