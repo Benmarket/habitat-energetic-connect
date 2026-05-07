@@ -194,7 +194,16 @@ const AdminUsers = () => {
     setCreating(true);
     try {
       const { data, error } = await supabase.functions.invoke("admin-create-user", {
-        body: createForm,
+        body: {
+          email: createForm.email,
+          password: createForm.password,
+          firstName: createForm.first_name,
+          lastName: createForm.last_name,
+          phone: createForm.phone,
+          role: createForm.role,
+          accountType: createForm.account_type,
+          companyName: createForm.company_name,
+        },
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
