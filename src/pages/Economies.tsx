@@ -41,9 +41,8 @@ const Economies = () => {
   useEffect(() => {
     if (!profile) return;
     setDraft({ housing_status: profile.housing_status, housing_type: profile.housing_type });
-    if (profile.completed_at) setShowDashboard(true);
-    else setStep(profile.wizard_step_completed || 0);
-  }, [profile]);
+    if (profile.completed_at && !editing) setShowDashboard(true);
+  }, [profile, editing]);
 
   // Pré-remplissage surface depuis le dernier lead de l'utilisateur
   useEffect(() => {
