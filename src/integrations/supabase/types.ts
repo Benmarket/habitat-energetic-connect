@@ -2392,6 +2392,7 @@ export type Database = {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      email_already_used: { Args: { _email: string }; Returns: boolean }
       email_has_account: { Args: { _email: string }; Returns: boolean }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
@@ -2436,6 +2437,7 @@ export type Database = {
         }
         Returns: number
       }
+      phone_already_used: { Args: { _phone: string }; Returns: boolean }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
