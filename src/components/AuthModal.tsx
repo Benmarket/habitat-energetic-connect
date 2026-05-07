@@ -161,218 +161,60 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">
-            {activeTab === "signin" ? "Connexion" : "Inscription"}
-          </DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Connexion</DialogTitle>
         </DialogHeader>
 
         <div className="pt-4">
-          {activeTab === "signin" ? (
-            <form onSubmit={handleSignIn} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="signin-email">Email</Label>
-                <Input
-                  id="signin-email"
-                  name="email"
-                  type="email"
-                  placeholder="exemple@email.fr"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="signin-password">Mot de passe</Label>
-                <Input
-                  id="signin-password"
-                  name="password"
-                  type="password"
-                  placeholder="exemple123"
-                  required
-                />
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox id="remember" />
-                <label
-                  htmlFor="remember"
-                  className="text-sm text-muted-foreground cursor-pointer"
-                >
-                  Rester connecté
-                </label>
-              </div>
-
-              <Button type="submit" className="w-full">
-                Se connecter
-              </Button>
-
-              <div className="text-center pt-4 border-t">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("signup")}
-                  className="text-sm text-primary hover:underline"
-                >
-                  Pas encore de compte ? S'inscrire
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div>
-            {/* Account Type Selection */}
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <button
-                type="button"
-                onClick={() => setAccountType("particulier")}
-                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
-                  accountType === "particulier"
-                    ? "border-primary bg-primary/5 text-primary"
-                    : "border-border hover:border-primary/50"
-                }`}
-              >
-                <Home className="h-5 w-5" />
-                <span className="text-sm font-medium">Particulier</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setAccountType("professionnel")}
-                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
-                  accountType === "professionnel"
-                    ? "border-primary bg-primary/5 text-primary"
-                    : "border-border hover:border-primary/50"
-                }`}
-              >
-                <Building2 className="h-5 w-5" />
-                <span className="text-sm font-medium">Professionnel</span>
-              </button>
+          <form onSubmit={handleSignIn} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="signin-email">Email</Label>
+              <Input
+                id="signin-email"
+                name="email"
+                type="email"
+                placeholder="exemple@email.fr"
+                required
+              />
             </div>
 
-            <form onSubmit={handleSignUp} className="space-y-4">
-              {accountType === "particulier" ? (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name">Nom et prénom</Label>
-                    <Input
-                      id="signup-name"
-                      name="fullName"
-                      type="text"
-                      placeholder="Jean Dupont"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-phone">Téléphone</Label>
-                    <Input
-                      id="signup-phone"
-                      name="phone"
-                      type="tel"
-                      placeholder="06 12 34 56 78"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <Input
-                      id="signup-email"
-                      name="email"
-                      type="email"
-                      placeholder="exemple@email.fr"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Mot de passe</Label>
-                    <Input
-                      id="signup-password"
-                      name="password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={signupPassword}
-                      onChange={(e) => setSignupPassword(e.target.value)}
-                      required
-                    />
-                    <PasswordStrengthIndicator password={signupPassword} />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-contact">Nom du contact</Label>
-                    <Input
-                      id="signup-contact"
-                      name="contactName"
-                      type="text"
-                      placeholder="Jean Dupont"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-company">Entreprise</Label>
-                    <Input
-                      id="signup-company"
-                      name="companyName"
-                      type="text"
-                      placeholder="Société XYZ"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-phone-pro">Téléphone</Label>
-                    <Input
-                      id="signup-phone-pro"
-                      name="phone"
-                      type="tel"
-                      placeholder="06 12 34 56 78"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email-pro">Email</Label>
-                    <Input
-                      id="signup-email-pro"
-                      name="email"
-                      type="email"
-                      placeholder="exemple@email.fr"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password-pro">Mot de passe</Label>
-                    <Input
-                      id="signup-password-pro"
-                      name="password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={signupPassword}
-                      onChange={(e) => setSignupPassword(e.target.value)}
-                      required
-                    />
-                    <PasswordStrengthIndicator password={signupPassword} />
-                  </div>
-                </>
-              )}
-
-              <Button type="submit" className="w-full">
-                S'inscrire
-              </Button>
-
-              <div className="text-center pt-4 border-t">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("signin")}
-                  className="text-sm text-primary hover:underline"
-                >
-                  Déjà un compte ? Se connecter
-                </button>
-              </div>
-            </form>
+            <div className="space-y-2">
+              <Label htmlFor="signin-password">Mot de passe</Label>
+              <Input
+                id="signin-password"
+                name="password"
+                type="password"
+                placeholder="exemple123"
+                required
+              />
             </div>
-          )}
+
+            <div className="flex items-center space-x-2">
+              <Checkbox id="remember" />
+              <label
+                htmlFor="remember"
+                className="text-sm text-muted-foreground cursor-pointer"
+              >
+                Rester connecté
+              </label>
+            </div>
+
+            <Button type="submit" className="w-full">
+              Se connecter
+            </Button>
+
+            <div className="text-center pt-4 border-t">
+              <button
+                type="button"
+                onClick={() => {
+                  onOpenChange(false);
+                  navigate("/mot-de-passe-oublie");
+                }}
+                className="text-sm text-primary hover:underline"
+              >
+                Mot de passe oublié ?
+              </button>
+            </div>
+          </form>
         </div>
       </DialogContent>
     </Dialog>
