@@ -92,7 +92,7 @@ const StepHousingProfile = ({ housingStatus, housingType, onChange, onNext }: Pr
         </div>
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-center">
         <Button size="lg" disabled={!ready} onClick={onNext} className="hover:scale-105 transition-transform">
           Continuer
         </Button>
