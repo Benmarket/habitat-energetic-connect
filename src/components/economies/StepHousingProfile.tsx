@@ -72,9 +72,9 @@ const StepHousingProfile = ({ housingStatus, housingType, onChange, onNext }: Pr
         </div>
       </div>
 
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold">Type de logement</h2>
-        <div className="grid grid-cols-2 gap-4 max-w-xl">
+      <div className="space-y-4 flex flex-col items-center">
+        <h2 className="text-xl font-bold text-center">Type de logement</h2>
+        <div className="grid grid-cols-2 gap-4 max-w-xl w-full">
           <Choice
             active={housingType === "maison"}
             onClick={() => onChange({ housing_type: "maison" })}
