@@ -223,7 +223,7 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${LOVABLE_API_KEY}` },
         body: JSON.stringify({
           model,
-          max_tokens: 1500,
+          max_tokens: 2000,
           temperature: 0.9,
           messages: [
             { role: 'system', content: systemPrompt },
