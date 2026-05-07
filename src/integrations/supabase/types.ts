@@ -726,6 +726,27 @@ export type Database = {
         }
         Relationships: []
       }
+      economies_settings: {
+        Row: {
+          allow_apartments: boolean
+          allow_tenants: boolean
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          allow_apartments?: boolean
+          allow_tenants?: boolean
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          allow_apartments?: boolean
+          allow_tenants?: boolean
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -849,6 +870,48 @@ export type Database = {
           id?: string
           token?: string
           used_at?: string | null
+        }
+        Relationships: []
+      }
+      equipment_savings_reference: {
+        Row: {
+          avg_savings_per_m2_eur: number
+          avg_savings_per_year_eur: number
+          category: Database["public"]["Enums"]["equipment_category"]
+          created_at: string
+          description: string | null
+          display_order: number
+          eligible_aids: string[] | null
+          equipment_key: string
+          id: string
+          label: string
+          updated_at: string
+        }
+        Insert: {
+          avg_savings_per_m2_eur?: number
+          avg_savings_per_year_eur?: number
+          category: Database["public"]["Enums"]["equipment_category"]
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          eligible_aids?: string[] | null
+          equipment_key: string
+          id?: string
+          label: string
+          updated_at?: string
+        }
+        Update: {
+          avg_savings_per_m2_eur?: number
+          avg_savings_per_year_eur?: number
+          category?: Database["public"]["Enums"]["equipment_category"]
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          eligible_aids?: string[] | null
+          equipment_key?: string
+          id?: string
+          label?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1341,6 +1404,113 @@ export type Database = {
           updated_at?: string
           user_id?: string
           width?: number | null
+        }
+        Relationships: []
+      }
+      member_home_equipments: {
+        Row: {
+          category: Database["public"]["Enums"]["equipment_category"]
+          created_at: string
+          details: Json
+          equipment_key: string
+          id: string
+          installed_by: string | null
+          profile_id: string
+          status: Database["public"]["Enums"]["equipment_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["equipment_category"]
+          created_at?: string
+          details?: Json
+          equipment_key: string
+          id?: string
+          installed_by?: string | null
+          profile_id: string
+          status?: Database["public"]["Enums"]["equipment_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["equipment_category"]
+          created_at?: string
+          details?: Json
+          equipment_key?: string
+          id?: string
+          installed_by?: string | null
+          profile_id?: string
+          status?: Database["public"]["Enums"]["equipment_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_home_equipments_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "member_home_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_home_profiles: {
+        Row: {
+          address: string | null
+          city: string | null
+          completed_at: string | null
+          created_at: string
+          dpe_estimated: Database["public"]["Enums"]["dpe_grade"] | null
+          dpe_user_provided: boolean
+          housing_status: Database["public"]["Enums"]["housing_status"] | null
+          housing_type: Database["public"]["Enums"]["housing_type"] | null
+          id: string
+          installed_by_global: string | null
+          latitude: number | null
+          longitude: number | null
+          postal_code: string | null
+          surface_m2: number | null
+          updated_at: string
+          user_id: string
+          wizard_step_completed: number
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          completed_at?: string | null
+          created_at?: string
+          dpe_estimated?: Database["public"]["Enums"]["dpe_grade"] | null
+          dpe_user_provided?: boolean
+          housing_status?: Database["public"]["Enums"]["housing_status"] | null
+          housing_type?: Database["public"]["Enums"]["housing_type"] | null
+          id?: string
+          installed_by_global?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          postal_code?: string | null
+          surface_m2?: number | null
+          updated_at?: string
+          user_id: string
+          wizard_step_completed?: number
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          completed_at?: string | null
+          created_at?: string
+          dpe_estimated?: Database["public"]["Enums"]["dpe_grade"] | null
+          dpe_user_provided?: boolean
+          housing_status?: Database["public"]["Enums"]["housing_status"] | null
+          housing_type?: Database["public"]["Enums"]["housing_type"] | null
+          id?: string
+          installed_by_global?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          postal_code?: string | null
+          surface_m2?: number | null
+          updated_at?: string
+          user_id?: string
+          wizard_step_completed?: number
         }
         Relationships: []
       }
@@ -2492,6 +2662,16 @@ export type Database = {
     Enums: {
       app_role: "super_admin" | "admin" | "moderator" | "user"
       content_type: "actualite" | "guide" | "aide" | "annonce"
+      dpe_grade: "A" | "B" | "C" | "D" | "E" | "F" | "G"
+      equipment_category:
+        | "heating"
+        | "solar"
+        | "insulation"
+        | "water"
+        | "ventilation"
+      equipment_status: "owned" | "wanted"
+      housing_status: "proprietaire" | "locataire"
+      housing_type: "maison" | "appartement"
       lead_status: "new" | "contacted" | "qualified" | "converted" | "rejected"
       post_status: "draft" | "published" | "archived"
     }
@@ -2623,6 +2803,17 @@ export const Constants = {
     Enums: {
       app_role: ["super_admin", "admin", "moderator", "user"],
       content_type: ["actualite", "guide", "aide", "annonce"],
+      dpe_grade: ["A", "B", "C", "D", "E", "F", "G"],
+      equipment_category: [
+        "heating",
+        "solar",
+        "insulation",
+        "water",
+        "ventilation",
+      ],
+      equipment_status: ["owned", "wanted"],
+      housing_status: ["proprietaire", "locataire"],
+      housing_type: ["maison", "appartement"],
       lead_status: ["new", "contacted", "qualified", "converted", "rejected"],
       post_status: ["draft", "published", "archived"],
     },
