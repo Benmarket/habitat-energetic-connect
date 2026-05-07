@@ -1306,9 +1306,10 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
         const allForms = Array.isArray(formsData) ? formsData : [];
 
         // Filter out popups linked to excluded forms
+        const EXCLUDED_FORM_IDENTIFIERS_FIX = ['simulation-solaire', 'chatbot_contacter_prime_energies', 'chatbot_projet_subvention'];
         const excludedFormIds = new Set(
           allForms
-            .filter((f: any) => EXCLUDED_FORM_IDENTIFIERS.includes(f.form_identifier))
+            .filter((f: any) => EXCLUDED_FORM_IDENTIFIERS_FIX.includes(f.form_identifier))
             .map((f: any) => f.id)
         );
         activePopups = allPopups.filter((p: any) => !p.form_id || !excludedFormIds.has(p.form_id));
