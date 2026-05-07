@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, AlertTriangle, ArrowLeft, CheckCircle2, ImageIcon, Wand2, Library, Loader2, MessageSquarePlus } from "lucide-react";
+import { Sparkles, AlertTriangle, ArrowLeft, CheckCircle2, ImageIcon, Wand2, Library, Loader2, MessageSquarePlus, Plus, Minus } from "lucide-react";
 import DOMPurify from "dompurify";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
