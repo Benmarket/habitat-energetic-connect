@@ -169,7 +169,7 @@ serve(async (req) => {
 
 DATE ACTUELLE: ${todayDate}. Toutes tes propositions doivent être à jour et pertinentes pour cette date.
 
-Tu dois proposer EXACTEMENT 5 angles éditoriaux DIFFÉRENTS et STRATÉGIQUES.
+Tu dois proposer ${imposedTitle ? 'EXACTEMENT 6' : 'EXACTEMENT 5'} angles éditoriaux DIFFÉRENTS et STRATÉGIQUES.
 
 MÉTHODOLOGIE — PENSER COMME L'INTERNAUTE :
 Avant de proposer tes angles, demande-toi :
