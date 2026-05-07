@@ -11,10 +11,11 @@ import { Loader2, CheckCircle2, AlertCircle, Mail } from "lucide-react";
 import { PasswordStrengthIndicator, isPasswordValid } from "@/components/PasswordStrengthIndicator";
 
 type Status =
-  | "request"        // no token: ask for email
-  | "request_sent"   // email submitted
-  | "loading"        // validating token
-  | "valid"          // token valid: show new pwd form
+  | "request"
+  | "request_sent"
+  | "no_account"
+  | "loading"
+  | "valid"
   | "invalid"
   | "expired"
   | "used"
