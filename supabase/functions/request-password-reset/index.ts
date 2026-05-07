@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
   })
   if (insertErr) {
     console.error('[request-password-reset] token insert failed:', insertErr)
-    return genericResponse
+    return json(500, { success: false, sent: false, reason: 'server_error', message: 'Erreur serveur. Réessayez.' })
   }
 
   const resetUrl = `${origin}/mot-de-passe-oublie?token=${rawToken}`
@@ -131,7 +131,12 @@ Deno.serve(async (req) => {
   })
   if (sendErr) {
     console.error('[request-password-reset] send failed:', sendErr)
+    return json(500, { success: false, sent: false, reason: 'send_error', message: "L'envoi de l'email a échoué. Réessayez." })
   }
 
-  return genericResponse
+  return json(200, {
+    success: true,
+    sent: true,
+    message: 'Un email de réinitialisation vient de partir.',
+  })
 })
