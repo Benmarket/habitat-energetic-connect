@@ -403,6 +403,75 @@ const AdminUsers = () => {
           </div>
         </main>
         <Footer />
+
+        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Créer un utilisateur</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Prénom</Label>
+                  <Input value={createForm.first_name} onChange={(e) => setCreateForm({ ...createForm, first_name: e.target.value })} />
+                </div>
+                <div>
+                  <Label>Nom</Label>
+                  <Input value={createForm.last_name} onChange={(e) => setCreateForm({ ...createForm, last_name: e.target.value })} />
+                </div>
+              </div>
+              <div>
+                <Label>Email *</Label>
+                <Input type="email" value={createForm.email} onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })} />
+              </div>
+              <div>
+                <Label>Téléphone</Label>
+                <Input type="tel" value={createForm.phone} onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })} />
+              </div>
+              <div>
+                <Label>Mot de passe * (8 car. min, 1 majuscule)</Label>
+                <Input type="text" value={createForm.password} onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Type de compte</Label>
+                  <Select value={createForm.account_type} onValueChange={(v) => setCreateForm({ ...createForm, account_type: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="particulier">Particulier</SelectItem>
+                      <SelectItem value="professionnel">Professionnel</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Rôle</Label>
+                  <Select value={createForm.role} onValueChange={(v) => setCreateForm({ ...createForm, role: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="user">Utilisateur</SelectItem>
+                      <SelectItem value="moderator">Modérateur</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="super_admin">Super Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              {createForm.account_type === "professionnel" && (
+                <div>
+                  <Label>Entreprise</Label>
+                  <Input value={createForm.company_name} onChange={(e) => setCreateForm({ ...createForm, company_name: e.target.value })} />
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setCreateOpen(false)} disabled={creating}>Annuler</Button>
+              <Button onClick={handleCreateUser} disabled={creating}>
+                {creating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Créer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </>
   );
