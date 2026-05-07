@@ -39,11 +39,16 @@ const StepEquipments = ({ reference, initial, onSave, onNext, onBack }: Props) =
     return acc;
   }, {} as Record<EquipmentCategory, SavingsReference[]>);
 
+  const BATTERY_KEY = "panneaux_solaires_pv_batterie";
+  const PV_KEY = "panneaux_solaires_pv";
+
   const toggle = (key: string, status: EquipmentStatus) => {
     setSel((prev) => {
       const next = new Map(prev);
       if (next.get(key) === status) next.delete(key);
       else next.set(key, status);
+      // If PV panels are removed, also remove the battery
+      if (key === PV_KEY && !next.has(PV_KEY)) next.delete(BATTERY_KEY);
       return next;
     });
   };
@@ -82,6 +87,8 @@ const StepEquipments = ({ reference, initial, onSave, onNext, onBack }: Props) =
               <div className="space-y-2">
                 {grouped[cat].map((r) => {
                   const current = sel.get(r.equipment_key);
+                  const isBattery = r.equipment_key === BATTERY_KEY;
+                  const disabled = isBattery && !sel.has(PV_KEY);
                   return (
                     <div
                       key={r.equipment_key}
@@ -89,32 +96,43 @@ const StepEquipments = ({ reference, initial, onSave, onNext, onBack }: Props) =
                         "flex items-center justify-between gap-3 p-3 rounded-lg border-2 transition-colors",
                         current === "owned" && "border-emerald-500 bg-emerald-50",
                         current === "wanted" && "border-blue-500 bg-blue-50",
-                        !current && "border-border"
+                        !current && "border-border",
+                        disabled && "opacity-50"
                       )}
                     >
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-sm">{r.label}</div>
-                        {r.description && <div className="text-xs text-muted-foreground line-clamp-1">{r.description}</div>}
+                        {disabled ? (
+                          <div className="text-xs text-muted-foreground line-clamp-1">
+                            Sélectionnez d'abord des panneaux photovoltaïques.
+                          </div>
+                        ) : (
+                          r.description && <div className="text-xs text-muted-foreground line-clamp-1">{r.description}</div>
+                        )}
                       </div>
                       <div className="flex gap-2 shrink-0">
                         <button
+                          disabled={disabled}
                           onClick={() => toggle(r.equipment_key, "owned")}
                           className={cn(
                             "px-3 py-1.5 text-xs rounded-md font-medium transition-colors",
                             current === "owned"
                               ? "bg-emerald-500 text-white"
-                              : "bg-muted text-muted-foreground hover:bg-emerald-100 hover:text-emerald-700"
+                              : "bg-muted text-muted-foreground hover:bg-emerald-100 hover:text-emerald-700",
+                            disabled && "cursor-not-allowed hover:bg-muted hover:text-muted-foreground"
                           )}
                         >
                           J'ai déjà
                         </button>
                         <button
+                          disabled={disabled}
                           onClick={() => toggle(r.equipment_key, "wanted")}
                           className={cn(
                             "px-3 py-1.5 text-xs rounded-md font-medium transition-colors",
                             current === "wanted"
                               ? "bg-blue-500 text-white"
-                              : "bg-muted text-muted-foreground hover:bg-blue-100 hover:text-blue-700"
+                              : "bg-muted text-muted-foreground hover:bg-blue-100 hover:text-blue-700",
+                            disabled && "cursor-not-allowed hover:bg-muted hover:text-muted-foreground"
                           )}
                         >
                           J'envisage

@@ -1,0 +1,1 @@
+UPDATE equipment_savings_reference SET label = 'Batterie de stockage', description = 'Stockage permettant de consommer son électricité en soirée.' WHERE equipment_key = 'panneaux_solaires_pv_batterie';
