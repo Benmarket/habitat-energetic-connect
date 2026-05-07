@@ -18,10 +18,9 @@ const signInSchema = z.object({
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [signupPassword, setSignupPassword] = useState("");
   const [showMemberDisabled, setShowMemberDisabled] = useState(false);
   const isAuthenticatingRef = useRef(false);
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
