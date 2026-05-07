@@ -517,6 +517,11 @@ const ManageActualites = () => {
                                 ? format(new Date(post.published_at), "d MMM yyyy", { locale: fr })
                                 : format(new Date(post.created_at), "d MMM yyyy", { locale: fr })}
                             </TableCell>
+                            <TableCell className="text-muted-foreground text-sm">
+                              {post.updated_at && post.updated_at !== post.created_at
+                                ? format(new Date(post.updated_at), "d MMM yyyy 'à' HH:mm", { locale: fr })
+                                : "—"}
+                            </TableCell>
                             <TableCell className="text-right">
                               <div className="flex gap-2 justify-end">
                                 <Button
