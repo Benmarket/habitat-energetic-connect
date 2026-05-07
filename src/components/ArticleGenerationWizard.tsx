@@ -22,6 +22,7 @@ export interface GenerationInput {
   keywords: string[];
   freePrompt: string;
   targetRegions: string[];
+  imposedTitle?: string;
 }
 
 export interface EditorialAngle {
