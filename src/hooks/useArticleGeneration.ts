@@ -621,6 +621,41 @@ export function useArticleGeneration(
     toast.info("Régénération annulée.");
   };
 
+  // Add N image placeholders into the pending guide and resolve them
+  const handleAddImagesToPending = async (count: number, instruction: string) => {
+    if (!pendingRegeneration) return;
+    const accessToken = await getAccessToken();
+    if (!accessToken) return;
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-article', {
+        body: {
+          mode: 'add_images_to_pending_guide',
+          content: pendingRegeneration.content || '',
+          title: pendingRegeneration.title || '',
+          count,
+          userInstruction: instruction || '',
+        },
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Erreur ajout d'images");
+
+      const htmlWithNewPlaceholders = data.updatedContent || pendingRegeneration.content;
+      const { contentWithImages, generatedCount } =
+        await resolveGeneratedImages(htmlWithNewPlaceholders, accessToken);
+
+      setPendingRegeneration((prev: any) => prev ? {
+        ...prev,
+        content: contentWithImages,
+        generationCost: (prev.generationCost || 0) + (data.addCost || 0),
+        generatedImagesCount: (prev.generatedImagesCount || 0) + generatedCount,
+      } : prev);
+      toast.success(`${generatedCount} image(s) ajoutée(s) au guide`);
+    } catch (e: any) {
+      toast.error(e.message || "Erreur lors de l'ajout d'images");
+    }
+  };
+
   return {
     wizardOpen, setWizardOpen, openWizard,
     loadingAngles, angles,
@@ -636,6 +671,7 @@ export function useArticleGeneration(
     loadingFullRegen, handleFullRegenerate,
     pendingRegeneration, regenCompareOpen, setRegenCompareOpen,
     applyRegeneration, discardRegeneration,
+    handleAddImagesToPending,
     updatePendingRegeneration: (patch: any) =>
       setPendingRegeneration((prev: any) => prev ? { ...prev, ...patch } : prev),
   };
