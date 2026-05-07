@@ -406,23 +406,54 @@ MAUVAIS EXEMPLES (À NE JAMAIS FAIRE) :
 ❌ Deux bannières avec le même message → MONOTONE`;
       }
 
-      // Guide-specific
+      // Guide-specific — profil de format ADAPTÉ au template choisi
+      // Le template n'est pas qu'un thème visuel : il pilote AUSSI le volume, la densité,
+      // le nombre de sections, le nombre d'images et le ton du guide.
       let guideBlock = '';
+      let guideProfile: any = null;
       if (contentType === 'guide' && guideTemplate) {
-        const themes: Record<string, string> = {
-          classique: "professionnel et sobre", premium: "haut de gamme", expert: "technique et précis",
-          epure: "minimaliste", vibrant: "dynamique et coloré", sombre: "moderne et sombre"
+        const PROFILES: Record<string, any> = {
+          // Référence haut-de-gamme : exhaustif, premium, dense
+          premium:   { label: 'haut de gamme, magazine premium', tone: 'éditorial, riche, narratif', minWords: 4500, maxWords: 6000, h2: '9 à 11', wordsPerH2: '500-650', intro: '350-450', faqQ: '8 à 10', faqWords: '120-180', images: '6 à 8', tables: '3 à 4', sources: 7, target: 'intro 400 + 10×575 + FAQ 9×150 + sources 250 + conclusion 350 ≈ 5500 mots' },
+          // Très technique, dense, beaucoup de chiffres → encore plus long
+          expert:    { label: 'technique, expert, ultra-précis', tone: 'expert, factuel, riche en data', minWords: 5000, maxWords: 7000, h2: '10 à 12', wordsPerH2: '550-700', intro: '400-500', faqQ: '9 à 11', faqWords: '140-200', images: '5 à 7', tables: '4 à 5', sources: 8, target: 'intro 450 + 11×625 + FAQ 10×170 + sources 300 + conclusion 400 ≈ 6500 mots' },
+          // Sobre & professionnel : volume standard
+          classique: { label: 'professionnel et sobre', tone: 'clair, structuré, sans fioritures', minWords: 3000, maxWords: 4200, h2: '7 à 9', wordsPerH2: '380-480', intro: '250-350', faqQ: '6 à 8', faqWords: '100-150', images: '4 à 6', tables: '2 à 3', sources: 6, target: 'intro 300 + 8×430 + FAQ 7×125 + sources 200 + conclusion 250 ≈ 3650 mots' },
+          // Dynamique, coloré : équilibre lecture rapide + valeur
+          vibrant:   { label: 'dynamique, coloré, énergique', tone: 'punchy, rythmé, accrocheur', minWords: 2800, maxWords: 4000, h2: '7 à 9', wordsPerH2: '350-450', intro: '250-350', faqQ: '6 à 8', faqWords: '90-140', images: '5 à 7', tables: '2 à 3', sources: 6, target: 'intro 300 + 8×400 + FAQ 7×115 + sources 200 + conclusion 250 ≈ 3550 mots' },
+          // Moderne sombre : esthétique, contenu solide mais pas surchargé
+          sombre:    { label: 'moderne et sombre, premium tech', tone: 'sobre, contemporain, percutant', minWords: 3000, maxWords: 4200, h2: '7 à 9', wordsPerH2: '380-480', intro: '300-400', faqQ: '7 à 9', faqWords: '110-160', images: '5 à 7', tables: '2 à 3', sources: 6, target: 'intro 350 + 8×430 + FAQ 8×135 + sources 200 + conclusion 280 ≈ 3850 mots' },
+          // Épuré / minimaliste : guide plus court, ultra-lisible, focus essentiel
+          epure:     { label: 'minimaliste, épuré, lecture rapide', tone: 'concis, aéré, sans gras inutile', minWords: 2200, maxWords: 3000, h2: '6 à 8', wordsPerH2: '300-400', intro: '200-300', faqQ: '5 à 7', faqWords: '80-130', images: '3 à 5', tables: '2', sources: 5, target: 'intro 250 + 7×350 + FAQ 6×105 + sources 150 + conclusion 200 ≈ 3050 mots' },
         };
+        guideProfile = PROFILES[guideTemplate] || PROFILES.premium;
         guideBlock = `
-STYLE: ${themes[guideTemplate] || guideTemplate}
-STRUCTURE GUIDE PREMIUM: 7 à 10 sections <h2 id="slug">Titre</h2>, dont au moins :
-  - une section "Comprendre l'essentiel" (vulgarisation),
-  - une section "Étapes pas à pas" (numérotées 1, 2, 3… avec sous-titres <h3>),
-  - une section "Combien ça coûte / combien ça rapporte" (chiffrée + tableau),
-  - une section "Aides & subventions ${new Date().getFullYear()}" (uniquement si le sujet le justifie),
-  - une section "Pièges et erreurs à éviter" (5 à 8 erreurs concrètes),
-  - une section "Checklist avant de se lancer" (8-12 items <li> cochables).
-TON: pédagogique, expert, exhaustif. Le lecteur doit ressortir AUTONOME, sans avoir besoin d'un autre article.`;
+═══════════════════════════════════════════
+PROFIL DE GUIDE — TEMPLATE "${guideTemplate.toUpperCase()}" (PRIME SUR TOUT)
+═══════════════════════════════════════════
+Le template choisi n'est pas qu'un thème visuel : il définit AUSSI la taille, la densité et le ton du guide.
+STYLE: ${guideProfile.label}
+TON: ${guideProfile.tone}
+LONGUEUR CIBLE: ${guideProfile.minWords} à ${guideProfile.maxWords} mots STRICT (un guide hors de cette fourchette est REJETÉ)
+RÉPARTITION CIBLE: ${guideProfile.target}
+SECTIONS H2: ${guideProfile.h2} sections, ${guideProfile.wordsPerH2} mots chacune (sous-sections H3 incluses)
+INTRODUCTION: ${guideProfile.intro} mots
+FAQ: ${guideProfile.faqQ} questions, ${guideProfile.faqWords} mots par réponse
+IMAGES: ${guideProfile.images} images réparties (formats variés : hero, wide, square, inline, badge)
+TABLEAUX: ${guideProfile.tables} tableaux HTML minimum
+SOURCES: minimum ${guideProfile.sources} sources officielles distinctes et datées
+
+⚠️ CES VALEURS REMPLACENT toutes les fourchettes génériques mentionnées plus bas dans le prompt.
+Si tu lis "8-12 sections" ou "4000-6000 mots" plus loin → IGNORE-LES, applique le profil ci-dessus.
+
+STRUCTURE OBLIGATOIRE — sections à inclure quel que soit le template :
+  - "Comprendre l'essentiel" (vulgarisation)
+  - "Étapes pas à pas" (numérotées 1, 2, 3… avec <h3>)
+  - "Combien ça coûte / combien ça rapporte" (chiffrée + tableau)
+  - "Aides & subventions ${new Date().getFullYear()}" (uniquement si le sujet le justifie)
+  - "Pièges et erreurs à éviter" (5 à 8 erreurs concrètes)
+  - "Checklist avant de se lancer" (8-12 items <li> cochables)
+Le lecteur doit ressortir AUTONOME, sans avoir besoin d'un autre article.`;
       }
 
 
