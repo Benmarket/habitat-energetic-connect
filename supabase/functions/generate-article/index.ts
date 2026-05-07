@@ -255,7 +255,7 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
     // ══════════════════════════════════════════
     if (mode === 'article') {
       const {
-        product, subject, theme, objective, keywords, freePrompt, targetRegions,
+        product, subject, theme, objective, keywords, freePrompt, imposedTitle, targetRegions,
         contentType, customInstructions, guideTemplate,
         selectedAngle, availableCategories, availableTags
       } = body;
