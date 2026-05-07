@@ -227,7 +227,7 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
           temperature: 0.9,
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: `Propose 5 angles éditoriaux pour le produit "${product}"${subject ? ` sur le sujet "${subject}"` : ''} — thème: ${theme} (objectif: ${objectiveLabels[objective] || objective})` }
+            { role: 'user', content: `Propose ${imposedTitle ? '6' : '5'} angles éditoriaux pour le produit "${product}"${subject ? ` sur le sujet "${subject}"` : ''} — thème: ${theme} (objectif: ${objectiveLabels[objective] || objective})${imposedTitle ? `. Le 6ème angle (id 6) DOIT respecter le titre imposé "${imposedTitle}" AU DÉTAIL PRÈS.` : ''}` }
           ]
         })
       });
