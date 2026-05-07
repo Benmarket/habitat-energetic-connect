@@ -468,6 +468,7 @@ const AdminPagesAnchors = () => {
                                                 {variantLabels[variant.variant_slug || ""] || variant.variant_slug}
                                               </span>
                                               <code className="text-[10px] px-1.5 py-0.5 bg-muted rounded text-muted-foreground hidden sm:inline">{variant.path}</code>
+                                              <SpeedTestBadge pageId={variant.id} pageTitle={variantLabels[variant.variant_slug || ""] || variant.variant_slug || ""} pagePath={variant.path} size="sm" />
                                               <SeoMicroBadge status={variant.seo_status} />
                                               <Tooltip>
                                                 <TooltipTrigger asChild>
