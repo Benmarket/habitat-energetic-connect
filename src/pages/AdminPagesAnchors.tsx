@@ -429,6 +429,7 @@ const AdminPagesAnchors = () => {
                                         <MapPin className="w-3.5 h-3.5 text-primary" />
                                         <span className="font-medium text-sm flex-1">{regionName}</span>
                                         <code className="text-[10px] px-1.5 py-0.5 bg-muted rounded text-muted-foreground hidden sm:inline">{region.path}</code>
+                                        <SpeedTestBadge pageId={region.id} pageTitle={`${product.title} — ${regionName}`} pagePath={region.path} size="sm" />
                                         <SeoMicroBadge status={region.seo_status} />
                                         <Tooltip>
                                           <TooltipTrigger asChild>
