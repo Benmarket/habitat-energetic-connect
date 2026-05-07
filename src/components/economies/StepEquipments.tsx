@@ -39,11 +39,16 @@ const StepEquipments = ({ reference, initial, onSave, onNext, onBack }: Props) =
     return acc;
   }, {} as Record<EquipmentCategory, SavingsReference[]>);
 
+  const BATTERY_KEY = "panneaux_solaires_pv_batterie";
+  const PV_KEY = "panneaux_solaires_pv";
+
   const toggle = (key: string, status: EquipmentStatus) => {
     setSel((prev) => {
       const next = new Map(prev);
       if (next.get(key) === status) next.delete(key);
       else next.set(key, status);
+      // If PV panels are removed, also remove the battery
+      if (key === PV_KEY && !next.has(PV_KEY)) next.delete(BATTERY_KEY);
       return next;
     });
   };
