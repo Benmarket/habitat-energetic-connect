@@ -490,6 +490,9 @@ IMPORTANT: Adapte le contenu aux spécificités de ces régions (aides locales, 
 ${guideBlock}
 ${customInstructions ? `INSTRUCTIONS: ${customInstructions}` : ''}
 ${freePrompt ? `CONTRAINTES: ${freePrompt}` : ''}
+${imposedTitle ? `🎯 TITRE IMPOSÉ PAR L'UTILISATEUR (brut, à reformuler proprement sans fautes): "${imposedTitle}"
+   → Le H1 final DOIT être une reformulation propre et SEO de ce titre imposé.
+   → Tout l'article doit respecter le sujet/sens de ce titre. Ne t'en écarte pas.` : ''}
 
 ═══════════════════════════════════════════
 🚨 RÈGLE ANTI-HALLUCINATION — ZÉRO BULLSHIT (ÉLIMINATOIRE)
