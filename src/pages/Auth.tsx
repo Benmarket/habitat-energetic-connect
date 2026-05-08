@@ -4,12 +4,13 @@ import { Helmet } from "react-helmet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { Loader2, AlertTriangle, ArrowLeft } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import Index from "@/pages/Index";
 
 const signInSchema = z.object({
   email: z.string().email("Email invalide"),
@@ -19,17 +20,21 @@ const signInSchema = z.object({
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showMemberDisabled, setShowMemberDisabled] = useState(false);
+  const [open, setOpen] = useState(true);
   const isAuthenticatingRef = useRef(false);
   const { signIn, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirection auto uniquement si l'utilisateur arrive déjà connecté
-    // (on bloque pendant une tentative de connexion pour éviter tout "flash" sur le dashboard)
     if (user && !showMemberDisabled && !isAuthenticatingRef.current) {
       navigate("/dashboard");
     }
   }, [user, navigate, showMemberDisabled]);
+
+  const handleClose = (next: boolean) => {
+    setOpen(next);
+    if (!next) navigate("/");
+  };
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,7 +46,6 @@ const Auth = () => {
         password: formData.get("password"),
       });
 
-      // Bloque toute redirection automatique pendant qu'on valide l'accès
       isAuthenticatingRef.current = true;
       setShowMemberDisabled(false);
       setIsLoading(true);
@@ -58,7 +62,6 @@ const Auth = () => {
         return;
       }
 
-      // CRITICAL SECURITY: Vérifier le mode maintenance, l'espace membre et le rôle après connexion
       const {
         data: { user: currentUser },
       } = await supabase.auth.getUser();
@@ -73,7 +76,6 @@ const Auth = () => {
         const isAdmin =
           !!roleData && (roleData.role === "super_admin" || roleData.role === "admin");
 
-        // Check member space settings
         const { data: headerFooterData } = await supabase
           .from("site_settings")
           .select("value")
@@ -85,13 +87,11 @@ const Auth = () => {
           : true;
 
         if (!isMemberSpaceEnabled && !isAdmin) {
-          // Non-admin avec espace membre désactivé : déconnecter et afficher la page dédiée
           await supabase.auth.signOut();
           setShowMemberDisabled(true);
           return;
         }
 
-        // Check maintenance mode
         const { data: maintenanceData } = await supabase
           .from("site_settings")
           .select("value")
@@ -103,7 +103,6 @@ const Auth = () => {
           : false;
 
         if (isMaintenanceMode && !isAdmin) {
-          // Non-admin en mode maintenance : refuser l'accès et rediriger vers accueil
           await supabase.auth.signOut();
           toast.error("Accès refusé", {
             description:
@@ -126,38 +125,32 @@ const Auth = () => {
     }
   };
 
-  // Afficher la page "espace membre désactivé" après tentative de connexion refusée
-  if (showMemberDisabled) {
-    return (
-      <>
-        <Helmet>
-          <title>Espace membre désactivé | Prime Énergies</title>
-          <meta name="description" content="L'espace membre est temporairement désactivé" />
-        </Helmet>
+  return (
+    <>
+      <Helmet>
+        <title>Connexion | Prime Énergies</title>
+        <meta name="description" content="Connectez-vous à votre espace Prime Énergies" />
+      </Helmet>
 
-        <div className="min-h-screen flex items-center justify-center bg-muted p-4">
-          <Card className="w-full max-w-md relative">
-            {/* Flèche retour vers /connexion */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-4 right-4"
-              onClick={() => setShowMemberDisabled(false)}
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            
-            <CardHeader className="text-center pt-12">
-              <div className="mb-4 flex flex-col items-center">
-                <span className="text-2xl font-bold leading-tight">
-                  <span className="text-primary">Prime </span>
-                  <span className="text-foreground">energies</span>
-                </span>
-                <span className="text-xs text-muted-foreground">prime-energies.fr</span>
-              </div>
-            </CardHeader>
-            <CardContent className="text-center">
-              <div className="flex flex-col items-center gap-4 py-6">
+      {/* Page d'accueil en arrière-plan */}
+      <div aria-hidden="true">
+        <Index />
+      </div>
+
+      <Dialog open={open} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-md">
+          {showMemberDisabled ? (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-center">
+                  <span className="text-2xl font-bold leading-tight block">
+                    <span className="text-primary">Prime </span>
+                    <span className="text-foreground">energies</span>
+                  </span>
+                  <span className="text-xs text-muted-foreground font-normal">prime-energies.fr</span>
+                </DialogTitle>
+              </DialogHeader>
+              <div className="flex flex-col items-center gap-4 py-6 text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
                   <AlertTriangle className="w-8 h-8 text-primary" />
                 </div>
@@ -169,80 +162,70 @@ const Auth = () => {
                     L'accès à l'espace membre est actuellement suspendu. Veuillez réessayer ultérieurement.
                   </p>
                 </div>
+                <Button variant="outline" onClick={() => setShowMemberDisabled(false)}>
+                  Retour
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </>
-    );
-  }
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-center">
+                  <span className="text-2xl font-bold leading-tight block">
+                    <span className="text-primary">Prime </span>
+                    <span className="text-foreground">energies</span>
+                  </span>
+                  <span className="text-xs text-muted-foreground font-normal">prime-energies.fr</span>
+                </DialogTitle>
+                <DialogDescription className="text-center">
+                  Accédez à votre espace personnel
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSignIn} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signin-email">Email</Label>
+                  <Input
+                    id="signin-email"
+                    name="email"
+                    type="email"
+                    placeholder="votre@email.com"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signin-password">Mot de passe</Label>
+                  <Input
+                    id="signin-password"
+                    name="password"
+                    type="password"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Connexion...
+                    </>
+                  ) : (
+                    "Se connecter"
+                  )}
+                </Button>
 
-  return (
-    <>
-      <Helmet>
-        <title>Connexion | Prime Énergies</title>
-        <meta name="description" content="Connectez-vous à votre espace Prime Énergies" />
-      </Helmet>
-
-      <div className="min-h-screen flex items-center justify-center bg-muted p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="mb-4 flex flex-col items-center">
-              <span className="text-2xl font-bold leading-tight">
-                <span className="text-primary">Prime </span>
-                <span className="text-foreground">energies</span>
-              </span>
-              <span className="text-xs text-muted-foreground">prime-energies.fr</span>
-            </div>
-            <CardDescription>
-              Accédez à votre espace personnel
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSignIn} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="signin-email">Email</Label>
-                <Input
-                  id="signin-email"
-                  name="email"
-                  type="email"
-                  placeholder="votre@email.com"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="signin-password">Mot de passe</Label>
-                <Input
-                  id="signin-password"
-                  name="password"
-                  type="password"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Connexion...
-                  </>
-                ) : (
-                  "Se connecter"
-                )}
-              </Button>
-
-              <div className="text-center pt-4 border-t">
-                <a
-                  href="/mot-de-passe-oublie"
-                  className="text-sm text-primary hover:underline"
-                >
-                  Mot de passe oublié ?
-                </a>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+                <div className="text-center pt-4 border-t">
+                  <a
+                    href="/mot-de-passe-oublie"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Mot de passe oublié ?
+                  </a>
+                </div>
+              </form>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
