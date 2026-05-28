@@ -863,7 +863,7 @@ const LandingPageSectionsEditor = ({
             {["eligibility", "faq", "cta"].includes(activeSection) && (
               <div className="space-y-4">
                 <h3 className="text-lg font-bold flex items-center gap-2">
-                  {LP_SECTIONS.find(s => s.id === activeSection)?.label}
+                  {sections.find(s => s.id === activeSection)?.label}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   Cette section est identique sur toutes les landing pages solaires (nationale et régionales).
