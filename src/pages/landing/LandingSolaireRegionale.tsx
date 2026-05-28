@@ -385,7 +385,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
 
           {/* ═══ SECTION 1.5: 3D Solar Showcase ═══ */}
           <Suspense fallback={<div className="h-screen bg-[#0a1628]" />}>
-            <Solar3DShowcase />
+            <Solar3DShowcase showDebug={(content as any)?.show_3d_debug === true} />
           </Suspense>
 
           {/* ═══ SECTION 2: Contexte Local (regional only) ═══ */}

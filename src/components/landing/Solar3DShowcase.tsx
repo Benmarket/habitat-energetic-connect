@@ -529,7 +529,7 @@ const RoofTypeSelector = ({ selected, onSelect }: { selected: RoofType; onSelect
 );
 
 // ─── Exported Component ───
-const Solar3DShowcase = () => {
+const Solar3DShowcase = ({ showDebug = false }: { showDebug?: boolean } = {}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const progress = useScrollProgress(containerRef as React.RefObject<HTMLElement>);
   const [roofType, setRoofType] = useState<RoofType>("tuiles");
@@ -676,8 +676,10 @@ const Solar3DShowcase = () => {
         <RoofTypeSelector selected={roofType} onSelect={setRoofType} />
 
 
-        {/* Debug Panel */}
-        <DebugPanel config={config} onChange={handleConfigChange} onReset={handleReset} camPos={camDisplay.pos} camRot={camDisplay.rot} />
+        {/* Debug Panel — affichage piloté depuis "Gestion des Pages et Ancres" */}
+        {showDebug && (
+          <DebugPanel config={config} onChange={handleConfigChange} onReset={handleReset} camPos={camDisplay.pos} camRot={camDisplay.rot} />
+        )}
 
         {/* Overlay */}
         <div className="absolute inset-0 pointer-events-none flex flex-col justify-start pt-6 lg:pt-8">

@@ -13,7 +13,7 @@ import {
   Save, Plus, Trash2, ImageIcon, Eye, GripVertical, Upload,
   Loader2, CheckCircle, ArrowLeft, Globe, MapPin, Layers,
   Sun, Quote, Shield, HelpCircle, Megaphone, ChevronRight,
-  X, ExternalLink, Copy, AlertCircle, Crop, Award
+  X, ExternalLink, Copy, AlertCircle, Crop, Award, Box
 } from "lucide-react";
 import ImageCropModal from "@/components/ImageCropModal";
 import type { RegionalContent, HeroBadgeItem } from "@/hooks/useRegionalContent";
@@ -34,6 +34,7 @@ interface LandingPageSectionsEditorProps {
     region_code: string | null;
     regional_content: RegionalContent | null;
     parent_id: string | null;
+    variant_slug?: string | null;
   };
   parentContent?: RegionalContent | null;
   onSaved: () => void;
@@ -91,6 +92,15 @@ const LandingPageSectionsEditor = ({
     : [];
 
   const isSolarProduct = landingPage.slug.includes("solaire");
+  const show3DDebugSection = isSolarProduct && landingPage.variant_slug !== "photovoltaique-batterie";
+
+  const sections = show3DDebugSection
+    ? [
+        LP_SECTIONS[0],
+        { id: "3d-debug", label: "Console 3D", icon: Box, color: "text-cyan-600", bgColor: "bg-cyan-50", description: "Activer la console de debug du module 3D" },
+        ...LP_SECTIONS.slice(1),
+      ]
+    : LP_SECTIONS;
 
   const inheritedSlides: HeroSlide[] = parentContent?.hero_slides && parentContent.hero_slides.length > 0
     ? normalizeHeroSlides(parentContent.hero_slides)
@@ -408,7 +418,7 @@ const LandingPageSectionsEditor = ({
           {/* Sidebar - Sections */}
           <div className="w-56 border-r bg-muted/20 p-3 space-y-1 overflow-y-auto flex-shrink-0">
             <p className="text-[10px] font-semibold uppercase text-muted-foreground px-2 mb-2">Sections</p>
-            {LP_SECTIONS.map((section) => {
+            {sections.map((section) => {
               const Icon = section.icon;
               const isActive = activeSection === section.id;
               return (
@@ -834,6 +844,35 @@ const LandingPageSectionsEditor = ({
               </div>
             )}
 
+            {activeSection === "3d-debug" && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold flex items-center gap-2">
+                  <Box className="w-5 h-5 text-cyan-600" />
+                  Console de debug 3D
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Affiche ou masque le panneau de debug 3D (overlay technique) sur la bande
+                  « Vos panneaux, posés avec précision ». Le module 3D lui-même reste actif —
+                  seule la console est conditionnée. Désactivée par défaut en production.
+                </p>
+                <Card>
+                  <CardContent className="flex items-center justify-between gap-4 pt-6">
+                    <div>
+                      <Label className="text-sm font-semibold">Afficher la console de debug 3D</Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Si décoché, le composant n'est même pas chargé côté visiteur.
+                      </p>
+                    </div>
+                    <Switch
+                      checked={(content as any).show_3d_debug === true}
+                      onCheckedChange={(checked) => updateContent({ show_3d_debug: checked } as any)}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+
             {activeSection === "testimonials" && (
               <div className="space-y-4">
                 <h3 className="text-lg font-bold flex items-center gap-2">
@@ -853,7 +892,7 @@ const LandingPageSectionsEditor = ({
             {["eligibility", "faq", "cta"].includes(activeSection) && (
               <div className="space-y-4">
                 <h3 className="text-lg font-bold flex items-center gap-2">
-                  {LP_SECTIONS.find(s => s.id === activeSection)?.label}
+                  {sections.find(s => s.id === activeSection)?.label}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   Cette section est identique sur toutes les landing pages solaires (nationale et régionales).
