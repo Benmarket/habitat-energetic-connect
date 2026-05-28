@@ -92,6 +92,15 @@ const LandingPageSectionsEditor = ({
     : [];
 
   const isSolarProduct = landingPage.slug.includes("solaire");
+  const show3DDebugSection = isSolarProduct && landingPage.variant_slug !== "photovoltaique-batterie";
+
+  const sections = show3DDebugSection
+    ? [
+        LP_SECTIONS[0],
+        { id: "3d-debug", label: "Console 3D", icon: Box, color: "text-cyan-600", bgColor: "bg-cyan-50", description: "Activer la console de debug du module 3D" },
+        ...LP_SECTIONS.slice(1),
+      ]
+    : LP_SECTIONS;
 
   const inheritedSlides: HeroSlide[] = parentContent?.hero_slides && parentContent.hero_slides.length > 0
     ? normalizeHeroSlides(parentContent.hero_slides)
