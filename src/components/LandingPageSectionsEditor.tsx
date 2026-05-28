@@ -15,7 +15,6 @@ import {
   Sun, Quote, Shield, HelpCircle, Megaphone, ChevronRight,
   X, ExternalLink, Copy, AlertCircle, Crop, Award, Box
 } from "lucide-react";
-} from "lucide-react";
 import ImageCropModal from "@/components/ImageCropModal";
 import type { RegionalContent, HeroBadgeItem } from "@/hooks/useRegionalContent";
 import { defaultHeroSlides } from "@/components/landing/SolarHeroVisual";
