@@ -844,6 +844,35 @@ const LandingPageSectionsEditor = ({
               </div>
             )}
 
+            {activeSection === "3d-debug" && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold flex items-center gap-2">
+                  <Box className="w-5 h-5 text-cyan-600" />
+                  Console de debug 3D
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Affiche ou masque le panneau de debug 3D (overlay technique) sur la bande
+                  « Vos panneaux, posés avec précision ». Le module 3D lui-même reste actif —
+                  seule la console est conditionnée. Désactivée par défaut en production.
+                </p>
+                <Card>
+                  <CardContent className="flex items-center justify-between gap-4 pt-6">
+                    <div>
+                      <Label className="text-sm font-semibold">Afficher la console de debug 3D</Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Si décoché, le composant n'est même pas chargé côté visiteur.
+                      </p>
+                    </div>
+                    <Switch
+                      checked={(content as any).show_3d_debug === true}
+                      onCheckedChange={(checked) => updateContent({ show_3d_debug: checked } as any)}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+
             {activeSection === "testimonials" && (
               <div className="space-y-4">
                 <h3 className="text-lg font-bold flex items-center gap-2">
