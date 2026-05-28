@@ -576,7 +576,6 @@ const LandingSolaireContent = () => {
           <Suspense fallback={<div className="h-screen bg-[#0a1628]" />}>
             <Solar3DShowcase showDebug={show3DDebug} />
           </Suspense>
-          </Suspense>
 
           {/* ═══ BAND 2: Générer de l'électricité (from homepage) ═══ */}
           <section className="py-10 lg:py-16 bg-gradient-to-b from-primary/5 to-background">
