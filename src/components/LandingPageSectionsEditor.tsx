@@ -418,7 +418,7 @@ const LandingPageSectionsEditor = ({
           {/* Sidebar - Sections */}
           <div className="w-56 border-r bg-muted/20 p-3 space-y-1 overflow-y-auto flex-shrink-0">
             <p className="text-[10px] font-semibold uppercase text-muted-foreground px-2 mb-2">Sections</p>
-            {LP_SECTIONS.map((section) => {
+            {sections.map((section) => {
               const Icon = section.icon;
               const isActive = activeSection === section.id;
               return (
