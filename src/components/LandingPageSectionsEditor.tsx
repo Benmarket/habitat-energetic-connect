@@ -13,7 +13,8 @@ import {
   Save, Plus, Trash2, ImageIcon, Eye, GripVertical, Upload,
   Loader2, CheckCircle, ArrowLeft, Globe, MapPin, Layers,
   Sun, Quote, Shield, HelpCircle, Megaphone, ChevronRight,
-  X, ExternalLink, Copy, AlertCircle, Crop, Award
+  X, ExternalLink, Copy, AlertCircle, Crop, Award, Box
+} from "lucide-react";
 } from "lucide-react";
 import ImageCropModal from "@/components/ImageCropModal";
 import type { RegionalContent, HeroBadgeItem } from "@/hooks/useRegionalContent";
