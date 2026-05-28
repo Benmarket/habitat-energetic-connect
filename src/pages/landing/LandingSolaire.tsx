@@ -574,7 +574,8 @@ const LandingSolaireContent = () => {
 
           {/* ═══ BAND 1.5: 3D Solar Showcase ═══ */}
           <Suspense fallback={<div className="h-screen bg-[#0a1628]" />}>
-            <Solar3DShowcase />
+            <Solar3DShowcase showDebug={show3DDebug} />
+          </Suspense>
           </Suspense>
 
           {/* ═══ BAND 2: Générer de l'électricité (from homepage) ═══ */}
