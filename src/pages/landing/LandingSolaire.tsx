@@ -91,6 +91,7 @@ const LandingSolaireContent = () => {
   const { seoStatus, canonicalUrl } = useLandingPageSEO("solaire");
   const [heroSlides, setHeroSlides] = useState<{ src: string; alt: string }[] | undefined>();
   const [heroBadge, setHeroBadge] = useState<string | undefined>();
+  const [show3DDebug, setShow3DDebug] = useState(false);
 
   useEffect(() => {
     const fetchProductContent = async () => {
@@ -107,6 +108,7 @@ const LandingSolaireContent = () => {
         const badge = rc.hero_badge
           || (rc.hero_badges as any[])?.find((b: any) => b.regions?.includes("fr"))?.src;
         if (badge) setHeroBadge(badge);
+        if (rc.show_3d_debug === true) setShow3DDebug(true);
       }
     };
     fetchProductContent();
