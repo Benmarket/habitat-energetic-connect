@@ -34,6 +34,7 @@ interface LandingPageSectionsEditorProps {
     region_code: string | null;
     regional_content: RegionalContent | null;
     parent_id: string | null;
+    variant_slug?: string | null;
   };
   parentContent?: RegionalContent | null;
   onSaved: () => void;
