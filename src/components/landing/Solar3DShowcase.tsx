@@ -529,7 +529,7 @@ const RoofTypeSelector = ({ selected, onSelect }: { selected: RoofType; onSelect
 );
 
 // ─── Exported Component ───
-const Solar3DShowcase = () => {
+const Solar3DShowcase = ({ showDebug = false }: { showDebug?: boolean } = {}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const progress = useScrollProgress(containerRef as React.RefObject<HTMLElement>);
   const [roofType, setRoofType] = useState<RoofType>("tuiles");
