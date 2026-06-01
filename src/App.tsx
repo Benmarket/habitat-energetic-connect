@@ -196,8 +196,15 @@ const App = () => (
                   <Route path="/conditions-utilisation" element={<ConditionsUtilisation />} />
                   <Route path="/faq" element={<FAQ />} />
                   <Route path="/merci" element={<Merci />} />
-                  <Route path="/simulateurs/solaire" element={<SimulateurSolaire />} />
-                  <Route path="/simulateur-solaire" element={<Navigate to="/simulateurs/solaire" replace />} />
+                  {/* Ancien simulateur solaire — déplacé en zone admin en attendant le nouveau */}
+                  <Route
+                    path="/admin/simulateur-solaire-pro"
+                    element={
+                      <AdminGuard>
+                        <SimulateurSolaire />
+                      </AdminGuard>
+                    }
+                  />
 
                   {/* Email lifecycle pages */}
                   <Route path="/inscription/activer" element={<ActivateAccount />} />
