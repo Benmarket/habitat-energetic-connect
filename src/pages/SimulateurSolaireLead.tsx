@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Sun, Check, ArrowLeft, ArrowRight, MapPin, Home, Castle, Hotel, Building2, Store, Building,
   Compass, Snowflake, Flame, Thermometer, Waves, Car, Plug, HelpCircle, Ruler,
-  Loader2, Lock, Sparkles, ShieldCheck, Clock, Zap, TrendingUp, Star, Award, Leaf,
+  Loader2, Lock, Sparkles, ShieldCheck, Clock, Zap, TrendingUp, Star, Award, Leaf, X,
 } from "lucide-react";
 import solarSimBg from "@/assets/simulators/solar-simulator-bg.jpg";
 
