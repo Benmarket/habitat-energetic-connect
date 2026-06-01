@@ -35,12 +35,12 @@ interface Sim {
 }
 
 // ---------- Static data ----------
-const HOUSING: { id: HousingType; label: string; icon: any }[] = [
-  { id: "maison", label: "Maison individuelle", icon: Home },
-  { id: "villa", label: "Villa", icon: Home },
-  { id: "mitoyenne", label: "Maison mitoyenne", icon: Home },
-  { id: "pro", label: "Local professionnel", icon: Store },
-  { id: "appartement", label: "Appartement / copropriété", icon: Building2 },
+const HOUSING: { id: HousingType; label: string; desc: string; icon: any }[] = [
+  { id: "maison", label: "Maison individuelle", desc: "Pavillon avec toit dégagé", icon: Home },
+  { id: "villa", label: "Villa", desc: "Avec terrain, idéale pour le solaire", icon: Home },
+  { id: "mitoyenne", label: "Maison mitoyenne", desc: "Maison de village ou en bande", icon: Home },
+  { id: "pro", label: "Local professionnel", desc: "Commerce, bureau, atelier", icon: Store },
+  { id: "appartement", label: "Appartement", desc: "Copropriété ou dernier étage", icon: Building2 },
 ];
 
 const SURFACES: { id: SurfaceRange; label: string }[] = [
@@ -51,10 +51,10 @@ const SURFACES: { id: SurfaceRange; label: string }[] = [
   { id: "?", label: "Je ne sais pas" },
 ];
 
-const OWNERSHIPS: { id: Ownership; label: string }[] = [
-  { id: "oui", label: "Oui" },
-  { id: "non", label: "Non" },
-  { id: "achat", label: "Achat en cours" },
+const OWNERSHIPS: { id: Ownership; label: string; desc: string }[] = [
+  { id: "oui", label: "Oui, propriétaire", desc: "Je peux décider de l'installation" },
+  { id: "non", label: "Non, locataire", desc: "Accord du propriétaire requis" },
+  { id: "achat", label: "Achat en cours", desc: "Je prépare mon futur logement" },
 ];
 
 const ORIENTATIONS: { id: Orientation; label: string; perf: number }[] = [
@@ -68,14 +68,14 @@ const ORIENTATIONS: { id: Orientation; label: string; perf: number }[] = [
   { id: "N", label: "Nord", perf: 60 },
 ];
 
-const EQUIPMENTS: { id: string; label: string; icon: any }[] = [
-  { id: "clim", label: "Climatisation", icon: Snowflake },
-  { id: "ceau", label: "Chauffe-eau électrique", icon: Flame },
-  { id: "pac", label: "Pompe à chaleur", icon: Thermometer },
-  { id: "piscine", label: "Piscine", icon: Waves },
-  { id: "ve", label: "Voiture électrique", icon: Car },
-  { id: "elec", label: "Électroménager du quotidien", icon: Plug },
-  { id: "?", label: "Je ne sais pas", icon: HelpCircle },
+const EQUIPMENTS: { id: string; label: string; desc: string; icon: any }[] = [
+  { id: "clim", label: "Climatisation", desc: "Consommation forte l'été", icon: Snowflake },
+  { id: "ceau", label: "Chauffe-eau électrique", desc: "Poste régulier toute l'année", icon: Flame },
+  { id: "pac", label: "Pompe à chaleur", desc: "Chauffage haute performance", icon: Thermometer },
+  { id: "piscine", label: "Piscine", desc: "Filtration et chauffage", icon: Waves },
+  { id: "ve", label: "Voiture électrique", desc: "Recharge à domicile", icon: Car },
+  { id: "elec", label: "Électroménager", desc: "Usage quotidien standard", icon: Plug },
+  { id: "?", label: "Je ne sais pas", desc: "On verra à l'étude", icon: HelpCircle },
 ];
 
 const BILL_PRESETS = [100, 150, 200, 250, 300];
@@ -441,43 +441,56 @@ export default function SimulateurSolaireLead() {
 
 const EntryHero = ({ onStart }: { onStart: () => void }) => (
   <section className="relative overflow-hidden">
-    {/* Background */}
+    {/* Background image + strong dark overlays for guaranteed contrast */}
     <div className="absolute inset-0" aria-hidden>
       <img src={solarHouseBanner} alt="" className="absolute inset-0 w-full h-full object-cover" loading="eager" />
-      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(145_65%_18%)]/95 via-[hsl(145_55%_25%)]/85 to-[hsl(38_92%_45%)]/40" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(48_95%_60%/0.35),transparent_60%)]" />
+      {/* Solid dark base */}
+      <div className="absolute inset-0 bg-[hsl(145_55%_12%)]/80" />
+      {/* Brand gradient on top */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(145_70%_15%)]/90 via-[hsl(145_60%_22%)]/75 to-[hsl(38_85%_30%)]/65" />
+      {/* Vignette bottom for CTA visibility */}
+      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[hsl(145_65%_10%)]/85 to-transparent" />
+      {/* Warm sun glow top-right */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(48_95%_55%/0.28),transparent_55%)]" />
     </div>
 
-    {/* Floating sun */}
-    <div className="absolute top-20 right-[10%] w-32 h-32 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 blur-3xl opacity-60 animate-pulse" aria-hidden />
+    {/* Floating ambient orb */}
+    <div className="absolute top-20 right-[10%] w-40 h-40 rounded-full bg-amber-400/30 blur-3xl animate-pulse" aria-hidden />
+    <div className="absolute bottom-32 left-[8%] w-32 h-32 rounded-full bg-primary/30 blur-3xl" aria-hidden />
 
     <div className="relative container mx-auto px-4 py-20 md:py-28 text-center max-w-4xl">
-      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-xs font-semibold mb-6">
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-xs font-semibold mb-6 shadow-lg">
         <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Simulateur 100% gratuit · sans engagement
       </div>
 
-      <h1 className="text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight text-white mb-6">
+      <h1
+        className="text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight text-white mb-6"
+        style={{ textShadow: "0 4px 30px hsl(145 65% 10% / 0.6), 0 2px 10px hsl(145 65% 10% / 0.4)" }}
+      >
         Combien votre maison peut-elle
-        <span className="block mt-2 bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
+        <span className="block mt-2 bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent">
           économiser grâce au solaire&nbsp;?
         </span>
       </h1>
 
-      <p className="text-base md:text-xl text-white/85 max-w-2xl mx-auto mb-10 leading-relaxed">
+      <p
+        className="text-base md:text-xl text-white max-w-2xl mx-auto mb-10 leading-relaxed"
+        style={{ textShadow: "0 2px 15px hsl(145 65% 10% / 0.6)" }}
+      >
         Estimez en moins de 2 minutes le potentiel solaire de votre logement, vos économies possibles et les aides disponibles dans votre région.
       </p>
 
       <Button
         onClick={onStart}
         size="lg"
-        className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-bold text-base md:text-lg px-10 py-7 rounded-full shadow-[0_20px_50px_-10px_hsl(45_95%_50%/0.6)] hover:scale-105 transition-all group"
+        className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-bold text-base md:text-lg px-10 py-7 rounded-full shadow-[0_20px_50px_-10px_hsl(45_95%_50%/0.8)] hover:scale-105 transition-all group"
       >
         <Sun className="w-5 h-5 mr-2 group-hover:rotate-45 transition-transform" />
         Démarrer ma simulation
         <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
       </Button>
 
-      <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-white/80">
+      <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-white font-medium">
         <span className="inline-flex items-center gap-1.5"><Clock className="w-4 h-4 text-amber-300" /> 2 minutes chrono</span>
         <span className="inline-flex items-center gap-1.5"><Check className="w-4 h-4 text-amber-300" /> Sans engagement</span>
         <span className="inline-flex items-center gap-1.5"><MapPin className="w-4 h-4 text-amber-300" /> Adapté à votre région</span>
@@ -490,10 +503,10 @@ const EntryHero = ({ onStart }: { onStart: () => void }) => (
           { icon: Star, value: "4.9/5", label: "Satisfaction clients" },
           { icon: Award, value: "RGE", label: "Partenaires certifiés" },
         ].map((s, i) => (
-          <div key={i} className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-3 py-4 md:px-5 md:py-5">
+          <div key={i} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-3 py-4 md:px-5 md:py-5 shadow-lg">
             <s.icon className="w-5 h-5 md:w-6 md:h-6 text-amber-300 mx-auto mb-2" />
             <div className="text-xl md:text-2xl font-bold text-white">{s.value}</div>
-            <div className="text-[10px] md:text-xs text-white/70 mt-0.5">{s.label}</div>
+            <div className="text-[10px] md:text-xs text-white/80 mt-0.5">{s.label}</div>
           </div>
         ))}
       </div>
@@ -576,29 +589,59 @@ const Step1Location = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
   </div>
 );
 
-const ChoiceCard = ({ selected, onClick, children, icon: Icon }: any) => (
+const ChoiceCard = ({ selected, onClick, title, description, icon: Icon }: {
+  selected: boolean; onClick: () => void; title: string; description?: string; icon?: any;
+}) => (
   <button
     type="button"
     onClick={onClick}
-    className={`group w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center gap-3 ${
+    aria-pressed={selected}
+    className={`group relative w-full text-left p-5 rounded-2xl border-2 transition-all duration-300 overflow-hidden ${
       selected
-        ? "border-primary bg-gradient-to-br from-[hsl(145_35%_95%)] to-white shadow-[0_8px_24px_-10px_hsl(145_65%_45%/0.4)]"
-        : "border-slate-200 bg-white hover:border-primary/40 hover:bg-[hsl(145_35%_98%)] hover:-translate-y-0.5"
+        ? "border-primary bg-gradient-to-br from-[hsl(145_45%_94%)] via-white to-[hsl(48_95%_94%)] shadow-[0_18px_40px_-15px_hsl(145_65%_45%/0.45)] -translate-y-0.5"
+        : "border-slate-200 bg-white hover:border-primary/50 hover:shadow-[0_12px_30px_-15px_hsl(145_65%_45%/0.3)] hover:-translate-y-0.5"
     }`}
   >
-    {Icon && (
-      <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
-        selected ? "bg-primary text-primary-foreground shadow-md" : "bg-slate-100 text-slate-500 group-hover:bg-primary/10 group-hover:text-primary"
-      }`}>
-        <Icon className="w-5 h-5" />
-      </div>
-    )}
-    <span className={`font-medium flex-1 ${selected ? "text-slate-900" : "text-slate-700"}`}>{children}</span>
+    {/* Decorative gradient orb on selected */}
     {selected && (
-      <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-        <Check className="w-4 h-4" />
-      </div>
+      <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-gradient-to-br from-primary/20 to-amber-300/20 blur-2xl pointer-events-none" aria-hidden />
     )}
+
+    {/* Top row: icon + check */}
+    <div className="relative flex items-start justify-between mb-4">
+      {Icon && (
+        <div
+          className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+            selected
+              ? "bg-gradient-to-br from-primary to-[hsl(145_65%_35%)] text-primary-foreground shadow-[0_8px_20px_-6px_hsl(145_65%_45%/0.6)] scale-110"
+              : "bg-gradient-to-br from-slate-100 to-slate-50 text-slate-400 group-hover:from-primary/10 group-hover:to-amber-100/40 group-hover:text-primary"
+          }`}
+        >
+          <Icon className="w-6 h-6" strokeWidth={2} />
+        </div>
+      )}
+      <div
+        className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${
+          selected
+            ? "bg-primary text-primary-foreground scale-100 shadow-md"
+            : "bg-slate-100 text-transparent scale-90 group-hover:bg-primary/10"
+        }`}
+      >
+        <Check className="w-3.5 h-3.5" strokeWidth={3} />
+      </div>
+    </div>
+
+    {/* Title + description */}
+    <div className="relative">
+      <h4 className={`font-bold text-base leading-tight transition-colors ${selected ? "text-slate-900" : "text-slate-800"}`}>
+        {title}
+      </h4>
+      {description && (
+        <p className={`text-xs mt-1 leading-relaxed transition-colors ${selected ? "text-slate-600" : "text-slate-500"}`}>
+          {description}
+        </p>
+      )}
+    </div>
   </button>
 );
 
@@ -619,11 +662,16 @@ const PillButton = ({ selected, onClick, children }: any) => (
 const Step2Housing = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
   <div>
     <StepTitle icon={Home} title="Quel logement souhaitez-vous équiper ?" />
-    <div className="grid md:grid-cols-2 gap-3">
+    <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
       {HOUSING.map((h) => (
-        <ChoiceCard key={h.id} icon={h.icon} selected={sim.housing === h.id} onClick={() => setSim({ ...sim, housing: h.id })}>
-          {h.label}
-        </ChoiceCard>
+        <ChoiceCard
+          key={h.id}
+          icon={h.icon}
+          title={h.label}
+          description={h.desc}
+          selected={sim.housing === h.id}
+          onClick={() => setSim({ ...sim, housing: h.id })}
+        />
       ))}
     </div>
 
@@ -656,11 +704,16 @@ const Step2Housing = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
 const Step3Ownership = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
   <div>
     <StepTitle icon={Building} title="Vous êtes propriétaire du logement ?" />
-    <div className="grid md:grid-cols-3 gap-3">
+    <div className="grid sm:grid-cols-3 gap-3">
       {OWNERSHIPS.map((o) => (
-        <ChoiceCard key={o.id} selected={sim.ownership === o.id} onClick={() => setSim({ ...sim, ownership: o.id })}>
-          {o.label}
-        </ChoiceCard>
+        <ChoiceCard
+          key={o.id}
+          icon={o.id === "oui" ? Check : o.id === "non" ? Lock : Sparkles}
+          title={o.label}
+          description={o.desc}
+          selected={sim.ownership === o.id}
+          onClick={() => setSim({ ...sim, ownership: o.id })}
+        />
       ))}
     </div>
     {sim.ownership && (
@@ -704,11 +757,16 @@ const Step5Equipments = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
   return (
     <div>
       <StepTitle icon={Zap} title="Quels équipements consomment le plus chez vous ?" subtitle="Sélection multiple possible." />
-      <div className="grid md:grid-cols-2 gap-3">
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
         {EQUIPMENTS.map((e) => (
-          <ChoiceCard key={e.id} icon={e.icon} selected={sim.equipments.includes(e.id)} onClick={() => toggle(e.id)}>
-            {e.label}
-          </ChoiceCard>
+          <ChoiceCard
+            key={e.id}
+            icon={e.icon}
+            title={e.label}
+            description={e.desc}
+            selected={sim.equipments.includes(e.id)}
+            onClick={() => toggle(e.id)}
+          />
         ))}
       </div>
       {sim.equipments.length > 0 && (
