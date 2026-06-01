@@ -441,43 +441,56 @@ export default function SimulateurSolaireLead() {
 
 const EntryHero = ({ onStart }: { onStart: () => void }) => (
   <section className="relative overflow-hidden">
-    {/* Background */}
+    {/* Background image + strong dark overlays for guaranteed contrast */}
     <div className="absolute inset-0" aria-hidden>
       <img src={solarHouseBanner} alt="" className="absolute inset-0 w-full h-full object-cover" loading="eager" />
-      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(145_65%_18%)]/95 via-[hsl(145_55%_25%)]/85 to-[hsl(38_92%_45%)]/40" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(48_95%_60%/0.35),transparent_60%)]" />
+      {/* Solid dark base */}
+      <div className="absolute inset-0 bg-[hsl(145_55%_12%)]/80" />
+      {/* Brand gradient on top */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(145_70%_15%)]/90 via-[hsl(145_60%_22%)]/75 to-[hsl(38_85%_30%)]/65" />
+      {/* Vignette bottom for CTA visibility */}
+      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[hsl(145_65%_10%)]/85 to-transparent" />
+      {/* Warm sun glow top-right */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(48_95%_55%/0.28),transparent_55%)]" />
     </div>
 
-    {/* Floating sun */}
-    <div className="absolute top-20 right-[10%] w-32 h-32 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 blur-3xl opacity-60 animate-pulse" aria-hidden />
+    {/* Floating ambient orb */}
+    <div className="absolute top-20 right-[10%] w-40 h-40 rounded-full bg-amber-400/30 blur-3xl animate-pulse" aria-hidden />
+    <div className="absolute bottom-32 left-[8%] w-32 h-32 rounded-full bg-primary/30 blur-3xl" aria-hidden />
 
     <div className="relative container mx-auto px-4 py-20 md:py-28 text-center max-w-4xl">
-      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-xs font-semibold mb-6">
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-xs font-semibold mb-6 shadow-lg">
         <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Simulateur 100% gratuit · sans engagement
       </div>
 
-      <h1 className="text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight text-white mb-6">
+      <h1
+        className="text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight text-white mb-6"
+        style={{ textShadow: "0 4px 30px hsl(145 65% 10% / 0.6), 0 2px 10px hsl(145 65% 10% / 0.4)" }}
+      >
         Combien votre maison peut-elle
-        <span className="block mt-2 bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
+        <span className="block mt-2 bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent">
           économiser grâce au solaire&nbsp;?
         </span>
       </h1>
 
-      <p className="text-base md:text-xl text-white/85 max-w-2xl mx-auto mb-10 leading-relaxed">
+      <p
+        className="text-base md:text-xl text-white max-w-2xl mx-auto mb-10 leading-relaxed"
+        style={{ textShadow: "0 2px 15px hsl(145 65% 10% / 0.6)" }}
+      >
         Estimez en moins de 2 minutes le potentiel solaire de votre logement, vos économies possibles et les aides disponibles dans votre région.
       </p>
 
       <Button
         onClick={onStart}
         size="lg"
-        className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-bold text-base md:text-lg px-10 py-7 rounded-full shadow-[0_20px_50px_-10px_hsl(45_95%_50%/0.6)] hover:scale-105 transition-all group"
+        className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-bold text-base md:text-lg px-10 py-7 rounded-full shadow-[0_20px_50px_-10px_hsl(45_95%_50%/0.8)] hover:scale-105 transition-all group"
       >
         <Sun className="w-5 h-5 mr-2 group-hover:rotate-45 transition-transform" />
         Démarrer ma simulation
         <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
       </Button>
 
-      <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-white/80">
+      <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-white font-medium">
         <span className="inline-flex items-center gap-1.5"><Clock className="w-4 h-4 text-amber-300" /> 2 minutes chrono</span>
         <span className="inline-flex items-center gap-1.5"><Check className="w-4 h-4 text-amber-300" /> Sans engagement</span>
         <span className="inline-flex items-center gap-1.5"><MapPin className="w-4 h-4 text-amber-300" /> Adapté à votre région</span>
@@ -490,10 +503,10 @@ const EntryHero = ({ onStart }: { onStart: () => void }) => (
           { icon: Star, value: "4.9/5", label: "Satisfaction clients" },
           { icon: Award, value: "RGE", label: "Partenaires certifiés" },
         ].map((s, i) => (
-          <div key={i} className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-3 py-4 md:px-5 md:py-5">
+          <div key={i} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-3 py-4 md:px-5 md:py-5 shadow-lg">
             <s.icon className="w-5 h-5 md:w-6 md:h-6 text-amber-300 mx-auto mb-2" />
             <div className="text-xl md:text-2xl font-bold text-white">{s.value}</div>
-            <div className="text-[10px] md:text-xs text-white/70 mt-0.5">{s.label}</div>
+            <div className="text-[10px] md:text-xs text-white/80 mt-0.5">{s.label}</div>
           </div>
         ))}
       </div>
