@@ -13,9 +13,9 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Sun, Check, ArrowLeft, ArrowRight, MapPin, Home, Building2, Store, Building,
   Compass, Snowflake, Flame, Thermometer, Waves, Car, Plug, HelpCircle,
-  Loader2, Lock, Sparkles, ShieldCheck, Clock, Zap,
+  Loader2, Lock, Sparkles, ShieldCheck, Clock, Zap, TrendingUp, Star, Award, Leaf,
 } from "lucide-react";
-import solarSimBg from "@/assets/simulators/solar-simulator-bg.jpg";
+import solarHouseBanner from "@/assets/solar-house-banner.jpg";
 
 // ---------- Types ----------
 type HousingType = "maison" | "villa" | "mitoyenne" | "pro" | "appartement";
@@ -91,7 +91,6 @@ function detectRegion(postal: string): { id: string; label: string; sun: string 
   if (p.startsWith("976")) return { id: "mayotte", label: "Mayotte", sun: "excellent" };
   if (/^\d{5}$/.test(p)) {
     const n = parseInt(p.slice(0, 2), 10);
-    // Southern France stronger sun
     if ([13, 30, 34, 11, 66, 6, 83, 84, 4, 5, 7, 26].includes(n))
       return { id: "fr-sud", label: "France continentale (sud)", sun: "très favorable" };
     return { id: "fr", label: "France continentale", sun: "favorable" };
@@ -117,12 +116,11 @@ function orientationFeedback(o: Orientation): string {
 
 // ---------- Compass ----------
 const Compass8 = ({ value, onChange }: { value: Orientation | ""; onChange: (o: Orientation) => void }) => {
-  // 8 sectors of 45° starting at N (top, -22.5°)
-  const size = 280;
+  const size = 300;
   const cx = size / 2;
   const cy = size / 2;
-  const rOuter = 130;
-  const rInner = 55;
+  const rOuter = 140;
+  const rInner = 58;
   const sectors = ["N", "NE", "E", "SE", "S", "SO", "O", "NO"] as Orientation[];
 
   const polar = (deg: number, r: number) => {
@@ -132,7 +130,17 @@ const Compass8 = ({ value, onChange }: { value: Orientation | ""; onChange: (o: 
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="drop-shadow-xl">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="drop-shadow-2xl">
+        <defs>
+          <radialGradient id="compassCenter" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="hsl(48 95% 70%)" />
+            <stop offset="100%" stopColor="hsl(38 92% 55%)" />
+          </radialGradient>
+          <linearGradient id="sectorSelected" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="hsl(145 65% 55%)" />
+            <stop offset="100%" stopColor="hsl(145 65% 40%)" />
+          </linearGradient>
+        </defs>
         {sectors.map((s, i) => {
           const startAngle = i * 45 - 22.5;
           const endAngle = startAngle + 45;
@@ -148,36 +156,32 @@ const Compass8 = ({ value, onChange }: { value: Orientation | ""; onChange: (o: 
             <g key={s} onClick={() => onChange(s)} className="cursor-pointer">
               <path
                 d={d}
-                className={
-                  selected
-                    ? "fill-amber-400 stroke-amber-600"
-                    : "fill-sky-100 hover:fill-sky-200 stroke-sky-300"
-                }
-                strokeWidth={1.5}
-                style={{ transition: "fill .2s" }}
+                fill={selected ? "url(#sectorSelected)" : "hsl(145 35% 95%)"}
+                stroke={selected ? "hsl(145 65% 30%)" : "hsl(145 35% 80%)"}
+                strokeWidth={2}
+                className="transition-all hover:fill-[hsl(145_45%_88%)]"
               />
-              <text x={lx} y={ly - 4} textAnchor="middle" className={`text-[13px] font-bold ${selected ? "fill-slate-900" : "fill-slate-700"}`}>
+              <text x={lx} y={ly - 4} textAnchor="middle" className={`text-[14px] font-bold ${selected ? "fill-white" : "fill-slate-800"}`}>
                 {s}
               </text>
-              <text x={lx} y={ly + 10} textAnchor="middle" className={`text-[10px] ${selected ? "fill-slate-900" : "fill-slate-500"}`}>
+              <text x={lx} y={ly + 12} textAnchor="middle" className={`text-[10px] font-semibold ${selected ? "fill-white/90" : "fill-slate-500"}`}>
                 {perf}%
               </text>
             </g>
           );
         })}
-        {/* center */}
-        <circle cx={cx} cy={cy} r={rInner - 4} className="fill-white stroke-slate-200" strokeWidth={1.5} />
-        <g transform={`translate(${cx - 16}, ${cy - 16})`}>
-          <Sun className="text-amber-500" width={32} height={32} />
+        <circle cx={cx} cy={cy} r={rInner - 4} fill="url(#compassCenter)" stroke="hsl(38 92% 50%)" strokeWidth={2} />
+        <g transform={`translate(${cx - 18}, ${cy - 18})`}>
+          <Sun className="text-white drop-shadow" width={36} height={36} />
         </g>
       </svg>
       <button
         type="button"
         onClick={() => onChange("?")}
-        className={`text-sm px-4 py-2 rounded-full border transition-colors ${
+        className={`text-sm px-5 py-2.5 rounded-full border-2 transition-all ${
           value === "?"
-            ? "bg-amber-400 border-amber-500 text-slate-900 font-semibold"
-            : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+            ? "bg-primary border-primary text-primary-foreground font-semibold shadow-md"
+            : "bg-white border-slate-200 text-slate-600 hover:border-primary/40"
         }`}
       >
         Je ne sais pas
@@ -198,16 +202,10 @@ const leadSchema = z.object({
 const STEP_LABELS = ["Localisation", "Logement", "Propriété", "Toiture", "Équipements", "Facture", "Résultat"];
 
 export default function SimulateurSolaireLead() {
-  const [step, setStep] = useState<number>(0); // 0 entry, 1..7 questions, 8 results unlocked
+  const [step, setStep] = useState<number>(0);
   const [sim, setSim] = useState<Sim>({
-    postalCode: "",
-    city: "",
-    housing: "",
-    surface: "",
-    ownership: "",
-    orientation: "",
-    equipments: [],
-    monthlyBill: "",
+    postalCode: "", city: "", housing: "", surface: "", ownership: "",
+    orientation: "", equipments: [], monthlyBill: "",
   });
   const [showLeadModal, setShowLeadModal] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
@@ -216,12 +214,19 @@ export default function SimulateurSolaireLead() {
 
   const region = useMemo(() => detectRegion(sim.postalCode || ""), [sim.postalCode]);
 
-  // Computing animation when reaching step 7
   useEffect(() => {
     if (step === 7) {
       setComputing(true);
       const t = setTimeout(() => setComputing(false), 2200);
       return () => clearTimeout(t);
+    }
+  }, [step]);
+
+  // Scroll to top of wizard on step change
+  useEffect(() => {
+    if (step > 0) {
+      const el = document.getElementById("sim-wizard");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [step]);
 
@@ -240,7 +245,6 @@ export default function SimulateurSolaireLead() {
   const goNext = () => setStep((s) => Math.min(s + 1, 7));
   const goBack = () => setStep((s) => Math.max(s - 1, 1));
 
-  // ----- Lead form state -----
   const [lead, setLead] = useState({ fullName: "", email: "", phone: "", consent: false });
   const [leadErrors, setLeadErrors] = useState<Record<string, string>>({});
 
@@ -264,32 +268,21 @@ export default function SimulateurSolaireLead() {
 
     const payload = {
       source: "simulateur-solaire",
-      region: region.label,
-      regionId: region.id,
-      postalCode: sim.postalCode,
-      city: sim.city,
-      housingType: sim.housing,
-      houseSurfaceRange: sim.surface,
-      ownership: sim.ownership,
-      roofOrientation: sim.orientation,
-      equipments: sim.equipments,
-      monthlyBill: sim.monthlyBill,
-      annualBill,
-      estimatedSavingsMin: savingsMin,
-      estimatedSavingsMax: savingsMax,
+      region: region.label, regionId: region.id,
+      postalCode: sim.postalCode, city: sim.city,
+      housingType: sim.housing, houseSurfaceRange: sim.surface,
+      ownership: sim.ownership, roofOrientation: sim.orientation,
+      equipments: sim.equipments, monthlyBill: sim.monthlyBill,
+      annualBill, estimatedSavingsMin: savingsMin, estimatedSavingsMax: savingsMax,
       suggestedInstallationPower: typeof sim.monthlyBill === "number" ? suggestedKwc(sim.monthlyBill) : null,
-      consentAccepted: true,
-      createdAt: new Date().toISOString(),
+      consentAccepted: true, createdAt: new Date().toISOString(),
     };
 
     const { error } = await supabase.from("leads").insert({
-      first_name: firstName,
-      last_name: lastName,
-      email: parsed.data.email,
-      phone: parsed.data.phone,
+      first_name: firstName, last_name: lastName,
+      email: parsed.data.email, phone: parsed.data.phone,
       address: sim.city || "Non renseignée",
-      postal_code: sim.postalCode,
-      city: sim.city || "Non renseignée",
+      postal_code: sim.postalCode, city: sim.city || "Non renseignée",
       property_type: sim.housing || null,
       is_owner: sim.ownership === "oui",
       needs: ["solaire", ...sim.equipments],
@@ -307,7 +300,6 @@ export default function SimulateurSolaireLead() {
     setShowLeadModal(false);
   };
 
-  // ---------- Render ----------
   return (
     <>
       <Helmet>
@@ -317,20 +309,17 @@ export default function SimulateurSolaireLead() {
 
       <Header />
 
-      <main className="relative min-h-screen pt-6 pb-16 overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <img src={solarSimBg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50" loading="eager" width={1920} height={1080} />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/30 to-white/60" />
-        </div>
+      <main className="relative min-h-screen pb-20 bg-gradient-to-b from-[hsl(145_35%_97%)] via-white to-[hsl(145_35%_96%)]">
+        {step === 0 && <EntryHero onStart={() => setStep(1)} />}
 
-        <div className="relative z-10 container mx-auto px-4 max-w-3xl">
-          {step === 0 && <EntryScreen onStart={() => setStep(1)} />}
+        {step > 0 && (
+          <div id="sim-wizard" className="container mx-auto px-4 max-w-3xl pt-8 md:pt-12">
+            <ProgressBar step={step} />
 
-          {step > 0 && (
-            <>
-              <ProgressBar step={step} />
-              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/60 p-6 md:p-10 mt-4">
+            <div className="relative mt-5">
+              {/* Decorative glow */}
+              <div className="absolute -inset-1 bg-gradient-to-br from-primary/20 via-amber-200/20 to-primary/10 rounded-[2rem] blur-2xl opacity-60" aria-hidden />
+              <div className="relative bg-white rounded-3xl shadow-[0_20px_60px_-15px_hsl(145_65%_25%/0.18)] border border-slate-100 p-6 md:p-10">
                 {step === 1 && <Step1Location sim={sim} setSim={setSim} region={region} />}
                 {step === 2 && <Step2Housing sim={sim} setSim={setSim} />}
                 {step === 3 && <Step3Ownership sim={sim} setSim={setSim} />}
@@ -338,69 +327,75 @@ export default function SimulateurSolaireLead() {
                 {step === 5 && <Step5Equipments sim={sim} setSim={setSim} />}
                 {step === 6 && <Step6Bill sim={sim} setSim={setSim} />}
                 {step === 7 && (
-                  <Step7Compute
-                    sim={sim}
-                    computing={computing}
-                    onSeeResults={() => setShowLeadModal(true)}
-                  />
+                  <Step7Compute sim={sim} computing={computing} onSeeResults={() => setShowLeadModal(true)} />
                 )}
 
-                {/* Navigation */}
                 {step < 7 && (
-                  <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-100">
-                    <Button variant="ghost" onClick={goBack} disabled={step === 1} className="text-slate-600">
+                  <div className="flex items-center justify-between mt-10 pt-6 border-t border-slate-100">
+                    <Button variant="ghost" onClick={goBack} disabled={step === 1} className="text-slate-500 hover:text-slate-900">
                       <ArrowLeft className="w-4 h-4 mr-1.5" /> Retour
                     </Button>
                     <Button
                       onClick={goNext}
                       disabled={!canContinue()}
                       size="lg"
-                      className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-lg hover:scale-105 transition-transform"
+                      className="bg-primary hover:bg-primary-hover text-primary-foreground font-semibold shadow-[0_10px_25px_-8px_hsl(145_65%_45%/0.5)] hover:scale-105 transition-all rounded-full px-7"
                     >
                       Continuer <ArrowRight className="w-4 h-4 ml-1.5" />
                     </Button>
                   </div>
                 )}
               </div>
-            </>
-          )}
-
-          {/* Results (visible only after unlock) */}
-          {unlocked && (
-            <div className="mt-8">
-              <ResultsPanel sim={sim} region={region} annualBill={annualBill} savingsMin={savingsMin} savingsMax={savingsMax} />
             </div>
-          )}
-        </div>
+
+            {/* Trust strip under wizard */}
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500">
+              <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-primary" /> 100% gratuit et sans engagement</span>
+              <span className="inline-flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-primary" /> Vos données sont protégées</span>
+              <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-primary" /> Moins de 2 minutes</span>
+            </div>
+
+            {unlocked && (
+              <div className="mt-10">
+                <ResultsPanel sim={sim} region={region} annualBill={annualBill} savingsMin={savingsMin} savingsMax={savingsMax} />
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {/* Lead modal */}
       <Dialog open={showLeadModal} onOpenChange={(o) => !submitting && setShowLeadModal(o)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Lock className="w-5 h-5 text-amber-500" /> Vos résultats sont prêts
-            </DialogTitle>
-            <DialogDescription>
-              Renseignez vos coordonnées pour débloquer votre estimation solaire personnalisée et recevoir les détails de votre simulation.
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="max-w-md p-0 overflow-hidden">
+          <div className="bg-gradient-to-br from-primary to-[hsl(145_65%_35%)] px-6 pt-6 pb-8 text-primary-foreground">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur text-[11px] font-semibold mb-3">
+              <Sparkles className="w-3 h-3" /> Estimation prête
+            </div>
+            <DialogHeader className="text-left space-y-2">
+              <DialogTitle className="text-2xl font-bold text-primary-foreground">
+                Vos résultats sont prêts
+              </DialogTitle>
+              <DialogDescription className="text-primary-foreground/85">
+                Renseignez vos coordonnées pour débloquer votre estimation personnalisée.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
 
-          <div className="space-y-4 py-2">
+          <div className="p-6 space-y-4">
             <div>
               <Label htmlFor="lead-name">Nom complet *</Label>
               <Input id="lead-name" value={lead.fullName} onChange={(e) => setLead({ ...lead, fullName: e.target.value })} placeholder="Prénom et nom" />
-              {leadErrors.fullName && <p className="text-xs text-red-600 mt-1">{leadErrors.fullName}</p>}
+              {leadErrors.fullName && <p className="text-xs text-destructive mt-1">{leadErrors.fullName}</p>}
             </div>
             <div>
               <Label htmlFor="lead-phone">Téléphone *</Label>
               <Input id="lead-phone" type="tel" value={lead.phone} onChange={(e) => setLead({ ...lead, phone: e.target.value })} placeholder="06 12 34 56 78" />
-              {leadErrors.phone && <p className="text-xs text-red-600 mt-1">{leadErrors.phone}</p>}
+              {leadErrors.phone && <p className="text-xs text-destructive mt-1">{leadErrors.phone}</p>}
             </div>
             <div>
               <Label htmlFor="lead-email">Email *</Label>
               <Input id="lead-email" type="email" value={lead.email} onChange={(e) => setLead({ ...lead, email: e.target.value })} placeholder="vous@email.com" />
-              {leadErrors.email && <p className="text-xs text-red-600 mt-1">{leadErrors.email}</p>}
+              {leadErrors.email && <p className="text-xs text-destructive mt-1">{leadErrors.email}</p>}
             </div>
             <div className="flex items-start gap-2">
               <Checkbox id="lead-consent" checked={lead.consent} onCheckedChange={(c) => setLead({ ...lead, consent: c === true })} className="mt-0.5" />
@@ -408,18 +403,18 @@ export default function SimulateurSolaireLead() {
                 J'accepte d'être recontacté dans le cadre de ma demande de simulation solaire.
               </label>
             </div>
-            {leadErrors.consent && <p className="text-xs text-red-600">{leadErrors.consent}</p>}
+            {leadErrors.consent && <p className="text-xs text-destructive">{leadErrors.consent}</p>}
 
             <Button
               onClick={submitLead}
               disabled={submitting}
               size="lg"
-              className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold"
+              className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-semibold rounded-full shadow-[0_10px_25px_-8px_hsl(145_65%_45%/0.5)]"
             >
-              {submitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Envoi…</> : <>Débloquer mes résultats</>}
+              {submitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Envoi…</> : <>Débloquer mes résultats <ArrowRight className="w-4 h-4 ml-2" /></>}
             </Button>
             <p className="text-[11px] text-center text-slate-500 flex items-center justify-center gap-1.5">
-              <ShieldCheck className="w-3 h-3" /> Gratuit et sans engagement. Vos informations servent uniquement à traiter votre demande.
+              <ShieldCheck className="w-3 h-3" /> Gratuit et sans engagement. Données utilisées uniquement pour votre demande.
             </p>
           </div>
         </DialogContent>
@@ -432,97 +427,135 @@ export default function SimulateurSolaireLead() {
 
 // ---------- Sub components ----------
 
-const EntryScreen = ({ onStart }: { onStart: () => void }) => (
-  <section className="text-center py-12 md:py-20">
-    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100/80 text-amber-700 text-xs font-semibold mb-6">
-      <Sparkles className="w-3.5 h-3.5" /> Simulateur 100% gratuit
+const EntryHero = ({ onStart }: { onStart: () => void }) => (
+  <section className="relative overflow-hidden">
+    {/* Background */}
+    <div className="absolute inset-0" aria-hidden>
+      <img src={solarHouseBanner} alt="" className="absolute inset-0 w-full h-full object-cover" loading="eager" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(145_65%_18%)]/95 via-[hsl(145_55%_25%)]/85 to-[hsl(38_92%_45%)]/40" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(48_95%_60%/0.35),transparent_60%)]" />
     </div>
-    <h1 className="text-3xl md:text-5xl font-bold leading-tight tracking-tight text-slate-900 mb-4">
-      Combien votre maison peut-elle{" "}
-      <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
-        économiser
-      </span>
-      <br className="hidden md:block" /> grâce au solaire&nbsp;?
-    </h1>
-    <p className="text-base md:text-lg text-slate-600 max-w-2xl mx-auto mb-8">
-      Estimez gratuitement le potentiel solaire de votre logement, vos économies possibles et les aides disponibles dans votre région.
-    </p>
 
-    <Button
-      onClick={onStart}
-      size="lg"
-      className="bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold text-base md:text-lg px-8 py-6 rounded-full shadow-xl hover:scale-105 transition-transform"
-    >
-      <Sun className="w-5 h-5 mr-2" /> Lancer ma simulation <ArrowRight className="w-5 h-5 ml-2" />
-    </Button>
+    {/* Floating sun */}
+    <div className="absolute top-20 right-[10%] w-32 h-32 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 blur-3xl opacity-60 animate-pulse" aria-hidden />
 
-    <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-600">
-      <span className="inline-flex items-center gap-1.5"><Clock className="w-4 h-4 text-amber-500" /> Résultat en moins de 2 minutes</span>
-      <span className="inline-flex items-center gap-1.5"><Check className="w-4 h-4 text-green-600" /> Gratuit et sans engagement</span>
-      <span className="inline-flex items-center gap-1.5"><MapPin className="w-4 h-4 text-blue-600" /> Estimation personnalisée selon votre région</span>
+    <div className="relative container mx-auto px-4 py-20 md:py-28 text-center max-w-4xl">
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-xs font-semibold mb-6">
+        <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Simulateur 100% gratuit · sans engagement
+      </div>
+
+      <h1 className="text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight text-white mb-6">
+        Combien votre maison peut-elle
+        <span className="block mt-2 bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
+          économiser grâce au solaire&nbsp;?
+        </span>
+      </h1>
+
+      <p className="text-base md:text-xl text-white/85 max-w-2xl mx-auto mb-10 leading-relaxed">
+        Estimez en moins de 2 minutes le potentiel solaire de votre logement, vos économies possibles et les aides disponibles dans votre région.
+      </p>
+
+      <Button
+        onClick={onStart}
+        size="lg"
+        className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-bold text-base md:text-lg px-10 py-7 rounded-full shadow-[0_20px_50px_-10px_hsl(45_95%_50%/0.6)] hover:scale-105 transition-all group"
+      >
+        <Sun className="w-5 h-5 mr-2 group-hover:rotate-45 transition-transform" />
+        Démarrer ma simulation
+        <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+      </Button>
+
+      <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-white/80">
+        <span className="inline-flex items-center gap-1.5"><Clock className="w-4 h-4 text-amber-300" /> 2 minutes chrono</span>
+        <span className="inline-flex items-center gap-1.5"><Check className="w-4 h-4 text-amber-300" /> Sans engagement</span>
+        <span className="inline-flex items-center gap-1.5"><MapPin className="w-4 h-4 text-amber-300" /> Adapté à votre région</span>
+      </div>
+
+      {/* Stats / social proof */}
+      <div className="mt-14 grid grid-cols-3 gap-3 md:gap-6 max-w-2xl mx-auto">
+        {[
+          { icon: TrendingUp, value: "+12 000", label: "Simulations réalisées" },
+          { icon: Star, value: "4.9/5", label: "Satisfaction clients" },
+          { icon: Award, value: "RGE", label: "Partenaires certifiés" },
+        ].map((s, i) => (
+          <div key={i} className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-3 py-4 md:px-5 md:py-5">
+            <s.icon className="w-5 h-5 md:w-6 md:h-6 text-amber-300 mx-auto mb-2" />
+            <div className="text-xl md:text-2xl font-bold text-white">{s.value}</div>
+            <div className="text-[10px] md:text-xs text-white/70 mt-0.5">{s.label}</div>
+          </div>
+        ))}
+      </div>
     </div>
+
+    {/* wave separator */}
+    <svg className="relative block w-full text-[hsl(145_35%_97%)]" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden>
+      <path fill="currentColor" d="M0,32 C240,80 480,80 720,48 C960,16 1200,16 1440,48 L1440,80 L0,80 Z" />
+    </svg>
   </section>
 );
 
 const ProgressBar = ({ step }: { step: number }) => (
-  <div className="bg-white/90 backdrop-blur-sm rounded-xl py-3 px-4 md:px-6 shadow-md border border-white/60">
-    <div className="flex items-center justify-between mb-2 text-xs font-medium text-slate-600">
-      <span>Étape {step} / 7</span>
-      <span className="text-amber-600">{STEP_LABELS[step - 1]}</span>
+  <div className="bg-white rounded-2xl py-4 px-5 md:px-6 shadow-[0_8px_24px_-8px_hsl(145_65%_25%/0.15)] border border-slate-100">
+    <div className="flex items-center justify-between mb-3 text-xs font-semibold">
+      <span className="text-slate-500">Étape <span className="text-slate-900">{step}</span> / 7</span>
+      <span className="text-primary inline-flex items-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+        {STEP_LABELS[step - 1]}
+      </span>
     </div>
     <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
       <div
-        className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500"
+        className="h-full bg-gradient-to-r from-primary via-[hsl(145_65%_50%)] to-amber-400 rounded-full transition-all duration-700 shadow-[0_0_12px_hsl(145_65%_45%/0.5)]"
         style={{ width: `${(step / 7) * 100}%` }}
       />
     </div>
   </div>
 );
 
-// ----- Steps -----
-
 const StepTitle = ({ icon: Icon, title, subtitle }: { icon: any; title: string; subtitle?: string }) => (
-  <div className="mb-6">
-    <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 text-orange-600 mb-3">
-      <Icon className="w-6 h-6" />
+  <div className="mb-8">
+    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-[hsl(145_65%_35%)] text-white mb-4 shadow-[0_10px_25px_-8px_hsl(145_65%_45%/0.5)]">
+      <Icon className="w-7 h-7" />
     </div>
-    <h2 className="text-xl md:text-2xl font-bold text-slate-900">{title}</h2>
-    {subtitle && <p className="text-sm text-slate-600 mt-1">{subtitle}</p>}
+    <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{title}</h2>
+    {subtitle && <p className="text-sm md:text-base text-slate-600 mt-2 leading-relaxed">{subtitle}</p>}
   </div>
 );
 
 const InfoBanner = ({ children }: { children: React.ReactNode }) => (
-  <div className="mt-5 p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 text-sm text-slate-700 flex gap-3">
-    <Sparkles className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-    <div>{children}</div>
+  <div className="mt-6 p-4 rounded-2xl bg-gradient-to-br from-[hsl(145_35%_95%)] to-[hsl(145_35%_92%)] border border-primary/20 text-sm text-slate-700 flex gap-3">
+    <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+      <Leaf className="w-4 h-4 text-primary" />
+    </div>
+    <div className="flex-1">{children}</div>
   </div>
 );
 
 const Step1Location = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => (
   <div>
-    <StepTitle icon={MapPin} title="Où se situe votre logement ?" subtitle="Nous adaptons votre simulation à votre zone géographique." />
+    <StepTitle icon={MapPin} title="Où se situe votre logement ?" subtitle="Nous adaptons votre simulation à votre zone géographique et son ensoleillement." />
     <div className="grid md:grid-cols-2 gap-4">
       <div>
-        <Label>Code postal *</Label>
+        <Label className="text-slate-700 font-medium">Code postal *</Label>
         <Input
           value={sim.postalCode}
           onChange={(e) => setSim({ ...sim, postalCode: e.target.value.replace(/\D/g, "").slice(0, 5) })}
           placeholder="75001"
           inputMode="numeric"
-          className="text-lg"
+          className="text-lg h-12 mt-1.5 border-slate-200 focus-visible:ring-primary"
         />
       </div>
       <div>
-        <Label>Ville <span className="text-slate-400 font-normal">(facultatif)</span></Label>
-        <Input value={sim.city} onChange={(e) => setSim({ ...sim, city: e.target.value })} placeholder="Paris" />
+        <Label className="text-slate-700 font-medium">Ville <span className="text-slate-400 font-normal">(facultatif)</span></Label>
+        <Input value={sim.city} onChange={(e) => setSim({ ...sim, city: e.target.value })} placeholder="Paris" className="h-12 mt-1.5 border-slate-200 focus-visible:ring-primary" />
       </div>
     </div>
 
     {/^\d{5}$/.test(sim.postalCode) && (
       <InfoBanner>
-        <p className="font-semibold text-slate-900 mb-1">Votre zone est analysée — {region.label}</p>
-        <ul className="space-y-1 text-slate-700">
-          <li>• Ensoleillement régional : <strong>{region.sun}</strong></li>
+        <p className="font-semibold text-slate-900 mb-1.5">Votre zone est analysée — {region.label}</p>
+        <ul className="space-y-1 text-slate-600">
+          <li>• Ensoleillement régional : <strong className="text-primary">{region.sun}</strong></li>
           <li>• Aides possibles selon votre éligibilité</li>
           <li>• Simulation adaptée à votre région</li>
         </ul>
@@ -535,19 +568,39 @@ const ChoiceCard = ({ selected, onClick, children, icon: Icon }: any) => (
   <button
     type="button"
     onClick={onClick}
-    className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${
+    className={`group w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center gap-3 ${
       selected
-        ? "border-amber-500 bg-amber-50 shadow-md"
-        : "border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50/50"
+        ? "border-primary bg-gradient-to-br from-[hsl(145_35%_95%)] to-white shadow-[0_8px_24px_-10px_hsl(145_65%_45%/0.4)]"
+        : "border-slate-200 bg-white hover:border-primary/40 hover:bg-[hsl(145_35%_98%)] hover:-translate-y-0.5"
     }`}
   >
     {Icon && (
-      <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${selected ? "bg-amber-500 text-white" : "bg-slate-100 text-slate-500"}`}>
+      <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
+        selected ? "bg-primary text-primary-foreground shadow-md" : "bg-slate-100 text-slate-500 group-hover:bg-primary/10 group-hover:text-primary"
+      }`}>
         <Icon className="w-5 h-5" />
       </div>
     )}
-    <span className={`font-medium ${selected ? "text-slate-900" : "text-slate-700"}`}>{children}</span>
-    {selected && <Check className="w-5 h-5 text-amber-600 ml-auto" />}
+    <span className={`font-medium flex-1 ${selected ? "text-slate-900" : "text-slate-700"}`}>{children}</span>
+    {selected && (
+      <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+        <Check className="w-4 h-4" />
+      </div>
+    )}
+  </button>
+);
+
+const PillButton = ({ selected, onClick, children }: any) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`px-3 py-3 rounded-xl border-2 text-sm font-semibold transition-all ${
+      selected
+        ? "border-primary bg-primary text-primary-foreground shadow-[0_6px_16px_-6px_hsl(145_65%_45%/0.5)]"
+        : "border-slate-200 bg-white text-slate-600 hover:border-primary/40 hover:text-slate-900"
+    }`}
+  >
+    {children}
   </button>
 );
 
@@ -566,16 +619,9 @@ const Step2Housing = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
       <h3 className="font-semibold text-slate-900 mb-3">Quelle est la superficie approximative du logement ?</h3>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
         {SURFACES.map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            onClick={() => setSim({ ...sim, surface: s.id })}
-            className={`px-3 py-3 rounded-lg border-2 text-sm font-medium transition-all ${
-              sim.surface === s.id ? "border-amber-500 bg-amber-50 text-slate-900" : "border-slate-200 bg-white text-slate-600 hover:border-amber-300"
-            }`}
-          >
+          <PillButton key={s.id} selected={sim.surface === s.id} onClick={() => setSim({ ...sim, surface: s.id })}>
             {s.label}
-          </button>
+          </PillButton>
         ))}
       </div>
     </div>
@@ -586,7 +632,7 @@ const Step2Housing = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
           ? "Votre projet peut nécessiter une étude spécifique. Vous pouvez continuer la simulation pour obtenir une première estimation."
           : "Très bon profil pour une simulation solaire. Les maisons permettent généralement d'exploiter directement la toiture pour produire une partie de l'électricité consommée."}
         {sim.surface && (
-          <p className="mt-2 text-xs text-slate-600">
+          <p className="mt-2 text-xs text-slate-500">
             Cette information nous aide à estimer indirectement le potentiel de toiture disponible, sans vous demander de mesurer votre toit.
           </p>
         )}
@@ -622,13 +668,14 @@ const Step4Orientation = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
       title="Quelle est l'orientation principale de votre toiture ?"
       subtitle="Le Sud capte généralement le maximum de soleil, mais d'autres orientations restent intéressantes."
     />
-    <div className="grid md:grid-cols-[1fr_1fr] gap-6 items-center">
+    <div className="grid md:grid-cols-[1fr_1fr] gap-8 items-center">
       <Compass8 value={sim.orientation} onChange={(o) => setSim({ ...sim, orientation: o })} />
       <div className="space-y-3">
         {sim.orientation ? (
           <InfoBanner>{orientationFeedback(sim.orientation as Orientation)}</InfoBanner>
         ) : (
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-600">
+          <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-slate-600">
+            <Compass className="w-6 h-6 text-slate-400 mb-2" />
             Sélectionnez une orientation sur la boussole pour découvrir son potentiel solaire.
           </div>
         )}
@@ -655,9 +702,9 @@ const Step5Equipments = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
       {sim.equipments.length > 0 && (
         <InfoBanner>
           Ces équipements peuvent augmenter l'intérêt du solaire. Plus une partie de votre consommation est régulière, plus l'autoconsommation peut devenir intéressante.
-          {sim.equipments.includes("clim") && <p className="mt-2 text-xs">La climatisation peut représenter un poste important de consommation, notamment dans les régions ensoleillées.</p>}
-          {sim.equipments.includes("ceau") && <p className="mt-2 text-xs">Le chauffe-eau électrique est souvent un poste intéressant à prendre en compte dans une étude solaire.</p>}
-          {(sim.equipments.includes("piscine") || sim.equipments.includes("ve")) && <p className="mt-2 text-xs">Ce type d'équipement peut renforcer l'intérêt d'une production solaire adaptée.</p>}
+          {sim.equipments.includes("clim") && <p className="mt-2 text-xs text-slate-500">La climatisation peut représenter un poste important de consommation, notamment dans les régions ensoleillées.</p>}
+          {sim.equipments.includes("ceau") && <p className="mt-2 text-xs text-slate-500">Le chauffe-eau électrique est souvent un poste intéressant à prendre en compte dans une étude solaire.</p>}
+          {(sim.equipments.includes("piscine") || sim.equipments.includes("ve")) && <p className="mt-2 text-xs text-slate-500">Ce type d'équipement peut renforcer l'intérêt d'une production solaire adaptée.</p>}
         </InfoBanner>
       )}
     </div>
@@ -667,35 +714,28 @@ const Step5Equipments = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
 const Step6Bill = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
   <div>
     <StepTitle icon={Zap} title="Quel est le montant moyen de votre facture d'électricité par mois ?" />
-    <div className="grid grid-cols-5 gap-2 mb-4">
+    <div className="grid grid-cols-5 gap-2 mb-5">
       {BILL_PRESETS.map((v, i) => (
-        <button
-          key={v}
-          type="button"
-          onClick={() => setSim({ ...sim, monthlyBill: v })}
-          className={`py-3 rounded-lg border-2 text-sm font-semibold transition-all ${
-            sim.monthlyBill === v ? "border-amber-500 bg-amber-50 text-slate-900" : "border-slate-200 bg-white text-slate-600 hover:border-amber-300"
-          }`}
-        >
+        <PillButton key={v} selected={sim.monthlyBill === v} onClick={() => setSim({ ...sim, monthlyBill: v })}>
           {v} €{i === BILL_PRESETS.length - 1 ? "+" : ""}
-        </button>
+        </PillButton>
       ))}
     </div>
-    <Label>Ou saisissez un montant précis (€/mois)</Label>
+    <Label className="text-slate-700 font-medium">Ou saisissez un montant précis (€/mois)</Label>
     <Input
       type="number"
       min={0}
       value={sim.monthlyBill === "" ? "" : sim.monthlyBill}
       onChange={(e) => setSim({ ...sim, monthlyBill: e.target.value === "" ? "" : Math.max(0, Number(e.target.value)) })}
       placeholder="180"
-      className="text-lg"
+      className="text-lg h-12 mt-1.5 border-slate-200 focus-visible:ring-primary"
     />
     {typeof sim.monthlyBill === "number" && sim.monthlyBill > 0 && (
       <InfoBanner>
-        <p className="font-semibold text-slate-900">
-          {sim.monthlyBill} € / mois = {(sim.monthlyBill * 12).toLocaleString("fr-FR")} € / an
+        <p className="font-semibold text-slate-900 text-base">
+          {sim.monthlyBill} € / mois = <span className="text-primary">{(sim.monthlyBill * 12).toLocaleString("fr-FR")} €</span> / an
         </p>
-        <p className="mt-1">Une partie de cette dépense pourrait être réduite grâce à une production solaire adaptée à votre logement.</p>
+        <p className="mt-1 text-slate-600">Une partie de cette dépense pourrait être réduite grâce à une production solaire adaptée à votre logement.</p>
       </InfoBanner>
     )}
   </div>
@@ -705,28 +745,29 @@ const Step7Compute = ({ sim, computing, onSeeResults }: { sim: Sim; computing: b
   <div className="text-center py-4">
     <StepTitle icon={Sparkles} title="Votre estimation est prête à être calculée" />
     <p className="text-sm text-slate-600 mb-6">Nous avons analysé :</p>
-    <ul className="text-sm text-left max-w-md mx-auto space-y-2 text-slate-700 mb-8">
-      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-600" /> Votre région</li>
-      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-600" /> Votre type de logement</li>
-      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-600" /> Votre statut propriétaire</li>
-      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-600" /> La superficie approximative de votre maison</li>
-      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-600" /> L'orientation de votre toiture</li>
-      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-600" /> Vos équipements électriques</li>
-      <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-600" /> Votre facture mensuelle</li>
+    <ul className="text-sm text-left max-w-md mx-auto space-y-2.5 text-slate-700 mb-10">
+      {["Votre région","Votre type de logement","Votre statut propriétaire","La superficie approximative","L'orientation de votre toiture","Vos équipements électriques","Votre facture mensuelle"].map((t,i)=>(
+        <li key={i} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-[hsl(145_35%_97%)]">
+          <div className="w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
+            <Check className="w-3 h-3" />
+          </div>
+          {t}
+        </li>
+      ))}
     </ul>
 
     {computing ? (
-      <div className="space-y-2 max-w-sm mx-auto text-sm text-slate-600">
-        <p className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin text-amber-500" /> Calcul du potentiel solaire…</p>
-        <p className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin text-amber-500" /> Estimation des économies…</p>
-        <p className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin text-amber-500" /> Vérification des aides possibles…</p>
-        <p className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin text-amber-500" /> Préparation de votre résultat personnalisé…</p>
+      <div className="space-y-2.5 max-w-sm mx-auto text-sm text-slate-600 bg-[hsl(145_35%_97%)] rounded-2xl p-5">
+        <p className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin text-primary" /> Calcul du potentiel solaire…</p>
+        <p className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin text-primary" /> Estimation des économies…</p>
+        <p className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin text-primary" /> Vérification des aides possibles…</p>
+        <p className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin text-primary" /> Préparation de votre résultat personnalisé…</p>
       </div>
     ) : (
       <Button
         onClick={onSeeResults}
         size="lg"
-        className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold px-8 py-6 rounded-full shadow-xl hover:scale-105 transition-transform"
+        className="bg-gradient-to-r from-primary to-[hsl(145_65%_38%)] hover:scale-105 text-primary-foreground font-bold px-10 py-7 rounded-full shadow-[0_15px_40px_-10px_hsl(145_65%_45%/0.6)] transition-all"
       >
         <Lock className="w-4 h-4 mr-2" /> Voir mes résultats
       </Button>
@@ -741,75 +782,82 @@ const ResultsPanel = ({ sim, region, annualBill, savingsMin, savingsMax }: any) 
   const equipmentsLabels = sim.equipments.map((id: string) => EQUIPMENTS.find((e) => e.id === id)?.label).filter(Boolean).join(", ") || "Aucun";
 
   return (
-    <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-amber-200 p-6 md:p-10">
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold mb-3">
-          <Check className="w-3.5 h-3.5" /> Résultats débloqués
+    <div className="bg-white rounded-3xl shadow-[0_30px_80px_-20px_hsl(145_65%_25%/0.25)] border border-primary/20 overflow-hidden">
+      {/* Hero result */}
+      <div className="relative bg-gradient-to-br from-primary via-[hsl(145_65%_35%)] to-[hsl(145_55%_25%)] px-6 md:px-10 py-10 text-primary-foreground overflow-hidden">
+        <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-amber-300/30 blur-3xl" aria-hidden />
+        <div className="relative">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur text-xs font-semibold mb-3">
+            <Check className="w-3.5 h-3.5" /> Résultats débloqués
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold mb-2">Votre estimation solaire</h2>
+          <p className="text-primary-foreground/80 text-sm">Basée sur votre profil et votre région.</p>
+
+          <div className="mt-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5">
+            <p className="text-xs uppercase tracking-wide text-primary-foreground/70 mb-1">Économies estimées</p>
+            <p className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-amber-200 to-yellow-100 bg-clip-text text-transparent">
+              {savingsMin.toLocaleString("fr-FR")} – {savingsMax.toLocaleString("fr-FR")} € / an
+            </p>
+            <p className="text-xs text-primary-foreground/70 mt-2">
+              Sur une facture annuelle estimée à <strong className="text-primary-foreground">{annualBill.toLocaleString("fr-FR")} €</strong>. Indicatif, à confirmer après étude.
+            </p>
+          </div>
         </div>
-        <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Votre estimation solaire</h2>
       </div>
 
-      {/* Profil */}
-      <section className="mb-6">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">Votre profil</h3>
-        <div className="grid md:grid-cols-2 gap-3 text-sm">
-          <ProfileRow label="Zone" value={`${region.label}${sim.city ? " — " + sim.city : ""}`} />
-          <ProfileRow label="Potentiel solaire régional" value={region.sun} />
-          <ProfileRow label="Logement" value={housingLabel} />
-          <ProfileRow label="Superficie approximative" value={surfaceLabel} />
-          <ProfileRow label="Orientation" value={orientationLabel} />
-          <ProfileRow label="Équipements" value={equipmentsLabels} />
+      <div className="p-6 md:p-10">
+        {/* Profil */}
+        <section className="mb-8">
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Votre profil</h3>
+          <div className="grid md:grid-cols-2 gap-3 text-sm">
+            <ProfileRow label="Zone" value={`${region.label}${sim.city ? " — " + sim.city : ""}`} />
+            <ProfileRow label="Potentiel solaire régional" value={region.sun} />
+            <ProfileRow label="Logement" value={housingLabel} />
+            <ProfileRow label="Superficie approximative" value={surfaceLabel} />
+            <ProfileRow label="Orientation" value={orientationLabel} />
+            <ProfileRow label="Équipements" value={equipmentsLabels} />
+          </div>
+        </section>
+
+        {/* Installation */}
+        <section className="mb-6 p-5 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200">
+          <h3 className="text-xs font-bold text-amber-700 uppercase tracking-widest mb-2">Installation recommandée</h3>
+          <p className="text-slate-900 text-lg font-bold">
+            {typeof sim.monthlyBill === "number" ? suggestedKwc(sim.monthlyBill) : "—"}
+          </p>
+          <p className="text-sm text-slate-600 mt-2">
+            Cette puissance peut être adaptée selon votre consommation, votre toiture, votre région et votre budget. Une étude gratuite permet de confirmer la solution la plus rentable.
+          </p>
+        </section>
+
+        {/* Aides */}
+        <section className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-[hsl(145_35%_95%)] to-white border border-primary/20">
+          <h3 className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Aides & financement</h3>
+          <p className="text-slate-700">
+            Votre région peut donner accès à certaines aides ou solutions de financement, sous réserve d'éligibilité.
+          </p>
+        </section>
+
+        <div className="text-center">
+          <Button
+            size="lg"
+            className="bg-gradient-to-r from-primary to-[hsl(145_65%_35%)] text-primary-foreground font-bold px-10 py-7 rounded-full shadow-[0_15px_40px_-10px_hsl(145_65%_45%/0.6)] hover:scale-105 transition-all"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
+            <Sun className="w-4 h-4 mr-2" /> Confirmer mon estimation avec un conseiller
+          </Button>
+          <p className="text-xs text-slate-500 mt-3 max-w-md mx-auto">
+            Un conseiller peut vérifier gratuitement votre toiture, votre consommation réelle, les aides disponibles et la rentabilité estimée.
+          </p>
         </div>
-      </section>
-
-      {/* Économies */}
-      <section className="mb-6 p-5 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200">
-        <h3 className="text-sm font-semibold text-orange-700 uppercase tracking-wide mb-2">Économies potentielles</h3>
-        <p className="text-slate-700 mb-2">Votre facture annuelle estimée : <strong>{annualBill.toLocaleString("fr-FR")} € / an</strong></p>
-        <p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
-          Entre {savingsMin.toLocaleString("fr-FR")} € et {savingsMax.toLocaleString("fr-FR")} € / an
-        </p>
-        <p className="text-xs text-slate-500 mt-2">Estimation indicative, à confirmer après étude technique.</p>
-      </section>
-
-      {/* Installation */}
-      <section className="mb-6 p-5 rounded-xl bg-sky-50 border border-sky-200">
-        <h3 className="text-sm font-semibold text-sky-700 uppercase tracking-wide mb-2">Installation recommandée</h3>
-        <p className="text-slate-800 text-lg font-semibold">
-          Installation à étudier {typeof sim.monthlyBill === "number" ? suggestedKwc(sim.monthlyBill) : "—"}
-        </p>
-        <p className="text-sm text-slate-600 mt-2">
-          Cette puissance peut être adaptée selon votre consommation, votre toiture, votre région et votre budget. Une étude gratuite permet de confirmer la solution la plus rentable.
-        </p>
-      </section>
-
-      {/* Aides */}
-      <section className="mb-8 p-5 rounded-xl bg-blue-50 border border-blue-200">
-        <h3 className="text-sm font-semibold text-blue-700 uppercase tracking-wide mb-2">Aides & financement</h3>
-        <p className="text-slate-700">
-          Votre région peut donner accès à certaines aides ou solutions de financement, sous réserve d'éligibilité.
-        </p>
-      </section>
-
-      <div className="text-center">
-        <Button
-          size="lg"
-          className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold px-8 py-6 rounded-full shadow-xl hover:scale-105 transition-transform"
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        >
-          <Sun className="w-4 h-4 mr-2" /> Confirmer mon estimation avec un conseiller
-        </Button>
-        <p className="text-xs text-slate-500 mt-3 max-w-md mx-auto">
-          Un conseiller peut vérifier gratuitement votre toiture, votre consommation réelle, les aides disponibles et la rentabilité estimée.
-        </p>
       </div>
     </div>
   );
 };
 
 const ProfileRow = ({ label, value }: { label: string; value: string }) => (
-  <div className="flex flex-col p-3 rounded-lg bg-slate-50 border border-slate-100">
-    <span className="text-xs text-slate-500 uppercase tracking-wide">{label}</span>
-    <span className="text-slate-900 font-medium mt-0.5">{value}</span>
+  <div className="flex flex-col p-3.5 rounded-xl bg-slate-50/80 border border-slate-100">
+    <span className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">{label}</span>
+    <span className="text-slate-900 font-semibold mt-1">{value}</span>
   </div>
 );
