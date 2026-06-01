@@ -35,12 +35,12 @@ interface Sim {
 }
 
 // ---------- Static data ----------
-const HOUSING: { id: HousingType; label: string; icon: any }[] = [
-  { id: "maison", label: "Maison individuelle", icon: Home },
-  { id: "villa", label: "Villa", icon: Home },
-  { id: "mitoyenne", label: "Maison mitoyenne", icon: Home },
-  { id: "pro", label: "Local professionnel", icon: Store },
-  { id: "appartement", label: "Appartement / copropriété", icon: Building2 },
+const HOUSING: { id: HousingType; label: string; desc: string; icon: any }[] = [
+  { id: "maison", label: "Maison individuelle", desc: "Pavillon avec toit dégagé", icon: Home },
+  { id: "villa", label: "Villa", desc: "Avec terrain, idéale pour le solaire", icon: Home },
+  { id: "mitoyenne", label: "Maison mitoyenne", desc: "Maison de village ou en bande", icon: Home },
+  { id: "pro", label: "Local professionnel", desc: "Commerce, bureau, atelier", icon: Store },
+  { id: "appartement", label: "Appartement", desc: "Copropriété ou dernier étage", icon: Building2 },
 ];
 
 const SURFACES: { id: SurfaceRange; label: string }[] = [
@@ -51,10 +51,10 @@ const SURFACES: { id: SurfaceRange; label: string }[] = [
   { id: "?", label: "Je ne sais pas" },
 ];
 
-const OWNERSHIPS: { id: Ownership; label: string }[] = [
-  { id: "oui", label: "Oui" },
-  { id: "non", label: "Non" },
-  { id: "achat", label: "Achat en cours" },
+const OWNERSHIPS: { id: Ownership; label: string; desc: string }[] = [
+  { id: "oui", label: "Oui, propriétaire", desc: "Je peux décider de l'installation" },
+  { id: "non", label: "Non, locataire", desc: "Accord du propriétaire requis" },
+  { id: "achat", label: "Achat en cours", desc: "Je prépare mon futur logement" },
 ];
 
 const ORIENTATIONS: { id: Orientation; label: string; perf: number }[] = [
@@ -68,14 +68,14 @@ const ORIENTATIONS: { id: Orientation; label: string; perf: number }[] = [
   { id: "N", label: "Nord", perf: 60 },
 ];
 
-const EQUIPMENTS: { id: string; label: string; icon: any }[] = [
-  { id: "clim", label: "Climatisation", icon: Snowflake },
-  { id: "ceau", label: "Chauffe-eau électrique", icon: Flame },
-  { id: "pac", label: "Pompe à chaleur", icon: Thermometer },
-  { id: "piscine", label: "Piscine", icon: Waves },
-  { id: "ve", label: "Voiture électrique", icon: Car },
-  { id: "elec", label: "Électroménager du quotidien", icon: Plug },
-  { id: "?", label: "Je ne sais pas", icon: HelpCircle },
+const EQUIPMENTS: { id: string; label: string; desc: string; icon: any }[] = [
+  { id: "clim", label: "Climatisation", desc: "Consommation forte l'été", icon: Snowflake },
+  { id: "ceau", label: "Chauffe-eau électrique", desc: "Poste régulier toute l'année", icon: Flame },
+  { id: "pac", label: "Pompe à chaleur", desc: "Chauffage haute performance", icon: Thermometer },
+  { id: "piscine", label: "Piscine", desc: "Filtration et chauffage", icon: Waves },
+  { id: "ve", label: "Voiture électrique", desc: "Recharge à domicile", icon: Car },
+  { id: "elec", label: "Électroménager", desc: "Usage quotidien standard", icon: Plug },
+  { id: "?", label: "Je ne sais pas", desc: "On verra à l'étude", icon: HelpCircle },
 ];
 
 const BILL_PRESETS = [100, 150, 200, 250, 300];
