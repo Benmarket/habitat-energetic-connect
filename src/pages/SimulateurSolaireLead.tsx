@@ -324,12 +324,11 @@ export default function SimulateurSolaireLead() {
       <main className="relative min-h-screen pb-20 bg-gradient-to-b from-[hsl(145_35%_97%)] via-white to-[hsl(145_35%_96%)]">
         {step === 0 && <EntryHero onStart={() => setStep(1)} />}
 
-        {step > 0 && (
+        {step > 0 && step < 7 && (
           <div id="sim-wizard" className="container mx-auto px-4 max-w-3xl pt-8 md:pt-12">
             <ProgressBar step={step} />
 
             <div className="relative mt-5">
-              {/* Decorative glow */}
               <div className="absolute -inset-1 bg-gradient-to-br from-primary/20 via-amber-200/20 to-primary/10 rounded-[2rem] blur-2xl opacity-60" aria-hidden />
               <div className="relative bg-white rounded-3xl shadow-[0_20px_60px_-15px_hsl(145_65%_25%/0.18)] border border-slate-100 p-6 md:p-10">
                 {step === 1 && <Step1Location sim={sim} setSim={setSim} region={region} />}
@@ -338,42 +337,43 @@ export default function SimulateurSolaireLead() {
                 {step === 4 && <Step4Orientation sim={sim} setSim={setSim} />}
                 {step === 5 && <Step5Equipments sim={sim} setSim={setSim} />}
                 {step === 6 && <Step6Bill sim={sim} setSim={setSim} />}
-                {step === 7 && (
-                  <Step7Compute sim={sim} computing={computing} onSeeResults={() => setShowLeadModal(true)} />
-                )}
 
-                {step < 7 && (
-                  <div className="flex items-center justify-between mt-10 pt-6 border-t border-slate-100">
-                    <Button variant="ghost" onClick={goBack} disabled={step === 1} className="text-slate-500 hover:text-slate-900">
-                      <ArrowLeft className="w-4 h-4 mr-1.5" /> Retour
-                    </Button>
-                    <Button
-                      onClick={goNext}
-                      disabled={!canContinue()}
-                      size="lg"
-                      className="bg-primary hover:bg-primary-hover text-primary-foreground font-semibold shadow-[0_10px_25px_-8px_hsl(145_65%_45%/0.5)] hover:scale-105 transition-all rounded-full px-7"
-                    >
-                      Continuer <ArrowRight className="w-4 h-4 ml-1.5" />
-                    </Button>
-                  </div>
-                )}
+                <div className="flex items-center justify-between mt-10 pt-6 border-t border-slate-100">
+                  <Button variant="ghost" onClick={goBack} disabled={step === 1} className="text-slate-500 hover:text-slate-900">
+                    <ArrowLeft className="w-4 h-4 mr-1.5" /> Retour
+                  </Button>
+                  <Button
+                    onClick={goNext}
+                    disabled={!canContinue()}
+                    size="lg"
+                    className="bg-primary hover:bg-primary-hover text-primary-foreground font-semibold shadow-[0_10px_25px_-8px_hsl(145_65%_45%/0.5)] hover:scale-105 transition-all rounded-full px-7"
+                  >
+                    {step === 6 ? "Calculer mes économies" : "Continuer"} <ArrowRight className="w-4 h-4 ml-1.5" />
+                  </Button>
+                </div>
               </div>
             </div>
 
-            {/* Trust strip under wizard */}
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500">
               <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-primary" /> 100% gratuit et sans engagement</span>
               <span className="inline-flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-primary" /> Vos données sont protégées</span>
               <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-primary" /> Moins de 2 minutes</span>
             </div>
-
-            {unlocked && (
-              <div className="mt-10">
-                <ResultsPanel sim={sim} region={region} annualBill={annualBill} savingsMin={savingsMin} savingsMax={savingsMax} />
-              </div>
-            )}
           </div>
         )}
+
+        {step === 7 && (
+          <div className="container mx-auto px-4 max-w-3xl pt-8 md:pt-12">
+            <div
+              className={`transition-all duration-500 ${!unlocked ? "blur-md pointer-events-none select-none" : "blur-0"}`}
+              aria-hidden={!unlocked}
+            >
+              <ResultsPanel sim={sim} region={region} annualBill={annualBill} savingsMin={savingsMin} savingsMax={savingsMax} />
+            </div>
+          </div>
+        )}
+
+        {computing && <ComputingOverlay />}
       </main>
 
       {/* Lead modal */}
