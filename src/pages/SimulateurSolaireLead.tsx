@@ -367,13 +367,41 @@ export default function SimulateurSolaireLead() {
         )}
 
         {step === 7 && (
-          <div className="container mx-auto px-4 max-w-3xl pt-10 md:pt-16">
+          <div className="container mx-auto px-4 max-w-3xl pt-10 md:pt-16 relative">
             <div
               className={`transition-all duration-500 ${!unlocked ? "blur-md pointer-events-none select-none" : "blur-0"}`}
               aria-hidden={!unlocked}
             >
               <ResultsPanel sim={sim} region={region} annualBill={annualBill} savingsMin={savingsMin} savingsMax={savingsMax} />
             </div>
+
+            {!unlocked && !showLeadModal && (
+              <div className="sticky bottom-6 mt-8 z-30 flex justify-center px-4">
+                <div className="w-full max-w-xl bg-white/95 backdrop-blur-xl border border-amber-200 rounded-2xl shadow-[0_20px_50px_-15px_hsl(24_60%_8%/0.5)] p-5 flex flex-col sm:flex-row items-center gap-4">
+                  <div className="flex-1 text-center sm:text-left">
+                    <p className="text-sm font-bold text-slate-900">Vos résultats sont prêts</p>
+                    <p className="text-xs text-slate-600">Renseignez vos coordonnées pour les débloquer.</p>
+                  </div>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setStep(6)}
+                      className="text-slate-700 hover:text-slate-900"
+                    >
+                      Modifier
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => setShowLeadModal(true)}
+                      className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold rounded-full shadow-lg"
+                    >
+                      Débloquer <ArrowRight className="w-4 h-4 ml-1.5" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
