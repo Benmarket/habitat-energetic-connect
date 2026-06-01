@@ -200,7 +200,7 @@ const App = () => (
                   <Route
                     path="/admin/simulateur-solaire-pro"
                     element={
-                      <AdminGuard>
+                      <AdminGuard allowedRoles={["super_admin"]}>
                         <SimulateurSolaire />
                       </AdminGuard>
                     }
