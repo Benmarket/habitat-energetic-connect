@@ -74,6 +74,7 @@ const OffresThematique = lazy(() => import("./pages/OffresThematique"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Merci = lazy(() => import("./pages/Merci"));
 const SimulateurSolaire = lazy(() => import("./pages/SimulateurSolaire"));
+const SimulateurSolaireLead = lazy(() => import("./pages/SimulateurSolaireLead"));
 const ServiceInstallationSolaire = lazy(() => import("./pages/services/ServiceInstallationSolaire"));
 const ServicePompesAChaleur = lazy(() => import("./pages/services/ServicePompesAChaleur"));
 
@@ -205,6 +206,10 @@ const App = () => (
                       </AdminGuard>
                     }
                   />
+
+                  {/* Nouveau simulateur solaire grand public (lead-gen) */}
+                  <Route path="/simulateurs/solaire" element={<SimulateurSolaireLead />} />
+                  <Route path="/simulateur-solaire" element={<Navigate to="/simulateurs/solaire" replace />} />
 
                   {/* Email lifecycle pages */}
                   <Route path="/inscription/activer" element={<ActivateAccount />} />
