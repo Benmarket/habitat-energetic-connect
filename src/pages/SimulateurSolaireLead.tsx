@@ -16,7 +16,7 @@ import {
   Compass, Snowflake, Flame, Thermometer, Waves, Car, Plug, HelpCircle, Ruler,
   Loader2, Lock, Sparkles, ShieldCheck, Clock, Zap, TrendingUp, Star, Award, Leaf,
 } from "lucide-react";
-import solarHouseBanner from "@/assets/solar-house-banner.jpg";
+import solarSimBg from "@/assets/simulators/solar-simulator-bg.jpg";
 
 // ---------- Types ----------
 type HousingType = "maison" | "villa" | "mitoyenne" | "pro" | "appartement";
@@ -106,25 +106,16 @@ function orientationFeedback(o: Orientation): string {
   return "Une étude permet de confirmer le potentiel réel. Même si l'orientation semble moins favorable, certaines configurations restent exploitables.";
 }
 
-// ---------- Solar background (used on ALL pages of the simulator) ----------
+// ---------- Solar background (same as the original solar simulator) ----------
 const SolarBackdrop = () => (
   <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden>
-    <div className="absolute inset-0" style={{ backgroundColor: "hsl(24 30% 6%)" }} />
-    <img src={solarHouseBanner} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" loading="eager" />
-    <div
-      className="absolute inset-0"
-      style={{
-        backgroundImage:
-          "linear-gradient(135deg, hsla(24,40%,8%,0.92) 0%, hsla(28,55%,14%,0.86) 45%, hsla(38,75%,22%,0.7) 100%)",
-      }}
+    <img
+      src={solarSimBg}
+      alt=""
+      className="absolute inset-0 w-full h-full object-cover opacity-50"
+      loading="eager"
     />
-    <div
-      className="absolute inset-0"
-      style={{
-        backgroundImage:
-          "radial-gradient(ellipse at top right, hsla(45,95%,55%,0.32), transparent 55%), radial-gradient(ellipse at bottom left, hsla(28,85%,40%,0.28), transparent 60%)",
-      }}
-    />
+    <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/30 to-white/60" />
   </div>
 );
 
@@ -452,56 +443,38 @@ export default function SimulateurSolaireLead() {
 
 // ---------- Entry hero (step 0) ----------
 const EntryHero = ({ onStart }: { onStart: () => void }) => (
-  <section className="relative overflow-hidden isolate" style={{ backgroundColor: "hsl(24 30% 6%)" }}>
+  <section className="relative overflow-hidden isolate">
     <img
-      src={solarHouseBanner}
+      src={solarSimBg}
       alt=""
       aria-hidden
-      className="absolute inset-0 w-full h-full object-cover z-0"
+      className="absolute inset-0 w-full h-full object-cover opacity-50 z-0"
       loading="eager"
     />
-    <div className="absolute inset-0 z-10" aria-hidden style={{ backgroundColor: "hsla(24, 40%, 8%, 0.78)" }} />
+    <div className="absolute inset-0 z-10 bg-gradient-to-b from-white/40 via-white/30 to-white/60" aria-hidden />
     <div
       className="absolute inset-0 z-10"
       aria-hidden
-      style={{
-        backgroundImage:
-          "linear-gradient(135deg, hsla(24,45%,8%,0.92) 0%, hsla(28,55%,16%,0.78) 45%, hsla(38,85%,32%,0.6) 100%)",
-      }}
-    />
-    <div
-      className="absolute inset-x-0 bottom-0 h-2/3 z-10"
-      aria-hidden
-      style={{ backgroundImage: "linear-gradient(to top, hsla(24,50%,6%,0.92) 0%, transparent 100%)" }}
-    />
-    <div
-      className="absolute inset-0 z-10"
-      aria-hidden
-      style={{ backgroundImage: "radial-gradient(ellipse at top right, hsla(48,95%,55%,0.36), transparent 55%)" }}
+      style={{ backgroundImage: "radial-gradient(ellipse at top right, hsla(45,95%,55%,0.18), transparent 60%), radial-gradient(ellipse at bottom left, hsla(28,85%,55%,0.14), transparent 60%)" }}
     />
 
     <div className="absolute top-20 right-[10%] w-40 h-40 rounded-full bg-amber-400/30 blur-3xl animate-pulse z-10" aria-hidden />
-    <div className="absolute bottom-32 left-[8%] w-32 h-32 rounded-full bg-orange-500/30 blur-3xl z-10" aria-hidden />
+    <div className="absolute bottom-32 left-[8%] w-32 h-32 rounded-full bg-orange-500/20 blur-3xl z-10" aria-hidden />
+
 
     <div className="relative z-20 container mx-auto px-4 py-20 md:py-28 text-center max-w-4xl">
-      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-xs font-semibold mb-6 shadow-lg">
-        <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Simulateur 100% gratuit · sans engagement
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-amber-200 text-slate-800 text-xs font-semibold mb-6 shadow-lg">
+        <Sparkles className="w-3.5 h-3.5 text-orange-500" /> Simulateur 100% gratuit · sans engagement
       </div>
 
-      <h1
-        className="text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight text-white mb-6"
-        style={{ textShadow: "0 4px 30px hsl(24 50% 6% / 0.7), 0 2px 10px hsl(24 50% 6% / 0.5)" }}
-      >
+      <h1 className="text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight text-slate-900 mb-6">
         Combien votre maison peut-elle
-        <span className="block mt-2 bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent">
+        <span className="block mt-2 bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
           économiser grâce au solaire&nbsp;?
         </span>
       </h1>
 
-      <p
-        className="text-base md:text-xl text-white max-w-2xl mx-auto mb-10 leading-relaxed"
-        style={{ textShadow: "0 2px 15px hsl(24 50% 6% / 0.7)" }}
-      >
+      <p className="text-base md:text-xl text-slate-700 max-w-2xl mx-auto mb-10 leading-relaxed">
         Estimez en moins de 2 minutes le potentiel solaire de votre logement, vos économies possibles et les aides disponibles dans votre région.
       </p>
 
@@ -515,10 +488,10 @@ const EntryHero = ({ onStart }: { onStart: () => void }) => (
         <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
       </Button>
 
-      <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-white font-medium">
-        <span className="inline-flex items-center gap-1.5"><Clock className="w-4 h-4 text-amber-300" /> 2 minutes chrono</span>
-        <span className="inline-flex items-center gap-1.5"><Check className="w-4 h-4 text-amber-300" /> Sans engagement</span>
-        <span className="inline-flex items-center gap-1.5"><MapPin className="w-4 h-4 text-amber-300" /> Adapté à votre région</span>
+      <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-slate-700 font-medium">
+        <span className="inline-flex items-center gap-1.5"><Clock className="w-4 h-4 text-orange-500" /> 2 minutes chrono</span>
+        <span className="inline-flex items-center gap-1.5"><Check className="w-4 h-4 text-orange-500" /> Sans engagement</span>
+        <span className="inline-flex items-center gap-1.5"><MapPin className="w-4 h-4 text-orange-500" /> Adapté à votre région</span>
       </div>
 
       <div className="mt-14 grid grid-cols-3 gap-3 md:gap-6 max-w-2xl mx-auto">
@@ -527,10 +500,10 @@ const EntryHero = ({ onStart }: { onStart: () => void }) => (
           { icon: Star, value: "4.9/5", label: "Satisfaction clients" },
           { icon: Award, value: "RGE", label: "Partenaires certifiés" },
         ].map((s, i) => (
-          <div key={i} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-3 py-4 md:px-5 md:py-5 shadow-lg">
-            <s.icon className="w-5 h-5 md:w-6 md:h-6 text-amber-300 mx-auto mb-2" />
-            <div className="text-xl md:text-2xl font-bold text-white">{s.value}</div>
-            <div className="text-[10px] md:text-xs text-white/80 mt-0.5">{s.label}</div>
+          <div key={i} className="bg-white/80 backdrop-blur-md border border-amber-200/60 rounded-2xl px-3 py-4 md:px-5 md:py-5 shadow-lg">
+            <s.icon className="w-5 h-5 md:w-6 md:h-6 text-orange-500 mx-auto mb-2" />
+            <div className="text-xl md:text-2xl font-bold text-slate-900">{s.value}</div>
+            <div className="text-[10px] md:text-xs text-slate-600 mt-0.5">{s.label}</div>
           </div>
         ))}
       </div>
