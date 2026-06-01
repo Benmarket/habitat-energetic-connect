@@ -443,36 +443,24 @@ export default function SimulateurSolaireLead() {
 
 // ---------- Entry hero (step 0) ----------
 const EntryHero = ({ onStart }: { onStart: () => void }) => (
-  <section className="relative overflow-hidden isolate" style={{ backgroundColor: "hsl(24 30% 6%)" }}>
+  <section className="relative overflow-hidden isolate">
     <img
-      src={solarHouseBanner}
+      src={solarSimBg}
       alt=""
       aria-hidden
-      className="absolute inset-0 w-full h-full object-cover z-0"
+      className="absolute inset-0 w-full h-full object-cover opacity-50 z-0"
       loading="eager"
     />
-    <div className="absolute inset-0 z-10" aria-hidden style={{ backgroundColor: "hsla(24, 40%, 8%, 0.78)" }} />
+    <div className="absolute inset-0 z-10 bg-gradient-to-b from-white/40 via-white/30 to-white/60" aria-hidden />
     <div
       className="absolute inset-0 z-10"
       aria-hidden
-      style={{
-        backgroundImage:
-          "linear-gradient(135deg, hsla(24,45%,8%,0.92) 0%, hsla(28,55%,16%,0.78) 45%, hsla(38,85%,32%,0.6) 100%)",
-      }}
-    />
-    <div
-      className="absolute inset-x-0 bottom-0 h-2/3 z-10"
-      aria-hidden
-      style={{ backgroundImage: "linear-gradient(to top, hsla(24,50%,6%,0.92) 0%, transparent 100%)" }}
-    />
-    <div
-      className="absolute inset-0 z-10"
-      aria-hidden
-      style={{ backgroundImage: "radial-gradient(ellipse at top right, hsla(48,95%,55%,0.36), transparent 55%)" }}
+      style={{ backgroundImage: "radial-gradient(ellipse at top right, hsla(45,95%,55%,0.18), transparent 60%), radial-gradient(ellipse at bottom left, hsla(28,85%,55%,0.14), transparent 60%)" }}
     />
 
     <div className="absolute top-20 right-[10%] w-40 h-40 rounded-full bg-amber-400/30 blur-3xl animate-pulse z-10" aria-hidden />
-    <div className="absolute bottom-32 left-[8%] w-32 h-32 rounded-full bg-orange-500/30 blur-3xl z-10" aria-hidden />
+    <div className="absolute bottom-32 left-[8%] w-32 h-32 rounded-full bg-orange-500/20 blur-3xl z-10" aria-hidden />
+
 
     <div className="relative z-20 container mx-auto px-4 py-20 md:py-28 text-center max-w-4xl">
       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-xs font-semibold mb-6 shadow-lg">
