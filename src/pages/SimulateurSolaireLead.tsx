@@ -487,7 +487,7 @@ const EntryHero = ({ onStart }: { onStart: () => void }) => (
     <div className="absolute top-20 right-[10%] w-40 h-40 rounded-full bg-amber-400/30 blur-3xl animate-pulse z-10" aria-hidden />
     <div className="absolute bottom-32 left-[8%] w-32 h-32 rounded-full bg-primary/30 blur-3xl z-10" aria-hidden />
 
-    <div className="relative container mx-auto px-4 py-20 md:py-28 text-center max-w-4xl">
+    <div className="relative z-20 container mx-auto px-4 py-20 md:py-28 text-center max-w-4xl">
       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-xs font-semibold mb-6 shadow-lg">
         <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Simulateur 100% gratuit · sans engagement
       </div>
