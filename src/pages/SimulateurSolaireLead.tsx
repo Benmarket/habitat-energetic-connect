@@ -757,11 +757,16 @@ const Step5Equipments = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
   return (
     <div>
       <StepTitle icon={Zap} title="Quels équipements consomment le plus chez vous ?" subtitle="Sélection multiple possible." />
-      <div className="grid md:grid-cols-2 gap-3">
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
         {EQUIPMENTS.map((e) => (
-          <ChoiceCard key={e.id} icon={e.icon} selected={sim.equipments.includes(e.id)} onClick={() => toggle(e.id)}>
-            {e.label}
-          </ChoiceCard>
+          <ChoiceCard
+            key={e.id}
+            icon={e.icon}
+            title={e.label}
+            description={e.desc}
+            selected={sim.equipments.includes(e.id)}
+            onClick={() => toggle(e.id)}
+          />
         ))}
       </div>
       {sim.equipments.length > 0 && (
