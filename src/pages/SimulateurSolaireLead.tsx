@@ -662,11 +662,16 @@ const PillButton = ({ selected, onClick, children }: any) => (
 const Step2Housing = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
   <div>
     <StepTitle icon={Home} title="Quel logement souhaitez-vous équiper ?" />
-    <div className="grid md:grid-cols-2 gap-3">
+    <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
       {HOUSING.map((h) => (
-        <ChoiceCard key={h.id} icon={h.icon} selected={sim.housing === h.id} onClick={() => setSim({ ...sim, housing: h.id })}>
-          {h.label}
-        </ChoiceCard>
+        <ChoiceCard
+          key={h.id}
+          icon={h.icon}
+          title={h.label}
+          description={h.desc}
+          selected={sim.housing === h.id}
+          onClick={() => setSim({ ...sim, housing: h.id })}
+        />
       ))}
     </div>
 
