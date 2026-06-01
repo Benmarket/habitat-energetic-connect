@@ -589,29 +589,59 @@ const Step1Location = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
   </div>
 );
 
-const ChoiceCard = ({ selected, onClick, children, icon: Icon }: any) => (
+const ChoiceCard = ({ selected, onClick, title, description, icon: Icon }: {
+  selected: boolean; onClick: () => void; title: string; description?: string; icon?: any;
+}) => (
   <button
     type="button"
     onClick={onClick}
-    className={`group w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center gap-3 ${
+    aria-pressed={selected}
+    className={`group relative w-full text-left p-5 rounded-2xl border-2 transition-all duration-300 overflow-hidden ${
       selected
-        ? "border-primary bg-gradient-to-br from-[hsl(145_35%_95%)] to-white shadow-[0_8px_24px_-10px_hsl(145_65%_45%/0.4)]"
-        : "border-slate-200 bg-white hover:border-primary/40 hover:bg-[hsl(145_35%_98%)] hover:-translate-y-0.5"
+        ? "border-primary bg-gradient-to-br from-[hsl(145_45%_94%)] via-white to-[hsl(48_95%_94%)] shadow-[0_18px_40px_-15px_hsl(145_65%_45%/0.45)] -translate-y-0.5"
+        : "border-slate-200 bg-white hover:border-primary/50 hover:shadow-[0_12px_30px_-15px_hsl(145_65%_45%/0.3)] hover:-translate-y-0.5"
     }`}
   >
-    {Icon && (
-      <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
-        selected ? "bg-primary text-primary-foreground shadow-md" : "bg-slate-100 text-slate-500 group-hover:bg-primary/10 group-hover:text-primary"
-      }`}>
-        <Icon className="w-5 h-5" />
-      </div>
-    )}
-    <span className={`font-medium flex-1 ${selected ? "text-slate-900" : "text-slate-700"}`}>{children}</span>
+    {/* Decorative gradient orb on selected */}
     {selected && (
-      <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-        <Check className="w-4 h-4" />
-      </div>
+      <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-gradient-to-br from-primary/20 to-amber-300/20 blur-2xl pointer-events-none" aria-hidden />
     )}
+
+    {/* Top row: icon + check */}
+    <div className="relative flex items-start justify-between mb-4">
+      {Icon && (
+        <div
+          className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+            selected
+              ? "bg-gradient-to-br from-primary to-[hsl(145_65%_35%)] text-primary-foreground shadow-[0_8px_20px_-6px_hsl(145_65%_45%/0.6)] scale-110"
+              : "bg-gradient-to-br from-slate-100 to-slate-50 text-slate-400 group-hover:from-primary/10 group-hover:to-amber-100/40 group-hover:text-primary"
+          }`}
+        >
+          <Icon className="w-6 h-6" strokeWidth={2} />
+        </div>
+      )}
+      <div
+        className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${
+          selected
+            ? "bg-primary text-primary-foreground scale-100 shadow-md"
+            : "bg-slate-100 text-transparent scale-90 group-hover:bg-primary/10"
+        }`}
+      >
+        <Check className="w-3.5 h-3.5" strokeWidth={3} />
+      </div>
+    </div>
+
+    {/* Title + description */}
+    <div className="relative">
+      <h4 className={`font-bold text-base leading-tight transition-colors ${selected ? "text-slate-900" : "text-slate-800"}`}>
+        {title}
+      </h4>
+      {description && (
+        <p className={`text-xs mt-1 leading-relaxed transition-colors ${selected ? "text-slate-600" : "text-slate-500"}`}>
+          {description}
+        </p>
+      )}
+    </div>
   </button>
 );
 
