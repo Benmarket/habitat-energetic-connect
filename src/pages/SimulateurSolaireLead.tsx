@@ -753,39 +753,119 @@ const Step6Bill = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
   </div>
 );
 
-const Step7Compute = ({ sim, computing, onSeeResults }: { sim: Sim; computing: boolean; onSeeResults: () => void }) => (
-  <div className="text-center py-4">
-    <StepTitle icon={Sparkles} title="Votre estimation est prête à être calculée" />
-    <p className="text-sm text-slate-600 mb-6">Nous avons analysé :</p>
-    <ul className="text-sm text-left max-w-md mx-auto space-y-2.5 text-slate-700 mb-10">
-      {["Votre région","Votre type de logement","Votre statut propriétaire","La superficie approximative","L'orientation de votre toiture","Vos équipements électriques","Votre facture mensuelle"].map((t,i)=>(
-        <li key={i} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-[hsl(145_35%_97%)]">
-          <div className="w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
-            <Check className="w-3 h-3" />
-          </div>
-          {t}
-        </li>
-      ))}
-    </ul>
+// ---------- Full-screen computing overlay ----------
+const COMPUTE_LINES = [
+  "Analyse de votre zone géographique…",
+  "Calcul du potentiel solaire de votre toiture…",
+  "Estimation de vos économies annuelles…",
+  "Recherche des aides disponibles dans votre région…",
+  "Préparation de votre rapport personnalisé…",
+];
 
-    {computing ? (
-      <div className="space-y-2.5 max-w-sm mx-auto text-sm text-slate-600 bg-[hsl(145_35%_97%)] rounded-2xl p-5">
-        <p className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin text-primary" /> Calcul du potentiel solaire…</p>
-        <p className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin text-primary" /> Estimation des économies…</p>
-        <p className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin text-primary" /> Vérification des aides possibles…</p>
-        <p className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin text-primary" /> Préparation de votre résultat personnalisé…</p>
+const ComputingOverlay = () => {
+  const [activeLine, setActiveLine] = useState(0);
+  const [progress, setProgress] = useState(6);
+
+  useEffect(() => {
+    const lineTimer = setInterval(() => {
+      setActiveLine((i) => (i + 1) % COMPUTE_LINES.length);
+    }, 520);
+    const startedAt = Date.now();
+    const progTimer = setInterval(() => {
+      const elapsed = Date.now() - startedAt;
+      setProgress(Math.min(98, 6 + (elapsed / 2800) * 92));
+    }, 60);
+    return () => { clearInterval(lineTimer); clearInterval(progTimer); };
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-[hsl(145_65%_18%)] via-[hsl(145_55%_22%)] to-[hsl(145_45%_15%)] animate-in fade-in duration-300">
+      {/* Ambient glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-amber-400/20 blur-[120px] animate-pulse" aria-hidden />
+      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full bg-primary/30 blur-[100px]" aria-hidden />
+
+      {/* Floating particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
+        {Array.from({ length: 14 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 rounded-full bg-amber-300/70"
+            style={{
+              left: `${(i * 37) % 100}%`,
+              top: `${(i * 53) % 100}%`,
+              animation: `float ${3 + (i % 4)}s ease-in-out infinite`,
+              animationDelay: `${i * 0.2}s`,
+            }}
+          />
+        ))}
       </div>
-    ) : (
-      <Button
-        onClick={onSeeResults}
-        size="lg"
-        className="bg-gradient-to-r from-primary to-[hsl(145_65%_38%)] hover:scale-105 text-primary-foreground font-bold px-10 py-7 rounded-full shadow-[0_15px_40px_-10px_hsl(145_65%_45%/0.6)] transition-all"
-      >
-        <Lock className="w-4 h-4 mr-2" /> Voir mes résultats
-      </Button>
-    )}
-  </div>
-);
+
+      <div className="relative text-center max-w-md px-6">
+        {/* Animated solar disc */}
+        <div className="relative mx-auto w-40 h-40 mb-10">
+          {/* Outer pulsating ring */}
+          <div className="absolute inset-0 rounded-full border-2 border-amber-300/30 animate-ping" />
+          <div className="absolute inset-2 rounded-full border border-amber-200/40 animate-[ping_2.5s_ease-in-out_infinite]" />
+          {/* Rotating rays */}
+          <svg className="absolute inset-0 w-full h-full animate-[spin_8s_linear_infinite]" viewBox="0 0 160 160" aria-hidden>
+            {Array.from({ length: 12 }).map((_, i) => {
+              const a = (i * 30 * Math.PI) / 180;
+              const x1 = 80 + Math.cos(a) * 58;
+              const y1 = 80 + Math.sin(a) * 58;
+              const x2 = 80 + Math.cos(a) * 74;
+              const y2 = 80 + Math.sin(a) * 74;
+              return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="hsl(48 95% 70%)" strokeWidth="2.5" strokeLinecap="round" opacity={0.7} />;
+            })}
+          </svg>
+          {/* Sun core */}
+          <div className="absolute inset-8 rounded-full bg-gradient-to-br from-amber-200 via-amber-400 to-orange-500 shadow-[0_0_60px_hsl(45_95%_60%/0.7)] flex items-center justify-center">
+            <Sun className="w-12 h-12 text-white drop-shadow-lg animate-pulse" strokeWidth={1.5} />
+          </div>
+        </div>
+
+        <h2 className="text-white text-2xl md:text-3xl font-bold tracking-tight mb-3">
+          Calcul de votre potentiel solaire
+        </h2>
+        <p className="text-white/70 text-sm mb-8">Notre moteur analyse votre profil en temps réel</p>
+
+        {/* Progress bar */}
+        <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden mb-6">
+          <div
+            className="h-full bg-gradient-to-r from-primary via-amber-300 to-amber-400 rounded-full shadow-[0_0_12px_hsl(45_95%_60%/0.6)] transition-all duration-200"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+
+        {/* Rolling lines */}
+        <ul className="space-y-2.5 text-left">
+          {COMPUTE_LINES.map((line, i) => {
+            const done = i < activeLine || (activeLine === COMPUTE_LINES.length - 1 && i < activeLine);
+            const active = i === activeLine;
+            return (
+              <li
+                key={i}
+                className={`flex items-center gap-3 text-sm transition-all duration-300 ${
+                  active ? "text-white" : done ? "text-white/60" : "text-white/30"
+                }`}
+              >
+                {done ? (
+                  <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3" />
+                  </span>
+                ) : active ? (
+                  <Loader2 className="w-5 h-5 animate-spin text-amber-300 flex-shrink-0" />
+                ) : (
+                  <span className="w-5 h-5 rounded-full border border-white/20 flex-shrink-0" />
+                )}
+                <span className={active ? "font-semibold" : ""}>{line}</span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
+  );
+};
 
 const ResultsPanel = ({ sim, region, annualBill, savingsMin, savingsMax }: any) => {
   const housingLabel = HOUSING.find((h) => h.id === sim.housing)?.label || "—";
