@@ -106,25 +106,16 @@ function orientationFeedback(o: Orientation): string {
   return "Une étude permet de confirmer le potentiel réel. Même si l'orientation semble moins favorable, certaines configurations restent exploitables.";
 }
 
-// ---------- Solar background (used on ALL pages of the simulator) ----------
+// ---------- Solar background (same as the original solar simulator) ----------
 const SolarBackdrop = () => (
   <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden>
-    <div className="absolute inset-0" style={{ backgroundColor: "hsl(24 30% 6%)" }} />
-    <img src={solarHouseBanner} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" loading="eager" />
-    <div
-      className="absolute inset-0"
-      style={{
-        backgroundImage:
-          "linear-gradient(135deg, hsla(24,40%,8%,0.92) 0%, hsla(28,55%,14%,0.86) 45%, hsla(38,75%,22%,0.7) 100%)",
-      }}
+    <img
+      src={solarSimBg}
+      alt=""
+      className="absolute inset-0 w-full h-full object-cover opacity-50"
+      loading="eager"
     />
-    <div
-      className="absolute inset-0"
-      style={{
-        backgroundImage:
-          "radial-gradient(ellipse at top right, hsla(45,95%,55%,0.32), transparent 55%), radial-gradient(ellipse at bottom left, hsla(28,85%,40%,0.28), transparent 60%)",
-      }}
-    />
+    <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/30 to-white/60" />
   </div>
 );
 
