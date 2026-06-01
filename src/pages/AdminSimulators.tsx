@@ -1002,6 +1002,17 @@ const AdminSimulators = () => {
                 )}
               </div>
             </div>
+
+            {/* Lien caché vers l'ancien simulateur solaire (en attente du nouveau) */}
+            <div className="mt-10 pt-6 border-t border-dashed border-muted-foreground/30 text-center">
+              <Link
+                to="/admin/simulateur-solaire-pro"
+                className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Lock className="w-3 h-3" />
+                Simulateur solaire Pro (en développement)
+              </Link>
+            </div>
           </div>
         </main>
 
