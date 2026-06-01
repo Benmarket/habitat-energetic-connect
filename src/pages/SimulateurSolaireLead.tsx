@@ -440,25 +440,54 @@ export default function SimulateurSolaireLead() {
 // ---------- Sub components ----------
 
 const EntryHero = ({ onStart }: { onStart: () => void }) => (
-  <section className="relative overflow-hidden">
-    {/* Background image + strong dark overlays for guaranteed contrast */}
-    <div className="absolute inset-0" aria-hidden>
-      <img src={solarHouseBanner} alt="" className="absolute inset-0 w-full h-full object-cover" loading="eager" />
-      {/* Solid dark base */}
-      <div className="absolute inset-0 bg-[hsl(145_55%_12%)]/80" />
-      {/* Brand gradient on top */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(145_70%_15%)]/90 via-[hsl(145_60%_22%)]/75 to-[hsl(38_85%_30%)]/65" />
-      {/* Vignette bottom for CTA visibility */}
-      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[hsl(145_65%_10%)]/85 to-transparent" />
-      {/* Warm sun glow top-right */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(48_95%_55%/0.28),transparent_55%)]" />
-    </div>
+  <section className="relative overflow-hidden isolate" style={{ backgroundColor: "hsl(145 65% 10%)" }}>
+    {/* Background image */}
+    <img
+      src={solarHouseBanner}
+      alt=""
+      aria-hidden
+      className="absolute inset-0 w-full h-full object-cover z-0"
+      loading="eager"
+    />
+    {/* Solid dark base — inline styles to guarantee rendering */}
+    <div
+      className="absolute inset-0 z-10"
+      aria-hidden
+      style={{ backgroundColor: "hsla(145, 65%, 10%, 0.82)" }}
+    />
+    {/* Brand gradient on top */}
+    <div
+      className="absolute inset-0 z-10"
+      aria-hidden
+      style={{
+        backgroundImage:
+          "linear-gradient(135deg, hsla(145,70%,12%,0.92) 0%, hsla(145,55%,20%,0.78) 45%, hsla(38,85%,28%,0.6) 100%)",
+      }}
+    />
+    {/* Vignette bottom */}
+    <div
+      className="absolute inset-x-0 bottom-0 h-2/3 z-10"
+      aria-hidden
+      style={{
+        backgroundImage:
+          "linear-gradient(to top, hsla(145,70%,8%,0.9) 0%, transparent 100%)",
+      }}
+    />
+    {/* Warm sun glow */}
+    <div
+      className="absolute inset-0 z-10"
+      aria-hidden
+      style={{
+        backgroundImage:
+          "radial-gradient(ellipse at top right, hsla(48,95%,55%,0.32), transparent 55%)",
+      }}
+    />
 
-    {/* Floating ambient orb */}
-    <div className="absolute top-20 right-[10%] w-40 h-40 rounded-full bg-amber-400/30 blur-3xl animate-pulse" aria-hidden />
-    <div className="absolute bottom-32 left-[8%] w-32 h-32 rounded-full bg-primary/30 blur-3xl" aria-hidden />
+    {/* Floating ambient orbs */}
+    <div className="absolute top-20 right-[10%] w-40 h-40 rounded-full bg-amber-400/30 blur-3xl animate-pulse z-10" aria-hidden />
+    <div className="absolute bottom-32 left-[8%] w-32 h-32 rounded-full bg-primary/30 blur-3xl z-10" aria-hidden />
 
-    <div className="relative container mx-auto px-4 py-20 md:py-28 text-center max-w-4xl">
+    <div className="relative z-20 container mx-auto px-4 py-20 md:py-28 text-center max-w-4xl">
       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-xs font-semibold mb-6 shadow-lg">
         <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Simulateur 100% gratuit · sans engagement
       </div>
