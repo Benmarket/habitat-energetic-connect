@@ -463,24 +463,18 @@ const EntryHero = ({ onStart }: { onStart: () => void }) => (
 
 
     <div className="relative z-20 container mx-auto px-4 py-20 md:py-28 text-center max-w-4xl">
-      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-xs font-semibold mb-6 shadow-lg">
-        <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Simulateur 100% gratuit · sans engagement
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-amber-200 text-slate-800 text-xs font-semibold mb-6 shadow-lg">
+        <Sparkles className="w-3.5 h-3.5 text-orange-500" /> Simulateur 100% gratuit · sans engagement
       </div>
 
-      <h1
-        className="text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight text-white mb-6"
-        style={{ textShadow: "0 4px 30px hsl(24 50% 6% / 0.7), 0 2px 10px hsl(24 50% 6% / 0.5)" }}
-      >
+      <h1 className="text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight text-slate-900 mb-6">
         Combien votre maison peut-elle
-        <span className="block mt-2 bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent">
+        <span className="block mt-2 bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
           économiser grâce au solaire&nbsp;?
         </span>
       </h1>
 
-      <p
-        className="text-base md:text-xl text-white max-w-2xl mx-auto mb-10 leading-relaxed"
-        style={{ textShadow: "0 2px 15px hsl(24 50% 6% / 0.7)" }}
-      >
+      <p className="text-base md:text-xl text-slate-700 max-w-2xl mx-auto mb-10 leading-relaxed">
         Estimez en moins de 2 minutes le potentiel solaire de votre logement, vos économies possibles et les aides disponibles dans votre région.
       </p>
 
@@ -494,10 +488,10 @@ const EntryHero = ({ onStart }: { onStart: () => void }) => (
         <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
       </Button>
 
-      <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-white font-medium">
-        <span className="inline-flex items-center gap-1.5"><Clock className="w-4 h-4 text-amber-300" /> 2 minutes chrono</span>
-        <span className="inline-flex items-center gap-1.5"><Check className="w-4 h-4 text-amber-300" /> Sans engagement</span>
-        <span className="inline-flex items-center gap-1.5"><MapPin className="w-4 h-4 text-amber-300" /> Adapté à votre région</span>
+      <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-slate-700 font-medium">
+        <span className="inline-flex items-center gap-1.5"><Clock className="w-4 h-4 text-orange-500" /> 2 minutes chrono</span>
+        <span className="inline-flex items-center gap-1.5"><Check className="w-4 h-4 text-orange-500" /> Sans engagement</span>
+        <span className="inline-flex items-center gap-1.5"><MapPin className="w-4 h-4 text-orange-500" /> Adapté à votre région</span>
       </div>
 
       <div className="mt-14 grid grid-cols-3 gap-3 md:gap-6 max-w-2xl mx-auto">
@@ -506,10 +500,10 @@ const EntryHero = ({ onStart }: { onStart: () => void }) => (
           { icon: Star, value: "4.9/5", label: "Satisfaction clients" },
           { icon: Award, value: "RGE", label: "Partenaires certifiés" },
         ].map((s, i) => (
-          <div key={i} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-3 py-4 md:px-5 md:py-5 shadow-lg">
-            <s.icon className="w-5 h-5 md:w-6 md:h-6 text-amber-300 mx-auto mb-2" />
-            <div className="text-xl md:text-2xl font-bold text-white">{s.value}</div>
-            <div className="text-[10px] md:text-xs text-white/80 mt-0.5">{s.label}</div>
+          <div key={i} className="bg-white/80 backdrop-blur-md border border-amber-200/60 rounded-2xl px-3 py-4 md:px-5 md:py-5 shadow-lg">
+            <s.icon className="w-5 h-5 md:w-6 md:h-6 text-orange-500 mx-auto mb-2" />
+            <div className="text-xl md:text-2xl font-bold text-slate-900">{s.value}</div>
+            <div className="text-[10px] md:text-xs text-slate-600 mt-0.5">{s.label}</div>
           </div>
         ))}
       </div>
