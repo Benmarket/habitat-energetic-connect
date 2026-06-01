@@ -16,7 +16,7 @@ import {
   Compass, Snowflake, Flame, Thermometer, Waves, Car, Plug, HelpCircle, Ruler,
   Loader2, Lock, Sparkles, ShieldCheck, Clock, Zap, TrendingUp, Star, Award, Leaf,
 } from "lucide-react";
-import solarHouseBanner from "@/assets/solar-house-banner.jpg";
+import solarSimBg from "@/assets/simulators/solar-simulator-bg.jpg";
 
 // ---------- Types ----------
 type HousingType = "maison" | "villa" | "mitoyenne" | "pro" | "appartement";
