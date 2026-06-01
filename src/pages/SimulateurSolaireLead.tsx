@@ -410,8 +410,17 @@ export default function SimulateurSolaireLead() {
 
       {/* Lead modal */}
       <Dialog open={showLeadModal} onOpenChange={(o) => !submitting && setShowLeadModal(o)}>
-        <DialogContent className="max-w-md p-0 overflow-hidden">
+        <DialogContent className="max-w-md p-0 overflow-hidden [&>button]:hidden">
+          <button
+            type="button"
+            onClick={() => !submitting && setShowLeadModal(false)}
+            aria-label="Fermer"
+            className="absolute right-3 top-3 z-10 inline-flex items-center justify-center w-9 h-9 rounded-full bg-slate-900/20 hover:bg-slate-900/40 text-slate-900 hover:text-white backdrop-blur transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
           <div className="bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 px-6 pt-6 pb-8 text-slate-900">
+
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/15 backdrop-blur text-[11px] font-semibold mb-3">
               <Sparkles className="w-3 h-3" /> Estimation prête
             </div>
