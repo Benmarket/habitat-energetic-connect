@@ -7,19 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Sun, Check, ArrowLeft, ArrowRight, MapPin, Home, Building2, Store, Building,
-  Compass, Snowflake, Flame, Thermometer, Waves, Car, Plug, HelpCircle,
+  Sun, Check, ArrowLeft, ArrowRight, MapPin, Home, Castle, Hotel, Building2, Store, Building,
+  Compass, Snowflake, Flame, Thermometer, Waves, Car, Plug, HelpCircle, Ruler,
   Loader2, Lock, Sparkles, ShieldCheck, Clock, Zap, TrendingUp, Star, Award, Leaf,
 } from "lucide-react";
 import solarHouseBanner from "@/assets/solar-house-banner.jpg";
 
 // ---------- Types ----------
 type HousingType = "maison" | "villa" | "mitoyenne" | "pro" | "appartement";
-type SurfaceRange = "<80" | "80-120" | "120-160" | ">160" | "?";
 type Ownership = "oui" | "non" | "achat";
 type Orientation = "N" | "NE" | "E" | "SE" | "S" | "SO" | "O" | "NO" | "?";
 
@@ -27,7 +27,7 @@ interface Sim {
   postalCode: string;
   city: string;
   housing: HousingType | "";
-  surface: SurfaceRange | "";
+  surface: number | "";
   ownership: Ownership | "";
   orientation: Orientation | "";
   equipments: string[];
@@ -37,18 +37,10 @@ interface Sim {
 // ---------- Static data ----------
 const HOUSING: { id: HousingType; label: string; desc: string; icon: any }[] = [
   { id: "maison", label: "Maison individuelle", desc: "Pavillon avec toit dégagé", icon: Home },
-  { id: "villa", label: "Villa", desc: "Avec terrain, idéale pour le solaire", icon: Home },
-  { id: "mitoyenne", label: "Maison mitoyenne", desc: "Maison de village ou en bande", icon: Home },
+  { id: "villa", label: "Villa", desc: "Avec terrain, idéale pour le solaire", icon: Castle },
+  { id: "mitoyenne", label: "Maison mitoyenne", desc: "Maison de village ou en bande", icon: Hotel },
   { id: "pro", label: "Local professionnel", desc: "Commerce, bureau, atelier", icon: Store },
   { id: "appartement", label: "Appartement", desc: "Copropriété ou dernier étage", icon: Building2 },
-];
-
-const SURFACES: { id: SurfaceRange; label: string }[] = [
-  { id: "<80", label: "Moins de 80 m²" },
-  { id: "80-120", label: "80 à 120 m²" },
-  { id: "120-160", label: "120 à 160 m²" },
-  { id: ">160", label: "Plus de 160 m²" },
-  { id: "?", label: "Je ne sais pas" },
 ];
 
 const OWNERSHIPS: { id: Ownership; label: string; desc: string }[] = [
@@ -114,6 +106,28 @@ function orientationFeedback(o: Orientation): string {
   return "Une étude permet de confirmer le potentiel réel. Même si l'orientation semble moins favorable, certaines configurations restent exploitables.";
 }
 
+// ---------- Solar background (used on ALL pages of the simulator) ----------
+const SolarBackdrop = () => (
+  <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden>
+    <div className="absolute inset-0" style={{ backgroundColor: "hsl(24 30% 6%)" }} />
+    <img src={solarHouseBanner} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" loading="eager" />
+    <div
+      className="absolute inset-0"
+      style={{
+        backgroundImage:
+          "linear-gradient(135deg, hsla(24,40%,8%,0.92) 0%, hsla(28,55%,14%,0.86) 45%, hsla(38,75%,22%,0.7) 100%)",
+      }}
+    />
+    <div
+      className="absolute inset-0"
+      style={{
+        backgroundImage:
+          "radial-gradient(ellipse at top right, hsla(45,95%,55%,0.32), transparent 55%), radial-gradient(ellipse at bottom left, hsla(28,85%,40%,0.28), transparent 60%)",
+      }}
+    />
+  </div>
+);
+
 // ---------- Compass ----------
 const Compass8 = ({ value, onChange }: { value: Orientation | ""; onChange: (o: Orientation) => void }) => {
   const size = 300;
@@ -134,11 +148,11 @@ const Compass8 = ({ value, onChange }: { value: Orientation | ""; onChange: (o: 
         <defs>
           <radialGradient id="compassCenter" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="hsl(48 95% 70%)" />
-            <stop offset="100%" stopColor="hsl(38 92% 55%)" />
+            <stop offset="100%" stopColor="hsl(28 92% 50%)" />
           </radialGradient>
           <linearGradient id="sectorSelected" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="hsl(145 65% 55%)" />
-            <stop offset="100%" stopColor="hsl(145 65% 40%)" />
+            <stop offset="0%" stopColor="hsl(38 95% 55%)" />
+            <stop offset="100%" stopColor="hsl(24 90% 45%)" />
           </linearGradient>
         </defs>
         {sectors.map((s, i) => {
@@ -156,10 +170,10 @@ const Compass8 = ({ value, onChange }: { value: Orientation | ""; onChange: (o: 
             <g key={s} onClick={() => onChange(s)} className="cursor-pointer">
               <path
                 d={d}
-                fill={selected ? "url(#sectorSelected)" : "hsl(145 35% 95%)"}
-                stroke={selected ? "hsl(145 65% 30%)" : "hsl(145 35% 80%)"}
+                fill={selected ? "url(#sectorSelected)" : "hsl(28 25% 96%)"}
+                stroke={selected ? "hsl(24 90% 35%)" : "hsl(28 25% 85%)"}
                 strokeWidth={2}
-                className="transition-all hover:fill-[hsl(145_45%_88%)]"
+                className="transition-all hover:fill-[hsl(38_85%_88%)]"
               />
               <text x={lx} y={ly - 4} textAnchor="middle" className={`text-[14px] font-bold ${selected ? "fill-white" : "fill-slate-800"}`}>
                 {s}
@@ -170,7 +184,7 @@ const Compass8 = ({ value, onChange }: { value: Orientation | ""; onChange: (o: 
             </g>
           );
         })}
-        <circle cx={cx} cy={cy} r={rInner - 4} fill="url(#compassCenter)" stroke="hsl(38 92% 50%)" strokeWidth={2} />
+        <circle cx={cx} cy={cy} r={rInner - 4} fill="url(#compassCenter)" stroke="hsl(28 92% 45%)" strokeWidth={2} />
         <g transform={`translate(${cx - 18}, ${cy - 18})`}>
           <Sun className="text-white drop-shadow" width={36} height={36} />
         </g>
@@ -180,8 +194,8 @@ const Compass8 = ({ value, onChange }: { value: Orientation | ""; onChange: (o: 
         onClick={() => onChange("?")}
         className={`text-sm px-5 py-2.5 rounded-full border-2 transition-all ${
           value === "?"
-            ? "bg-primary border-primary text-primary-foreground font-semibold shadow-md"
-            : "bg-white border-slate-200 text-slate-600 hover:border-primary/40"
+            ? "bg-amber-500 border-amber-500 text-slate-900 font-semibold shadow-md"
+            : "bg-white border-slate-200 text-slate-600 hover:border-amber-400"
         }`}
       >
         Je ne sais pas
@@ -214,7 +228,6 @@ export default function SimulateurSolaireLead() {
 
   const region = useMemo(() => detectRegion(sim.postalCode || ""), [sim.postalCode]);
 
-  // Auto-open lead modal when arriving on results step (if not unlocked)
   useEffect(() => {
     if (step === 7 && !unlocked) {
       const t = setTimeout(() => setShowLeadModal(true), 450);
@@ -222,7 +235,6 @@ export default function SimulateurSolaireLead() {
     }
   }, [step, unlocked]);
 
-  // Scroll behaviour on step change
   useEffect(() => {
     if (step > 0 && step < 7) {
       const el = document.getElementById("sim-wizard");
@@ -234,7 +246,7 @@ export default function SimulateurSolaireLead() {
   const canContinue = (): boolean => {
     switch (step) {
       case 1: return /^\d{5}$/.test(sim.postalCode);
-      case 2: return !!sim.housing && !!sim.surface;
+      case 2: return !!sim.housing && typeof sim.surface === "number" && sim.surface >= 20;
       case 3: return !!sim.ownership;
       case 4: return !!sim.orientation;
       case 5: return sim.equipments.length > 0;
@@ -244,7 +256,6 @@ export default function SimulateurSolaireLead() {
   };
 
   const goNext = () => {
-    // After last question, play full-screen computing animation then jump to results
     if (step === 6) {
       setComputing(true);
       setTimeout(() => {
@@ -282,7 +293,7 @@ export default function SimulateurSolaireLead() {
       source: "simulateur-solaire",
       region: region.label, regionId: region.id,
       postalCode: sim.postalCode, city: sim.city,
-      housingType: sim.housing, houseSurfaceRange: sim.surface,
+      housingType: sim.housing, houseSurfaceM2: sim.surface,
       ownership: sim.ownership, roofOrientation: sim.orientation,
       equipments: sim.equipments, monthlyBill: sim.monthlyBill,
       annualBill, estimatedSavingsMin: savingsMin, estimatedSavingsMax: savingsMax,
@@ -321,16 +332,18 @@ export default function SimulateurSolaireLead() {
 
       <Header />
 
-      <main className="relative min-h-screen pb-20 bg-gradient-to-b from-[hsl(145_35%_97%)] via-white to-[hsl(145_35%_96%)]">
+      <main className="relative min-h-screen pb-20">
+        <SolarBackdrop />
+
         {step === 0 && <EntryHero onStart={() => setStep(1)} />}
 
         {step > 0 && step < 7 && (
-          <div id="sim-wizard" className="container mx-auto px-4 max-w-3xl pt-8 md:pt-12">
+          <div id="sim-wizard" className="container mx-auto px-4 max-w-3xl pt-10 md:pt-16">
             <ProgressBar step={step} />
 
             <div className="relative mt-5">
-              <div className="absolute -inset-1 bg-gradient-to-br from-primary/20 via-amber-200/20 to-primary/10 rounded-[2rem] blur-2xl opacity-60" aria-hidden />
-              <div className="relative bg-white rounded-3xl shadow-[0_20px_60px_-15px_hsl(145_65%_25%/0.18)] border border-slate-100 p-6 md:p-10">
+              <div className="absolute -inset-1 bg-gradient-to-br from-amber-400/40 via-orange-500/30 to-amber-300/30 rounded-[2rem] blur-2xl opacity-70" aria-hidden />
+              <div className="relative bg-white rounded-3xl shadow-[0_30px_80px_-15px_hsl(24_60%_8%/0.6)] border border-amber-200/60 p-6 md:p-10">
                 {step === 1 && <Step1Location sim={sim} setSim={setSim} region={region} />}
                 {step === 2 && <Step2Housing sim={sim} setSim={setSim} />}
                 {step === 3 && <Step3Ownership sim={sim} setSim={setSim} />}
@@ -346,7 +359,7 @@ export default function SimulateurSolaireLead() {
                     onClick={goNext}
                     disabled={!canContinue()}
                     size="lg"
-                    className="bg-primary hover:bg-primary-hover text-primary-foreground font-semibold shadow-[0_10px_25px_-8px_hsl(145_65%_45%/0.5)] hover:scale-105 transition-all rounded-full px-7"
+                    className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold shadow-[0_15px_30px_-10px_hsl(35_95%_45%/0.7)] hover:scale-105 transition-all rounded-full px-7"
                   >
                     {step === 6 ? "Calculer mes économies" : "Continuer"} <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
@@ -354,16 +367,16 @@ export default function SimulateurSolaireLead() {
               </div>
             </div>
 
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500">
-              <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-primary" /> 100% gratuit et sans engagement</span>
-              <span className="inline-flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-primary" /> Vos données sont protégées</span>
-              <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-primary" /> Moins de 2 minutes</span>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-white/80">
+              <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-amber-300" /> 100% gratuit et sans engagement</span>
+              <span className="inline-flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-amber-300" /> Vos données sont protégées</span>
+              <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-amber-300" /> Moins de 2 minutes</span>
             </div>
           </div>
         )}
 
         {step === 7 && (
-          <div className="container mx-auto px-4 max-w-3xl pt-8 md:pt-12">
+          <div className="container mx-auto px-4 max-w-3xl pt-10 md:pt-16">
             <div
               className={`transition-all duration-500 ${!unlocked ? "blur-md pointer-events-none select-none" : "blur-0"}`}
               aria-hidden={!unlocked}
@@ -379,15 +392,15 @@ export default function SimulateurSolaireLead() {
       {/* Lead modal */}
       <Dialog open={showLeadModal} onOpenChange={(o) => !submitting && setShowLeadModal(o)}>
         <DialogContent className="max-w-md p-0 overflow-hidden">
-          <div className="bg-gradient-to-br from-primary to-[hsl(145_65%_35%)] px-6 pt-6 pb-8 text-primary-foreground">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur text-[11px] font-semibold mb-3">
+          <div className="bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 px-6 pt-6 pb-8 text-slate-900">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/15 backdrop-blur text-[11px] font-semibold mb-3">
               <Sparkles className="w-3 h-3" /> Estimation prête
             </div>
             <DialogHeader className="text-left space-y-2">
-              <DialogTitle className="text-2xl font-bold text-primary-foreground">
+              <DialogTitle className="text-2xl font-bold text-slate-900">
                 Vos résultats sont prêts
               </DialogTitle>
-              <DialogDescription className="text-primary-foreground/85">
+              <DialogDescription className="text-slate-900/85">
                 Renseignez vos coordonnées pour débloquer votre estimation personnalisée.
               </DialogDescription>
             </DialogHeader>
@@ -421,7 +434,7 @@ export default function SimulateurSolaireLead() {
               onClick={submitLead}
               disabled={submitting}
               size="lg"
-              className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-semibold rounded-full shadow-[0_10px_25px_-8px_hsl(145_65%_45%/0.5)]"
+              className="w-full bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold rounded-full shadow-[0_15px_30px_-10px_hsl(35_95%_45%/0.7)]"
             >
               {submitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Envoi…</> : <>Débloquer mes résultats <ArrowRight className="w-4 h-4 ml-2" /></>}
             </Button>
@@ -437,11 +450,9 @@ export default function SimulateurSolaireLead() {
   );
 }
 
-// ---------- Sub components ----------
-
+// ---------- Entry hero (step 0) ----------
 const EntryHero = ({ onStart }: { onStart: () => void }) => (
-  <section className="relative overflow-hidden isolate" style={{ backgroundColor: "hsl(145 65% 10%)" }}>
-    {/* Background image */}
+  <section className="relative overflow-hidden isolate" style={{ backgroundColor: "hsl(24 30% 6%)" }}>
     <img
       src={solarHouseBanner}
       alt=""
@@ -449,43 +460,28 @@ const EntryHero = ({ onStart }: { onStart: () => void }) => (
       className="absolute inset-0 w-full h-full object-cover z-0"
       loading="eager"
     />
-    {/* Solid dark base — inline styles to guarantee rendering */}
-    <div
-      className="absolute inset-0 z-10"
-      aria-hidden
-      style={{ backgroundColor: "hsla(145, 65%, 10%, 0.82)" }}
-    />
-    {/* Brand gradient on top */}
+    <div className="absolute inset-0 z-10" aria-hidden style={{ backgroundColor: "hsla(24, 40%, 8%, 0.78)" }} />
     <div
       className="absolute inset-0 z-10"
       aria-hidden
       style={{
         backgroundImage:
-          "linear-gradient(135deg, hsla(145,70%,12%,0.92) 0%, hsla(145,55%,20%,0.78) 45%, hsla(38,85%,28%,0.6) 100%)",
+          "linear-gradient(135deg, hsla(24,45%,8%,0.92) 0%, hsla(28,55%,16%,0.78) 45%, hsla(38,85%,32%,0.6) 100%)",
       }}
     />
-    {/* Vignette bottom */}
     <div
       className="absolute inset-x-0 bottom-0 h-2/3 z-10"
       aria-hidden
-      style={{
-        backgroundImage:
-          "linear-gradient(to top, hsla(145,70%,8%,0.9) 0%, transparent 100%)",
-      }}
+      style={{ backgroundImage: "linear-gradient(to top, hsla(24,50%,6%,0.92) 0%, transparent 100%)" }}
     />
-    {/* Warm sun glow */}
     <div
       className="absolute inset-0 z-10"
       aria-hidden
-      style={{
-        backgroundImage:
-          "radial-gradient(ellipse at top right, hsla(48,95%,55%,0.32), transparent 55%)",
-      }}
+      style={{ backgroundImage: "radial-gradient(ellipse at top right, hsla(48,95%,55%,0.36), transparent 55%)" }}
     />
 
-    {/* Floating ambient orbs */}
     <div className="absolute top-20 right-[10%] w-40 h-40 rounded-full bg-amber-400/30 blur-3xl animate-pulse z-10" aria-hidden />
-    <div className="absolute bottom-32 left-[8%] w-32 h-32 rounded-full bg-primary/30 blur-3xl z-10" aria-hidden />
+    <div className="absolute bottom-32 left-[8%] w-32 h-32 rounded-full bg-orange-500/30 blur-3xl z-10" aria-hidden />
 
     <div className="relative z-20 container mx-auto px-4 py-20 md:py-28 text-center max-w-4xl">
       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-xs font-semibold mb-6 shadow-lg">
@@ -494,7 +490,7 @@ const EntryHero = ({ onStart }: { onStart: () => void }) => (
 
       <h1
         className="text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight text-white mb-6"
-        style={{ textShadow: "0 4px 30px hsl(145 65% 10% / 0.6), 0 2px 10px hsl(145 65% 10% / 0.4)" }}
+        style={{ textShadow: "0 4px 30px hsl(24 50% 6% / 0.7), 0 2px 10px hsl(24 50% 6% / 0.5)" }}
       >
         Combien votre maison peut-elle
         <span className="block mt-2 bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent">
@@ -504,7 +500,7 @@ const EntryHero = ({ onStart }: { onStart: () => void }) => (
 
       <p
         className="text-base md:text-xl text-white max-w-2xl mx-auto mb-10 leading-relaxed"
-        style={{ textShadow: "0 2px 15px hsl(145 65% 10% / 0.6)" }}
+        style={{ textShadow: "0 2px 15px hsl(24 50% 6% / 0.7)" }}
       >
         Estimez en moins de 2 minutes le potentiel solaire de votre logement, vos économies possibles et les aides disponibles dans votre région.
       </p>
@@ -512,7 +508,7 @@ const EntryHero = ({ onStart }: { onStart: () => void }) => (
       <Button
         onClick={onStart}
         size="lg"
-        className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-bold text-base md:text-lg px-10 py-7 rounded-full shadow-[0_20px_50px_-10px_hsl(45_95%_50%/0.8)] hover:scale-105 transition-all group"
+        className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold text-base md:text-lg px-10 py-7 rounded-full shadow-[0_20px_50px_-10px_hsl(35_95%_45%/0.9)] hover:scale-105 transition-all group"
       >
         <Sun className="w-5 h-5 mr-2 group-hover:rotate-45 transition-transform" />
         Démarrer ma simulation
@@ -525,7 +521,6 @@ const EntryHero = ({ onStart }: { onStart: () => void }) => (
         <span className="inline-flex items-center gap-1.5"><MapPin className="w-4 h-4 text-amber-300" /> Adapté à votre région</span>
       </div>
 
-      {/* Stats / social proof */}
       <div className="mt-14 grid grid-cols-3 gap-3 md:gap-6 max-w-2xl mx-auto">
         {[
           { icon: TrendingUp, value: "+12 000", label: "Simulations réalisées" },
@@ -540,26 +535,23 @@ const EntryHero = ({ onStart }: { onStart: () => void }) => (
         ))}
       </div>
     </div>
-
-    {/* wave separator */}
-    <svg className="relative block w-full text-[hsl(145_35%_97%)]" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden>
-      <path fill="currentColor" d="M0,32 C240,80 480,80 720,48 C960,16 1200,16 1440,48 L1440,80 L0,80 Z" />
-    </svg>
   </section>
 );
 
+// ---------- UI primitives ----------
+
 const ProgressBar = ({ step }: { step: number }) => (
-  <div className="bg-white rounded-2xl py-4 px-5 md:px-6 shadow-[0_8px_24px_-8px_hsl(145_65%_25%/0.15)] border border-slate-100">
+  <div className="bg-white/95 backdrop-blur rounded-2xl py-4 px-5 md:px-6 shadow-[0_10px_30px_-10px_hsl(24_60%_8%/0.5)] border border-amber-200/50">
     <div className="flex items-center justify-between mb-3 text-xs font-semibold">
       <span className="text-slate-500">Étape <span className="text-slate-900">{step}</span> / 7</span>
-      <span className="text-primary inline-flex items-center gap-1.5">
-        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+      <span className="text-orange-600 inline-flex items-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
         {STEP_LABELS[step - 1]}
       </span>
     </div>
     <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
       <div
-        className="h-full bg-gradient-to-r from-primary via-[hsl(145_65%_50%)] to-amber-400 rounded-full transition-all duration-700 shadow-[0_0_12px_hsl(145_65%_45%/0.5)]"
+        className="h-full bg-gradient-to-r from-amber-400 via-orange-500 to-amber-300 rounded-full transition-all duration-700 shadow-[0_0_12px_hsl(35_95%_50%/0.6)]"
         style={{ width: `${(step / 7) * 100}%` }}
       />
     </div>
@@ -568,7 +560,7 @@ const ProgressBar = ({ step }: { step: number }) => (
 
 const StepTitle = ({ icon: Icon, title, subtitle }: { icon: any; title: string; subtitle?: string }) => (
   <div className="mb-8">
-    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-[hsl(145_65%_35%)] text-white mb-4 shadow-[0_10px_25px_-8px_hsl(145_65%_45%/0.5)]">
+    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 mb-4 shadow-[0_12px_25px_-8px_hsl(35_95%_45%/0.6)]">
       <Icon className="w-7 h-7" />
     </div>
     <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{title}</h2>
@@ -577,44 +569,11 @@ const StepTitle = ({ icon: Icon, title, subtitle }: { icon: any; title: string; 
 );
 
 const InfoBanner = ({ children }: { children: React.ReactNode }) => (
-  <div className="mt-6 p-4 rounded-2xl bg-gradient-to-br from-[hsl(145_35%_95%)] to-[hsl(145_35%_92%)] border border-primary/20 text-sm text-slate-700 flex gap-3">
-    <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-      <Leaf className="w-4 h-4 text-primary" />
+  <div className="mt-6 p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/60 border border-amber-200 text-sm text-slate-700 flex gap-3">
+    <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+      <Sun className="w-4 h-4 text-orange-600" />
     </div>
     <div className="flex-1">{children}</div>
-  </div>
-);
-
-const Step1Location = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => (
-  <div>
-    <StepTitle icon={MapPin} title="Où se situe votre logement ?" subtitle="Nous adaptons votre simulation à votre zone géographique et son ensoleillement." />
-    <div className="grid md:grid-cols-2 gap-4">
-      <div>
-        <Label className="text-slate-700 font-medium">Code postal *</Label>
-        <Input
-          value={sim.postalCode}
-          onChange={(e) => setSim({ ...sim, postalCode: e.target.value.replace(/\D/g, "").slice(0, 5) })}
-          placeholder="75001"
-          inputMode="numeric"
-          className="text-lg h-12 mt-1.5 border-slate-200 focus-visible:ring-primary"
-        />
-      </div>
-      <div>
-        <Label className="text-slate-700 font-medium">Ville <span className="text-slate-400 font-normal">(facultatif)</span></Label>
-        <Input value={sim.city} onChange={(e) => setSim({ ...sim, city: e.target.value })} placeholder="Paris" className="h-12 mt-1.5 border-slate-200 focus-visible:ring-primary" />
-      </div>
-    </div>
-
-    {/^\d{5}$/.test(sim.postalCode) && (
-      <InfoBanner>
-        <p className="font-semibold text-slate-900 mb-1.5">Votre zone est analysée — {region.label}</p>
-        <ul className="space-y-1 text-slate-600">
-          <li>• Ensoleillement régional : <strong className="text-primary">{region.sun}</strong></li>
-          <li>• Aides possibles selon votre éligibilité</li>
-          <li>• Simulation adaptée à votre région</li>
-        </ul>
-      </InfoBanner>
-    )}
   </div>
 );
 
@@ -627,23 +586,21 @@ const ChoiceCard = ({ selected, onClick, title, description, icon: Icon }: {
     aria-pressed={selected}
     className={`group relative w-full text-left p-5 rounded-2xl border-2 transition-all duration-300 overflow-hidden ${
       selected
-        ? "border-primary bg-gradient-to-br from-[hsl(145_45%_94%)] via-white to-[hsl(48_95%_94%)] shadow-[0_18px_40px_-15px_hsl(145_65%_45%/0.45)] -translate-y-0.5"
-        : "border-slate-200 bg-white hover:border-primary/50 hover:shadow-[0_12px_30px_-15px_hsl(145_65%_45%/0.3)] hover:-translate-y-0.5"
+        ? "border-orange-500 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-[0_18px_40px_-15px_hsl(35_95%_45%/0.55)] -translate-y-0.5"
+        : "border-slate-200 bg-white hover:border-amber-400 hover:shadow-[0_12px_30px_-15px_hsl(35_95%_45%/0.35)] hover:-translate-y-0.5"
     }`}
   >
-    {/* Decorative gradient orb on selected */}
     {selected && (
-      <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-gradient-to-br from-primary/20 to-amber-300/20 blur-2xl pointer-events-none" aria-hidden />
+      <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-gradient-to-br from-amber-300/40 to-orange-400/30 blur-2xl pointer-events-none" aria-hidden />
     )}
 
-    {/* Top row: icon + check */}
     <div className="relative flex items-start justify-between mb-4">
       {Icon && (
         <div
           className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
             selected
-              ? "bg-gradient-to-br from-primary to-[hsl(145_65%_35%)] text-primary-foreground shadow-[0_8px_20px_-6px_hsl(145_65%_45%/0.6)] scale-110"
-              : "bg-gradient-to-br from-slate-100 to-slate-50 text-slate-400 group-hover:from-primary/10 group-hover:to-amber-100/40 group-hover:text-primary"
+              ? "bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 shadow-[0_8px_20px_-6px_hsl(35_95%_45%/0.6)] scale-110"
+              : "bg-gradient-to-br from-slate-100 to-slate-50 text-slate-400 group-hover:from-amber-100 group-hover:to-orange-100 group-hover:text-orange-600"
           }`}
         >
           <Icon className="w-6 h-6" strokeWidth={2} />
@@ -652,21 +609,20 @@ const ChoiceCard = ({ selected, onClick, title, description, icon: Icon }: {
       <div
         className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${
           selected
-            ? "bg-primary text-primary-foreground scale-100 shadow-md"
-            : "bg-slate-100 text-transparent scale-90 group-hover:bg-primary/10"
+            ? "bg-orange-500 text-white scale-100 shadow-md"
+            : "bg-slate-100 text-transparent scale-90 group-hover:bg-amber-100"
         }`}
       >
         <Check className="w-3.5 h-3.5" strokeWidth={3} />
       </div>
     </div>
 
-    {/* Title + description */}
     <div className="relative">
-      <h4 className={`font-bold text-base leading-tight transition-colors ${selected ? "text-slate-900" : "text-slate-800"}`}>
+      <h4 className={`font-bold text-base leading-tight ${selected ? "text-slate-900" : "text-slate-800"}`}>
         {title}
       </h4>
       {description && (
-        <p className={`text-xs mt-1 leading-relaxed transition-colors ${selected ? "text-slate-600" : "text-slate-500"}`}>
+        <p className={`text-xs mt-1 leading-relaxed ${selected ? "text-slate-600" : "text-slate-500"}`}>
           {description}
         </p>
       )}
@@ -680,13 +636,121 @@ const PillButton = ({ selected, onClick, children }: any) => (
     onClick={onClick}
     className={`px-3 py-3 rounded-xl border-2 text-sm font-semibold transition-all ${
       selected
-        ? "border-primary bg-primary text-primary-foreground shadow-[0_6px_16px_-6px_hsl(145_65%_45%/0.5)]"
-        : "border-slate-200 bg-white text-slate-600 hover:border-primary/40 hover:text-slate-900"
+        ? "border-orange-500 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-900 shadow-[0_8px_18px_-6px_hsl(35_95%_45%/0.55)]"
+        : "border-slate-200 bg-white text-slate-600 hover:border-amber-400 hover:text-slate-900"
     }`}
   >
     {children}
   </button>
 );
+
+// ---------- Steps ----------
+
+const Step1Location = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => (
+  <div>
+    <StepTitle icon={MapPin} title="Où se situe votre logement ?" subtitle="Nous adaptons votre simulation à votre zone géographique et son ensoleillement." />
+    <div className="grid md:grid-cols-2 gap-4">
+      <div>
+        <Label className="text-slate-700 font-medium">Code postal *</Label>
+        <Input
+          value={sim.postalCode}
+          onChange={(e) => setSim({ ...sim, postalCode: e.target.value.replace(/\D/g, "").slice(0, 5) })}
+          placeholder="75001"
+          inputMode="numeric"
+          className="text-lg h-12 mt-1.5 border-slate-200 focus-visible:ring-orange-500"
+        />
+      </div>
+      <div>
+        <Label className="text-slate-700 font-medium">Ville <span className="text-slate-400 font-normal">(facultatif)</span></Label>
+        <Input value={sim.city} onChange={(e) => setSim({ ...sim, city: e.target.value })} placeholder="Paris" className="h-12 mt-1.5 border-slate-200 focus-visible:ring-orange-500" />
+      </div>
+    </div>
+
+    {/^\d{5}$/.test(sim.postalCode) && (
+      <InfoBanner>
+        <p className="font-semibold text-slate-900 mb-1.5">Votre zone est analysée — {region.label}</p>
+        <ul className="space-y-1 text-slate-600">
+          <li>• Ensoleillement régional : <strong className="text-orange-600">{region.sun}</strong></li>
+          <li>• Aides possibles selon votre éligibilité</li>
+          <li>• Simulation adaptée à votre région</li>
+        </ul>
+      </InfoBanner>
+    )}
+  </div>
+);
+
+// ---------- Surface slider ----------
+const SurfaceSlider = ({ value, onChange }: { value: number | ""; onChange: (n: number) => void }) => {
+  const v = typeof value === "number" ? value : 100;
+  const pct = Math.max(0, Math.min(100, ((v - 20) / (400 - 20)) * 100));
+  const tier = v < 80 ? "Petit logement" : v < 130 ? "Logement standard" : v < 200 ? "Grand logement" : "Très grand logement";
+
+  return (
+    <div className="relative p-5 md:p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 border border-amber-400/30 shadow-[0_15px_40px_-15px_hsl(24_60%_8%/0.5)] overflow-hidden">
+      {/* Ambient glow */}
+      <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-amber-400/20 blur-3xl pointer-events-none" aria-hidden />
+      <div className="absolute -bottom-12 -left-12 w-40 h-40 rounded-full bg-orange-500/20 blur-3xl pointer-events-none" aria-hidden />
+
+      <div className="relative">
+        <div className="flex items-end justify-between mb-5 gap-4">
+          <div>
+            <p className="text-amber-300 text-[11px] font-bold uppercase tracking-widest mb-1">Superficie habitable</p>
+            <div className="flex items-baseline gap-2">
+              <input
+                type="number"
+                min={20}
+                max={1000}
+                value={typeof value === "number" ? value : ""}
+                onChange={(e) => {
+                  const n = e.target.value === "" ? 0 : Math.max(0, Math.min(1000, parseInt(e.target.value, 10) || 0));
+                  onChange(n);
+                }}
+                placeholder="100"
+                className="bg-transparent text-white text-5xl md:text-6xl font-bold tracking-tight w-32 md:w-40 outline-none border-b-2 border-amber-400/40 focus:border-amber-300 transition-colors"
+              />
+              <span className="text-amber-300 text-2xl md:text-3xl font-bold">m²</span>
+            </div>
+          </div>
+          <span className="text-xs font-semibold text-slate-900 bg-gradient-to-r from-amber-300 to-amber-400 px-3 py-1.5 rounded-full whitespace-nowrap shadow-md">
+            {tier}
+          </span>
+        </div>
+
+        {/* Slider */}
+        <div className="relative pt-2">
+          <Slider
+            min={20}
+            max={400}
+            step={5}
+            value={[v]}
+            onValueChange={(vals) => onChange(vals[0])}
+            className="[&_[role=slider]]:h-7 [&_[role=slider]]:w-7 [&_[role=slider]]:border-2 [&_[role=slider]]:border-amber-300 [&_[role=slider]]:bg-gradient-to-br [&_[role=slider]]:from-amber-300 [&_[role=slider]]:to-orange-500 [&_[role=slider]]:shadow-[0_0_20px_hsl(35_95%_60%/0.7)] [&_[role=slider]]:focus-visible:ring-amber-300 [&>span:first-child]:h-2 [&>span:first-child]:bg-white/10 [&_[data-orientation=horizontal]>span]:bg-gradient-to-r [&_[data-orientation=horizontal]>span]:from-amber-400 [&_[data-orientation=horizontal]>span]:to-orange-500"
+          />
+          {/* Tick marks */}
+          <div className="relative mt-3 flex justify-between text-[10px] text-white/60 font-semibold px-1">
+            {[20, 80, 130, 200, 400].map((m) => (
+              <span key={m} className="flex flex-col items-center gap-1">
+                <span className="w-px h-1.5 bg-white/30" />
+                {m}m²
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Visual scale indicator */}
+        <div className="mt-5 flex items-center gap-2 text-amber-200/80 text-xs">
+          <Ruler className="w-3.5 h-3.5" />
+          <span>Faites glisser ou saisissez directement votre superficie</span>
+        </div>
+      </div>
+
+      {/* Decorative bar visualization */}
+      <div className="absolute left-0 right-0 bottom-0 h-1">
+        <div className="h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-300" style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  );
+};
 
 const Step2Housing = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
   <div>
@@ -705,14 +769,8 @@ const Step2Housing = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
     </div>
 
     <div className="mt-8">
-      <h3 className="font-semibold text-slate-900 mb-3">Quelle est la superficie approximative du logement ?</h3>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-        {SURFACES.map((s) => (
-          <PillButton key={s.id} selected={sim.surface === s.id} onClick={() => setSim({ ...sim, surface: s.id })}>
-            {s.label}
-          </PillButton>
-        ))}
-      </div>
+      <h3 className="font-semibold text-slate-900 mb-3">Quelle est la superficie de votre logement ?</h3>
+      <SurfaceSlider value={sim.surface} onChange={(n) => setSim({ ...sim, surface: n })} />
     </div>
 
     {sim.housing && (
@@ -720,7 +778,7 @@ const Step2Housing = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
         {sim.housing === "appartement"
           ? "Votre projet peut nécessiter une étude spécifique. Vous pouvez continuer la simulation pour obtenir une première estimation."
           : "Très bon profil pour une simulation solaire. Les maisons permettent généralement d'exploiter directement la toiture pour produire une partie de l'électricité consommée."}
-        {sim.surface && (
+        {typeof sim.surface === "number" && sim.surface > 0 && (
           <p className="mt-2 text-xs text-slate-500">
             Cette information nous aide à estimer indirectement le potentiel de toiture disponible, sans vous demander de mesurer votre toit.
           </p>
@@ -770,7 +828,7 @@ const Step4Orientation = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
         ) : (
           <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-slate-600">
             <Compass className="w-6 h-6 text-slate-400 mb-2" />
-            Sélectionnez une orientation sur la boussole pour découvrir son potentiel solaire.
+            Sélectionnez l'orientation correspondant à votre toiture. Plus l'exposition est proche du Sud, plus la production solaire est généralement importante.
           </div>
         )}
       </div>
@@ -780,12 +838,20 @@ const Step4Orientation = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
 
 const Step5Equipments = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
   const toggle = (id: string) => {
-    const has = sim.equipments.includes(id);
-    setSim({ ...sim, equipments: has ? sim.equipments.filter((e) => e !== id) : [...sim.equipments, id] });
+    if (id === "?") {
+      setSim({ ...sim, equipments: sim.equipments.includes("?") ? [] : ["?"] });
+      return;
+    }
+    const without = sim.equipments.filter((e) => e !== "?");
+    setSim({
+      ...sim,
+      equipments: without.includes(id) ? without.filter((e) => e !== id) : [...without, id],
+    });
   };
+
   return (
     <div>
-      <StepTitle icon={Zap} title="Quels équipements consomment le plus chez vous ?" subtitle="Sélection multiple possible." />
+      <StepTitle icon={Zap} title="Quels équipements possédez-vous ?" subtitle="Plusieurs choix possibles. Cela nous aide à mieux estimer votre consommation." />
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
         {EQUIPMENTS.map((e) => (
           <ChoiceCard
@@ -827,12 +893,12 @@ const Step6Bill = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
       value={sim.monthlyBill === "" ? "" : sim.monthlyBill}
       onChange={(e) => setSim({ ...sim, monthlyBill: e.target.value === "" ? "" : Math.max(0, Number(e.target.value)) })}
       placeholder="180"
-      className="text-lg h-12 mt-1.5 border-slate-200 focus-visible:ring-primary"
+      className="text-lg h-12 mt-1.5 border-slate-200 focus-visible:ring-orange-500"
     />
     {typeof sim.monthlyBill === "number" && sim.monthlyBill > 0 && (
       <InfoBanner>
         <p className="font-semibold text-slate-900 text-base">
-          {sim.monthlyBill} € / mois = <span className="text-primary">{(sim.monthlyBill * 12).toLocaleString("fr-FR")} €</span> / an
+          {sim.monthlyBill} € / mois = <span className="text-orange-600">{(sim.monthlyBill * 12).toLocaleString("fr-FR")} €</span> / an
         </p>
         <p className="mt-1 text-slate-600">Une partie de cette dépense pourrait être réduite grâce à une production solaire adaptée à votre logement.</p>
       </InfoBanner>
@@ -866,12 +932,10 @@ const ComputingOverlay = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-[hsl(145_65%_18%)] via-[hsl(145_55%_22%)] to-[hsl(145_45%_15%)] animate-in fade-in duration-300">
-      {/* Ambient glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-amber-400/20 blur-[120px] animate-pulse" aria-hidden />
-      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full bg-primary/30 blur-[100px]" aria-hidden />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-[hsl(24_50%_8%)] via-[hsl(28_55%_12%)] to-[hsl(24_45%_6%)] animate-in fade-in duration-300">
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-amber-400/25 blur-[120px] animate-pulse" aria-hidden />
+      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full bg-orange-500/30 blur-[100px]" aria-hidden />
 
-      {/* Floating particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
         {Array.from({ length: 14 }).map((_, i) => (
           <div
@@ -888,12 +952,9 @@ const ComputingOverlay = () => {
       </div>
 
       <div className="relative text-center max-w-md px-6">
-        {/* Animated solar disc */}
         <div className="relative mx-auto w-40 h-40 mb-10">
-          {/* Outer pulsating ring */}
           <div className="absolute inset-0 rounded-full border-2 border-amber-300/30 animate-ping" />
           <div className="absolute inset-2 rounded-full border border-amber-200/40 animate-[ping_2.5s_ease-in-out_infinite]" />
-          {/* Rotating rays */}
           <svg className="absolute inset-0 w-full h-full animate-[spin_8s_linear_infinite]" viewBox="0 0 160 160" aria-hidden>
             {Array.from({ length: 12 }).map((_, i) => {
               const a = (i * 30 * Math.PI) / 180;
@@ -904,7 +965,6 @@ const ComputingOverlay = () => {
               return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="hsl(48 95% 70%)" strokeWidth="2.5" strokeLinecap="round" opacity={0.7} />;
             })}
           </svg>
-          {/* Sun core */}
           <div className="absolute inset-8 rounded-full bg-gradient-to-br from-amber-200 via-amber-400 to-orange-500 shadow-[0_0_60px_hsl(45_95%_60%/0.7)] flex items-center justify-center">
             <Sun className="w-12 h-12 text-white drop-shadow-lg animate-pulse" strokeWidth={1.5} />
           </div>
@@ -915,18 +975,16 @@ const ComputingOverlay = () => {
         </h2>
         <p className="text-white/70 text-sm mb-8">Notre moteur analyse votre profil en temps réel</p>
 
-        {/* Progress bar */}
         <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden mb-6">
           <div
-            className="h-full bg-gradient-to-r from-primary via-amber-300 to-amber-400 rounded-full shadow-[0_0_12px_hsl(45_95%_60%/0.6)] transition-all duration-200"
+            className="h-full bg-gradient-to-r from-amber-400 via-orange-400 to-amber-300 rounded-full shadow-[0_0_12px_hsl(45_95%_60%/0.6)] transition-all duration-200"
             style={{ width: `${progress}%` }}
           />
         </div>
 
-        {/* Rolling lines */}
         <ul className="space-y-2.5 text-left">
           {COMPUTE_LINES.map((line, i) => {
-            const done = i < activeLine || (activeLine === COMPUTE_LINES.length - 1 && i < activeLine);
+            const done = i < activeLine;
             const active = i === activeLine;
             return (
               <li
@@ -936,8 +994,8 @@ const ComputingOverlay = () => {
                 }`}
               >
                 {done ? (
-                  <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3" />
+                  <span className="w-5 h-5 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3" strokeWidth={3} />
                   </span>
                 ) : active ? (
                   <Loader2 className="w-5 h-5 animate-spin text-amber-300 flex-shrink-0" />
@@ -956,51 +1014,48 @@ const ComputingOverlay = () => {
 
 const ResultsPanel = ({ sim, region, annualBill, savingsMin, savingsMax }: any) => {
   const housingLabel = HOUSING.find((h) => h.id === sim.housing)?.label || "—";
-  const surfaceLabel = SURFACES.find((s) => s.id === sim.surface)?.label || "—";
+  const surfaceLabel = typeof sim.surface === "number" ? `${sim.surface} m²` : "—";
   const orientationLabel = ORIENTATIONS.find((o) => o.id === sim.orientation)?.label || (sim.orientation === "?" ? "À confirmer" : "—");
   const equipmentsLabels = sim.equipments.map((id: string) => EQUIPMENTS.find((e) => e.id === id)?.label).filter(Boolean).join(", ") || "Aucun";
 
   return (
-    <div className="bg-white rounded-3xl shadow-[0_30px_80px_-20px_hsl(145_65%_25%/0.25)] border border-primary/20 overflow-hidden">
-      {/* Hero result */}
-      <div className="relative bg-gradient-to-br from-primary via-[hsl(145_65%_35%)] to-[hsl(145_55%_25%)] px-6 md:px-10 py-10 text-primary-foreground overflow-hidden">
-        <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-amber-300/30 blur-3xl" aria-hidden />
+    <div className="bg-white rounded-3xl shadow-[0_30px_80px_-20px_hsl(24_60%_8%/0.55)] border border-amber-300/40 overflow-hidden">
+      <div className="relative bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 px-6 md:px-10 py-10 text-slate-900 overflow-hidden">
+        <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-yellow-200/40 blur-3xl" aria-hidden />
         <div className="relative">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur text-xs font-semibold mb-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/15 backdrop-blur text-xs font-semibold mb-3">
             <Check className="w-3.5 h-3.5" /> Résultats débloqués
           </div>
           <h2 className="text-2xl md:text-3xl font-bold mb-2">Votre estimation solaire</h2>
-          <p className="text-primary-foreground/80 text-sm">Basée sur votre profil et votre région.</p>
+          <p className="text-slate-900/80 text-sm">Basée sur votre profil et votre région.</p>
 
-          <div className="mt-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5">
-            <p className="text-xs uppercase tracking-wide text-primary-foreground/70 mb-1">Économies estimées</p>
-            <p className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-amber-200 to-yellow-100 bg-clip-text text-transparent">
+          <div className="mt-6 bg-slate-900/10 backdrop-blur-md border border-slate-900/15 rounded-2xl p-5">
+            <p className="text-xs uppercase tracking-wide text-slate-900/70 mb-1">Économies estimées</p>
+            <p className="text-3xl md:text-5xl font-bold text-slate-900">
               {savingsMin.toLocaleString("fr-FR")} – {savingsMax.toLocaleString("fr-FR")} € / an
             </p>
-            <p className="text-xs text-primary-foreground/70 mt-2">
-              Sur une facture annuelle estimée à <strong className="text-primary-foreground">{annualBill.toLocaleString("fr-FR")} €</strong>. Indicatif, à confirmer après étude.
+            <p className="text-xs text-slate-900/70 mt-2">
+              Sur une facture annuelle estimée à <strong>{annualBill.toLocaleString("fr-FR")} €</strong>. Indicatif, à confirmer après étude.
             </p>
           </div>
         </div>
       </div>
 
       <div className="p-6 md:p-10">
-        {/* Profil */}
         <section className="mb-8">
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Votre profil</h3>
           <div className="grid md:grid-cols-2 gap-3 text-sm">
             <ProfileRow label="Zone" value={`${region.label}${sim.city ? " — " + sim.city : ""}`} />
             <ProfileRow label="Potentiel solaire régional" value={region.sun} />
             <ProfileRow label="Logement" value={housingLabel} />
-            <ProfileRow label="Superficie approximative" value={surfaceLabel} />
+            <ProfileRow label="Superficie" value={surfaceLabel} />
             <ProfileRow label="Orientation" value={orientationLabel} />
             <ProfileRow label="Équipements" value={equipmentsLabels} />
           </div>
         </section>
 
-        {/* Installation */}
-        <section className="mb-6 p-5 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200">
-          <h3 className="text-xs font-bold text-amber-700 uppercase tracking-widest mb-2">Installation recommandée</h3>
+        <section className="mb-6 p-5 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/60 border border-amber-200">
+          <h3 className="text-xs font-bold text-orange-700 uppercase tracking-widest mb-2">Installation recommandée</h3>
           <p className="text-slate-900 text-lg font-bold">
             {typeof sim.monthlyBill === "number" ? suggestedKwc(sim.monthlyBill) : "—"}
           </p>
@@ -1009,9 +1064,8 @@ const ResultsPanel = ({ sim, region, annualBill, savingsMin, savingsMax }: any) 
           </p>
         </section>
 
-        {/* Aides */}
-        <section className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-[hsl(145_35%_95%)] to-white border border-primary/20">
-          <h3 className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Aides & financement</h3>
+        <section className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-white border border-slate-200">
+          <h3 className="text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Aides & financement</h3>
           <p className="text-slate-700">
             Votre région peut donner accès à certaines aides ou solutions de financement, sous réserve d'éligibilité.
           </p>
@@ -1020,7 +1074,7 @@ const ResultsPanel = ({ sim, region, annualBill, savingsMin, savingsMax }: any) 
         <div className="text-center">
           <Button
             size="lg"
-            className="bg-gradient-to-r from-primary to-[hsl(145_65%_35%)] text-primary-foreground font-bold px-10 py-7 rounded-full shadow-[0_15px_40px_-10px_hsl(145_65%_45%/0.6)] hover:scale-105 transition-all"
+            className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold px-10 py-7 rounded-full shadow-[0_15px_40px_-10px_hsl(35_95%_45%/0.7)] hover:scale-105 transition-all"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
             <Sun className="w-4 h-4 mr-2" /> Confirmer mon estimation avec un conseiller
