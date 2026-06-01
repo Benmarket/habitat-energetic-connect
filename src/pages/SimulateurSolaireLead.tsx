@@ -704,11 +704,16 @@ const Step2Housing = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
 const Step3Ownership = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
   <div>
     <StepTitle icon={Building} title="Vous êtes propriétaire du logement ?" />
-    <div className="grid md:grid-cols-3 gap-3">
+    <div className="grid sm:grid-cols-3 gap-3">
       {OWNERSHIPS.map((o) => (
-        <ChoiceCard key={o.id} selected={sim.ownership === o.id} onClick={() => setSim({ ...sim, ownership: o.id })}>
-          {o.label}
-        </ChoiceCard>
+        <ChoiceCard
+          key={o.id}
+          icon={o.id === "oui" ? Check : o.id === "non" ? Lock : Sparkles}
+          title={o.label}
+          description={o.desc}
+          selected={sim.ownership === o.id}
+          onClick={() => setSim({ ...sim, ownership: o.id })}
+        />
       ))}
     </div>
     {sim.ownership && (
