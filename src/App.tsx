@@ -207,6 +207,10 @@ const App = () => (
                     }
                   />
 
+                  {/* Nouveau simulateur solaire grand public (lead-gen) */}
+                  <Route path="/simulateurs/solaire" element={<SimulateurSolaireLead />} />
+                  <Route path="/simulateur-solaire" element={<Navigate to="/simulateurs/solaire" replace />} />
+
                   {/* Email lifecycle pages */}
                   <Route path="/inscription/activer" element={<ActivateAccount />} />
                   <Route path="/mot-de-passe-oublie" element={<PasswordReset />} />
