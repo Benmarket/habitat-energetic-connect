@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Sun, Check, ArrowLeft, ArrowRight, MapPin, Home, Castle, Hotel, Building2, Store, Building,
   Compass, Snowflake, Flame, Thermometer, Waves, Car, Plug, HelpCircle, Ruler,
-  Loader2, Lock, Sparkles, ShieldCheck, Clock, Zap, TrendingUp, Star, Award, Leaf,
+  Loader2, Lock, Sparkles, ShieldCheck, Clock, Zap, TrendingUp, Star, Award, Leaf, X,
 } from "lucide-react";
 import solarSimBg from "@/assets/simulators/solar-simulator-bg.jpg";
 
@@ -367,13 +367,41 @@ export default function SimulateurSolaireLead() {
         )}
 
         {step === 7 && (
-          <div className="container mx-auto px-4 max-w-3xl pt-10 md:pt-16">
+          <div className="container mx-auto px-4 max-w-3xl pt-10 md:pt-16 relative">
             <div
               className={`transition-all duration-500 ${!unlocked ? "blur-md pointer-events-none select-none" : "blur-0"}`}
               aria-hidden={!unlocked}
             >
               <ResultsPanel sim={sim} region={region} annualBill={annualBill} savingsMin={savingsMin} savingsMax={savingsMax} />
             </div>
+
+            {!unlocked && !showLeadModal && (
+              <div className="sticky bottom-6 mt-8 z-30 flex justify-center px-4">
+                <div className="w-full max-w-xl bg-white/95 backdrop-blur-xl border border-amber-200 rounded-2xl shadow-[0_20px_50px_-15px_hsl(24_60%_8%/0.5)] p-5 flex flex-col sm:flex-row items-center gap-4">
+                  <div className="flex-1 text-center sm:text-left">
+                    <p className="text-sm font-bold text-slate-900">Vos résultats sont prêts</p>
+                    <p className="text-xs text-slate-600">Renseignez vos coordonnées pour les débloquer.</p>
+                  </div>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setStep(6)}
+                      className="text-slate-700 hover:text-slate-900"
+                    >
+                      Modifier
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => setShowLeadModal(true)}
+                      className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold rounded-full shadow-lg"
+                    >
+                      Débloquer <ArrowRight className="w-4 h-4 ml-1.5" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -382,8 +410,17 @@ export default function SimulateurSolaireLead() {
 
       {/* Lead modal */}
       <Dialog open={showLeadModal} onOpenChange={(o) => !submitting && setShowLeadModal(o)}>
-        <DialogContent className="max-w-md p-0 overflow-hidden">
+        <DialogContent className="max-w-md p-0 overflow-hidden [&>button]:hidden">
+          <button
+            type="button"
+            onClick={() => !submitting && setShowLeadModal(false)}
+            aria-label="Fermer"
+            className="absolute right-3 top-3 z-10 inline-flex items-center justify-center w-9 h-9 rounded-full bg-slate-900/20 hover:bg-slate-900/40 text-slate-900 hover:text-white backdrop-blur transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
           <div className="bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 px-6 pt-6 pb-8 text-slate-900">
+
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/15 backdrop-blur text-[11px] font-semibold mb-3">
               <Sparkles className="w-3 h-3" /> Estimation prête
             </div>
