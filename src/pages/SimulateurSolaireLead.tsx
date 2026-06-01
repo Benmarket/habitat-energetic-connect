@@ -214,20 +214,21 @@ export default function SimulateurSolaireLead() {
 
   const region = useMemo(() => detectRegion(sim.postalCode || ""), [sim.postalCode]);
 
+  // Auto-open lead modal when arriving on results step (if not unlocked)
   useEffect(() => {
-    if (step === 7) {
-      setComputing(true);
-      const t = setTimeout(() => setComputing(false), 2200);
+    if (step === 7 && !unlocked) {
+      const t = setTimeout(() => setShowLeadModal(true), 450);
       return () => clearTimeout(t);
     }
-  }, [step]);
+  }, [step, unlocked]);
 
-  // Scroll to top of wizard on step change
+  // Scroll behaviour on step change
   useEffect(() => {
-    if (step > 0) {
+    if (step > 0 && step < 7) {
       const el = document.getElementById("sim-wizard");
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+    if (step === 7) window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step]);
 
   const canContinue = (): boolean => {
@@ -242,7 +243,18 @@ export default function SimulateurSolaireLead() {
     }
   };
 
-  const goNext = () => setStep((s) => Math.min(s + 1, 7));
+  const goNext = () => {
+    // After last question, play full-screen computing animation then jump to results
+    if (step === 6) {
+      setComputing(true);
+      setTimeout(() => {
+        setComputing(false);
+        setStep(7);
+      }, 2800);
+      return;
+    }
+    setStep((s) => Math.min(s + 1, 7));
+  };
   const goBack = () => setStep((s) => Math.max(s - 1, 1));
 
   const [lead, setLead] = useState({ fullName: "", email: "", phone: "", consent: false });
