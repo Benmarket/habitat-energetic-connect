@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
+import { requireAuth } from "../_shared/auth.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,38 +23,13 @@ serve(async (req) => {
   }
 
   try {
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Non autorisé - Token manquant' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    // 🔒 Strict JWT + admin role check (no LOVABLE_API_KEY exposure to non-admins)
+    const auth = await requireAuth(req, { corsHeaders, requireAdmin: true });
+    if (!auth.ok) return auth.response;
+    const { userId, supabaseAdmin } = auth;
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-
-    const token = authHeader.replace('Bearer ', '');
-    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
-    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
-
-    if (claimsError || !claimsData?.claims) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Non autorisé - Token invalide' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const userId = claimsData.claims.sub;
-    if (!userId) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Non autorisé' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
     const { data: canProceed } = await supabaseAdmin
       .rpc('check_ai_rate_limit', { p_user_id: userId, p_endpoint: 'generate-article', p_max_per_hour: 20 });
