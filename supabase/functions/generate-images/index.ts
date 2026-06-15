@@ -42,7 +42,7 @@ serve(async (req) => {
     }
 
     // Client avec service role pour les opérations de stockage
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabase = supabaseAdmin;
 
     // Générer toutes les images en parallèle
     const generatedImages = await Promise.all(
