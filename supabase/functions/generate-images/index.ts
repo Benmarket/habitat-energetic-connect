@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.81.1';
+import { requireAuth } from "../_shared/auth.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,34 +14,21 @@ serve(async (req) => {
   }
 
   try {
-    // ===== SÉCURITÉ: Vérification JWT =====
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // 🔒 Strict JWT + admin role check
+    const auth = await requireAuth(req, { corsHeaders, requireAdmin: true });
+    if (!auth.ok) return auth.response;
+    const { userId, supabaseAdmin } = auth;
+
+    // Rate limit anti-abus
+    const { data: canProceed } = await supabaseAdmin
+      .rpc('check_ai_rate_limit', { p_user_id: userId, p_endpoint: 'generate-images', p_max_per_hour: 20 });
+    if (canProceed === false) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Non autorisé - Token manquant' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ success: false, error: 'Limite atteinte : 20 générations d\'images maximum par heure.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
-    // Client avec le token utilisateur pour valider l'auth
-    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser();
-    
-    if (userError || !user) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Non autorisé - Token invalide' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const userId = user.id;
+    await supabaseAdmin.rpc('record_ai_call', { p_user_id: userId, p_endpoint: 'generate-images' });
 
     const { imageDescriptions } = await req.json();
     
