@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,6 +12,55 @@ serve(async (req) => {
   }
 
   try {
+    // 🔒 Auth obligatoire (admin uniquement) — empêche tout drain de LOVABLE_API_KEY
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Non autorisé - Token manquant' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const token = authHeader.replace('Bearer ', '');
+
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
+    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Non autorisé - Token invalide' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    const userId = claimsData.claims.sub;
+
+    // Vérif rôle admin / super_admin
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+    const { data: roles } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId);
+    const isAdmin = (roles || []).some((r: any) => r.role === 'admin' || r.role === 'super_admin');
+    if (!isAdmin) {
+      return new Response(
+        JSON.stringify({ error: 'Accès réservé aux administrateurs' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Rate limit par admin (anti-abus interne)
+    const { data: canProceed } = await supabaseAdmin
+      .rpc('check_ai_rate_limit', { p_user_id: userId, p_endpoint: 'generate-regional-content', p_max_per_hour: 30 });
+    if (canProceed === false) {
+      return new Response(
+        JSON.stringify({ error: 'Limite atteinte : 30 générations maximum par heure.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    await supabaseAdmin.rpc('record_ai_call', { p_user_id: userId, p_endpoint: 'generate-regional-content' });
+
     const { regionCode, regionName, variantSlug } = await req.json();
 
     if (!regionCode || !regionName) {
