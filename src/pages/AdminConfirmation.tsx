@@ -126,6 +126,7 @@ const AdminConfirmation = () => {
     }
   };
 
+  const loadTemplates = async (selectedWorkType: WorkType = workType) => {
     setLoading(true);
     setError(null);
     try {
@@ -149,6 +150,7 @@ const AdminConfirmation = () => {
 
   useEffect(() => {
     loadTemplates(workType);
+    loadMemberLinks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workType]);
 
