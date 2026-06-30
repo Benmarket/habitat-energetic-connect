@@ -55,6 +55,8 @@ const AdminSimulators = lazy(() => import("./pages/AdminSimulators"));
 const AdminAdvertising = lazy(() => import("./pages/AdminAdvertising"));
 const AdminAuthors = lazy(() => import("./pages/AdminAuthors"));
 const AdminMediatheque = lazy(() => import("./pages/AdminMediatheque"));
+const AdminArticlesAudit = lazy(() => import("./pages/AdminArticlesAudit"));
+
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentialite"));
 const ConditionsUtilisation = lazy(() => import("./pages/ConditionsUtilisation"));
