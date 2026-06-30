@@ -617,6 +617,26 @@ const ManageActualites = () => {
                                 <Button
                                   variant="outline"
                                   size="icon"
+                                  className="h-8 w-8 text-violet-600 hover:bg-violet-50"
+                                  title="Enrichir (maillage + audit + corrections IA)"
+                                  disabled={enrichingId === post.id}
+                                  onClick={() => runEnrich(post.id, post.title, "full")}
+                                >
+                                  {enrichingId === post.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-8 w-8 text-amber-600 hover:bg-amber-50"
+                                  title="Auditer seulement (sans modifier le contenu)"
+                                  disabled={enrichingId === post.id}
+                                  onClick={() => runEnrich(post.id, post.title, "audit_only")}
+                                >
+                                  <ShieldCheck className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
                                   className="h-8 w-8 text-destructive hover:bg-destructive hover:text-destructive-foreground"
                                   onClick={() => confirmDelete(post.id)}
                                 >
@@ -630,6 +650,7 @@ const ManageActualites = () => {
                     </TableBody>
                   </Table>
                 </Card>
+
 
                 {/* Pagination */}
                 {totalPages > 1 && (
