@@ -486,49 +486,52 @@ const LandingSolaireContent = () => {
     if (wizardStep === 3) {
       return (
         <div key="step3" className="animate-fade-in">
-          <h3 className="text-xl font-bold text-center mb-2" style={{ color: "#5b7a5b" }}>
-            Vérifier mon éligibilité à la prime énergie :
+          <h3 className="text-xl font-bold text-center mb-1" style={{ color: "#5b7a5b" }}>
+            Dernière étape : votre étude offerte
           </h3>
-          <Progress value={progressValue} className="mb-6 h-3" />
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <Label className="text-sm font-medium">Nom *</Label>
-              <Input
-                placeholder="Nom"
-                value={wizardData.lastName}
-                onChange={(e) => setWizardData((d) => ({ ...d, lastName: e.target.value }))}
-                className="mt-1 bg-background"
-              />
-            </div>
+          <p className="text-center text-xs text-muted-foreground mb-4">
+            Un conseiller vous rappelle sous 24h avec un plan de financement personnalisé.
+          </p>
+          <Progress value={progressValue} className="mb-5 h-3" />
+          <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
               <Label className="text-sm font-medium">Prénom *</Label>
               <Input
                 placeholder="Prénom"
                 value={wizardData.firstName}
                 onChange={(e) => setWizardData((d) => ({ ...d, firstName: e.target.value }))}
-                className="mt-1 bg-background"
+                className="mt-1.5 bg-background h-11"
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Nom *</Label>
+              <Input
+                placeholder="Nom"
+                value={wizardData.lastName}
+                onChange={(e) => setWizardData((d) => ({ ...d, lastName: e.target.value }))}
+                className="mt-1.5 bg-background h-11"
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-2 gap-3 mb-5">
             <div>
               <Label className="text-sm font-medium">E-mail *</Label>
               <Input
                 type="email"
-                placeholder="E-mail"
+                placeholder="votre@email.fr"
                 value={wizardData.email}
                 onChange={(e) => setWizardData((d) => ({ ...d, email: e.target.value }))}
-                className="mt-1 bg-background"
+                className="mt-1.5 bg-background h-11"
               />
             </div>
             <div>
               <Label className="text-sm font-medium">Téléphone *</Label>
               <Input
                 type="tel"
-                placeholder="Téléphone"
+                placeholder="06 12 34 56 78"
                 value={wizardData.phone}
                 onChange={(e) => setWizardData((d) => ({ ...d, phone: e.target.value }))}
-                className="mt-1 bg-background"
+                className="mt-1.5 bg-background h-11"
               />
             </div>
           </div>
@@ -547,9 +550,12 @@ const LandingSolaireContent = () => {
               style={{ backgroundColor: "#5b7a5b" }}
               onClick={handleStep3Submit}
             >
-              {isSubmitting ? "Envoi..." : "> Envoyer"}
+              {isSubmitting ? "Envoi..." : "> Recevoir mon étude"}
             </Button>
           </div>
+          <StepTip icon={Clock}>
+            <strong>Réponse sous 24h</strong> avec votre simulation chiffrée et le détail des aides 2026.
+          </StepTip>
           {dataFooter}
         </div>
       );
