@@ -255,6 +255,51 @@ const AdminConfirmation = () => {
             </AlertDescription>
           </Alert>
 
+          {/* Toggles modulaires "espace membre" */}
+          <Card className="mb-6 border-2 border-amber-300/60 bg-amber-50/30">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-amber-600" />
+                Liens vers l'espace membre — contrôle global
+              </CardTitle>
+              <CardDescription>
+                Désactive temporairement chaque bandeau d'invitation à rejoindre l'espace membre, sans toucher aux formulaires individuels. Utile tant que l'espace membre n'est pas finalisé. <strong>Sauvegarde immédiate.</strong>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {([
+                { key: "signup", icon: UserPlus, label: "Nouveau lead — bandeau « Activer votre espace »", desc: "Template lead-confirmation-signup. Si OFF → bascule sur la confirmation simple (sans lien magique)." },
+                { key: "existing", icon: LogIn, label: "Compte existant — bandeau « Se connecter »", desc: "Template lead-confirmation-existing. Si OFF → bascule sur la confirmation simple." },
+                { key: "guide", icon: BookOpen, label: "Téléchargement guide — lien d'activation bonus", desc: "Template guide-download-confirmation. Si OFF → le lien d'activation n'est plus inclus dans l'email guide." },
+              ] as const).map(({ key, icon: Icon, label, desc }) => {
+                const active = memberLinks[key];
+                return (
+                  <div key={key} className={`flex items-start justify-between gap-4 rounded-lg border p-3 ${active ? "border-amber-300 bg-white" : "border-border bg-muted/40"}`}>
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      <Icon className={`w-5 h-5 mt-0.5 ${active ? "text-amber-600" : "text-muted-foreground"}`} />
+                      <div className="min-w-0">
+                        <Label htmlFor={`ml-${key}`} className="font-semibold cursor-pointer">{label}</Label>
+                        <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Badge variant={active ? "default" : "secondary"} className={active ? "bg-green-600" : ""}>
+                        {active ? "Actif" : "Désactivé"}
+                      </Badge>
+                      <Switch
+                        id={`ml-${key}`}
+                        checked={active}
+                        disabled={savingLinks}
+                        onCheckedChange={(v) => updateMemberLink(key, v)}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+
+
           {/* Sélecteur visuel de produit pour la prévisualisation */}
           <Card className="mb-6 border-2 border-primary/20">
             <CardHeader className="pb-3">
