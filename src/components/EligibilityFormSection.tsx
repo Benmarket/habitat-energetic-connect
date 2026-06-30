@@ -554,6 +554,11 @@ const EligibilityFormSection = () => {
                     </Button>
                   </div>
                 </InputStepContainer>
+                <StepFooterTip
+                  icon={MapPin}
+                  title="Les aides varient fortement selon votre département"
+                  text="Certaines régions ajoutent leurs propres primes — on les inclut automatiquement dans votre étude."
+                />
               </div>
             )}
 
