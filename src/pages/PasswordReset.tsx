@@ -5,10 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, CheckCircle2, AlertCircle, Mail } from "lucide-react";
 import { PasswordStrengthIndicator, isPasswordValid } from "@/components/PasswordStrengthIndicator";
+import Index from "@/pages/Index";
 
 type Status =
   | "request"
