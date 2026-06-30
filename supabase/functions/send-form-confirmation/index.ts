@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
 
   // If form is not registered, default to enabling confirmation but no signup link
   const sendEmail = form?.send_confirmation_email ?? true
-  const includeSignup = form?.include_signup_link ?? true
+  let includeSignup = form?.include_signup_link ?? true
 
   if (!sendEmail) {
     return new Response(JSON.stringify({ skipped: true, reason: 'disabled_for_form' }), {
@@ -101,6 +101,22 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
+
+  // 1.b) Global modular overrides (set in /admin/confirmation)
+  // Allows admin to temporarily hide member-space links across all forms.
+  const { data: memberLinkSetting } = await admin
+    .from('site_settings')
+    .select('value')
+    .eq('key', 'member_link_settings')
+    .maybeSingle()
+  const memberLinks = (memberLinkSetting?.value as
+    | { signup?: boolean; existing?: boolean; guide?: boolean }
+    | null) ?? {}
+  const allowSignupLink = memberLinks.signup !== false // default true
+  const allowExistingLink = memberLinks.existing !== false // default true
+  const allowGuideLink = memberLinks.guide !== false // default true
+
+  if (!allowSignupLink) includeSignup = false
 
   // 2) Detect if a user account already exists for this email
   // We query auth.users via a SECURITY DEFINER RPC because admin.getUserByEmail
@@ -142,7 +158,7 @@ Deno.serve(async (req) => {
 
     // Si le user n'a pas de compte ET que le form active include_signup_link,
     // on ajoute un lien d'activation optionnel (le template l'affiche en bonus).
-    if (!userExists && includeSignup) {
+    if (!userExists && includeSignup && allowGuideLink) {
       const rawToken = generateToken()
       const tokenHash = await sha256Hex(rawToken)
       const { error: tokenErr } = await admin.from('signup_activation_tokens').insert({
@@ -161,8 +177,12 @@ Deno.serve(async (req) => {
       }
     }
   } else if (userExists) {
-    templateName = 'lead-confirmation-existing'
-    templateData.loginUrl = `${origin}/auth`
+    if (allowExistingLink) {
+      templateName = 'lead-confirmation-existing'
+      templateData.loginUrl = `${origin}/auth`
+    } else {
+      templateName = 'lead-confirmation-simple'
+    }
   } else if (includeSignup) {
     // Generate magic activation token
     const rawToken = generateToken()

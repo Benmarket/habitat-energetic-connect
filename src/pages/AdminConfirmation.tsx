@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, Mail, CheckCircle2, AlertCircle, Loader2, ExternalLink, FileText, RefreshCw, Eye, Sun, Snowflake, Flame, Hammer, HelpCircle, Phone } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, Mail, CheckCircle2, AlertCircle, Loader2, ExternalLink, FileText, RefreshCw, Eye, Sun, Snowflake, Flame, Hammer, HelpCircle, Phone, UserPlus, LogIn, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -83,6 +85,46 @@ const AdminConfirmation = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("");
   const [workType, setWorkType] = useState<WorkType>("mix");
+  const [memberLinks, setMemberLinks] = useState<{ signup: boolean; existing: boolean; guide: boolean }>({
+    signup: true,
+    existing: true,
+    guide: true,
+  });
+  const [savingLinks, setSavingLinks] = useState(false);
+
+  const loadMemberLinks = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "member_link_settings")
+      .maybeSingle();
+    if (data?.value) {
+      const v = data.value as any;
+      setMemberLinks({
+        signup: v.signup !== false,
+        existing: v.existing !== false,
+        guide: v.guide !== false,
+      });
+    }
+  };
+
+  const updateMemberLink = async (key: "signup" | "existing" | "guide", value: boolean) => {
+    const next = { ...memberLinks, [key]: value };
+    setMemberLinks(next);
+    setSavingLinks(true);
+    try {
+      const { error } = await supabase
+        .from("site_settings")
+        .upsert({ key: "member_link_settings", value: next }, { onConflict: "key" });
+      if (error) throw error;
+      toast({ title: "Réglage enregistré", description: "Appliqué immédiatement aux prochains envois." });
+    } catch (e: any) {
+      toast({ title: "Erreur", description: e?.message ?? "Échec de sauvegarde", variant: "destructive" });
+      setMemberLinks(memberLinks);
+    } finally {
+      setSavingLinks(false);
+    }
+  };
 
   const loadTemplates = async (selectedWorkType: WorkType = workType) => {
     setLoading(true);
@@ -108,6 +150,7 @@ const AdminConfirmation = () => {
 
   useEffect(() => {
     loadTemplates(workType);
+    loadMemberLinks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workType]);
 
@@ -211,6 +254,51 @@ const AdminConfirmation = () => {
               <p>4. La page <code>/merci</code> s'affiche avec un récapitulatif personnalisé.</p>
             </AlertDescription>
           </Alert>
+
+          {/* Toggles modulaires "espace membre" */}
+          <Card className="mb-6 border-2 border-amber-300/60 bg-amber-50/30">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-amber-600" />
+                Liens vers l'espace membre — contrôle global
+              </CardTitle>
+              <CardDescription>
+                Désactive temporairement chaque bandeau d'invitation à rejoindre l'espace membre, sans toucher aux formulaires individuels. Utile tant que l'espace membre n'est pas finalisé. <strong>Sauvegarde immédiate.</strong>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {([
+                { key: "signup", icon: UserPlus, label: "Nouveau lead — bandeau « Activer votre espace »", desc: "Template lead-confirmation-signup. Si OFF → bascule sur la confirmation simple (sans lien magique)." },
+                { key: "existing", icon: LogIn, label: "Compte existant — bandeau « Se connecter »", desc: "Template lead-confirmation-existing. Si OFF → bascule sur la confirmation simple." },
+                { key: "guide", icon: BookOpen, label: "Téléchargement guide — lien d'activation bonus", desc: "Template guide-download-confirmation. Si OFF → le lien d'activation n'est plus inclus dans l'email guide." },
+              ] as const).map(({ key, icon: Icon, label, desc }) => {
+                const active = memberLinks[key];
+                return (
+                  <div key={key} className={`flex items-start justify-between gap-4 rounded-lg border p-3 ${active ? "border-amber-300 bg-white" : "border-border bg-muted/40"}`}>
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      <Icon className={`w-5 h-5 mt-0.5 ${active ? "text-amber-600" : "text-muted-foreground"}`} />
+                      <div className="min-w-0">
+                        <Label htmlFor={`ml-${key}`} className="font-semibold cursor-pointer">{label}</Label>
+                        <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Badge variant={active ? "default" : "secondary"} className={active ? "bg-green-600" : ""}>
+                        {active ? "Actif" : "Désactivé"}
+                      </Badge>
+                      <Switch
+                        id={`ml-${key}`}
+                        checked={active}
+                        disabled={savingLinks}
+                        onCheckedChange={(v) => updateMemberLink(key, v)}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+
 
           {/* Sélecteur visuel de produit pour la prévisualisation */}
           <Card className="mb-6 border-2 border-primary/20">
