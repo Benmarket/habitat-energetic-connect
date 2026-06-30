@@ -445,7 +445,7 @@ export default function AdminArticlesAudit() {
             </div>
 
             <div className="text-sm text-muted-foreground">
-              {filtered.length} article{filtered.length > 1 ? "s" : ""} visibl
+              {filtered.length} article{filtered.length > 1 ? "s" : ""} visible{filtered.length > 1 ? "s" : ""}
             </div>
           </div>
         </CardContent>
