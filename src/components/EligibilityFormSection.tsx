@@ -399,7 +399,7 @@ const EligibilityFormSection = () => {
             {/* Étape 3 : Système de chauffage */}
             {step === 3 && (
               <div className="space-y-8">
-                <StepHeader currentStep={3} totalSteps={5} onBack={() => setStep(2)} />
+                <StepHeader currentStep={3} totalSteps={7} onBack={() => setStep(2)} />
 
                 <h3 className="text-xl md:text-2xl font-semibold text-center">
                   Quel est votre système de{" "}
@@ -432,18 +432,26 @@ const EligibilityFormSection = () => {
                     value="autres"
                   />
                 </div>
+
+                <StepFooterTip
+                  icon={TrendingUp}
+                  title="Remplacer une vieille chaudière = jusqu'à -70 % sur la facture"
+                  text="Les aides 2026 sont majorées pour le remplacement d'un chauffage au fioul ou au gaz."
+                />
               </div>
             )}
 
             {/* Étape 4 : Type d'installation */}
             {step === 4 && (
               <div className="space-y-8">
-                <StepHeader currentStep={4} totalSteps={5} onBack={() => setStep(3)} />
+                <StepHeader currentStep={4} totalSteps={7} onBack={() => setStep(3)} />
 
                 <h3 className="text-xl md:text-2xl font-semibold text-center">
-                  Pour quel type{" "}
-                  <span className="text-primary">d'installation</span> ?
+                  Quel <span className="text-primary">projet</span> souhaitez-vous réaliser ?
                 </h3>
+                <p className="text-center text-sm text-muted-foreground -mt-4">
+                  Choisissez celui qui vous intéresse — vous pourrez en ajouter d'autres ensuite.
+                </p>
 
                 <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3 max-w-5xl mx-auto">
                   <SelectionButton
@@ -482,6 +490,12 @@ const EligibilityFormSection = () => {
                     className="p-2 md:p-4 col-span-2 md:col-span-1"
                   />
                 </div>
+
+                <StepFooterTip
+                  icon={Lightbulb}
+                  title="Pas sûr de votre projet ? On vous guide gratuitement"
+                  text="Un conseiller analyse votre logement et vous propose la solution la plus rentable, sans engagement."
+                />
               </div>
             )}
 
