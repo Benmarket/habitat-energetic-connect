@@ -337,7 +337,32 @@ const ManageActualites = () => {
           <div className="container mx-auto px-4 py-8">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-3xl font-bold">Gérer les actualités</h1>
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
+                <Button
+                  onClick={() => runBulk("audit_only")}
+                  variant="outline"
+                  className="gap-2"
+                  disabled={!!bulkRunning || loading}
+                  title="Audit heuristique (gratuit, sans IA, sans modification)"
+                >
+                  {bulkRunning === "audit_only" ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+                  Auditer tout
+                </Button>
+                <Button
+                  onClick={() => runBulk("full")}
+                  className="gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white"
+                  disabled={!!bulkRunning || loading}
+                  title="Enrichir tous les articles publiés (IA — consomme des crédits)"
+                >
+                  {bulkRunning === "full" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  Enrichir tout (IA)
+                </Button>
+                <Link to="/admin/articles-audit">
+                  <Button variant="outline" className="gap-2">
+                    <FileSearch className="w-4 h-4" />
+                    Page d'audit dédiée
+                  </Button>
+                </Link>
                 <Button
                   onClick={() => setAiAutomationOpen(true)}
                   variant="outline"
@@ -352,15 +377,6 @@ const ManageActualites = () => {
                   style={{
                     background: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
                     color: '#ffffff',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, #ec4899, #8b5cf6)';
-                    e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
                   <Library className="w-4 h-4" />
@@ -374,6 +390,25 @@ const ManageActualites = () => {
                 </Link>
               </div>
             </div>
+
+            {bulkRunning && (
+              <Card className="p-4 mb-4 border-violet-200 bg-violet-50/50">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="w-5 h-5 animate-spin text-violet-600" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">
+                      {bulkRunning === "full" ? "Enrichissement IA en cours" : "Audit en cours"} — {bulkProgress.done}/{bulkProgress.total}
+                    </p>
+                    <div className="h-2 bg-violet-100 rounded-full mt-1 overflow-hidden">
+                      <div className="h-full bg-violet-600 transition-all" style={{ width: `${(bulkProgress.done / Math.max(bulkProgress.total,1)) * 100}%` }} />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      ✅ {bulkProgress.ok} OK · ✏️ {bulkProgress.changed} modifiés · ❌ {bulkProgress.errors} erreurs
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            )}
 
             {/* Filters and controls */}
             <Card className="p-4 mb-6">
