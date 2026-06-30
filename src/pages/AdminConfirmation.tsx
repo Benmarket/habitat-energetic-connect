@@ -85,8 +85,47 @@ const AdminConfirmation = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("");
   const [workType, setWorkType] = useState<WorkType>("mix");
+  const [memberLinks, setMemberLinks] = useState<{ signup: boolean; existing: boolean; guide: boolean }>({
+    signup: true,
+    existing: true,
+    guide: true,
+  });
+  const [savingLinks, setSavingLinks] = useState(false);
 
-  const loadTemplates = async (selectedWorkType: WorkType = workType) => {
+  const loadMemberLinks = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "member_link_settings")
+      .maybeSingle();
+    if (data?.value) {
+      const v = data.value as any;
+      setMemberLinks({
+        signup: v.signup !== false,
+        existing: v.existing !== false,
+        guide: v.guide !== false,
+      });
+    }
+  };
+
+  const updateMemberLink = async (key: "signup" | "existing" | "guide", value: boolean) => {
+    const next = { ...memberLinks, [key]: value };
+    setMemberLinks(next);
+    setSavingLinks(true);
+    try {
+      const { error } = await supabase
+        .from("site_settings")
+        .upsert({ key: "member_link_settings", value: next }, { onConflict: "key" });
+      if (error) throw error;
+      toast({ title: "Réglage enregistré", description: "Appliqué immédiatement aux prochains envois." });
+    } catch (e: any) {
+      toast({ title: "Erreur", description: e?.message ?? "Échec de sauvegarde", variant: "destructive" });
+      setMemberLinks(memberLinks);
+    } finally {
+      setSavingLinks(false);
+    }
+  };
+
     setLoading(true);
     setError(null);
     try {
