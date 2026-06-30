@@ -627,6 +627,11 @@ const EligibilityFormSection = () => {
                     </Button>
                   </div>
                 </InputStepContainer>
+                <StepFooterTip
+                  icon={Sparkles}
+                  title="Étude 100 % gratuite et sans engagement"
+                  text="Aucun démarchage abusif : un seul appel d'un conseiller dédié pour vous présenter votre projet."
+                />
               </div>
             )}
 
