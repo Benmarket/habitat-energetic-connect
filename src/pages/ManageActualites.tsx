@@ -33,7 +33,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Calendar, Bot, FileSearch, DollarSign, BarChart3, Clock } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, ArrowUpDown, Eye, EyeOff, Send, Library, Calendar, Bot, FileSearch, DollarSign, BarChart3, Clock, Sparkles, ShieldCheck } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -64,6 +64,29 @@ const ManageActualites = () => {
   const [aiAutomationOpen, setAiAutomationOpen] = useState(false);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedPostForPreview, setSelectedPostForPreview] = useState<any>(null);
+  const [enrichingId, setEnrichingId] = useState<string | null>(null);
+  const [auditReport, setAuditReport] = useState<{ title: string; data: any } | null>(null);
+
+  const runEnrich = async (postId: string, postTitle: string, mode: "full" | "audit_only") => {
+    setEnrichingId(postId);
+    try {
+      const { data, error } = await supabase.functions.invoke("enrich-article", {
+        body: { post_id: postId, mode },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setAuditReport({ title: postTitle, data });
+      if (mode === "full" && data?.changed) toast.success("Article enrichi avec succès");
+      else if (mode === "audit_only") toast.success("Audit terminé");
+      else toast.info("Aucune modification nécessaire");
+      if (mode === "full") fetchPosts();
+    } catch (e: any) {
+      toast.error("Erreur : " + (e.message || String(e)));
+    } finally {
+      setEnrichingId(null);
+    }
+  };
+
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -594,6 +617,26 @@ const ManageActualites = () => {
                                 <Button
                                   variant="outline"
                                   size="icon"
+                                  className="h-8 w-8 text-violet-600 hover:bg-violet-50"
+                                  title="Enrichir (maillage + audit + corrections IA)"
+                                  disabled={enrichingId === post.id}
+                                  onClick={() => runEnrich(post.id, post.title, "full")}
+                                >
+                                  {enrichingId === post.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-8 w-8 text-amber-600 hover:bg-amber-50"
+                                  title="Auditer seulement (sans modifier le contenu)"
+                                  disabled={enrichingId === post.id}
+                                  onClick={() => runEnrich(post.id, post.title, "audit_only")}
+                                >
+                                  <ShieldCheck className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
                                   className="h-8 w-8 text-destructive hover:bg-destructive hover:text-destructive-foreground"
                                   onClick={() => confirmDelete(post.id)}
                                 >
@@ -607,6 +650,7 @@ const ManageActualites = () => {
                     </TableBody>
                   </Table>
                 </Card>
+
 
                 {/* Pagination */}
                 {totalPages > 1 && (
@@ -705,7 +749,73 @@ const ManageActualites = () => {
           categoryName={selectedPostForPreview.post_categories?.[0]?.categories?.name}
         />
       )}
+
+      {/* Audit / Enrich report */}
+      <AlertDialog open={!!auditReport} onOpenChange={(o) => !o && setAuditReport(null)}>
+        <AlertDialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-left">Rapport — {auditReport?.title}</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-sm text-left">
+                {auditReport?.data?.changed && (
+                  <div className="p-2 rounded bg-emerald-50 border border-emerald-200 text-emerald-800">
+                    ✓ Contenu mis à jour en base
+                  </div>
+                )}
+                {(() => {
+                  const a = auditReport?.data?.audit || {};
+                  const h = a.heuristic || {};
+                  return (
+                    <>
+                      <div className="grid grid-cols-2 gap-2 text-xs bg-muted/40 p-3 rounded">
+                        <div>Score qualité : <b>{a.quality_score ?? "-"}/100</b></div>
+                        <div>Longueur : <b>{h.stats?.length ?? "-"}</b></div>
+                        <div>Liens internes : <b>{h.stats?.links_internal ?? 0}</b></div>
+                        <div>Liens externes : <b>{h.stats?.links_external ?? 0}</b></div>
+                        <div>Images : <b>{h.stats?.images_inline ?? 0}</b></div>
+                        <div>Tableaux : <b>{h.stats?.tables ?? 0}</b></div>
+                        <div>H2 : <b>{h.stats?.h2_count ?? 0}</b></div>
+                        <div>Bandeaux CTA : <b>{h.stats?.cta_banners ?? 0}</b></div>
+                      </div>
+                      {a.interlinks_added?.length > 0 && (
+                        <div><b className="text-violet-700">Maillage ajouté :</b><ul className="list-disc pl-5">{a.interlinks_added.map((x: string, i: number) => <li key={i}><code className="text-xs">{x}</code></li>)}</ul></div>
+                      )}
+                      {a.ctas_fixed?.length > 0 && (
+                        <div><b className="text-emerald-700">CTA / liens corrigés :</b><ul className="list-disc pl-5">{a.ctas_fixed.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul></div>
+                      )}
+                      {a.images_alt_added > 0 && <div><b>Alt ajoutés :</b> {a.images_alt_added}</div>}
+                      {a.outdated_facts_corrected?.length > 0 && (
+                        <div><b className="text-blue-700">Faits périmés corrigés :</b><ul className="list-disc pl-5">{a.outdated_facts_corrected.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul></div>
+                      )}
+                      {a.numbers_normalized?.length > 0 && (
+                        <div><b>Chiffres normalisés :</b><ul className="list-disc pl-5">{a.numbers_normalized.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul></div>
+                      )}
+                      {a.tables_fixed > 0 && <div><b>Tableaux corrigés :</b> {a.tables_fixed}</div>}
+                      {h.issues?.length > 0 && (
+                        <div><b className="text-red-700">❌ Problèmes critiques :</b><ul className="list-disc pl-5">{h.issues.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul></div>
+                      )}
+                      {h.warnings?.length > 0 && (
+                        <div><b className="text-amber-700">⚠️ Avertissements :</b><ul className="list-disc pl-5">{h.warnings.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul></div>
+                      )}
+                      {a.veracity_flags?.length > 0 && (
+                        <div><b className="text-orange-700">🔎 À fact-checker manuellement :</b><ul className="list-disc pl-5">{a.veracity_flags.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul></div>
+                      )}
+                      {a.remaining_issues?.length > 0 && (
+                        <div><b>Points restants :</b><ul className="list-disc pl-5">{a.remaining_issues.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul></div>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setAuditReport(null)}>Fermer</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
+
   );
 };
 
