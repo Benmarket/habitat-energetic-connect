@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Home, Building2, Clock, KeyRound, Flame, Droplets, Zap, Logs, Sun, Thermometer, Layers, Hammer, HelpCircle, MapPin, User, Mail, Phone } from "lucide-react";
+import { Home, Building2, Clock, KeyRound, Flame, Droplets, Zap, Logs, Sun, Thermometer, Layers, Hammer, HelpCircle, MapPin, User, Mail, Phone, Sparkles, ShieldCheck, TrendingUp, Lightbulb, Gift, Lock, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -273,6 +273,29 @@ const EligibilityFormSection = () => {
     </div>
   );
 
+  // Petit encart de valeur au bas de chaque étape (motive à continuer)
+  const StepFooterTip = ({
+    icon: Icon,
+    title,
+    text,
+  }: {
+    icon: React.ElementType;
+    title: string;
+    text: string;
+  }) => (
+    <div className="mt-6 max-w-2xl mx-auto">
+      <div className="flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
+        <div className="shrink-0 w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center">
+          <Icon className="w-5 h-5 text-primary" />
+        </div>
+        <div className="text-left">
+          <div className="text-sm font-semibold text-foreground">{title}</div>
+          <div className="text-xs md:text-sm text-muted-foreground leading-snug">{text}</div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <section 
       className="pt-16 pb-8 relative"
@@ -324,8 +347,15 @@ const EligibilityFormSection = () => {
                   />
                 </div>
 
-                <p className="text-center text-sm text-muted-foreground mt-8">
-                  Vos données sont protégées. En savoir plus sur notre{" "}
+                <StepFooterTip
+                  icon={Gift}
+                  title="Jusqu'à 11 000 € d'aides cumulables en 2026"
+                  text="MaPrimeRénov', Prime CEE, TVA 5,5 %… On vérifie pour vous lesquelles s'appliquent à votre logement."
+                />
+
+                <p className="text-center text-xs text-muted-foreground mt-4">
+                  <Lock className="inline w-3 h-3 mr-1" />
+                  Vos données sont protégées —{" "}
                   <Link to="/politique-confidentialite" className="text-primary hover:underline">
                     politique de confidentialité
                   </Link>
@@ -337,10 +367,10 @@ const EligibilityFormSection = () => {
             {/* Étape 2 : Propriétaire ou non */}
             {step === 2 && (
               <div className="space-y-8">
-                <StepHeader currentStep={2} totalSteps={5} onBack={() => setStep(1)} />
+                <StepHeader currentStep={2} totalSteps={7} onBack={() => setStep(1)} />
 
                 <h3 className="text-xl md:text-2xl font-semibold text-center">
-                  Êtes-vous <span className="text-primary">propriétaire</span> ?
+                  Êtes-vous <span className="text-primary">propriétaire</span> du logement ?
                 </h3>
 
                 <div className="grid grid-cols-2 gap-3 md:gap-6 max-w-2xl mx-auto">
@@ -357,13 +387,19 @@ const EligibilityFormSection = () => {
                     value="non"
                   />
                 </div>
+
+                <StepFooterTip
+                  icon={ShieldCheck}
+                  title="Les propriétaires bénéficient des aides les plus élevées"
+                  text="Les locataires peuvent toutefois être éligibles à certaines primes (chauffage, isolation des combles)."
+                />
               </div>
             )}
 
             {/* Étape 3 : Système de chauffage */}
             {step === 3 && (
               <div className="space-y-8">
-                <StepHeader currentStep={3} totalSteps={5} onBack={() => setStep(2)} />
+                <StepHeader currentStep={3} totalSteps={7} onBack={() => setStep(2)} />
 
                 <h3 className="text-xl md:text-2xl font-semibold text-center">
                   Quel est votre système de{" "}
@@ -396,18 +432,26 @@ const EligibilityFormSection = () => {
                     value="autres"
                   />
                 </div>
+
+                <StepFooterTip
+                  icon={TrendingUp}
+                  title="Remplacer une vieille chaudière = jusqu'à -70 % sur la facture"
+                  text="Les aides 2026 sont majorées pour le remplacement d'un chauffage au fioul ou au gaz."
+                />
               </div>
             )}
 
             {/* Étape 4 : Type d'installation */}
             {step === 4 && (
               <div className="space-y-8">
-                <StepHeader currentStep={4} totalSteps={5} onBack={() => setStep(3)} />
+                <StepHeader currentStep={4} totalSteps={7} onBack={() => setStep(3)} />
 
                 <h3 className="text-xl md:text-2xl font-semibold text-center">
-                  Pour quel type{" "}
-                  <span className="text-primary">d'installation</span> ?
+                  Quel <span className="text-primary">projet</span> souhaitez-vous réaliser ?
                 </h3>
+                <p className="text-center text-sm text-muted-foreground -mt-4">
+                  Choisissez celui qui vous intéresse — vous pourrez en ajouter d'autres ensuite.
+                </p>
 
                 <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3 max-w-5xl mx-auto">
                   <SelectionButton
@@ -446,6 +490,12 @@ const EligibilityFormSection = () => {
                     className="p-2 md:p-4 col-span-2 md:col-span-1"
                   />
                 </div>
+
+                <StepFooterTip
+                  icon={Lightbulb}
+                  title="Pas sûr de votre projet ? On vous guide gratuitement"
+                  text="Un conseiller analyse votre logement et vous propose la solution la plus rentable, sans engagement."
+                />
               </div>
             )}
 
@@ -504,6 +554,11 @@ const EligibilityFormSection = () => {
                     </Button>
                   </div>
                 </InputStepContainer>
+                <StepFooterTip
+                  icon={MapPin}
+                  title="Les aides varient fortement selon votre département"
+                  text="Certaines régions ajoutent leurs propres primes — on les inclut automatiquement dans votre étude."
+                />
               </div>
             )}
 
@@ -572,6 +627,11 @@ const EligibilityFormSection = () => {
                     </Button>
                   </div>
                 </InputStepContainer>
+                <StepFooterTip
+                  icon={Sparkles}
+                  title="Étude 100 % gratuite et sans engagement"
+                  text="Aucun démarchage abusif : un seul appel d'un conseiller dédié pour vous présenter votre projet."
+                />
               </div>
             )}
 
@@ -642,7 +702,8 @@ const EligibilityFormSection = () => {
                     </form>
 
                     <p className="text-center text-xs text-muted-foreground">
-                      Vos données sont protégées. En savoir plus sur notre{" "}
+                      <Lock className="inline w-3 h-3 mr-1" />
+                      Vos données restent confidentielles —{" "}
                       <Link to="/politique-confidentialite" className="text-primary hover:underline">
                         politique de confidentialité
                       </Link>
@@ -650,6 +711,11 @@ const EligibilityFormSection = () => {
                     </p>
                   </div>
                 </InputStepContainer>
+                <StepFooterTip
+                  icon={Send}
+                  title="Vous recevez votre étude par email sous 24 h"
+                  text="Détail des aides, économies estimées et plan de financement — sans engagement."
+                />
               </div>
             )}
           </Card>
