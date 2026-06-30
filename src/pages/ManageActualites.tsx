@@ -64,6 +64,29 @@ const ManageActualites = () => {
   const [aiAutomationOpen, setAiAutomationOpen] = useState(false);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedPostForPreview, setSelectedPostForPreview] = useState<any>(null);
+  const [enrichingId, setEnrichingId] = useState<string | null>(null);
+  const [auditReport, setAuditReport] = useState<{ title: string; data: any } | null>(null);
+
+  const runEnrich = async (postId: string, postTitle: string, mode: "full" | "audit_only") => {
+    setEnrichingId(postId);
+    try {
+      const { data, error } = await supabase.functions.invoke("enrich-article", {
+        body: { post_id: postId, mode },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setAuditReport({ title: postTitle, data });
+      if (mode === "full" && data?.changed) toast.success("Article enrichi avec succès");
+      else if (mode === "audit_only") toast.success("Audit terminé");
+      else toast.info("Aucune modification nécessaire");
+      if (mode === "full") fetchPosts();
+    } catch (e: any) {
+      toast.error("Erreur : " + (e.message || String(e)));
+    } finally {
+      setEnrichingId(null);
+    }
+  };
+
 
   useEffect(() => {
     const checkAuth = async () => {
