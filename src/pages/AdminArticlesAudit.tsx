@@ -43,6 +43,20 @@ type Tag = {
   content_type: string;
 };
 
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  content_type: string;
+};
+
+type Tag = {
+  id: string;
+  name: string;
+  slug: string;
+  content_type: string;
+};
+
 type Post = {
   id: string;
   slug: string;
@@ -50,10 +64,11 @@ type Post = {
   content_type: "actualite" | "guide" | "aide";
   published_at: string | null;
   updated_at: string | null;
+  created_at: string | null;
   content: string;
   featured_image: string | null;
-  categories: { category_id: string; categories: Category | null }[];
-  tags: { tag_id: string; tags: Tag | null }[];
+  post_categories: { category_id: string; categories: Category | null }[];
+  post_tags: { tag_id: string; tags: Tag | null }[];
 };
 
 type AuditResult = {
