@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
 
   // If form is not registered, default to enabling confirmation but no signup link
   const sendEmail = form?.send_confirmation_email ?? true
-  const includeSignup = form?.include_signup_link ?? true
+  let includeSignup = form?.include_signup_link ?? true
 
   if (!sendEmail) {
     return new Response(JSON.stringify({ skipped: true, reason: 'disabled_for_form' }), {
@@ -101,6 +101,22 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
+
+  // 1.b) Global modular overrides (set in /admin/confirmation)
+  // Allows admin to temporarily hide member-space links across all forms.
+  const { data: memberLinkSetting } = await admin
+    .from('site_settings')
+    .select('value')
+    .eq('key', 'member_link_settings')
+    .maybeSingle()
+  const memberLinks = (memberLinkSetting?.value as
+    | { signup?: boolean; existing?: boolean; guide?: boolean }
+    | null) ?? {}
+  const allowSignupLink = memberLinks.signup !== false // default true
+  const allowExistingLink = memberLinks.existing !== false // default true
+  const allowGuideLink = memberLinks.guide !== false // default true
+
+  if (!allowSignupLink) includeSignup = false
 
   // 2) Detect if a user account already exists for this email
   // We query auth.users via a SECURITY DEFINER RPC because admin.getUserByEmail
