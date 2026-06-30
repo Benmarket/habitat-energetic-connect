@@ -126,7 +126,7 @@ export default function AdminArticlesAudit() {
         supabase
           .from("posts")
           .select(
-            `id,slug,title,content_type,published_at,updated_at,content,featured_image,
+            `id,slug,title,content_type,published_at,created_at,updated_at,content,featured_image,
             post_categories(category_id,categories(id,name,slug,content_type)),
             post_tags(tag_id,tags(id,name,slug,content_type))`
           )
@@ -134,7 +134,7 @@ export default function AdminArticlesAudit() {
         supabase.from("categories").select("id,name,slug,content_type").order("content_type").order("name"),
         supabase.from("tags").select("id,name,slug,content_type").order("content_type").order("name"),
       ]);
-      setPosts((postsRes.data || []) as Post[]);
+      setPosts((postsRes.data || []) as unknown as Post[]);
       setAllCategories((categoriesRes.data || []) as Category[]);
       setAllTags((tagsRes.data || []) as Tag[]);
       setLoading(false);
@@ -152,12 +152,12 @@ export default function AdminArticlesAudit() {
   }, [allTags, filter]);
 
   const postCategories = (p: Post) =>
-    p.categories
+    p.post_categories
       ?.map((c) => c.categories?.name)
       .filter(Boolean) as string[];
 
   const postTags = (p: Post) =>
-    p.tags?.map((t) => t.tags?.name).filter(Boolean) as string[];
+    p.post_tags?.map((t) => t.tags?.name).filter(Boolean) as string[];
 
   const filtered = useMemo(() => {
     let out = posts.filter((p) => {
