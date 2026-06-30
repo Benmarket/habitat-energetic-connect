@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { 
   Sun, ArrowRight, Home, Building2, Zap, TrendingUp, Users,
-  CheckCircle2, MapPin, Award, Shield, Loader2
+  CheckCircle2, MapPin, Award, Shield, Loader2,
+  Flame, Lock, ShieldCheck, Sparkles, Clock
 } from "lucide-react";
 import LandingPageGuard from "@/components/LandingPageGuard";
 import { LandingServiceSchema } from "@/components/SEO/LandingServiceSchema";
