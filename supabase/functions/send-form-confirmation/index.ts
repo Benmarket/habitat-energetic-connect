@@ -158,7 +158,7 @@ Deno.serve(async (req) => {
 
     // Si le user n'a pas de compte ET que le form active include_signup_link,
     // on ajoute un lien d'activation optionnel (le template l'affiche en bonus).
-    if (!userExists && includeSignup) {
+    if (!userExists && includeSignup && allowGuideLink) {
       const rawToken = generateToken()
       const tokenHash = await sha256Hex(rawToken)
       const { error: tokenErr } = await admin.from('signup_activation_tokens').insert({
@@ -177,8 +177,12 @@ Deno.serve(async (req) => {
       }
     }
   } else if (userExists) {
-    templateName = 'lead-confirmation-existing'
-    templateData.loginUrl = `${origin}/auth`
+    if (allowExistingLink) {
+      templateName = 'lead-confirmation-existing'
+      templateData.loginUrl = `${origin}/auth`
+    } else {
+      templateName = 'lead-confirmation-simple'
+    }
   } else if (includeSignup) {
     // Generate magic activation token
     const rawToken = generateToken()
