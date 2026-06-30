@@ -292,6 +292,9 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
         landingPages = Array.isArray(landingData) ? landingData : [];
         const formsData = await formsRes.json();
         const allForms = Array.isArray(formsData) ? formsData : [];
+        const postsData = await postsRes.json();
+        existingPosts = Array.isArray(postsData) ? postsData : [];
+
 
         // Build set of excluded form IDs
         const excludedFormIds = new Set(
