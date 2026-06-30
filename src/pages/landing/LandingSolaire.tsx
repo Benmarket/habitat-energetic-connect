@@ -373,51 +373,60 @@ const LandingSolaireContent = () => {
     if (wizardStep === 2) {
       return (
         <div key="step2" className="animate-fade-in">
-          <h3 className="text-xl font-bold text-center mb-2" style={{ color: "#5b7a5b" }}>
-            Vérifier mon éligibilité à la prime énergie :
+          <h3 className="text-xl font-bold text-center mb-1" style={{ color: "#5b7a5b" }}>
+            Parlez-nous de votre logement
           </h3>
-          <Progress value={progressValue} className="mb-6 h-3" />
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <Label className="text-sm font-medium">Votre mode de chauffage principal: *</Label>
-              <select
-                value={wizardData.chauffage}
-                onChange={(e) => setWizardData((d) => ({ ...d, chauffage: e.target.value }))}
-                className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-              >
-                <option value="">Sélectionner</option>
-                <option value="Fioul">Fioul</option>
-                <option value="Gaz">Gaz</option>
-                <option value="Électricité">Électricité</option>
-                <option value="Bois">Bois</option>
-                <option value="Pompe à chaleur">Pompe à chaleur</option>
-                <option value="Autre">Autre</option>
-              </select>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Surface de votre logement *</Label>
-              <select
-                value={wizardData.surface}
-                onChange={(e) => setWizardData((d) => ({ ...d, surface: e.target.value }))}
-                className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-              >
-                <option value="">Sélectionner</option>
-                <option value="<100m2">&lt;100m2</option>
-                <option value="100-150m2">100-150m2</option>
-                <option value="150-200m2">150-200m2</option>
-                <option value=">200m2">&gt;200m2</option>
-              </select>
+          <p className="text-center text-xs text-muted-foreground mb-4">
+            Pour estimer vos économies et les aides 2026 auxquelles vous avez droit.
+          </p>
+          <Progress value={progressValue} className="mb-5 h-3" />
+
+          <div className="mb-4">
+            <Label className="text-sm font-medium flex items-center gap-1.5">
+              <Flame className="w-3.5 h-3.5 text-amber-600" />
+              Mode de chauffage principal *
+            </Label>
+            <select
+              value={wizardData.chauffage}
+              onChange={(e) => setWizardData((d) => ({ ...d, chauffage: e.target.value }))}
+              className="mt-1.5 w-full h-11 rounded-md border border-input bg-background px-3 text-sm font-medium"
+            >
+              <option value="">— Sélectionner —</option>
+              {chauffageOptions.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mb-4">
+            <Label className="text-sm font-medium">Surface habitable *</Label>
+            <div className="mt-1.5 grid grid-cols-4 gap-1.5">
+              {surfaceOptions.map((o) => {
+                const active = wizardData.surface === o.value;
+                return (
+                  <button
+                    key={o.value}
+                    type="button"
+                    onClick={() => setWizardData((d) => ({ ...d, surface: o.value }))}
+                    className={`h-11 rounded-md border-2 text-xs font-semibold transition-all ${active ? "border-[#5b7a5b] bg-[#5b7a5b]/10 text-[#5b7a5b]" : "border-border bg-background text-foreground hover:border-[#5b7a5b]/50"}`}
+                  >
+                    {o.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 mb-6">
+
+          <div className="grid grid-cols-2 gap-3 mb-5">
             <div>
               <Label className="text-sm font-medium">Code postal *</Label>
               <Input
-                placeholder="Code postal"
+                placeholder="Ex : 75001"
                 value={wizardData.postalCode}
                 onChange={handlePostalCodeChange}
                 maxLength={5}
-                className="mt-1 bg-background"
+                inputMode="numeric"
+                className="mt-1.5 bg-background h-11"
               />
             </div>
             <div>
@@ -426,13 +435,11 @@ const LandingSolaireContent = () => {
                 <select
                   value={wizardData.city}
                   onChange={(e) => setWizardData((d) => ({ ...d, city: e.target.value }))}
-                  className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                  className="mt-1.5 w-full h-11 rounded-md border border-input bg-background px-3 text-sm"
                 >
                   <option value="">Sélectionner</option>
                   {citySuggestions.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
+                    <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
               ) : (
@@ -440,11 +447,12 @@ const LandingSolaireContent = () => {
                   placeholder="Ville"
                   value={wizardData.city}
                   onChange={(e) => setWizardData((d) => ({ ...d, city: e.target.value }))}
-                  className="mt-1 bg-background"
+                  className="mt-1.5 bg-background h-11"
                 />
               )}
             </div>
           </div>
+
           <div className="flex gap-3">
             <Button
               variant="outline"
@@ -462,10 +470,15 @@ const LandingSolaireContent = () => {
               &gt; Continuer
             </Button>
           </div>
+
+          <StepTip icon={Sparkles}>
+            <strong>Jusqu'à 11 000 € d'aides cumulables</strong> en 2026 (prime à l'autoconsommation, TVA réduite, Éco-PTZ).
+          </StepTip>
           {dataFooter}
         </div>
       );
     }
+
 
     if (wizardStep === 3) {
       return (
