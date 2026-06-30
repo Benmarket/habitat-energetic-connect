@@ -66,6 +66,9 @@ const ManageActualites = () => {
   const [selectedPostForPreview, setSelectedPostForPreview] = useState<any>(null);
   const [enrichingId, setEnrichingId] = useState<string | null>(null);
   const [auditReport, setAuditReport] = useState<{ title: string; data: any } | null>(null);
+  const [bulkRunning, setBulkRunning] = useState<null | "full" | "audit_only">(null);
+  const [bulkProgress, setBulkProgress] = useState({ done: 0, total: 0, ok: 0, changed: 0, errors: 0 });
+  const [bulkSummary, setBulkSummary] = useState<any[] | null>(null);
 
   const runEnrich = async (postId: string, postTitle: string, mode: "full" | "audit_only") => {
     setEnrichingId(postId);
@@ -85,6 +88,45 @@ const ManageActualites = () => {
     } finally {
       setEnrichingId(null);
     }
+  };
+
+  const runBulk = async (mode: "full" | "audit_only") => {
+    const targets = posts.filter((p) => p.status === "published");
+    if (targets.length === 0) { toast.info("Aucun article publié à traiter"); return; }
+    if (!window.confirm(
+      `${mode === "full" ? "Enrichir" : "Auditer"} ${targets.length} article(s) publié(s) ?\n` +
+      (mode === "full" ? "Le contenu sera modifié en base (corrections IA, maillage, CTA)." : "Audit en lecture seule.")
+    )) return;
+
+    setBulkRunning(mode);
+    setBulkProgress({ done: 0, total: targets.length, ok: 0, changed: 0, errors: 0 });
+    const summary: any[] = [];
+    const CONCURRENCY = 3;
+    let idx = 0;
+
+    const worker = async () => {
+      while (idx < targets.length) {
+        const i = idx++;
+        const p = targets[i];
+        try {
+          const { data, error } = await supabase.functions.invoke("enrich-article", {
+            body: { post_id: p.id, mode },
+          });
+          if (error || data?.error) throw new Error(error?.message || data?.error);
+          summary.push({ title: p.title, slug: p.slug, ok: true, changed: !!data?.changed, audit: data?.audit });
+          setBulkProgress((s) => ({ ...s, done: s.done + 1, ok: s.ok + 1, changed: s.changed + (data?.changed ? 1 : 0) }));
+        } catch (e: any) {
+          summary.push({ title: p.title, slug: p.slug, ok: false, error: e.message });
+          setBulkProgress((s) => ({ ...s, done: s.done + 1, errors: s.errors + 1 }));
+        }
+      }
+    };
+    await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+
+    setBulkRunning(null);
+    setBulkSummary(summary);
+    toast.success(`Traitement terminé : ${summary.filter(s => s.ok).length}/${targets.length} OK`);
+    if (mode === "full") fetchPosts();
   };
 
 
@@ -295,7 +337,32 @@ const ManageActualites = () => {
           <div className="container mx-auto px-4 py-8">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-3xl font-bold">Gérer les actualités</h1>
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
+                <Button
+                  onClick={() => runBulk("audit_only")}
+                  variant="outline"
+                  className="gap-2"
+                  disabled={!!bulkRunning || loading}
+                  title="Audit heuristique (gratuit, sans IA, sans modification)"
+                >
+                  {bulkRunning === "audit_only" ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+                  Auditer tout
+                </Button>
+                <Button
+                  onClick={() => runBulk("full")}
+                  className="gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white"
+                  disabled={!!bulkRunning || loading}
+                  title="Enrichir tous les articles publiés (IA — consomme des crédits)"
+                >
+                  {bulkRunning === "full" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  Enrichir tout (IA)
+                </Button>
+                <Link to="/admin/articles-audit">
+                  <Button variant="outline" className="gap-2">
+                    <FileSearch className="w-4 h-4" />
+                    Page d'audit dédiée
+                  </Button>
+                </Link>
                 <Button
                   onClick={() => setAiAutomationOpen(true)}
                   variant="outline"
@@ -310,15 +377,6 @@ const ManageActualites = () => {
                   style={{
                     background: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
                     color: '#ffffff',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, #ec4899, #8b5cf6)';
-                    e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
                   <Library className="w-4 h-4" />
@@ -332,6 +390,25 @@ const ManageActualites = () => {
                 </Link>
               </div>
             </div>
+
+            {bulkRunning && (
+              <Card className="p-4 mb-4 border-violet-200 bg-violet-50/50">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="w-5 h-5 animate-spin text-violet-600" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">
+                      {bulkRunning === "full" ? "Enrichissement IA en cours" : "Audit en cours"} — {bulkProgress.done}/{bulkProgress.total}
+                    </p>
+                    <div className="h-2 bg-violet-100 rounded-full mt-1 overflow-hidden">
+                      <div className="h-full bg-violet-600 transition-all" style={{ width: `${(bulkProgress.done / Math.max(bulkProgress.total,1)) * 100}%` }} />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      ✅ {bulkProgress.ok} OK · ✏️ {bulkProgress.changed} modifiés · ❌ {bulkProgress.errors} erreurs
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            )}
 
             {/* Filters and controls */}
             <Card className="p-4 mb-6">
@@ -811,6 +888,43 @@ const ManageActualites = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction onClick={() => setAuditReport(null)}>Fermer</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk summary */}
+      <AlertDialog open={!!bulkSummary} onOpenChange={(o) => !o && setBulkSummary(null)}>
+        <AlertDialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Récapitulatif du traitement en lot</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm text-left">
+                <div className="grid grid-cols-3 gap-2 p-3 bg-muted/40 rounded">
+                  <div>Total : <b>{bulkSummary?.length ?? 0}</b></div>
+                  <div className="text-emerald-700">Modifiés : <b>{bulkSummary?.filter((s:any)=>s.changed).length ?? 0}</b></div>
+                  <div className="text-red-700">Erreurs : <b>{bulkSummary?.filter((s:any)=>!s.ok).length ?? 0}</b></div>
+                </div>
+                <div className="space-y-1 max-h-96 overflow-y-auto">
+                  {bulkSummary?.map((s:any, i:number) => (
+                    <div key={i} className={`p-2 rounded text-xs border ${s.ok ? (s.changed ? 'bg-emerald-50 border-emerald-200' : 'bg-muted/30') : 'bg-red-50 border-red-200'}`}>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium truncate">{s.title}</span>
+                        <span className="shrink-0">
+                          {s.ok ? (s.changed ? '✏️ modifié' : '✓ ok') : '❌ ' + (s.error || '')}
+                          {s.audit?.quality_score != null && <span className="ml-2 text-muted-foreground">score {s.audit.quality_score}/100</span>}
+                        </span>
+                      </div>
+                      {s.audit?.remaining_issues?.length > 0 && (
+                        <div className="text-amber-700 mt-1">⚠ {s.audit.remaining_issues.slice(0,3).join(' · ')}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setBulkSummary(null)}>Fermer</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
