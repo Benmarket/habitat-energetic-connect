@@ -347,8 +347,15 @@ const EligibilityFormSection = () => {
                   />
                 </div>
 
-                <p className="text-center text-sm text-muted-foreground mt-8">
-                  Vos données sont protégées. En savoir plus sur notre{" "}
+                <StepFooterTip
+                  icon={Gift}
+                  title="Jusqu'à 11 000 € d'aides cumulables en 2026"
+                  text="MaPrimeRénov', Prime CEE, TVA 5,5 %… On vérifie pour vous lesquelles s'appliquent à votre logement."
+                />
+
+                <p className="text-center text-xs text-muted-foreground mt-4">
+                  <Lock className="inline w-3 h-3 mr-1" />
+                  Vos données sont protégées —{" "}
                   <Link to="/politique-confidentialite" className="text-primary hover:underline">
                     politique de confidentialité
                   </Link>
@@ -360,10 +367,10 @@ const EligibilityFormSection = () => {
             {/* Étape 2 : Propriétaire ou non */}
             {step === 2 && (
               <div className="space-y-8">
-                <StepHeader currentStep={2} totalSteps={5} onBack={() => setStep(1)} />
+                <StepHeader currentStep={2} totalSteps={7} onBack={() => setStep(1)} />
 
                 <h3 className="text-xl md:text-2xl font-semibold text-center">
-                  Êtes-vous <span className="text-primary">propriétaire</span> ?
+                  Êtes-vous <span className="text-primary">propriétaire</span> du logement ?
                 </h3>
 
                 <div className="grid grid-cols-2 gap-3 md:gap-6 max-w-2xl mx-auto">
@@ -380,6 +387,12 @@ const EligibilityFormSection = () => {
                     value="non"
                   />
                 </div>
+
+                <StepFooterTip
+                  icon={ShieldCheck}
+                  title="Les propriétaires bénéficient des aides les plus élevées"
+                  text="Les locataires peuvent toutefois être éligibles à certaines primes (chauffage, isolation des combles)."
+                />
               </div>
             )}
 
