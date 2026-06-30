@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, Mail, CheckCircle2, AlertCircle, Loader2, ExternalLink, FileText, RefreshCw, Eye, Sun, Snowflake, Flame, Hammer, HelpCircle, Phone } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, Mail, CheckCircle2, AlertCircle, Loader2, ExternalLink, FileText, RefreshCw, Eye, Sun, Snowflake, Flame, Hammer, HelpCircle, Phone, UserPlus, LogIn, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
