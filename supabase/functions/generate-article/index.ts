@@ -259,9 +259,10 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
       let ctaBanners: any[] = [];
       let activePopups: any[] = [];
       let landingPages: any[] = [];
+      let existingPosts: any[] = [];
 
       if (userId) {
-        const [buttonsRes, bannersRes, popupsRes, landingRes, formsRes] = await Promise.all([
+        const [buttonsRes, bannersRes, popupsRes, landingRes, formsRes, postsRes] = await Promise.all([
           fetch(`${supabaseUrl}/rest/v1/button_presets?select=*&user_id=eq.${userId}`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           }),
@@ -276,8 +277,12 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
           }),
           fetch(`${supabaseUrl}/rest/v1/form_configurations?select=id,form_identifier`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+          }),
+          fetch(`${supabaseUrl}/rest/v1/posts?select=slug,title,excerpt,content_type,categories:post_categories(category:categories(slug))&status=eq.published&order=published_at.desc&limit=40`, {
+            headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           })
         ]);
+
 
         buttonPresets = await buttonsRes.json();
         ctaBanners = await bannersRes.json();
@@ -287,6 +292,9 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
         landingPages = Array.isArray(landingData) ? landingData : [];
         const formsData = await formsRes.json();
         const allForms = Array.isArray(formsData) ? formsData : [];
+        const postsData = await postsRes.json();
+        existingPosts = Array.isArray(postsData) ? postsData : [];
+
 
         // Build set of excluded form IDs
         const excludedFormIds = new Set(
@@ -398,6 +406,54 @@ MAUVAIS EXEMPLES (À NE JAMAIS FAIRE) :
 ❌ "En savoir plus" / "Cliquer ici" / "Découvrir" → AUCUNE VALEUR
 ❌ Deux bannières avec le même message → MONOTONE`;
       }
+
+      // ─────────────────────────────────────────────
+      // MAILLAGE INTERNE — liens contextuels vers articles/guides existants
+      // ─────────────────────────────────────────────
+      const buildPostUrl = (p: any) => {
+        if (p.content_type === 'guide') return `/guide/${p.slug}`;
+        if (p.content_type === 'aide') return `/aide/${p.slug}`;
+        const catSlug = p.categories?.[0]?.category?.slug || 'energie';
+        return `/actualites/${catSlug}/${p.slug}`;
+      };
+      const interlinkCandidates = existingPosts
+        .filter((p: any) => p.slug && p.title)
+        .slice(0, 30)
+        .map((p: any) => `- "${p.title}" [${p.content_type}] → ${buildPostUrl(p)}${p.excerpt ? `\n  Résumé: ${String(p.excerpt).slice(0, 140)}` : ''}`)
+        .join('\n');
+
+      const interlinkInstructions = interlinkCandidates ? `
+
+═══════════════════════════════════════
+MAILLAGE INTERNE — LIENS VERS ARTICLES EXISTANTS (OBLIGATOIRE)
+═══════════════════════════════════════
+Tu DOIS insérer **3 à 5 liens contextuels** vers des articles/guides déjà publiés ci-dessous, là où ils apportent une vraie valeur (approfondissement, sujet connexe, complément).
+
+ARTICLES & GUIDES DISPONIBLES (sélectionne uniquement les plus PERTINENTS pour le sujet) :
+${interlinkCandidates}
+
+RÈGLES STRICTES :
+1. Format HTML inline : <a href="/URL-EXACTE-CI-DESSUS">ancre descriptive</a>
+2. L'ancre DOIT être une expression naturelle dans la phrase (jamais "cliquez ici", jamais le titre brut copié-collé)
+3. NE JAMAIS inventer un slug : utilise UNIQUEMENT les URLs listées ci-dessus
+4. Répartis les liens dans le corps de l'article (pas tous dans la même section, pas dans l'intro, pas dans la conclusion)
+5. Maximum 1 lien par paragraphe
+6. Ne lie PAS deux fois le même article
+7. À la fin de l'article, AVANT la FAQ, ajoute un bloc HTML "Pour aller plus loin" avec une liste de 2-3 articles connexes :
+<div class="my-8 p-6 rounded-xl bg-muted/50 border border-border">
+  <h3 class="text-lg font-semibold mb-3">Pour aller plus loin</h3>
+  <ul class="space-y-2">
+    <li>→ <a href="/URL">Titre exact de l'article</a></li>
+  </ul>
+</div>
+
+EXEMPLE D'INTÉGRATION NATURELLE :
+"Avant d'envisager des panneaux, il est utile de comprendre <a href=\"/guide/pompe-a-chaleur-2025-choisir-et-installer\">comment fonctionne une pompe à chaleur</a> car les deux systèmes sont souvent complémentaires."
+
+⛔ INTERDIT : <a href="/articles/xxx">cliquez ici</a> — ancre non descriptive
+⛔ INTERDIT : inventer "/articles/sujet-inexistant"` : '';
+
+
 
       // Guide-specific — profil de format ADAPTÉ au template choisi
       // Le template n'est pas qu'un thème visuel : il pilote AUSSI le volume, la densité,
@@ -684,6 +740,8 @@ ${contentType === 'guide' ? `• ⚠️ AU MOINS UNE CHECKLIST <ul> "à cocher" 
 • ⚠️ COHÉRENCE STRUCTURELLE : L'article doit former UN TOUT cohérent. PAS de sections en double (une seule FAQ, un seul TL;DR, pas de questions dispersées dans le corps de l'article).
 • L'article suit un flux logique : TL;DR → Intro → Sections → CTA → FAQ → Sources → Conclusion. Chaque bloc n'apparaît QU'UNE SEULE FOIS.
 ${ctaInstructions}
+${interlinkInstructions}
+
 
 ═══════════════════════════════════════════
 CLASSIFICATION (OBLIGATOIRE)

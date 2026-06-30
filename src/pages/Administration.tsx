@@ -640,8 +640,30 @@ const Administration = () => {
                     </Link>
                   </CardContent>
                 </Card>
+
+                <Card className="group hover:shadow-2xl hover:shadow-violet-500/10 transition-all duration-300 border-l-4 border-l-violet-500 hover:scale-[1.02] hover:-translate-y-1">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-gradient-to-br from-violet-500/10 to-violet-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <Image className="w-6 h-6 text-violet-600" />
+                      </div>
+                    </div>
+                    <CardTitle className="group-hover:text-violet-600 transition-colors">Audit & maillage articles</CardTitle>
+                    <CardDescription>
+                      Ajoute le maillage interne, corrige les chiffres périmés et audite tous les articles publiés
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/admin/articles-audit">
+                      <Button className="w-full bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800 shadow-lg shadow-violet-500/30">
+                        Auditer le contenu
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
               </div>
             </div>
+
 
             {/* 8. Gestion de l'App Prime énergies - VERT PRIME */}
             <div id="app" className="mt-8 md:mt-12 animate-fade-in scroll-mt-24" style={{ animationDelay: '0.65s' }}>

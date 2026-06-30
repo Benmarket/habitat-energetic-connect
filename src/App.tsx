@@ -55,6 +55,8 @@ const AdminSimulators = lazy(() => import("./pages/AdminSimulators"));
 const AdminAdvertising = lazy(() => import("./pages/AdminAdvertising"));
 const AdminAuthors = lazy(() => import("./pages/AdminAuthors"));
 const AdminMediatheque = lazy(() => import("./pages/AdminMediatheque"));
+const AdminArticlesAudit = lazy(() => import("./pages/AdminArticlesAudit"));
+
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentialite"));
 const ConditionsUtilisation = lazy(() => import("./pages/ConditionsUtilisation"));
@@ -161,6 +163,8 @@ const App = () => (
                   <Route path="/admin/auteurs" element={<AdminGuard allowedRoles={["super_admin"]}><AdminAuthors /></AdminGuard>} />
                   <Route path="/admin/mediatheque" element={<AdminGuard allowedRoles={["super_admin"]}><AdminMediatheque /></AdminGuard>} />
                   <Route path="/admin/economies-acces" element={<AdminGuard allowedRoles={["super_admin"]}><AdminEconomiesAccess /></AdminGuard>} />
+                  <Route path="/admin/articles-audit" element={<AdminGuard allowedRoles={["super_admin"]}><AdminArticlesAudit /></AdminGuard>} />
+
 
                   {/* Utility pages - lazy loaded */}
                   <Route path="/installer-app" element={<InstallApp />} />
