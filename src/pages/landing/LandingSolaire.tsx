@@ -268,14 +268,37 @@ const LandingSolaireContent = () => {
   };
 
   const dataFooter = (
-    <p className="text-center text-xs text-muted-foreground mt-6">
-      Vos données sont protégées. En savoir plus sur notre{" "}
+    <p className="text-center text-xs text-muted-foreground mt-4 flex items-center justify-center gap-1.5">
+      <Lock className="w-3 h-3" />
+      Données chiffrées · Aucun spam ·{" "}
       <Link to="/politique-confidentialite" className="text-primary hover:underline">
-        politique de confidentialité
+        confidentialité
       </Link>
-      .
     </p>
   );
+
+  const StepTip = ({ icon: Icon, children }: { icon: any; children: React.ReactNode }) => (
+    <div className="mt-4 flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50/70 px-3 py-2.5 text-xs text-amber-900">
+      <Icon className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-600" />
+      <p className="leading-snug">{children}</p>
+    </div>
+  );
+
+  const surfaceOptions = [
+    { value: "<100m2", label: "< 100 m²" },
+    { value: "100-150m2", label: "100-150 m²" },
+    { value: "150-200m2", label: "150-200 m²" },
+    { value: ">200m2", label: "> 200 m²" },
+  ];
+  const chauffageOptions = [
+    { value: "Fioul", label: "🛢️ Fioul" },
+    { value: "Gaz", label: "🔥 Gaz" },
+    { value: "Électricité", label: "⚡ Électricité" },
+    { value: "Bois", label: "🪵 Bois" },
+    { value: "Pompe à chaleur", label: "♨️ Pompe à chaleur" },
+    { value: "Autre", label: "❓ Autre" },
+  ];
+
 
   // ─── City auto-fill from postal code ───
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
