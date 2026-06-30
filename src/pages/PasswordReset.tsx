@@ -5,10 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, CheckCircle2, AlertCircle, Mail } from "lucide-react";
 import { PasswordStrengthIndicator, isPasswordValid } from "@/components/PasswordStrengthIndicator";
+import Index from "@/pages/Index";
 
 type Status =
   | "request"
@@ -116,123 +117,133 @@ export default function PasswordReset() {
     }
   };
 
+  const [open, setOpen] = useState(true);
+  const handleClose = (next: boolean) => {
+    setOpen(next);
+    if (!next) navigate("/");
+  };
+
   return (
     <>
       <Helmet>
         <title>Mot de passe oublié | Prime Énergies</title>
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
-      <div className="min-h-screen flex items-center justify-center bg-muted p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Mot de passe oublié</CardTitle>
-            <CardDescription>
+
+      <div aria-hidden="true">
+        <Index />
+      </div>
+
+      <Dialog open={open} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Mot de passe oublié</DialogTitle>
+            <DialogDescription>
               {token
                 ? "Choisissez un nouveau mot de passe pour votre compte."
                 : "Entrez votre email pour recevoir un lien de réinitialisation."}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {status === "loading" && (
-              <div className="flex items-center justify-center py-8 text-muted-foreground">
-                <Loader2 className="h-6 w-6 animate-spin mr-2" /> Validation du lien...
-              </div>
-            )}
+            </DialogDescription>
+          </DialogHeader>
 
-            {status === "request" && (
-              <form onSubmit={handleRequest} className="space-y-4">
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="exemple@email.fr" autoFocus />
+          {status === "loading" && (
+            <div className="flex items-center justify-center py-8 text-muted-foreground">
+              <Loader2 className="h-6 w-6 animate-spin mr-2" /> Validation du lien...
+            </div>
+          )}
+
+          {status === "request" && (
+            <form onSubmit={handleRequest} className="space-y-4">
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="exemple@email.fr" autoFocus />
+              </div>
+              <Button type="submit" className="w-full">Envoyer le lien</Button>
+              <div className="text-center pt-2">
+                <Link to="/connexion" className="text-sm text-primary hover:underline">← Retour à la connexion</Link>
+              </div>
+            </form>
+          )}
+
+          {status === "submitting" && !token && (
+            <div className="flex items-center justify-center py-8 text-muted-foreground">
+              <Loader2 className="h-6 w-6 animate-spin mr-2" /> Envoi...
+            </div>
+          )}
+
+          {status === "request_sent" && (
+            <div className="text-center py-6 space-y-3">
+              <Mail className="h-12 w-12 text-primary mx-auto" />
+              <p className="font-medium">Un email de réinitialisation vient de partir.</p>
+              <p className="text-sm text-muted-foreground">Vérifiez votre boîte de réception (et vos spams). Le lien est valable 1 heure.</p>
+              <Button asChild variant="outline"><Link to="/connexion">Retour à la connexion</Link></Button>
+            </div>
+          )}
+
+          {status === "no_account" && (
+            <div className="text-center py-6 space-y-3">
+              <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
+              <p className="font-medium">Aucun compte n'est associé à cette adresse email.</p>
+              <p className="text-sm text-muted-foreground">Vérifiez l'orthographe ou contactez-nous si vous pensez qu'il s'agit d'une erreur.</p>
+              <Button variant="outline" onClick={() => setStatus("request")}>Réessayer</Button>
+            </div>
+          )}
+
+          {status === "invalid" && (
+            <div className="text-center py-6 space-y-3">
+              <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
+              <p className="font-medium">Ce lien est invalide.</p>
+              <Button asChild variant="outline"><Link to="/mot-de-passe-oublie">Faire une nouvelle demande</Link></Button>
+            </div>
+          )}
+
+          {status === "expired" && (
+            <div className="text-center py-6 space-y-3">
+              <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
+              <p className="font-medium">Ce lien a expiré.</p>
+              <Button asChild variant="outline"><Link to="/mot-de-passe-oublie">Faire une nouvelle demande</Link></Button>
+            </div>
+          )}
+
+          {status === "used" && (
+            <div className="text-center py-6 space-y-3">
+              <CheckCircle2 className="h-12 w-12 text-emerald-600 mx-auto" />
+              <p className="font-medium">Ce lien a déjà été utilisé.</p>
+              <Button asChild><Link to="/connexion">Me connecter</Link></Button>
+            </div>
+          )}
+
+          {status === "success" && (
+            <div className="text-center py-6 space-y-3">
+              <CheckCircle2 className="h-12 w-12 text-emerald-600 mx-auto" />
+              <p className="font-medium">Mot de passe mis à jour !</p>
+              <p className="text-sm text-muted-foreground">Redirection vers la connexion...</p>
+            </div>
+          )}
+
+          {(status === "valid" || (status === "submitting" && token)) && (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {email && (
+                <div className="rounded-md bg-muted/50 p-3 text-sm">
+                  <strong>Compte :</strong> {email}
                 </div>
-                <Button type="submit" className="w-full">Envoyer le lien</Button>
-                <div className="text-center pt-2">
-                  <Link to="/connexion" className="text-sm text-primary hover:underline">← Retour à la connexion</Link>
-                </div>
-              </form>
-            )}
-
-            {status === "submitting" && !token && (
-              <div className="flex items-center justify-center py-8 text-muted-foreground">
-                <Loader2 className="h-6 w-6 animate-spin mr-2" /> Envoi...
+              )}
+              <div>
+                <Label htmlFor="pwd">Nouveau mot de passe</Label>
+                <Input id="pwd" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoFocus />
+                <PasswordStrengthIndicator password={password} />
               </div>
-            )}
-
-            {status === "request_sent" && (
-              <div className="text-center py-6 space-y-3">
-                <Mail className="h-12 w-12 text-primary mx-auto" />
-                <p className="font-medium">Un email de réinitialisation vient de partir.</p>
-                <p className="text-sm text-muted-foreground">Vérifiez votre boîte de réception (et vos spams). Le lien est valable 1 heure.</p>
-                <Button asChild variant="outline"><Link to="/connexion">Retour à la connexion</Link></Button>
+              <div>
+                <Label htmlFor="pwd2">Confirmez le mot de passe</Label>
+                <Input id="pwd2" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
               </div>
-            )}
-
-            {status === "no_account" && (
-              <div className="text-center py-6 space-y-3">
-                <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
-                <p className="font-medium">Aucun compte n'est associé à cette adresse email.</p>
-                <p className="text-sm text-muted-foreground">Vérifiez l'orthographe ou contactez-nous si vous pensez qu'il s'agit d'une erreur.</p>
-                <Button variant="outline" onClick={() => setStatus("request")}>Réessayer</Button>
-              </div>
-            )}
-
-            {status === "invalid" && (
-              <div className="text-center py-6 space-y-3">
-                <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
-                <p className="font-medium">Ce lien est invalide.</p>
-                <Button asChild variant="outline"><Link to="/mot-de-passe-oublie">Faire une nouvelle demande</Link></Button>
-              </div>
-            )}
-
-            {status === "expired" && (
-              <div className="text-center py-6 space-y-3">
-                <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
-                <p className="font-medium">Ce lien a expiré.</p>
-                <Button asChild variant="outline"><Link to="/mot-de-passe-oublie">Faire une nouvelle demande</Link></Button>
-              </div>
-            )}
-
-            {status === "used" && (
-              <div className="text-center py-6 space-y-3">
-                <CheckCircle2 className="h-12 w-12 text-emerald-600 mx-auto" />
-                <p className="font-medium">Ce lien a déjà été utilisé.</p>
-                <Button asChild><Link to="/connexion">Me connecter</Link></Button>
-              </div>
-            )}
-
-            {status === "success" && (
-              <div className="text-center py-6 space-y-3">
-                <CheckCircle2 className="h-12 w-12 text-emerald-600 mx-auto" />
-                <p className="font-medium">Mot de passe mis à jour !</p>
-                <p className="text-sm text-muted-foreground">Redirection vers la connexion...</p>
-              </div>
-            )}
-
-            {(status === "valid" || (status === "submitting" && token)) && (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {email && (
-                  <div className="rounded-md bg-muted/50 p-3 text-sm">
-                    <strong>Compte :</strong> {email}
-                  </div>
-                )}
-                <div>
-                  <Label htmlFor="pwd">Nouveau mot de passe</Label>
-                  <Input id="pwd" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoFocus />
-                  <PasswordStrengthIndicator password={password} />
-                </div>
-                <div>
-                  <Label htmlFor="pwd2">Confirmez le mot de passe</Label>
-                  <Input id="pwd2" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-                </div>
-                <Button type="submit" className="w-full" disabled={status === "submitting"}>
-                  {status === "submitting" && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                  Mettre à jour mon mot de passe
-                </Button>
-              </form>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+              <Button type="submit" className="w-full" disabled={status === "submitting"}>
+                {status === "submitting" && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Mettre à jour mon mot de passe
+              </Button>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
