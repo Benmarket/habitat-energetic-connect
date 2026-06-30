@@ -66,6 +66,9 @@ const ManageActualites = () => {
   const [selectedPostForPreview, setSelectedPostForPreview] = useState<any>(null);
   const [enrichingId, setEnrichingId] = useState<string | null>(null);
   const [auditReport, setAuditReport] = useState<{ title: string; data: any } | null>(null);
+  const [bulkRunning, setBulkRunning] = useState<null | "full" | "audit_only">(null);
+  const [bulkProgress, setBulkProgress] = useState({ done: 0, total: 0, ok: 0, changed: 0, errors: 0 });
+  const [bulkSummary, setBulkSummary] = useState<any[] | null>(null);
 
   const runEnrich = async (postId: string, postTitle: string, mode: "full" | "audit_only") => {
     setEnrichingId(postId);
@@ -85,6 +88,45 @@ const ManageActualites = () => {
     } finally {
       setEnrichingId(null);
     }
+  };
+
+  const runBulk = async (mode: "full" | "audit_only") => {
+    const targets = posts.filter((p) => p.status === "published");
+    if (targets.length === 0) { toast.info("Aucun article publié à traiter"); return; }
+    if (!window.confirm(
+      `${mode === "full" ? "Enrichir" : "Auditer"} ${targets.length} article(s) publié(s) ?\n` +
+      (mode === "full" ? "Le contenu sera modifié en base (corrections IA, maillage, CTA)." : "Audit en lecture seule.")
+    )) return;
+
+    setBulkRunning(mode);
+    setBulkProgress({ done: 0, total: targets.length, ok: 0, changed: 0, errors: 0 });
+    const summary: any[] = [];
+    const CONCURRENCY = 3;
+    let idx = 0;
+
+    const worker = async () => {
+      while (idx < targets.length) {
+        const i = idx++;
+        const p = targets[i];
+        try {
+          const { data, error } = await supabase.functions.invoke("enrich-article", {
+            body: { post_id: p.id, mode },
+          });
+          if (error || data?.error) throw new Error(error?.message || data?.error);
+          summary.push({ title: p.title, slug: p.slug, ok: true, changed: !!data?.changed, audit: data?.audit });
+          setBulkProgress((s) => ({ ...s, done: s.done + 1, ok: s.ok + 1, changed: s.changed + (data?.changed ? 1 : 0) }));
+        } catch (e: any) {
+          summary.push({ title: p.title, slug: p.slug, ok: false, error: e.message });
+          setBulkProgress((s) => ({ ...s, done: s.done + 1, errors: s.errors + 1 }));
+        }
+      }
+    };
+    await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+
+    setBulkRunning(null);
+    setBulkSummary(summary);
+    toast.success(`Traitement terminé : ${summary.filter(s => s.ok).length}/${targets.length} OK`);
+    if (mode === "full") fetchPosts();
   };
 
 
