@@ -13,6 +13,11 @@ import {
   Home,
   Building2,
   CheckCircle2,
+  Flame,
+  Lock,
+  ShieldCheck,
+  Sparkles,
+  Clock,
 } from "lucide-react";
 import LandingPageGuard from "@/components/LandingPageGuard";
 import { useLandingPageSEO } from "@/hooks/useLandingPageSEO";
