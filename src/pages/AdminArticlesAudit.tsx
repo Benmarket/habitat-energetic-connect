@@ -16,6 +16,7 @@ type Post = {
   published_at: string | null;
   updated_at: string | null;
   content: string;
+  featured_image: string | null;
 };
 
 type AuditResult = {
