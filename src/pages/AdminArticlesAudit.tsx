@@ -145,7 +145,28 @@ export default function AdminArticlesAudit() {
           return (
             <Card key={post.id}>
               <CardContent className="p-4">
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-4">
+                  {post.content_type !== "aide" && (
+                    <a
+                      href={detailUrl(post)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="shrink-0 hidden sm:block"
+                    >
+                      {post.featured_image ? (
+                        <img
+                          src={post.featured_image}
+                          alt={post.title}
+                          className="w-24 h-16 object-cover rounded-lg border bg-muted"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-24 h-16 rounded-lg border bg-muted flex items-center justify-center text-muted-foreground text-xs text-center px-2">
+                          Pas d'image
+                        </div>
+                      )}
+                    </a>
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <Badge variant="outline">{post.content_type}</Badge>
