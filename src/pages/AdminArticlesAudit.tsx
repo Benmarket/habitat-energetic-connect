@@ -43,20 +43,6 @@ type Tag = {
   content_type: string;
 };
 
-type Category = {
-  id: string;
-  name: string;
-  slug: string;
-  content_type: string;
-};
-
-type Tag = {
-  id: string;
-  name: string;
-  slug: string;
-  content_type: string;
-};
-
 type Post = {
   id: string;
   slug: string;
