@@ -308,12 +308,13 @@ Deno.serve(async (req) => {
       metaTitle: post.meta_title,
       metaDescription: post.meta_description,
       faqCount: Array.isArray(post.faq) ? post.faq.length : 0,
+      contentType: post.content_type || "actualite",
     });
 
-    // Audit-only mode : pas d'IA, juste le rapport heuristique
+    // Audit-only mode : pas d'IA
     if (mode === "audit_only") {
       return new Response(JSON.stringify({
-        ok: true, post_id, title: post.title, slug: post.slug, changed: false,
+        ok: true, post_id, title: post.title, slug: post.slug, content_type: post.content_type, changed: false,
         audit: {
           heuristic,
           interlinks_added: [], outdated_facts_corrected: [],
@@ -323,83 +324,38 @@ Deno.serve(async (req) => {
       }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // 2) Fetch maillage candidates
+    // 2) Maillage candidates — filtrés par type pour cohérence
+    const postType: ContentType = (post.content_type === "aide" || post.content_type === "guide")
+      ? post.content_type : "actualite";
+
     const { data: others } = await sb
       .from("posts")
       .select("slug,title,excerpt,content_type,categories:post_categories(category:categories(slug))")
       .eq("status", "published")
       .neq("id", post_id)
       .order("published_at", { ascending: false })
-      .limit(40);
+      .limit(50);
 
-    const candidates = (others || [])
+    // Pour une aide : prioriser autres aides + guides connexes (pas trop d'actualités datées)
+    // Pour un guide : prioriser aides + autres guides
+    // Pour une actualité : tout type accepté
+    const filteredOthers = (others || []).filter((p: any) => {
+      if (postType === "aide") return p.content_type === "aide" || p.content_type === "guide";
+      if (postType === "guide") return true;
+      return true;
+    });
+
+    const candidates = filteredOthers
       .filter((p: any) => p.slug && p.title)
+      .slice(0, postType === "aide" ? 15 : 30)
       .map((p: any) => `- "${p.title}" [${p.content_type}] → ${postUrl(p)}${p.excerpt ? ` | ${String(p.excerpt).slice(0, 120)}` : ""}`)
       .join("\n");
 
     const today = new Date().toISOString().slice(0, 10);
     const pubDate = post.published_at ? String(post.published_at).slice(0, 10) : "inconnu";
 
-    const prompt = `Tu es éditeur SEO senior + fact-checker énergie/rénovation France. On est le ${today}. Article publié le ${pubDate}.
+    const prompt = buildPrompt(postType, post, heuristic, candidates, today, pubDate);
 
-PROBLÈMES DÉJÀ DÉTECTÉS PAR L'AUDIT AUTO (corrige ce que tu peux) :
-${[...heuristic.issues.map((i) => "❌ " + i), ...heuristic.warnings.map((w) => "⚠️ " + w)].join("\n") || "(aucun)"}
-
-TÂCHES SUR LE CONTENU HTML (ordre obligatoire) :
-
-A. MAILLAGE INTERNE — Insère 3 à 5 liens <a href="/URL"> contextuels VERS les articles listés ci-dessous (ancres descriptives, jamais "cliquez ici"). 1 lien max par paragraphe. Pas dans l'intro ni la conclusion.
-
-B. BLOC "Pour aller plus loin" juste avant la FAQ ou la conclusion (2-3 articles différents) :
-<div class="my-8 p-6 rounded-xl bg-muted/50 border border-border">
-  <h3 class="text-lg font-semibold mb-3">Pour aller plus loin</h3>
-  <ul class="space-y-2"><li>→ <a href="/URL">Titre</a></li></ul>
-</div>
-
-C. CTA / BOUTONS / LIENS CASSÉS — Tout <a href="#"> ou <a href=""> doit être :
-   - soit transformé en lien interne pertinent (/aides, /simulateurs/solaire, /guides, autre article),
-   - soit supprimé en gardant le texte.
-   - Tout bouton CTA factice doit pointer vers /simulateurs/solaire (si sujet solaire/PV) ou /aides (si subventions) ou /contact sinon.
-
-D. IMAGES — Ajoute un attribut alt descriptif à toute <img> qui n'en a pas (ne pas inventer une URL d'image, juste l'alt).
-
-E. CHIFFRES & FAITS PÉRIMÉS — Repère et corrige :
-   - dates "en 2023/2024/2025" qui doivent être actualisées ou neutralisées ("au barème en vigueur"),
-   - barèmes obsolètes (MaPrimeRénov, CEE, tarifs d'achat EDF OA),
-   - dispositifs supprimés (CITE, prime énergie ancien régime),
-   - PV + MaPrimeRénov (PV exclu de MPR, ne garder que Prime à l'autoconsommation + TVA 10%),
-   - chiffres invraisemblables (économies > 70%, ROI < 3 ans en métropole, etc.) → arrondir/borner.
-   Ne PAS inventer de chiffres : si doute, formulation prudente ("plusieurs milliers d'euros", "selon le profil").
-
-F. TABLEAUX — Si <table> sans <thead><th>, ajoute un en-tête approprié.
-
-G. STRUCTURE — Si < 3 <h2>, scinde un paragraphe long en ajoutant un <h2> intermédiaire pertinent.
-
-H. NE MODIFIE PAS : la FAQ existante, le ton général, les widgets data-*, le featured_image.
-
-ARTICLES DISPONIBLES POUR MAILLAGE (URLs exactes obligatoires) :
-${candidates}
-
-ARTICLE — TITRE : ${post.title}
-TYPE : ${post.content_type}
-
-CONTENU HTML ACTUEL :
-${post.content}
-
-RÉPONDS EN JSON STRICT (rien d'autre) :
-{
-  "updated_content": "<html mis à jour intégralement>",
-  "audit": {
-    "interlinks_added": ["/url1"],
-    "ctas_fixed": ["description"],
-    "images_alt_added": 0,
-    "outdated_facts_corrected": ["description"],
-    "numbers_normalized": ["description"],
-    "tables_fixed": 0,
-    "remaining_issues": ["à vérifier humainement"],
-    "veracity_flags": ["affirmation à fact-checker manuellement"],
-    "quality_score": 0
-  }
-}`;
 
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
