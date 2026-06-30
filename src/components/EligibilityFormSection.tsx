@@ -702,7 +702,8 @@ const EligibilityFormSection = () => {
                     </form>
 
                     <p className="text-center text-xs text-muted-foreground">
-                      Vos données sont protégées. En savoir plus sur notre{" "}
+                      <Lock className="inline w-3 h-3 mr-1" />
+                      Vos données restent confidentielles —{" "}
                       <Link to="/politique-confidentialite" className="text-primary hover:underline">
                         politique de confidentialité
                       </Link>
@@ -710,6 +711,11 @@ const EligibilityFormSection = () => {
                     </p>
                   </div>
                 </InputStepContainer>
+                <StepFooterTip
+                  icon={Send}
+                  title="Vous recevez votre étude par email sous 24 h"
+                  text="Détail des aides, économies estimées et plan de financement — sans engagement."
+                />
               </div>
             )}
           </Card>
