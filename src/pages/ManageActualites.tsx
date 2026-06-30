@@ -891,6 +891,43 @@ const ManageActualites = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Bulk summary */}
+      <AlertDialog open={!!bulkSummary} onOpenChange={(o) => !o && setBulkSummary(null)}>
+        <AlertDialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Récapitulatif du traitement en lot</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm text-left">
+                <div className="grid grid-cols-3 gap-2 p-3 bg-muted/40 rounded">
+                  <div>Total : <b>{bulkSummary?.length ?? 0}</b></div>
+                  <div className="text-emerald-700">Modifiés : <b>{bulkSummary?.filter((s:any)=>s.changed).length ?? 0}</b></div>
+                  <div className="text-red-700">Erreurs : <b>{bulkSummary?.filter((s:any)=>!s.ok).length ?? 0}</b></div>
+                </div>
+                <div className="space-y-1 max-h-96 overflow-y-auto">
+                  {bulkSummary?.map((s:any, i:number) => (
+                    <div key={i} className={`p-2 rounded text-xs border ${s.ok ? (s.changed ? 'bg-emerald-50 border-emerald-200' : 'bg-muted/30') : 'bg-red-50 border-red-200'}`}>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium truncate">{s.title}</span>
+                        <span className="shrink-0">
+                          {s.ok ? (s.changed ? '✏️ modifié' : '✓ ok') : '❌ ' + (s.error || '')}
+                          {s.audit?.quality_score != null && <span className="ml-2 text-muted-foreground">score {s.audit.quality_score}/100</span>}
+                        </span>
+                      </div>
+                      {s.audit?.remaining_issues?.length > 0 && (
+                        <div className="text-amber-700 mt-1">⚠ {s.audit.remaining_issues.slice(0,3).join(' · ')}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setBulkSummary(null)}>Fermer</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
 
   );
