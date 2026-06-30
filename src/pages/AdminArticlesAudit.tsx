@@ -50,7 +50,7 @@ export default function AdminArticlesAudit() {
     (async () => {
       const { data } = await supabase
         .from("posts")
-        .select("id,slug,title,content_type,published_at,updated_at,content")
+        .select("id,slug,title,content_type,published_at,updated_at,content,featured_image")
         .eq("status", "published")
         .order("published_at", { ascending: true });
       setPosts((data || []) as Post[]);
