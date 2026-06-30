@@ -740,6 +740,8 @@ ${contentType === 'guide' ? `• ⚠️ AU MOINS UNE CHECKLIST <ul> "à cocher" 
 • ⚠️ COHÉRENCE STRUCTURELLE : L'article doit former UN TOUT cohérent. PAS de sections en double (une seule FAQ, un seul TL;DR, pas de questions dispersées dans le corps de l'article).
 • L'article suit un flux logique : TL;DR → Intro → Sections → CTA → FAQ → Sources → Conclusion. Chaque bloc n'apparaît QU'UNE SEULE FOIS.
 ${ctaInstructions}
+${interlinkInstructions}
+
 
 ═══════════════════════════════════════════
 CLASSIFICATION (OBLIGATOIRE)
