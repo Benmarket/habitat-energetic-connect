@@ -382,16 +382,31 @@ Deno.serve(async (req) => {
     }
 
     const updated = parsed.updated_content || post.content;
-    const audit = { ...(parsed.audit || {}), heuristic };
 
-    if (!dry_run && updated && updated !== post.content) {
+    // GARDE-FOU TYPE : on n'écrit JAMAIS dans des champs liés au format (ex: featured_image, content_type).
+    // Et on s'assure que la longueur reste cohérente avec le type (ne pas qu'une aide devienne un guide).
+    const newLen = (updated || "").length;
+    const oldLen = (post.content || "").length;
+    const rules = getRules(post.content_type);
+    let blocked: string | null = null;
+    if (postType === "aide" && newLen > oldLen * 2.5 && newLen > 4000) {
+      blocked = `Modification refusée : le contenu d'aide a triplé (${oldLen}→${newLen}). Risque de transformation en guide.`;
+    }
+    if (postType === "actualite" && newLen > oldLen * 2 && newLen > rules.targetLength * 1.5) {
+      blocked = `Modification refusée : actualité gonflée artificiellement (${oldLen}→${newLen}).`;
+    }
+
+    const audit = { ...(parsed.audit || {}), heuristic, content_type: post.content_type, blocked };
+
+    if (!dry_run && !blocked && updated && updated !== post.content) {
       await sb.from("posts").update({ content: updated, updated_at: new Date().toISOString() }).eq("id", post_id);
     }
 
     return new Response(JSON.stringify({
-      ok: true, post_id, title: post.title, slug: post.slug,
-      changed: updated !== post.content, audit,
+      ok: true, post_id, title: post.title, slug: post.slug, content_type: post.content_type,
+      changed: !blocked && updated !== post.content, audit,
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
   } catch (e: any) {
     return new Response(JSON.stringify({ error: e.message || String(e) }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
