@@ -259,9 +259,10 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
       let ctaBanners: any[] = [];
       let activePopups: any[] = [];
       let landingPages: any[] = [];
+      let existingPosts: any[] = [];
 
       if (userId) {
-        const [buttonsRes, bannersRes, popupsRes, landingRes, formsRes] = await Promise.all([
+        const [buttonsRes, bannersRes, popupsRes, landingRes, formsRes, postsRes] = await Promise.all([
           fetch(`${supabaseUrl}/rest/v1/button_presets?select=*&user_id=eq.${userId}`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           }),
@@ -276,8 +277,12 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
           }),
           fetch(`${supabaseUrl}/rest/v1/form_configurations?select=id,form_identifier`, {
             headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+          }),
+          fetch(`${supabaseUrl}/rest/v1/posts?select=slug,title,excerpt,content_type,categories:post_categories(category:categories(slug))&status=eq.published&order=published_at.desc&limit=40`, {
+            headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
           })
         ]);
+
 
         buttonPresets = await buttonsRes.json();
         ctaBanners = await bannersRes.json();
