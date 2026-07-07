@@ -493,6 +493,27 @@ const Administration = () => {
                   </CardContent>
                 </Card>
 
+                <Card className="group hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 border-l-4 border-l-purple-500 hover:scale-[1.02] hover:-translate-y-1">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-gradient-to-br from-purple-500/10 to-purple-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <Star className="w-6 h-6 text-purple-600" />
+                      </div>
+                    </div>
+                    <CardTitle className="group-hover:text-purple-600 transition-colors">Avis internes</CardTitle>
+                    <CardDescription>
+                      Collectez des avis via un lien privé (QR code) et consultez-les ici
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/admin/avis-internes">
+                      <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 shadow-lg shadow-purple-500/30">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+
                 <Card className="group relative overflow-hidden border-l-4 border-l-purple-300 hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300">
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-purple-100/30"></div>
                   <CardHeader className="relative">
