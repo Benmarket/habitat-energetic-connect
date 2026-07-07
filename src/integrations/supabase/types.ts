@@ -2601,6 +2601,7 @@ export type Database = {
       }
       email_already_used: { Args: { _email: string }; Returns: boolean }
       email_has_account: { Args: { _email: string }; Returns: boolean }
+      email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
