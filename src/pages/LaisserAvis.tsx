@@ -59,17 +59,17 @@ export default function LaisserAvis() {
       }
       const { data } = await supabase
         .from("profiles")
-        .select("first_name, last_name, email, avatar_url")
+        .select("first_name, last_name, email")
         .eq("id", user.id)
         .maybeSingle();
       if (data) {
         const name = [data.first_name, data.last_name].filter(Boolean).join(" ").trim();
         setFullName(name);
         setEmail(data.email || user.email || "");
-        setExistingAvatar(data.avatar_url || null);
       } else {
         setEmail(user.email || "");
       }
+      setExistingAvatar(null);
       setPrefilling(false);
     };
     prefill();
