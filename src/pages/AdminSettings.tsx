@@ -2149,41 +2149,74 @@ const AdminSettings = () => {
                 <CardHeader>
                   <CardTitle>Coordonnées</CardTitle>
                   <CardDescription>
-                    Les informations de contact affichées sur le site
+                    Les informations de contact affichées sur le site. Activez/désactivez chaque élément pour l'afficher ou le masquer dans la bande "Restons en contact" de l'accueil.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="contactEmail">Email de contact</Label>
-                    <Input
-                      id="contactEmail"
-                      type="email"
-                      value={settings.contactEmail}
-                      onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })}
-                      placeholder="contact@prime-energies.fr"
-                    />
+                  <div className="border rounded-lg p-3 space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <Label htmlFor="showContactEmail" className="cursor-pointer">Afficher l'email</Label>
+                      <Switch
+                        id="showContactEmail"
+                        checked={settings.showContactEmail}
+                        onCheckedChange={(checked) => setSettings({ ...settings, showContactEmail: checked })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="contactEmail">Email de contact</Label>
+                      <Input
+                        id="contactEmail"
+                        type="email"
+                        value={settings.contactEmail}
+                        onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })}
+                        placeholder="contact@prime-energies.fr"
+                        disabled={!settings.showContactEmail}
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <Label htmlFor="contactPhone">Téléphone</Label>
-                    <Input
-                      id="contactPhone"
-                      type="tel"
-                      value={settings.contactPhone}
-                      onChange={(e) => setSettings({ ...settings, contactPhone: e.target.value })}
-                      placeholder="01 23 45 67 89"
-                    />
+                  <div className="border rounded-lg p-3 space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <Label htmlFor="showContactPhone" className="cursor-pointer">Afficher le téléphone</Label>
+                      <Switch
+                        id="showContactPhone"
+                        checked={settings.showContactPhone}
+                        onCheckedChange={(checked) => setSettings({ ...settings, showContactPhone: checked })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="contactPhone">Téléphone</Label>
+                      <Input
+                        id="contactPhone"
+                        type="tel"
+                        value={settings.contactPhone}
+                        onChange={(e) => setSettings({ ...settings, contactPhone: e.target.value })}
+                        placeholder="01 23 45 67 89"
+                        disabled={!settings.showContactPhone}
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <Label htmlFor="address">Adresse</Label>
-                    <Textarea
-                      id="address"
-                      value={settings.address}
-                      onChange={(e) => setSettings({ ...settings, address: e.target.value })}
-                      placeholder="123 Rue de l'Énergie, 75001 Paris"
-                      rows={2}
-                    />
+                  <div className="border rounded-lg p-3 space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <Label htmlFor="showContactAddress" className="cursor-pointer">Afficher l'adresse</Label>
+                      <Switch
+                        id="showContactAddress"
+                        checked={settings.showContactAddress}
+                        onCheckedChange={(checked) => setSettings({ ...settings, showContactAddress: checked })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="address">Adresse</Label>
+                      <Textarea
+                        id="address"
+                        value={settings.address}
+                        onChange={(e) => setSettings({ ...settings, address: e.target.value })}
+                        placeholder="123 Rue de l'Énergie, 75001 Paris"
+                        rows={2}
+                        disabled={!settings.showContactAddress}
+                      />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
