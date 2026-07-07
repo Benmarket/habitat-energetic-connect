@@ -323,6 +323,9 @@ const AdminSettings = () => {
     aiEnabled: true,
     aiCustomInstructions: "",
     reviewsLink: "",
+    showContactEmail: true,
+    showContactPhone: true,
+    showContactAddress: true,
   });
 
   const [headerFooterSettings, setHeaderFooterSettings] = useState({
