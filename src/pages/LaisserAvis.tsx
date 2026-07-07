@@ -204,7 +204,7 @@ export default function LaisserAvis() {
                           aria-label={`${n} étoile${n > 1 ? "s" : ""}`}
                         >
                           <Star
-                            className={`w-9 h-9 ${
+                            className={`w-7 h-7 ${
                               n <= (hoverRating || rating)
                                 ? "fill-yellow-400 text-yellow-400"
                                 : "text-muted-foreground/40"
