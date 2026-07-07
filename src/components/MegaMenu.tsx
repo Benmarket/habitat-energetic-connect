@@ -237,36 +237,18 @@ export const MegaMenu = () => {
           </NavigationMenuItem>
         )}
 
-        {/* Offres - Visible if partner-offers section is visible */}
+        {/* Offres - Direct link to homepage anchor (no mega menu) */}
         {sectionVisibility.offres && (
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="px-2 py-1.5 text-sm" onClick={() => handleMenuClick('offres')}>Offres</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <div className="w-[700px] p-6 bg-background">
-                <div className="grid grid-cols-3 gap-6">
-                  {megaMenuData.offres.categories.map((category, idx) => (
-                    <div key={idx}>
-                      <div className="flex items-center gap-2 mb-3">
-                        <category.icon className="w-4 h-4 text-primary" />
-                        <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">{category.title}</h3>
-                      </div>
-                      <ul className="space-y-2">
-                        {category.items.map((item) => (
-                          <li key={item.href}>
-                            <Link
-                              to={item.href}
-                              className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                            >
-                              {item.label}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </NavigationMenuContent>
+            <NavigationMenuLink asChild>
+              <Link
+                to="/#offres"
+                onClick={() => handleMenuClick('offres')}
+                className="inline-flex items-center px-2 py-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                Offres
+              </Link>
+            </NavigationMenuLink>
           </NavigationMenuItem>
         )}
 
