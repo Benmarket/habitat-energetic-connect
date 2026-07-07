@@ -163,9 +163,9 @@ const ReviewsSection = () => {
         <div className="flex flex-col items-center gap-4 mb-12">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
-              <span className="text-2xl font-bold text-blue-600">G</span>
+              <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
             </div>
-            <h2 className="text-3xl font-bold">Avis clients Google</h2>
+            <h2 className="text-3xl font-bold">Avis Prime Énergies</h2>
           </div>
           <p className="text-muted-foreground text-center max-w-2xl">
             Clients installés par nos partenaires certifiés ou accompagnés par Prime Énergies.
@@ -221,10 +221,6 @@ const ReviewsSection = () => {
                     </div>
                     <div className="flex gap-1 mb-2">{renderStars(review.rating, true)}</div>
                     <p className="text-muted-foreground mb-2 leading-snug text-xs line-clamp-3">{review.text}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span className="text-blue-600 font-bold">G</span>
-                      <span>Vérifié sur Google</span>
-                    </div>
                   </div>
                 </CarouselItem>
               ))
@@ -253,10 +249,6 @@ const ReviewsSection = () => {
                             </div>
                             <div className="flex gap-1 mb-2">{renderStars(rev.rating)}</div>
                             <p className="text-muted-foreground mb-2 leading-relaxed text-sm">{rev.text}</p>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <span className="text-blue-600 font-bold">G</span>
-                              <span>Vérifié sur Google</span>
-                            </div>
                           </div>
                         ))}
                       </div>
@@ -292,10 +284,6 @@ const ReviewsSection = () => {
                             </div>
                             <div className="flex gap-1 mb-3">{renderStars(rev.rating)}</div>
                             <p className="text-muted-foreground mb-3 leading-relaxed text-sm">{rev.text}</p>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <span className="text-blue-600 font-bold">G</span>
-                              <span>Vérifié sur Google</span>
-                            </div>
                           </div>
                         ))}
                       </div>
