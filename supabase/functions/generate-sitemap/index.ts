@@ -98,6 +98,10 @@ serve(async (req) => {
       { url: "/faq", priority: "0.7", changefreq: "monthly" },
       { url: "/simulateurs/solaire", priority: "0.8", changefreq: "monthly" },
       { url: "/forum", priority: "0.7", changefreq: "daily" },
+      { url: "/plan-du-site", priority: "0.5", changefreq: "monthly" },
+      { url: "/mentions-legales", priority: "0.5", changefreq: "monthly" },
+      { url: "/politique-confidentialite", priority: "0.5", changefreq: "monthly" },
+      { url: "/conditions-utilisation", priority: "0.5", changefreq: "monthly" },
     ];
 
     staticPages.forEach((page) => {
