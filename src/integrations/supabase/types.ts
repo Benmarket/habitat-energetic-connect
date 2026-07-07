@@ -1237,6 +1237,48 @@ export type Database = {
         }
         Relationships: []
       }
+      internal_reviews: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          hide_name: boolean
+          id: string
+          message: string | null
+          photos: string[]
+          profile_photo_url: string | null
+          rating: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          hide_name?: boolean
+          id?: string
+          message?: string | null
+          photos?: string[]
+          profile_photo_url?: string | null
+          rating: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          hide_name?: boolean
+          id?: string
+          message?: string | null
+          photos?: string[]
+          profile_photo_url?: string | null
+          rating?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       landing_pages: {
         Row: {
           bg_color: string
