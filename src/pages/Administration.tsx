@@ -153,7 +153,27 @@ const Administration = () => {
               </p>
             </div>
 
-            {/* Traffic Dashboard */}
+            {/* Shortcut: dedicated Trafic & SEO page */}
+            <div className="mb-6 md:mb-8">
+              <Card className="group hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 border-l-4 border-l-primary hover:-translate-y-0.5">
+                <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-primary/10 rounded-xl">
+                      <BarChart3 className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-lg">Trafic &amp; SEO</div>
+                      <div className="text-sm text-muted-foreground">Statistiques réelles de visites, sources, appareils et santé SEO</div>
+                    </div>
+                  </div>
+                  <Link to="/admin/trafic-seo">
+                    <Button className="w-full sm:w-auto">Ouvrir le tableau de bord</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Traffic Dashboard (aperçu) */}
             <TrafficDashboard />
 
             {/* 1. Gestion des Utilisateurs - ROUGE */}
