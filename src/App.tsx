@@ -166,6 +166,8 @@ const App = () => (
                   <Route path="/admin/mediatheque" element={<AdminGuard allowedRoles={["super_admin"]}><AdminMediatheque /></AdminGuard>} />
                   <Route path="/admin/economies-acces" element={<AdminGuard allowedRoles={["super_admin"]}><AdminEconomiesAccess /></AdminGuard>} />
                   <Route path="/admin/articles-audit" element={<AdminGuard allowedRoles={["super_admin"]}><AdminArticlesAudit /></AdminGuard>} />
+                  <Route path="/admin/avis-internes" element={<AdminGuard allowedRoles={["super_admin"]}><AdminInternalReviews /></AdminGuard>} />
+                  <Route path="/laisser-un-avis" element={<LaisserAvis />} />
 
 
                   {/* Utility pages - lazy loaded */}
