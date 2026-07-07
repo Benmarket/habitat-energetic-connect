@@ -1214,6 +1214,7 @@ const AdminSettings = () => {
         supabase.from("site_settings").upsert({ key: "contact_phone", value: settings.contactPhone, updated_by: user.id }, { onConflict: "key" }),
         supabase.from("site_settings").upsert({ key: "address", value: settings.address, updated_by: user.id }, { onConflict: "key" }),
         supabase.from("site_settings").upsert({ key: "reviews_link", value: settings.reviewsLink, updated_by: user.id }, { onConflict: "key" }),
+        supabase.from("site_settings").upsert({ key: "contact_visibility", value: { email: settings.showContactEmail, phone: settings.showContactPhone, address: settings.showContactAddress }, updated_by: user.id }, { onConflict: "key" }),
       ]);
 
       // Vérifier les erreurs
