@@ -132,9 +132,9 @@ const megaMenuData = {
         title: "SIMULATEURS",
         items: [
           { label: "Simulateur solaire", href: "/simulateurs/solaire" },
-          { label: "Simulateur isolation", href: "/simulateurs/isolation" },
-          { label: "Simulateur pompe à chaleur", href: "/simulateurs/pac" },
-          { label: "Simulateur aides", href: "/simulateurs/aides" },
+          { label: "Simulateur isolation", href: "/#simulateurs" },
+          { label: "Simulateur pompe à chaleur", href: "/#simulateurs" },
+          { label: "Simulateur aides", href: "/#simulateurs" },
         ],
       },
     ],
