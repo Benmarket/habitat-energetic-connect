@@ -272,7 +272,7 @@ const PlanDuSite = () => {
           <div className="text-center mb-12">
             <div className="flex justify-center mb-4">
               <div className="p-4 bg-primary/10 rounded-full">
-                <SitemapIcon className="w-12 h-12 text-primary" />
+                <ListTree className="w-12 h-12 text-primary" />
               </div>
             </div>
             <h1 className="text-4xl font-bold mb-4">Plan du site</h1>
