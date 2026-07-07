@@ -31,6 +31,34 @@ const ContactSection = () => {
     companyName: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [contactInfo, setContactInfo] = useState({
+    email: "contact@prime-energies.fr",
+    phone: "01 23 45 67 89",
+    address: "15 Avenue des Énergies Vertes\n75001 Paris, France",
+    showEmail: true,
+    showPhone: true,
+    showAddress: true,
+  });
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("key, value")
+        .in("key", ["contact_email", "contact_phone", "address", "contact_visibility"]);
+      if (!data) return;
+      const get = (k: string) => data.find((s: any) => s.key === k)?.value;
+      const vis = (get("contact_visibility") as any) || {};
+      setContactInfo({
+        email: (get("contact_email") as string) || "contact@prime-energies.fr",
+        phone: (get("contact_phone") as string) || "01 23 45 67 89",
+        address: (get("address") as string) || "15 Avenue des Énergies Vertes\n75001 Paris, France",
+        showEmail: vis.email !== false,
+        showPhone: vis.phone !== false,
+        showAddress: vis.address !== false,
+      });
+    })();
+  }, []);
 
   // Listen for pre-selection events from other components
   useEffect(() => {
