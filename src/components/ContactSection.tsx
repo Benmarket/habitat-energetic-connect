@@ -154,40 +154,45 @@ const ContactSection = () => {
             
             <div className="space-y-6 mb-10">
               {/* Phone */}
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Phone className="w-5 h-5 text-primary" />
+              {contactInfo.showPhone && (
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Phone className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">Téléphone</h4>
+                    <p className="text-foreground font-medium">{contactInfo.phone}</p>
+                    <p className="text-sm text-muted-foreground">Lun-Ven 9h-18h</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-semibold mb-1">Téléphone</h4>
-                  <p className="text-foreground font-medium">01 23 45 67 89</p>
-                  <p className="text-sm text-muted-foreground">Lun-Ven 9h-18h</p>
-                </div>
-              </div>
+              )}
 
               {/* Email */}
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-primary" />
+              {contactInfo.showEmail && (
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">Email</h4>
+                    <p className="text-foreground font-medium">{contactInfo.email}</p>
+                    <p className="text-sm text-muted-foreground">Réponse sous 24h</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-semibold mb-1">Email</h4>
-                  <p className="text-foreground font-medium">contact@prime-energies.fr</p>
-                  <p className="text-sm text-muted-foreground">Réponse sous 24h</p>
-                </div>
-              </div>
+              )}
 
               {/* Address */}
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <MapPin className="w-5 h-5 text-primary" />
+              {contactInfo.showAddress && (
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <MapPin className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">Adresse</h4>
+                    <p className="text-foreground font-medium whitespace-pre-line">{contactInfo.address}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-semibold mb-1">Adresse</h4>
-                  <p className="text-foreground font-medium">15 Avenue des Énergies Vertes</p>
-                  <p className="text-sm text-muted-foreground">75001 Paris, France</p>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Why choose us */}
