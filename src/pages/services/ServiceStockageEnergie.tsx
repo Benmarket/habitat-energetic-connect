@@ -237,11 +237,11 @@ const ServiceStockageEnergie = () => {
               <div
                 className="absolute pointer-events-none"
                 style={{
-                  right: "3%",
-                  bottom: "2%",
-                  width: "34%",
+                  right: "6%",
+                  bottom: "4%",
+                  width: "20%",
                   aspectRatio: "380 / 810",
-                  transform: "rotate(-8deg)",
+                  transform: "rotate(0deg)",
                   transformOrigin: "bottom right",
                   filter: "drop-shadow(0 20px 30px rgba(0,0,0,0.35))",
                 }}
