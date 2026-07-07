@@ -231,8 +231,29 @@ const ServiceStockageEnergie = () => {
               </Card>
             </div>
             <p className="text-xs text-muted-foreground italic mt-4">Simulation pour un foyer de 5 000 kWh/an avec installation 6 kWc, tarif réseau 0,27 €/kWh, hausse annuelle de 4 %. Les résultats réels peuvent varier.</p>
-            <div className="rounded-2xl overflow-hidden mt-6">
+            <div className="relative rounded-2xl overflow-hidden mt-6">
               <img src={autoconsoImg} alt="Famille profitant de l'autoconsommation solaire avec batterie domestique le soir" width={1280} height={720} loading="lazy" className="w-full h-auto object-cover" />
+              {/* Overlay: animated phone mockup covers the garbled phone in the image */}
+              <div
+                className="absolute pointer-events-none"
+                style={{
+                  right: "3%",
+                  bottom: "2%",
+                  width: "34%",
+                  aspectRatio: "380 / 810",
+                  transform: "rotate(-8deg)",
+                  transformOrigin: "bottom right",
+                  filter: "drop-shadow(0 20px 30px rgba(0,0,0,0.35))",
+                }}
+              >
+                <iframe
+                  src="/animation-solaire.html"
+                  title="Simulation solaire en temps réel"
+                  loading="lazy"
+                  className="w-full h-full border-0 bg-transparent"
+                  style={{ transform: "scale(1)", transformOrigin: "top left" }}
+                />
+              </div>
             </div>
           </section>
 
