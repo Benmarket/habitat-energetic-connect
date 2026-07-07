@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
-import { Sitemap as SitemapIcon, Home, FileText, BookOpen, HelpCircle, Calculator, Sparkles, Wrench, MessageSquare, Building2, Shield, UserCircle, Link as LinkIcon } from "lucide-react";
+import { ListTree, Home, FileText, BookOpen, HelpCircle, Calculator, Sparkles, Wrench, MessageSquare, Building2, Shield, UserCircle, Link as LinkIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -164,8 +164,8 @@ const PlanDuSite = () => {
           );
         }
 
-        // Fetch partner offers (advertisers) - public table?
-        const { data: advertisers, error: advError } = await supabase
+        // Fetch partner offers (advertisers)
+        const { data: advertisers, error: advError } = await (supabase as any)
           .from("advertisers")
           .select("slug, id")
           .eq("status", "active");
