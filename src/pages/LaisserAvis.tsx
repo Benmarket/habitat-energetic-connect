@@ -51,6 +51,7 @@ export default function LaisserAvis() {
   const [message, setMessage] = useState("");
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [photos, setPhotos] = useState<File[]>([]);
+  const [authOpen, setAuthOpen] = useState(false);
 
   useEffect(() => {
     const prefill = async () => {
