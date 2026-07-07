@@ -60,6 +60,7 @@ const AdminInternalReviews = lazy(() => import("./pages/AdminInternalReviews"));
 const LaisserAvis = lazy(() => import("./pages/LaisserAvis"));
 
 const Sitemap = lazy(() => import("./pages/Sitemap"));
+const AdminTraficSeo = lazy(() => import("./pages/AdminTraficSeo"));
 const PlanDuSite = lazy(() => import("./pages/PlanDuSite"));
 const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentialite"));
 const ConditionsUtilisation = lazy(() => import("./pages/ConditionsUtilisation"));
@@ -168,6 +169,7 @@ const App = () => (
                   <Route path="/admin/economies-acces" element={<AdminGuard allowedRoles={["super_admin"]}><AdminEconomiesAccess /></AdminGuard>} />
                   <Route path="/admin/articles-audit" element={<AdminGuard allowedRoles={["super_admin"]}><AdminArticlesAudit /></AdminGuard>} />
                   <Route path="/admin/avis-internes" element={<AdminGuard allowedRoles={["super_admin"]}><AdminInternalReviews /></AdminGuard>} />
+                  <Route path="/admin/trafic-seo" element={<AdminGuard allowedRoles={["super_admin"]}><AdminTraficSeo /></AdminGuard>} />
                   <Route path="/laisser-un-avis" element={<LaisserAvis />} />
 
 
