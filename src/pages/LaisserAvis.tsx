@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
-import { Star, Upload, Loader2, Check, X } from "lucide-react";
+import { Star, Upload, Loader2, Check, X, LogIn } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,58 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { z } from "zod";
+
+const signInSchema = z.object({
+  email: z.string().email("Email invalide"),
+  password: z.string().min(6, "Mot de passe trop court"),
+});
+
+function InlineSignInModal({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
+  const { signIn } = useAuth();
+  const [submitting, setSubmitting] = useState(false);
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const data = { email: String(fd.get("email") || ""), password: String(fd.get("password") || "") };
+    const parsed = signInSchema.safeParse(data);
+    if (!parsed.success) {
+      toast.error(parsed.error.errors[0].message);
+      return;
+    }
+    setSubmitting(true);
+    const { error } = await signIn(data.email, data.password);
+    setSubmitting(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Connexion réussie !");
+    onOpenChange(false);
+  };
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Connexion</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={onSubmit} className="space-y-4 pt-2">
+          <div className="space-y-2">
+            <Label htmlFor="si-email">Email</Label>
+            <Input id="si-email" name="email" type="email" required />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="si-pass">Mot de passe</Label>
+            <Input id="si-pass" name="password" type="password" required />
+          </div>
+          <Button type="submit" className="w-full" disabled={submitting}>
+            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Se connecter"}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 
 const reviewSchema = z.object({
   full_name: z.string().trim().min(2, "Nom complet requis (2 caractères min)").max(120),
@@ -50,6 +103,7 @@ export default function LaisserAvis() {
   const [message, setMessage] = useState("");
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [photos, setPhotos] = useState<File[]>([]);
+  const [authOpen, setAuthOpen] = useState(false);
 
   useEffect(() => {
     const prefill = async () => {
@@ -156,24 +210,37 @@ export default function LaisserAvis() {
         <title>Laisser un avis | Prime Énergies</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-purple-500/5 py-8 md:py-12 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-purple-500/5 py-4 md:py-6 px-4">
         <div className="max-w-2xl mx-auto">
           <Card className="shadow-xl">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl md:text-3xl bg-gradient-to-r from-primary via-purple-600 to-blue-600 bg-clip-text text-transparent">
+            <CardHeader className="text-center pb-3 pt-5">
+              <CardTitle className="text-xl md:text-2xl bg-gradient-to-r from-primary via-purple-600 to-blue-600 bg-clip-text text-transparent">
                 Partagez votre expérience
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm">
                 Votre avis nous aide à progresser. Merci pour votre temps.
               </CardDescription>
+              {!user && (
+                <div className="pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setAuthOpen(true)}
+                  >
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Se connecter pour pré-remplir
+                  </Button>
+                </div>
+              )}
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-2">
               {prefilling ? (
-                <div className="py-12 flex justify-center">
+                <div className="py-8 flex justify-center">
                   <Loader2 className="w-6 h-6 animate-spin text-primary" />
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   {/* Rating */}
                   <div className="space-y-2">
                     <Label>Votre note <span className="text-destructive">*</span></Label>
@@ -189,7 +256,7 @@ export default function LaisserAvis() {
                           aria-label={`${n} étoile${n > 1 ? "s" : ""}`}
                         >
                           <Star
-                            className={`w-9 h-9 ${
+                            className={`w-7 h-7 ${
                               n <= (hoverRating || rating)
                                 ? "fill-yellow-400 text-yellow-400"
                                 : "text-muted-foreground/40"
@@ -328,6 +395,8 @@ export default function LaisserAvis() {
           </Card>
         </div>
       </div>
+      <InlineSignInModal open={authOpen} onOpenChange={setAuthOpen} />
     </>
+
   );
 }
