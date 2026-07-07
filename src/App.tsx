@@ -201,6 +201,7 @@ const App = () => (
 
                   {/* Legal & sitemap - lazy loaded */}
                   <Route path="/sitemap.xml" element={<Sitemap />} />
+                  <Route path="/plan-du-site" element={<PlanDuSite />} />
                   <Route path="/mentions-legales" element={<MentionsLegales />} />
                   <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
                   <Route path="/conditions-utilisation" element={<ConditionsUtilisation />} />
