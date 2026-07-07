@@ -60,6 +60,7 @@ const AdminInternalReviews = lazy(() => import("./pages/AdminInternalReviews"));
 const LaisserAvis = lazy(() => import("./pages/LaisserAvis"));
 
 const Sitemap = lazy(() => import("./pages/Sitemap"));
+const PlanDuSite = lazy(() => import("./pages/PlanDuSite"));
 const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentialite"));
 const ConditionsUtilisation = lazy(() => import("./pages/ConditionsUtilisation"));
 const MentionsLegales = lazy(() => import("./pages/MentionsLegales"));
