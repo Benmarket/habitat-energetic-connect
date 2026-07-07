@@ -9,7 +9,7 @@ const ConditionsUtilisation = () => {
     <>
       <Helmet>
         <title>Conditions d'utilisation | Prime Énergies</title>
-        <meta name="description" content="Conditions générales d'utilisation de la plateforme Prime Énergies. Droits et obligations des utilisateurs." />
+        <meta name="description" content="Conditions générales d'utilisation du site Prime Énergies. Droits et obligations des utilisateurs." />
         <meta name="robots" content="index, follow" />
       </Helmet>
 
@@ -18,8 +18,8 @@ const ConditionsUtilisation = () => {
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-12 max-w-4xl">
           {/* Back to home link */}
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors mb-8 font-medium"
           >
             <Home className="w-4 h-4" />
@@ -35,15 +35,16 @@ const ConditionsUtilisation = () => {
             </div>
             <h1 className="text-4xl font-bold mb-4">Conditions d'utilisation</h1>
             <p className="text-muted-foreground">
-              Dernière mise à jour : 27 novembre 2025
+              Dernière mise à jour : 7 juillet 2026
             </p>
           </div>
 
           {/* Introduction */}
           <div className="prose prose-slate max-w-none mb-8 bg-card p-6 rounded-lg border">
             <p className="text-foreground leading-relaxed">
-              Les présentes Conditions Générales d'Utilisation (CGU) régissent l'utilisation de la plateforme 
-              <strong> Prime Énergies</strong>, accessible à l'adresse <strong>prime-energies.fr</strong>. 
+              Les présentes Conditions Générales d'Utilisation (CGU) régissent l'utilisation du site
+              <strong> Prime Énergies</strong>, accessible à l'adresse <strong>prime-energies.fr</strong>,
+              édité par <strong>FRANCE RENOV HABITAT ENVIRONNEMENT (FRH)</strong>.
               En accédant et en utilisant ce site, vous acceptez sans réserve les présentes conditions.
             </p>
           </div>
@@ -60,23 +61,24 @@ const ConditionsUtilisation = () => {
               </div>
               <div className="space-y-3 text-foreground">
                 <p>
-                  Prime Énergies est une plateforme communautaire et un service de mise en relation entre :
+                  Prime Énergies est un site d'information et de mise en relation qui accompagne les particuliers dans leurs projets de rénovation énergétique. Il est destiné à :
                 </p>
                 <ul className="list-disc pl-6 space-y-2">
-                  <li><strong>Les particuliers</strong> : recherchant des informations sur les énergies renouvelables, 
-                  les subventions disponibles et souhaitant obtenir des devis</li>
-                  <li><strong>Les professionnels partenaires</strong> : entreprises certifiées proposant des services 
-                  d'installation et de conseil en énergies renouvelables</li>
+                  <li><strong>Les particuliers</strong> : recherchant des informations sur les énergies renouvelables, les subventions disponibles et souhaitant être accompagnés dans leurs travaux</li>
+                  <li><strong>Les professionnels qualifiés</strong> : intervenant pour le compte de FRH dans le cadre de la réalisation des travaux</li>
                 </ul>
                 <p className="mt-4">
-                  La plateforme propose également :
+                  La plateforme propose notamment :
                 </p>
                 <ul className="list-disc pl-6 space-y-2">
-                  <li>Des actualités et guides sur les énergies renouvelables</li>
+                  <li>Des actualités et guides sur les énergies renouvelables et les aides financières</li>
                   <li>Des simulateurs d'économies d'énergie</li>
-                  <li>Un espace personnel pour gérer vos projets</li>
-                  <li>Un système de chat pour l'assistance</li>
+                  <li>Un espace personnel pour gérer vos projets et demandes</li>
+                  <li>Un système d'assistance pour répondre à vos questions</li>
                 </ul>
+                <p className="mt-4">
+                  FRH est une entreprise privée indépendante des administrations. Les aides publiques sont versées par les organismes compétents ; FRH vous accompagne pour monter votre projet et vous orienter vers les dispositifs existants.
+                </p>
               </div>
             </section>
 
@@ -99,16 +101,13 @@ const ConditionsUtilisation = () => {
 
                 <p className="mt-4"><strong>2.2 Types de comptes</strong></p>
                 <ul className="list-disc pl-6 space-y-2">
-                  <li><strong>Compte Particulier</strong> : pour les utilisateurs recherchant des informations 
-                  et des devis</li>
-                  <li><strong>Compte Professionnel</strong> : pour les entreprises partenaires (soumis à validation)</li>
+                  <li><strong>Compte Particulier</strong> : pour les utilisateurs recherchant des informations et un accompagnement dans leurs travaux</li>
+                  <li><strong>Compte Professionnel</strong> : pour les professionnels qualifiés intervenant dans le cadre des prestations de FRH (soumis à validation)</li>
                 </ul>
 
                 <p className="mt-4"><strong>2.3 Suppression du compte</strong></p>
                 <p>
-                  Vous pouvez supprimer votre compte à tout moment depuis votre espace personnel. 
-                  La suppression entraîne l'effacement de vos données personnelles conformément à notre 
-                  politique de confidentialité, sous réserve des obligations légales de conservation.
+                  Vous pouvez demander la suppression de votre compte à tout moment. La suppression entraîne l'effacement de vos données personnelles conformément à notre politique de confidentialité, sous réserve des obligations légales de conservation.
                 </p>
               </div>
             </section>
@@ -123,7 +122,7 @@ const ConditionsUtilisation = () => {
               </div>
               <div className="space-y-3 text-foreground">
                 <p><strong>3.1 Utilisation autorisée</strong></p>
-                <p>Vous vous engagez à utiliser la plateforme de manière légale et conformément aux présentes CGU :</p>
+                <p>Vous vous engagez à utiliser la plateforme de manière légale et conforme aux présentes CGU :</p>
                 <ul className="list-disc pl-6 space-y-2">
                   <li>Respecter les droits des autres utilisateurs</li>
                   <li>Ne pas perturber le fonctionnement de la plateforme</li>
@@ -131,18 +130,16 @@ const ConditionsUtilisation = () => {
                   <li>Ne pas collecter des données d'autres utilisateurs sans autorisation</li>
                 </ul>
 
-                <p className="mt-4"><strong>3.2 Mise en relation avec les partenaires</strong></p>
+                <p className="mt-4"><strong>3.2 Demande de projet et devis</strong></p>
                 <ul className="list-disc pl-6 space-y-2">
-                  <li>En demandant un devis, vous acceptez d'être contacté par nos partenaires professionnels</li>
-                  <li>La mise en relation ne constitue pas une obligation contractuelle de votre part</li>
-                  <li>Les relations commerciales ultérieures se déroulent directement entre vous et le partenaire</li>
-                  <li>Prime Énergies n'est pas partie aux contrats conclus entre utilisateurs et partenaires</li>
+                  <li>En remplissant un formulaire, vous acceptez d'être recontacté par les équipes de FRH ou ses partenaires techniques pour l'étude de votre projet</li>
+                  <li>L'envoi d'une demande ne constitue pas une obligation contractuelle de votre part</li>
+                  <li>Les relations commerciales et contractuelles ultérieures se déroulent directement entre vous et FRH ou le professionnel désigné</li>
                 </ul>
 
                 <p className="mt-4"><strong>3.3 Simulateurs et outils</strong></p>
                 <p>
-                  Les simulateurs et outils proposés sont fournis à titre indicatif. Les résultats ne constituent 
-                  pas un engagement contractuel et peuvent varier selon votre situation réelle.
+                  Les simulateurs et outils proposés sont fournis à titre indicatif. Les résultats ne constituent pas un engagement contractuel et peuvent varier selon votre situation réelle.
                 </p>
               </div>
             </section>
@@ -158,7 +155,7 @@ const ConditionsUtilisation = () => {
               <div className="space-y-3 text-foreground">
                 <p>Sont strictement interdits :</p>
                 <ul className="list-disc pl-6 space-y-2">
-                  <li>Publier des contenus illégaux, diffamatoires, injurieux ou discriminatoires</li>
+                  <li>Publier des contenus illégaux, diffamatoires, injurieux, discriminatoires ou contraires à l'ordre public</li>
                   <li>Usurper l'identité d'une autre personne ou entité</li>
                   <li>Transmettre des virus, malwares ou tout code malveillant</li>
                   <li>Tenter de contourner les mesures de sécurité de la plateforme</li>
@@ -180,20 +177,17 @@ const ConditionsUtilisation = () => {
               </div>
               <div className="space-y-3 text-foreground">
                 <p>
-                  Tous les contenus présents sur la plateforme (textes, images, logos, vidéos, design, code source) 
-                  sont la propriété exclusive de Prime Énergies ou de ses partenaires et sont protégés par le droit 
-                  d'auteur et les lois sur la propriété intellectuelle.
+                  Tous les contenus présents sur la plateforme (textes, images, logos, vidéos, design, code source) sont la propriété exclusive de FRH ou de ses partenaires et sont protégés par le droit d'auteur et les lois sur la propriété intellectuelle.
                 </p>
                 <p className="mt-4"><strong>Vous ne pouvez pas :</strong></p>
                 <ul className="list-disc pl-6 space-y-2">
                   <li>Copier, reproduire ou redistribuer les contenus sans autorisation écrite</li>
-                  <li>Utiliser les marques, logos ou éléments graphiques de Prime Énergies</li>
-                  <li>Modifier, adapter ou créer des œuvres dérivées</li>
-                  <li>Utiliser les contenus à des fins commerciales</li>
+                  <li>Utiliser les marques, logos ou éléments graphiques de Prime Énergies sans autorisation</li>
+                  <li>Modifier, adapter ou créer des œuvres dérivées à partir des contenus du site</li>
+                  <li>Utiliser les contenus à des fins commerciales sans accord préalable</li>
                 </ul>
                 <p className="mt-4">
-                  <strong>Exception :</strong> Vous pouvez partager les liens vers nos articles et guides 
-                  à des fins d'information personnelle.
+                  <strong>Exception :</strong> Vous pouvez partager les liens vers nos articles et guides à des fins d'information personnelle.
                 </p>
               </div>
             </section>
@@ -207,14 +201,12 @@ const ConditionsUtilisation = () => {
                 </div>
               </div>
               <div className="space-y-3 text-foreground">
-                <p><strong>6.1 Responsabilité de Prime Énergies</strong></p>
+                <p><strong>6.1 Responsabilité de FRH</strong></p>
                 <ul className="list-disc pl-6 space-y-2">
-                  <li>Nous nous efforçons d'assurer la disponibilité de la plateforme 24h/24, 7j/7, 
-                  mais ne garantissons pas une disponibilité ininterrompue</li>
-                  <li>Nous ne sommes pas responsables des dommages indirects résultant de l'utilisation 
-                  ou de l'impossibilité d'utiliser la plateforme</li>
+                  <li>Nous nous efforçons d'assurer la disponibilité de la plateforme 24h/24, 7j/7, mais ne garantissons pas une disponibilité ininterrompue</li>
+                  <li>Nous ne sommes pas responsables des dommages indirects résultant de l'utilisation ou de l'impossibilité d'utiliser la plateforme</li>
                   <li>Les informations fournies le sont à titre informatif et peuvent contenir des erreurs</li>
-                  <li>Nous ne sommes pas responsables des services fournis par nos partenaires professionnels</li>
+                  <li>Les montants et conditions des aides publiques sont fixés par les organismes compétents ; seuls ces organismes peuvent valider définitivement votre éligibilité</li>
                 </ul>
 
                 <p className="mt-4"><strong>6.2 Responsabilité de l'utilisateur</strong></p>
@@ -222,8 +214,7 @@ const ConditionsUtilisation = () => {
                   <li>Vous êtes seul responsable de l'utilisation que vous faites de la plateforme</li>
                   <li>Vous garantissez l'exactitude des informations que vous fournissez</li>
                   <li>Vous êtes responsable de tout contenu que vous publiez</li>
-                  <li>Vous vous engagez à indemniser Prime Énergies en cas de réclamation résultant 
-                  de votre utilisation non conforme</li>
+                  <li>Vous vous engagez à indemniser FRH en cas de réclamation résultant de votre utilisation non conforme</li>
                 </ul>
               </div>
             </section>
@@ -239,9 +230,7 @@ const ConditionsUtilisation = () => {
               <div className="space-y-3 text-foreground">
                 <p><strong>7.1 Modifications des CGU</strong></p>
                 <p>
-                  Nous nous réservons le droit de modifier les présentes CGU à tout moment. 
-                  Les modifications prennent effet dès leur publication sur le site. 
-                  Votre utilisation continue de la plateforme après modification vaut acceptation des nouvelles CGU.
+                  Nous nous réservons le droit de modifier les présentes CGU à tout moment. Les modifications prennent effet dès leur publication sur le site. Votre utilisation continue de la plateforme après modification vaut acceptation des nouvelles CGU.
                 </p>
 
                 <p className="mt-4"><strong>7.2 Suspension ou résiliation</strong></p>
@@ -267,13 +256,10 @@ const ConditionsUtilisation = () => {
               </div>
               <div className="text-foreground space-y-3">
                 <p>
-                  Les présentes CGU sont régies par le droit français. En cas de litige, 
-                  les tribunaux français seront seuls compétents.
+                  Les présentes CGU sont régies par le droit français. En cas de litige, les tribunaux français seront seuls compétents.
                 </p>
                 <p className="mt-4">
-                  Conformément aux dispositions du Code de la consommation concernant le règlement amiable 
-                  des litiges, Prime Énergies adhère au Service du Médiateur [Nom du médiateur] 
-                  dont les coordonnées sont les suivantes : [Adresse et site web du médiateur].
+                  Conformément aux dispositions du Code de la consommation concernant le règlement amiable des litiges, vous avez la possibilité de recourir à un médiateur de la consommation après une démarche préalable écrite auprès de FRH. Pour connaître le médiateur compétent, vous pouvez nous contacter à l'adresse ci-dessous.
                 </p>
               </div>
             </section>
@@ -289,10 +275,12 @@ const ConditionsUtilisation = () => {
               <div className="text-foreground space-y-3">
                 <p>Pour toute question concernant les présentes CGU, vous pouvez nous contacter :</p>
                 <p>
-                  <strong>Prime Énergies</strong><br />
-                  [Adresse complète]<br />
-                  Email : <a href="mailto:contact@prime-energies.fr" className="text-primary underline">contact@prime-energies.fr</a><br />
-                  Téléphone : 0 800 123 456
+                  <strong>FRANCE RENOV HABITAT ENVIRONNEMENT</strong><br />
+                  196 avenue Jean Lolive, 93500 Pantin<br />
+                  Email :{" "}
+                  <a href="mailto:contact@prime-energies.fr" className="text-primary underline">
+                    contact@prime-energies.fr
+                  </a>
                 </p>
               </div>
             </section>
