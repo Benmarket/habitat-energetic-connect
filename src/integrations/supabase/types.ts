@@ -1592,6 +1592,7 @@ export type Database = {
       page_views: {
         Row: {
           created_at: string
+          device_type: string | null
           duration_seconds: number | null
           id: string
           page_url: string
@@ -1599,10 +1600,14 @@ export type Database = {
           region_code: string
           user_agent: string | null
           user_id: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
           visitor_id: string | null
         }
         Insert: {
           created_at?: string
+          device_type?: string | null
           duration_seconds?: number | null
           id?: string
           page_url: string
@@ -1610,10 +1615,14 @@ export type Database = {
           region_code?: string
           user_agent?: string | null
           user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
           visitor_id?: string | null
         }
         Update: {
           created_at?: string
+          device_type?: string | null
           duration_seconds?: number | null
           id?: string
           page_url?: string
@@ -1621,6 +1630,9 @@ export type Database = {
           region_code?: string
           user_agent?: string | null
           user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
           visitor_id?: string | null
         }
         Relationships: []
