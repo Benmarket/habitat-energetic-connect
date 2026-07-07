@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
-import { Star, Upload, Loader2, Check, X } from "lucide-react";
+import { Star, Upload, Loader2, Check, X, LogIn } from "lucide-react";
+import { AuthModal } from "@/components/AuthModal";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
