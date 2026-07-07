@@ -849,7 +849,7 @@ const AdminSettings = () => {
       const { data, error } = await supabase
         .from("site_settings")
         .select("key, value")
-        .in("key", ["site_title", "site_description", "meta_description", "contact_email", "contact_phone", "address", "reviews_link"]);
+        .in("key", ["site_title", "site_description", "meta_description", "contact_email", "contact_phone", "address", "reviews_link", "contact_visibility"]);
 
       if (error) throw error;
 
@@ -861,6 +861,7 @@ const AdminSettings = () => {
         const contactPhone = data.find(s => s.key === "contact_phone");
         const address = data.find(s => s.key === "address");
         const reviewsLink = data.find(s => s.key === "reviews_link");
+        const contactVisibility = (data.find(s => s.key === "contact_visibility")?.value as any) || {};
 
         const loadedGeneral = {
           siteName: siteTitle?.value as string || "Prime Énergies",
@@ -870,6 +871,9 @@ const AdminSettings = () => {
           contactPhone: contactPhone?.value as string || "01 23 45 67 89",
           address: address?.value as string || "123 Rue de l'Énergie, 75001 Paris",
           reviewsLink: reviewsLink?.value as string || "",
+          showContactEmail: contactVisibility.email !== false,
+          showContactPhone: contactVisibility.phone !== false,
+          showContactAddress: contactVisibility.address !== false,
         };
 
         setSettings(prev => ({ ...prev, ...loadedGeneral }));
