@@ -13,6 +13,58 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { z } from "zod";
 
+const signInSchema = z.object({
+  email: z.string().email("Email invalide"),
+  password: z.string().min(6, "Mot de passe trop court"),
+});
+
+function InlineSignInModal({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
+  const { signIn } = useAuth();
+  const [submitting, setSubmitting] = useState(false);
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const data = { email: String(fd.get("email") || ""), password: String(fd.get("password") || "") };
+    const parsed = signInSchema.safeParse(data);
+    if (!parsed.success) {
+      toast.error(parsed.error.errors[0].message);
+      return;
+    }
+    setSubmitting(true);
+    const { error } = await signIn(data.email, data.password);
+    setSubmitting(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Connexion réussie !");
+    onOpenChange(false);
+  };
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Connexion</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={onSubmit} className="space-y-4 pt-2">
+          <div className="space-y-2">
+            <Label htmlFor="si-email">Email</Label>
+            <Input id="si-email" name="email" type="email" required />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="si-pass">Mot de passe</Label>
+            <Input id="si-pass" name="password" type="password" required />
+          </div>
+          <Button type="submit" className="w-full" disabled={submitting}>
+            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Se connecter"}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
 const reviewSchema = z.object({
   full_name: z.string().trim().min(2, "Nom complet requis (2 caractères min)").max(120),
   email: z.string().trim().email("Email invalide").max(255),
