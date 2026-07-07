@@ -343,6 +343,8 @@ export default function LaisserAvis() {
           </Card>
         </div>
       </div>
+      <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
     </>
+
   );
 }
