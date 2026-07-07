@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Sun, Droplet, Home, FileText, Calculator, Lightbulb, Newspaper, User, Briefcase } from "lucide-react";
+import { FileText, Calculator, Newspaper, User, Briefcase } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -37,38 +37,6 @@ const MENU_TO_SECTION_MAP: Record<string, string> = {
 };
 
 const megaMenuData = {
-  offres: {
-    title: "Offres",
-    categories: [
-      {
-        icon: Sun,
-        title: "PHOTOVOLTAÏQUE",
-        items: [
-          { label: "Panneaux solaires", href: "/offre-partenaire/panneaux-solaires" },
-          { label: "Batterie de stockage", href: "/offre-partenaire/batterie" },
-          { label: "Borne de recharge", href: "/offre-partenaire/borne-recharge" },
-        ],
-      },
-      {
-        icon: Droplet,
-        title: "CHAUFFAGE",
-        items: [
-          { label: "Pompe à chaleur air/eau", href: "/offre-partenaire/pac-air-eau" },
-          { label: "Pompe à chaleur air/air", href: "/offre-partenaire/pac-air-air" },
-          { label: "Poêle à granulés", href: "/offre-partenaire/poele-granules" },
-        ],
-      },
-      {
-        icon: Home,
-        title: "ISOLATION",
-        items: [
-          { label: "Isolation des combles", href: "/offre-partenaire/isolation-combles" },
-          { label: "Isolation extérieure", href: "/offre-partenaire/isolation-exterieure" },
-          { label: "Isolation intérieure", href: "/offre-partenaire/isolation-interieure" },
-        ],
-      },
-    ],
-  },
   guides: {
     title: "Guides",
     categories: [
