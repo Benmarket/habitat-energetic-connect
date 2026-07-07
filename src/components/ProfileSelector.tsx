@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronUp, Building2, Wrench, Users } from "lucide-react";
+import { ChevronUp, Building2, Users } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,13 +27,6 @@ const profileOptions: ProfileOption[] = [
     label: "PROFESSIONNELS",
     description: "Solutions pour entreprises & collectivités",
     icon: <Building2 className="w-4 h-4" />,
-    disabled: true,
-  },
-  {
-    id: "assistance",
-    label: "ASSISTANCE",
-    description: "Dépannage & maintenance résidentielle",
-    icon: <Wrench className="w-4 h-4" />,
     disabled: true,
   },
   {
