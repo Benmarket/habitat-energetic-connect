@@ -237,21 +237,19 @@ const ServiceStockageEnergie = () => {
               <div
                 className="absolute pointer-events-none"
                 style={{
-                  right: "6%",
-                  bottom: "4%",
-                  width: "20%",
+                  right: "7%",
+                  bottom: "3%",
+                  width: "19%",
                   aspectRatio: "380 / 810",
-                  transform: "rotate(0deg)",
-                  transformOrigin: "bottom right",
-                  filter: "drop-shadow(0 20px 30px rgba(0,0,0,0.35))",
                 }}
               >
                 <iframe
                   src="/animation-solaire.html"
                   title="Simulation solaire en temps réel"
                   loading="lazy"
-                  className="w-full h-full border-0 bg-transparent"
-                  style={{ transform: "scale(1)", transformOrigin: "top left" }}
+                  className="w-full h-full border-0"
+                  style={{ background: "transparent" }}
+                  allowTransparency={true as any}
                 />
               </div>
             </div>
