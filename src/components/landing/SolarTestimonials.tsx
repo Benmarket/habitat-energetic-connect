@@ -161,14 +161,10 @@ const SolarTestimonials = ({ region = "france", clientCount = 2000 }: SolarTesti
       <p className={`text-muted-foreground mb-2 lg:mb-3 leading-relaxed flex-1 ${compact ? 'text-xs line-clamp-3' : 'text-sm'}`}>
         {review.text}
       </p>
-      <div className="flex items-center justify-between pt-2 lg:pt-3 border-t border-border mt-auto">
+      <div className="flex items-center pt-2 lg:pt-3 border-t border-border mt-auto">
         <span className="text-xs font-medium text-primary bg-primary/5 px-2 py-0.5 rounded-full">
           ⚡ {review.installation}
         </span>
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          <span className="text-blue-600 font-bold">G</span>
-          <span>Vérifié</span>
-        </div>
       </div>
     </div>
   );
@@ -182,7 +178,7 @@ const SolarTestimonials = ({ region = "france", clientCount = 2000 }: SolarTesti
             <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
               <span className="text-2xl font-bold text-blue-600">G</span>
             </div>
-            <h2 className="text-3xl font-bold">Avis clients Google</h2>
+            <h2 className="text-3xl font-bold">Avis clients</h2>
           </div>
           <p className="text-muted-foreground text-center max-w-2xl">
             Clients installés par nos partenaires certifiés — {clientCount.toLocaleString("fr-FR")}+ installations solaires réalisées.
