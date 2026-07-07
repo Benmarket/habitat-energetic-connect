@@ -308,41 +308,18 @@ export const MegaMenu = () => {
           </NavigationMenuItem>
         )}
 
-        {/* Aides - Two columns: Particuliers and Professionnels */}
+        {/* Aides - Direct link (no mega menu) */}
         {sectionVisibility.aides && (
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="px-2 py-1.5 text-sm" onClick={() => handleMenuClick('aides')}>Aides</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <div className="grid grid-cols-2 gap-6 p-6 w-[500px] bg-background">
-                {megaMenuData.aides.categories.map((category, idx) => (
-                  <div key={idx}>
-                    <Link 
-                      to={(category as any).href || "/aides"} 
-                      className="flex items-center gap-2 mb-3 hover:opacity-80 transition-opacity"
-                    >
-                      <category.icon className="w-5 h-5 text-primary" />
-                      <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide hover:text-primary transition-colors">
-                        {category.title}
-                      </h3>
-                    </Link>
-                    <ul className="space-y-2">
-                      {category.items.map((item, itemIdx) => (
-                        <li key={itemIdx}>
-                          <NavigationMenuLink asChild>
-                            <Link
-                              to={item.href}
-                              className="block text-sm text-muted-foreground hover:text-primary transition-colors"
-                            >
-                              {item.label}
-                            </Link>
-                          </NavigationMenuLink>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </NavigationMenuContent>
+            <NavigationMenuLink asChild>
+              <Link
+                to="/aides"
+                onClick={() => handleMenuClick('aides')}
+                className="inline-flex items-center px-2 py-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                Aides
+              </Link>
+            </NavigationMenuLink>
           </NavigationMenuItem>
         )}
 
