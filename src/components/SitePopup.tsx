@@ -524,6 +524,10 @@ export default function SitePopup() {
   if (!isVisible || !activePopup) return null;
 
   const getSizeClasses = () => {
+    // Success state: widen the modal so the rich "merci" content fits comfortably
+    if (isSuccess) {
+      return "max-w-2xl";
+    }
     // For aide-dossier form, use a wider but shorter layout
     const isAideDossier = form?.form_identifier === "aide-dossier";
     if (isAideDossier) {
