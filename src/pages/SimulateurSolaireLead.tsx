@@ -568,7 +568,7 @@ const ProgressBar = ({ step }: { step: number }) => (
   </div>
 );
 
-const StepTitle = ({ icon: Icon, title, subtitle }: { icon: any; title: string; subtitle?: string }) => (
+const StepTitle = ({ icon: Icon, title, subtitle }: { icon: any; title: React.ReactNode; subtitle?: string }) => (
   <div className="mb-8">
     <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 mb-4 shadow-[0_12px_25px_-8px_hsl(35_95%_45%/0.6)]">
       <Icon className="w-7 h-7" />
