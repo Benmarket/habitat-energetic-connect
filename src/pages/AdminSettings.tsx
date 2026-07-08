@@ -450,6 +450,15 @@ const AdminSettings = () => {
       if (settings.aiModel !== initialSettings.aiModel) generalChanges.push("Modèle IA modifié");
       if (settings.aiCustomInstructions !== initialSettings.aiCustomInstructions) generalChanges.push("Instructions IA modifiées");
       if (settings.reviewsLink !== initialSettings.reviewsLink) generalChanges.push("Lien des avis Google modifié");
+      if (settings.showContactEmail !== initialSettings.showContactEmail) {
+        generalChanges.push(settings.showContactEmail ? "Email de contact affiché" : "Email de contact masqué");
+      }
+      if (settings.showContactPhone !== initialSettings.showContactPhone) {
+        generalChanges.push(settings.showContactPhone ? "Téléphone de contact affiché" : "Téléphone de contact masqué");
+      }
+      if (settings.showContactAddress !== initialSettings.showContactAddress) {
+        generalChanges.push(settings.showContactAddress ? "Adresse affichée" : "Adresse masquée");
+      }
       
       if (generalChanges.length > 0) {
         changes.push({ category: "Paramètres généraux", changes: generalChanges });
