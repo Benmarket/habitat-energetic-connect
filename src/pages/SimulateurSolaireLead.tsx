@@ -888,7 +888,21 @@ const Step5Equipments = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
 
 const Step6Bill = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
   <div>
-    <StepTitle icon={Zap} title="Quel est le montant moyen de votre facture d'électricité par mois ?" />
+    <StepTitle
+      icon={Zap}
+      title={
+        <>
+          Quel est le montant moyen de votre facture d'électricité{" "}
+          <span className="underline decoration-orange-500 decoration-[3px] underline-offset-4 font-bold text-orange-600">
+            par mois
+          </span>{" "}
+          ?
+        </>
+      }
+    />
+    <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50/70 px-3 py-2 text-xs text-slate-700">
+      💡 <span className="font-semibold">À indiquer bien en €/mois.</span> Si vous êtes facturé tous les 2 mois, divisez le montant par 2. Si vous avez un montant annuel, divisez par 12.
+    </div>
     <div className="grid grid-cols-5 gap-2 mb-5">
       {BILL_PRESETS.map((v, i) => (
         <PillButton key={v} selected={sim.monthlyBill === v} onClick={() => setSim({ ...sim, monthlyBill: v })}>
