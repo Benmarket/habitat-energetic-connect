@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Facebook, Twitter, Linkedin, Youtube, MessageCircle, Phone } from "lucide-react";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { supabase } from "@/integrations/supabase/client";
+import { useSiteMode } from "@/hooks/useSiteMode";
 
 const Footer = () => {
   const [headerFooterSettings, setHeaderFooterSettings] = useState({
@@ -76,8 +77,9 @@ const Footer = () => {
               <p className="text-sm text-white/60">prime-energies.fr</p>
             </Link>
             <p className="text-white/70 mb-6 text-sm leading-relaxed">
-              Votre portail de confiance pour les énergies renouvelables. Nous connectons les particuliers avec les
-              meilleurs installateurs certifiés de France.
+              {siteMode === "frh"
+                ? "Votre portail de confiance pour les énergies renouvelables. Nous accompagnons les particuliers avec notre équipe d'installateurs certifiés RGE."
+                : "Votre portail de confiance pour les énergies renouvelables. Nous connectons les particuliers avec les meilleurs installateurs certifiés de France."}
             </p>
           </div>
 
