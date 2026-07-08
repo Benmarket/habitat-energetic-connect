@@ -74,21 +74,31 @@ const EQUIPMENTS: { id: string; label: string; desc: string; icon: any }[] = [
 const BILL_PRESETS = [100, 150, 200, 250, 300];
 
 // ---------- Helpers ----------
+// Ensoleillement basé sur l'irradiation solaire annuelle moyenne (kWh/m²/an)
+// Sources : PVGIS (Commission Européenne), Ademe. Formulation factuelle, sans exagération.
 function detectRegion(postal: string): { id: string; label: string; sun: string } {
   const p = postal.trim();
-  if (p.startsWith("20")) return { id: "corse", label: "Corse", sun: "excellent" };
-  if (p.startsWith("974")) return { id: "reunion", label: "La Réunion", sun: "excellent" };
-  if (p.startsWith("973")) return { id: "guyane", label: "Guyane", sun: "excellent" };
-  if (p.startsWith("972")) return { id: "martinique", label: "Martinique", sun: "excellent" };
-  if (p.startsWith("971")) return { id: "guadeloupe", label: "Guadeloupe", sun: "excellent" };
-  if (p.startsWith("976")) return { id: "mayotte", label: "Mayotte", sun: "excellent" };
+  if (p.startsWith("20")) return { id: "corse", label: "Corse", sun: "très élevé (~1 700 kWh/m²/an)" };
+  if (p.startsWith("974")) return { id: "reunion", label: "La Réunion", sun: "très élevé (~1 800 kWh/m²/an)" };
+  if (p.startsWith("973")) return { id: "guyane", label: "Guyane", sun: "élevé mais nuageux (~1 400 kWh/m²/an)" };
+  if (p.startsWith("972")) return { id: "martinique", label: "Martinique", sun: "très élevé (~1 800 kWh/m²/an)" };
+  if (p.startsWith("971")) return { id: "guadeloupe", label: "Guadeloupe", sun: "très élevé (~1 800 kWh/m²/an)" };
+  if (p.startsWith("976")) return { id: "mayotte", label: "Mayotte", sun: "très élevé (~1 900 kWh/m²/an)" };
   if (/^\d{5}$/.test(p)) {
     const n = parseInt(p.slice(0, 2), 10);
+    // Pourtour méditerranéen et sud-est : irradiation la plus élevée de métropole
     if ([13, 30, 34, 11, 66, 6, 83, 84, 4, 5, 7, 26].includes(n))
-      return { id: "fr-sud", label: "France continentale (sud)", sun: "très favorable" };
-    return { id: "fr", label: "France continentale", sun: "favorable" };
+      return { id: "fr-sud", label: "France continentale (sud)", sun: "élevé (~1 500–1 700 kWh/m²/an)" };
+    // Sud-ouest et moitié sud : bon potentiel
+    if ([33, 40, 47, 24, 46, 82, 32, 31, 65, 9, 81, 12, 48, 43, 63, 15, 19, 87, 16, 17, 79, 86].includes(n))
+      return { id: "fr-so", label: "France continentale (sud-ouest)", sun: "correct à élevé (~1 300–1 500 kWh/m²/an)" };
+    // Nord de la France : irradiation la plus faible
+    if ([59, 62, 80, 60, 76, 27, 2, 8, 51, 55, 54, 57, 67, 68, 88, 52].includes(n))
+      return { id: "fr-nord", label: "France continentale (nord)", sun: "modéré (~1 000–1 150 kWh/m²/an)" };
+    // Reste de la métropole
+    return { id: "fr", label: "France continentale", sun: "modéré à correct (~1 150–1 300 kWh/m²/an)" };
   }
-  return { id: "unknown", label: "Zone non reconnue", sun: "favorable" };
+  return { id: "unknown", label: "Zone non reconnue", sun: "à évaluer selon la localisation" };
 }
 
 function suggestedKwc(monthly: number): string {
