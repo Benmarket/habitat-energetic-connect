@@ -74,7 +74,7 @@ const SolarHowItWorks = ({ onCtaClick }: SolarHowItWorksProps) => {
           <div className={`absolute top-16 left-[10%] right-[10%] h-1 bg-gradient-to-r from-emerald-500 via-blue-500 via-amber-500 to-primary rounded-full transition-all duration-1000 ${isVisible ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"}`} style={{ transformOrigin: "left" }} />
 
           <div className="grid grid-cols-4 gap-6 relative">
-            {steps.map((step, i) => {
+            {resolvedSteps.map((step, i) => {
               const reveal = revealClass(isVisible, 200 + i * 200, "up");
               return (
                 <div key={i} className={`flex flex-col items-center text-center group ${reveal.className}`} style={reveal.style}>
@@ -98,7 +98,7 @@ const SolarHowItWorks = ({ onCtaClick }: SolarHowItWorksProps) => {
             <img src={solarInstallerImg} alt="Installateur posant des panneaux solaires" className="w-full h-48 object-cover" loading="lazy" width={400} height={192} />
           </div>
           <div className="space-y-6">
-            {steps.map((step, i) => {
+            {resolvedSteps.map((step, i) => {
               const reveal = revealClass(isVisible, i * 150, "left");
               return (
                 <div key={i} className={`flex gap-5 items-start ${reveal.className}`} style={reveal.style}>
