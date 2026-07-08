@@ -401,7 +401,7 @@ export default function SitePopup() {
         
         setIsSuccess(true);
         toast.success("Inscription réussie !");
-        setTimeout(handleClose, 2000);
+        // Ne pas fermer automatiquement : l'utilisateur ferme via la croix / bouton
       } else if (form.form_identifier === "guide-download") {
         // Cas spécial : téléchargement de guide
         const email = (formData.email || "").trim();
