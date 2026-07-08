@@ -467,8 +467,8 @@ export default function SitePopup() {
         const shouldUnlock = !shouldDownload;
         const guideId = guideContext?.id;
         const gc = guideContext;
+        // Déclencher les effets de bord (téléchargement / déblocage) sans fermer la modale
         setTimeout(() => {
-          handleClose();
           if (shouldDownload && gc?.contentHtml) {
             downloadGuideAsHtml({
               title: gc.title, slug: gc.slug, contentHtml: gc.contentHtml,
