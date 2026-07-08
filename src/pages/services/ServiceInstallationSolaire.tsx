@@ -26,8 +26,6 @@ const faqs = [
 
 const ServiceInstallationSolaire = () => {
   const { mode: siteMode } = useSiteMode();
-  const installerLabel = siteMode === "frh" ? "notre installateur RGE" : "installateurs certifiés RGE";
-  const installerLabelSchema = siteMode === "frh" ? "notre installateur RGE" : "installateurs certifiés RGE";
   const breadcrumbItems = [
     { name: "Accueil", url: "/" },
     { name: "Services", url: "/" },
