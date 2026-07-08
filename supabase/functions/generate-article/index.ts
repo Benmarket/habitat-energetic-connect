@@ -303,12 +303,23 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
             .map((f: any) => f.id)
         );
 
-        // Filter out popups linked to excluded forms
-        activePopups = allPopups.filter((p: any) => !p.form_id || !excludedFormIds.has(p.form_id));
+        // Filter out popups linked to excluded forms + popups réservés (guide download, newsletter)
+        const ARTICLE_EXCLUDED_TRIGGERS = ['guide-download', 'guide-download-thanks', 'newsletter-success'];
+        activePopups = allPopups.filter((p: any) =>
+          (!p.form_id || !excludedFormIds.has(p.form_id)) &&
+          !ARTICLE_EXCLUDED_TRIGGERS.includes(p.trigger_id)
+        );
       }
 
-      const popupWithForm = activePopups.find((p: any) => p.form_id);
-      const defaultPopupId = popupWithForm?.id || (activePopups.length > 0 ? activePopups[0].id : '');
+      // Choix du popup par défaut selon le sujet de l'article
+      const _topicStr = `${subject || ''} ${theme || ''} ${product || ''} ${(keywords || []).toString?.() || ''} ${imposedTitle || ''}`.toLowerCase();
+      const isSolarTopic = /solair|photovolt|panneau|autoconsomm|zni|kwc/i.test(_topicStr);
+      const solarPopup = activePopups.find((p: any) => p.trigger_id === 'popup-demande-solaire');
+      const generalPopup =
+        activePopups.find((p: any) => p.trigger_id === 'find-professional-cta') ||
+        activePopups.find((p: any) => p.form_id);
+      const defaultPopupId =
+        (isSolarTopic && solarPopup?.id) || generalPopup?.id || (activePopups[0]?.id ?? '');
 
       // Build available pages list for AI (internal pages + landing pages)
       const internalPages = [
@@ -1346,11 +1357,22 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
             .filter((f: any) => EXCLUDED_FORM_IDENTIFIERS_FIX.includes(f.form_identifier))
             .map((f: any) => f.id)
         );
-        activePopups = allPopups.filter((p: any) => !p.form_id || !excludedFormIds.has(p.form_id));
+        const ARTICLE_EXCLUDED_TRIGGERS_FIX = ['guide-download', 'guide-download-thanks', 'newsletter-success'];
+        activePopups = allPopups.filter((p: any) =>
+          (!p.form_id || !excludedFormIds.has(p.form_id)) &&
+          !ARTICLE_EXCLUDED_TRIGGERS_FIX.includes(p.trigger_id)
+        );
       }
 
-      const popupWithForm = activePopups.find((p: any) => p.form_id);
-      const defaultPopupId = popupWithForm?.id || (activePopups.length > 0 ? activePopups[0].id : '');
+      // Popup par défaut contextuel (solaire vs général) pour l'édition d'article
+      const _fixTopicStr = `${title || ''} ${content || ''}`.toLowerCase();
+      const isSolarTopicFix = /solair|photovolt|panneau|autoconsomm|zni|kwc/i.test(_fixTopicStr);
+      const solarPopupFix = activePopups.find((p: any) => p.trigger_id === 'popup-demande-solaire');
+      const generalPopupFix =
+        activePopups.find((p: any) => p.trigger_id === 'find-professional-cta') ||
+        activePopups.find((p: any) => p.form_id);
+      const defaultPopupId =
+        (isSolarTopicFix && solarPopupFix?.id) || generalPopupFix?.id || (activePopups[0]?.id ?? '');
 
       const fixInternalPages = [
         { path: '/simulateurs/solaire', title: 'Simulateur solaire / photovoltaïque' },
