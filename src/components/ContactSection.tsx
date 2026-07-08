@@ -8,6 +8,7 @@ import { Phone, Mail, MapPin, Home, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useSiteMode } from "@/hooks/useSiteMode";
 
 const contactSchemaBase = z.object({
   fullName: z.string().trim().min(2, "Le nom doit contenir au moins 2 caractères").max(100),
@@ -19,6 +20,7 @@ const contactSchemaBase = z.object({
 });
 
 const ContactSection = () => {
+  const { mode: siteMode } = useSiteMode();
   const location = useLocation();
   const navigate = useNavigate();
   const [accountType, setAccountType] = useState<"particulier" | "professionnel">("particulier");
@@ -200,7 +202,7 @@ const ContactSection = () => {
               <h4 className="font-semibold mb-4">Pourquoi nous choisir ?</h4>
               <ul className="space-y-2 text-muted-foreground">
                 <li>✓ Conseil gratuit et personnalisé</li>
-                <li>✓ Réseau d'installateurs certifiés RGE</li>
+                <li>✓ {siteMode === "frh" ? "Installateurs certifiés RGE" : "Réseau d'installateurs certifiés RGE"}</li>
                 <li>✓ Accompagnement dans vos démarches</li>
                 <li>✓ Suivi post-installation inclus</li>
               </ul>
