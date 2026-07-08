@@ -34,10 +34,7 @@ const FAQSection = () => {
       question: "Pourquoi choisir une pompe à chaleur pour mon chauffage ?",
       answer: "La pompe à chaleur est la solution de chauffage la plus économique et écologique du marché. Elle consomme 3 à 4 fois moins d'énergie qu'un chauffage traditionnel, permettant de diviser vos factures de chauffage par 3. Les modèles réversibles assurent aussi la climatisation en été. Éligible aux aides MaPrimeRénov', CEE et TVA réduite, son installation est accessible financièrement. C'est un investissement durable qui valorise votre logement et vous protège de l'augmentation des prix de l'énergie."
     },
-    {
-      question: "Vos partenaires installateurs sont-ils certifiés et fiables ?",
-      answer: "Oui, absolument. Tous nos partenaires installateurs sont rigoureusement sélectionnés selon un cahier des charges strict. Ils disposent obligatoirement de la certification RGE (Reconnu Garant de l'Environnement), indispensable pour bénéficier des aides publiques. Nous vérifions leurs qualifications, assurances professionnelles, références clients et respect des normes en vigueur. Chaque partenaire s'engage à fournir un devis détaillé, respecter les délais, réaliser un chantier propre et assurer un suivi après-vente de qualité."
-    }
+    installerFaq
   ];
 
   return (
