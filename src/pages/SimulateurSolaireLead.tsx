@@ -700,6 +700,9 @@ const Step1Location = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
           <li>• Ensoleillement régional : <strong className="text-orange-600">{region.sun}</strong></li>
           <li>• Aides possibles selon votre éligibilité</li>
           <li>• Simulation adaptée à votre région</li>
+          {region.sun.toLowerCase().includes("nuageux") && (
+            <li>• Même par temps couvert, les panneaux photovoltaïques captent la lumière diffuse (photons) et restent pertinents.</li>
+          )}
         </ul>
       </InfoBanner>
     )}
