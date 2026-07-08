@@ -7,8 +7,20 @@ import {
 } from "@/components/ui/accordion";
 import { ArrowRight } from "lucide-react";
 import { FAQSchema } from "@/components/SEO/FAQSchema";
+import { useSiteMode } from "@/hooks/useSiteMode";
 
 const FAQSection = () => {
+  const { mode: siteMode } = useSiteMode();
+  const installerFaq = siteMode === "frh"
+    ? {
+        question: "Votre installateur est-il certifié et fiable ?",
+        answer: "Oui. Notre installateur dispose de la certification RGE (Reconnu Garant de l'Environnement), indispensable pour bénéficier des aides publiques. Nous vérifions ses qualifications, assurances professionnelles, références clients et respect des normes en vigueur. Il s'engage à fournir un devis détaillé, respecter les délais, réaliser un chantier propre et assurer un suivi après-vente de qualité."
+      }
+    : {
+        question: "Vos partenaires installateurs sont-ils certifiés et fiables ?",
+        answer: "Oui, absolument. Tous nos partenaires installateurs sont rigoureusement sélectionnés selon un cahier des charges strict. Ils disposent obligatoirement de la certification RGE (Reconnu Garant de l'Environnement), indispensable pour bénéficier des aides publiques. Nous vérifions leurs qualifications, assurances professionnelles, références clients et respect des normes en vigueur. Chaque partenaire s'engage à fournir un devis détaillé, respecter les délais, réaliser un chantier propre et assurer un suivi après-vente de qualité."
+      };
+
   const faqs = [
     {
       question: "Combien puis-je économiser avec une installation solaire photovoltaïque ?",
