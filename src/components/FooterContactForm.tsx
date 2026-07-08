@@ -97,7 +97,6 @@ const FooterContactForm = () => {
         requestSummary: `${formData.workType} • ${formData.postalCode}`,
       });
 
-      toast.success("Votre demande a bien été envoyée !");
       setFormData({
         lastName: "",
         firstName: "",
@@ -106,6 +105,13 @@ const FooterContactForm = () => {
         postalCode: "",
         workType: "",
       });
+
+      // Redirection vers la page merci avec récap personnalisé
+      const params = new URLSearchParams({
+        name: formData.firstName,
+        workType: formData.workType,
+      });
+      navigate(`/merci?${params.toString()}`);
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Erreur lors de l'envoi, veuillez réessayer.");
