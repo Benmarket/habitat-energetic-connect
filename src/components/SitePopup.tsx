@@ -505,14 +505,22 @@ export default function SitePopup() {
           }]);
 
         if (error) throw error;
-        
-        handleClose();
-        
-        // Récupérer le nom depuis le formData (fullName, nom, ou name)
-        const userName = formData.fullName || formData.nom || formData.name || "";
-        const params = new URLSearchParams();
-        if (userName) params.set("name", userName);
-        navigate(`/merci${params.toString() ? `?${params.toString()}` : ""}`);
+
+        // Pour le formulaire solaire déclenché en popup (typiquement depuis un article),
+        // on garde la modale ouverte avec l'écran de remerciement complet plutôt que
+        // de rediriger vers /merci — cela évite de couper la lecture de l'article.
+        const isSolarPopup = form.form_identifier === "demande-solaire";
+        if (isSolarPopup) {
+          setIsSuccess(true);
+          toast.success("Merci ! Votre demande a bien été envoyée.");
+        } else {
+          handleClose();
+          // Récupérer le nom depuis le formData (fullName, nom, ou name)
+          const userName = formData.fullName || formData.nom || formData.name || "";
+          const params = new URLSearchParams();
+          if (userName) params.set("name", userName);
+          navigate(`/merci${params.toString() ? `?${params.toString()}` : ""}`);
+        }
       }
     } catch (error) {
       toast.error("Une erreur est survenue. Veuillez réessayer.");
