@@ -38,7 +38,9 @@ const ServiceInstallationSolaire = () => {
     "@context": "https://schema.org",
     "@type": "Service",
     name: "Installation de panneaux solaires photovoltaïques",
-    description: "Service d'installation de panneaux solaires pour les particuliers et professionnels. Devis gratuit, installateurs certifiés RGE, accompagnement complet.",
+    description: siteMode === "frh"
+      ? "Service d'installation de panneaux solaires pour les particuliers et professionnels. Devis gratuit, notre installateur RGE, accompagnement complet."
+      : "Service d'installation de panneaux solaires pour les particuliers et professionnels. Devis gratuit, installateurs certifiés RGE, accompagnement complet.",
     provider: { "@type": "Organization", name: "Prime Énergies", url: "https://prime-energies.fr" },
     areaServed: { "@type": "Country", name: "France" },
     serviceType: "Installation solaire photovoltaïque",
@@ -72,7 +74,9 @@ const ServiceInstallationSolaire = () => {
     <div className="min-h-screen bg-background">
       <Helmet>
         <title>Installation Solaire Photovoltaïque : Guide Complet 2026 | Prime Énergies</title>
-        <meta name="description" content="Tout savoir sur l'installation de panneaux solaires : prix 2026, aides financières, rentabilité, étapes d'installation, choix de l'installateur RGE. Guide complet avec simulateur gratuit." />
+        <meta name="description" content={siteMode === "frh"
+          ? "Tout savoir sur l'installation de panneaux solaires : prix 2026, aides financières, rentabilité, étapes d'installation, notre installateur RGE. Guide complet avec simulateur gratuit."
+          : "Tout savoir sur l'installation de panneaux solaires : prix 2026, aides financières, rentabilité, étapes d'installation, choix de l'installateur RGE. Guide complet avec simulateur gratuit."} />
         <link rel="canonical" href="https://prime-energies.fr/services/installation-solaire" />
         <meta property="og:title" content="Installation Solaire Photovoltaïque | Prime Énergies" />
         <meta property="og:description" content="Prix, aides, rentabilité : tout ce qu'il faut savoir avant d'installer des panneaux solaires chez vous en 2026." />
