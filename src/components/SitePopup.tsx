@@ -401,7 +401,7 @@ export default function SitePopup() {
         
         setIsSuccess(true);
         toast.success("Inscription réussie !");
-        setTimeout(handleClose, 2000);
+        // Ne pas fermer automatiquement : l'utilisateur ferme via la croix / bouton
       } else if (form.form_identifier === "guide-download") {
         // Cas spécial : téléchargement de guide
         const email = (formData.email || "").trim();
@@ -467,8 +467,8 @@ export default function SitePopup() {
         const shouldUnlock = !shouldDownload;
         const guideId = guideContext?.id;
         const gc = guideContext;
+        // Déclencher les effets de bord (téléchargement / déblocage) sans fermer la modale
         setTimeout(() => {
-          handleClose();
           if (shouldDownload && gc?.contentHtml) {
             downloadGuideAsHtml({
               title: gc.title, slug: gc.slug, contentHtml: gc.contentHtml,
@@ -524,6 +524,10 @@ export default function SitePopup() {
   if (!isVisible || !activePopup) return null;
 
   const getSizeClasses = () => {
+    // Success state: widen the modal so the rich "merci" content fits comfortably
+    if (isSuccess) {
+      return "max-w-2xl";
+    }
     // For aide-dossier form, use a wider but shorter layout
     const isAideDossier = form?.form_identifier === "aide-dossier";
     if (isAideDossier) {
@@ -690,22 +694,122 @@ export default function SitePopup() {
   const renderContent = () => {
     if (isSuccess) {
       const successContent = getSuccessContent();
-      const SuccessIcon = successContent.icon;
-      
+      const isGuide = form?.form_identifier === "guide-download";
+      const isNewsletter = form?.form_identifier === "newsletter";
+
+      // Récapitulatif
+      const rawName =
+        (formData.first_name || formData.firstName || formData.fullName || formData.nom || formData.name || "")
+          .toString()
+          .trim();
+      const displayName = rawName ? rawName.split(" ")[0] : "";
+      const demandeLabel = isGuide
+        ? (guideContext?.title || "Votre guide gratuit")
+        : isNewsletter
+          ? "Inscription à la newsletter"
+          : (form?.name || activePopup.title || "Votre demande");
+      const emailValue = (formData.email || "").toString().trim();
+
       return (
-        <div className="flex flex-col items-center justify-center py-8 space-y-4">
-          <div 
-            className="w-16 h-16 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: `${activePopup.accent_color}20` }}
-          >
-            <SuccessIcon className="w-10 h-10" style={{ color: activePopup.accent_color }} />
+        <div className="flex flex-col py-2 space-y-4 max-h-[80vh] overflow-y-auto">
+          {/* Header + vidéo */}
+          <div className="relative rounded-xl overflow-hidden shadow-md bg-gradient-to-br from-primary/5 to-background border border-border">
+            <div className="w-full h-[180px] md:h-[220px] overflow-hidden">
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-full object-cover object-top"
+              >
+                <source src="/videos/post-lead-confirmation.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <div className="absolute -top-2 -right-2 md:-top-3 md:-right-3">
+              <div className="w-12 h-12 md:w-14 md:h-14 bg-primary rounded-full flex items-center justify-center shadow-lg">
+                <CheckCircle2 className="w-7 h-7 md:w-8 md:h-8 text-primary-foreground" />
+              </div>
+            </div>
           </div>
-          <h2 className="text-2xl font-bold text-center" style={{ color: activePopup.text_color }}>
-            {successContent.title}
-          </h2>
-          <p className="text-center opacity-70 px-4" style={{ color: activePopup.text_color }}>
-            {successContent.subtitle}
-          </p>
+
+          {/* Titre */}
+          <div className="text-center px-2">
+            <h2 className="text-xl md:text-2xl font-bold" style={{ color: activePopup.text_color }}>
+              Merci{displayName ? ` ${displayName}` : ""} !
+            </h2>
+            <p className="text-sm md:text-base opacity-80 mt-1" style={{ color: activePopup.text_color }}>
+              {successContent.subtitle}
+            </p>
+          </div>
+
+          {/* Récapitulatif */}
+          <div
+            className="rounded-lg border p-4 space-y-2"
+            style={{ borderColor: `${activePopup.accent_color}30`, backgroundColor: `${activePopup.accent_color}08` }}
+          >
+            <h3 className="font-semibold text-sm flex items-center gap-2" style={{ color: activePopup.text_color }}>
+              <Sparkles className="w-4 h-4" style={{ color: activePopup.accent_color }} />
+              Récapitulatif de votre demande
+            </h3>
+            <div className="text-sm divide-y divide-border/50">
+              <div className="flex justify-between items-center py-1.5 gap-3">
+                <span className="opacity-70" style={{ color: activePopup.text_color }}>Demande</span>
+                <span className="font-medium text-right" style={{ color: activePopup.text_color }}>{demandeLabel}</span>
+              </div>
+              {displayName && (
+                <div className="flex justify-between items-center py-1.5 gap-3">
+                  <span className="opacity-70" style={{ color: activePopup.text_color }}>Prénom</span>
+                  <span className="font-medium text-right" style={{ color: activePopup.text_color }}>{displayName}</span>
+                </div>
+              )}
+              {emailValue && (
+                <div className="flex justify-between items-center py-1.5 gap-3">
+                  <span className="opacity-70" style={{ color: activePopup.text_color }}>Email</span>
+                  <span className="font-medium text-right truncate max-w-[60%]" style={{ color: activePopup.text_color }}>{emailValue}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Prochaines étapes */}
+          <div className="rounded-lg border border-border p-4">
+            <h3 className="font-semibold text-sm mb-3" style={{ color: activePopup.text_color }}>Et maintenant ?</h3>
+            <ul className="space-y-2.5 text-sm">
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" style={{ color: activePopup.accent_color }} />
+                <span className="opacity-80" style={{ color: activePopup.text_color }}>
+                  {isGuide
+                    ? "Votre guide vous est envoyé par email dans quelques instants."
+                    : isNewsletter
+                      ? "Vous recevrez très prochainement notre prochaine newsletter."
+                      : "Un conseiller vous recontactera sous 24 à 48h ouvrées."}
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" style={{ color: activePopup.accent_color }} />
+                <span className="opacity-80" style={{ color: activePopup.text_color }}>
+                  Pensez à vérifier votre boîte mail (et vos spams).
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" style={{ color: activePopup.accent_color }} />
+                <span className="opacity-80" style={{ color: activePopup.text_color }}>
+                  Vous pouvez continuer à lire l'article, cette fenêtre restera ouverte jusqu'à ce que vous la fermiez.
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row gap-2 pt-1">
+            <Button
+              onClick={handleClose}
+              className="w-full sm:flex-1 text-white"
+              style={{ backgroundColor: activePopup.accent_color }}
+            >
+              Continuer la lecture
+            </Button>
+          </div>
         </div>
       );
     }
