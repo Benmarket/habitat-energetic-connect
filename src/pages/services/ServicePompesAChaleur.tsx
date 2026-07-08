@@ -11,6 +11,7 @@ import pacExtImg from "@/assets/services/pac-exterieur.jpg";
 import pacIntImg from "@/assets/services/pac-interieur-confort.jpg";
 import pacTechImg from "@/assets/services/pac-installation-technicien.jpg";
 import pacThermostatImg from "@/assets/services/pac-thermostat-connecte.jpg";
+import { useSiteMode } from "@/hooks/useSiteMode";
 
 const faqs = [
   { q: "Quelle pompe à chaleur choisir : air-air, air-eau ou géothermique ?", a: "La PAC air-eau est la plus polyvalente : elle assure chauffage et eau chaude sanitaire. La PAC air-air est idéale pour le rafraîchissement. La géothermie offre les meilleures performances mais nécessite un investissement plus élevé et un terrain adapté." },
@@ -24,6 +25,7 @@ const faqs = [
 ];
 
 const ServicePompesAChaleur = () => {
+  const { mode: siteMode } = useSiteMode();
   const breadcrumbItems = [
     { name: "Accueil", url: "/" },
     { name: "Services", url: "/" },
@@ -335,7 +337,7 @@ const ServicePompesAChaleur = () => {
           {/* CTA */}
           <section className="mb-12 bg-gradient-to-br from-blue-50 to-primary/5 border border-blue-200 rounded-2xl p-8 text-center">
             <h2 className="text-2xl font-bold text-foreground mb-3">Trouvez votre pompe à chaleur idéale</h2>
-            <p className="text-muted-foreground mb-6 max-w-xl mx-auto">Comparez les offres d'installateurs certifiés RGE près de chez vous et bénéficiez des meilleures aides disponibles.</p>
+            <p className="text-muted-foreground mb-6 max-w-xl mx-auto">{siteMode === "frh" ? "Obtenez le devis de notre installateur certifié RGE et bénéficiez des meilleures aides disponibles." : "Comparez les offres d'installateurs certifiés RGE près de chez vous et bénéficiez des meilleures aides disponibles."}</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button asChild size="lg" className="gap-2">
                 <Link to="/landing/pompe-a-chaleur">Voir notre offre PAC <ArrowRight className="w-4 h-4" /></Link>
