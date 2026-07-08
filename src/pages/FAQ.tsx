@@ -9,8 +9,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { HelpCircle } from "lucide-react";
+import { useSiteMode } from "@/hooks/useSiteMode";
 
-const faqs = [
+const baseFaqs = [
   {
     question: "Combien puis-je économiser avec une installation solaire photovoltaïque ?",
     answer: "Une installation photovoltaïque vous permet de réduire votre facture d'électricité jusqu'à 80%. En autoconsommation, vous produisez et consommez votre propre électricité, ce qui diminue considérablement vos achats auprès du fournisseur. Le surplus peut être revendu à EDF OA, générant un revenu complémentaire. Avec les aides disponibles (prime à l'autoconsommation, tarif de rachat garanti), votre installation se rentabilise généralement entre 8 et 12 ans, pour une durée de vie des panneaux de 25 à 30 ans."
