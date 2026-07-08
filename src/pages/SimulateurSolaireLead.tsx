@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { Helmet } from "react-helmet";
+import { Link } from "react-router-dom";
 import { z } from "zod";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -468,6 +469,12 @@ export default function SimulateurSolaireLead() {
             </Button>
             <p className="text-[11px] text-center text-slate-500 flex items-center justify-center gap-1.5">
               <ShieldCheck className="w-3 h-3" /> Gratuit et sans engagement. Données utilisées uniquement pour votre demande.
+            </p>
+            <p className="text-[10px] text-center text-slate-500 leading-relaxed">
+              Conformément au RGPD, vos données sont traitées de façon sécurisée.{" "}
+              <Link to="/politique-confidentialite" className="underline hover:text-orange-600 transition-colors">
+                Politique de confidentialité
+              </Link>
             </p>
           </div>
         </DialogContent>
