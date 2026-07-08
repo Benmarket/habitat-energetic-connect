@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSiteMode } from "@/hooks/useSiteMode";
 
 const Footer = () => {
+  const { mode: siteMode } = useSiteMode();
   const [headerFooterSettings, setHeaderFooterSettings] = useState({
     showPhone: false,
     phoneNumber: "0 800 123 456",

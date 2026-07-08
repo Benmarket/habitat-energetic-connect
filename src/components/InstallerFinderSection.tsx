@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Search, MapPin, Phone, Globe, CheckCircle, X, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
+import { useSiteMode } from "@/hooks/useSiteMode";
 
 interface SearchResult {
   id: string;
@@ -31,6 +32,7 @@ interface SearchResult {
 }
 
 const InstallerFinderSection = () => {
+  const { mode: siteMode } = useSiteMode();
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
@@ -153,7 +155,9 @@ const InstallerFinderSection = () => {
             Votre portail de confiance pour les énergies renouvelables
           </h2>
           <p className="text-sm md:text-lg lg:text-xl text-white/95 font-light">
-            Découvrez les meilleures offres et installez vos équipements avec les meilleurs professionnels locaux
+            {siteMode === "frh"
+              ? "Découvrez les meilleures offres et installez vos équipements avec notre équipe d'installation certifiée RGE"
+              : "Découvrez les meilleures offres et installez vos équipements avec les meilleurs professionnels locaux"}
           </p>
         </div>
 
