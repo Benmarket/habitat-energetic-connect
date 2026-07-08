@@ -1365,7 +1365,7 @@ RETOURNE un JSON VALIDE (sans markdown ni backticks) :
       }
 
       // Popup par défaut contextuel (solaire vs général) pour l'édition d'article
-      const _fixTopicStr = `${(post as any)?.title || ''} ${(post as any)?.excerpt || ''}`.toLowerCase();
+      const _fixTopicStr = `${title || ''} ${content || ''}`.toLowerCase();
       const isSolarTopicFix = /solair|photovolt|panneau|autoconsomm|zni|kwc/i.test(_fixTopicStr);
       const solarPopupFix = activePopups.find((p: any) => p.trigger_id === 'popup-demande-solaire');
       const generalPopupFix =
