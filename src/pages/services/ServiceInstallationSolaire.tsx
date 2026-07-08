@@ -11,6 +11,7 @@ import solarRoofImg from "@/assets/services/solar-roof-aerial.jpg";
 import solarWorkerImg from "@/assets/services/solar-installation-worker.jpg";
 import solarMonitoringImg from "@/assets/services/solar-monitoring.jpg";
 import solarOnduleurImg from "@/assets/services/solar-onduleur.jpg";
+import { useSiteMode } from "@/hooks/useSiteMode";
 
 const faqs = [
   { q: "Combien coûte une installation solaire en 2026 ?", a: "Le prix d'une installation solaire photovoltaïque varie entre 7 500 € et 18 000 € pour une puissance de 3 à 9 kWc, pose incluse. Les aides comme la prime à l'autoconsommation et l'obligation d'achat peuvent réduire significativement le coût net." },
@@ -24,6 +25,9 @@ const faqs = [
 ];
 
 const ServiceInstallationSolaire = () => {
+  const { mode: siteMode } = useSiteMode();
+  const installerLabel = siteMode === "frh" ? "notre installateur RGE" : "installateurs certifiés RGE";
+  const installerLabelSchema = siteMode === "frh" ? "notre installateur RGE" : "installateurs certifiés RGE";
   const breadcrumbItems = [
     { name: "Accueil", url: "/" },
     { name: "Services", url: "/" },
