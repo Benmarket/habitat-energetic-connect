@@ -11,6 +11,7 @@ import solarRoofImg from "@/assets/services/solar-roof-aerial.jpg";
 import solarWorkerImg from "@/assets/services/solar-installation-worker.jpg";
 import solarMonitoringImg from "@/assets/services/solar-monitoring.jpg";
 import solarOnduleurImg from "@/assets/services/solar-onduleur.jpg";
+import { useSiteMode } from "@/hooks/useSiteMode";
 
 const faqs = [
   { q: "Combien coûte une installation solaire en 2026 ?", a: "Le prix d'une installation solaire photovoltaïque varie entre 7 500 € et 18 000 € pour une puissance de 3 à 9 kWc, pose incluse. Les aides comme la prime à l'autoconsommation et l'obligation d'achat peuvent réduire significativement le coût net." },
@@ -24,6 +25,7 @@ const faqs = [
 ];
 
 const ServiceInstallationSolaire = () => {
+  const { mode: siteMode } = useSiteMode();
   const breadcrumbItems = [
     { name: "Accueil", url: "/" },
     { name: "Services", url: "/" },
@@ -34,7 +36,9 @@ const ServiceInstallationSolaire = () => {
     "@context": "https://schema.org",
     "@type": "Service",
     name: "Installation de panneaux solaires photovoltaïques",
-    description: "Service d'installation de panneaux solaires pour les particuliers et professionnels. Devis gratuit, installateurs certifiés RGE, accompagnement complet.",
+    description: siteMode === "frh"
+      ? "Service d'installation de panneaux solaires pour les particuliers et professionnels. Devis gratuit, notre installateur RGE, accompagnement complet."
+      : "Service d'installation de panneaux solaires pour les particuliers et professionnels. Devis gratuit, installateurs certifiés RGE, accompagnement complet.",
     provider: { "@type": "Organization", name: "Prime Énergies", url: "https://prime-energies.fr" },
     areaServed: { "@type": "Country", name: "France" },
     serviceType: "Installation solaire photovoltaïque",
@@ -68,7 +72,9 @@ const ServiceInstallationSolaire = () => {
     <div className="min-h-screen bg-background">
       <Helmet>
         <title>Installation Solaire Photovoltaïque : Guide Complet 2026 | Prime Énergies</title>
-        <meta name="description" content="Tout savoir sur l'installation de panneaux solaires : prix 2026, aides financières, rentabilité, étapes d'installation, choix de l'installateur RGE. Guide complet avec simulateur gratuit." />
+        <meta name="description" content={siteMode === "frh"
+          ? "Tout savoir sur l'installation de panneaux solaires : prix 2026, aides financières, rentabilité, étapes d'installation, notre installateur RGE. Guide complet avec simulateur gratuit."
+          : "Tout savoir sur l'installation de panneaux solaires : prix 2026, aides financières, rentabilité, étapes d'installation, choix de l'installateur RGE. Guide complet avec simulateur gratuit."} />
         <link rel="canonical" href="https://prime-energies.fr/services/installation-solaire" />
         <meta property="og:title" content="Installation Solaire Photovoltaïque | Prime Énergies" />
         <meta property="og:description" content="Prix, aides, rentabilité : tout ce qu'il faut savoir avant d'installer des panneaux solaires chez vous en 2026." />
