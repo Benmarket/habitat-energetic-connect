@@ -25,6 +25,7 @@ const formSchema = z.object({
 });
 
 const FooterContactForm = () => {
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     lastName: "",
