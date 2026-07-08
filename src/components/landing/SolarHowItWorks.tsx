@@ -41,6 +41,13 @@ interface SolarHowItWorksProps {
 
 const SolarHowItWorks = ({ onCtaClick }: SolarHowItWorksProps) => {
   const { ref, isVisible } = useScrollReveal();
+  const { mode: siteMode } = useSiteMode();
+  const resolvedSteps = steps.map((s) => ({
+    ...s,
+    description: siteMode === "frh" && "frhDescription" in s && s.frhDescription
+      ? s.frhDescription
+      : s.description,
+  }));
 
   return (
     <section className="py-12 lg:py-20 bg-card">
