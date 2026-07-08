@@ -303,12 +303,23 @@ ${contentType === 'aide' ? 'Types possibles: Décryptage, Simulation, Éligibili
             .map((f: any) => f.id)
         );
 
-        // Filter out popups linked to excluded forms
-        activePopups = allPopups.filter((p: any) => !p.form_id || !excludedFormIds.has(p.form_id));
+        // Filter out popups linked to excluded forms + popups réservés (guide download, newsletter)
+        const ARTICLE_EXCLUDED_TRIGGERS = ['guide-download', 'guide-download-thanks', 'newsletter-success'];
+        activePopups = allPopups.filter((p: any) =>
+          (!p.form_id || !excludedFormIds.has(p.form_id)) &&
+          !ARTICLE_EXCLUDED_TRIGGERS.includes(p.trigger_id)
+        );
       }
 
-      const popupWithForm = activePopups.find((p: any) => p.form_id);
-      const defaultPopupId = popupWithForm?.id || (activePopups.length > 0 ? activePopups[0].id : '');
+      // Choix du popup par défaut selon le sujet de l'article
+      const _topicStr = `${subject || ''} ${theme || ''} ${product || ''} ${(keywords || []).toString?.() || ''} ${imposedTitle || ''}`.toLowerCase();
+      const isSolarTopic = /solair|photovolt|panneau|autoconsomm|zni|kwc/i.test(_topicStr);
+      const solarPopup = activePopups.find((p: any) => p.trigger_id === 'popup-demande-solaire');
+      const generalPopup =
+        activePopups.find((p: any) => p.trigger_id === 'find-professional-cta') ||
+        activePopups.find((p: any) => p.form_id);
+      const defaultPopupId =
+        (isSolarTopic && solarPopup?.id) || generalPopup?.id || (activePopups[0]?.id ?? '');
 
       // Build available pages list for AI (internal pages + landing pages)
       const internalPages = [
