@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Lightbulb, Calculator, Zap, ArrowRight, Users, User, Briefcase } from "lucide-react";
+import { useSiteMode } from "@/hooks/useSiteMode";
 
 interface Aide {
   id: string;
@@ -24,6 +25,7 @@ const iconMap: { [key: number]: any } = {
 };
 
 const AidesSection = () => {
+  const { mode: siteMode } = useSiteMode();
   const [aides, setAides] = useState<Aide[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalActiveAides, setTotalActiveAides] = useState(0);
@@ -324,7 +326,9 @@ const AidesSection = () => {
                 Besoin d'aide pour constituer votre dossier ?
               </h3>
               <p className="text-muted-foreground text-sm md:text-base mb-5 max-w-4xl mx-auto leading-snug">
-                Nos installateurs partenaires vous accompagnent dans toutes vos démarches administratives
+                {siteMode === "frh"
+                  ? "Notre équipe d'installateurs certifiés RGE vous accompagne dans toutes vos démarches administratives"
+                  : "Nos installateurs partenaires vous accompagnent dans toutes vos démarches administratives"}
               </p>
               <Button
                 size="lg"
