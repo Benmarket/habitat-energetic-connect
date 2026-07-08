@@ -1,6 +1,7 @@
 import { ClipboardCheck, HardHat, Plug, PiggyBank } from "lucide-react";
 import solarInstallerImg from "@/assets/landing/solar-installer-roof.jpg";
 import { useScrollReveal, revealClass } from "@/hooks/useScrollReveal";
+import { useSiteMode } from "@/hooks/useSiteMode";
 
 const steps = [
   {
@@ -15,6 +16,7 @@ const steps = [
     number: "02",
     title: "Installation par un pro RGE",
     description: "Nos installateurs certifiés RGE posent vos panneaux en 1 à 2 jours. Nous gérons 100% des démarches administratives.",
+    frhDescription: "Notre équipe d'installateurs certifiés RGE pose vos panneaux en 1 à 2 jours. Nous gérons 100% des démarches administratives.",
     color: "bg-blue-500",
   },
   {
