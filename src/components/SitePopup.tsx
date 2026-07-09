@@ -358,6 +358,13 @@ export default function SitePopup() {
       return;
     }
 
+    // RGPD consent required for contact-type lead forms
+    const requiresRgpd = form.form_identifier === "aide-dossier" || form.form_identifier === "lead-annonce";
+    if (requiresRgpd && formData._rgpd_consent !== "true") {
+      toast.error("Merci d'accepter le traitement de vos données (RGPD) pour envoyer votre demande.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       if (form.form_identifier === "newsletter") {
