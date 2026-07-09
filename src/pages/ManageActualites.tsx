@@ -389,12 +389,13 @@ const ManageActualites = () => {
                 </Button>
                 <Button
                   onClick={() => runBulk("full")}
-                  className="gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white"
+                  variant="outline"
+                  className="gap-2 border-amber-300 text-amber-700 hover:bg-amber-50"
                   disabled={!!bulkRunning || loading}
-                  title="Enrichir tous les articles publiés (IA — consomme des crédits)"
+                  title="⚠️ Mode expert — modifie tous les articles publiés sans validation individuelle. Préférer les corrections article par article via 'Auditer'."
                 >
                   {bulkRunning === "full" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  Enrichir tout (IA)
+                  Enrichir tout (IA) — expert
                 </Button>
                 <Link to="/admin/articles-audit">
                   <Button variant="outline" className="gap-2">
