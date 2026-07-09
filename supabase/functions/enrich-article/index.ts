@@ -382,12 +382,13 @@ Deno.serve(async (req) => {
   if (!auth.ok) return auth.response;
 
   try {
-    const { post_id, dry_run = false, mode = "full" } = await req.json();
+    const { post_id, dry_run = false, mode = "full", focus = "all" } = await req.json();
     if (!post_id) {
       return new Response(JSON.stringify({ error: "post_id requis" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const safeFocus: Focus = (focus === "informative" || focus === "seo") ? focus : "all";
 
     const sb = createClient(SUPABASE_URL, SERVICE_KEY);
     const { data: post, error: pErr } = await sb
@@ -436,12 +437,8 @@ Deno.serve(async (req) => {
       .order("published_at", { ascending: false })
       .limit(50);
 
-    // Pour une aide : prioriser autres aides + guides connexes (pas trop d'actualités datées)
-    // Pour un guide : prioriser aides + autres guides
-    // Pour une actualité : tout type accepté
     const filteredOthers = (others || []).filter((p: any) => {
       if (postType === "aide") return p.content_type === "aide" || p.content_type === "guide";
-      if (postType === "guide") return true;
       return true;
     });
 
@@ -454,8 +451,7 @@ Deno.serve(async (req) => {
     const today = new Date().toISOString().slice(0, 10);
     const pubDate = post.published_at ? String(post.published_at).slice(0, 10) : "inconnu";
 
-    const prompt = buildPrompt(postType, post, heuristic, candidates, today, pubDate);
-
+    const prompt = buildPrompt(postType, post, heuristic, candidates, today, pubDate, safeFocus);
 
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -483,8 +479,7 @@ Deno.serve(async (req) => {
 
     const updated = parsed.updated_content || post.content;
 
-    // GARDE-FOU TYPE : on n'écrit JAMAIS dans des champs liés au format (ex: featured_image, content_type).
-    // Et on s'assure que la longueur reste cohérente avec le type (ne pas qu'une aide devienne un guide).
+    // GARDE-FOU TYPE
     const newLen = (updated || "").length;
     const oldLen = (post.content || "").length;
     const rules = getRules(post.content_type);
@@ -495,8 +490,19 @@ Deno.serve(async (req) => {
     if (postType === "actualite" && newLen > oldLen * 2 && newLen > rules.targetLength * 1.5) {
       blocked = `Modification refusée : actualité gonflée artificiellement (${oldLen}→${newLen}).`;
     }
+    // GARDE-FOU FOCUS : si focus=seo, refuser toute modif majeure du texte hors balises
+    if (safeFocus === "seo") {
+      const strip = (s: string) => (s || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+      const oldText = strip(post.content || "");
+      const newText = strip(updated);
+      // Ratio de mots communs
+      const diffRatio = Math.abs(newText.length - oldText.length) / Math.max(oldText.length, 1);
+      if (diffRatio > 0.10) {
+        blocked = `Focus SEO : le texte a été modifié au-delà du seuil autorisé (Δ ${(diffRatio * 100).toFixed(1)}%). Corrections rejetées pour préserver le fond.`;
+      }
+    }
 
-    const audit = { ...(parsed.audit || {}), heuristic, content_type: post.content_type, blocked };
+    const audit = { ...(parsed.audit || {}), heuristic, content_type: post.content_type, blocked, focus: safeFocus };
 
     if (!dry_run && !blocked && updated && updated !== post.content) {
       await sb.from("posts").update({ content: updated, updated_at: new Date().toISOString() }).eq("id", post_id);
@@ -504,7 +510,10 @@ Deno.serve(async (req) => {
 
     return new Response(JSON.stringify({
       ok: true, post_id, title: post.title, slug: post.slug, content_type: post.content_type,
-      changed: !blocked && updated !== post.content, audit,
+      changed: !blocked && updated !== post.content,
+      original_content: dry_run ? post.content : undefined,
+      updated_content: dry_run ? updated : undefined,
+      audit,
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   } catch (e: any) {
