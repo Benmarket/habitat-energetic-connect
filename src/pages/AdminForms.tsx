@@ -821,6 +821,7 @@ export default function AdminForms() {
             {forms.map((form, index) => {
               const isLandingPageForm = form.form_identifier.startsWith('lp-');
               const isHomeForm = form.form_identifier.includes('accueil');
+              const isRgpdForm = form.form_identifier === 'desinscription-registre';
               const currentFormStats = formStats?.[form.id] || { total: 0, unread: 0, processed: 0 };
               const unreadCount = currentFormStats.unread;
               
