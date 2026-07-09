@@ -230,8 +230,52 @@ function preAudit(html: string, meta: { title: string; image: string | null; met
   return { issues, warnings, stats, rules, informative, seo };
 }
 
-function buildPrompt(type: ContentType, post: any, heuristic: any, candidates: string, today: string, pubDate: string) {
+type Focus = "all" | "informative" | "seo";
+
+function issuesFor(heuristic: any, focus: Focus): string {
+  const informative = heuristic.informative || { issues: [], warnings: [] };
+  const seo = heuristic.seo || { issues: [], warnings: [] };
+  let iss: string[] = [], wrn: string[] = [];
+  if (focus === "informative") { iss = informative.issues; wrn = informative.warnings; }
+  else if (focus === "seo") { iss = seo.issues; wrn = seo.warnings; }
+  else { iss = [...informative.issues, ...seo.issues]; wrn = [...informative.warnings, ...seo.warnings]; }
+  return [...iss.map((i: string) => "❌ " + i), ...wrn.map((w: string) => "⚠️ " + w)].join("\n") || "(aucun)";
+}
+
+function focusBlock(focus: Focus): string {
+  if (focus === "informative") {
+    return `🎯 FOCUS EXCLUSIF — CORRECTIONS INFORMATIVES UNIQUEMENT
+Tu ne dois corriger QUE le fond (véracité, dispositifs, montants, dates).
+INTERDIT dans ce passage : ajouter/supprimer des liens, images, alt, tableaux, H2, meta, FAQ.
+Autorisé :
+  • Séparer strictement les dispositifs cités (MaPrimeRénov' / prime autoconsommation / CEE / EDF OA / TVA) — chacun sa phrase, jamais mélangés.
+  • Retirer toute association MaPrimeRénov' ↔ photovoltaïque, batterie ou onduleur (dispositifs incompatibles).
+  • Conditionnaliser tout montant en euros : "5 000 €" → "jusqu'à 5 000 € selon éligibilité".
+  • Remplacer verbes promissoires ("vous économiserez", "vous toucherez") par des formulations conditionnelles ("vous pourriez", "peut atteindre").
+  • Ajouter une année/trimestre à toute aide mentionnée sans référence temporelle.
+  • Corriger CITE, RE2025, années 2023-2024 en actualisant ou neutralisant.
+  • Remplacer chiffres régionaux ultra-précis par des fourchettes prudentes.
+  • NE JAMAIS inventer un chiffre, un montant, un dispositif régional : préférer la formulation neutre ("selon votre territoire", "à vérifier auprès de…").`;
+  }
+  if (focus === "seo") {
+    return `🎯 FOCUS EXCLUSIF — CORRECTIONS SEO / TECHNIQUE UNIQUEMENT
+Tu ne dois corriger QUE la forme (structure, liens, meta, images, tableaux, H2).
+INTERDIT dans ce passage : modifier des chiffres, dispositifs, montants, dates, formulations éditoriales.
+Autorisé :
+  • Corriger les <a href=""> ou <a href="#"> vers un lien interne pertinent (/aides, /simulateurs/solaire, /contact) ou supprimer.
+  • Ajouter un attribut alt descriptif sur toute <img> qui en manque.
+  • Ajouter <th> aux tableaux sans en-tête.
+  • Ajouter des <h2> intermédiaires pour scinder les gros paragraphes.
+  • Ajouter les liens internes de maillage manquants (ancres descriptives, articles listés).
+  • Rien d'autre — le texte des phrases ne doit pas changer de sens.`;
+  }
+  return "";
+}
+
+function buildPrompt(type: ContentType, post: any, heuristic: any, candidates: string, today: string, pubDate: string, focus: Focus = "all") {
   const rules = TYPE_RULES[type];
+  const focusHeader = focusBlock(focus);
+  const issuesList = issuesFor(heuristic, focus);
 
   // ===== AIDE : prompt minimaliste, on ne touche presque pas =====
   if (type === "aide") {
@@ -240,10 +284,12 @@ function buildPrompt(type: ContentType, post: any, heuristic: any, candidates: s
 ⚠️ TU ÉDITES UNE PAGE "AIDE" — format court et factuel. NE TRANSFORME PAS EN ARTICLE OU EN GUIDE.
 ${rules.editorialNotes}
 
-PROBLÈMES DÉTECTÉS :
-${[...heuristic.issues.map((i: string) => "❌ " + i), ...heuristic.warnings.map((w: string) => "⚠️ " + w)].join("\n") || "(aucun)"}
+${focusHeader}
 
-INTERVENTIONS AUTORISÉES UNIQUEMENT :
+PROBLÈMES DÉTECTÉS :
+${issuesList}
+
+INTERVENTIONS AUTORISÉES (respect strict du FOCUS ci-dessus si défini) :
 A. Corriger les CTA cassés (<a href="#"> ou vide) → /aides ou /simulateurs/solaire selon contexte, ou suppression.
 B. Ajouter alt descriptif aux <img> qui en manquent.
 C. Conditionnaliser les montants : "5 000 €" → "jusqu'à 5 000 € selon le profil" / "peut atteindre…".
@@ -263,17 +309,19 @@ JSON STRICT :
 {"updated_content":"<html>","audit":{"interlinks_added":[],"ctas_fixed":[],"images_alt_added":0,"outdated_facts_corrected":[],"numbers_normalized":[],"tables_fixed":0,"remaining_issues":[],"veracity_flags":[],"quality_score":0}}`;
   }
 
-  // ===== GUIDE : prompt riche, maillage dense, FAQ, tableaux =====
+  // ===== GUIDE =====
   if (type === "guide") {
     return `Tu es éditeur SEO senior + fact-checker énergie/rénovation France. ${today}. Guide publié le ${pubDate}.
 
 ⚠️ TU ÉDITES UN "GUIDE" — format long et pédagogique. NE TRANSFORME PAS EN ACTUALITÉ.
 ${rules.editorialNotes}
 
-PROBLÈMES DÉTECTÉS :
-${[...heuristic.issues.map((i: string) => "❌ " + i), ...heuristic.warnings.map((w: string) => "⚠️ " + w)].join("\n") || "(aucun)"}
+${focusHeader}
 
-TÂCHES (ordre obligatoire) :
+PROBLÈMES DÉTECTÉS :
+${issuesList}
+
+TÂCHES (respect strict du FOCUS ci-dessus si défini) :
 A. MAILLAGE INTERNE — Insère ${rules.minInternalLinks} à ${rules.maxInternalLinks} liens contextuels vers les articles listés. Ancres descriptives. 1 lien max/paragraphe.
 B. BLOC "Pour aller plus loin" avant la FAQ (2-3 liens) :
 <div class="my-8 p-6 rounded-xl bg-muted/50 border border-border"><h3 class="text-lg font-semibold mb-3">Pour aller plus loin</h3><ul class="space-y-2"><li>→ <a href="/URL">Titre</a></li></ul></div>
@@ -301,10 +349,12 @@ JSON STRICT :
 ⚠️ TU ÉDITES UNE "ACTUALITÉ" — ton journalistique, factuel, daté. NE TRANSFORME PAS EN GUIDE NI EN AIDE.
 ${rules.editorialNotes}
 
-PROBLÈMES DÉTECTÉS :
-${[...heuristic.issues.map((i: string) => "❌ " + i), ...heuristic.warnings.map((w: string) => "⚠️ " + w)].join("\n") || "(aucun)"}
+${focusHeader}
 
-TÂCHES :
+PROBLÈMES DÉTECTÉS :
+${issuesList}
+
+TÂCHES (respect strict du FOCUS ci-dessus si défini) :
 A. MAILLAGE — ${rules.minInternalLinks} à ${rules.maxInternalLinks} liens internes vers les articles listés, ancres descriptives.
 B. CTA cassés (<a href="#">) → lien interne pertinent ou suppression. CTA factice → /aides ou /simulateurs/solaire selon sujet.
 C. Alt descriptif sur <img>.
