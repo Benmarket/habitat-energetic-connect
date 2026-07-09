@@ -23,6 +23,9 @@ const formSchema = z.object({
   phone: z.string().trim().min(10, "Téléphone invalide"),
   email: z.string().trim().email("Email invalide"),
   postalCode: z.string().trim().regex(/^\d{5}$/, "Code postal invalide (5 chiffres)"),
+  rgpdConsent: z.boolean().refine((val) => val === true, {
+    message: "Vous devez accepter le traitement de vos données pour continuer.",
+  }),
 });
 
 // Composant icône clé barrée pour "Non propriétaire" - même clé que KeyRound avec barre
