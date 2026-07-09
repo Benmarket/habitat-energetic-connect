@@ -85,99 +85,149 @@ function getRules(t: string | null | undefined) {
 
 function preAudit(html: string, meta: { title: string; image: string | null; metaTitle: string | null; metaDescription: string | null; faqCount: number; contentType: string; }) {
   const rules = getRules(meta.contentType);
-  const issues: string[] = [];
-  const warnings: string[] = [];
+
+  // === DEUX AXES SÉPARÉS ===
+  // - informative = conformité du CONTENU (véracité, non-mélange dispositifs, RGPD éditorial, chiffres, dates)
+  // - seo         = conformité TECHNIQUE (structure, meta, liens, images alt, tableaux, longueur, H2)
+  const informative: { issues: string[]; warnings: string[] } = { issues: [], warnings: [] };
+  const seo: { issues: string[]; warnings: string[] } = { issues: [], warnings: [] };
   const stats: Record<string, number> = {};
+
   const len = html.length;
   stats.length = len;
+  const text = html.replace(/<[^>]+>/g, " ");
 
-  // Images inline
+  // ─────────────────────────────────────────────
+  // AXE 1 — CONFORMITÉ INFORMATIVE (fond)
+  // ─────────────────────────────────────────────
+
+  // 1.a Mélange dispositifs interdits (critique — PV/batterie/onduleur ≠ MaPrimeRénov')
+  const hasMPR = /MaPrimeR[ée]nov'?/i.test(text);
+  const hasPV = /(photovolta[ïi]que|panneau(x)? solaire(s)?)/i.test(text);
+  const hasBatterie = /batterie(s)?\s+(de\s+stockage|solaire|lithium)/i.test(text);
+  const hasOnduleur = /onduleur(s)?\s+(hybride|solaire)/i.test(text);
+  if (hasMPR && hasPV) informative.issues.push("MaPrimeRénov' associé au photovoltaïque (PV strictement exclu de MPR)");
+  if (hasMPR && hasBatterie) informative.issues.push("MaPrimeRénov' associé à une batterie (batteries non éligibles à MPR)");
+  if (hasMPR && hasOnduleur) informative.issues.push("MaPrimeRénov' associé à un onduleur (onduleurs non éligibles à MPR)");
+
+  // 1.b Mélange dispositifs dans la même phrase (MPR + prime autoconso / EDF OA)
+  const sentences = text.split(/[.!?]\s+/);
+  const mixedSentence = sentences.find((s) =>
+    /MaPrimeR[ée]nov'?/i.test(s) && /(prime\s+(à\s+l'?)?autoconsommation|EDF\s*OA|tarif\s+d'?achat)/i.test(s)
+  );
+  if (mixedSentence) informative.warnings.push("Une phrase mélange MaPrimeRénov' et prime autoconsommation/EDF OA — dispositifs distincts, à séparer");
+
+  // 1.c Faits obsolètes / erreurs récurrentes
+  if (/\bCITE\b/.test(text) && /cr[ée]dit d['']imp[oô]t/i.test(text)) informative.issues.push("Mention du CITE (supprimé depuis 2021)");
+  if (/RE2025/.test(text)) informative.issues.push("Mention 'RE2025' — la norme est RE2020");
+
+  // 1.d Années potentiellement périmées
+  const yearHits = [...text.matchAll(/\b(en|depuis|pour|dès|fin|début|courant|d[ée]but)\s+(202[3-5])\b/gi)];
+  if (yearHits.length) {
+    const years = [...new Set(yearHits.map((m) => m[2]))].sort();
+    informative.warnings.push(`Année(s) potentiellement périmée(s) : ${years.join(", ")} — à réactualiser ou neutraliser`);
+  }
+
+  // 1.e Verbes promissoires (RGPD/DGCCRF : formulation trompeuse)
+  const promissoryPatterns = [
+    /\bvous\s+(?:allez\s+)?économiser(?:ez)?\b/i,
+    /\bvous\s+(?:allez\s+)?toucher(?:ez)?\b/i,
+    /\bvous\s+(?:allez\s+)?recev(?:oir|rez)\b/i,
+    /\bvous\s+(?:allez\s+)?gagner(?:ez)?\b/i,
+    /\bgarant(?:i|ie)\s+de\s+\d/i,
+  ];
+  const promissoryHits = promissoryPatterns.filter((r) => r.test(text));
+  if (promissoryHits.length) {
+    informative.warnings.push(`Formulation promissoire détectée (${promissoryHits.length} occurrence(s)) — utiliser le conditionnel ("pourriez", "jusqu'à", "selon éligibilité")`);
+  }
+
+  // 1.f Montants sans conditionnel — obligatoire pour aide, recommandé partout ailleurs
+  const hasAmount = /\d[\d\s]*€|\d[\d\s]*\s*euros/i.test(text);
+  const hasConditional = /(peut atteindre|jusqu'?à|selon|en fonction|sous conditions|éligibilité|pourrait|pourriez)/i.test(text);
+  if (hasAmount && !hasConditional) {
+    if (meta.contentType === "aide") {
+      informative.issues.push("Montants mentionnés sans conditionnel ('jusqu'à', 'selon'…) — obligatoire pour une aide");
+    } else {
+      informative.warnings.push("Montants mentionnés sans conditionnel — recommandé pour éviter toute promesse chiffrée");
+    }
+  }
+
+  // 1.g Aides mentionnées sans année → risque d'obsolescence silencieuse
+  const aideMentioned = /(MaPrimeR[ée]nov'?|prime\s+(à\s+l'?)?autoconsommation|CEE|Coup\s+de\s+pouce|éco.?PTZ|Denormandie|prime\s+énergie)/i.test(text);
+  const hasYearAnywhere = /\b20(2[0-9]|3[0-9])\b/.test(text);
+  if (aideMentioned && !hasYearAnywhere) {
+    informative.warnings.push("Aide(s) mentionnée(s) sans année de référence — dater les montants (trimestre + année)");
+  }
+
+  // 1.h Chiffres régionaux ultra-précis suspects (ensoleillement)
+  const suspectHours = [...text.matchAll(/\b(\d{4})\s*h(?:eures)?\s+d['e]?\s?ensoleillement/gi)];
+  if (suspectHours.length > 0) {
+    informative.warnings.push("Chiffre d'ensoleillement précis détecté — préférer une fourchette (ex : 2 400-2 700 h/an) ou citer la source");
+  }
+
+  // ─────────────────────────────────────────────
+  // AXE 2 — CONFORMITÉ SEO / TECHNIQUE (forme)
+  // ─────────────────────────────────────────────
+
   const imgs = html.match(/<img[^>]+>/gi) || [];
   stats.images_inline = imgs.length;
   const noAlt = imgs.filter((i) => !/\balt\s*=\s*"[^"]+"/i.test(i));
-  if (noAlt.length) warnings.push(`${noAlt.length}/${imgs.length} image(s) sans attribut alt`);
+  if (noAlt.length) seo.warnings.push(`${noAlt.length}/${imgs.length} image(s) sans attribut alt`);
   const placeholders = imgs.filter((i) => /placeholder|lorempixel|example\.com/i.test(i));
-  if (placeholders.length) issues.push(`${placeholders.length} image(s) placeholder à remplacer`);
+  if (placeholders.length) seo.issues.push(`${placeholders.length} image(s) placeholder à remplacer`);
 
-  // Featured image — règle PAR TYPE
   if (rules.expectsImage && !meta.image) {
-    issues.push("Aucune image à la une (featured_image vide)");
+    seo.issues.push("Aucune image à la une (featured_image vide)");
   }
-  // pour les aides : on ne signale RIEN si pas d'image (c'est voulu)
-
   const extImgs = imgs.filter((i) => /src="https?:\/\//i.test(i) && !/supabase|lovable|prime-energies/i.test(i));
-  if (extImgs.length) warnings.push(`${extImgs.length} image(s) externe(s) — risque de lien mort`);
+  if (extImgs.length) seo.warnings.push(`${extImgs.length} image(s) externe(s) — risque de lien mort`);
 
-  // Links
   const links = [...html.matchAll(/<a\b[^>]*href\s*=\s*"([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi)];
   stats.links_total = links.length;
   const empty = links.filter((m) => m[1] === "" || m[1] === "#");
-  if (empty.length) issues.push(`${empty.length} lien(s) avec href vide ou '#'`);
+  if (empty.length) seo.issues.push(`${empty.length} lien(s) avec href vide ou '#'`);
   const noText = links.filter((m) => !m[2].replace(/<[^>]+>/g, "").trim());
-  if (noText.length) warnings.push(`${noText.length} lien(s) sans texte d'ancre`);
+  if (noText.length) seo.warnings.push(`${noText.length} lien(s) sans texte d'ancre`);
   const internal = links.filter((m) => m[1].startsWith("/") || /prime-energies\.fr/.test(m[1]));
   stats.links_internal = internal.length;
   stats.links_external = links.length - internal.length - empty.length;
   if (internal.length < rules.minInternalLinks && len > rules.minLength) {
-    warnings.push(`Maillage interne faible pour un ${rules.label.toLowerCase()} (${internal.length} liens, min ${rules.minInternalLinks})`);
+    seo.warnings.push(`Maillage interne faible pour un ${rules.label.toLowerCase()} (${internal.length} liens, min ${rules.minInternalLinks})`);
   }
 
-  // Tables
   const tables = html.match(/<table\b[\s\S]*?<\/table>/gi) || [];
   stats.tables = tables.length;
-  if (tables.some((t) => !/<th\b/i.test(t))) warnings.push("Tableau sans en-tête <th>");
+  if (tables.some((t) => !/<th\b/i.test(t))) seo.warnings.push("Tableau sans en-tête <th>");
 
-  // Outdated facts
-  const text = html.replace(/<[^>]+>/g, " ");
-  const yearHits = [...text.matchAll(/\b(en|depuis|pour|dès|fin|début|courant|d[ée]but)\s+(202[3-5])\b/gi)];
-  if (yearHits.length) {
-    const years = [...new Set(yearHits.map((m) => m[2]))].sort();
-    warnings.push(`Année(s) potentiellement périmée(s) : ${years.join(", ")}`);
-  }
-  if (/\bCITE\b/.test(text) && /cr[ée]dit d['']imp[oô]t/i.test(text)) warnings.push("Mention du CITE (supprimé depuis 2021)");
-  if (/RE2025/.test(text)) warnings.push("Mention 'RE2025' incorrect (RE2020)");
-  if (/photovolta/i.test(text) && /MaPrimeR[ée]nov/i.test(text)) {
-    warnings.push("MaPrimeRénov + photovoltaïque (PV exclu de MPR)");
-  }
+  if (!meta.metaTitle) seo.issues.push("meta_title vide");
+  else if (meta.metaTitle.length > 65) seo.warnings.push(`meta_title trop long (${meta.metaTitle.length})`);
+  if (!meta.metaDescription) seo.issues.push("meta_description vide");
+  else if (meta.metaDescription.length > 165) seo.warnings.push(`meta_description trop longue (${meta.metaDescription.length})`);
+  else if (meta.metaDescription.length < 100) seo.warnings.push(`meta_description courte (${meta.metaDescription.length})`);
+  if (meta.title.length > 75) seo.warnings.push(`Titre long (${meta.title.length})`);
+  if (/\btest+\b/i.test(meta.title)) seo.issues.push("Titre contient 'test'");
 
-  // Pour les AIDES : vérifier ton conditionnel sur les montants
-  if (meta.contentType === "aide") {
-    const hasAmount = /\d[\d\s]*€|\d[\d\s]*\s*euros/i.test(text);
-    const hasConditional = /(peut atteindre|jusqu'?à|selon|en fonction|sous conditions|éligibilité)/i.test(text);
-    if (hasAmount && !hasConditional) {
-      warnings.push("Montants mentionnés sans conditionnel ('jusqu'à', 'selon'…) — obligatoire pour une aide");
-    }
-  }
-
-  // Meta
-  if (!meta.metaTitle) issues.push("meta_title vide");
-  else if (meta.metaTitle.length > 65) warnings.push(`meta_title trop long (${meta.metaTitle.length})`);
-  if (!meta.metaDescription) issues.push("meta_description vide");
-  else if (meta.metaDescription.length > 165) warnings.push(`meta_description trop longue (${meta.metaDescription.length})`);
-  else if (meta.metaDescription.length < 100) warnings.push(`meta_description courte (${meta.metaDescription.length})`);
-  if (meta.title.length > 75) warnings.push(`Titre long (${meta.title.length})`);
-  if (/\btest+\b/i.test(meta.title)) issues.push("Titre contient 'test'");
-
-  // FAQ — selon type
   if (rules.expectsFaq && meta.faqCount === 0 && len > rules.minLength) {
-    warnings.push(`Aucune FAQ — recommandée pour un ${rules.label.toLowerCase()}`);
+    seo.warnings.push(`Aucune FAQ — recommandée pour un ${rules.label.toLowerCase()}`);
   }
 
-  // Length — selon type
   if (len < rules.minLength) {
-    issues.push(`Contenu trop court pour un ${rules.label.toLowerCase()} (${len} car, min ${rules.minLength})`);
+    seo.issues.push(`Contenu trop court pour un ${rules.label.toLowerCase()} (${len} car, min ${rules.minLength})`);
   } else if (len < rules.targetLength) {
-    warnings.push(`Contenu court (${len} car, cible ${rules.targetLength})`);
+    seo.warnings.push(`Contenu court (${len} car, cible ${rules.targetLength})`);
   }
 
-  // H2 — selon type
   const h2 = (html.match(/<h2\b/gi) || []).length;
   stats.h2_count = h2;
   if (h2 < rules.minH2 && len > rules.minLength) {
-    warnings.push(`Seulement ${h2} <h2> (min ${rules.minH2} pour un ${rules.label.toLowerCase()})`);
+    seo.warnings.push(`Seulement ${h2} <h2> (min ${rules.minH2} pour un ${rules.label.toLowerCase()})`);
   }
 
-  return { issues, warnings, stats, rules };
+  // Rétrocompatibilité : issues/warnings agrégés (utilisés par AdminArticlesAudit)
+  const issues = [...informative.issues, ...seo.issues];
+  const warnings = [...informative.warnings, ...seo.warnings];
+
+  return { issues, warnings, stats, rules, informative, seo };
 }
 
 function buildPrompt(type: ContentType, post: any, heuristic: any, candidates: string, today: string, pubDate: string) {
