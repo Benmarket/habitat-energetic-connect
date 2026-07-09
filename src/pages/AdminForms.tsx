@@ -903,6 +903,11 @@ export default function AdminForms() {
                               <code className="text-xs bg-muted px-2 py-0.5 rounded">
                                 {form.form_identifier}
                               </code>
+                              {isRgpdForm && (
+                                <Badge className="gap-1 bg-red-600 text-white border-red-700 animate-pulse">
+                                  ⚠ PRIORITAIRE RGPD
+                                </Badge>
+                              )}
                               {form.webhook_enabled && (
                                 <Badge variant="secondary" className="gap-1">
                                   <ExternalLink className="h-3 w-3" />
