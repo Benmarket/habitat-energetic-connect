@@ -71,10 +71,14 @@ export default function LeadOfferModal({
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<LeadFormData>({
     resolver: zodResolver(leadSchema),
+    defaultValues: { rgpdConsent: false as unknown as true },
   });
+  const rgpdConsent = watch("rgpdConsent");
 
   const onSubmit = async (data: LeadFormData) => {
     setIsSubmitting(true);
