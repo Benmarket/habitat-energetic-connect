@@ -70,6 +70,8 @@ const ManageActualites = () => {
   const [bulkProgress, setBulkProgress] = useState({ done: 0, total: 0, ok: 0, changed: 0, errors: 0 });
   const [bulkSummary, setBulkSummary] = useState<any[] | null>(null);
 
+  const [focusFixing, setFocusFixing] = useState<null | "informative" | "seo">(null);
+
   const runEnrich = async (postId: string, postTitle: string, mode: "full" | "audit_only") => {
     setEnrichingId(postId);
     try {
@@ -90,13 +92,50 @@ const ManageActualites = () => {
     }
   };
 
+  // Correction ciblée d'un seul axe (informative OU seo) — passe par enrich-article avec `focus`
+  const runFocusFix = async (postId: string, postTitle: string, focus: "informative" | "seo") => {
+    setFocusFixing(focus);
+    try {
+      const { data, error } = await supabase.functions.invoke("enrich-article", {
+        body: { post_id: postId, mode: "full", focus },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.audit?.blocked) {
+        toast.error("Correction refusée : " + data.audit.blocked);
+      } else if (data?.changed) {
+        toast.success(`Corrections ${focus === "informative" ? "informatives" : "SEO"} appliquées`);
+      } else {
+        toast.info("Aucune modification n'a été jugée nécessaire par l'IA");
+      }
+      setAuditReport({ title: postTitle, data });
+      fetchPosts();
+    } catch (e: any) {
+      toast.error("Erreur : " + (e.message || String(e)));
+    } finally {
+      setFocusFixing(null);
+    }
+  };
+
   const runBulk = async (mode: "full" | "audit_only") => {
     const targets = posts.filter((p) => p.status === "published");
     if (targets.length === 0) { toast.info("Aucun article publié à traiter"); return; }
-    if (!window.confirm(
-      `${mode === "full" ? "Enrichir" : "Auditer"} ${targets.length} article(s) publié(s) ?\n` +
-      (mode === "full" ? "Le contenu sera modifié en base (corrections IA, maillage, CTA)." : "Audit en lecture seule.")
-    )) return;
+    // Soft-gate renforcé sur le mode "full" (IA en masse)
+    if (mode === "full") {
+      const warn = `⚠️ ATTENTION — Enrichissement IA en masse\n\n` +
+        `Vous allez laisser l'IA modifier ${targets.length} article(s) publié(s) sans validation individuelle.\n\n` +
+        `Risques :\n` +
+        `  • Corrections erronées non détectées\n` +
+        `  • Contenu régional inventé\n` +
+        `  • Dispositifs mélangés\n\n` +
+        `Recommandé : traiter article par article via "Auditer" puis "Corriger l'informatif" / "Corriger le SEO".\n\n` +
+        `Continuer quand même ?`;
+      if (!window.confirm(warn)) return;
+      // Double confirmation
+      if (!window.confirm(`Confirmer une seconde fois : enrichir ${targets.length} article(s) en base ?`)) return;
+    } else {
+      if (!window.confirm(`Auditer ${targets.length} article(s) publié(s) ? Lecture seule, aucune modification.`)) return;
+    }
 
     setBulkRunning(mode);
     setBulkProgress({ done: 0, total: targets.length, ok: 0, changed: 0, errors: 0 });
