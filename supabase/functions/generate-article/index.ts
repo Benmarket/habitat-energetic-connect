@@ -562,6 +562,41 @@ ${imposedTitle ? `🎯 TITRE IMPOSÉ PAR L'UTILISATEUR (brut, à reformuler prop
 - NE PAS citer des chiffres ou montants d'aides si tu n'es pas SÛR qu'ils sont corrects et à jour.
 - En cas de DOUTE sur un chiffre ou une aide → utilise une formulation prudente : "sous réserve d'éligibilité", "à vérifier sur france-renov.gouv.fr", ou NE LE MENTIONNE PAS.
 
+═══════════════════════════════════════════
+🧭 SÉPARATION STRICTE DES DISPOSITIFS (CRITIQUE POUR LA CRÉDIBILITÉ)
+═══════════════════════════════════════════
+
+⛔ NE JAMAIS MÉLANGER PLUSIEURS DISPOSITIFS DANS LA MÊME PHRASE, LE MÊME PARAGRAPHE OU LA MÊME LIGNE DE TABLEAU :
+- MaPrimeRénov' est UN dispositif → sa propre section, sa propre phrase, sa propre ligne.
+- Prime à l'autoconsommation (photovoltaïque) est UN AUTRE dispositif → sa propre section.
+- CEE (Certificats d'Économies d'Énergie) → séparé.
+- Tarif d'achat EDF OA / SEI (ZNI) → séparé.
+- TVA réduite (5,5% / 10% / 8,5% DOM) → séparé.
+- Aides locales / régionales → toujours en conditionnel ("selon votre région", "à vérifier auprès de…").
+- Éco-PTZ / Denormandie / MaPrimeAdapt' → chacun sa case.
+
+⛔ POUR TOUT TABLEAU D'AIDES : une seule aide par ligne, avec colonnes "Dispositif" / "Public / conditions" / "Montant" / "Année de référence". Ne jamais additionner des aides de dispositifs différents dans une même cellule.
+
+⛔ DATATION OBLIGATOIRE : toute mention d'aide, prime, TVA ou tarif d'achat DOIT porter une référence temporelle (année ou trimestre : "au T2 ${new Date().getFullYear()}", "en ${new Date().getFullYear()}", "valeurs applicables au ${new Date().toISOString().slice(0, 10)}").
+
+⛔ SPÉCIFICITÉ RÉGIONALE / DOM-TOM :
+- Les DOM (Guadeloupe, Martinique, Guyane, Réunion, Mayotte) et la Corse ont des dispositifs DIFFÉRENTS (CRE, SEI ZNI, TVA à 8,5% ou nulle en Guyane, tarifs d'achat spécifiques).
+- N'INVENTE JAMAIS un montant régional. Utilise "selon le territoire", "à vérifier selon la date de raccordement", "peut varier".
+- Ne jamais mentionner MaPrimeRénov Outre-mer pour un produit non éligible.
+- Pour les chiffres d'ensoleillement / production : préférer des fourchettes ("2 400-2 700 h/an", "1 400-1 600 kWh/kWc/an").
+
+═══════════════════════════════════════════
+🛡️ CONFORMITÉ ÉDITORIALE (RGPD / DGCCRF — protection contre pratiques commerciales trompeuses)
+═══════════════════════════════════════════
+
+⛔ AUCUN VERBE PROMISSOIRE PERSONNEL :
+- Interdit : "vous économiserez X€", "vous toucherez", "vous recevrez", "vous gagnerez", "garanti de X".
+- Autorisé : "vous pourriez économiser jusqu'à X€", "peut atteindre", "selon éligibilité", "sous réserve d'acceptation du dossier".
+
+⛔ AUCUNE PROMESSE CHIFFRÉE ABSOLUE : tout montant doit être borné par "jusqu'à", "selon", "peut atteindre", "en fonction de".
+
+⛔ TERMINAISON PRUDENTE : chaque section citant des aides doit se conclure par une phrase du type "Ces montants sont donnés à titre indicatif au ${new Date().getFullYear()}. Une vérification personnalisée est nécessaire avant tout devis."
+
 ⛔ TERMINOLOGIE FRANÇAISE OBLIGATOIRE :
 - Utilise "kWc" (kilowatt-crête) et JAMAIS "kWp" — kWc est le standard français utilisé par tous les installateurs, l'ADEME et les particuliers.
 - Utilise "kWh" pour l'énergie produite/consommée.
