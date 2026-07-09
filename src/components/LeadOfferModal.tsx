@@ -124,8 +124,24 @@ export default function LeadOfferModal({
 
       if (submitError) throw submitError;
 
+      // Fire-and-forget confirmation email
+      try {
+        const { sendFormConfirmationEmail } = await import("@/lib/sendFormConfirmationEmail");
+        sendFormConfirmationEmail({
+          formIdentifier: "lead-annonce",
+          recipient: {
+            email: data.email,
+            firstName: data.fullName,
+            phone: data.phone,
+          },
+          formLabel: `votre demande partenaire ${offerData.advertiserName}`,
+          requestSummary: offerData.offerTitle,
+        });
+      } catch {}
+
       reset();
       onClose();
+      
       
       // Call onSuccess callback for tracking
       onSuccess?.();
