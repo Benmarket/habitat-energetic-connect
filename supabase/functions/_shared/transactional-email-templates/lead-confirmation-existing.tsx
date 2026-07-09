@@ -178,6 +178,13 @@ const LeadConfirmationExistingEmail = ({
                         </Link>
                         <br />
                         © {new Date().getFullYear()} {BRAND.siteName} — Tous droits réservés
+                        <br />
+                        <span style={{ fontSize: '11px', color: '#9aa3b2' }}>
+                          Conformément au RGPD, vous pouvez vous désinscrire à tout moment{' '}
+                          <Link href={`${BRAND.siteUrl}/desinscription-registre`} style={footerLink}>
+                            ici
+                          </Link>.
+                        </span>
                       </Text>
                     </td>
                   </tr>

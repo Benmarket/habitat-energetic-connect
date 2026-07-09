@@ -334,6 +334,22 @@ const SimulateurSolaire = () => {
 
       if (submitError) throw submitError;
 
+      // Fire-and-forget confirmation email
+      try {
+        const { sendFormConfirmationEmail } = await import("@/lib/sendFormConfirmationEmail");
+        sendFormConfirmationEmail({
+          formIdentifier: "simulation-solaire",
+          recipient: {
+            email: formData.contactEmail,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            phone: formData.contactPhone,
+          },
+          formLabel: "votre simulation solaire",
+          requestSummary: `Panneaux solaires • ${formData.postalCode} ${formData.city}`,
+        });
+      } catch {}
+
       toast.success("Simulation enregistrée ! Vos résultats sont prêts.");
       setCurrentStep(6);
     } catch (err) {

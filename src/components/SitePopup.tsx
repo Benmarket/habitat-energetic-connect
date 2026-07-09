@@ -514,6 +514,27 @@ export default function SitePopup() {
 
         if (error) throw error;
 
+        // Fire-and-forget confirmation email (respects admin toggles)
+        const recipientEmail = (formData.email || "").trim();
+        if (recipientEmail) {
+          const labelByForm: Record<string, string> = {
+            "aide-dossier": "votre demande d'aide dossier",
+            "lead-annonce": "votre demande partenaire",
+            "demande-solaire": "votre demande solaire",
+          };
+          sendFormConfirmationEmail({
+            formIdentifier: form.form_identifier,
+            recipient: {
+              email: recipientEmail,
+              firstName: formData.first_name || formData.firstName || formData.fullName || formData.nom || "",
+              lastName: formData.last_name || formData.lastName || "",
+              phone: formData.phone || formData.telephone || "",
+            },
+            formLabel: labelByForm[form.form_identifier] || "votre demande",
+          });
+        }
+
+
         // Pour le formulaire solaire déclenché en popup (typiquement depuis un article),
         // on garde la modale ouverte avec l'écran de remerciement complet plutôt que
         // de rediriger vers /merci — cela évite de couper la lecture de l'article.
