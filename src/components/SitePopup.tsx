@@ -992,6 +992,19 @@ export default function SitePopup() {
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                 />
               )}
+              {(form?.form_identifier === "aide-dossier" || form?.form_identifier === "lead-annonce") && (
+                <label className="flex items-start gap-2 rounded-md border border-gray-200 bg-gray-50 p-2.5 cursor-pointer">
+                  <Checkbox
+                    checked={formData._rgpd_consent === "true"}
+                    onCheckedChange={(v) => setFormData((p) => ({ ...p, _rgpd_consent: v === true ? "true" : "" }))}
+                    className="mt-0.5"
+                  />
+                  <span className="text-[11px] leading-snug text-gray-700">
+                    J'accepte d'être contacté par téléphone et/ou email dans le cadre de ma demande. Mes données sont traitées conformément au RGPD.{" "}
+                    <a href="/politique-confidentialite" target="_blank" rel="noreferrer" className="underline">En savoir plus</a>. <span className="text-red-500">*</span>
+                  </span>
+                </label>
+              )}
               <Button 
                 type="submit"
                 className="w-full h-12 font-semibold text-white text-base rounded-lg shadow-md hover:shadow-lg transition-all"
