@@ -60,6 +60,7 @@ const EligibilityFormSection = () => {
     phone: "",
     email: "",
     postalCode: "",
+    rgpdConsent: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [buttonBounce, setButtonBounce] = useState<number | null>(null);
