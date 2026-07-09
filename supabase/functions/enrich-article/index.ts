@@ -255,7 +255,9 @@ Autorisé :
   • Ajouter une année/trimestre à toute aide mentionnée sans référence temporelle.
   • Corriger CITE, RE2025, années 2023-2024 en actualisant ou neutralisant.
   • Remplacer chiffres régionaux ultra-précis par des fourchettes prudentes.
-  • NE JAMAIS inventer un chiffre, un montant, un dispositif régional : préférer la formulation neutre ("selon votre territoire", "à vérifier auprès de…").`;
+  • 🚨 RÈGLE RÉGIONALE PRIMORDIALE : les aides, primes, tarifs d'achat et TVA VARIENT selon la région et PEUVENT NE PAS EXISTER dans certains territoires (Corse, DOM, ZNI, régions administratives sans dispositif local). NE JAMAIS présenter un montant comme "national" sans vérifier son périmètre. Un montant métropolitain ne s'applique PAS automatiquement en Corse/DOM/ZNI et inversement. Toujours ajouter "selon le territoire", "en France métropolitaine continentale", "hors ZNI", "sous réserve que le dispositif existe dans votre région", ou "à vérifier auprès de votre Région / EPCI / mairie".
+  • Les aides locales (Région, Département, EPCI, commune) sont FACULTATIVES et changent chaque année : toujours au conditionnel, jamais affirmées comme certaines.
+  • NE JAMAIS inventer un chiffre, un montant, un dispositif régional, ni un nom de dispositif local : préférer la formulation neutre ("selon votre territoire", "à vérifier auprès de…") ou supprimer la mention douteuse.`;
   }
   if (focus === "seo") {
     return `🎯 FOCUS EXCLUSIF — CORRECTIONS SEO / TECHNIQUE UNIQUEMENT

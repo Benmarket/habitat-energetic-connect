@@ -579,11 +579,17 @@ ${imposedTitle ? `🎯 TITRE IMPOSÉ PAR L'UTILISATEUR (brut, à reformuler prop
 
 ⛔ DATATION OBLIGATOIRE : toute mention d'aide, prime, TVA ou tarif d'achat DOIT porter une référence temporelle (année ou trimestre : "au T2 ${new Date().getFullYear()}", "en ${new Date().getFullYear()}", "valeurs applicables au ${new Date().toISOString().slice(0, 10)}").
 
-⛔ SPÉCIFICITÉ RÉGIONALE / DOM-TOM :
-- Les DOM (Guadeloupe, Martinique, Guyane, Réunion, Mayotte) et la Corse ont des dispositifs DIFFÉRENTS (CRE, SEI ZNI, TVA à 8,5% ou nulle en Guyane, tarifs d'achat spécifiques).
-- N'INVENTE JAMAIS un montant régional. Utilise "selon le territoire", "à vérifier selon la date de raccordement", "peut varier".
-- Ne jamais mentionner MaPrimeRénov Outre-mer pour un produit non éligible.
-- Pour les chiffres d'ensoleillement / production : préférer des fourchettes ("2 400-2 700 h/an", "1 400-1 600 kWh/kWc/an").
+⛔ SPÉCIFICITÉ RÉGIONALE / DOM-TOM — RÈGLE PRIMORDIALE (à appliquer AVANT toute mention d'aide) :
+- 🚨 LES AIDES, PRIMES, TARIFS D'ACHAT, TAUX DE TVA ET DISPOSITIFS **VARIENT SELON LA RÉGION, VOIRE N'EXISTENT PAS** dans certains territoires. Une aide valable en métropole n'est PAS automatiquement applicable en Corse, DOM, ZNI, ni dans toutes les régions administratives.
+- ⛔ NE JAMAIS présenter un montant, barème ou dispositif comme "national" ou "universel" sans vérifier le périmètre géographique. Toujours préciser : "en France métropolitaine continentale", "hors ZNI", "selon le territoire", "sous réserve que le dispositif existe dans votre région".
+- ⛔ INTERDIT de recopier un montant métropolitain pour un article ciblant les DOM/ZNI/Corse, et inversement. Les dispositifs applicables ne sont PAS les mêmes (ex : prime à l'autoconsommation métropole ≠ dispositifs SEI ZNI ; tarif EDF OA continental ≠ arrêté tarifaire ZNI ; TVA 10% métropole ≠ TVA 8,5% DOM ≠ 0% Guyane/Mayotte selon cas).
+- ⛔ Les DOM (Guadeloupe, Martinique, Guyane, Réunion, Mayotte), la Corse, et les ZNI ont des cadres RÉGLEMENTAIRES DIFFÉRENTS (CRE, SEI, arrêtés tarifaires spécifiques). Certaines aides métropolitaines N'Y EXISTENT PAS ; d'autres aides locales existent mais UNIQUEMENT là-bas.
+- ⛔ Les aides régionales/départementales/EPCI (Région, Département, Métropole, communes) sont FACULTATIVES et changent chaque année : ne JAMAIS affirmer qu'elles existent sans conditionnel. Formulation obligatoire : "certaines régions/collectivités proposent…", "à vérifier auprès de votre Région / EPCI / mairie", "selon les dispositifs locaux en vigueur".
+- ⛔ N'INVENTE JAMAIS un montant régional, un nom de dispositif local, ni un barème territorial. En cas de doute → formulation prudente ou omission pure.
+- ⛔ Pour les chiffres d'ensoleillement / production : préférer des fourchettes ("2 400-2 700 h/an", "1 400-1 600 kWh/kWc/an") jamais un chiffre précis inventé.
+- ⛔ Chaque tableau d'aides ciblant une région doit comporter une colonne ou mention "Applicable en : [territoire]" et une note "Dispositifs et montants variables selon le territoire — vérification personnalisée requise".
+- ⛔ Ne jamais mentionner MaPrimeRénov' Outre-mer pour un produit non éligible (photovoltaïque, batteries, onduleurs).
+
 
 ═══════════════════════════════════════════
 🛡️ CONFORMITÉ ÉDITORIALE (RGPD / DGCCRF — protection contre pratiques commerciales trompeuses)
