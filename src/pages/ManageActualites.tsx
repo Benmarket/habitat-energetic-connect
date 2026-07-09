@@ -866,58 +866,145 @@ const ManageActualites = () => {
         />
       )}
 
-      {/* Audit / Enrich report */}
+      {/* Audit / Enrich report — 2 axes séparés */}
       <AlertDialog open={!!auditReport} onOpenChange={(o) => !o && setAuditReport(null)}>
-        <AlertDialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <AlertDialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-left">Rapport — {auditReport?.title}</AlertDialogTitle>
+            <AlertDialogTitle className="text-left">Rapport d'audit — {auditReport?.title}</AlertDialogTitle>
             <AlertDialogDescription asChild>
-              <div className="space-y-3 text-sm text-left">
+              <div className="space-y-4 text-sm text-left">
                 {auditReport?.data?.changed && (
-                  <div className="p-2 rounded bg-emerald-50 border border-emerald-200 text-emerald-800">
-                    ✓ Contenu mis à jour en base
+                  <div className="p-2 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs">
+                    ✓ Contenu mis à jour en base ({auditReport?.data?.audit?.focus && auditReport?.data?.audit?.focus !== "all" ? `focus : ${auditReport?.data?.audit?.focus}` : "toutes corrections"})
+                  </div>
+                )}
+                {auditReport?.data?.audit?.blocked && (
+                  <div className="p-2 rounded bg-red-50 border border-red-200 text-red-800 text-xs">
+                    🚫 {auditReport?.data?.audit?.blocked}
                   </div>
                 )}
                 {(() => {
                   const a = auditReport?.data?.audit || {};
                   const h = a.heuristic || {};
+                  const inf = h.informative || { issues: [], warnings: [] };
+                  const s = h.seo || { issues: [], warnings: [] };
+                  const infCount = (inf.issues?.length || 0) + (inf.warnings?.length || 0);
+                  const seoCount = (s.issues?.length || 0) + (s.warnings?.length || 0);
+                  const postId = auditReport?.data?.post_id;
+                  const postTitle = auditReport?.title || "";
                   return (
                     <>
-                      <div className="grid grid-cols-2 gap-2 text-xs bg-muted/40 p-3 rounded">
-                        <div>Score qualité : <b>{a.quality_score ?? "-"}/100</b></div>
+                      {/* Stats globales */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs bg-muted/40 p-3 rounded">
+                        <div>Score : <b>{a.quality_score ?? "-"}/100</b></div>
                         <div>Longueur : <b>{h.stats?.length ?? "-"}</b></div>
-                        <div>Liens internes : <b>{h.stats?.links_internal ?? 0}</b></div>
-                        <div>Liens externes : <b>{h.stats?.links_external ?? 0}</b></div>
+                        <div>Liens int. : <b>{h.stats?.links_internal ?? 0}</b></div>
+                        <div>Liens ext. : <b>{h.stats?.links_external ?? 0}</b></div>
                         <div>Images : <b>{h.stats?.images_inline ?? 0}</b></div>
                         <div>Tableaux : <b>{h.stats?.tables ?? 0}</b></div>
                         <div>H2 : <b>{h.stats?.h2_count ?? 0}</b></div>
-                        <div>Bandeaux CTA : <b>{h.stats?.cta_banners ?? 0}</b></div>
+                        <div>Type : <b>{a.content_type ?? "-"}</b></div>
                       </div>
-                      {a.interlinks_added?.length > 0 && (
-                        <div><b className="text-violet-700">Maillage ajouté :</b><ul className="list-disc pl-5">{a.interlinks_added.map((x: string, i: number) => <li key={i}><code className="text-xs">{x}</code></li>)}</ul></div>
+
+                      {/* AXE 1 — INFORMATIF */}
+                      <div className="rounded-lg border-2 border-red-200 bg-red-50/30 p-4 space-y-2">
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">🧭</span>
+                            <b className="text-red-900">Conformité informative — le fond</b>
+                            <Badge variant={infCount === 0 ? "outline" : "destructive"}>
+                              {infCount === 0 ? "OK" : `${infCount} point${infCount > 1 ? "s" : ""}`}
+                            </Badge>
+                          </div>
+                          {postId && infCount > 0 && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-red-300 text-red-700 hover:bg-red-100"
+                              disabled={focusFixing !== null}
+                              onClick={() => runFocusFix(postId, postTitle, "informative")}
+                            >
+                              {focusFixing === "informative" ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Sparkles className="w-3 h-3 mr-1" />}
+                              Corriger l'informatif avec l'IA
+                            </Button>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Véracité des dispositifs (MPR / autoconso / CEE / EDF OA), montants conditionnels, dates, chiffres régionaux, formulations conformes RGPD/DGCCRF.
+                        </p>
+                        {inf.issues?.length > 0 && (
+                          <div><b className="text-red-700 text-xs">❌ Critiques :</b>
+                            <ul className="list-disc pl-5 text-xs">{inf.issues.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul>
+                          </div>
+                        )}
+                        {inf.warnings?.length > 0 && (
+                          <div><b className="text-amber-700 text-xs">⚠️ Avertissements :</b>
+                            <ul className="list-disc pl-5 text-xs">{inf.warnings.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul>
+                          </div>
+                        )}
+                        {infCount === 0 && (
+                          <div className="text-xs text-emerald-700">✓ Aucun problème informatif détecté par l'auditeur automatique.</div>
+                        )}
+                      </div>
+
+                      {/* AXE 2 — SEO / TECHNIQUE */}
+                      <div className="rounded-lg border-2 border-blue-200 bg-blue-50/30 p-4 space-y-2">
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">🔧</span>
+                            <b className="text-blue-900">Conformité SEO / technique — la forme</b>
+                            <Badge variant={seoCount === 0 ? "outline" : "secondary"} className={seoCount > 0 ? "bg-blue-100 text-blue-900" : ""}>
+                              {seoCount === 0 ? "OK" : `${seoCount} point${seoCount > 1 ? "s" : ""}`}
+                            </Badge>
+                          </div>
+                          {postId && seoCount > 0 && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                              disabled={focusFixing !== null}
+                              onClick={() => runFocusFix(postId, postTitle, "seo")}
+                            >
+                              {focusFixing === "seo" ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <ShieldCheck className="w-3 h-3 mr-1" />}
+                              Corriger le SEO avec l'IA
+                            </Button>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Structure (H2, longueur), meta (title, description), liens (vides, ancres, maillage), images (alt), tableaux (th).
+                        </p>
+                        {s.issues?.length > 0 && (
+                          <div><b className="text-red-700 text-xs">❌ Critiques :</b>
+                            <ul className="list-disc pl-5 text-xs">{s.issues.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul>
+                          </div>
+                        )}
+                        {s.warnings?.length > 0 && (
+                          <div><b className="text-amber-700 text-xs">⚠️ Avertissements :</b>
+                            <ul className="list-disc pl-5 text-xs">{s.warnings.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul>
+                          </div>
+                        )}
+                        {seoCount === 0 && (
+                          <div className="text-xs text-emerald-700">✓ Aucun problème SEO/technique détecté par l'auditeur automatique.</div>
+                        )}
+                      </div>
+
+                      {/* Actions IA effectivement appliquées (retour de l'enrichissement) */}
+                      {(a.interlinks_added?.length > 0 || a.ctas_fixed?.length > 0 || a.outdated_facts_corrected?.length > 0 || a.numbers_normalized?.length > 0 || a.images_alt_added > 0 || a.tables_fixed > 0) && (
+                        <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 p-3 space-y-1 text-xs">
+                          <b className="text-emerald-900">Corrections IA appliquées :</b>
+                          {a.interlinks_added?.length > 0 && <div>• Maillage ajouté : {a.interlinks_added.length}</div>}
+                          {a.ctas_fixed?.length > 0 && <div>• CTA/liens corrigés : {a.ctas_fixed.length}</div>}
+                          {a.images_alt_added > 0 && <div>• Alt ajoutés : {a.images_alt_added}</div>}
+                          {a.outdated_facts_corrected?.length > 0 && <div>• Faits périmés corrigés : {a.outdated_facts_corrected.length}</div>}
+                          {a.numbers_normalized?.length > 0 && <div>• Chiffres normalisés : {a.numbers_normalized.length}</div>}
+                          {a.tables_fixed > 0 && <div>• Tableaux corrigés : {a.tables_fixed}</div>}
+                        </div>
                       )}
-                      {a.ctas_fixed?.length > 0 && (
-                        <div><b className="text-emerald-700">CTA / liens corrigés :</b><ul className="list-disc pl-5">{a.ctas_fixed.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul></div>
-                      )}
-                      {a.images_alt_added > 0 && <div><b>Alt ajoutés :</b> {a.images_alt_added}</div>}
-                      {a.outdated_facts_corrected?.length > 0 && (
-                        <div><b className="text-blue-700">Faits périmés corrigés :</b><ul className="list-disc pl-5">{a.outdated_facts_corrected.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul></div>
-                      )}
-                      {a.numbers_normalized?.length > 0 && (
-                        <div><b>Chiffres normalisés :</b><ul className="list-disc pl-5">{a.numbers_normalized.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul></div>
-                      )}
-                      {a.tables_fixed > 0 && <div><b>Tableaux corrigés :</b> {a.tables_fixed}</div>}
-                      {h.issues?.length > 0 && (
-                        <div><b className="text-red-700">❌ Problèmes critiques :</b><ul className="list-disc pl-5">{h.issues.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul></div>
-                      )}
-                      {h.warnings?.length > 0 && (
-                        <div><b className="text-amber-700">⚠️ Avertissements :</b><ul className="list-disc pl-5">{h.warnings.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul></div>
-                      )}
+
                       {a.veracity_flags?.length > 0 && (
-                        <div><b className="text-orange-700">🔎 À fact-checker manuellement :</b><ul className="list-disc pl-5">{a.veracity_flags.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul></div>
-                      )}
-                      {a.remaining_issues?.length > 0 && (
-                        <div><b>Points restants :</b><ul className="list-disc pl-5">{a.remaining_issues.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul></div>
+                        <div className="text-xs"><b className="text-orange-700">🔎 À fact-checker manuellement :</b>
+                          <ul className="list-disc pl-5">{a.veracity_flags.map((x: string, i: number) => <li key={i}>{x}</li>)}</ul>
+                        </div>
                       )}
                     </>
                   );
