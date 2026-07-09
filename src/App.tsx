@@ -230,6 +230,8 @@ const App = () => (
                   <Route path="/reinitialiser-mot-de-passe" element={<PasswordReset />} />
                   <Route path="/desinscription" element={<Unsubscribe />} />
                   <Route path="/unsubscribe" element={<Unsubscribe />} />
+                  <Route path="/desinscription-registre" element={<DesinscriptionRegistre />} />
+                  <Route path="/rgpd/desinscription" element={<Navigate to="/desinscription-registre" replace />} />
 
                   {/* Catch-all */}
                   <Route path="*" element={<NotFound />} />
