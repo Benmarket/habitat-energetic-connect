@@ -687,10 +687,30 @@ const EligibilityFormSection = () => {
                         />
                       </div>
 
+                      {/* Case à cocher RGPD */}
+                      <div className="flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
+                        <Checkbox
+                          id="rgpdConsent"
+                          checked={formData.rgpdConsent}
+                          onCheckedChange={(checked) =>
+                            setFormData({ ...formData, rgpdConsent: checked === true })
+                          }
+                          className="mt-0.5"
+                        />
+                        <Label
+                          htmlFor="rgpdConsent"
+                          className="text-sm leading-snug cursor-pointer"
+                        >
+                          J'accepte d'être contacté par téléphone dans le cadre de ma demande d'éligibilité. Mon
+                          consentement est recueilli librement et mes données sont traitées conformément au RGPD.
+                          <span className="text-orange-500"> *</span>
+                        </Label>
+                      </div>
+
                       {/* Bouton */}
                       <Button
                         type="submit"
-                        disabled={!isContactValid || isSubmitting}
+                        disabled={!isContactValid || !formData.rgpdConsent || isSubmitting}
                         className={cn(
                           "w-full h-14 text-lg font-semibold mt-4",
                           isSubmitting && "animate-double-bounce"
