@@ -214,6 +214,9 @@ const Footer = () => {
             <Link to="/plan-du-site" className="hover:text-white transition-colors">
               Plan du site
             </Link>
+            <Link to="/desinscription-registre" className="hover:text-white transition-colors">
+              Désinscription (RGPD)
+            </Link>
           </nav>
           <p className="text-sm text-white/60 text-center">© 2018-2026 Prime Énergies. Tous droits réservés.</p>
         </div>

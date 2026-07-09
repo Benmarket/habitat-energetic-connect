@@ -89,6 +89,7 @@ const ServiceAuditEnergetique = lazy(() => import("./pages/services/ServiceAudit
 const ServiceAmeliorationHabitat = lazy(() => import("./pages/services/ServiceAmeliorationHabitat"));
 const ActivateAccount = lazy(() => import("./pages/ActivateAccount"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
+const DesinscriptionRegistre = lazy(() => import("./pages/DesinscriptionRegistre"));
 const PasswordReset = lazy(() => import("./pages/PasswordReset"));
 const Economies = lazy(() => import("./pages/Economies"));
 const AdminEconomiesAccess = lazy(() => import("./pages/AdminEconomiesAccess"));
@@ -229,6 +230,8 @@ const App = () => (
                   <Route path="/reinitialiser-mot-de-passe" element={<PasswordReset />} />
                   <Route path="/desinscription" element={<Unsubscribe />} />
                   <Route path="/unsubscribe" element={<Unsubscribe />} />
+                  <Route path="/desinscription-registre" element={<DesinscriptionRegistre />} />
+                  <Route path="/rgpd/desinscription" element={<Navigate to="/desinscription-registre" replace />} />
 
                   {/* Catch-all */}
                   <Route path="*" element={<NotFound />} />

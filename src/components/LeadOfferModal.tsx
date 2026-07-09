@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, CheckCircle, User, Phone, Mail } from "lucide-react";
 
 const leadSchema = z.object({
@@ -34,6 +35,9 @@ const leadSchema = z.object({
     .trim()
     .email("Adresse email invalide")
     .max(255, "L'email ne doit pas dépasser 255 caractères"),
+  rgpdConsent: z.literal(true, {
+    errorMap: () => ({ message: "Vous devez accepter le traitement de vos données pour envoyer votre demande." }),
+  }),
 });
 
 type LeadFormData = z.infer<typeof leadSchema>;
@@ -67,10 +71,14 @@ export default function LeadOfferModal({
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<LeadFormData>({
     resolver: zodResolver(leadSchema),
+    defaultValues: { rgpdConsent: false as unknown as true },
   });
+  const rgpdConsent = watch("rgpdConsent");
 
   const onSubmit = async (data: LeadFormData) => {
     setIsSubmitting(true);
@@ -233,10 +241,26 @@ export default function LeadOfferModal({
               )}
             </div>
 
-            <div className="pt-4">
+            <div className="flex items-start gap-2 pt-2 rounded-md border border-muted p-3 bg-muted/30">
+              <Checkbox
+                id="rgpdConsent"
+                checked={!!rgpdConsent}
+                onCheckedChange={(v) => setValue("rgpdConsent", (v === true) as true, { shouldValidate: true })}
+                className="mt-0.5"
+              />
+              <Label htmlFor="rgpdConsent" className="text-xs font-normal leading-snug cursor-pointer">
+                J'accepte d'être contacté par téléphone et/ou email par <span className="font-semibold">{offerData.advertiserName}</span> dans le cadre de ma demande. Mon consentement est recueilli librement et mes données sont traitées conformément au RGPD.{" "}
+                <a href="/politique-confidentialite" target="_blank" rel="noreferrer" className="underline">En savoir plus</a>. <span className="text-destructive">*</span>
+              </Label>
+            </div>
+            {errors.rgpdConsent && (
+              <p className="text-sm text-destructive">{errors.rgpdConsent.message as string}</p>
+            )}
+
+            <div className="pt-2">
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !rgpdConsent}
                 className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-bold py-6"
               >
                 {isSubmitting ? (
@@ -249,11 +273,6 @@ export default function LeadOfferModal({
                 )}
               </Button>
             </div>
-
-            <p className="text-xs text-muted-foreground text-center">
-              En soumettant ce formulaire, vous acceptez d'être contacté par
-              notre partenaire concernant cette offre.
-            </p>
           </form>
         )}
       </DialogContent>

@@ -821,11 +821,19 @@ export default function AdminForms() {
             {forms.map((form, index) => {
               const isLandingPageForm = form.form_identifier.startsWith('lp-');
               const isHomeForm = form.form_identifier.includes('accueil');
+              const isRgpdForm = form.form_identifier === 'desinscription-registre';
               const currentFormStats = formStats?.[form.id] || { total: 0, unread: 0, processed: 0 };
               const unreadCount = currentFormStats.unread;
               
               // Styles selon le type de formulaire
               const getFormStyles = () => {
+                if (isRgpdForm) {
+                  return {
+                    gradient: 'bg-gradient-to-r from-red-600 to-rose-600',
+                    iconBg: 'bg-red-100',
+                    iconColor: 'text-red-600'
+                  };
+                }
                 if (isLandingPageForm) {
                   if (form.form_identifier.includes('solaire')) {
                     return {
@@ -895,6 +903,11 @@ export default function AdminForms() {
                               <code className="text-xs bg-muted px-2 py-0.5 rounded">
                                 {form.form_identifier}
                               </code>
+                              {isRgpdForm && (
+                                <Badge className="gap-1 bg-red-600 text-white border-red-700 animate-pulse">
+                                  ⚠ PRIORITAIRE RGPD
+                                </Badge>
+                              )}
                               {form.webhook_enabled && (
                                 <Badge variant="secondary" className="gap-1">
                                   <ExternalLink className="h-3 w-3" />
