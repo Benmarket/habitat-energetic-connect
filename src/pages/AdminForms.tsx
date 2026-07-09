@@ -827,6 +827,13 @@ export default function AdminForms() {
               
               // Styles selon le type de formulaire
               const getFormStyles = () => {
+                if (isRgpdForm) {
+                  return {
+                    gradient: 'bg-gradient-to-r from-red-600 to-rose-600',
+                    iconBg: 'bg-red-100',
+                    iconColor: 'text-red-600'
+                  };
+                }
                 if (isLandingPageForm) {
                   if (form.form_identifier.includes('solaire')) {
                     return {
