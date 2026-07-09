@@ -11,36 +11,73 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSiteMode, saveSiteMode, type SiteMode } from "@/hooks/useSiteMode";
 
 const REVERT_PROMPT = `Bonjour, je viens de basculer le site en mode "Prime" (réseau d'installateurs partenaires).
-Le switch dans Admin > Paramètres bascule automatiquement le texte des 9 emplacements front listés ci-dessous, mais il ne peut PAS toucher aux contenus stockés en base ni aux ressources statiques.
+Le switch dans Admin > Paramètres bascule automatiquement le texte des 9 emplacements front listés dans la carte SiteMode, mais il ne peut PAS toucher aux contenus stockés en base ni aux ressources statiques.
 
-Merci de faire l'audit et de me proposer les modifications (sans les appliquer) pour ces zones NON couvertes par le switch :
+Merci de faire l'audit COMPLET et de me proposer les modifications (sans les appliquer) pour toutes les zones NON couvertes par le switch, incluant les 5 zones d'ombre suivantes :
 
-1. Contenus stockés en base (à revoir manuellement dans l'admin correspondant) :
-   - Articles / posts (table posts) : rechercher "installateur", "réseau", "partenaire", "FRH", "propriété"
-   - Guides (table guides / sections) : mêmes termes
-   - Landing pages régionales et modulaires (table landing_pages) : sections texte
-   - Popups et bannières CTA (tables popups, cta_banners) : textes visibles
-   - Flux chatbot (table chatbot_flows) : messages mentionnant l'installateur
-   - Hero slider, sections d'accueil éditables (table site_settings clés hero_slider / homepage_sections)
-   - Aides (table aides) : phrases d'accompagnement
-   - Modèles d'emails (table email_template_gallery + templates transactionnels edge functions)
+### Zones d'ombre critiques (souvent oubliées)
 
-2. Fichiers statiques / SEO non couverts par le hook useSiteMode :
-   - index.html : <title>, <meta description>, og:title, og:description, twitter:*
-   - public/robots.txt et public/manifest.json (description, nom)
-   - public/sw.js si textes visibles
-   - Edge function generate-sitemap (descriptions statiques éventuelles)
-   - Rapports .md à la racine (RAPPORT_*.md, ARCHITECTURE_*.md) — informationnel, pas prod
+A. Cache navigateur / PWA
+   - Le hook useSiteMode utilise localStorage : les visiteurs déjà venus verront l'ancienne version jusqu'à leur prochaine visite (voire jusqu'au reload si le SW cache).
+   - Vérifier public/sw.js (CACHE_NAME versionné) — proposer un bump de version si texte du site en cache.
+   - Proposer éventuellement un invalidateur (event ou refetch forcé).
+
+B. Pré-rendu bots / crawler-handler
+   - L'edge function crawler-handler peut servir du HTML pré-rendu obsolète aux bots et IA (Googlebot, GPTBot, Claude-Web, etc.).
+   - Auditer la logique de cache du crawler-handler et proposer une purge/regeneration après bascule.
+
+C. Aperçus sociaux (OG/Twitter cards)
+   - LinkedIn, Facebook, Twitter/X, WhatsApp mettent en cache og:title / og:description / og:image plusieurs jours.
+   - Lister les URLs prioritaires à re-scraper manuellement (LinkedIn Post Inspector, Facebook Sharing Debugger, X Card Validator).
+
+D. Slugs / URLs déjà indexés
+   - Chercher des slugs contenant "reseau", "partenaires", "installateurs-partenaires", "frh", "prime" dans les tables posts, guides, landing_pages, cta_banners.
+   - Proposer une stratégie 301 si renommage nécessaire (jamais de rename brut sans redirect).
+
+E. Contenus IA + descriptions stockées
+   - Table reviews / internal_reviews : chercher "l'installateur du réseau", "notre partenaire Prime", "notre installateur FRH".
+   - Table advertisers : champs description / tagline.
+   - Articles générés par IA (posts.content) et contenus régionaux (regions.* / landing_pages.regional_content).
+
+### Zones structurées (à parcourir systématiquement)
+
+1. Contenus stockés en base (admin correspondant) :
+   - posts : titre, excerpt, content, meta_description, faq_items
+   - guides / guide sections : title, content, meta_description
+   - landing_pages : sections modulaires (hero, features, testimonials), regional_content
+   - popups + popup_templates : texte, CTA, sous-titres
+   - cta_banners : title, description, button_label
+   - chatbot_flows : nodes/messages
+   - site_settings clés hero_slider, homepage_sections, footer_*
+   - aides : description, conditions
+   - email_template_gallery : sujets + corps
+   - authors : bios éventuelles
+
+2. Fichiers statiques / SEO :
+   - index.html : <title>, <meta name="description">, og:title, og:description, twitter:*
+   - public/robots.txt, public/manifest.json (name, short_name, description)
+   - public/sw.js (CACHE_NAME + textes)
+   - Edge function generate-sitemap (descriptions statiques)
+   - Rapports .md racine (informationnel, non prod)
 
 3. Emails transactionnels (supabase/functions/_shared/transactional-email-templates/*) :
-   - Vérifier tout texte mentionnant "notre équipe d'installateurs" vs "notre réseau d'installateurs partenaires".
+   - Tous les .tsx (guide-download, lead-confirmation-*, password-reset)
+   - Vérifier "notre équipe d'installateurs" vs "notre réseau d'installateurs partenaires".
 
-4. Schémas JSON-LD injectés dynamiquement dans les pages non listées dans le hook (Organization, WebSite, LandingService) — vérifier les champs description.
+4. Schémas JSON-LD dynamiques hors hook (Organization, WebSite, LandingService, ArticleSchema, FAQSchema, HowToSchema, CollectionPageSchema, BreadcrumbSchema) — champs description / name.
 
-5. Textes générés par IA déjà stockés en base (articles rédigés, contenus régionaux) : liste et propositions de reformulation, à valider avant écrasement.
+5. Composants front NON listés dans le switch qui pourraient mentionner installateurs (double-check : Header, HeroSection, WhySolarSection, InstitutionalContextSection, RenovationProgramSection, PartnerOffersSection, ReviewsSection, CTAPartner, SolarBanner, tous les GuideTemplate*, tous les LandingSolaire*, ServiceAmeliorationHabitat, ServiceAuditEnergetique, ServiceStockageEnergie).
 
-Livrable attendu : une liste par zone avec le texte actuel, le texte proposé version "Prime", et l'action à faire (SQL, édition fichier, admin UI).
-Ne modifie rien tant que je n'ai pas validé.`;
+### Livrable attendu
+
+Un tableau par zone avec :
+- Fichier / table / clé
+- Texte actuel (extrait)
+- Texte proposé version "Prime" (ou "FRH" si retour arrière)
+- Action à faire (édition fichier / SQL / admin UI / re-scrape social / purge cache)
+- Priorité (bloquant SEO / visible utilisateur / cosmétique)
+
+Ne modifie RIEN tant que je n'ai pas validé la liste.`;
 
 const FRONT_COVERED = [
   "src/components/Footer.tsx (baseline paragraphe)",
