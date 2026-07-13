@@ -1,6 +1,6 @@
 /// <reference types="npm:@types/react@18.3.1" />
 import * as React from 'npm:react@18.3.1'
-import { Img, Text } from 'npm:@react-email/components@0.0.22'
+import { Text } from 'npm:@react-email/components@0.0.22'
 import {
   detectWorkType,
   getGalleryImages,
@@ -74,12 +74,23 @@ export const WorkGallery: React.FC<Props> = ({ hint, workType, images, title }) 
             <tr>
               {resolvedImages.slice(0, 3).map((img, i) => (
                 <td key={i} style={galleryCell} align="center">
-                  <Img
-                    src={img.src}
-                    alt={img.alt}
-                    width={180}
-                    height={135}
-                    style={galleryImage}
+                  {/*
+                    Rendu en background-image sur un <div> (pas de <img>) :
+                    Gmail n'affiche pas le bouton "Télécharger l'image" au
+                    survol sur les images de fond. Rendu identique visuellement,
+                    et fallback dégradé propre sur les clients qui bloquent les
+                    images (aria-label pour l'accessibilité).
+                  */}
+                  <div
+                    role="img"
+                    aria-label={img.alt}
+                    style={{
+                      ...galleryImage,
+                      backgroundImage: `url("${img.src}")`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat',
+                    }}
                   />
                 </td>
               ))}
