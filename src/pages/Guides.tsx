@@ -211,6 +211,8 @@ const Guides = () => {
               )}
             </div>
           </div>
+          </>
+          )}
         </main>
 
         <Footer />
