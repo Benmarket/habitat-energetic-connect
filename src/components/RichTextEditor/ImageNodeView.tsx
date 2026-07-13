@@ -16,12 +16,12 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected, ed
     event?.stopPropagation();
   };
 
-  const handleDoubleClick = (event?: React.MouseEvent) => {
-    stopEditorButtonSubmit(event);
-    const event = new CustomEvent('edit-image', {
+  const handleDoubleClick = (mouseEvent?: React.MouseEvent) => {
+    stopEditorButtonSubmit(mouseEvent);
+    const editEvent = new CustomEvent('edit-image', {
       detail: { attrs: node.attrs },
     });
-    window.dispatchEvent(event);
+    window.dispatchEvent(editEvent);
   };
 
   const handleRegenerate = (event?: React.MouseEvent) => {
