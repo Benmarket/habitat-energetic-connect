@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useGuidesModule } from "@/hooks/useGuidesModule";
+import { GuidesModuleNotice } from "@/components/GuidesModuleNotice";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -25,6 +27,7 @@ const GuidesSection = () => {
   const [featuredGuide, setFeaturedGuide] = useState<Guide | null>(null);
   const [secondaryGuides, setSecondaryGuides] = useState<Guide[]>([]);
   const [loading, setLoading] = useState(true);
+  const guidesModule = useGuidesModule();
 
   useEffect(() => {
     fetchGuides();
