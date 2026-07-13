@@ -65,7 +65,10 @@ export function MediaLibrary({ onSelect, open, onOpenChange }: MediaLibraryProps
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-images", {
-        body: { imageDescriptions: [generatePrompt.trim()] },
+        body: {
+          imageDescriptions: [generatePrompt.trim()],
+          seoContext: [generatePrompt.trim().slice(0, 160)],
+        },
       });
       if (error) throw error;
       const failed = data?.images?.find((i: any) => !i.success);
