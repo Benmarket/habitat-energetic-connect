@@ -45,6 +45,34 @@ const KeyCrossedIcon = ({ className }: { className?: string }) => (
   </div>
 );
 
+const InputStepContainer = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex flex-col items-center justify-center min-h-[320px] md:min-h-[380px]">
+    {children}
+  </div>
+);
+
+const StepFooterTip = ({
+  icon: Icon,
+  title,
+  text,
+}: {
+  icon: React.ElementType;
+  title: string;
+  text: string;
+}) => (
+  <div className="mt-6 max-w-2xl mx-auto">
+    <div className="flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
+      <div className="shrink-0 w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center">
+        <Icon className="w-5 h-5 text-primary" />
+      </div>
+      <div className="text-left">
+        <div className="text-sm font-semibold text-foreground">{title}</div>
+        <div className="text-xs md:text-sm text-muted-foreground leading-snug">{text}</div>
+      </div>
+    </div>
+  </div>
+);
+
 const EligibilityFormSection = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
