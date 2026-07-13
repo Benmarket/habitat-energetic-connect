@@ -160,6 +160,142 @@ const Merci = () => {
     );
   }
 
+  // Variante partenaire (B2B) — thème orange dégradé
+  if (isPartner) {
+    return (
+      <>
+        <Helmet>
+          <title>Candidature reçue — Devenir partenaire Prime-Energies</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
+
+        <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 via-amber-50 to-white">
+          <Header />
+
+          <main className="flex-1 pt-4 pb-8 px-4">
+            <div className="w-full max-w-3xl mx-auto">
+              {/* En-tête */}
+              <div className="text-center mb-5">
+                <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-1.5 text-xs font-semibold text-white shadow-sm mb-3">
+                  <HandshakeIcon className="w-3.5 h-3.5" />
+                  Candidature partenaire
+                </div>
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-1">
+                  Merci{name ? ` ${name}` : ""}, votre dossier est bien reçu.
+                </h1>
+                <p className="text-base text-muted-foreground">
+                  Notre équipe va étudier votre candidature avec attention.
+                </p>
+              </div>
+
+              {/* Illustration */}
+              <div className="relative mb-5 rounded-xl overflow-hidden shadow-lg bg-gradient-to-br from-orange-500 via-orange-400 to-amber-400 border border-orange-200">
+                <div className="w-full py-12 md:py-14 flex flex-col items-center justify-center text-white">
+                  <div className="relative mb-3">
+                    <div className="w-20 h-20 md:w-24 md:h-24 bg-white/15 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg ring-4 ring-white/20 animate-scale-in">
+                      <HandshakeIcon className="w-10 h-10 md:w-12 md:h-12 text-white" />
+                    </div>
+                    <div className="absolute -top-2 -right-2">
+                      <CheckCircle2 className="w-8 h-8 text-green-500 bg-white rounded-full" />
+                    </div>
+                  </div>
+                  <p className="text-lg md:text-xl font-semibold">Dossier enregistré</p>
+                  <p className="text-sm text-white/90 mt-1">Étude par notre pôle qualité</p>
+                </div>
+              </div>
+
+              {/* Récapitulatif candidature */}
+              {(companyName || zone || activities) && (
+                <Card className="mb-4 border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50/50">
+                  <CardContent className="py-4">
+                    <h2 className="font-semibold text-base mb-3 flex items-center gap-2 text-orange-900">
+                      <FileSearch className="w-4 h-4 text-orange-600" />
+                      Récapitulatif de votre candidature
+                    </h2>
+                    <div className="space-y-2 text-sm">
+                      {companyName && (
+                        <div className="flex justify-between items-center py-1.5 border-b border-orange-100">
+                          <span className="text-muted-foreground flex items-center gap-2"><Building2 className="w-3.5 h-3.5" /> Entreprise</span>
+                          <span className="font-medium text-foreground">{companyName}</span>
+                        </div>
+                      )}
+                      {zone && (
+                        <div className="flex justify-between items-center py-1.5 border-b border-orange-100">
+                          <span className="text-muted-foreground flex items-center gap-2"><MapPin className="w-3.5 h-3.5" /> Zone d'intervention</span>
+                          <span className="font-medium text-foreground">{zone}</span>
+                        </div>
+                      )}
+                      {activities && (
+                        <div className="flex justify-between items-start py-1.5 gap-4">
+                          <span className="text-muted-foreground flex items-center gap-2 shrink-0"><Wrench className="w-3.5 h-3.5" /> Activités</span>
+                          <span className="font-medium text-foreground text-right">{activities}</span>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Prochaines étapes */}
+              <Card className="mb-5 border-orange-100">
+                <CardContent className="py-4">
+                  <h2 className="font-semibold text-base mb-3 text-orange-900">Les prochaines étapes</h2>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shrink-0 text-white text-sm font-semibold">1</div>
+                      <div>
+                        <h3 className="font-medium text-foreground text-sm">Étude du dossier</h3>
+                        <p className="text-xs text-muted-foreground">
+                          Nous vérifions vos qualifications (RGE, assurances, références) et la cohérence avec notre cahier des charges.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shrink-0 text-white text-sm font-semibold">2</div>
+                      <div>
+                        <h3 className="font-medium text-foreground text-sm">Retour sous 48 à 72h</h3>
+                        <p className="text-xs text-muted-foreground">
+                          Un membre de l'équipe vous recontacte pour un échange, quelle que soit l'issue de l'étude.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shrink-0 text-white text-sm font-semibold">3</div>
+                      <div>
+                        <h3 className="font-medium text-foreground text-sm">Confirmation par email</h3>
+                        <p className="text-xs text-muted-foreground">
+                          Un email de confirmation vient de vous être envoyé. Pensez à vérifier vos spams si besoin.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Boutons */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button asChild size="default" className="gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white border-0">
+                  <Link to="/">
+                    <Home className="w-4 h-4" />
+                    Retour à l'accueil
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="default" className="gap-2 border-orange-300 text-orange-700 hover:bg-orange-50">
+                  <Link to="/devenir-partenaire">
+                    En savoir plus sur le réseau
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </main>
+
+          <Footer />
+        </div>
+      </>
+    );
+  }
+
   // Contenu par défaut (lead/contact)
   return (
     <>
