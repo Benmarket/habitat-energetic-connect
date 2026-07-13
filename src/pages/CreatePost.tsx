@@ -114,7 +114,7 @@ const CreatePost = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
                   <PostFormFields formData={formData} setFormData={setFormData}
                     categories={categories} tags={tags} onTitleChange={handleTitleChange}
                     onGenerateArticle={openWizard}

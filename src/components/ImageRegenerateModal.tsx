@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -94,6 +94,9 @@ export function ImageRegenerateModal({ open, onOpenChange, onImageGenerated, con
             <Sparkles className="w-5 h-5 text-primary" />
             Régénérer {contextLabel || "l'image"}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Décrivez l'image à générer, puis lancez la génération sans quitter l'éditeur.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">

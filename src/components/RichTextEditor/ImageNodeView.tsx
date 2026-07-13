@@ -11,34 +11,43 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected, ed
 
   const { src, alt, title, caption, width, align } = node.attrs;
 
-  const handleDoubleClick = () => {
-    const event = new CustomEvent('edit-image', {
-      detail: { attrs: node.attrs },
-    });
-    window.dispatchEvent(event);
+  const stopEditorButtonSubmit = (event?: React.MouseEvent) => {
+    event?.preventDefault();
+    event?.stopPropagation();
   };
 
-  const handleRegenerate = () => {
+  const handleDoubleClick = (mouseEvent?: React.MouseEvent) => {
+    stopEditorButtonSubmit(mouseEvent);
+    const editEvent = new CustomEvent('edit-image', {
+      detail: { attrs: node.attrs },
+    });
+    window.dispatchEvent(editEvent);
+  };
+
+  const handleRegenerate = (event?: React.MouseEvent) => {
+    stopEditorButtonSubmit(event);
     // Get surrounding section context for smart regeneration
     const sectionContext = getSectionContext();
-    const event = new CustomEvent('regenerate-image', {
+    const regenerateEvent = new CustomEvent('regenerate-image', {
       detail: { attrs: node.attrs, sectionContext },
     });
-    window.dispatchEvent(event);
+    window.dispatchEvent(regenerateEvent);
   };
 
-  const handleUpload = () => {
-    const event = new CustomEvent('upload-image-replace', {
+  const handleUpload = (event?: React.MouseEvent) => {
+    stopEditorButtonSubmit(event);
+    const uploadEvent = new CustomEvent('upload-image-replace', {
       detail: { attrs: node.attrs },
     });
-    window.dispatchEvent(event);
+    window.dispatchEvent(uploadEvent);
   };
 
-  const handleMediaLibrary = () => {
-    const event = new CustomEvent('medialibrary-image-replace', {
+  const handleMediaLibrary = (event?: React.MouseEvent) => {
+    stopEditorButtonSubmit(event);
+    const mediaLibraryEvent = new CustomEvent('medialibrary-image-replace', {
       detail: { attrs: node.attrs },
     });
-    window.dispatchEvent(event);
+    window.dispatchEvent(mediaLibraryEvent);
   };
 
   const getSectionContext = (): string => {
@@ -127,6 +136,7 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected, ed
         {isHovered && !selected && (
           <div className="absolute inset-0 flex items-center justify-center gap-2 animate-in fade-in duration-200 z-10">
             <button
+              type="button"
               onClick={handleRegenerate}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/90 hover:bg-primary text-primary-foreground text-xs font-medium rounded-md shadow-lg transition-colors"
               title="Régénérer avec l'IA"
@@ -135,6 +145,7 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected, ed
               Régénérer
             </button>
             <button
+              type="button"
               onClick={handleUpload}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary/90 hover:bg-secondary text-secondary-foreground text-xs font-medium rounded-md shadow-lg transition-colors"
               title="Uploader une image"
@@ -143,6 +154,7 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected, ed
               Uploader
             </button>
             <button
+              type="button"
               onClick={handleMediaLibrary}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary/90 hover:bg-secondary text-secondary-foreground text-xs font-medium rounded-md shadow-lg transition-colors"
               title="Choisir depuis la bibliothèque"
@@ -176,7 +188,8 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected, ed
 
             <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 flex gap-1 bg-background border rounded-lg shadow-lg p-1 z-20">
               <button
-                onClick={() => updateAttributes({ align: 'left' })}
+                type="button"
+                onClick={(event) => { stopEditorButtonSubmit(event); updateAttributes({ align: 'left' }); }}
                 className={`p-1.5 rounded hover:bg-accent transition-colors ${align === 'left' ? 'bg-accent' : ''}`}
                 title="Aligner à gauche"
               >
@@ -185,7 +198,8 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected, ed
                 </svg>
               </button>
               <button
-                onClick={() => updateAttributes({ align: 'center' })}
+                type="button"
+                onClick={(event) => { stopEditorButtonSubmit(event); updateAttributes({ align: 'center' }); }}
                 className={`p-1.5 rounded hover:bg-accent transition-colors ${align === 'center' ? 'bg-accent' : ''}`}
                 title="Centrer"
               >
@@ -194,7 +208,8 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected, ed
                 </svg>
               </button>
               <button
-                onClick={() => updateAttributes({ align: 'right' })}
+                type="button"
+                onClick={(event) => { stopEditorButtonSubmit(event); updateAttributes({ align: 'right' }); }}
                 className={`p-1.5 rounded hover:bg-accent transition-colors ${align === 'right' ? 'bg-accent' : ''}`}
                 title="Aligner à droite"
               >
@@ -204,6 +219,7 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected, ed
               </button>
               <div className="w-px bg-border mx-1" />
               <button
+                type="button"
                 onClick={handleRegenerate}
                 className="p-1.5 rounded hover:bg-accent transition-colors text-primary"
                 title="Régénérer l'image"
@@ -211,6 +227,7 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected, ed
                 <RefreshCw className="w-4 h-4" />
               </button>
               <button
+                type="button"
                 onClick={handleDoubleClick}
                 className="p-1.5 rounded hover:bg-accent transition-colors"
                 title="Modifier l'image"
@@ -218,7 +235,8 @@ export const ImageNodeView = ({ node, updateAttributes, deleteNode, selected, ed
                 <Pencil className="w-4 h-4" />
               </button>
               <button
-                onClick={deleteNode}
+                type="button"
+                onClick={(event) => { stopEditorButtonSubmit(event); deleteNode(); }}
                 className="p-1.5 rounded hover:bg-destructive hover:text-destructive-foreground transition-colors"
                 title="Supprimer l'image"
               >
