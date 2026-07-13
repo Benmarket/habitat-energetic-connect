@@ -78,15 +78,20 @@ serve(async (req) => {
     const generatedImages = await Promise.all(
       tasks.map(async ({ description, edit }, index: number) => {
         try {
+          // En mode édition : image AVANT texte + verbe "édite", et modèle spécialisé édition (Nano Banana 2)
           const userContent = edit
             ? [
+                { type: 'image_url', image_url: { url: sourceImageDataUrl } },
                 {
                   type: 'text',
-                  text: `Tu vas RETOUCHER l'image fournie ci-dessous. Conserve à l'IDENTIQUE la composition, le cadrage, le style, la palette de couleurs, l'éclairage et les personnages/objets. Applique UNIQUEMENT les modifications suivantes, avec précision : ${description}. Si l'image contient du texte, corrige-le sans changer la typographie ni la mise en page. Ne rajoute AUCUN élément non demandé.${context ? ` Contexte éditorial (informatif seulement) : ${context}` : ''}`
-                },
-                { type: 'image_url', image_url: { url: sourceImageDataUrl } }
+                  text: `ÉDITE cette image existante. Ne la régénère PAS depuis zéro : garde à l'IDENTIQUE au pixel près la composition, le cadrage, les couleurs, l'éclairage, les illustrations et tous les éléments visuels. Applique UNIQUEMENT et EXACTEMENT ces corrections localisées : ${description}. Règles strictes :\n- Si tu modifies un texte visible, remplace-le lettre par lettre à sa position EXACTE, avec la MÊME police, MÊME taille, MÊME couleur, MÊME graisse.\n- Ne redessine aucun autre élément.\n- Ne change ni le style, ni la palette, ni le layout.\n- Retourne l'image éditée, pas une nouvelle image.${context ? `\nContexte éditorial (informatif seulement) : ${context}` : ''}`
+                }
               ]
             : `Génère une image professionnelle, haute qualité, photo réaliste. Description exacte à suivre : ${description}. Style : moderne, lumineux, engageant, adapté à un article web. Ne rajoute AUCUN élément qui ne correspond pas à la description.`;
+
+          // Nano Banana 2 pour l'édition (bien meilleur sur les retouches de texte),
+          // Nano Banana v1 pour la génération from-scratch (rapide + éprouvé).
+          const model = edit ? 'google/gemini-3.1-flash-image' : 'google/gemini-2.5-flash-image';
 
           const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
             method: 'POST',
@@ -95,7 +100,7 @@ serve(async (req) => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              model: 'google/gemini-2.5-flash-image',
+              model,
               messages: [{ role: 'user', content: userContent }],
               modalities: ['image', 'text']
             })
