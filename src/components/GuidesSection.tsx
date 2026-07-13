@@ -176,6 +176,10 @@ const GuidesSection = () => {
     );
   }
 
+  if (!guidesModule.loading && !guidesModule.enabled) {
+    return <GuidesModuleNotice message={guidesModule.message} />;
+  }
+
   if (!featuredGuide && secondaryGuides.length === 0) return null;
 
   return (
