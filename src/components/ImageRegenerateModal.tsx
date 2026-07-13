@@ -82,8 +82,13 @@ export function ImageRegenerateModal({ open, onOpenChange, onImageGenerated, con
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+    <Dialog open={open} onOpenChange={(v) => { if (loading) return; onOpenChange(v); }}>
+      <DialogContent
+        className="max-w-lg"
+        onPointerDownOutside={(e) => { if (loading) e.preventDefault(); }}
+        onEscapeKeyDown={(e) => { if (loading) e.preventDefault(); }}
+        onInteractOutside={(e) => { if (loading) e.preventDefault(); }}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
@@ -97,14 +102,14 @@ export function ImageRegenerateModal({ open, onOpenChange, onImageGenerated, con
             <Textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Laissez vide pour générer automatiquement une image virale liée au contenu de l'article..."
+              placeholder="Ex: panneaux solaires sur toit de villa aux Antilles, ciel bleu tropical, style photo réaliste lumineux..."
               rows={4}
               disabled={loading}
             />
             <p className="text-xs text-muted-foreground">
               {prompt.trim()
-                ? "L'image sera générée selon votre description."
-                : "Sans description, l'IA créera une image percutante basée sur le contenu."}
+                ? "✓ Votre description sera envoyée telle quelle à l'IA."
+                : "Sans description, l'IA créera une image basée sur le titre + extrait de l'article."}
             </p>
           </div>
 
@@ -112,18 +117,18 @@ export function ImageRegenerateModal({ open, onOpenChange, onImageGenerated, con
             <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
               <Loader2 className="w-5 h-5 animate-spin text-primary" />
               <div>
-                <p className="text-sm font-medium">Génération en cours...</p>
-                <p className="text-xs text-muted-foreground">{elapsed}s écoulées</p>
+                <p className="text-sm font-medium">Génération en cours... (~20-40s)</p>
+                <p className="text-xs text-muted-foreground">{elapsed}s écoulées — ne fermez pas cette fenêtre</p>
               </div>
             </div>
           )}
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             Annuler
           </Button>
-          <Button onClick={handleGenerate} disabled={loading} className="gap-2">
+          <Button type="button" onClick={(e) => handleGenerate(e)} disabled={loading} className="gap-2">
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
             Générer
           </Button>
