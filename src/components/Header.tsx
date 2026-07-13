@@ -554,7 +554,7 @@ const Header = () => {
               >
                 Offres
               </Link>
-              {!guidesModule.hideFromNav && (
+              {guidesModule.enabled && !guidesModule.hideFromNav && (
                 <Link
                   to="/guides"
                   className="text-foreground hover:text-primary transition-colors"
