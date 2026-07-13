@@ -105,9 +105,11 @@ const Footer = () => {
                 <Link to="/aides" className="text-white/70 hover:text-white transition-colors text-sm">
                   Aides
                 </Link>
-                <Link to="/guides" className="text-white/70 hover:text-white transition-colors text-sm">
-                  Guides
-                </Link>
+                {!guidesModule.hideFromNav && (
+                  <Link to="/guides" className="text-white/70 hover:text-white transition-colors text-sm">
+                    Guides
+                  </Link>
+                )}
                 <Link to="/#offres" className="text-white/70 hover:text-white transition-colors text-sm">
                   Offres
                 </Link>

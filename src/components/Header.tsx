@@ -552,13 +552,15 @@ const Header = () => {
               >
                 Offres
               </Link>
-              <Link
-                to="/guides"
-                className="text-foreground hover:text-primary transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Guides
-              </Link>
+              {!guidesModule.hideFromNav && (
+                <Link
+                  to="/guides"
+                  className="text-foreground hover:text-primary transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Guides
+                </Link>
+              )}
               <Link
                 to="/aides"
                 className="text-foreground hover:text-primary transition-colors"
