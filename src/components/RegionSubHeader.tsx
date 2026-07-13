@@ -92,7 +92,7 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
                   <div 
                     className={`relative w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center transition-all duration-300 ${
                       isActive 
-                        ? "drop-shadow-[0_0_8px_hsl(var(--primary)/0.4)]" 
+                        ? "md:drop-shadow-[0_0_8px_hsl(var(--primary)/0.4)]" 
                         : ""
                     }`}
                   >
