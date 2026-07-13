@@ -619,6 +619,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         }}
         context={regenContext}
         contextLabel="l'image de section"
+        currentImageUrl={regenTargetSrc || undefined}
       />
 
       {/* Inline image replacement via media library */}

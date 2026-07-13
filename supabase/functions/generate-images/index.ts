@@ -30,9 +30,18 @@ serve(async (req) => {
     }
     await supabaseAdmin.rpc('record_ai_call', { p_user_id: userId, p_endpoint: 'generate-images' });
 
-    const { imageDescriptions } = await req.json();
-    
-    if (!imageDescriptions || imageDescriptions.length === 0) {
+    const body = await req.json();
+    const { imageDescriptions, mode, sourceImageUrl, editInstructions, context } = body as {
+      imageDescriptions?: string[];
+      mode?: 'edit' | 'fresh';
+      sourceImageUrl?: string;
+      editInstructions?: string;
+      context?: string;
+    };
+
+    const isEdit = mode === 'edit' && !!sourceImageUrl && !!editInstructions;
+
+    if (!isEdit && (!imageDescriptions || imageDescriptions.length === 0)) {
       throw new Error('Au moins une description d\'image est requise');
     }
 
@@ -41,27 +50,55 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    // Client avec service role pour les opérations de stockage
     const supabase = supabaseAdmin;
 
-    // Générer toutes les images en parallèle
+    // En mode édition : télécharge l'image source et convertit en base64 pour la passer au modèle
+    let sourceImageDataUrl: string | null = null;
+    if (isEdit) {
+      try {
+        const imgRes = await fetch(sourceImageUrl!);
+        if (!imgRes.ok) throw new Error(`fetch source image ${imgRes.status}`);
+        const contentType = imgRes.headers.get('content-type') || 'image/png';
+        const buf = new Uint8Array(await imgRes.arrayBuffer());
+        let bin = '';
+        for (let i = 0; i < buf.length; i++) bin += String.fromCharCode(buf[i]);
+        const b64 = btoa(bin);
+        sourceImageDataUrl = `data:${contentType};base64,${b64}`;
+      } catch (e) {
+        console.error('[generate-images] source fetch failed', e);
+        throw new Error(`Impossible de récupérer l'image source pour retouche`);
+      }
+    }
+
+    // Liste unique de "tâches" (édition = 1 seule tâche)
+    const tasks: Array<{ description: string; edit: boolean }> = isEdit
+      ? [{ description: editInstructions!, edit: true }]
+      : imageDescriptions!.map((d) => ({ description: d, edit: false }));
+
     const generatedImages = await Promise.all(
-      imageDescriptions.map(async (description: string, index: number) => {
+      tasks.map(async ({ description, edit }, index: number) => {
         try {
+          const userContent = edit
+            ? [
+                {
+                  type: 'text',
+                  text: `Tu vas RETOUCHER l'image fournie ci-dessous. Conserve à l'IDENTIQUE la composition, le cadrage, le style, la palette de couleurs, l'éclairage et les personnages/objets. Applique UNIQUEMENT les modifications suivantes, avec précision : ${description}. Si l'image contient du texte, corrige-le sans changer la typographie ni la mise en page. Ne rajoute AUCUN élément non demandé.${context ? ` Contexte éditorial (informatif seulement) : ${context}` : ''}`
+                },
+                { type: 'image_url', image_url: { url: sourceImageDataUrl } }
+              ]
+            : `Génère une image professionnelle, haute qualité, photo réaliste. Description exacte à suivre : ${description}. Style : moderne, lumineux, engageant, adapté à un article web. Ne rajoute AUCUN élément qui ne correspond pas à la description.`;
+
           const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${LOVABLE_API_KEY}`,
               'Content-Type': 'application/json',
             },
-              body: JSON.stringify({
-                model: 'google/gemini-2.5-flash-image',
-                messages: [{
-                  role: 'user',
-                  content: `Génère une image professionnelle, haute qualité, photo réaliste. Description exacte à suivre : ${description}. Style : moderne, lumineux, engageant, adapté à un article web. Ne rajoute AUCUN élément qui ne correspond pas à la description.`
-                }],
-                modalities: ['image', 'text']
-              })
+            body: JSON.stringify({
+              model: 'google/gemini-2.5-flash-image',
+              messages: [{ role: 'user', content: userContent }],
+              modalities: ['image', 'text']
+            })
           });
 
           if (!response.ok) {

@@ -226,6 +226,7 @@ export function ContentFields({ formData, setFormData, contentType }: ContentFie
         onImageGenerated={(url) => setFormData(prev => ({ ...prev, featured_image: url }))}
         context={`${formData.title}\n${formData.excerpt}`}
         contextLabel="l'image à la une"
+        currentImageUrl={formData.featured_image || undefined}
       />
     </>
   );
