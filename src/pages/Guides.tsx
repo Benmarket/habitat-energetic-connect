@@ -8,6 +8,8 @@ import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen } from "lucide-react";
+import { useGuidesModule } from "@/hooks/useGuidesModule";
+import { GuidesModuleNotice } from "@/components/GuidesModuleNotice";
 
 interface Guide {
   id: string;
