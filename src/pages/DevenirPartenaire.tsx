@@ -148,6 +148,9 @@ const DevenirPartenaire = () => {
         name: data.firstName,
         workType: "candidature-partenaire",
         type: "partenaire",
+        company: data.companyName,
+        zone: data.zone,
+        activities: data.workTypes.join(", "),
       });
       navigate(`/merci?${params.toString()}`);
     } catch (err: any) {
