@@ -82,8 +82,8 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
                   onClick={() => handleRegionClick(region.code)}
                   className={`group flex flex-col items-center gap-1 flex-1 transition-all duration-200 focus:outline-none cursor-pointer ${
                     isActive 
-                      ? "scale-105" 
-                      : "opacity-60 hover:opacity-90 hover:scale-105"
+                      ? "md:scale-105" 
+                      : "opacity-70 md:opacity-60 hover:opacity-90 hover:scale-105"
                   }`}
                   aria-pressed={isActive}
                   aria-label={`Sélectionner la région ${region.name}`}
