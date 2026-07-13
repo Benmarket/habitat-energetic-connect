@@ -163,14 +163,14 @@ const DevenirPartenaire = () => {
   return (
     <>
       <Helmet>
-        <title>Devenir partenaire | Proposez vos offres sur Prime Énergies</title>
+        <title>Devenir partenaire | Rejoindre le réseau Prime Énergies</title>
         <meta
           name="description"
-          content="Rejoignez le réseau Prime Énergies : recevez des leads qualifiés de particuliers en projet de rénovation énergétique dans votre zone d'intervention. Candidature 100% en ligne."
+          content="Prime Énergies étudie les candidatures d'artisans et installateurs RGE souhaitant rejoindre son réseau, dans le strict respect du cahier des charges des primes énergies."
         />
         <link rel="canonical" href="https://prime-energies.fr/devenir-partenaire" />
         <meta property="og:title" content="Devenir partenaire | Prime Énergies" />
-        <meta property="og:description" content="Développez votre activité avec des leads qualifiés en rénovation énergétique." />
+        <meta property="og:description" content="Un réseau d'artisans et installateurs RGE sélectionnés, engagés dans le respect du cahier des charges des primes énergies." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://prime-energies.fr/devenir-partenaire" />
       </Helmet>
@@ -184,7 +184,7 @@ const DevenirPartenaire = () => {
           ]}
         />
 
-        {/* HERO — orange gradient B2B */}
+        {/* HERO — orange gradient B2B, ton mesuré */}
         <section className="relative overflow-hidden bg-gradient-to-br from-amber-600 via-orange-500 to-orange-700 text-white">
           <div className="absolute inset-0 opacity-20 pointer-events-none">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,white_1px,transparent_1px),radial-gradient(circle_at_80%_70%,white_1px,transparent_1px)] bg-[length:40px_40px]" />
@@ -199,15 +199,15 @@ const DevenirPartenaire = () => {
                 Espace professionnels
               </div>
               <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight mb-6">
-                Développez votre activité <br className="hidden md:block" />
+                Rejoindre un réseau <br className="hidden md:block" />
                 <span className="bg-gradient-to-r from-yellow-200 to-white bg-clip-text text-transparent">
-                  avec des leads qualifiés
+                  d'artisans engagés
                 </span>
               </h1>
               <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-8 leading-relaxed">
-                Rejoignez le réseau Prime Énergies et recevez chaque semaine des demandes
-                de particuliers en projet de rénovation énergétique dans votre zone
-                d'intervention.
+                Prime Énergies étudie chaque candidature avec attention. Nous sélectionnons
+                les professionnels qui partagent notre exigence de sérieux, de transparence
+                et de conformité au cahier des charges des primes énergies.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button
@@ -224,63 +224,64 @@ const DevenirPartenaire = () => {
                     variant="outline"
                     className="border-2 border-white text-white bg-transparent hover:bg-white/10 h-12 px-8 font-semibold"
                   >
-                    Comment ça marche ?
+                    Notre démarche
                   </Button>
                 </a>
               </div>
 
               <div className="mt-10 grid grid-cols-3 gap-4 max-w-2xl mx-auto text-center">
                 <div>
-                  <div className="text-3xl md:text-4xl font-extrabold">48h</div>
-                  <div className="text-xs md:text-sm text-white/80 uppercase tracking-wide">Validation dossier</div>
-                </div>
-                <div>
-                  <div className="text-3xl md:text-4xl font-extrabold">0€</div>
-                  <div className="text-xs md:text-sm text-white/80 uppercase tracking-wide">Frais d'entrée</div>
+                  <div className="text-3xl md:text-4xl font-extrabold">RGE</div>
+                  <div className="text-xs md:text-sm text-white/80 uppercase tracking-wide">Certification requise</div>
                 </div>
                 <div>
                   <div className="text-3xl md:text-4xl font-extrabold">100%</div>
-                  <div className="text-xs md:text-sm text-white/80 uppercase tracking-wide">Leads géolocalisés</div>
+                  <div className="text-xs md:text-sm text-white/80 uppercase tracking-wide">Dossiers étudiés</div>
+                </div>
+                <div>
+                  <div className="text-3xl md:text-4xl font-extrabold">48h</div>
+                  <div className="text-xs md:text-sm text-white/80 uppercase tracking-wide">Première réponse</div>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* BÉNÉFICES */}
+        {/* NOTRE DÉMARCHE */}
         <section className="py-16 bg-gradient-to-b from-amber-50/50 to-background">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-extrabold mb-3">
-                Pourquoi rejoindre Prime Énergies&nbsp;?
+                Notre démarche
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Une plateforme conçue pour les artisans et installateurs RGE, dans le respect
-                du cahier des charges des primes énergies.
+                Prime Énergies n'est pas une plateforme de mise en relation à la volée.
+                Nous construisons un réseau restreint de professionnels sur lesquels les
+                particuliers peuvent réellement compter.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
                 {
-                  icon: Target,
-                  title: "Leads qualifiés",
-                  desc: "Particuliers pré-filtrés par projet, zone et budget. Vous ne perdez pas de temps.",
+                  icon: ShieldCheck,
+                  title: "Sélection rigoureuse",
+                  desc: "Chaque dossier est étudié : qualifications, ancienneté, références. Nous ne validons pas tout le monde.",
+                },
+                {
+                  icon: Award,
+                  title: "Cahier des charges",
+                  desc: "Respect strict du dispositif des primes énergies, des grilles tarifaires et des obligations réglementaires.",
                 },
                 {
                   icon: MapPin,
-                  title: "Ciblage régional",
-                  desc: "Recevez uniquement les demandes de votre secteur d'intervention.",
+                  title: "Ancrage local",
+                  desc: "Nous privilégions les entreprises implantées localement, connues sur leur territoire d'intervention.",
                 },
                 {
-                  icon: ShieldCheck,
-                  title: "Cahier des charges",
-                  desc: "Conformité obligatoire au dispositif des primes énergies, aucune ambiguïté.",
-                },
-                {
-                  icon: TrendingUp,
-                  title: "Visibilité premium",
-                  desc: "Votre offre exposée à des milliers de visiteurs qualifiés chaque mois.",
+                  icon: Users,
+                  title: "Relation durable",
+                  desc: "Un partenariat de long terme fondé sur la qualité des chantiers et la satisfaction des particuliers.",
                 },
               ].map((b, i) => (
                 <Card
@@ -300,12 +301,15 @@ const DevenirPartenaire = () => {
           </div>
         </section>
 
-        {/* COMMENT ÇA MARCHE */}
+        {/* PROCESSUS DE CANDIDATURE */}
         <section id="comment-ca-marche" className="py-16 bg-orange-950/[0.02]">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-extrabold mb-3">Comment ça marche&nbsp;?</h2>
-              <p className="text-muted-foreground">Trois étapes simples pour rejoindre le réseau.</p>
+              <h2 className="text-3xl md:text-4xl font-extrabold mb-3">Le processus de candidature</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Un parcours simple, mais exigeant. Toutes les candidatures sont étudiées ;
+                seules celles qui répondent à nos critères sont retenues.
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -313,20 +317,20 @@ const DevenirPartenaire = () => {
                 {
                   icon: FileCheck,
                   step: "01",
-                  title: "Candidature en ligne",
-                  desc: "Remplissez le formulaire ci-dessous avec les informations de votre entreprise et vos qualifications.",
+                  title: "Candidature",
+                  desc: "Vous transmettez votre dossier via le formulaire ci-dessous : entreprise, qualifications, zone d'intervention.",
                 },
                 {
                   icon: Users,
                   step: "02",
                   title: "Étude du dossier",
-                  desc: "Notre équipe partenariats valide votre conformité (RGE, assurance, cahier des charges) sous 48-72h ouvrées.",
+                  desc: "Notre équipe vérifie la conformité de votre certification RGE, de votre assurance et de vos références sous 48 à 72h ouvrées.",
                 },
                 {
                   icon: Rocket,
                   step: "03",
-                  title: "Mise en ligne",
-                  desc: "Vos offres sont publiées et vous recevez vos premiers leads qualifiés dans votre zone.",
+                  title: "Échange & décision",
+                  desc: "Si votre dossier correspond à nos critères, un entretien permet de cadrer la collaboration. Sinon, un retour motivé vous est adressé.",
                 },
               ].map((s, i) => (
                 <div
@@ -355,11 +359,11 @@ const DevenirPartenaire = () => {
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg">
                   <Award className="w-6 h-6 text-white" />
                 </div>
-                <h2 className="text-2xl md:text-3xl font-extrabold">Prérequis pour candidater</h2>
+                <h2 className="text-2xl md:text-3xl font-extrabold">Les conditions à remplir</h2>
               </div>
               <p className="text-muted-foreground mb-6">
-                Le respect du cahier des charges des primes énergies est <strong>obligatoire</strong>.
-                Sans ces qualifications, votre dossier ne pourra être validé.
+                Ces conditions ne sont pas négociables. Elles garantissent la qualité du
+                réseau et la conformité au dispositif des primes énergies.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {[
@@ -379,6 +383,7 @@ const DevenirPartenaire = () => {
             </div>
           </div>
         </section>
+
 
         {/* FORMULAIRE */}
         <section id="form-partenaire" className="py-16 bg-gradient-to-b from-background to-amber-50/30">
