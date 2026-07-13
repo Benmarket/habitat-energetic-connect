@@ -16,9 +16,7 @@ import { z } from "zod";
 import {
   Briefcase,
   Send,
-  Target,
   ShieldCheck,
-  TrendingUp,
   MapPin,
   Award,
   ArrowRight,
