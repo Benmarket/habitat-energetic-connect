@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Link, useSearchParams } from "react-router-dom";
-import { CheckCircle2, Home, Phone, Mail, Clock, ArrowRight, Sparkles, Newspaper, Bell } from "lucide-react";
+import { CheckCircle2, Home, Phone, Mail, Clock, ArrowRight, Sparkles, Newspaper, Bell, Building2, MapPin, Wrench, FileSearch, HandshakeIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Helmet } from "react-helmet";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,11 +14,15 @@ const Merci = () => {
   const offerTitle = searchParams.get("offer");
   const advertiserName = searchParams.get("partner");
   const workType = searchParams.get("workType");
-  const pageType = searchParams.get("type"); // "newsletter" ou null (lead)
+  const pageType = searchParams.get("type"); // "newsletter" | "partenaire" | null (lead)
   const subscriberEmail = searchParams.get("email");
   const surplusChoice = searchParams.get("surplus");
-  
+  const companyName = searchParams.get("company");
+  const zone = searchParams.get("zone");
+  const activities = searchParams.get("activities");
+
   const isNewsletter = pageType === "newsletter";
+  const isPartner = pageType === "partenaire";
   const isFromOffer = offerTitle && advertiserName;
 
   // Mapper les types de travaux vers des libellés lisibles
