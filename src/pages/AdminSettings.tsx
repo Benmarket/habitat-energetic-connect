@@ -359,6 +359,10 @@ const AdminSettings = () => {
     memberMenuShowDashboard: true,
     memberMenuShowEconomies: true,
     memberMenuShowForum: true,
+    // Module Guides
+    guidesModuleEnabled: true,
+    guidesModuleHideFromNav: false,
+    guidesModuleMessage: "Le module des guides est actuellement en refonte. Les aides et les pratiques dans l'habitat évoluent : nos guides sont temporairement mis en pause, le temps d'être entièrement remis à jour pour vous offrir des informations fiables. Ils reviendront en temps voulu, sans précipitation.",
     // Réseaux sociaux footer
     showFacebook: true,
     facebookLink: "",
@@ -837,6 +841,9 @@ const AdminSettings = () => {
           memberMenuShowDashboard: value.memberMenuShowDashboard ?? true,
           memberMenuShowEconomies: value.memberMenuShowEconomies ?? true,
           memberMenuShowForum: value.memberMenuShowForum ?? true,
+          guidesModuleEnabled: value.guidesModuleEnabled ?? true,
+          guidesModuleHideFromNav: value.guidesModuleHideFromNav ?? false,
+          guidesModuleMessage: value.guidesModuleMessage || "Le module des guides est actuellement en refonte. Les aides et les pratiques dans l'habitat évoluent : nos guides sont temporairement mis en pause, le temps d'être entièrement remis à jour pour vous offrir des informations fiables. Ils reviendront en temps voulu, sans précipitation.",
           showFacebook: value.showFacebook ?? true,
           facebookLink: value.facebookLink || "",
           showTwitter: value.showTwitter ?? true,
