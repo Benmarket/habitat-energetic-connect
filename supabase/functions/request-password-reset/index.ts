@@ -68,30 +68,30 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
 
+  // Uniform response returned in all "we won't send an email" cases
+  // (unknown account, rate limited, silent failures) to prevent
+  // account enumeration.
+  const genericResponse = json(200, {
+    success: true,
+    sent: true,
+    message: 'Si un compte est associé à cette adresse, un email de réinitialisation vient de partir.',
+  })
+
   // Look up the user by email FIRST — do not send anything if no account
   const { data: userId } = await admin.rpc('get_user_id_by_email', { _email: rawEmail })
   if (!userId) {
-    return json(200, {
-      success: false,
-      sent: false,
-      reason: 'no_account',
-      message: "Aucun compte n'est associé à cette adresse email.",
-    })
+    return genericResponse
   }
 
-  // Rate limit (per email + IP, max 5/hour)
+  // Rate limit (per email + IP, max 5/hour) — silently drop past the cap
   const { data: rateOk } = await admin.rpc('check_password_reset_rate', {
     p_email: rawEmail,
     p_ip: ip,
   })
   if (rateOk === false) {
-    return json(429, {
-      success: false,
-      sent: false,
-      reason: 'rate_limited',
-      message: 'Trop de demandes récentes. Réessayez dans 1 heure.',
-    })
+    return genericResponse
   }
+
 
   // Fetch first_name from profiles (best-effort)
   const { data: profile } = await admin
