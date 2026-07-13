@@ -21,6 +21,8 @@ import { GuideStickyNav } from "@/components/GuideStickyNav";
 import { useActiveSection } from "@/hooks/useActiveSection";
 import { calculateReadingTime } from "@/utils/readingTime";
 import { extractTableOfContents, addHeadingIds } from "@/utils/tableOfContents";
+import { useGuidesModule } from "@/hooks/useGuidesModule";
+import { GuidesModuleNotice } from "@/components/GuidesModuleNotice";
 
 interface Guide {
   id: string;
