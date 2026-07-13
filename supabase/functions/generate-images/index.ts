@@ -157,8 +157,17 @@ serve(async (req) => {
           const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
           const buffer = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
           
-          // Upload vers Supabase Storage
-          const filename = `generated-${Date.now()}-${index}.png`;
+          // Upload vers Supabase Storage — nom de fichier SEO-friendly
+          // Priorité : seoContext[i] > seoContext[0] > context > description
+          const seoSource =
+            seoContextArr[index] ||
+            seoContextArr[0] ||
+            context ||
+            description ||
+            'image';
+          const slug = slugify(seoSource, 60) || 'image';
+          const uniq = shortHash(slug, index);
+          const filename = `${slug}-${uniq}.png`;
           const storagePath = `${userId}/${filename}`;
           
           const { data: uploadData, error: uploadError } = await supabase.storage
