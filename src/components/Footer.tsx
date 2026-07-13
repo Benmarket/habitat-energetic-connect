@@ -4,8 +4,10 @@ import { Facebook, Twitter, Linkedin, Youtube, MessageCircle, Phone } from "luci
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useSiteMode } from "@/hooks/useSiteMode";
+import { useGuidesModule } from "@/hooks/useGuidesModule";
 
 const Footer = () => {
+  const guidesModule = useGuidesModule();
   const { mode: siteMode } = useSiteMode();
   const [headerFooterSettings, setHeaderFooterSettings] = useState({
     showPhone: false,
