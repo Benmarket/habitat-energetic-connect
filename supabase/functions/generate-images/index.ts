@@ -31,12 +31,13 @@ serve(async (req) => {
     await supabaseAdmin.rpc('record_ai_call', { p_user_id: userId, p_endpoint: 'generate-images' });
 
     const body = await req.json();
-    const { imageDescriptions, mode, sourceImageUrl, editInstructions, context } = body as {
+    const { imageDescriptions, mode, sourceImageUrl, editInstructions, context, seoContext } = body as {
       imageDescriptions?: string[];
       mode?: 'edit' | 'fresh';
       sourceImageUrl?: string;
       editInstructions?: string;
       context?: string;
+      seoContext?: string | string[];
     };
 
     const isEdit = mode === 'edit' && !!sourceImageUrl && !!editInstructions;
@@ -44,6 +45,40 @@ serve(async (req) => {
     if (!isEdit && (!imageDescriptions || imageDescriptions.length === 0)) {
       throw new Error('Au moins une description d\'image est requise');
     }
+
+    // ---- SEO filename helper -------------------------------------------------
+    // Mots vides FR/EN à retirer pour un slug dense et lisible par les moteurs.
+    const STOPWORDS = new Set([
+      'le','la','les','un','une','des','de','du','au','aux','et','ou','à','a','en','dans','sur','sous','pour','par','avec','sans','ce','cet','cette','ces','se','sa','son','ses','leur','leurs','qui','que','quoi','dont','où','ne','pas','plus','moins','mais','donc','car','est','sont','être','avoir','the','a','an','of','and','or','to','in','on','for','with','by','is','are','be','from','as','at','it','this','that'
+    ]);
+    const slugify = (raw: string, max = 60): string => {
+      if (!raw) return '';
+      const norm = raw
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      const words = norm.split(' ').filter(w => w && !STOPWORDS.has(w) && w.length > 1);
+      const kept: string[] = [];
+      let len = 0;
+      for (const w of words) {
+        if (len + w.length + (kept.length ? 1 : 0) > max) break;
+        kept.push(w);
+        len += w.length + (kept.length > 1 ? 1 : 0);
+      }
+      return kept.join('-') || norm.replace(/\s+/g, '-').slice(0, max) || 'image';
+    };
+    const seoContextArr: string[] = Array.isArray(seoContext)
+      ? seoContext
+      : (typeof seoContext === 'string' ? [seoContext] : []);
+    const shortHash = (s: string, i: number): string => {
+      let h = 2166136261;
+      const src = `${s}|${i}|${Date.now()}`;
+      for (let k = 0; k < src.length; k++) { h ^= src.charCodeAt(k); h = (h * 16777619) >>> 0; }
+      return h.toString(36).slice(0, 6);
+    };
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -122,8 +157,17 @@ serve(async (req) => {
           const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
           const buffer = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
           
-          // Upload vers Supabase Storage
-          const filename = `generated-${Date.now()}-${index}.png`;
+          // Upload vers Supabase Storage — nom de fichier SEO-friendly
+          // Priorité : seoContext[i] > seoContext[0] > context > description
+          const seoSource =
+            seoContextArr[index] ||
+            seoContextArr[0] ||
+            context ||
+            description ||
+            'image';
+          const slug = slugify(seoSource, 60) || 'image';
+          const uniq = shortHash(slug, index);
+          const filename = `${slug}-${uniq}.png`;
           const storagePath = `${userId}/${filename}`;
           
           const { data: uploadData, error: uploadError } = await supabase.storage
