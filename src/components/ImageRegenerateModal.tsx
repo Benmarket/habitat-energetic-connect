@@ -70,6 +70,7 @@ export function ImageRegenerateModal({
           sourceImageUrl: currentImageUrl,
           editInstructions: editPrompt.trim(),
           context: context?.slice(0, 500) || "",
+          seoContext: context?.slice(0, 160) || contextLabel || "",
         };
         console.log('[ImageRegenerate] mode=edit', { editPrompt: editPrompt.trim(), currentImageUrl });
       } else {
@@ -89,7 +90,10 @@ export function ImageRegenerateModal({
         } else if (!finalPrompt) {
           finalPrompt = "Photo professionnelle et engageante sur le thème de la rénovation énergétique";
         }
-        payload = { imageDescriptions: [finalPrompt] };
+        payload = {
+          imageDescriptions: [finalPrompt],
+          seoContext: [context?.slice(0, 160) || contextLabel || finalPrompt.slice(0, 160)],
+        };
         console.log('[ImageRegenerate] mode=fresh', finalPrompt.slice(0, 200));
       }
 
