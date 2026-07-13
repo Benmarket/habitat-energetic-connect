@@ -24,6 +24,7 @@ interface Guide {
 const Guides = () => {
   const [guides, setGuides] = useState<Guide[]>([]);
   const [loading, setLoading] = useState(true);
+  const guidesModule = useGuidesModule();
 
   useEffect(() => {
     fetchGuides();
