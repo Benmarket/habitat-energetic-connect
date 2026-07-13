@@ -20,7 +20,11 @@ export function ImageRegenerateModal({ open, onOpenChange, onImageGenerated, con
   const [loading, setLoading] = useState(false);
   const [elapsed, setElapsed] = useState(0);
 
-  const handleGenerate = async () => {
+  const handleGenerate = async (e?: React.MouseEvent | React.FormEvent) => {
+    // Sécurité : empêche toute soumission du formulaire parent (page CreatePost)
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+
     setLoading(true);
     setElapsed(0);
     const timer = setInterval(() => setElapsed(prev => prev + 1), 1000);
@@ -30,10 +34,12 @@ export function ImageRegenerateModal({ open, onOpenChange, onImageGenerated, con
       const token = sessionData?.session?.access_token;
       if (!token) { toast.error("Vous devez être connecté"); return; }
 
-      // Build a smart prompt: user prompt if provided, otherwise auto-generate from context
+      // Priorité absolue au prompt utilisateur, fallback contextuel sinon
       let finalPrompt = prompt.trim();
+      const usedUserPrompt = !!finalPrompt;
+      console.log('[ImageRegenerate] prompt utilisateur:', usedUserPrompt ? finalPrompt : '(vide → auto)');
+
       if (!finalPrompt && context) {
-        // Use AI to craft a viral image prompt from context
         const { data: aiData, error: aiError } = await supabase.functions.invoke('generate-article', {
           body: {
             mode: 'image_prompt',
@@ -48,15 +54,18 @@ export function ImageRegenerateModal({ open, onOpenChange, onImageGenerated, con
         finalPrompt = "Photo professionnelle et engageante sur le thème de la rénovation énergétique";
       }
 
+      console.log('[ImageRegenerate] appel generate-images avec prompt final:', finalPrompt.slice(0, 200));
       const { data, error } = await supabase.functions.invoke('generate-images', {
         body: { imageDescriptions: [finalPrompt] },
         headers: { Authorization: `Bearer ${token}` }
       });
 
       if (error) throw error;
+      console.log('[ImageRegenerate] réponse:', data);
       const url = data?.images?.[0]?.url;
+      const imgError = data?.images?.[0]?.error;
       if (!url || !data?.images?.[0]?.success) {
-        throw new Error("Échec de la génération de l'image");
+        throw new Error(imgError || data?.error || "Échec de la génération de l'image");
       }
 
       onImageGenerated(url);
@@ -64,7 +73,8 @@ export function ImageRegenerateModal({ open, onOpenChange, onImageGenerated, con
       setPrompt("");
       onOpenChange(false);
     } catch (err: any) {
-      toast.error(err.message || "Erreur lors de la génération");
+      console.error('[ImageRegenerate] erreur:', err);
+      toast.error(err?.message || "Erreur lors de la génération");
     } finally {
       clearInterval(timer);
       setLoading(false);
