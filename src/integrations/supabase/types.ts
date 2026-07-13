@@ -747,6 +747,27 @@ export type Database = {
         }
         Relationships: []
       }
+      edge_rate_limits: {
+        Row: {
+          called_at: string
+          endpoint: string
+          id: string
+          identifier: string
+        }
+        Insert: {
+          called_at?: string
+          endpoint: string
+          id?: string
+          identifier: string
+        }
+        Update: {
+          called_at?: string
+          endpoint?: string
+          id?: string
+          identifier?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -2637,6 +2658,14 @@ export type Database = {
         Args: { p_endpoint: string; p_max_per_hour?: number; p_user_id: string }
         Returns: boolean
       }
+      check_edge_rate: {
+        Args: {
+          p_endpoint: string
+          p_identifier: string
+          p_max_per_hour?: number
+        }
+        Returns: boolean
+      }
       check_form_submission_rate: { Args: { p_ip: string }; Returns: boolean }
       check_lead_rate: { Args: { p_email: string }; Returns: boolean }
       check_newsletter_rate: { Args: { p_email: string }; Returns: boolean }
@@ -2711,6 +2740,10 @@ export type Database = {
       }
       record_ai_call: {
         Args: { p_endpoint: string; p_user_id: string }
+        Returns: undefined
+      }
+      record_edge_call: {
+        Args: { p_endpoint: string; p_identifier: string }
         Returns: undefined
       }
     }

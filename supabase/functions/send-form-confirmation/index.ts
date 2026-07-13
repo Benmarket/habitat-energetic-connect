@@ -56,6 +56,39 @@ Deno.serve(async (req) => {
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   const admin = createClient(supabaseUrl, serviceKey)
 
+  // Rate-limit par IP : 10 requêtes / heure sur cet endpoint.
+  // Bloque le spam de mails de confirmation & la génération massive de tokens
+  // sans impacter les visiteurs normaux (qui n'envoient qu'un seul formulaire).
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || req.headers.get('cf-connecting-ip')
+    || ''
+  if (ip) {
+    const { data: allowed, error: rateErr } = await admin.rpc('check_edge_rate', {
+      p_identifier: ip,
+      p_endpoint: 'send-form-confirmation',
+      p_max_per_hour: 10,
+    })
+    if (rateErr) {
+      console.warn('[send-form-confirmation] rate check error (fail-open):', rateErr)
+    } else if (allowed === false) {
+      console.warn(`[send-form-confirmation] rate limit hit for ip=${ip}`)
+      return new Response(
+        JSON.stringify({
+          error: 'rate_limited',
+          message: 'Trop de demandes récentes. Merci de réessayer dans une heure.',
+        }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+    // Enregistre l'appel (fire-and-forget)
+    admin.rpc('record_edge_call', {
+      p_identifier: ip,
+      p_endpoint: 'send-form-confirmation',
+    }).then(({ error }) => {
+      if (error) console.warn('[send-form-confirmation] record_edge_call error:', error)
+    })
+  }
+
   let body: RequestBody
   try {
     body = await req.json()
