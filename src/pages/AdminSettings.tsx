@@ -511,6 +511,16 @@ const AdminSettings = () => {
           headerFooterSettings.memberMenuShowForum !== initialHeaderFooterSettings.memberMenuShowForum) {
         headerChanges.push("Menu espace membre modifié");
       }
+      // Module Guides
+      if (headerFooterSettings.guidesModuleEnabled !== initialHeaderFooterSettings.guidesModuleEnabled) {
+        headerChanges.push(headerFooterSettings.guidesModuleEnabled ? "Module Guides activé" : "Module Guides désactivé");
+      }
+      if (headerFooterSettings.guidesModuleHideFromNav !== initialHeaderFooterSettings.guidesModuleHideFromNav) {
+        headerChanges.push(headerFooterSettings.guidesModuleHideFromNav ? "Lien Guides masqué du header/footer" : "Lien Guides ré-affiché dans le header/footer");
+      }
+      if (headerFooterSettings.guidesModuleMessage !== initialHeaderFooterSettings.guidesModuleMessage) {
+        headerChanges.push("Message du module Guides modifié");
+      }
 
       if (headerChanges.length > 0) {
         changes.push({ category: "Header / Footer", changes: headerChanges });
@@ -1628,9 +1638,13 @@ const AdminSettings = () => {
                         </div>
                         <Switch
                           checked={headerFooterSettings.guidesModuleEnabled}
-                          onCheckedChange={(checked) =>
-                            setHeaderFooterSettings({ ...headerFooterSettings, guidesModuleEnabled: checked })
-                          }
+                          onCheckedChange={(checked) => {
+                            setHeaderFooterSettings({ ...headerFooterSettings, guidesModuleEnabled: checked });
+                            // Sync avec la bande "guides" de la page d'accueil
+                            setHomepageSections((prev) =>
+                              prev.map((s) => (s.id === "guides" ? { ...s, visible: checked } : s))
+                            );
+                          }}
                         />
                       </div>
 
