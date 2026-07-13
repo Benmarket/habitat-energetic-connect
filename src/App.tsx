@@ -58,6 +58,7 @@ const AdminMediatheque = lazy(() => import("./pages/AdminMediatheque"));
 const AdminArticlesAudit = lazy(() => import("./pages/AdminArticlesAudit"));
 const AdminInternalReviews = lazy(() => import("./pages/AdminInternalReviews"));
 const LaisserAvis = lazy(() => import("./pages/LaisserAvis"));
+const DevenirPartenaire = lazy(() => import("./pages/DevenirPartenaire"));
 
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const AdminTraficSeo = lazy(() => import("./pages/AdminTraficSeo"));
@@ -129,6 +130,7 @@ const App = () => (
                   <Route path="/aide/:slug" element={<ArticleDetail />} />
                   <Route path="/guides" element={<Guides />} />
                   <Route path="/guide/:slug" element={<GuideDetail />} />
+                  <Route path="/devenir-partenaire" element={<DevenirPartenaire />} />
                   <Route path="/connexion" element={<Auth />} />
 
                   {/* Authenticated pages - lazy loaded */}

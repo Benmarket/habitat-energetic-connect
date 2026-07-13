@@ -149,6 +149,58 @@ Deno.serve(async (req) => {
   }
 
   const isGuideDownload = formIdentifier === 'guide-download'
+  const isPartnerApplication = formIdentifier === 'partner-application'
+
+  // Partenaires : template dédié B2B, jamais de magic link espace membre
+  if (isPartnerApplication) {
+    // Récupère les données spécifiques depuis form_submissions si dispo
+    let partnerData: Record<string, any> = {}
+    if (submissionId) {
+      const { data: sub } = await admin
+        .from('form_submissions')
+        .select('data')
+        .eq('id', submissionId)
+        .maybeSingle()
+      if (sub?.data) partnerData = sub.data as Record<string, any>
+    }
+
+    const partnerTemplateData = {
+      firstName: recipient.firstName || partnerData.prenom,
+      lastName: recipient.lastName || partnerData.nom,
+      email: recipient.email,
+      phone: recipient.phone || partnerData.telephone,
+      companyName: partnerData.raison_sociale,
+      zone: partnerData.zone_intervention,
+      workTypes: Array.isArray(partnerData.types_travaux) ? partnerData.types_travaux : undefined,
+      formLabel: formLabel || form?.name || 'votre candidature partenaire',
+      requestSummary,
+    }
+
+    const idempotencyKey = `partner-confirm-${submissionId ?? recipient.email}`
+    const { data: sendResult, error: sendErr } = await admin.functions.invoke(
+      'send-transactional-email',
+      {
+        body: {
+          templateName: 'partner-application-confirmation',
+          recipientEmail: recipient.email,
+          idempotencyKey,
+          templateData: partnerTemplateData,
+        },
+      },
+    )
+    if (sendErr) {
+      console.error('Partner send invoke failed:', sendErr)
+      return new Response(JSON.stringify({ error: 'Send failed', detail: String(sendErr) }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+    return new Response(
+      JSON.stringify({ success: true, templateName: 'partner-application-confirmation', sent: sendResult }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    )
+  }
+
 
   if (isGuideDownload) {
     // Template dédié téléchargement guide
