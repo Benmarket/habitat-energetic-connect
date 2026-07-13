@@ -130,6 +130,7 @@ const App = () => (
                   <Route path="/aide/:slug" element={<ArticleDetail />} />
                   <Route path="/guides" element={<Guides />} />
                   <Route path="/guide/:slug" element={<GuideDetail />} />
+                  <Route path="/devenir-partenaire" element={<DevenirPartenaire />} />
                   <Route path="/connexion" element={<Auth />} />
 
                   {/* Authenticated pages - lazy loaded */}
