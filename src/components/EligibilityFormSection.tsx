@@ -64,6 +64,46 @@ const EligibilityFormSection = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [buttonBounce, setButtonBounce] = useState<number | null>(null);
+  const [postalLocation, setPostalLocation] = useState<{ city: string; context: string } | null>(null);
+  const [postalLoading, setPostalLoading] = useState(false);
+
+  // Lookup ville/région depuis le code postal (API adresse gouv.fr)
+  useEffect(() => {
+    const cp = formData.postalCode;
+    if (!/^\d{5}$/.test(cp)) {
+      setPostalLocation(null);
+      setPostalLoading(false);
+      return;
+    }
+    setPostalLoading(true);
+    const controller = new AbortController();
+    const t = setTimeout(async () => {
+      try {
+        const r = await fetch(
+          `https://api-adresse.data.gouv.fr/search/?q=${cp}&type=municipality&limit=1`,
+          { signal: controller.signal }
+        );
+        const data = await r.json();
+        const f = data?.features?.[0];
+        if (f?.properties) {
+          setPostalLocation({
+            city: f.properties.city || f.properties.name,
+            context: f.properties.context || "",
+          });
+        } else {
+          setPostalLocation(null);
+        }
+      } catch {
+        /* ignore */
+      } finally {
+        setPostalLoading(false);
+      }
+    }, 250);
+    return () => {
+      controller.abort();
+      clearTimeout(t);
+    };
+  }, [formData.postalCode]);
 
   // Fonction pour déclencher le bounce et passer à l'étape suivante
   const handleNextStepWithBounce = (currentStep: number, nextStep: number) => {
