@@ -82,8 +82,8 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
                   onClick={() => handleRegionClick(region.code)}
                   className={`group flex flex-col items-center gap-1 flex-1 transition-all duration-200 focus:outline-none cursor-pointer ${
                     isActive 
-                      ? "scale-105" 
-                      : "opacity-60 hover:opacity-90 hover:scale-105"
+                      ? "md:scale-105" 
+                      : "opacity-70 md:opacity-60 hover:opacity-90 hover:scale-105"
                   }`}
                   aria-pressed={isActive}
                   aria-label={`Sélectionner la région ${region.name}`}
@@ -92,7 +92,7 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
                   <div 
                     className={`relative w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center transition-all duration-300 ${
                       isActive 
-                        ? "drop-shadow-[0_0_8px_hsl(var(--primary)/0.4)]" 
+                        ? "md:drop-shadow-[0_0_8px_hsl(var(--primary)/0.4)]" 
                         : ""
                     }`}
                   >
@@ -101,7 +101,7 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
                       alt={region.name}
                       className={`w-full h-full object-contain transition-all duration-200 ${
                         isActive 
-                          ? "brightness-110" 
+                          ? "md:brightness-110" 
                           : "group-hover:brightness-105"
                       }`}
                     />
