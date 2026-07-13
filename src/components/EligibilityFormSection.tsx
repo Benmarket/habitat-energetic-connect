@@ -578,6 +578,23 @@ const EligibilityFormSection = () => {
                         className="h-14 text-lg text-center border-2 border-primary/30 focus:border-primary"
                         maxLength={5}
                       />
+                      <div className="min-h-[1.5rem] text-center text-sm" aria-live="polite">
+                        {postalLoading && (
+                          <span className="text-muted-foreground italic">Localisation…</span>
+                        )}
+                        {!postalLoading && postalLocation && (
+                          <span className="text-muted-foreground">
+                            <span className="font-medium text-foreground">{postalLocation.city}</span>
+                            {postalLocation.context && (
+                              <> — {postalLocation.context.split(",").slice(1).map(s => s.trim()).filter(Boolean).join(", ")}</>
+                            )}
+                            , France
+                          </span>
+                        )}
+                        {!postalLoading && !postalLocation && isPostalCodeValid && (
+                          <span className="text-muted-foreground italic">Localité introuvable</span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Bouton */}
