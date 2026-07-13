@@ -112,6 +112,11 @@ const Guides = () => {
         />
         
         <main className="relative">
+          {!guidesModule.loading && !guidesModule.enabled ? (
+            <GuidesModuleNotice message={guidesModule.message} />
+          ) : (
+          <>
+
           {/* Hero Section - Orange solid background */}
           <section className="relative py-20 overflow-hidden bg-gradient-to-br from-orange-500 via-orange-500/90 to-orange-600">
             {/* Background decorative elements with floating animation */}
