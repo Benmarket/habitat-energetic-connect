@@ -101,7 +101,7 @@ const RegionSubHeader = ({ isScrolled = false }: RegionSubHeaderProps) => {
                       alt={region.name}
                       className={`w-full h-full object-contain transition-all duration-200 ${
                         isActive 
-                          ? "brightness-110" 
+                          ? "md:brightness-110" 
                           : "group-hover:brightness-105"
                       }`}
                     />
