@@ -1,25 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Briefcase, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CTAPartner = () => {
-  const handleClick = () => {
-    // Dispatch event to preselect the subject in contact form
-    window.dispatchEvent(
-      new CustomEvent("contact-preselect", {
-        detail: {
-          subject: "demande-partenariat",
-          accountType: "professionnel",
-        },
-      }),
-    );
-
-    // Navigate to contact section
-    const contactSection = document.getElementById("contact");
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   return (
     <section
       className="py-6 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 relative overflow-hidden"
@@ -44,12 +27,14 @@ const CTAPartner = () => {
           </div>
 
           <Button
+            asChild
             size="lg"
             className="bg-white text-amber-700 hover:bg-amber-50 font-bold shadow-lg hover:shadow-xl transition-all duration-300 gap-2 hover:scale-105 px-6"
-            onClick={handleClick}
           >
-            Devenir partenaire
-            <ArrowRight className="w-4 h-4" />
+            <Link to="/devenir-partenaire">
+              Devenir partenaire
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </Button>
         </div>
       </div>
