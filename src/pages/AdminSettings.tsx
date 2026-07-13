@@ -1638,9 +1638,13 @@ const AdminSettings = () => {
                         </div>
                         <Switch
                           checked={headerFooterSettings.guidesModuleEnabled}
-                          onCheckedChange={(checked) =>
-                            setHeaderFooterSettings({ ...headerFooterSettings, guidesModuleEnabled: checked })
-                          }
+                          onCheckedChange={(checked) => {
+                            setHeaderFooterSettings({ ...headerFooterSettings, guidesModuleEnabled: checked });
+                            // Sync avec la bande "guides" de la page d'accueil
+                            setHomepageSections((prev) =>
+                              prev.map((s) => (s.id === "guides" ? { ...s, visible: checked } : s))
+                            );
+                          }}
                         />
                       </div>
 
