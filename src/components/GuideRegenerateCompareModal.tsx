@@ -541,6 +541,7 @@ export const GuideRegenerateCompareModal = ({
         onOpenChange={setImgRegenOpen}
         contextLabel={activeImageContext === "featured" ? "image à la une" : "image de section"}
         context={pending.title || pending.excerpt || ""}
+        currentImageUrl={activeImageUrl || undefined}
         onImageGenerated={(url) => { replaceActiveImage(url); setImgRegenOpen(false); }}
       />
     </>
