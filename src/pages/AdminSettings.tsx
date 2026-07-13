@@ -511,6 +511,16 @@ const AdminSettings = () => {
           headerFooterSettings.memberMenuShowForum !== initialHeaderFooterSettings.memberMenuShowForum) {
         headerChanges.push("Menu espace membre modifié");
       }
+      // Module Guides
+      if (headerFooterSettings.guidesModuleEnabled !== initialHeaderFooterSettings.guidesModuleEnabled) {
+        headerChanges.push(headerFooterSettings.guidesModuleEnabled ? "Module Guides activé" : "Module Guides désactivé");
+      }
+      if (headerFooterSettings.guidesModuleHideFromNav !== initialHeaderFooterSettings.guidesModuleHideFromNav) {
+        headerChanges.push(headerFooterSettings.guidesModuleHideFromNav ? "Lien Guides masqué du header/footer" : "Lien Guides ré-affiché dans le header/footer");
+      }
+      if (headerFooterSettings.guidesModuleMessage !== initialHeaderFooterSettings.guidesModuleMessage) {
+        headerChanges.push("Message du module Guides modifié");
+      }
 
       if (headerChanges.length > 0) {
         changes.push({ category: "Header / Footer", changes: headerChanges });
