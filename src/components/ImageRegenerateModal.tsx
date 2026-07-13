@@ -20,7 +20,11 @@ export function ImageRegenerateModal({ open, onOpenChange, onImageGenerated, con
   const [loading, setLoading] = useState(false);
   const [elapsed, setElapsed] = useState(0);
 
-  const handleGenerate = async () => {
+  const handleGenerate = async (e?: React.MouseEvent | React.FormEvent) => {
+    // Sécurité : empêche toute soumission du formulaire parent (page CreatePost)
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+
     setLoading(true);
     setElapsed(0);
     const timer = setInterval(() => setElapsed(prev => prev + 1), 1000);
@@ -30,10 +34,12 @@ export function ImageRegenerateModal({ open, onOpenChange, onImageGenerated, con
       const token = sessionData?.session?.access_token;
       if (!token) { toast.error("Vous devez être connecté"); return; }
 
-      // Build a smart prompt: user prompt if provided, otherwise auto-generate from context
+      // Priorité absolue au prompt utilisateur, fallback contextuel sinon
       let finalPrompt = prompt.trim();
+      const usedUserPrompt = !!finalPrompt;
+      console.log('[ImageRegenerate] prompt utilisateur:', usedUserPrompt ? finalPrompt : '(vide → auto)');
+
       if (!finalPrompt && context) {
-        // Use AI to craft a viral image prompt from context
         const { data: aiData, error: aiError } = await supabase.functions.invoke('generate-article', {
           body: {
             mode: 'image_prompt',
@@ -48,15 +54,18 @@ export function ImageRegenerateModal({ open, onOpenChange, onImageGenerated, con
         finalPrompt = "Photo professionnelle et engageante sur le thème de la rénovation énergétique";
       }
 
+      console.log('[ImageRegenerate] appel generate-images avec prompt final:', finalPrompt.slice(0, 200));
       const { data, error } = await supabase.functions.invoke('generate-images', {
         body: { imageDescriptions: [finalPrompt] },
         headers: { Authorization: `Bearer ${token}` }
       });
 
       if (error) throw error;
+      console.log('[ImageRegenerate] réponse:', data);
       const url = data?.images?.[0]?.url;
+      const imgError = data?.images?.[0]?.error;
       if (!url || !data?.images?.[0]?.success) {
-        throw new Error("Échec de la génération de l'image");
+        throw new Error(imgError || data?.error || "Échec de la génération de l'image");
       }
 
       onImageGenerated(url);
@@ -64,7 +73,8 @@ export function ImageRegenerateModal({ open, onOpenChange, onImageGenerated, con
       setPrompt("");
       onOpenChange(false);
     } catch (err: any) {
-      toast.error(err.message || "Erreur lors de la génération");
+      console.error('[ImageRegenerate] erreur:', err);
+      toast.error(err?.message || "Erreur lors de la génération");
     } finally {
       clearInterval(timer);
       setLoading(false);
@@ -72,8 +82,13 @@ export function ImageRegenerateModal({ open, onOpenChange, onImageGenerated, con
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+    <Dialog open={open} onOpenChange={(v) => { if (loading) return; onOpenChange(v); }}>
+      <DialogContent
+        className="max-w-lg"
+        onPointerDownOutside={(e) => { if (loading) e.preventDefault(); }}
+        onEscapeKeyDown={(e) => { if (loading) e.preventDefault(); }}
+        onInteractOutside={(e) => { if (loading) e.preventDefault(); }}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
@@ -87,14 +102,14 @@ export function ImageRegenerateModal({ open, onOpenChange, onImageGenerated, con
             <Textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Laissez vide pour générer automatiquement une image virale liée au contenu de l'article..."
+              placeholder="Ex: panneaux solaires sur toit de villa aux Antilles, ciel bleu tropical, style photo réaliste lumineux..."
               rows={4}
               disabled={loading}
             />
             <p className="text-xs text-muted-foreground">
               {prompt.trim()
-                ? "L'image sera générée selon votre description."
-                : "Sans description, l'IA créera une image percutante basée sur le contenu."}
+                ? "✓ Votre description sera envoyée telle quelle à l'IA."
+                : "Sans description, l'IA créera une image basée sur le titre + extrait de l'article."}
             </p>
           </div>
 
@@ -102,18 +117,18 @@ export function ImageRegenerateModal({ open, onOpenChange, onImageGenerated, con
             <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
               <Loader2 className="w-5 h-5 animate-spin text-primary" />
               <div>
-                <p className="text-sm font-medium">Génération en cours...</p>
-                <p className="text-xs text-muted-foreground">{elapsed}s écoulées</p>
+                <p className="text-sm font-medium">Génération en cours... (~20-40s)</p>
+                <p className="text-xs text-muted-foreground">{elapsed}s écoulées — ne fermez pas cette fenêtre</p>
               </div>
             </div>
           )}
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             Annuler
           </Button>
-          <Button onClick={handleGenerate} disabled={loading} className="gap-2">
+          <Button type="button" onClick={(e) => handleGenerate(e)} disabled={loading} className="gap-2">
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
             Générer
           </Button>
