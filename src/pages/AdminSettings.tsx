@@ -359,6 +359,10 @@ const AdminSettings = () => {
     memberMenuShowDashboard: true,
     memberMenuShowEconomies: true,
     memberMenuShowForum: true,
+    // Module Guides
+    guidesModuleEnabled: true,
+    guidesModuleHideFromNav: false,
+    guidesModuleMessage: "Le module des guides est actuellement en refonte. Les aides et les pratiques dans l'habitat évoluent : nos guides sont temporairement mis en pause, le temps d'être entièrement remis à jour pour vous offrir des informations fiables. Ils reviendront en temps voulu, sans précipitation.",
     // Réseaux sociaux footer
     showFacebook: true,
     facebookLink: "",
@@ -837,6 +841,9 @@ const AdminSettings = () => {
           memberMenuShowDashboard: value.memberMenuShowDashboard ?? true,
           memberMenuShowEconomies: value.memberMenuShowEconomies ?? true,
           memberMenuShowForum: value.memberMenuShowForum ?? true,
+          guidesModuleEnabled: value.guidesModuleEnabled ?? true,
+          guidesModuleHideFromNav: value.guidesModuleHideFromNav ?? false,
+          guidesModuleMessage: value.guidesModuleMessage || "Le module des guides est actuellement en refonte. Les aides et les pratiques dans l'habitat évoluent : nos guides sont temporairement mis en pause, le temps d'être entièrement remis à jour pour vous offrir des informations fiables. Ils reviendront en temps voulu, sans précipitation.",
           showFacebook: value.showFacebook ?? true,
           facebookLink: value.facebookLink || "",
           showTwitter: value.showTwitter ?? true,
@@ -1599,6 +1606,66 @@ const AdminSettings = () => {
                       </p>
                     </CardContent>
                   </Card>
+
+                  {/* Module Guides */}
+                  <Card className="bg-muted/30 border-amber-200">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <BookOpen className="w-4 h-4" />
+                        Module Guides
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Contrôlez la disponibilité de la section Guides le temps d'une refonte éditoriale.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <Label className="text-sm">Module actif</Label>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Désactivé : la page /guides et chaque /guide/... affichent un message de refonte à la place du contenu.
+                          </p>
+                        </div>
+                        <Switch
+                          checked={headerFooterSettings.guidesModuleEnabled}
+                          onCheckedChange={(checked) =>
+                            setHeaderFooterSettings({ ...headerFooterSettings, guidesModuleEnabled: checked })
+                          }
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <Label className="text-sm">Masquer "Guides" du header et du footer</Label>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Retire le lien de navigation. L'URL /guides reste accessible via un lien direct.
+                          </p>
+                        </div>
+                        <Switch
+                          checked={headerFooterSettings.guidesModuleHideFromNav}
+                          onCheckedChange={(checked) =>
+                            setHeaderFooterSettings({ ...headerFooterSettings, guidesModuleHideFromNav: checked })
+                          }
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm">Message affiché quand le module est désactivé</Label>
+                        <Textarea
+                          value={headerFooterSettings.guidesModuleMessage}
+                          onChange={(e) =>
+                            setHeaderFooterSettings({ ...headerFooterSettings, guidesModuleMessage: e.target.value })
+                          }
+                          rows={5}
+                          className="text-sm"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Formulez sans promesse de date de retour ("en temps voulu", "mise à jour en cours", etc.).
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
 
                   {/* Profile selector toggle */}
                   <div className="flex items-center justify-between">

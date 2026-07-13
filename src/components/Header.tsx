@@ -5,6 +5,7 @@ import { Menu, X, Phone, User, Home, BarChart3, MessageCircle, Users, LogOut, Ch
 import RegionSubHeader from "@/components/RegionSubHeader";
 import ProfileSelector from "@/components/ProfileSelector";
 import { useAuth } from "@/hooks/useAuth";
+import { useGuidesModule } from "@/hooks/useGuidesModule";
 import { MegaMenu } from "@/components/MegaMenu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,7 @@ import {
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const guidesModule = useGuidesModule();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUserMenuExpanded, setIsUserMenuExpanded] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -552,13 +554,15 @@ const Header = () => {
               >
                 Offres
               </Link>
-              <Link
-                to="/guides"
-                className="text-foreground hover:text-primary transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Guides
-              </Link>
+              {!guidesModule.hideFromNav && (
+                <Link
+                  to="/guides"
+                  className="text-foreground hover:text-primary transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Guides
+                </Link>
+              )}
               <Link
                 to="/aides"
                 className="text-foreground hover:text-primary transition-colors"

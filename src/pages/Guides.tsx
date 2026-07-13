@@ -8,6 +8,8 @@ import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen } from "lucide-react";
+import { useGuidesModule } from "@/hooks/useGuidesModule";
+import { GuidesModuleNotice } from "@/components/GuidesModuleNotice";
 
 interface Guide {
   id: string;
@@ -22,6 +24,7 @@ interface Guide {
 const Guides = () => {
   const [guides, setGuides] = useState<Guide[]>([]);
   const [loading, setLoading] = useState(true);
+  const guidesModule = useGuidesModule();
 
   useEffect(() => {
     fetchGuides();
@@ -109,6 +112,11 @@ const Guides = () => {
         />
         
         <main className="relative">
+          {!guidesModule.loading && !guidesModule.enabled ? (
+            <GuidesModuleNotice message={guidesModule.message} />
+          ) : (
+          <>
+
           {/* Hero Section - Orange solid background */}
           <section className="relative py-20 overflow-hidden bg-gradient-to-br from-orange-500 via-orange-500/90 to-orange-600">
             {/* Background decorative elements with floating animation */}
@@ -203,6 +211,8 @@ const Guides = () => {
               )}
             </div>
           </div>
+          </>
+          )}
         </main>
 
         <Footer />

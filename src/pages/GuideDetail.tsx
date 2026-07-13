@@ -21,6 +21,8 @@ import { GuideStickyNav } from "@/components/GuideStickyNav";
 import { useActiveSection } from "@/hooks/useActiveSection";
 import { calculateReadingTime } from "@/utils/readingTime";
 import { extractTableOfContents, addHeadingIds } from "@/utils/tableOfContents";
+import { useGuidesModule } from "@/hooks/useGuidesModule";
+import { GuidesModuleNotice } from "@/components/GuidesModuleNotice";
 
 interface Guide {
   id: string;
@@ -68,6 +70,7 @@ interface Guide {
 const GuideDetail = () => {
   const { slug } = useParams();
   const { user } = useAuth();
+  const guidesModule = useGuidesModule();
   const [guide, setGuide] = useState<Guide | null>(null);
   const [loading, setLoading] = useState(true);
   const [contentWithIds, setContentWithIds] = useState("");
@@ -148,6 +151,19 @@ const GuideDetail = () => {
       </>
     );
   }
+
+  if (!guidesModule.loading && !guidesModule.enabled) {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen bg-background pt-20">
+          <GuidesModuleNotice message={guidesModule.message} />
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
 
   if (!guide) {
     return (
