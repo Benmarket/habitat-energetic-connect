@@ -98,7 +98,7 @@ const DevenirPartenaire = () => {
     try {
       // Look up form_configurations id for partner-application
       const { data: formCfg } = await supabase
-        .from("form_configurations")
+        .from("form_configurations_public")
         .select("id")
         .eq("form_identifier", PARTNER_FORM_IDENTIFIER)
         .maybeSingle();
