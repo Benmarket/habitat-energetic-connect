@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { AIEditModal } from "./AIEditModal";
+import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import { useState, useEffect, useRef } from "react";
 
 interface ArticleVariant {
@@ -248,7 +249,7 @@ export const ArticleVariantsModal = ({
                             prose-img:rounded-lg prose-img:shadow-md prose-img:my-4
                             prose-ul:my-3 prose-ol:my-3
                             prose-li:mb-1"
-                          dangerouslySetInnerHTML={{ __html: variant.content }}
+                          dangerouslySetInnerHTML={{ __html: sanitizeHtml(variant.content ?? '') }}
                         />
 
                         {/* Statistiques */}

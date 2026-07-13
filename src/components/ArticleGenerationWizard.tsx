@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Sparkles, ArrowLeft, ArrowRight, Check, Target, Lightbulb, FileText, X, MapPin, Clock } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
+import { sanitizeHtml } from "@/utils/sanitizeHtml";
 
 export interface GenerationInput {
   product: string;
@@ -444,7 +445,7 @@ export const ArticleGenerationWizard = ({
                       <p className="text-sm text-muted-foreground mb-3">{generatedArticle.excerpt}</p>
                       <Separator className="my-3" />
                       <div className="prose prose-sm max-w-none max-h-[300px] overflow-y-auto"
-                        dangerouslySetInnerHTML={{ __html: generatedArticle.content?.slice(0, 3000) + '...' }} />
+                        dangerouslySetInnerHTML={{ __html: sanitizeHtml((generatedArticle.content?.slice(0, 3000) ?? '') + '...') }} />
                     </CardContent>
                   </Card>
 
