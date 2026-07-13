@@ -102,7 +102,11 @@ export function ContentFields({ formData, setFormData, contentType }: ContentFie
                   type="button"
                   size="sm"
                   className="gap-2 bg-primary/90 hover:bg-primary shadow-lg"
-                  onClick={() => setRegenModalOpen(true)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setRegenModalOpen(true);
+                  }}
                 >
                   <RefreshCw className="w-4 h-4" />
                   Régénérer
@@ -112,7 +116,11 @@ export function ContentFields({ formData, setFormData, contentType }: ContentFie
                   size="sm"
                   variant="secondary"
                   className="gap-2 shadow-lg"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
                   disabled={uploading}
                 >
                   <Upload className="w-4 h-4" />
@@ -123,7 +131,11 @@ export function ContentFields({ formData, setFormData, contentType }: ContentFie
                   size="sm"
                   variant="secondary"
                   className="gap-2 shadow-lg"
-                  onClick={() => setMediaLibraryOpen(true)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setMediaLibraryOpen(true);
+                  }}
                 >
                   <ImageIcon className="w-4 h-4" />
                   Bibliothèque
