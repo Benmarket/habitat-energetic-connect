@@ -133,8 +133,10 @@ export function useArticleGeneration(
       return `${p.prompt}${hint}`;
     });
 
+    const seoContext = placeholders.map((p) => (p.title || p.prompt || '').slice(0, 160));
+
     const { data: imgData, error: imgError } = await supabase.functions.invoke('generate-images', {
-      body: { imageDescriptions: enrichedPrompts },
+      body: { imageDescriptions: enrichedPrompts, seoContext },
       headers: { Authorization: `Bearer ${accessToken}` }
     });
 
