@@ -534,6 +534,17 @@ const Solar3DShowcase = ({ showDebug = false }: { showDebug?: boolean } = {}) =>
   const progress = useScrollProgress(containerRef as React.RefObject<HTMLElement>);
   const [roofType, setRoofType] = useState<RoofType>("tuiles");
   const [roofConfigs, setRoofConfigs] = useState<RoofConfigMap>(() => loadStoredRoofConfigs());
+  const [isMobile, setIsMobile] = useState<boolean>(() =>
+    typeof window !== "undefined" ? window.innerWidth < 1024 : false
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
 
   const config = roofConfigs[roofType];
 
