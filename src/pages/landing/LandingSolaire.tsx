@@ -72,17 +72,22 @@ const badges = [
   { name: "Eco PTZ", logo: `${STORAGE_BASE}/eco-ptz.png` },
 ];
 
-// ─── Schemas de validation wizard ───
-const step2Schema = z.object({
+// ─── Schemas de validation wizard (une étape = une question / un couple de champs) ───
+const stepChauffageSchema = z.object({
   chauffage: z.string().min(1, "Veuillez sélectionner votre type de chauffage"),
+});
+const stepSurfaceSchema = z.object({
   surface: z.string().min(1, "Veuillez indiquer la surface"),
+});
+const stepLocalisationSchema = z.object({
   postalCode: z.string().regex(/^\d{5}$/, "Code postal invalide"),
   city: z.string().min(1, "Veuillez indiquer la ville"),
 });
-
-const step3Schema = z.object({
+const stepIdentiteSchema = z.object({
   lastName: z.string().min(1, "Veuillez indiquer votre nom"),
   firstName: z.string().min(1, "Veuillez indiquer votre prénom"),
+});
+const stepContactSchema = z.object({
   email: z.string().email("Email invalide"),
   phone: z.string().min(10, "Numéro de téléphone invalide"),
 });
