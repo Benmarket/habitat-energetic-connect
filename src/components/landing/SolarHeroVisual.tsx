@@ -55,7 +55,7 @@ export const SolarHeroVisual = ({ customSlides, badgeSrc }: SolarHeroVisualProps
   }, [slides.length]);
 
   return (
-    <div className="flex flex-col gap-3 lg:gap-5 h-full justify-center w-full min-w-0">
+    <div className="flex flex-col gap-2 lg:gap-5 h-full justify-center w-full min-w-0">
       {/* Image slideshow - taller */}
       <div className="relative flex-shrink-0">
         <img
