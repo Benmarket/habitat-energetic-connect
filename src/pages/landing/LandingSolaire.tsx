@@ -174,27 +174,51 @@ const LandingSolaireContent = () => {
     setTimeout(() => setWizardStep(2), 500);
   };
 
-  const handleStep2Continue = () => {
+  const handleStepChauffageNext = () => {
     try {
-      step2Schema.parse({
-        chauffage: wizardData.chauffage,
-        surface: wizardData.surface,
-        postalCode: wizardData.postalCode,
-        city: wizardData.city,
-      });
-      setTimeout(() => setWizardStep(3), 400);
+      stepChauffageSchema.parse({ chauffage: wizardData.chauffage });
+      setWizardStep(3);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        toast.error(error.errors[0].message);
-      }
+      if (error instanceof z.ZodError) toast.error(error.errors[0].message);
     }
   };
 
-  const handleStep3Submit = async () => {
+  const handleStepSurfaceNext = () => {
     try {
-      step3Schema.parse({
+      stepSurfaceSchema.parse({ surface: wizardData.surface });
+      setWizardStep(4);
+    } catch (error) {
+      if (error instanceof z.ZodError) toast.error(error.errors[0].message);
+    }
+  };
+
+  const handleStepLocalisationNext = () => {
+    try {
+      stepLocalisationSchema.parse({
+        postalCode: wizardData.postalCode,
+        city: wizardData.city,
+      });
+      setWizardStep(5);
+    } catch (error) {
+      if (error instanceof z.ZodError) toast.error(error.errors[0].message);
+    }
+  };
+
+  const handleStepIdentiteNext = () => {
+    try {
+      stepIdentiteSchema.parse({
         lastName: wizardData.lastName,
         firstName: wizardData.firstName,
+      });
+      setWizardStep(6);
+    } catch (error) {
+      if (error instanceof z.ZodError) toast.error(error.errors[0].message);
+    }
+  };
+
+  const handleFinalSubmit = async () => {
+    try {
+      stepContactSchema.parse({
         email: wizardData.email,
         phone: wizardData.phone,
       });
