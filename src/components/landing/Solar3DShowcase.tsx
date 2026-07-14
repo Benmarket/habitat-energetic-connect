@@ -667,6 +667,7 @@ const Solar3DShowcase = ({ showDebug = false }: { showDebug?: boolean } = {}) =>
             </div>
           }>
             <Canvas
+              key={isMobile ? "mobile" : "desktop"}
               shadows
               dpr={[1, 2]}
               gl={{
@@ -676,12 +677,16 @@ const Solar3DShowcase = ({ showDebug = false }: { showDebug?: boolean } = {}) =>
                 toneMapping: THREE.ACESFilmicToneMapping,
                 toneMappingExposure: 1.1,
               }}
-              camera={{ position: [-8.16, 3.72, 10.62], fov: 35 }}
+              camera={{
+                position: isMobile ? [-11, 6, 15] : [-8.16, 3.72, 10.62],
+                fov: isMobile ? 45 : 35,
+              }}
             >
               <Scene progress={progress} config={config} roofType={roofType} onCameraUpdate={handleCameraUpdate} />
             </Canvas>
           </Suspense>
         </Scene3DErrorBoundary>
+
 
         {/* Roof Type Selector */}
         <RoofTypeSelector selected={roofType} onSelect={setRoofType} />
