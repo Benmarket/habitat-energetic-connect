@@ -290,7 +290,7 @@ const LandingSolaireContent = () => {
     }
   };
 
-  const progressValue = wizardStep === 1 ? 10 : wizardStep === 2 ? 55 : 90;
+  const progressValue = Math.round((wizardStep / 6) * 100);
 
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
