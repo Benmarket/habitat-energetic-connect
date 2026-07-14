@@ -88,26 +88,26 @@ export const SolarHeroVisual = ({ customSlides, badgeSrc }: SolarHeroVisualProps
           ))}
         </div>
 
-        {/* Panneau + onduleur superposés en bas à droite - taille réduite en mobile */}
+        {/* Panneau + onduleur superposés en bas à droite */}
         <div className="absolute bottom-0 right-0 translate-x-[5%] translate-y-1/4 lg:translate-x-[10%] z-10">
           <img
             src={panneauPV}
             alt="Panneau photovoltaïque"
-            className="h-16 sm:h-20 lg:h-36 object-contain"
+            className="h-28 sm:h-32 lg:h-36 object-contain"
           />
           <img
             src={onduleur}
             alt="Onduleur Hoymiles"
-            className="absolute bottom-0 right-0 h-9 sm:h-12 lg:h-20 object-contain translate-x-[15%] translate-y-[10%]"
+            className="absolute bottom-0 right-0 h-16 sm:h-20 lg:h-20 object-contain translate-x-[15%] translate-y-[10%]"
           />
         </div>
       </div>
 
       {/* Logos + text below image */}
-      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-5 mt-2 min-w-0">
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-5 mt-0 min-w-0">
         <div className="flex items-center gap-3 flex-shrink-0">
-          <img src={marqueFrancaise} alt="Marque Française" className="h-9 lg:h-12 w-auto max-w-[110px] object-contain" />
-          <img src={guarantee25Years} alt="Garantie 25 ans" className="w-14 h-14 lg:w-20 lg:h-20 object-contain" />
+          <img src={marqueFrancaise} alt="Marque Française" className="h-11 lg:h-12 w-auto max-w-[130px] object-contain" />
+          <img src={guarantee25Years} alt="Garantie 25 ans" className="w-16 h-16 lg:w-20 lg:h-20 object-contain" />
         </div>
 
         <div className="flex flex-col gap-1 min-w-0 text-center sm:text-left">
