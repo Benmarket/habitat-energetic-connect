@@ -367,14 +367,12 @@ const RoofWithPanels = ({ progress, config, roofType }: { progress: number; conf
 };
 
 // ─── Camera ───
-const CameraCtrl = ({ progress, isMobile }: { progress: number; isMobile: boolean }) => {
+const CameraCtrl = ({ progress }: { progress: number }) => {
   const { camera } = useThree();
   useFrame(() => {
     const angle = -0.15 + progress * 0.2;
-    const baseRadius = isMobile ? 15 : 10;
-    const baseHeight = isMobile ? 8 : 6;
-    const radius = baseRadius - progress * 1.5;
-    const height = baseHeight + progress * 1.5;
+    const radius = 10 - progress * 1.5;
+    const height = 6 + progress * 1.5;
     camera.position.set(Math.sin(angle) * radius, height, Math.cos(angle) * radius);
     camera.lookAt(0, 0, -1.5);
   });
