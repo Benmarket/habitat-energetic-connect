@@ -589,22 +589,22 @@ const LandingSolaireContent = () => {
 
         <main>
           {/* ═══ BAND 1: Hero Banner ═══ */}
-          <section className="relative pt-20 pb-10 lg:pt-22 lg:pb-14 px-4 overflow-hidden">
+          <section className="relative pt-6 pb-6 lg:pt-22 lg:pb-14 px-4 overflow-hidden">
             {/* Background image */}
             <img src={fondGris} alt="" className="absolute inset-0 w-full h-full object-cover" aria-hidden="true" />
             <div className="absolute inset-0 bg-background/30" aria-hidden="true" />
 
             <div className="container mx-auto max-w-7xl relative z-10">
               <h1
-                className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-center mb-1 bg-gradient-to-r from-emerald-600 via-green-500 to-teal-600 bg-clip-text text-transparent drop-shadow-sm"
+                className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-center mb-1 bg-gradient-to-r from-emerald-600 via-green-500 to-teal-600 bg-clip-text text-transparent drop-shadow-sm leading-tight"
               >
                 Faites installer vos panneaux solaires
               </h1>
-              <p className="text-center text-base lg:text-lg text-foreground mb-6">
+              <p className="text-center text-sm lg:text-lg text-foreground mb-3 lg:mb-6">
                 Faites jusqu'à <strong className="text-emerald-600">70% d'économie</strong> tous les mois pendant <span className="bg-gradient-to-r from-amber-400 to-orange-500 px-2 py-0.5 rounded-md text-white font-bold shadow-sm">30 ans</span> avec une centrale solaire en autoconsommation.
               </p>
 
-              <div className="grid lg:grid-cols-[3fr_2fr] gap-6 lg:gap-10 items-stretch">
+              <div className="grid lg:grid-cols-[3fr_2fr] gap-4 lg:gap-10 items-stretch">
                 {/* Left: Product visual + text side by side */}
                 <div className="flex items-center">
                   <SolarHeroVisual customSlides={heroSlides} badgeSrc={heroBadge} />

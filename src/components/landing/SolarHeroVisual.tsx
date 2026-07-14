@@ -55,7 +55,7 @@ export const SolarHeroVisual = ({ customSlides, badgeSrc }: SolarHeroVisualProps
   }, [slides.length]);
 
   return (
-    <div className="flex flex-col gap-3 lg:gap-5 h-full justify-center w-full min-w-0">
+    <div className="flex flex-col gap-2 lg:gap-5 h-full justify-center w-full min-w-0">
       {/* Image slideshow - taller */}
       <div className="relative flex-shrink-0">
         <img
@@ -64,7 +64,7 @@ export const SolarHeroVisual = ({ customSlides, badgeSrc }: SolarHeroVisualProps
           className="absolute -top-3 -left-2 w-20 h-20 sm:-top-5 sm:-left-5 sm:w-28 sm:h-28 lg:w-36 lg:h-36 object-contain z-10 drop-shadow-lg"
         />
 
-        <div className="relative h-52 w-full overflow-hidden rounded-xl md:h-60 lg:h-72">
+        <div className="relative h-44 w-full overflow-hidden rounded-xl sm:h-52 md:h-60 lg:h-72">
           {slides.map((slide, index) => (
             <div
               key={slide.src}
