@@ -88,17 +88,17 @@ export const SolarHeroVisual = ({ customSlides, badgeSrc }: SolarHeroVisualProps
           ))}
         </div>
 
-        {/* Panneau + onduleur superposés en bas à droite (desktop uniquement pour éviter le débordement mobile) */}
-        <div className="hidden lg:block absolute bottom-0 right-0 translate-x-[10%] translate-y-1/4 z-10">
+        {/* Panneau + onduleur superposés en bas à droite - taille réduite en mobile */}
+        <div className="absolute bottom-0 right-0 translate-x-[5%] translate-y-1/4 lg:translate-x-[10%] z-10">
           <img
             src={panneauPV}
             alt="Panneau photovoltaïque"
-            className="h-24 lg:h-36 object-contain"
+            className="h-16 sm:h-20 lg:h-36 object-contain"
           />
           <img
             src={onduleur}
             alt="Onduleur Hoymiles"
-            className="absolute bottom-0 right-0 h-14 lg:h-20 object-contain translate-x-[15%] translate-y-[10%]"
+            className="absolute bottom-0 right-0 h-9 sm:h-12 lg:h-20 object-contain translate-x-[15%] translate-y-[10%]"
           />
         </div>
       </div>
