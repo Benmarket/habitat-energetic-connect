@@ -402,52 +402,130 @@ const LandingSolaireContent = () => {
       );
     }
 
+    // ═══ Étape 2 : Mode de chauffage (cartes cliquables) ═══
     if (wizardStep === 2) {
       return (
         <div key="step2" className="animate-fade-in">
           <h3 className="text-xl font-bold text-center mb-1" style={{ color: "#5b7a5b" }}>
-            Parlez-nous de votre logement
+            Votre mode de chauffage
           </h3>
           <p className="text-center text-xs text-muted-foreground mb-4">
-            Pour estimer vos économies et les aides 2026 auxquelles vous avez droit.
+            Cette information nous aide à évaluer votre profil énergétique.
           </p>
           <Progress value={progressValue} className="mb-5 h-3" />
 
-          <div className="mb-4">
-            <Label className="text-sm font-medium flex items-center gap-1.5">
-              <Flame className="w-3.5 h-3.5 text-amber-600" />
-              Mode de chauffage principal *
-            </Label>
-            <select
-              value={wizardData.chauffage}
-              onChange={(e) => setWizardData((d) => ({ ...d, chauffage: e.target.value }))}
-              className="mt-1.5 w-full h-11 rounded-md border border-input bg-background px-3 text-sm font-medium"
-            >
-              <option value="">— Sélectionner —</option>
-              {chauffageOptions.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
+          <Label className="text-sm font-medium flex items-center gap-1.5 mb-2">
+            <Flame className="w-3.5 h-3.5 text-amber-600" />
+            Mode de chauffage principal *
+          </Label>
+          <div className="grid grid-cols-2 gap-2 mb-5">
+            {chauffageOptions.map((o) => {
+              const active = wizardData.chauffage === o.value;
+              return (
+                <button
+                  key={o.value}
+                  type="button"
+                  onClick={() => setWizardData((d) => ({ ...d, chauffage: o.value }))}
+                  className={`min-h-14 rounded-lg border-2 px-3 py-2.5 text-sm font-semibold transition-all text-left ${active ? "border-[#5b7a5b] bg-[#5b7a5b]/10 text-[#5b7a5b]" : "border-border bg-background text-foreground hover:border-[#5b7a5b]/50"}`}
+                >
+                  {o.label}
+                </button>
+              );
+            })}
           </div>
 
-          <div className="mb-4">
-            <Label className="text-sm font-medium">Surface habitable *</Label>
-            <div className="mt-1.5 grid grid-cols-4 gap-1.5">
-              {surfaceOptions.map((o) => {
-                const active = wizardData.surface === o.value;
-                return (
-                  <button
-                    key={o.value}
-                    type="button"
-                    onClick={() => setWizardData((d) => ({ ...d, surface: o.value }))}
-                    className={`h-11 rounded-md border-2 text-xs font-semibold transition-all ${active ? "border-[#5b7a5b] bg-[#5b7a5b]/10 text-[#5b7a5b]" : "border-border bg-background text-foreground hover:border-[#5b7a5b]/50"}`}
-                  >
-                    {o.label}
-                  </button>
-                );
-              })}
-            </div>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1 bg-muted/60 text-muted-foreground font-semibold"
+              onClick={() => setWizardStep(1)}
+            >
+              Retour
+            </Button>
+            <Button
+              size="lg"
+              className="flex-[2] text-white font-bold text-lg hover:opacity-90"
+              style={{ backgroundColor: "#5b7a5b" }}
+              onClick={handleStepChauffageNext}
+            >
+              &gt; Continuer
+            </Button>
           </div>
+
+          <StepTip icon={Sparkles}>
+            <strong>Jusqu'à 11 000 € d'aides cumulables</strong> en 2026 (prime à l'autoconsommation, TVA réduite, Éco-PTZ).
+          </StepTip>
+          {dataFooter}
+        </div>
+      );
+    }
+
+    // ═══ Étape 3 : Surface habitable (grille 2x2 grande) ═══
+    if (wizardStep === 3) {
+      return (
+        <div key="step3" className="animate-fade-in">
+          <h3 className="text-xl font-bold text-center mb-1" style={{ color: "#5b7a5b" }}>
+            La surface de votre logement
+          </h3>
+          <p className="text-center text-xs text-muted-foreground mb-4">
+            Un ordre de grandeur suffit pour dimensionner votre installation.
+          </p>
+          <Progress value={progressValue} className="mb-5 h-3" />
+
+          <Label className="text-sm font-medium mb-2">Surface habitable *</Label>
+          <div className="mt-1.5 grid grid-cols-2 gap-2.5 mb-5">
+            {surfaceOptions.map((o) => {
+              const active = wizardData.surface === o.value;
+              return (
+                <button
+                  key={o.value}
+                  type="button"
+                  onClick={() => setWizardData((d) => ({ ...d, surface: o.value }))}
+                  className={`min-h-16 rounded-lg border-2 text-base font-semibold transition-all ${active ? "border-[#5b7a5b] bg-[#5b7a5b]/10 text-[#5b7a5b]" : "border-border bg-background text-foreground hover:border-[#5b7a5b]/50"}`}
+                >
+                  {o.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1 bg-muted/60 text-muted-foreground font-semibold"
+              onClick={() => setWizardStep(2)}
+            >
+              Retour
+            </Button>
+            <Button
+              size="lg"
+              className="flex-[2] text-white font-bold text-lg hover:opacity-90"
+              style={{ backgroundColor: "#5b7a5b" }}
+              onClick={handleStepSurfaceNext}
+            >
+              &gt; Continuer
+            </Button>
+          </div>
+
+          <StepTip icon={Sparkles}>
+            Nous adaptons votre étude à la <strong>taille réelle de votre logement</strong>.
+          </StepTip>
+          {dataFooter}
+        </div>
+      );
+    }
+
+    // ═══ Étape 4 : Localisation (CP + Ville) ═══
+    if (wizardStep === 4) {
+      return (
+        <div key="step4" className="animate-fade-in">
+          <h3 className="text-xl font-bold text-center mb-1" style={{ color: "#5b7a5b" }}>
+            Où se situe votre logement ?
+          </h3>
+          <p className="text-center text-xs text-muted-foreground mb-4">
+            Pour connaître les aides locales et l'ensoleillement de votre zone.
+          </p>
+          <Progress value={progressValue} className="mb-5 h-3" />
 
           <div className="grid grid-cols-2 gap-3 mb-5">
             <div>
@@ -489,7 +567,7 @@ const LandingSolaireContent = () => {
             <Button
               variant="outline"
               className="flex-1 bg-muted/60 text-muted-foreground font-semibold"
-              onClick={() => setWizardStep(1)}
+              onClick={() => setWizardStep(3)}
             >
               Retour
             </Button>
@@ -497,32 +575,33 @@ const LandingSolaireContent = () => {
               size="lg"
               className="flex-[2] text-white font-bold text-lg hover:opacity-90"
               style={{ backgroundColor: "#5b7a5b" }}
-              onClick={handleStep2Continue}
+              onClick={handleStepLocalisationNext}
             >
               &gt; Continuer
             </Button>
           </div>
 
           <StepTip icon={Sparkles}>
-            <strong>Jusqu'à 11 000 € d'aides cumulables</strong> en 2026 (prime à l'autoconsommation, TVA réduite, Éco-PTZ).
+            Chaque région a ses <strong>propres aides cumulables</strong> avec les dispositifs nationaux.
           </StepTip>
           {dataFooter}
         </div>
       );
     }
 
-
-    if (wizardStep === 3) {
+    // ═══ Étape 5 : Identité (Prénom + Nom) ═══
+    if (wizardStep === 5) {
       return (
-        <div key="step3" className="animate-fade-in">
+        <div key="step5" className="animate-fade-in">
           <h3 className="text-xl font-bold text-center mb-1" style={{ color: "#5b7a5b" }}>
-            Dernière étape : votre étude offerte
+            Comment devons-nous vous appeler ?
           </h3>
           <p className="text-center text-xs text-muted-foreground mb-4">
-            Un conseiller vous rappelle sous 24h avec un plan de financement personnalisé.
+            Pour personnaliser votre étude et votre échange avec notre conseiller.
           </p>
           <Progress value={progressValue} className="mb-5 h-3" />
-          <div className="grid grid-cols-2 gap-3 mb-3">
+
+          <div className="grid grid-cols-2 gap-3 mb-5">
             <div>
               <Label className="text-sm font-medium">Prénom *</Label>
               <Input
@@ -542,7 +621,46 @@ const LandingSolaireContent = () => {
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3 mb-5">
+
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1 bg-muted/60 text-muted-foreground font-semibold"
+              onClick={() => setWizardStep(4)}
+            >
+              Retour
+            </Button>
+            <Button
+              size="lg"
+              className="flex-[2] text-white font-bold text-lg hover:opacity-90"
+              style={{ backgroundColor: "#5b7a5b" }}
+              onClick={handleStepIdentiteNext}
+            >
+              &gt; Continuer
+            </Button>
+          </div>
+
+          <StepTip icon={ShieldCheck}>
+            Vos informations restent <strong>strictement confidentielles</strong>.
+          </StepTip>
+          {dataFooter}
+        </div>
+      );
+    }
+
+    // ═══ Étape 6 : Contact (Email + Téléphone) — submission ═══
+    if (wizardStep === 6) {
+      return (
+        <div key="step6" className="animate-fade-in">
+          <h3 className="text-xl font-bold text-center mb-1" style={{ color: "#5b7a5b" }}>
+            Dernière étape : votre étude offerte
+          </h3>
+          <p className="text-center text-xs text-muted-foreground mb-4">
+            Un conseiller vous rappelle sous 24h avec un plan de financement personnalisé.
+          </p>
+          <Progress value={progressValue} className="mb-5 h-3" />
+
+          <div className="grid grid-cols-1 gap-3 mb-5">
             <div>
               <Label className="text-sm font-medium">E-mail *</Label>
               <Input
@@ -564,11 +682,12 @@ const LandingSolaireContent = () => {
               />
             </div>
           </div>
+
           <div className="flex gap-3">
             <Button
               variant="outline"
               className="flex-1 bg-muted/60 text-muted-foreground font-semibold"
-              onClick={() => setWizardStep(2)}
+              onClick={() => setWizardStep(5)}
             >
               Retour
             </Button>
@@ -577,11 +696,12 @@ const LandingSolaireContent = () => {
               disabled={isSubmitting}
               className="flex-[2] text-white font-bold text-lg hover:opacity-90"
               style={{ backgroundColor: "#5b7a5b" }}
-              onClick={handleStep3Submit}
+              onClick={handleFinalSubmit}
             >
               {isSubmitting ? "Envoi..." : "> Recevoir mon étude"}
             </Button>
           </div>
+
           <StepTip icon={Clock}>
             <strong>Réponse sous 24h</strong> avec votre simulation chiffrée et le détail des aides 2026.
           </StepTip>
@@ -592,6 +712,7 @@ const LandingSolaireContent = () => {
 
     return null;
   };
+
 
   return (
     <>
