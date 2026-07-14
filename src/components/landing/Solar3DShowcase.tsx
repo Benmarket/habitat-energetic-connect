@@ -534,6 +534,17 @@ const Solar3DShowcase = ({ showDebug = false }: { showDebug?: boolean } = {}) =>
   const progress = useScrollProgress(containerRef as React.RefObject<HTMLElement>);
   const [roofType, setRoofType] = useState<RoofType>("tuiles");
   const [roofConfigs, setRoofConfigs] = useState<RoofConfigMap>(() => loadStoredRoofConfigs());
+  const [isMobile, setIsMobile] = useState<boolean>(() =>
+    typeof window !== "undefined" ? window.innerWidth < 1024 : false
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
 
   const config = roofConfigs[roofType];
 
@@ -656,6 +667,7 @@ const Solar3DShowcase = ({ showDebug = false }: { showDebug?: boolean } = {}) =>
             </div>
           }>
             <Canvas
+              key={isMobile ? "mobile" : "desktop"}
               shadows
               dpr={[1, 2]}
               gl={{
@@ -665,12 +677,16 @@ const Solar3DShowcase = ({ showDebug = false }: { showDebug?: boolean } = {}) =>
                 toneMapping: THREE.ACESFilmicToneMapping,
                 toneMappingExposure: 1.1,
               }}
-              camera={{ position: [-8.16, 3.72, 10.62], fov: 35 }}
+              camera={{
+                position: isMobile ? [-11, 6, 15] : [-8.16, 3.72, 10.62],
+                fov: isMobile ? 45 : 35,
+              }}
             >
               <Scene progress={progress} config={config} roofType={roofType} onCameraUpdate={handleCameraUpdate} />
             </Canvas>
           </Suspense>
         </Scene3DErrorBoundary>
+
 
         {/* Roof Type Selector */}
         <RoofTypeSelector selected={roofType} onSelect={setRoofType} />
@@ -683,41 +699,42 @@ const Solar3DShowcase = ({ showDebug = false }: { showDebug?: boolean } = {}) =>
 
         {/* Overlay */}
         <div className="absolute inset-0 pointer-events-none flex flex-col justify-start pt-6 lg:pt-8">
-          <div className="container mx-auto px-6 max-w-5xl pl-[140px] lg:pl-[160px]">
+          <div className="container mx-auto px-4 lg:px-6 max-w-5xl lg:pl-[160px]">
             <div
               className="transition-opacity duration-500"
               style={{
                 opacity: Math.max(0.15, progress > 0.08 ? Math.min(1, (progress - 0.08) / 0.1) : 0.15 + progress * 1.5),
               }}
             >
-              <div className="flex items-center gap-4 mb-4 flex-wrap">
-                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/60 backdrop-blur-md text-sky-800 text-sm font-semibold border border-white/40 shadow-sm">
+              <div className="flex items-center gap-2 lg:gap-4 mb-3 lg:mb-4 flex-wrap">
+                <span className="inline-flex items-center gap-2 px-3 py-1 lg:px-4 lg:py-1.5 rounded-full bg-white/60 backdrop-blur-md text-sky-800 text-xs lg:text-sm font-semibold border border-white/40 shadow-sm">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                   Installation professionnelle
                 </span>
-                <div className="flex items-center gap-3">
-                  <div className="h-1.5 w-40 bg-slate-300/40 rounded-full overflow-hidden backdrop-blur-sm">
+                <div className="flex items-center gap-2 lg:gap-3">
+                  <div className="h-1.5 w-24 lg:w-40 bg-slate-300/40 rounded-full overflow-hidden backdrop-blur-sm">
                     <div
                       className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-150"
                       style={{ width: `${Math.min(100, Math.min(1, progress * 2) * 105)}%` }}
                     />
                   </div>
-                  <span className="text-slate-500 text-sm font-mono tracking-wider">
+                  <span className="text-slate-500 text-xs lg:text-sm font-mono tracking-wider">
                     {Math.min(16, Math.floor(Math.min(1, progress * 2) * 17))}/16 panneaux
                   </span>
                 </div>
               </div>
-              <h2 className="text-3xl lg:text-6xl font-extrabold text-slate-800 leading-tight mb-4">
+              <h2 className="text-2xl sm:text-3xl lg:text-6xl font-extrabold text-slate-800 leading-tight mb-3 lg:mb-4">
                 Vos panneaux, posés avec
                 <span className="bg-gradient-to-r from-emerald-500 to-teal-400 bg-clip-text text-transparent"> précision</span>
               </h2>
-              <p className="text-slate-600 text-base lg:text-lg max-w-xl leading-relaxed">
+              <p className="text-slate-600 text-sm sm:text-base lg:text-lg max-w-xl leading-relaxed">
                 Chaque panneau est installé par nos techniciens certifiés RGE
                 pour un rendement optimal et une intégration parfaite à votre toiture.
               </p>
             </div>
           </div>
         </div>
+
 
       </div>
     </section>

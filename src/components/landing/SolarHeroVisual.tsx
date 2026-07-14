@@ -55,13 +55,13 @@ export const SolarHeroVisual = ({ customSlides, badgeSrc }: SolarHeroVisualProps
   }, [slides.length]);
 
   return (
-    <div className="flex flex-col gap-5 h-full justify-center">
+    <div className="flex flex-col gap-5 h-full justify-center w-full min-w-0">
       {/* Image slideshow - taller */}
       <div className="relative flex-shrink-0">
         <img
           src={badgeSrc || macaronPrix}
           alt="À partir de 35€/mois, primes déduites"
-          className="absolute -top-5 -left-5 w-28 h-28 lg:w-36 lg:h-36 object-contain z-10 drop-shadow-lg"
+          className="absolute -top-3 -left-2 w-20 h-20 sm:-top-5 sm:-left-5 sm:w-28 sm:h-28 lg:w-36 lg:h-36 object-contain z-10 drop-shadow-lg"
         />
 
         <div className="relative h-52 w-full overflow-hidden rounded-xl md:h-60 lg:h-72">
@@ -88,8 +88,8 @@ export const SolarHeroVisual = ({ customSlides, badgeSrc }: SolarHeroVisualProps
           ))}
         </div>
 
-        {/* Panneau + onduleur superposés en bas à droite */}
-        <div className="absolute bottom-0 right-0 translate-x-[10%] translate-y-1/4 z-10">
+        {/* Panneau + onduleur superposés en bas à droite (desktop uniquement pour éviter le débordement mobile) */}
+        <div className="hidden lg:block absolute bottom-0 right-0 translate-x-[10%] translate-y-1/4 z-10">
           <img
             src={panneauPV}
             alt="Panneau photovoltaïque"
@@ -104,14 +104,14 @@ export const SolarHeroVisual = ({ customSlides, badgeSrc }: SolarHeroVisualProps
       </div>
 
       {/* Logos + text below image */}
-      <div className="flex items-start gap-5 mt-2">
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-5 mt-2 min-w-0">
         <div className="flex items-center gap-3 flex-shrink-0">
-          <img src={marqueFrancaise} alt="Marque Française" className="h-10 lg:h-12 object-contain" />
-          <img src={guarantee25Years} alt="Garantie 25 ans" className="w-16 h-16 lg:w-20 lg:h-20" />
+          <img src={marqueFrancaise} alt="Marque Française" className="h-9 lg:h-12 w-auto max-w-[110px] object-contain" />
+          <img src={guarantee25Years} alt="Garantie 25 ans" className="w-14 h-14 lg:w-20 lg:h-20 object-contain" />
         </div>
 
-        <div className="flex flex-col gap-1">
-          <h2 className="text-lg lg:text-xl font-extrabold leading-tight">
+        <div className="flex flex-col gap-1 min-w-0 text-center sm:text-left">
+          <h2 className="text-base lg:text-xl font-extrabold leading-tight">
             Propriétaire d&apos;une maison individuelle ?
           </h2>
           <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">
