@@ -875,41 +875,85 @@ const SurfaceSlider = ({ value, onChange }: { value: number | ""; onChange: (n: 
   );
 };
 
-const Step2Housing = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
-  <div>
-    <StepTitle icon={Home} title="Quel logement souhaitez-vous équiper ?" />
-    <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
-      {HOUSING.map((h) => (
-        <ChoiceCard
-          key={h.id}
-          icon={h.icon}
-          title={h.label}
-          description={h.desc}
-          selected={sim.housing === h.id}
-          onClick={() => setSim({ ...sim, housing: h.id })}
-        />
-      ))}
-    </div>
+const Step2Housing = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
+  const [showAptDisclaimer, setShowAptDisclaimer] = useState(false);
+  const [aptAcknowledged, setAptAcknowledged] = useState(false);
 
-    <div className="mt-8">
-      <h3 className="font-semibold text-slate-900 mb-3">Quelle est la superficie de votre logement ?</h3>
-      <SurfaceSlider value={sim.surface} onChange={(n) => setSim({ ...sim, surface: n })} />
-    </div>
+  const handleHousingSelect = (id: HousingType) => {
+    setSim({ ...sim, housing: id });
+    if (id === "appartement" && !aptAcknowledged) {
+      setShowAptDisclaimer(true);
+    }
+  };
 
-    {sim.housing && (
-      <InfoBanner>
-        {sim.housing === "appartement"
-          ? "Votre projet peut nécessiter une étude spécifique. Vous pouvez continuer la simulation pour obtenir une première estimation."
-          : "Très bon profil pour une simulation solaire. Les maisons permettent généralement d'exploiter directement la toiture pour produire une partie de l'électricité consommée."}
-        {typeof sim.surface === "number" && sim.surface > 0 && (
-          <p className="mt-2 text-xs text-slate-500">
-            Cette information nous aide à estimer indirectement le potentiel de toiture disponible, sans vous demander de mesurer votre toit.
-          </p>
-        )}
-      </InfoBanner>
-    )}
-  </div>
-);
+  return (
+    <div>
+      <StepTitle icon={Home} title="Quel logement souhaitez-vous équiper ?" />
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+        {HOUSING.map((h) => (
+          <ChoiceCard
+            key={h.id}
+            icon={h.icon}
+            title={h.label}
+            description={h.desc}
+            selected={sim.housing === h.id}
+            onClick={() => handleHousingSelect(h.id)}
+          />
+        ))}
+      </div>
+
+      <div className="mt-8">
+        <h3 className="font-semibold text-slate-900 mb-3">Quelle est la superficie de votre logement ?</h3>
+        <SurfaceSlider value={sim.surface} onChange={(n) => setSim({ ...sim, surface: n })} />
+      </div>
+
+      {sim.housing && (
+        <InfoBanner>
+          {sim.housing === "appartement"
+            ? "Votre projet peut nécessiter une étude spécifique. Vous pouvez continuer la simulation pour obtenir une première estimation."
+            : "Très bon profil pour une simulation solaire. Les maisons permettent généralement d'exploiter directement la toiture pour produire une partie de l'électricité consommée."}
+          {typeof sim.surface === "number" && sim.surface > 0 && (
+            <p className="mt-2 text-xs text-slate-500">
+              Cette information nous aide à estimer indirectement le potentiel de toiture disponible, sans vous demander de mesurer votre toit.
+            </p>
+          )}
+        </InfoBanner>
+      )}
+
+      {/* Disclaimer appartement */}
+      <Dialog open={showAptDisclaimer} onOpenChange={setShowAptDisclaimer}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mx-auto mb-3 w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center">
+              <X className="w-8 h-8 text-orange-600" strokeWidth={2.5} />
+            </div>
+            <DialogTitle className="text-center text-lg">
+              Installation solaire en appartement
+            </DialogTitle>
+            <DialogDescription className="text-center pt-2 space-y-2 text-slate-600">
+              <span className="block">
+                L'installation en copropriété nécessite un accord préalable et n'entre pas dans les projets que nous traitons actuellement.
+              </span>
+              <span className="block">
+                Vous pouvez néanmoins poursuivre la simulation à titre indicatif. Si un programme adapté à votre situation venait à ouvrir, nous pourrons vous en informer par email.
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <Button
+            onClick={() => {
+              setAptAcknowledged(true);
+              setShowAptDisclaimer(false);
+            }}
+            className="w-full h-11 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold"
+          >
+            Continuer la simulation
+          </Button>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
 
 const Step3Ownership = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
   <div>
