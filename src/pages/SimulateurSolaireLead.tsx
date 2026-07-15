@@ -1563,6 +1563,41 @@ const ResultsPanel = ({
             </p>
           </section>
 
+          {/* Prochaines étapes */}
+          <section className="mb-8">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Prochaines étapes avec Prime Énergies</h3>
+            <div className="grid md:grid-cols-4 gap-3">
+              {[
+                { icon: Phone, title: "Appel conseil", desc: "Un expert vous rappelle sous 24h pour affiner l'étude", accent: "from-amber-100 to-orange-50", iconColor: "text-amber-700" },
+                { icon: ClipboardCheck, title: "Étude toiture", desc: "Analyse détaillée + vérification des aides éligibles", accent: "from-blue-100 to-blue-50", iconColor: "text-blue-700" },
+                { icon: FileText, title: "Devis chiffré", desc: "Proposition transparente et sans engagement", accent: "from-emerald-100 to-emerald-50", iconColor: "text-emerald-700" },
+                { icon: Rocket, title: "Installation", desc: "Pose par des artisans RGE certifiés sous 4-8 semaines", accent: "from-purple-100 to-purple-50", iconColor: "text-purple-700" },
+              ].map((s, i) => (
+                <div key={i} className={`relative p-4 rounded-2xl bg-gradient-to-br ${s.accent} border border-white/60`}>
+                  <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white/80 flex items-center justify-center text-[10px] font-black text-slate-700">{i + 1}</div>
+                  <s.icon className={`w-6 h-6 ${s.iconColor} mb-2`} />
+                  <p className="font-bold text-slate-900 text-sm">{s.title}</p>
+                  <p className="text-[11px] text-slate-600 mt-1 leading-snug">{s.desc}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Réassurance */}
+          <section className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+            {[
+              { icon: Award, label: "Artisans RGE certifiés" },
+              { icon: ShieldCheck, label: "Garantie 25 ans" },
+              { icon: Star, label: "4,8/5 (1200+ avis)" },
+              { icon: Wrench, label: "SAV local" },
+            ].map((r, i) => (
+              <div key={i} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center gap-1.5">
+                <r.icon className="w-5 h-5 text-amber-600" />
+                <p className="text-[11px] font-bold text-slate-700 leading-tight">{r.label}</p>
+              </div>
+            ))}
+          </section>
+
           {/* CTA final */}
           <div className="text-center">
             <Button size="lg" className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold px-10 py-7 rounded-full shadow-[0_15px_40px_-10px_hsl(35_95%_45%/0.7)] hover:scale-105 transition-all" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
