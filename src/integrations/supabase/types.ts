@@ -2230,6 +2230,128 @@ export type Database = {
         }
         Relationships: []
       }
+      simulator_tracking_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json
+          session_id: string
+          simulator_id: string
+          step: number | null
+          step_label: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json
+          session_id: string
+          simulator_id: string
+          step?: number | null
+          step_label?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          session_id?: string
+          simulator_id?: string
+          step?: number | null
+          step_label?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "simulator_tracking_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "simulator_tracking_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      simulator_tracking_sessions: {
+        Row: {
+          abandoned_at_step: number | null
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          email: string | null
+          fingerprint: string | null
+          id: string
+          ip_hash: string | null
+          landing_url: string | null
+          last_event_at: string
+          max_step: number
+          max_step_label: string | null
+          referrer_source: string | null
+          referrer_url: string | null
+          session_key: string
+          simulator_id: string
+          total_steps: number
+          updated_at: string
+          user_agent: string | null
+          user_id: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          abandoned_at_step?: number | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          email?: string | null
+          fingerprint?: string | null
+          id?: string
+          ip_hash?: string | null
+          landing_url?: string | null
+          last_event_at?: string
+          max_step?: number
+          max_step_label?: string | null
+          referrer_source?: string | null
+          referrer_url?: string | null
+          session_key: string
+          simulator_id: string
+          total_steps?: number
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          abandoned_at_step?: number | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          email?: string | null
+          fingerprint?: string | null
+          id?: string
+          ip_hash?: string | null
+          landing_url?: string | null
+          last_event_at?: string
+          max_step?: number
+          max_step_label?: string | null
+          referrer_source?: string | null
+          referrer_url?: string | null
+          session_key?: string
+          simulator_id?: string
+          total_steps?: number
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           id: string
@@ -2690,6 +2812,10 @@ export type Database = {
         Returns: number
       }
       expire_stale_agent_requests: { Args: never; Returns: undefined }
+      get_simulator_tracking_stats: {
+        Args: { p_end: string; p_simulator_id: string; p_start: string }
+        Returns: Json
+      }
       get_user_id_by_email: { Args: { _email: string }; Returns: string }
       has_permission:
         | {
