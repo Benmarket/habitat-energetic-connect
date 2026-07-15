@@ -263,7 +263,22 @@ export default function SimulateurSolaireLead() {
   const [submitting, setSubmitting] = useState(false);
   const [showBattery, setShowBattery] = useState(false); // toggle affichage avec batterie
 
+  // Tracking d'abandon (source, étapes, retour visiteur)
+  const { trackStep, trackComplete, trackLead } = useSimulatorTracking({
+    simulatorId: "solaire",
+    totalSteps: TOTAL_STEPS,
+    stepLabels: STEP_LABELS,
+  });
+
   const region = useMemo(() => detectRegion(sim.postalCode || ""), [sim.postalCode]);
+
+  // Track chaque changement d'étape
+  useEffect(() => {
+    if (step >= 1 && step <= 9) {
+      trackStep(step);
+      if (step === 9) trackComplete();
+    }
+  }, [step, trackStep, trackComplete]);
 
   useEffect(() => {
     if (step === 9 && !unlocked) {
