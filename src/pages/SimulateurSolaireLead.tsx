@@ -1,6 +1,12 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, useGLTF, Stage } from "@react-three/drei";
+import roofTuilesAsset from "@/assets/roof-tuiles.glb.asset.json";
+import roofArdoisesAsset from "@/assets/roof-ardoises.glb.asset.json";
+import roofBacAcierAsset from "@/assets/roof-bac-acier.glb.asset.json";
+import roofPlateAsset from "@/assets/roof-plate.glb.asset.json";
 import { z } from "zod";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
