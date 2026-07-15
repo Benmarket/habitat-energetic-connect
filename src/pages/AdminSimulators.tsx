@@ -435,6 +435,7 @@ const AdminSimulators = () => {
   const selectedSim = SIMULATOR_LIST.find(s => s.id === selectedSimulator);
 
   const SOLAR_TABS = [
+    { id: 'stats' as SolarTab, label: 'Statistiques', icon: BarChart3 },
     { id: 'regions' as SolarTab, label: 'Régions', icon: MapPin },
     { id: 'puissances' as SolarTab, label: 'Puissances', icon: Gauge },
     { id: 'parametres' as SolarTab, label: 'Paramètres globaux', icon: Settings },
