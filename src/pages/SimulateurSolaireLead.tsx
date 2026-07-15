@@ -394,7 +394,7 @@ export default function SimulateurSolaireLead() {
 
         {step === 0 && <EntryHero onStart={() => setStep(1)} />}
 
-        {step > 0 && step < 8 && (
+        {step > 0 && step < 9 && (
           <div id="sim-wizard" className="container mx-auto px-4 max-w-3xl pt-10 md:pt-16">
             <ProgressBar step={step} />
 
@@ -408,6 +408,7 @@ export default function SimulateurSolaireLead() {
                 {step === 5 && <Step5Equipments sim={sim} setSim={setSim} />}
                 {step === 6 && <Step6Bill sim={sim} setSim={setSim} />}
                 {step === 7 && <Step7Project sim={sim} setSim={setSim} region={region} />}
+                {step === 8 && <Step8Battery sim={sim} setSim={setSim} region={region} />}
 
                 <div className="flex items-center justify-between mt-10 pt-6 border-t border-slate-100">
                   <Button variant="ghost" onClick={goBack} disabled={step === 1} className="text-slate-500 hover:text-slate-900">
@@ -419,7 +420,7 @@ export default function SimulateurSolaireLead() {
                     size="lg"
                     className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold shadow-[0_15px_30px_-10px_hsl(35_95%_45%/0.7)] hover:scale-105 transition-all rounded-full px-7"
                   >
-                    {step === 7 ? "Calculer mes économies" : "Continuer"} <ArrowRight className="w-4 h-4 ml-1.5" />
+                    {step === 8 ? "Calculer mes économies" : "Continuer"} <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
                 </div>
               </div>
@@ -433,9 +434,9 @@ export default function SimulateurSolaireLead() {
           </div>
         )}
 
-        {step === 8 && (
+        {step === 9 && (
           <div className="container mx-auto px-4 max-w-4xl pt-10 md:pt-16 relative">
-            <ResultsPanel {...resultsProps} onUnlockClick={() => setShowLeadModal(true)} onEdit={() => setStep(7)} />
+            <ResultsPanel {...resultsProps} onUnlockClick={() => setShowLeadModal(true)} onEdit={() => setStep(8)} />
           </div>
         )}
 
