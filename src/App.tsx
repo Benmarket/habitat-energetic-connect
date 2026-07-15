@@ -204,8 +204,7 @@ const App = () => (
                   <Route path="/forum/sujet/:slug" element={<ForumTopic />} />
                   <Route path="/forum/nouveau-sujet" element={<NewTopic />} />
 
-                  {/* Legal & sitemap - lazy loaded */}
-                  <Route path="/sitemap.xml" element={<Sitemap />} />
+                  {/* Legal - lazy loaded. /sitemap.xml is served as static file from public/ */}
                   <Route path="/plan-du-site" element={<PlanDuSite />} />
                   <Route path="/mentions-legales" element={<MentionsLegales />} />
                   <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
