@@ -23,7 +23,12 @@ import {
   Compass, Snowflake, Flame, Thermometer, Waves, Car, Plug, HelpCircle, Ruler,
   Loader2, Lock, Sparkles, ShieldCheck, Clock, Zap, TrendingUp, Star, Award, Leaf, X,
   Users, CalendarClock, FileText, BatteryCharging, Trees, Coins, LineChart, PiggyBank, Info,
+  Phone, Mail, ClipboardCheck, Wrench, Rocket, TrendingDown,
 } from "lucide-react";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
+  ResponsiveContainer, Legend, Cell,
+} from "recharts";
 import solarSimBg from "@/assets/simulators/solar-simulator-bg.jpg";
 import regionFrance from "@/assets/regions/france.png";
 import regionCorse from "@/assets/regions/corse.png";
@@ -424,7 +429,7 @@ export default function SimulateurSolaireLead() {
 
   const resultsProps = {
     sim, region, annualBill, savingsMin, savingsMax, savingsMid, savings25,
-    aidesMin, aidesMax, roi, co2, trees, suggest,
+    aidesMin, aidesMax, roi, co2, trees, suggest, installCost,
     showBattery, setShowBattery, savingsWithBattery, batteryCost, roiWithBattery,
     unlocked,
   };
@@ -484,8 +489,37 @@ export default function SimulateurSolaireLead() {
         )}
 
         {step === 9 && (
-          <div className="container mx-auto px-4 max-w-4xl pt-10 md:pt-16 relative">
-            <ResultsPanel {...resultsProps} onUnlockClick={() => setShowLeadModal(true)} onEdit={() => setStep(8)} />
+          <div className="relative">
+            {/* Fond papier à motifs discrets */}
+            <div
+              className="absolute inset-0 -z-0 pointer-events-none"
+              aria-hidden
+              style={{
+                backgroundColor: "#f7f5f1",
+                backgroundImage: `
+                  radial-gradient(circle at 25% 15%, rgba(251,191,36,0.10), transparent 45%),
+                  radial-gradient(circle at 80% 85%, rgba(148,163,184,0.14), transparent 50%),
+                  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><circle cx='1' cy='1' r='1' fill='%23cbd5e1' opacity='0.35'/></svg>")
+                `,
+                backgroundSize: "auto, auto, 24px 24px",
+              }}
+            />
+            <div className="container mx-auto px-4 max-w-5xl pt-10 md:pt-16 relative">
+              {/* Bandeau "étude personnalisée" */}
+              <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 backdrop-blur border border-amber-200 shadow-sm">
+                  <FileText className="w-4 h-4 text-amber-600" />
+                  <span className="text-xs font-bold uppercase tracking-widest text-slate-700">Votre étude solaire personnalisée</span>
+                </div>
+                <div className="hidden md:flex items-center gap-2 text-[11px] font-semibold text-slate-500">
+                  <span className="inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-emerald-600" /> Données confidentielles</span>
+                  <span className="w-px h-3 bg-slate-300" />
+                  <span className="inline-flex items-center gap-1"><CalendarClock className="w-3 h-3 text-orange-500" /> Générée le {new Date().toLocaleDateString("fr-FR")}</span>
+                </div>
+              </div>
+
+              <ResultsPanel {...resultsProps} onUnlockClick={() => setShowLeadModal(true)} onEdit={() => setStep(8)} />
+            </div>
           </div>
         )}
 
@@ -1286,7 +1320,7 @@ const useCountUp = (target: number, duration = 1400) => {
 // ---------- Results Panel (hero visible + teaser flouté) ----------
 const ResultsPanel = ({
   sim, region, annualBill, savingsMin, savingsMax, savingsMid, savings25,
-  aidesMin, aidesMax, roi, co2, trees, suggest,
+  aidesMin, aidesMax, roi, co2, trees, suggest, installCost,
   showBattery, setShowBattery, savingsWithBattery, batteryCost, roiWithBattery,
   unlocked, onUnlockClick, onEdit,
 }: any) => {
@@ -1297,6 +1331,40 @@ const ResultsPanel = ({
   const displayedYearly = showBattery ? savingsWithBattery : savingsMid;
   const displayedYearlyCounted = useCountUp(displayedYearly);
   const has25 = savings25 > 0;
+
+  // ------ Projection 25 ans (par tranches de 5 ans) ------
+  const yearlySavings = showBattery ? savingsWithBattery : savingsMid;
+  const totalInvest = installCost + (showBattery ? batteryCost : 0);
+  const aidesTotal = Math.round((aidesMin + aidesMax) / 2);
+  const inflation = 0.04; // +4%/an prix élec
+  const degradation = 0.005; // -0.5%/an rendement
+  const buckets = [
+    { label: "1-5 ans", from: 1, to: 5 },
+    { label: "6-10 ans", from: 6, to: 10 },
+    { label: "11-15 ans", from: 11, to: 15 },
+    { label: "16-20 ans", from: 16, to: 20 },
+    { label: "21-25 ans", from: 21, to: 25 },
+  ];
+  const projectionData = buckets.map((b) => {
+    let conso = 0, solaire = 0;
+    for (let y = b.from; y <= b.to; y++) {
+      const infl = Math.pow(1 + inflation, y - 1);
+      const deg = Math.pow(1 - degradation, y - 1);
+      conso += annualBill * infl;
+      solaire += yearlySavings * infl * deg;
+    }
+    // Subvention perçue en année 2 (donc dans la 1ère tranche)
+    const aide = b.from <= 2 && 2 <= b.to ? aidesTotal : 0;
+    return {
+      label: b.label,
+      conso: Math.round(conso),
+      solaire: Math.round(solaire),
+      aide,
+    };
+  });
+  const cumulSolaire = projectionData.reduce((s, d) => s + d.solaire, 0);
+  const gainNet = cumulSolaire + aidesTotal - totalInvest;
+  const cumulConso25 = projectionData.reduce((s, d) => s + d.conso, 0);
 
   return (
     <div className="bg-white rounded-3xl shadow-[0_30px_80px_-20px_hsl(24_60%_8%/0.55)] border border-amber-300/40 overflow-hidden">
@@ -1378,7 +1446,84 @@ const ResultsPanel = ({
             </div>
           )}
 
-          {/* Impact environnemental */}
+          {/* Projection 25 ans — Graphique */}
+          <section className="mb-8 p-5 md:p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
+            <div className="flex flex-wrap items-start justify-between gap-2 mb-4">
+              <div>
+                <h3 className="text-xs font-bold text-slate-700 uppercase tracking-widest flex items-center gap-1.5">
+                  <LineChart className="w-3.5 h-3.5 text-amber-600" /> Projection sur 25 ans
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">Facture sans solaire vs économies solaires vs subventions perçues</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold">
+                <span className="inline-flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-red-500" /> Facture actuelle</span>
+                <span className="inline-flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-amber-400" /> Économies solaires</span>
+                <span className="inline-flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500" /> Subvention (an 2)</span>
+              </div>
+            </div>
+            <div className="h-64 md:h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={projectionData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barGap={4} barCategoryGap="18%">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }} axisLine={{ stroke: "#cbd5e1" }} tickLine={false} />
+                  <YAxis tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k€`} />
+                  <RTooltip
+                    cursor={{ fill: "rgba(251,191,36,0.08)" }}
+                    contentStyle={{ borderRadius: 12, border: "1px solid #fde68a", boxShadow: "0 10px 25px -10px rgba(0,0,0,0.2)", fontSize: 12 }}
+                    formatter={(v: any, name: string) => [`${Number(v).toLocaleString("fr-FR")} €`, name]}
+                    labelStyle={{ fontWeight: 700, color: "#0f172a" }}
+                  />
+                  <Bar dataKey="conso" name="Facture" fill="#ef4444" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="solaire" name="Économies solaires" fill="#fbbf24" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="aide" name="Subvention" fill="#10b981" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="text-[11px] text-slate-500 mt-3 leading-relaxed">
+              Hypothèses : inflation prix de l'électricité <strong>+4 %/an</strong>, dégradation panneaux <strong>-0,5 %/an</strong>, subvention perçue en année 2. Valeurs indicatives, affinées par nos experts.
+            </p>
+          </section>
+
+          {/* Bilan financier 25 ans */}
+          <section className="mb-8 p-5 md:p-6 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 text-white relative overflow-hidden">
+            <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-amber-400/15 blur-3xl" aria-hidden />
+            <div className="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-emerald-400/15 blur-3xl" aria-hidden />
+            <div className="relative">
+              <h3 className="text-xs font-bold text-amber-300 uppercase tracking-widest mb-4 flex items-center gap-1.5">
+                <TrendingDown className="w-3.5 h-3.5" /> Bilan financier sur 25 ans
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                  <p className="text-[10px] uppercase tracking-widest text-white/60 font-bold">Investissement</p>
+                  <p className="text-2xl font-black mt-1">{totalInvest.toLocaleString("fr-FR")} €</p>
+                  <p className="text-[10px] text-white/50 mt-0.5">{suggest.kwc} kWc{showBattery ? " + batterie" : ""}</p>
+                </div>
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                  <p className="text-[10px] uppercase tracking-widest text-amber-300 font-bold">Économies cumulées</p>
+                  <p className="text-2xl font-black mt-1 text-amber-300">{cumulSolaire.toLocaleString("fr-FR")} €</p>
+                  <p className="text-[10px] text-white/50 mt-0.5">production autoconsommée + revente</p>
+                </div>
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                  <p className="text-[10px] uppercase tracking-widest text-emerald-300 font-bold">Subventions</p>
+                  <p className="text-2xl font-black mt-1 text-emerald-300">{aidesTotal.toLocaleString("fr-FR")} €</p>
+                  <p className="text-[10px] text-white/50 mt-0.5">perçues en année 2</p>
+                </div>
+                <div className="p-4 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 border border-amber-300 shadow-lg">
+                  <p className="text-[10px] uppercase tracking-widest font-bold">Gain net estimé</p>
+                  <p className="text-2xl md:text-3xl font-black mt-1">+{Math.max(0, gainNet).toLocaleString("fr-FR")} €</p>
+                  <p className="text-[10px] font-semibold mt-0.5">soit ~{Math.round(gainNet / 25).toLocaleString("fr-FR")} €/an de pouvoir d'achat</p>
+                </div>
+              </div>
+              <div className="mt-4 p-3 rounded-xl bg-white/5 border border-white/10 flex items-start gap-2.5">
+                <Info className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
+                <p className="text-xs text-white/80 leading-relaxed">
+                  Sans installer de solaire, vous dépenserez environ <strong className="text-red-300">{cumulConso25.toLocaleString("fr-FR")} €</strong> d'électricité sur 25 ans (hypothèse d'inflation continue).
+                </p>
+              </div>
+            </div>
+          </section>
+
+
           <div className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200">
             <h3 className="text-xs font-bold text-emerald-700 uppercase tracking-widest mb-3 flex items-center gap-1.5">
               <Leaf className="w-3.5 h-3.5" /> Impact environnemental
@@ -1416,6 +1561,41 @@ const ResultsPanel = ({
             <p className="text-slate-700 text-sm">
               Prime à l'autoconsommation, TVA réduite, éco-prêt à taux zéro… Votre région peut donner accès à certaines aides sous réserve d'éligibilité. Un conseiller vérifie tout gratuitement.
             </p>
+          </section>
+
+          {/* Prochaines étapes */}
+          <section className="mb-8">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Prochaines étapes avec Prime Énergies</h3>
+            <div className="grid md:grid-cols-4 gap-3">
+              {[
+                { icon: Phone, title: "Appel conseil", desc: "Un expert vous rappelle sous 24h pour affiner l'étude", accent: "from-amber-100 to-orange-50", iconColor: "text-amber-700" },
+                { icon: ClipboardCheck, title: "Étude toiture", desc: "Analyse détaillée + vérification des aides éligibles", accent: "from-blue-100 to-blue-50", iconColor: "text-blue-700" },
+                { icon: FileText, title: "Devis chiffré", desc: "Proposition transparente et sans engagement", accent: "from-emerald-100 to-emerald-50", iconColor: "text-emerald-700" },
+                { icon: Rocket, title: "Installation", desc: "Pose par des artisans RGE certifiés sous 4-8 semaines", accent: "from-purple-100 to-purple-50", iconColor: "text-purple-700" },
+              ].map((s, i) => (
+                <div key={i} className={`relative p-4 rounded-2xl bg-gradient-to-br ${s.accent} border border-white/60`}>
+                  <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white/80 flex items-center justify-center text-[10px] font-black text-slate-700">{i + 1}</div>
+                  <s.icon className={`w-6 h-6 ${s.iconColor} mb-2`} />
+                  <p className="font-bold text-slate-900 text-sm">{s.title}</p>
+                  <p className="text-[11px] text-slate-600 mt-1 leading-snug">{s.desc}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Réassurance */}
+          <section className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+            {[
+              { icon: Award, label: "Artisans RGE certifiés" },
+              { icon: ShieldCheck, label: "Garantie 25 ans" },
+              { icon: Star, label: "4,8/5 (1200+ avis)" },
+              { icon: Wrench, label: "SAV local" },
+            ].map((r, i) => (
+              <div key={i} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center gap-1.5">
+                <r.icon className="w-5 h-5 text-amber-600" />
+                <p className="text-[11px] font-bold text-slate-700 leading-tight">{r.label}</p>
+              </div>
+            ))}
           </section>
 
           {/* CTA final */}
