@@ -489,8 +489,37 @@ export default function SimulateurSolaireLead() {
         )}
 
         {step === 9 && (
-          <div className="container mx-auto px-4 max-w-4xl pt-10 md:pt-16 relative">
-            <ResultsPanel {...resultsProps} onUnlockClick={() => setShowLeadModal(true)} onEdit={() => setStep(8)} />
+          <div className="relative">
+            {/* Fond papier à motifs discrets */}
+            <div
+              className="absolute inset-0 -z-0 pointer-events-none"
+              aria-hidden
+              style={{
+                backgroundColor: "#f7f5f1",
+                backgroundImage: `
+                  radial-gradient(circle at 25% 15%, rgba(251,191,36,0.10), transparent 45%),
+                  radial-gradient(circle at 80% 85%, rgba(148,163,184,0.14), transparent 50%),
+                  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><circle cx='1' cy='1' r='1' fill='%23cbd5e1' opacity='0.35'/></svg>")
+                `,
+                backgroundSize: "auto, auto, 24px 24px",
+              }}
+            />
+            <div className="container mx-auto px-4 max-w-5xl pt-10 md:pt-16 relative">
+              {/* Bandeau "étude personnalisée" */}
+              <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 backdrop-blur border border-amber-200 shadow-sm">
+                  <FileText className="w-4 h-4 text-amber-600" />
+                  <span className="text-xs font-bold uppercase tracking-widest text-slate-700">Votre étude solaire personnalisée</span>
+                </div>
+                <div className="hidden md:flex items-center gap-2 text-[11px] font-semibold text-slate-500">
+                  <span className="inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-emerald-600" /> Données confidentielles</span>
+                  <span className="w-px h-3 bg-slate-300" />
+                  <span className="inline-flex items-center gap-1"><CalendarClock className="w-3 h-3 text-orange-500" /> Générée le {new Date().toLocaleDateString("fr-FR")}</span>
+                </div>
+              </div>
+
+              <ResultsPanel {...resultsProps} onUnlockClick={() => setShowLeadModal(true)} onEdit={() => setStep(8)} />
+            </div>
           </div>
         )}
 
