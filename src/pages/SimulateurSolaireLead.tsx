@@ -25,6 +25,8 @@ import regionGuyane from "@/assets/regions/guyane.png";
 import regionGuadeloupe from "@/assets/regions/guadeloupe.png";
 import regionMartinique from "@/assets/regions/martinique.png";
 import regionReunion from "@/assets/regions/reunion.png";
+import pvOnduleurGif from "@/assets/pv-onduleur.gif.asset.json";
+import pvBatterieGif from "@/assets/pv-onduleur-batterie.gif.asset.json";
 
 const REGION_SHAPES: Record<string, string> = {
   corse: regionCorse,
@@ -229,8 +231,8 @@ const leadSchema = z.object({
 });
 
 // ---------- Main page ----------
-const STEP_LABELS = ["Localisation", "Logement", "Propriété", "Toiture", "Équipements", "Facture", "Projet", "Résultat"];
-const TOTAL_STEPS = 7; // 7 étapes de questions, la 8e étant le résultat
+const STEP_LABELS = ["Localisation", "Logement", "Propriété", "Toiture", "Équipements", "Facture", "Projet", "Batterie", "Résultat"];
+const TOTAL_STEPS = 8; // 8 étapes de questions, la 9e étant le résultat
 
 export default function SimulateurSolaireLead() {
   const [step, setStep] = useState<number>(0);
@@ -248,18 +250,18 @@ export default function SimulateurSolaireLead() {
   const region = useMemo(() => detectRegion(sim.postalCode || ""), [sim.postalCode]);
 
   useEffect(() => {
-    if (step === 8 && !unlocked) {
+    if (step === 9 && !unlocked) {
       const t = setTimeout(() => setShowLeadModal(true), 900);
       return () => clearTimeout(t);
     }
   }, [step, unlocked]);
 
   useEffect(() => {
-    if (step > 0 && step < 8) {
+    if (step > 0 && step < 9) {
       const el = document.getElementById("sim-wizard");
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-    if (step === 8) window.scrollTo({ top: 0, behavior: "smooth" });
+    if (step === 9) window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step]);
 
   const canContinue = (): boolean => {
@@ -270,21 +272,22 @@ export default function SimulateurSolaireLead() {
       case 4: return !!sim.orientation; // roofType facultatif
       case 5: return sim.equipments.length > 0;
       case 6: return typeof sim.monthlyBill === "number" && sim.monthlyBill > 0;
-      case 7: return !!sim.projectHorizon; // hasQuote & batteryInterest facultatifs
+      case 7: return !!sim.projectHorizon; // hasQuote facultatif
+      case 8: return true; // batterie facultative
       default: return true;
     }
   };
 
   const goNext = () => {
-    if (step === 7) {
+    if (step === 8) {
       setComputing(true);
       setTimeout(() => {
         setComputing(false);
-        setStep(8);
+        setStep(9);
       }, 2800);
       return;
     }
-    setStep((s) => Math.min(s + 1, 8));
+    setStep((s) => Math.min(s + 1, 9));
   };
   const goBack = () => setStep((s) => Math.max(s - 1, 1));
 
@@ -393,7 +396,7 @@ export default function SimulateurSolaireLead() {
 
         {step === 0 && <EntryHero onStart={() => setStep(1)} />}
 
-        {step > 0 && step < 8 && (
+        {step > 0 && step < 9 && (
           <div id="sim-wizard" className="container mx-auto px-4 max-w-3xl pt-10 md:pt-16">
             <ProgressBar step={step} />
 
@@ -407,6 +410,7 @@ export default function SimulateurSolaireLead() {
                 {step === 5 && <Step5Equipments sim={sim} setSim={setSim} />}
                 {step === 6 && <Step6Bill sim={sim} setSim={setSim} />}
                 {step === 7 && <Step7Project sim={sim} setSim={setSim} region={region} />}
+                {step === 8 && <Step8Battery sim={sim} setSim={setSim} region={region} />}
 
                 <div className="flex items-center justify-between mt-10 pt-6 border-t border-slate-100">
                   <Button variant="ghost" onClick={goBack} disabled={step === 1} className="text-slate-500 hover:text-slate-900">
@@ -418,7 +422,7 @@ export default function SimulateurSolaireLead() {
                     size="lg"
                     className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold shadow-[0_15px_30px_-10px_hsl(35_95%_45%/0.7)] hover:scale-105 transition-all rounded-full px-7"
                   >
-                    {step === 7 ? "Calculer mes économies" : "Continuer"} <ArrowRight className="w-4 h-4 ml-1.5" />
+                    {step === 8 ? "Calculer mes économies" : "Continuer"} <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
                 </div>
               </div>
@@ -432,9 +436,9 @@ export default function SimulateurSolaireLead() {
           </div>
         )}
 
-        {step === 8 && (
+        {step === 9 && (
           <div className="container mx-auto px-4 max-w-4xl pt-10 md:pt-16 relative">
-            <ResultsPanel {...resultsProps} onUnlockClick={() => setShowLeadModal(true)} onEdit={() => setStep(7)} />
+            <ResultsPanel {...resultsProps} onUnlockClick={() => setShowLeadModal(true)} onEdit={() => setStep(8)} />
           </div>
         )}
 
@@ -951,8 +955,8 @@ const Step6Bill = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
   </div>
 );
 
-// ---------- Step 7 : Projet (horizon + devis + batterie) ----------
-const Step7Project = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => (
+// ---------- Step 7 : Projet (horizon + devis) ----------
+const Step7Project = ({ sim, setSim, region: _region }: { sim: Sim; setSim: any; region: any }) => (
   <div>
     <StepTitle icon={CalendarClock} title="Votre projet solaire" subtitle="Dernières précisions pour finaliser votre estimation personnalisée." />
 
@@ -983,37 +987,80 @@ const Step7Project = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: 
         <PillButton selected={sim.hasQuote === "non"} onClick={() => setSim({ ...sim, hasQuote: sim.hasQuote === "non" ? "" : "non" })}>Non, pas encore</PillButton>
       </div>
     </div>
-
-    {/* Batterie */}
-    <div className="mt-7 p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-amber-50/40 border border-amber-200">
-      <div className="flex items-start gap-3 mb-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 flex items-center justify-center shrink-0">
-          <BatteryCharging className="w-5 h-5" />
-        </div>
-        <div>
-          <h3 className="font-bold text-slate-900 flex items-center gap-2 flex-wrap">
-            Ajouter une batterie de stockage ?
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-white px-2 py-0.5 rounded-full border border-slate-200">Facultatif</span>
-          </h3>
-          <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-            La batterie augmente le coût initial mais reste très pertinente : <strong>backup anti-coupure</strong>{region.island && <> (essentiel dans les îles)</>}, meilleure autonomie sur le long terme, et rentabilité renforcée face à la hausse du prix de l'électricité.
-          </p>
-        </div>
-      </div>
-      <div className="grid grid-cols-3 gap-2 mt-4">
-        <PillButton selected={sim.batteryInterest === "oui"} onClick={() => setSim({ ...sim, batteryInterest: sim.batteryInterest === "oui" ? "" : "oui" })}>Oui, intéressé</PillButton>
-        <PillButton selected={sim.batteryInterest === "peut-etre"} onClick={() => setSim({ ...sim, batteryInterest: sim.batteryInterest === "peut-etre" ? "" : "peut-etre" })}>Peut-être</PillButton>
-        <PillButton selected={sim.batteryInterest === "non"} onClick={() => setSim({ ...sim, batteryInterest: sim.batteryInterest === "non" ? "" : "non" })}>Non</PillButton>
-      </div>
-      {sim.batteryInterest && sim.batteryInterest !== "non" && (
-        <p className="mt-3 text-xs text-slate-600 flex items-center gap-1.5">
-          <Info className="w-3.5 h-3.5 text-orange-600" />
-          Vous pourrez comparer les résultats <strong>avec et sans batterie</strong> à l'écran final.
-        </p>
-      )}
-    </div>
   </div>
 );
+
+// ---------- Step 8 : Batterie de stockage (étape dédiée) ----------
+const Step8Battery = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => {
+  const showWithBattery = sim.batteryInterest === "oui" || sim.batteryInterest === "peut-etre";
+  const gifSrc = showWithBattery ? pvBatterieGif.url : pvOnduleurGif.url;
+
+  return (
+    <div>
+      <StepTitle icon={BatteryCharging} title="Souhaitez-vous une batterie de stockage ?" subtitle="Stockez votre énergie solaire pour la réutiliser la nuit ou en cas de coupure." />
+
+      {/* Visuel animé */}
+      <div className="relative rounded-3xl overflow-hidden border-2 border-amber-200 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-[0_25px_60px_-20px_hsl(35_95%_45%/0.55)]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(35_95%_60%/0.25),transparent_60%)]" aria-hidden />
+        <div className="relative flex items-center justify-center p-6 md:p-8 min-h-[280px]">
+          <img
+            key={gifSrc}
+            src={gifSrc}
+            alt={showWithBattery ? "Installation solaire avec batterie de stockage" : "Installation solaire avec onduleur"}
+            className="max-h-[280px] w-auto object-contain animate-fade-in drop-shadow-[0_10px_30px_hsl(35_95%_45%/0.35)]"
+          />
+        </div>
+        <div className="relative px-6 pb-5 flex flex-wrap items-center justify-center gap-2">
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all ${!showWithBattery ? "bg-amber-400 text-slate-900 shadow-md" : "bg-white/10 text-white/70"}`}>
+            Sans batterie
+          </span>
+          <span className="text-white/40 text-xs">↔</span>
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all ${showWithBattery ? "bg-amber-400 text-slate-900 shadow-md" : "bg-white/10 text-white/70"}`}>
+            <BatteryCharging className="w-3 h-3" /> Avec batterie
+          </span>
+        </div>
+      </div>
+
+      {/* Bénéfices */}
+      <div className="grid sm:grid-cols-3 gap-3 mt-6">
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200">
+          <ShieldCheck className="w-5 h-5 text-orange-600 mb-2" />
+          <p className="text-sm font-bold text-slate-900">Backup anti-coupure</p>
+          <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">Vos appareils continuent de fonctionner en cas de coupure réseau.{region.island && <> Essentiel dans les îles.</>}</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200">
+          <TrendingUp className="w-5 h-5 text-orange-600 mb-2" />
+          <p className="text-sm font-bold text-slate-900">Meilleure autonomie</p>
+          <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">Consommez votre propre énergie même la nuit. Autoconsommation jusqu'à 80%.</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200">
+          <PiggyBank className="w-5 h-5 text-orange-600 mb-2" />
+          <p className="text-sm font-bold text-slate-900">Rentable à long terme</p>
+          <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">Coût initial supérieur, mais protège contre la hausse continue du prix de l'électricité.</p>
+        </div>
+      </div>
+
+      {/* Choix */}
+      <div className="mt-7">
+        <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+          <BatteryCharging className="w-4 h-4 text-orange-600" /> Votre choix
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">Facultatif</span>
+        </h3>
+        <div className="grid grid-cols-3 gap-2">
+          <PillButton selected={sim.batteryInterest === "oui"} onClick={() => setSim({ ...sim, batteryInterest: sim.batteryInterest === "oui" ? "" : "oui" })}>Oui, intéressé</PillButton>
+          <PillButton selected={sim.batteryInterest === "peut-etre"} onClick={() => setSim({ ...sim, batteryInterest: sim.batteryInterest === "peut-etre" ? "" : "peut-etre" })}>Peut-être</PillButton>
+          <PillButton selected={sim.batteryInterest === "non"} onClick={() => setSim({ ...sim, batteryInterest: sim.batteryInterest === "non" ? "" : "non" })}>Non merci</PillButton>
+        </div>
+        {sim.batteryInterest && sim.batteryInterest !== "non" && (
+          <p className="mt-3 text-xs text-slate-600 flex items-center gap-1.5">
+            <Info className="w-3.5 h-3.5 text-orange-600" />
+            Vous pourrez comparer les résultats <strong>avec et sans batterie</strong> à l'écran final.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
 
 // ---------- Full-screen computing overlay ----------
 const COMPUTE_LINES = [
