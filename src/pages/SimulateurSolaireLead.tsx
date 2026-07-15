@@ -1320,7 +1320,7 @@ const useCountUp = (target: number, duration = 1400) => {
 // ---------- Results Panel (hero visible + teaser flouté) ----------
 const ResultsPanel = ({
   sim, region, annualBill, savingsMin, savingsMax, savingsMid, savings25,
-  aidesMin, aidesMax, roi, co2, trees, suggest,
+  aidesMin, aidesMax, roi, co2, trees, suggest, installCost,
   showBattery, setShowBattery, savingsWithBattery, batteryCost, roiWithBattery,
   unlocked, onUnlockClick, onEdit,
 }: any) => {
