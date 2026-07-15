@@ -1,6 +1,12 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, useGLTF, Stage } from "@react-three/drei";
+import roofTuilesAsset from "@/assets/roof-tuiles.glb.asset.json";
+import roofArdoisesAsset from "@/assets/roof-ardoises.glb.asset.json";
+import roofBacAcierAsset from "@/assets/roof-bac-acier.glb.asset.json";
+import roofPlateAsset from "@/assets/roof-plate.glb.asset.json";
 import { z } from "zod";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -886,8 +892,46 @@ const Step4Orientation = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
           </button>
         ))}
       </div>
+
+      {/* Aperçu 3D */}
+      {ROOF_MODELS[sim.roofType] && (
+        <div className="mt-5 relative rounded-2xl overflow-hidden border-2 border-amber-200 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-[0_20px_50px_-20px_hsl(35_95%_45%/0.5)] animate-fade-in">
+          <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/90 backdrop-blur text-[10px] font-bold uppercase tracking-wider text-slate-900">
+            Aperçu 3D · {ROOF_TYPES.find(r => r.id === sim.roofType)?.label}
+          </div>
+          <div className="absolute top-3 right-3 z-10 text-[10px] text-white/60 font-medium">Faites glisser pour tourner</div>
+          <div className="h-[280px] md:h-[340px]">
+            <RoofPreview3D url={ROOF_MODELS[sim.roofType]!} />
+          </div>
+        </div>
+      )}
     </div>
   </div>
+);
+
+const ROOF_MODELS: Record<string, string | undefined> = {
+  "tuiles": roofTuilesAsset.url,
+  "ardoise": roofArdoisesAsset.url,
+  "bac-acier": roofBacAcierAsset.url,
+  "toit-plat": roofPlateAsset.url,
+  "?": undefined,
+  "": undefined,
+};
+
+function RoofModel({ url }: { url: string }) {
+  const { scene } = useGLTF(url);
+  return <primitive object={scene} />;
+}
+
+const RoofPreview3D = ({ url }: { url: string }) => (
+  <Canvas camera={{ position: [4, 3, 5], fov: 45 }} dpr={[1, 1.5]}>
+    <Suspense fallback={null}>
+      <Stage environment="city" intensity={0.5} adjustCamera={1.2} shadows={false}>
+        <RoofModel url={url} />
+      </Stage>
+    </Suspense>
+    <OrbitControls enablePan={false} enableZoom={false} autoRotate autoRotateSpeed={0.8} minPolarAngle={Math.PI / 6} maxPolarAngle={Math.PI / 2.2} />
+  </Canvas>
 );
 
 const Step5Equipments = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
