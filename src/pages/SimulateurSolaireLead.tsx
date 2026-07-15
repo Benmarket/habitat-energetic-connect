@@ -406,6 +406,7 @@ export default function SimulateurSolaireLead() {
       return;
     }
     setLeadId(inserted?.id ?? null);
+    trackLead(lead.email);
     toast.success("Vos résultats sont débloqués !");
     setUnlocked(true);
     setShowLeadModal(false);
