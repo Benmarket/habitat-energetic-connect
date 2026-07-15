@@ -1,0 +1,40 @@
+# Prime Énergies
+
+> Prime Énergies accompagne les particuliers dans la rénovation énergétique de leur logement : installation de panneaux photovoltaïques, pompes à chaleur, isolation, et accès aux aides publiques (MaPrimeRénov', CEE). Étude gratuite et mise en relation avec des installateurs certifiés RGE.
+
+Prime Énergies est une plateforme française spécialisée dans les économies d'énergie et les travaux de rénovation subventionnés. Le site propose des guides pratiques, des simulateurs d'éligibilité, des actualités du secteur énergétique, et une mise en relation avec des installateurs qualifiés partout en France (Métropole, Corse, DOM-TOM).
+
+## Pages principales
+
+- [Accueil](/): Vue d'ensemble des services et parcours d'éligibilité
+- [Actualités](/actualites): Actualités sur l'énergie, les aides et la rénovation
+- [Guides](/guides): Guides pratiques sur les travaux énergétiques et les aides
+- [Aides](/aides): Panorama des aides publiques (MaPrimeRénov', CEE, éco-PTZ)
+- [FAQ](/faq): Réponses aux questions fréquentes
+- [Simulateur solaire](/simulateurs/solaire): Simulation d'installation photovoltaïque et de rentabilité
+- [Forum](/forum): Communauté et échanges entre utilisateurs
+
+## Services
+
+- [Installation solaire](/services/installation-solaire): Panneaux photovoltaïques
+- [Pompes à chaleur](/services/pompes-a-chaleur): PAC air/eau et air/air
+- [Stockage d'énergie](/services/stockage-energie): Batteries domestiques
+- [Audit énergétique](/services/audit-energetique): Diagnostic complet du logement
+- [Amélioration de l'habitat](/services/amelioration-habitat): Isolation et rénovation globale
+
+## Landings thématiques
+
+- [Solaire photovoltaïque](/landing/solaire): Programme d'installation solaire subventionné
+- [Isolation](/landing/isolation): Isolation thermique des combles, murs, planchers
+- [Pompe à chaleur](/landing/pompe-a-chaleur): Remplacement de chaudière fioul/gaz
+- [Rénovation globale](/landing/renovation-globale): Programme MaPrimeRénov' Ampleur
+
+## Partenaires
+
+- [Devenir partenaire](/devenir-partenaire): Espace installateurs et professionnels RGE
+
+## Optional
+
+- [Mentions légales](/mentions-legales)
+- [Politique de confidentialité](/politique-confidentialite)
+- [Conditions d'utilisation](/conditions-utilisation)
