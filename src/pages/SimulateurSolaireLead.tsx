@@ -38,7 +38,8 @@ const REGION_SHAPES: Record<string, string> = {
 };
 
 // ---------- Types ----------
-type HousingType = "maison" | "villa" | "mitoyenne" | "pro" | "appartement";
+type HousingType = "maison" | "appartement" | "pro";
+
 type Ownership = "oui" | "non" | "achat";
 type Orientation = "N" | "NE" | "E" | "SE" | "S" | "SO" | "O" | "NO" | "?";
 
