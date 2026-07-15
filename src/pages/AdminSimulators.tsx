@@ -68,7 +68,7 @@ const MODULE_PUISSANCE_OPTIONS = [
   { value: "9kwc", label: "9 kWc" },
 ];
 
-type SolarTab = 'regions' | 'puissances' | 'parametres';
+type SolarTab = 'stats' | 'regions' | 'puissances' | 'parametres';
 
 const AdminSimulators = () => {
   const { user, loading: authLoading } = useAuth();
