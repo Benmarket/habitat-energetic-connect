@@ -841,15 +841,23 @@ const SurfaceSlider = ({ value, onChange }: { value: number | ""; onChange: (n: 
             onValueChange={(vals) => onChange(vals[0])}
             className="[&_[role=slider]]:h-7 [&_[role=slider]]:w-7 [&_[role=slider]]:border-2 [&_[role=slider]]:border-amber-300 [&_[role=slider]]:bg-gradient-to-br [&_[role=slider]]:from-amber-300 [&_[role=slider]]:to-orange-500 [&_[role=slider]]:shadow-[0_0_20px_hsl(35_95%_60%/0.7)] [&_[role=slider]]:focus-visible:ring-amber-300 [&>span:first-child]:h-2 [&>span:first-child]:bg-white/10 [&_[data-orientation=horizontal]>span]:bg-gradient-to-r [&_[data-orientation=horizontal]>span]:from-amber-400 [&_[data-orientation=horizontal]>span]:to-orange-500"
           />
-          {/* Tick marks */}
-          <div className="relative mt-3 flex justify-between text-[10px] text-white/60 font-semibold px-1">
-            {[20, 80, 130, 200, 400].map((m) => (
-              <span key={m} className="flex flex-col items-center gap-1">
-                <span className="w-px h-1.5 bg-white/30" />
-                {m}m²
-              </span>
-            ))}
+          {/* Tick marks — positionnés proportionnellement à la valeur */}
+          <div className="relative mt-3 h-6 px-[14px]">
+            {[20, 80, 130, 200, 400].map((m) => {
+              const left = ((m - 20) / (400 - 20)) * 100;
+              return (
+                <span
+                  key={m}
+                  className="absolute top-0 flex flex-col items-center gap-1 text-[10px] text-white/60 font-semibold -translate-x-1/2"
+                  style={{ left: `${left}%` }}
+                >
+                  <span className="w-px h-1.5 bg-white/30" />
+                  {m}m²
+                </span>
+              );
+            })}
           </div>
+
         </div>
 
         {/* Visual scale indicator */}
