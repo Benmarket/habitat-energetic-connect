@@ -673,41 +673,97 @@ const PillButton = ({ selected, onClick, children }: any) => (
 
 // ---------- Steps ----------
 
-const Step1Location = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => (
-  <div>
-    <StepTitle icon={MapPin} title="Où se situe votre logement ?" subtitle="Nous adaptons votre simulation à votre zone géographique et son ensoleillement." />
-    <div className="grid md:grid-cols-2 gap-4">
-      <div>
-        <Label className="text-slate-700 font-medium">Code postal *</Label>
-        <Input
-          value={sim.postalCode}
-          onChange={(e) => setSim({ ...sim, postalCode: e.target.value.replace(/\D/g, "").slice(0, 5) })}
-          placeholder="75001"
-          inputMode="numeric"
-          className="text-lg h-12 mt-1.5 border-slate-200 focus-visible:ring-orange-500"
-        />
-      </div>
-      <div>
-        <Label className="text-slate-700 font-medium">Ville <span className="text-slate-400 font-normal">(facultatif)</span></Label>
-        <Input value={sim.city} onChange={(e) => setSim({ ...sim, city: e.target.value })} placeholder="Paris" className="h-12 mt-1.5 border-slate-200 focus-visible:ring-orange-500" />
-      </div>
-    </div>
+const Step1Location = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => {
+  const [cityTouched, setCityTouched] = useState(false);
+  const [cityOptions, setCityOptions] = useState<string[]>([]);
+  const [autoFilling, setAutoFilling] = useState(false);
 
-    {/^\d{5}$/.test(sim.postalCode) && (
-      <InfoBanner>
-        <p className="font-semibold text-slate-900 mb-1.5">Votre zone est analysée — {region.label}</p>
-        <ul className="space-y-1 text-slate-600">
-          <li>• Ensoleillement régional : <strong className="text-orange-600">{region.sun}</strong></li>
-          <li>• Aides possibles selon votre éligibilité</li>
-          <li>• Simulation adaptée à votre région</li>
-          {region.sun.toLowerCase().includes("nuageux") && (
-            <li>• Même par temps couvert, les panneaux photovoltaïques captent la lumière diffuse (photons) et restent pertinents.</li>
+  // Auto-remplissage ville depuis code postal (API geo.api.gouv.fr)
+  useEffect(() => {
+    if (!/^\d{5}$/.test(sim.postalCode)) {
+      setCityOptions([]);
+      return;
+    }
+    if (cityTouched) return; // ne pas écraser une saisie manuelle
+
+    const ctrl = new AbortController();
+    setAutoFilling(true);
+    fetch(`https://geo.api.gouv.fr/communes?codePostal=${sim.postalCode}&fields=nom&format=json`, { signal: ctrl.signal })
+      .then((r) => r.json())
+      .then((data: { nom: string }[]) => {
+        const names = Array.isArray(data) ? data.map((d) => d.nom) : [];
+        setCityOptions(names);
+        if (names.length >= 1 && !cityTouched) {
+          setSim((prev: Sim) => ({ ...prev, city: names[0] }));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setAutoFilling(false));
+
+    return () => ctrl.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sim.postalCode]);
+
+  return (
+    <div>
+      <StepTitle icon={MapPin} title="Où se situe votre logement ?" subtitle="Nous adaptons votre simulation à votre zone géographique et son ensoleillement." />
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <Label className="text-slate-700 font-medium">Code postal *</Label>
+          <Input
+            value={sim.postalCode}
+            onChange={(e) => {
+              setSim({ ...sim, postalCode: e.target.value.replace(/\D/g, "").slice(0, 5) });
+              setCityTouched(false); // ré-autorise l'auto-remplissage sur nouveau CP
+            }}
+            placeholder="75001"
+            inputMode="numeric"
+            className="text-lg h-12 mt-1.5 border-slate-200 focus-visible:ring-orange-500"
+          />
+        </div>
+        <div>
+          <Label className="text-slate-700 font-medium">
+            Ville <span className="text-slate-400 font-normal">(modifiable)</span>
+          </Label>
+          <Input
+            value={sim.city}
+            onChange={(e) => {
+              setCityTouched(true);
+              setSim({ ...sim, city: e.target.value });
+            }}
+            list={cityOptions.length > 1 ? "cp-cities" : undefined}
+            placeholder={autoFilling ? "Recherche…" : "Paris"}
+            className="h-12 mt-1.5 border-slate-200 focus-visible:ring-orange-500"
+          />
+          {cityOptions.length > 1 && (
+            <datalist id="cp-cities">
+              {cityOptions.map((n) => <option key={n} value={n} />)}
+            </datalist>
           )}
-        </ul>
-      </InfoBanner>
-    )}
-  </div>
-);
+          {cityOptions.length > 1 && !cityTouched && (
+            <p className="text-xs text-slate-500 mt-1">
+              {cityOptions.length} communes pour ce code postal — vous pouvez modifier
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/^\d{5}$/.test(sim.postalCode) && (
+        <InfoBanner>
+          <p className="font-semibold text-slate-900 mb-1.5">Votre zone est analysée — {region.label}</p>
+          <ul className="space-y-1 text-slate-600">
+            <li>• Ensoleillement régional : <strong className="text-orange-600">{region.sun}</strong></li>
+            <li>• Aides possibles selon votre éligibilité</li>
+            <li>• Simulation adaptée à votre région</li>
+            {region.sun.toLowerCase().includes("nuageux") && (
+              <li>• Même par temps couvert, les panneaux photovoltaïques captent la lumière diffuse (photons) et restent pertinents.</li>
+            )}
+          </ul>
+        </InfoBanner>
+      )}
+    </div>
+  );
+};
 
 // ---------- Surface slider ----------
 const SurfaceSlider = ({ value, onChange }: { value: number | ""; onChange: (n: number) => void }) => {
