@@ -1021,7 +1021,7 @@ const Step4Orientation = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
           <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/95 backdrop-blur text-[10px] font-bold uppercase tracking-wider text-slate-900 shadow-md">
             Aperçu 3D · {ROOF_TYPES.find(r => r.id === sim.roofType)?.label}
           </div>
-          <div className="absolute top-3 right-3 z-10 text-[10px] text-slate-700/80 font-medium bg-white/70 backdrop-blur px-2 py-1 rounded-full">Cliquez et glissez pour tourner</div>
+          <div className="absolute top-3 right-3 z-10 text-[10px] text-slate-700/80 font-medium bg-white/70 backdrop-blur px-2 py-1 rounded-full">Rotation automatique</div>
           <div className="h-[280px] md:h-[340px]">
             <RoofPreview3D url={ROOF_MODELS[sim.roofType]!} />
           </div>
