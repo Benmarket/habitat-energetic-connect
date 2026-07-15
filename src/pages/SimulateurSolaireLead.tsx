@@ -18,6 +18,24 @@ import {
   Loader2, Lock, Sparkles, ShieldCheck, Clock, Zap, TrendingUp, Star, Award, Leaf, X,
 } from "lucide-react";
 import solarSimBg from "@/assets/simulators/solar-simulator-bg.jpg";
+import regionFrance from "@/assets/regions/france.png";
+import regionCorse from "@/assets/regions/corse.png";
+import regionGuyane from "@/assets/regions/guyane.png";
+import regionGuadeloupe from "@/assets/regions/guadeloupe.png";
+import regionMartinique from "@/assets/regions/martinique.png";
+import regionReunion from "@/assets/regions/reunion.png";
+
+const REGION_SHAPES: Record<string, string> = {
+  corse: regionCorse,
+  guyane: regionGuyane,
+  guadeloupe: regionGuadeloupe,
+  martinique: regionMartinique,
+  reunion: regionReunion,
+  "fr-sud": regionFrance,
+  "fr-so": regionFrance,
+  "fr-nord": regionFrance,
+  fr: regionFrance,
+};
 
 // ---------- Types ----------
 type HousingType = "maison" | "villa" | "mitoyenne" | "pro" | "appartement";
