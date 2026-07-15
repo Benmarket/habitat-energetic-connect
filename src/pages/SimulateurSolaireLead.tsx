@@ -953,8 +953,7 @@ const Step2Housing = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
     </div>
   );
 };
-  </div>
-);
+
 
 const Step3Ownership = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
   <div>
