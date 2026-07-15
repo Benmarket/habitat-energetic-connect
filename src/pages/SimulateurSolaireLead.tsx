@@ -768,15 +768,27 @@ const Step1Location = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
 
       {/^\d{5}$/.test(sim.postalCode) && (
         <InfoBanner>
-          <p className="font-semibold text-slate-900 mb-1.5">Votre zone est analysée — {region.label}</p>
-          <ul className="space-y-1 text-slate-600">
-            <li>• Ensoleillement régional : <strong className="text-orange-600">{region.sun}</strong></li>
-            <li>• Aides possibles selon votre éligibilité</li>
-            <li>• Simulation adaptée à votre région</li>
-            {region.sun.toLowerCase().includes("nuageux") && (
-              <li>• Même par temps couvert, les panneaux photovoltaïques captent la lumière diffuse (photons) et restent pertinents.</li>
+          <div className="flex items-start gap-4">
+            {REGION_SHAPES[region.id] && (
+              <img
+                src={REGION_SHAPES[region.id]}
+                alt={`Silhouette ${region.label}`}
+                className="w-16 h-16 md:w-20 md:h-20 object-contain shrink-0 opacity-90"
+                loading="lazy"
+              />
             )}
-          </ul>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-slate-900 mb-1.5">Votre zone est analysée — {region.label}</p>
+              <ul className="space-y-1 text-slate-600">
+                <li>• Ensoleillement régional : <strong className="text-orange-600">{region.sun}</strong></li>
+                <li>• Aides possibles selon votre éligibilité</li>
+                <li>• Simulation adaptée à votre région</li>
+                {region.sun.toLowerCase().includes("nuageux") && (
+                  <li>• Même par temps couvert, les panneaux photovoltaïques captent la lumière diffuse (photons) et restent pertinents.</li>
+                )}
+              </ul>
+            </div>
+          </div>
         </InfoBanner>
       )}
     </div>
