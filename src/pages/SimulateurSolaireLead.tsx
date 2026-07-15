@@ -366,7 +366,7 @@ export default function SimulateurSolaireLead() {
       consentAccepted: true, createdAt: new Date().toISOString(),
     };
 
-    const { error } = await supabase.from("leads").insert({
+    const { data: inserted, error } = await supabase.from("leads").insert({
       first_name: "Prospect",
       last_name: "Solaire",
       email: parsed.data.email, phone: parsed.data.phone,
@@ -376,7 +376,7 @@ export default function SimulateurSolaireLead() {
       is_owner: sim.ownership === "oui",
       needs: ["solaire", ...sim.equipments, ...(sim.batteryInterest === "oui" ? ["batterie"] : [])],
       notes: JSON.stringify(payload),
-    });
+    }).select("id").single();
 
     setSubmitting(false);
 
@@ -384,9 +384,42 @@ export default function SimulateurSolaireLead() {
       toast.error("Une erreur est survenue. Merci de réessayer dans quelques minutes.");
       return;
     }
+    setLeadId(inserted?.id ?? null);
     toast.success("Vos résultats sont débloqués !");
     setUnlocked(true);
     setShowLeadModal(false);
+    // Étape "on y est presque" : demander le nom complet
+    setTimeout(() => setShowNameModal(true), 400);
+  };
+
+  const submitName = async () => {
+    const parsed = nameSchema.safeParse(nameForm);
+    if (!parsed.success) {
+      const errs: Record<string, string> = {};
+      parsed.error.issues.forEach((i) => { errs[i.path[0] as string] = i.message; });
+      setNameErrors(errs);
+      return;
+    }
+    setNameErrors({});
+    const parts = parsed.data.fullName.trim().split(/\s+/);
+    const firstName = parts[0];
+    const lastName = parts.slice(1).join(" ") || parts[0];
+
+    setSubmitting(true);
+    if (leadId) {
+      const { error } = await supabase.from("leads").update({
+        first_name: firstName, last_name: lastName,
+      }).eq("id", leadId);
+      setSubmitting(false);
+      if (error) {
+        toast.error("Impossible d'enregistrer votre nom. Réessayez.");
+        return;
+      }
+    } else {
+      setSubmitting(false);
+    }
+    toast.success(`Merci ${firstName} ! Un expert vous recontacte sous 24h.`);
+    setShowNameModal(false);
   };
 
   const resultsProps = {
