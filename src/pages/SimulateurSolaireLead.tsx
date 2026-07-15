@@ -248,18 +248,18 @@ export default function SimulateurSolaireLead() {
   const region = useMemo(() => detectRegion(sim.postalCode || ""), [sim.postalCode]);
 
   useEffect(() => {
-    if (step === 8 && !unlocked) {
+    if (step === 9 && !unlocked) {
       const t = setTimeout(() => setShowLeadModal(true), 900);
       return () => clearTimeout(t);
     }
   }, [step, unlocked]);
 
   useEffect(() => {
-    if (step > 0 && step < 8) {
+    if (step > 0 && step < 9) {
       const el = document.getElementById("sim-wizard");
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-    if (step === 8) window.scrollTo({ top: 0, behavior: "smooth" });
+    if (step === 9) window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step]);
 
   const canContinue = (): boolean => {
@@ -270,21 +270,22 @@ export default function SimulateurSolaireLead() {
       case 4: return !!sim.orientation; // roofType facultatif
       case 5: return sim.equipments.length > 0;
       case 6: return typeof sim.monthlyBill === "number" && sim.monthlyBill > 0;
-      case 7: return !!sim.projectHorizon; // hasQuote & batteryInterest facultatifs
+      case 7: return !!sim.projectHorizon; // hasQuote facultatif
+      case 8: return true; // batterie facultative
       default: return true;
     }
   };
 
   const goNext = () => {
-    if (step === 7) {
+    if (step === 8) {
       setComputing(true);
       setTimeout(() => {
         setComputing(false);
-        setStep(8);
+        setStep(9);
       }, 2800);
       return;
     }
-    setStep((s) => Math.min(s + 1, 8));
+    setStep((s) => Math.min(s + 1, 9));
   };
   const goBack = () => setStep((s) => Math.max(s - 1, 1));
 
