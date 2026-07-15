@@ -56,11 +56,9 @@ interface Sim {
 
 // ---------- Static data ----------
 const HOUSING: { id: HousingType; label: string; desc: string; icon: any }[] = [
-  { id: "maison", label: "Maison individuelle", desc: "Pavillon avec toit dégagé", icon: Home },
-  { id: "villa", label: "Villa", desc: "Avec terrain, idéale pour le solaire", icon: Castle },
-  { id: "mitoyenne", label: "Maison mitoyenne", desc: "Maison de village ou en bande", icon: Hotel },
-  { id: "pro", label: "Local professionnel", desc: "Commerce, bureau, atelier", icon: Store },
-  { id: "appartement", label: "Appartement", desc: "Copropriété ou dernier étage", icon: Building2 },
+  { id: "maison", label: "Maison", desc: "Individuelle, mitoyenne ou villa — toiture privative", icon: Home },
+  { id: "appartement", label: "Appartement", desc: "Copropriété ou dernier étage — cas spécifique", icon: Building2 },
+  { id: "pro", label: "Local professionnel", desc: "Commerce, bureau, atelier ou bâtiment tertiaire", icon: Store },
 ];
 
 const OWNERSHIPS: { id: Ownership; label: string; desc: string }[] = [
