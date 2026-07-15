@@ -303,6 +303,10 @@ export default function SimulateurSolaireLead() {
 
   const [lead, setLead] = useState({ email: "", phone: "", consent: false });
   const [leadErrors, setLeadErrors] = useState<Record<string, string>>({});
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [nameForm, setNameForm] = useState({ fullName: "" });
+  const [nameErrors, setNameErrors] = useState<Record<string, string>>({});
+  const [leadId, setLeadId] = useState<string | null>(null);
 
   // ---------- Calculs "alléchants" (indicatifs) ----------
   const annualBill = typeof sim.monthlyBill === "number" ? sim.monthlyBill * 12 : 0;
