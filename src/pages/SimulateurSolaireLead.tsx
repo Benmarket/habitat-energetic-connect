@@ -23,7 +23,12 @@ import {
   Compass, Snowflake, Flame, Thermometer, Waves, Car, Plug, HelpCircle, Ruler,
   Loader2, Lock, Sparkles, ShieldCheck, Clock, Zap, TrendingUp, Star, Award, Leaf, X,
   Users, CalendarClock, FileText, BatteryCharging, Trees, Coins, LineChart, PiggyBank, Info,
+  Phone, Mail, ClipboardCheck, Wrench, Rocket, TrendingDown,
 } from "lucide-react";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
+  ResponsiveContainer, Legend, Cell,
+} from "recharts";
 import solarSimBg from "@/assets/simulators/solar-simulator-bg.jpg";
 import regionFrance from "@/assets/regions/france.png";
 import regionCorse from "@/assets/regions/corse.png";
