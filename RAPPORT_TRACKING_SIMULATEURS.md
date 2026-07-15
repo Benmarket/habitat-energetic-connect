@@ -9,7 +9,13 @@
 
 Mesurer **le taux d'abandon** sur les formulaires de simulateurs, étape par étape, avec identification du visiteur (session + IP + email si saisi), source de trafic (referrer + UTM + détection IA/social/SEO), et historique des tentatives multiples par visiteur.
 
-Périmètre : **tous les simulateurs** listés dans `Admin › Simulateurs` (actuellement instrumenté : Simulateur Solaire Lead, extensible aux autres).
+Périmètre : **tous les simulateurs** listés dans `Admin › Simulateurs`.
+
+**Simulateur actuellement instrumenté — le simulateur solaire public :**
+- Route publique : `/simulateurs/solaire`
+- Composant : `src/pages/SimulateurSolaireLead.tsx` (nom de fichier hérité — c'est bien le simulateur en production, pas un ancien)
+- `simulator_id` en base : `solaire-lead`
+- L'ancien simulateur (`SimulateurSolaire.tsx`) est isolé sur `/admin/simulateur-solaire-pro` (accès super_admin) et n'est **pas** tracké.
 
 ---
 
