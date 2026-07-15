@@ -612,6 +612,53 @@ export default function SimulateurSolaireLead() {
         </DialogContent>
       </Dialog>
 
+      {/* Étape "On y est presque !" — Nom complet */}
+      <Dialog open={showNameModal} onOpenChange={(o) => !submitting && setShowNameModal(o)}>
+        <DialogContent className="max-w-md p-0 overflow-hidden border-0">
+          <div className="relative bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 p-6 text-slate-900">
+            <div className="absolute -top-16 -right-16 w-52 h-52 rounded-full bg-yellow-200/40 blur-3xl" aria-hidden />
+            <div className="absolute -bottom-16 -left-10 w-40 h-40 rounded-full bg-orange-300/30 blur-3xl" aria-hidden />
+            <div className="relative">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/15 backdrop-blur text-[10px] font-bold uppercase tracking-wider mb-3">
+                <Sparkles className="w-3 h-3" /> On y est presque !
+              </div>
+              <h3 className="text-2xl font-black leading-tight">Dernière étape</h3>
+              <p className="text-sm font-semibold text-slate-900/80 mt-1">Votre étude est prête — comment doit-on vous appeler&nbsp;?</p>
+            </div>
+          </div>
+          <div className="bg-white p-6 space-y-4">
+            <div>
+              <Label htmlFor="lead-name" className="text-slate-700 font-medium text-sm">Nom complet *</Label>
+              <div className="relative mt-1.5">
+                <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input
+                  id="lead-name" type="text" value={nameForm.fullName}
+                  onChange={(e) => setNameForm({ fullName: e.target.value })}
+                  placeholder="Prénom Nom"
+                  autoFocus
+                  className="h-12 pl-10 border-slate-200 focus-visible:ring-orange-500 text-base"
+                  onKeyDown={(e) => { if (e.key === "Enter" && !submitting) submitName(); }}
+                />
+              </div>
+              {nameErrors.fullName && <p className="text-xs text-destructive mt-1">{nameErrors.fullName}</p>}
+              <p className="text-[11px] text-slate-500 mt-2 flex items-start gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                Sert uniquement à personnaliser l'échange avec votre conseiller.
+              </p>
+            </div>
+            <Button
+              onClick={submitName}
+              disabled={submitting}
+              size="lg"
+              className="w-full py-6 bg-gradient-to-r from-amber-400 via-orange-500 to-orange-600 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold rounded-full shadow-[0_15px_35px_-8px_hsl(35_95%_45%/0.75)] hover:scale-[1.02] transition-all text-base"
+            >
+              {submitting ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Enregistrement…</> : <>Valider <ArrowRight className="w-5 h-5 ml-2" /></>}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+
       <Footer />
     </>
   );
