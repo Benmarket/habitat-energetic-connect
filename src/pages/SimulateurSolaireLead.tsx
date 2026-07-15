@@ -25,6 +25,8 @@ import regionGuyane from "@/assets/regions/guyane.png";
 import regionGuadeloupe from "@/assets/regions/guadeloupe.png";
 import regionMartinique from "@/assets/regions/martinique.png";
 import regionReunion from "@/assets/regions/reunion.png";
+import pvOnduleurGif from "@/assets/pv-onduleur.gif.asset.json";
+import pvBatterieGif from "@/assets/pv-onduleur-batterie.gif.asset.json";
 
 const REGION_SHAPES: Record<string, string> = {
   corse: regionCorse,
