@@ -10,8 +10,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft, Sun, Zap, Home, Thermometer, Wind, Calculator, Plus, Trash2, Lock, MapPin, Settings, Gauge } from "lucide-react";
+import { Loader2, Save, ArrowLeft, Sun, Zap, Home, Thermometer, Wind, Calculator, Plus, Trash2, Lock, MapPin, Settings, Gauge, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import SimulatorTrackingStats from "@/components/admin/SimulatorTrackingStats";
+
+const SOLAR_STEP_LABELS = ["Localisation", "Logement", "Propriété", "Toiture", "Équipements", "Facture", "Projet", "Batterie", "Résultat"];
 
 interface SolarRegion {
   id: string;
@@ -65,7 +68,7 @@ const MODULE_PUISSANCE_OPTIONS = [
   { value: "9kwc", label: "9 kWc" },
 ];
 
-type SolarTab = 'regions' | 'puissances' | 'parametres';
+type SolarTab = 'stats' | 'regions' | 'puissances' | 'parametres';
 
 const AdminSimulators = () => {
   const { user, loading: authLoading } = useAuth();
@@ -432,6 +435,7 @@ const AdminSimulators = () => {
   const selectedSim = SIMULATOR_LIST.find(s => s.id === selectedSimulator);
 
   const SOLAR_TABS = [
+    { id: 'stats' as SolarTab, label: 'Statistiques', icon: BarChart3 },
     { id: 'regions' as SolarTab, label: 'Régions', icon: MapPin },
     { id: 'puissances' as SolarTab, label: 'Puissances', icon: Gauge },
     { id: 'parametres' as SolarTab, label: 'Paramètres globaux', icon: Settings },
@@ -987,6 +991,7 @@ const AdminSimulators = () => {
                       </div>
 
                       {/* Tab content */}
+                      {solarTab === 'stats' && <SimulatorTrackingStats simulatorId="solaire" stepLabels={SOLAR_STEP_LABELS} />}
                       {solarTab === 'regions' && renderRegionsTab()}
                       {solarTab === 'puissances' && renderPuissancesTab()}
                       {solarTab === 'parametres' && renderParametresTab()}
