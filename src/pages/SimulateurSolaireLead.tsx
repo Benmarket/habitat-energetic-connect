@@ -1053,7 +1053,7 @@ const RoofPreview3D = ({ url }: { url: string }) => (
         <RoofModel url={url} />
       </Stage>
     </Suspense>
-    <OrbitControls enablePan={false} enableZoom={false} minPolarAngle={Math.PI / 6} maxPolarAngle={Math.PI / 2.2} />
+    <OrbitControls enablePan={false} enableZoom={false} enableRotate={false} autoRotate autoRotateSpeed={0.8} minPolarAngle={Math.PI / 3} maxPolarAngle={Math.PI / 3} />
   </Canvas>
 );
 
