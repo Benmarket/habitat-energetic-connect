@@ -429,7 +429,7 @@ export default function SimulateurSolaireLead() {
 
   const resultsProps = {
     sim, region, annualBill, savingsMin, savingsMax, savingsMid, savings25,
-    aidesMin, aidesMax, roi, co2, trees, suggest,
+    aidesMin, aidesMax, roi, co2, trees, suggest, installCost,
     showBattery, setShowBattery, savingsWithBattery, batteryCost, roiWithBattery,
     unlocked,
   };
