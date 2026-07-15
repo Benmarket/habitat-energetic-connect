@@ -229,8 +229,8 @@ const leadSchema = z.object({
 });
 
 // ---------- Main page ----------
-const STEP_LABELS = ["Localisation", "Logement", "Propriété", "Toiture", "Équipements", "Facture", "Projet", "Résultat"];
-const TOTAL_STEPS = 7; // 7 étapes de questions, la 8e étant le résultat
+const STEP_LABELS = ["Localisation", "Logement", "Propriété", "Toiture", "Équipements", "Facture", "Projet", "Batterie", "Résultat"];
+const TOTAL_STEPS = 8; // 8 étapes de questions, la 9e étant le résultat
 
 export default function SimulateurSolaireLead() {
   const [step, setStep] = useState<number>(0);
