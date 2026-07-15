@@ -1332,6 +1332,40 @@ const ResultsPanel = ({
   const displayedYearlyCounted = useCountUp(displayedYearly);
   const has25 = savings25 > 0;
 
+  // ------ Projection 25 ans (par tranches de 5 ans) ------
+  const yearlySavings = showBattery ? savingsWithBattery : savingsMid;
+  const totalInvest = installCost + (showBattery ? batteryCost : 0);
+  const aidesTotal = Math.round((aidesMin + aidesMax) / 2);
+  const inflation = 0.04; // +4%/an prix élec
+  const degradation = 0.005; // -0.5%/an rendement
+  const buckets = [
+    { label: "1-5 ans", from: 1, to: 5 },
+    { label: "6-10 ans", from: 6, to: 10 },
+    { label: "11-15 ans", from: 11, to: 15 },
+    { label: "16-20 ans", from: 16, to: 20 },
+    { label: "21-25 ans", from: 21, to: 25 },
+  ];
+  const projectionData = buckets.map((b) => {
+    let conso = 0, solaire = 0;
+    for (let y = b.from; y <= b.to; y++) {
+      const infl = Math.pow(1 + inflation, y - 1);
+      const deg = Math.pow(1 - degradation, y - 1);
+      conso += annualBill * infl;
+      solaire += yearlySavings * infl * deg;
+    }
+    // Subvention perçue en année 2 (donc dans la 1ère tranche)
+    const aide = b.from <= 2 && 2 <= b.to ? aidesTotal : 0;
+    return {
+      label: b.label,
+      conso: Math.round(conso),
+      solaire: Math.round(solaire),
+      aide,
+    };
+  });
+  const cumulSolaire = projectionData.reduce((s, d) => s + d.solaire, 0);
+  const gainNet = cumulSolaire + aidesTotal - totalInvest;
+  const cumulConso25 = projectionData.reduce((s, d) => s + d.conso, 0);
+
   return (
     <div className="bg-white rounded-3xl shadow-[0_30px_80px_-20px_hsl(24_60%_8%/0.55)] border border-amber-300/40 overflow-hidden">
       {/* HERO — TOUJOURS visible avec le gros chiffre alléchant */}
