@@ -10,8 +10,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft, Sun, Zap, Home, Thermometer, Wind, Calculator, Plus, Trash2, Lock, MapPin, Settings, Gauge } from "lucide-react";
+import { Loader2, Save, ArrowLeft, Sun, Zap, Home, Thermometer, Wind, Calculator, Plus, Trash2, Lock, MapPin, Settings, Gauge, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import SimulatorTrackingStats from "@/components/admin/SimulatorTrackingStats";
+
+const SOLAR_STEP_LABELS = ["Localisation", "Logement", "Propriété", "Toiture", "Équipements", "Facture", "Projet", "Batterie", "Résultat"];
 
 interface SolarRegion {
   id: string;
