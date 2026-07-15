@@ -895,11 +895,11 @@ const Step4Orientation = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
 
       {/* Aperçu 3D */}
       {ROOF_MODELS[sim.roofType] && (
-        <div className="mt-5 relative rounded-2xl overflow-hidden border-2 border-amber-200 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-[0_20px_50px_-20px_hsl(35_95%_45%/0.5)] animate-fade-in">
-          <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/90 backdrop-blur text-[10px] font-bold uppercase tracking-wider text-slate-900">
+        <div className="mt-5 relative rounded-2xl overflow-hidden border-2 border-amber-200 bg-gradient-to-b from-sky-200 via-sky-100 to-blue-50 shadow-[0_20px_50px_-20px_hsl(35_95%_45%/0.5)] animate-fade-in">
+          <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/95 backdrop-blur text-[10px] font-bold uppercase tracking-wider text-slate-900 shadow-md">
             Aperçu 3D · {ROOF_TYPES.find(r => r.id === sim.roofType)?.label}
           </div>
-          <div className="absolute top-3 right-3 z-10 text-[10px] text-white/60 font-medium">Faites glisser pour tourner</div>
+          <div className="absolute top-3 right-3 z-10 text-[10px] text-slate-700/80 font-medium bg-white/70 backdrop-blur px-2 py-1 rounded-full">Cliquez et glissez pour tourner</div>
           <div className="h-[280px] md:h-[340px]">
             <RoofPreview3D url={ROOF_MODELS[sim.roofType]!} />
           </div>
