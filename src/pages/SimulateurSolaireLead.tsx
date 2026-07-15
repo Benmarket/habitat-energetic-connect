@@ -236,6 +236,10 @@ const leadSchema = z.object({
   consent: z.literal(true, { errorMap: () => ({ message: "Consentement requis" }) }),
 });
 
+const nameSchema = z.object({
+  fullName: z.string().trim().min(2, "Nom complet requis").max(120, "Trop long"),
+});
+
 // ---------- Main page ----------
 const STEP_LABELS = ["Localisation", "Logement", "Propriété", "Toiture", "Équipements", "Facture", "Projet", "Batterie", "Résultat"];
 const TOTAL_STEPS = 8; // 8 étapes de questions, la 9e étant le résultat
