@@ -991,6 +991,7 @@ const AdminSimulators = () => {
                       </div>
 
                       {/* Tab content */}
+                      {solarTab === 'stats' && <SimulatorTrackingStats simulatorId="solaire" stepLabels={SOLAR_STEP_LABELS} />}
                       {solarTab === 'regions' && renderRegionsTab()}
                       {solarTab === 'puissances' && renderPuissancesTab()}
                       {solarTab === 'parametres' && renderParametresTab()}
