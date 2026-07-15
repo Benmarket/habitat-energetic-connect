@@ -925,12 +925,13 @@ function RoofModel({ url }: { url: string }) {
 
 const RoofPreview3D = ({ url }: { url: string }) => (
   <Canvas camera={{ position: [4, 3, 5], fov: 45 }} dpr={[1, 1.5]}>
+    <color attach="background" args={["#dbeafe"]} />
     <Suspense fallback={null}>
-      <Stage environment="city" intensity={0.5} adjustCamera={1.2} shadows={false}>
+      <Stage environment="sunset" intensity={0.4} adjustCamera={1.2} shadows={false}>
         <RoofModel url={url} />
       </Stage>
     </Suspense>
-    <OrbitControls enablePan={false} enableZoom={false} autoRotate autoRotateSpeed={0.8} minPolarAngle={Math.PI / 6} maxPolarAngle={Math.PI / 2.2} />
+    <OrbitControls enablePan={false} enableZoom={false} minPolarAngle={Math.PI / 6} maxPolarAngle={Math.PI / 2.2} />
   </Canvas>
 );
 
