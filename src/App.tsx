@@ -116,6 +116,7 @@ const App = () => (
             <Sonner />
             <ScrollToTop />
             <PageViewTracker />
+            <MetaPixel />
             <MaintenanceMode>
               <Suspense fallback={null}>
                 <ChatBot />
@@ -168,6 +169,7 @@ const App = () => (
                   <Route path="/admin/landing-pages" element={<AdminGuard allowedRoles={["super_admin"]}><AdminLandingPages /></AdminGuard>} />
                   <Route path="/admin/pages-ancres" element={<AdminGuard allowedRoles={["super_admin"]}><AdminPagesAnchors /></AdminGuard>} />
                   <Route path="/admin/simulateurs" element={<AdminGuard allowedRoles={["super_admin"]}><AdminSimulators /></AdminGuard>} />
+                  <Route path="/admin/pixels" element={<AdminGuard allowedRoles={["super_admin"]}><AdminTrackingPixels /></AdminGuard>} />
                   <Route path="/admin/app" element={<AdminGuard allowedRoles={["super_admin"]}><AdminApp /></AdminGuard>} />
                   <Route path="/admin/auteurs" element={<AdminGuard allowedRoles={["super_admin"]}><AdminAuthors /></AdminGuard>} />
                   <Route path="/admin/mediatheque" element={<AdminGuard allowedRoles={["super_admin"]}><AdminMediatheque /></AdminGuard>} />
