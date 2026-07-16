@@ -182,6 +182,13 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
         notes: `Landing solaire ${isRegional ? regionName : "nationale"} | Chauffage: ${wizardData.chauffage} | Surface: ${wizardData.surface}`,
         status: "new",
       });
+      // Meta Pixel — événement Lead (conversion)
+      import("@/lib/metaPixel").then(({ trackMetaLead }) =>
+        trackMetaLead({
+          content_name: isRegional ? `landing-solaire-${regionCode}` : "landing-solaire",
+          content_category: "solaire",
+        }),
+      );
       const formConfigId = "058314de-16fc-4f17-bad3-fe51e3959109";
       await supabase.from("form_submissions").insert({
         form_id: formConfigId,

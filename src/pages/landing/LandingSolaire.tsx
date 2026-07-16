@@ -246,6 +246,11 @@ const LandingSolaireContent = () => {
       });
       if (leadError) throw leadError;
 
+      // Meta Pixel — événement Lead (conversion)
+      import("@/lib/metaPixel").then(({ trackMetaLead }) =>
+        trackMetaLead({ content_name: "landing-solaire", content_category: "solaire" }),
+      );
+
       // Also insert into form_submissions for admin tracking
       const formConfigId = "058314de-16fc-4f17-bad3-fe51e3959109";
       await supabase.from("form_submissions").insert({
