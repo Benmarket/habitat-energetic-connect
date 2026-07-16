@@ -1657,6 +1657,10 @@ const ResultsPanel = ({
             </div>
           </div>
         )}
+
+        <p className="mt-8 text-center text-[11px] leading-relaxed text-slate-400 max-w-2xl mx-auto px-4">
+          Estimations indicatives. Les montants d'économies et de subventions peuvent varier selon votre situation, votre toiture et les dispositifs en vigueur. Une étude personnalisée gratuite peut vous être proposée en fin de parcours.
+        </p>
       </div>
     </div>
   );
