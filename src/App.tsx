@@ -11,6 +11,7 @@ import MaintenanceMode from "@/components/MaintenanceMode";
 import CookieBanner from "@/components/CookieBanner";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import PageViewTracker from "@/components/PageViewTracker";
+import MetaPixel from "@/components/MetaPixel";
 import { Loader2 } from "lucide-react";
 
 // Eagerly loaded pages (public, frequently accessed)
@@ -52,6 +53,7 @@ const AdminApp = lazy(() => import("./pages/AdminApp"));
 const AdminLandingPages = lazy(() => import("./pages/AdminLandingPages"));
 const AdminPagesAnchors = lazy(() => import("./pages/AdminPagesAnchors"));
 const AdminSimulators = lazy(() => import("./pages/AdminSimulators"));
+const AdminTrackingPixels = lazy(() => import("./pages/AdminTrackingPixels"));
 const AdminAdvertising = lazy(() => import("./pages/AdminAdvertising"));
 const AdminAuthors = lazy(() => import("./pages/AdminAuthors"));
 const AdminMediatheque = lazy(() => import("./pages/AdminMediatheque"));
