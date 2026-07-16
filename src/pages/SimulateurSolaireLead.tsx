@@ -498,6 +498,10 @@ export default function SimulateurSolaireLead() {
                     {step === 8 ? "Calculer mes économies" : "Continuer"} <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
                 </div>
+
+                <p className="mt-5 pt-4 border-t border-slate-200/70 text-center text-[11px] leading-relaxed text-slate-500 max-w-2xl mx-auto italic">
+                  Estimations indicatives : les économies et subventions affichées peuvent varier selon votre situation, votre toiture et les dispositifs en vigueur. Une étude personnalisée gratuite peut vous être proposée en fin de parcours.
+                </p>
               </div>
             </div>
 
@@ -507,9 +511,6 @@ export default function SimulateurSolaireLead() {
               <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-amber-300" /> Moins de 2 minutes</span>
             </div>
 
-            <p className="mt-5 text-center text-[11px] leading-relaxed text-white/60 max-w-2xl mx-auto italic">
-              Estimations indicatives : les économies et subventions affichées peuvent varier selon votre situation, votre toiture et les dispositifs en vigueur. Une étude personnalisée gratuite peut vous être proposée en fin de parcours.
-            </p>
           </div>
         )}
 
