@@ -810,6 +810,27 @@ const Administration = () => {
                     </Link>
                   </CardContent>
                 </Card>
+
+                <Card className="group hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 border-l-4 border-l-blue-600 hover:scale-[1.02] hover:-translate-y-1">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-3 bg-gradient-to-br from-blue-500/10 to-blue-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <BarChart3 className="w-6 h-6 text-blue-600" />
+                      </div>
+                    </div>
+                    <CardTitle className="group-hover:text-blue-600 transition-colors">Pixels de tracking</CardTitle>
+                    <CardDescription>
+                      Pixel Meta (Facebook / Instagram) et autres pixels de conversion publicitaire
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link to="/admin/pixels">
+                      <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-500/30">
+                        Accéder
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
               </div>
             </div>
 
