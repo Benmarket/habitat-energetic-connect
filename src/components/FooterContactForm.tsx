@@ -68,6 +68,11 @@ const FooterContactForm = () => {
 
       if (leadError) throw leadError;
 
+      // Meta Pixel — événement Lead (conversion)
+      import("@/lib/metaPixel").then(({ trackMetaLead }) =>
+        trackMetaLead({ content_name: "footer-contact", content_category: formData.workType }),
+      );
+
       // Also insert into form_submissions for admin tracking
       const { error: formError } = await supabase.from("form_submissions").insert({
         form_id: "b0e21b71-1c2c-4474-895d-7b43117fa2ec",

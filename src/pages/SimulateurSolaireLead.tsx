@@ -407,6 +407,10 @@ export default function SimulateurSolaireLead() {
     }
     setLeadId(inserted?.id ?? null);
     trackLead(lead.email);
+    // Meta Pixel — événement Lead (conversion)
+    import("@/lib/metaPixel").then(({ trackMetaLead }) =>
+      trackMetaLead({ content_name: "simulateur-solaire", content_category: "solaire" }),
+    );
     toast.success("Vos résultats sont débloqués !");
     setUnlocked(true);
     setShowLeadModal(false);
