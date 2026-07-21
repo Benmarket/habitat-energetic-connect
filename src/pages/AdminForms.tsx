@@ -17,6 +17,7 @@ import { ArrowLeft, Plus, Edit, Trash2, Download, ExternalLink, Eye, Loader2, Ch
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import AllLeadsPanel from "@/components/admin/AllLeadsPanel";
 
 type FormConfig = {
   id: string;
