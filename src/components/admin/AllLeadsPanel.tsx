@@ -166,6 +166,7 @@ export default function AllLeadsPanel() {
       (subs.data || []).forEach((s: any) => {
         const form = formMap.get(s.form_id);
         const c = extractContact(s.data);
+        const postal = extractPostal(s.data);
         leads.push({
           id: s.id,
           formId: s.form_id,
@@ -175,6 +176,8 @@ export default function AllLeadsPanel() {
           email: c.email,
           phone: c.phone,
           name: c.name,
+          postalCode: postal,
+          region: detectRegion(postal),
           data: s.data || {},
         });
       });
@@ -190,6 +193,8 @@ export default function AllLeadsPanel() {
             email: n.email ? String(n.email).toLowerCase().trim() : null,
             phone: null,
             name: null,
+            postalCode: null,
+            region: REGION_META.inconnu,
             data: { email: n.email, source: n.source },
           });
         });
