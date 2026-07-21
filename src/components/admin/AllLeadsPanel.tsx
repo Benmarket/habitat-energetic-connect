@@ -217,6 +217,27 @@ export default function AllLeadsPanel() {
     });
   }, [allLeads, range]);
 
+  // Tracking sessions — used to backfill region + traffic source per lead
+  const { data: trackingByEmail } = useQuery({
+    queryKey: ["all-leads-tracking"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("simulator_tracking_sessions")
+        .select("email, referrer_source, referrer_url, utm_source, utm_medium, utm_campaign, landing_url, ip_hash, created_at")
+        .not("email", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(5000);
+      if (error) return new Map<string, any>();
+      const map = new Map<string, any>();
+      (data || []).forEach((r: any) => {
+        const key = String(r.email || "").toLowerCase().trim();
+        if (key && !map.has(key)) map.set(key, r);
+      });
+      return map;
+    },
+    refetchInterval: 30000,
+  });
+
   // Group by contact key
   const grouped = useMemo(() => {
     const map = new Map<string, { key: string; email: string | null; phone: string | null; name: string | null; leads: UnifiedLead[] }>();
@@ -236,13 +257,31 @@ export default function AllLeadsPanel() {
       if (!g.email && l.email) g.email = l.email;
       if (!g.phone && l.phone) g.phone = l.phone;
     });
-    const groups = Array.from(map.values()).map((g) => ({
-      ...g,
-      lastAt: g.leads[0]?.submittedAt,
-    }));
+    const groups = Array.from(map.values()).map((g) => {
+      // Region: use first submission with a postal code, else inconnu
+      const withPostal = g.leads.find((l) => l.postalCode);
+      const region: RegionInfo = withPostal?.region || REGION_META.inconnu;
+      const tracking = g.email ? trackingByEmail?.get(g.email) : null;
+      const trafficSource: string | null =
+        tracking?.utm_source ||
+        tracking?.referrer_source ||
+        (tracking?.referrer_url ? new URL(tracking.referrer_url).hostname.replace(/^www\./, "") : null) ||
+        null;
+      return {
+        ...g,
+        lastAt: g.leads[0]?.submittedAt,
+        region,
+        postalCode: withPostal?.postalCode || null,
+        trafficSource,
+        landingUrl: tracking?.landing_url || null,
+        utmMedium: tracking?.utm_medium || null,
+        utmCampaign: tracking?.utm_campaign || null,
+        referrerUrl: tracking?.referrer_url || null,
+      };
+    });
     groups.sort((a, b) => new Date(b.lastAt!).getTime() - new Date(a.lastAt!).getTime());
     return { groups, orphans };
-  }, [leads]);
+  }, [leads, trackingByEmail]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
