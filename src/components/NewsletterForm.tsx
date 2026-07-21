@@ -53,6 +53,7 @@ export const NewsletterForm = () => {
 
       // Insert new subscriber
       const { getAttribution } = await import("@/lib/attribution");
+      const { getConsentPayload } = await import("@/lib/consent");
       const { error } = await supabase
         .from("newsletter_subscribers")
         .insert({
@@ -60,6 +61,7 @@ export const NewsletterForm = () => {
           source: "footer",
           status: "active",
           attribution: getAttribution(),
+          consent: getConsentPayload(),
         });
 
 

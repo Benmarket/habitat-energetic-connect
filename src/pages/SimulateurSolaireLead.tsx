@@ -388,6 +388,7 @@ export default function SimulateurSolaireLead() {
     };
 
     const { getAttribution } = await import("@/lib/attribution");
+      const { getConsentPayload } = await import("@/lib/consent");
     const { data: inserted, error } = await supabase.from("leads").insert({
       first_name: "Prospect",
       last_name: "Solaire",
@@ -399,6 +400,7 @@ export default function SimulateurSolaireLead() {
       needs: ["solaire", ...sim.equipments, ...(sim.batteryInterest === "oui" ? ["batterie"] : [])],
       notes: JSON.stringify(payload),
       attribution: getAttribution(),
+          consent: getConsentPayload(),
     }).select("id").single();
 
 

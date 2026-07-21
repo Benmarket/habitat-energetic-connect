@@ -55,6 +55,7 @@ const FooterContactForm = () => {
     setIsSubmitting(true);
     try {
       const { getAttribution } = await import("@/lib/attribution");
+      const { getConsentPayload } = await import("@/lib/consent");
       const attribution = getAttribution();
       // Insert into leads table for CRM
       const { error: leadError } = await supabase.from("leads").insert({
@@ -67,6 +68,7 @@ const FooterContactForm = () => {
         city: "",
         needs: [formData.workType],
         attribution,
+        consent: getConsentPayload(),
       });
 
       if (leadError) throw leadError;
@@ -88,6 +90,7 @@ const FooterContactForm = () => {
           type_travaux: formData.workType,
         },
         attribution,
+        consent: getConsentPayload(),
       });
 
 

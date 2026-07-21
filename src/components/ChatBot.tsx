@@ -429,6 +429,7 @@ export const ChatBot = () => {
 
       try {
         const { getAttribution } = await import("@/lib/attribution");
+      const { getConsentPayload } = await import("@/lib/consent");
         const attribution = getAttribution();
         // Save to leads table
         await supabase.from("leads").insert({
@@ -442,6 +443,7 @@ export const ChatBot = () => {
           needs: projectAnswer ? [projectAnswer] : flowHistory.filter(h => h.question.toLowerCase().includes("type de projet")).map(h => h.answer),
           notes: `Chatbot - ${flowHistory.map(h => `${h.question}: ${h.answer}`).join(" | ")}`,
           attribution,
+          consent: getConsentPayload(),
         });
 
 
@@ -474,6 +476,7 @@ export const ChatBot = () => {
 
         if (formConfig) {
           const { getAttribution } = await import("@/lib/attribution");
+      const { getConsentPayload } = await import("@/lib/consent");
           await supabase.from("form_submissions").insert({
             form_id: formConfig.id,
             data: {
@@ -488,6 +491,7 @@ export const ChatBot = () => {
             },
             status: "new",
             attribution: getAttribution(),
+          consent: getConsentPayload(),
           });
         }
 

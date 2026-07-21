@@ -200,11 +200,13 @@ const EligibilityFormSection = () => {
       // Soumettre les données
       const submissionId = crypto.randomUUID();
       const { getAttribution } = await import("@/lib/attribution");
+      const { getConsentPayload } = await import("@/lib/consent");
       const { error } = await supabase.from("form_submissions").insert({
         id: submissionId,
         form_id: formConfig.id,
         data: validated,
         attribution: getAttribution(),
+          consent: getConsentPayload(),
       });
 
 
