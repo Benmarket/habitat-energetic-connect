@@ -101,6 +101,36 @@ const AdminTraficSeo = () => {
     load();
   }, [range]);
 
+  // Load visitor_ids linked to my user_id so we can exclude anonymous sessions too
+  useEffect(() => {
+    if (!user?.id) { setMyVisitorIds(new Set()); return; }
+    supabase
+      .from("page_views")
+      .select("visitor_id")
+      .eq("user_id", user.id)
+      .not("visitor_id", "is", null)
+      .limit(5000)
+      .then(({ data }) => {
+        const s = new Set<string>();
+        (data || []).forEach((r: any) => r.visitor_id && s.add(r.visitor_id));
+        setMyVisitorIds(s);
+      });
+  }, [user?.id]);
+
+  useEffect(() => {
+    localStorage.setItem("admin_trafic_exclude_me", excludeMe ? "1" : "0");
+  }, [excludeMe]);
+
+  const filteredRows = useMemo(() => {
+    if (!excludeMe || !user?.id) return rows;
+    return rows.filter((r) => {
+      if (r.user_id === user.id) return false;
+      if (r.visitor_id && myVisitorIds.has(r.visitor_id)) return false;
+      return true;
+    });
+  }, [rows, excludeMe, user?.id, myVisitorIds]);
+
+
   const kpi = useMemo(() => {
     const uniques = new Set(rows.map((r) => r.visitor_id).filter(Boolean)).size;
     const durations = rows.map((r) => r.duration_seconds || 0).filter((v) => v > 0);
