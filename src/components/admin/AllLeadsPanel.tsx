@@ -54,6 +54,37 @@ function computePreset(key: PresetKey): DateRange {
   }
 }
 
+type RegionInfo = { code: string; label: string; emoji: string };
+
+const REGION_META: Record<string, RegionInfo> = {
+  metropole: { code: "metropole", label: "France métropolitaine", emoji: "🇫🇷" },
+  corse: { code: "corse", label: "Corse", emoji: "🏝️" },
+  guadeloupe: { code: "guadeloupe", label: "Guadeloupe", emoji: "🌴" },
+  martinique: { code: "martinique", label: "Martinique", emoji: "🌺" },
+  guyane: { code: "guyane", label: "Guyane", emoji: "🌳" },
+  reunion: { code: "reunion", label: "La Réunion", emoji: "🌋" },
+  mayotte: { code: "mayotte", label: "Mayotte", emoji: "🐢" },
+  autre: { code: "autre", label: "Autres / Outre-mer", emoji: "🌐" },
+  inconnu: { code: "inconnu", label: "Région inconnue", emoji: "❓" },
+};
+
+function detectRegion(postal: string | null): RegionInfo {
+  if (!postal) return REGION_META.inconnu;
+  const cp = String(postal).replace(/\s/g, "").slice(0, 5);
+  if (/^(2[ab]|20)/i.test(cp)) return REGION_META.corse;
+  if (cp.startsWith("971")) return REGION_META.guadeloupe;
+  if (cp.startsWith("972")) return REGION_META.martinique;
+  if (cp.startsWith("973")) return REGION_META.guyane;
+  if (cp.startsWith("974")) return REGION_META.reunion;
+  if (cp.startsWith("976")) return REGION_META.mayotte;
+  if (/^\d{5}$/.test(cp)) {
+    const n = parseInt(cp, 10);
+    if (n >= 1000 && n <= 95999) return REGION_META.metropole;
+    return REGION_META.autre;
+  }
+  return REGION_META.inconnu;
+}
+
 type UnifiedLead = {
   id: string;
   formId: string | null;
@@ -63,10 +94,21 @@ type UnifiedLead = {
   email: string | null;
   phone: string | null;
   name: string | null;
+  postalCode: string | null;
+  region: RegionInfo;
   data: Record<string, any>;
 };
 
-// Extract email/phone/name from arbitrary submission data payloads
+function extractPostal(data: any): string | null {
+  if (!data || typeof data !== "object") return null;
+  const raw =
+    data.postalCode || data.postal_code || data.codePostal || data.code_postal ||
+    data.cp || data.zip || data.zipCode || data.zip_code || null;
+  if (!raw) return null;
+  const s = String(raw).trim();
+  return s || null;
+}
+
 function extractContact(data: any): { email: string | null; phone: string | null; name: string | null } {
   if (!data || typeof data !== "object") return { email: null, phone: null, name: null };
   const email =
