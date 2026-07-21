@@ -52,13 +52,16 @@ export const NewsletterForm = () => {
       }
 
       // Insert new subscriber
+      const { getAttribution } = await import("@/lib/attribution");
       const { error } = await supabase
         .from("newsletter_subscribers")
         .insert({
           email: validatedEmail,
           source: "footer",
-          status: "active"
+          status: "active",
+          attribution: getAttribution(),
         });
+
 
       if (error) {
         // Handle rate limiting error

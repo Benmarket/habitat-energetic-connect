@@ -428,6 +428,8 @@ export const ChatBot = () => {
       const projectAnswer = collectedData.project_type || flowHistory.find(h => h.question.toLowerCase().includes("type de projet"))?.answer || "";
 
       try {
+        const { getAttribution } = await import("@/lib/attribution");
+        const attribution = getAttribution();
         // Save to leads table
         await supabase.from("leads").insert({
           first_name: collectedData.first_name || "",
@@ -439,7 +441,9 @@ export const ChatBot = () => {
           city: "",
           needs: projectAnswer ? [projectAnswer] : flowHistory.filter(h => h.question.toLowerCase().includes("type de projet")).map(h => h.answer),
           notes: `Chatbot - ${flowHistory.map(h => `${h.question}: ${h.answer}`).join(" | ")}`,
+          attribution,
         });
+
 
         // Fire-and-forget confirmation email
         try {
@@ -469,6 +473,7 @@ export const ChatBot = () => {
           .single();
 
         if (formConfig) {
+          const { getAttribution } = await import("@/lib/attribution");
           await supabase.from("form_submissions").insert({
             form_id: formConfig.id,
             data: {
@@ -482,8 +487,10 @@ export const ChatBot = () => {
               historique: flowHistory.map(h => `${h.question}: ${h.answer}`).join(" | "),
             },
             status: "new",
+            attribution: getAttribution(),
           });
         }
+
       } catch (err) {
         console.error("Error saving form submission:", err);
       }

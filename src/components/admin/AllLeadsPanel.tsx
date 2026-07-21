@@ -86,6 +86,17 @@ function detectRegion(postal: string | null): RegionInfo {
   return REGION_META.inconnu;
 }
 
+type Attribution = {
+  referrer_source?: string | null;
+  referrer_url?: string | null;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  landing_url?: string | null;
+  gclid?: string | null;
+  fbclid?: string | null;
+} | null;
+
 type UnifiedLead = {
   id: string;
   formId: string | null;
@@ -98,7 +109,9 @@ type UnifiedLead = {
   postalCode: string | null;
   region: RegionInfo;
   data: Record<string, any>;
+  attribution?: Attribution;
 };
+
 
 function extractPostal(data: any): string | null {
   if (!data || typeof data !== "object") return null;
@@ -157,8 +170,8 @@ export default function AllLeadsPanel() {
     queryFn: async () => {
       const [forms, subs, news] = await Promise.all([
         supabase.from("form_configurations").select("id, name, form_identifier"),
-        supabase.from("form_submissions").select("id, form_id, data, submitted_at").order("submitted_at", { ascending: false }).limit(2000),
-        supabase.from("newsletter_subscribers").select("id, email, source, subscribed_at, created_at").order("subscribed_at", { ascending: false }).limit(2000),
+        supabase.from("form_submissions").select("id, form_id, data, submitted_at, attribution").order("submitted_at", { ascending: false }).limit(2000),
+        supabase.from("newsletter_subscribers").select("id, email, source, subscribed_at, created_at, attribution").order("subscribed_at", { ascending: false }).limit(2000),
       ]);
       if (forms.error) throw forms.error;
       if (subs.error) throw subs.error;
@@ -182,6 +195,7 @@ export default function AllLeadsPanel() {
           postalCode: postal,
           region: detectRegion(postal),
           data: s.data || {},
+          attribution: s.attribution || null,
         });
       });
 
@@ -199,6 +213,7 @@ export default function AllLeadsPanel() {
             postalCode: null,
             region: REGION_META.inconnu,
             data: { email: n.email, source: n.source },
+            attribution: n.attribution || null,
           });
         });
       }
@@ -208,6 +223,7 @@ export default function AllLeadsPanel() {
     },
     refetchInterval: 15000,
   });
+
 
   const allLeads = data || [];
   const leads = useMemo(() => {
@@ -264,24 +280,31 @@ export default function AllLeadsPanel() {
       // Region: use first submission with a postal code, else inconnu
       const withPostal = g.leads.find((l) => l.postalCode);
       const region: RegionInfo = withPostal?.region || REGION_META.inconnu;
+      // Prefer the most recent submission's own attribution, fall back to tracking-session join
+      const withAttr = g.leads.find((l) => l.attribution && (l.attribution.referrer_source || l.attribution.utm_source || l.attribution.referrer_url));
+      const own = withAttr?.attribution || null;
       const tracking = g.email ? trackingByEmail?.get(g.email) : null;
-      const trafficSource: string | null =
-        tracking?.utm_source ||
-        tracking?.referrer_source ||
-        (tracking?.referrer_url ? new URL(tracking.referrer_url).hostname.replace(/^www\./, "") : null) ||
+      const src = own || tracking || null;
+      let trafficSource: string | null =
+        src?.utm_source ||
+        src?.referrer_source ||
         null;
+      if (!trafficSource && src?.referrer_url) {
+        try { trafficSource = new URL(src.referrer_url).hostname.replace(/^www\./, ""); } catch { /* noop */ }
+      }
       return {
         ...g,
         lastAt: g.leads[0]?.submittedAt,
         region,
         postalCode: withPostal?.postalCode || null,
         trafficSource,
-        landingUrl: tracking?.landing_url || null,
-        utmMedium: tracking?.utm_medium || null,
-        utmCampaign: tracking?.utm_campaign || null,
-        referrerUrl: tracking?.referrer_url || null,
+        landingUrl: src?.landing_url || null,
+        utmMedium: src?.utm_medium || null,
+        utmCampaign: src?.utm_campaign || null,
+        referrerUrl: src?.referrer_url || null,
       };
     });
+
     groups.sort((a, b) => new Date(b.lastAt!).getTime() - new Date(a.lastAt!).getTime());
     return { groups, orphans };
   }, [leads, trackingByEmail]);

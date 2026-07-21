@@ -54,6 +54,8 @@ const FooterContactForm = () => {
 
     setIsSubmitting(true);
     try {
+      const { getAttribution } = await import("@/lib/attribution");
+      const attribution = getAttribution();
       // Insert into leads table for CRM
       const { error: leadError } = await supabase.from("leads").insert({
         first_name: formData.firstName,
@@ -64,6 +66,7 @@ const FooterContactForm = () => {
         address: "",
         city: "",
         needs: [formData.workType],
+        attribution,
       });
 
       if (leadError) throw leadError;
@@ -84,7 +87,9 @@ const FooterContactForm = () => {
           code_postal: formData.postalCode,
           type_travaux: formData.workType,
         },
+        attribution,
       });
+
 
       if (formError) console.error("Form submission tracking error:", formError);
 

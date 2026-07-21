@@ -94,6 +94,7 @@ const ContactSection = () => {
       const lastName = nameParts.slice(1).join(" ") || "";
 
       // Insert into leads table
+      const { getAttribution } = await import("@/lib/attribution");
       const leadData: any = {
         first_name: firstName,
         last_name: lastName,
@@ -105,9 +106,11 @@ const ContactSection = () => {
         property_type: accountType,
         notes: `Sujet: ${formData.subject}\n\n${accountType === "professionnel" && formData.companyName ? `Entreprise: ${formData.companyName}\n\n` : ""}Message: ${formData.message}`,
         status: "new",
+        attribution: getAttribution(),
       };
 
       const { error } = await supabase.from("leads").insert(leadData);
+
 
       if (error) throw error;
 

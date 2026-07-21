@@ -174,6 +174,8 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
     }
     setIsSubmitting(true);
     try {
+      const { getAttribution } = await import("@/lib/attribution");
+      const attribution = getAttribution();
       await supabase.from("leads").insert({
         first_name: wizardData.firstName, last_name: wizardData.lastName,
         phone: wizardData.phone, email: wizardData.email,
@@ -181,6 +183,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
         property_type: wizardData.propertyType, needs: ["panneaux-solaires"],
         notes: `Landing solaire ${isRegional ? regionName : "nationale"} | Chauffage: ${wizardData.chauffage} | Surface: ${wizardData.surface}`,
         status: "new",
+        attribution,
       });
       // Meta Pixel — événement Lead (conversion)
       import("@/lib/metaPixel").then(({ trackMetaLead }) =>
@@ -194,7 +197,9 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
         form_id: formConfigId,
         data: { ...wizardData, region: regionCode },
         status: "new",
+        attribution,
       });
+
 
       // Fire-and-forget confirmation email
       const { sendFormConfirmationEmail } = await import("@/lib/sendFormConfirmationEmail");
