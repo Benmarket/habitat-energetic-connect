@@ -6,7 +6,53 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Search, Mail, Phone, ChevronDown, ChevronRight, Users, Inbox, Repeat, Download } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Search, Mail, Phone, ChevronDown, ChevronRight, Users, Inbox, Repeat, Download, CalendarIcon, X } from "lucide-react";
+import type { DateRange } from "react-day-picker";
+
+type PresetKey = "today" | "yesterday" | "7d" | "30d" | "month" | "lastMonth" | "lastYear" | "max";
+const PRESETS: { key: PresetKey; label: string }[] = [
+  { key: "today", label: "Aujourd'hui" },
+  { key: "yesterday", label: "Hier" },
+  { key: "7d", label: "7 jours" },
+  { key: "30d", label: "30 jours" },
+  { key: "month", label: "Ce mois" },
+  { key: "lastMonth", label: "Mois dernier" },
+  { key: "lastYear", label: "L'an dernier" },
+  { key: "max", label: "Maximum" },
+];
+
+function computePreset(key: PresetKey): DateRange {
+  const now = new Date();
+  const start = new Date(now); start.setHours(0, 0, 0, 0);
+  const end = new Date(now); end.setHours(23, 59, 59, 999);
+  switch (key) {
+    case "today": return { from: start, to: end };
+    case "yesterday": {
+      const s = new Date(start); s.setDate(s.getDate() - 1);
+      const e = new Date(end); e.setDate(e.getDate() - 1);
+      return { from: s, to: e };
+    }
+    case "7d": { const s = new Date(start); s.setDate(s.getDate() - 6); return { from: s, to: end }; }
+    case "30d": { const s = new Date(start); s.setDate(s.getDate() - 29); return { from: s, to: end }; }
+    case "month": return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: end };
+    case "lastMonth": {
+      const s = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const e = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+      return { from: s, to: e };
+    }
+    case "lastYear": {
+      const s = new Date(now.getFullYear() - 1, 0, 1);
+      const e = new Date(now.getFullYear() - 1, 11, 31, 23, 59, 59, 999);
+      return { from: s, to: e };
+    }
+    case "max": return { from: undefined, to: undefined };
+  }
+}
 
 type UnifiedLead = {
   id: string;
@@ -51,6 +97,15 @@ function normalizeKey(email: string | null, phone: string | null): string | null
 export default function AllLeadsPanel() {
   const [search, setSearch] = useState("");
   const [openKeys, setOpenKeys] = useState<Set<string>>(new Set());
+  const [preset, setPreset] = useState<PresetKey>("30d");
+  const [range, setRange] = useState<DateRange>(() => computePreset("30d"));
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  const applyPreset = (k: PresetKey) => { setPreset(k); setRange(computePreset(k)); };
+  const rangeLabel = range.from || range.to
+    ? `${range.from ? format(range.from, "yyyy-MM-dd") : "…"} → ${range.to ? format(range.to, "yyyy-MM-dd") : "…"}`
+    : "Toutes les dates";
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["all-leads-unified"],
@@ -104,7 +159,16 @@ export default function AllLeadsPanel() {
     refetchInterval: 15000,
   });
 
-  const leads = data || [];
+  const allLeads = data || [];
+  const leads = useMemo(() => {
+    if (!range.from && !range.to) return allLeads;
+    const fromT = range.from ? new Date(range.from).setHours(0, 0, 0, 0) : -Infinity;
+    const toT = range.to ? new Date(range.to).setHours(23, 59, 59, 999) : Infinity;
+    return allLeads.filter((l) => {
+      const t = new Date(l.submittedAt).getTime();
+      return t >= fromT && t <= toT;
+    });
+  }, [allLeads, range]);
 
   // Group by contact key
   const grouped = useMemo(() => {
@@ -211,15 +275,73 @@ export default function AllLeadsPanel() {
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Rechercher par email, téléphone, nom ou formulaire..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 bg-background"
-          />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "justify-start text-left font-normal gap-2 sm:w-auto",
+                  !range.from && !range.to && "text-muted-foreground",
+                )}
+              >
+                <CalendarIcon className="h-4 w-4" />
+                <span className="truncate">{rangeLabel}</span>
+                <ChevronDown className="h-3.5 w-3.5 opacity-60 ml-1" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <div className="flex">
+                <div className="flex flex-col border-r p-2 min-w-[140px]">
+                  {PRESETS.map((p) => (
+                    <button
+                      key={p.key}
+                      onClick={() => applyPreset(p.key)}
+                      className={cn(
+                        "text-left text-sm px-3 py-2 rounded-md hover:bg-muted transition-colors",
+                        preset === p.key && "bg-muted font-medium",
+                      )}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="p-2">
+                  <Calendar
+                    mode="range"
+                    selected={range}
+                    onSelect={(r) => { if (r) setRange(r); }}
+                    numberOfMonths={1}
+                    locale={fr}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                  <div className="flex items-center justify-between px-2 pb-1">
+                    <button
+                      onClick={() => { setRange({ from: undefined, to: undefined }); setPreset("max"); }}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Effacer
+                    </button>
+                    <Button size="sm" variant="ghost" onClick={() => setPickerOpen(false)} className="h-7">
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher par email, téléphone, nom ou formulaire..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 bg-background"
+            />
+          </div>
         </div>
+
 
         <div className="max-h-[520px] overflow-y-auto rounded-md border bg-background">
           {isLoading ? (
