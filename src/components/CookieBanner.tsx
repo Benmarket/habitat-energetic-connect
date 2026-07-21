@@ -103,12 +103,14 @@ const CookieBanner = () => {
   const handleAccept = () => {
     localStorage.setItem("cookies_accepted", "true");
     localStorage.removeItem("cookies_refused");
+    writeCookieConsent("accepted");
     setIsVisible(false);
     setShowRefuseBanner(false);
   };
 
   const handleRefuse = () => {
     localStorage.setItem("cookies_refused", "true");
+    writeCookieConsent("refused");
     setIsVisible(false);
     if (settings.refuseBanner.enabled) {
       setShowRefuseBanner(true);
