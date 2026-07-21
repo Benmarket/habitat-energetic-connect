@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { writeCookieConsent } from "@/lib/consent";
 
 interface CookieBannerSettings {
   enabled: boolean;
@@ -102,12 +103,14 @@ const CookieBanner = () => {
   const handleAccept = () => {
     localStorage.setItem("cookies_accepted", "true");
     localStorage.removeItem("cookies_refused");
+    writeCookieConsent("accepted");
     setIsVisible(false);
     setShowRefuseBanner(false);
   };
 
   const handleRefuse = () => {
     localStorage.setItem("cookies_refused", "true");
+    writeCookieConsent("refused");
     setIsVisible(false);
     if (settings.refuseBanner.enabled) {
       setShowRefuseBanner(true);

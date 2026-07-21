@@ -231,6 +231,7 @@ const LandingSolaireContent = () => {
     setIsSubmitting(true);
     try {
       const { getAttribution } = await import("@/lib/attribution");
+      const { getConsentPayload } = await import("@/lib/consent");
       const attribution = getAttribution();
       // Insert into leads table
       const { error: leadError } = await supabase.from("leads").insert({
@@ -246,6 +247,7 @@ const LandingSolaireContent = () => {
         notes: `Landing solaire | Chauffage: ${wizardData.chauffage} | Surface: ${wizardData.surface}`,
         status: "new",
         attribution,
+        consent: getConsentPayload(),
       });
       if (leadError) throw leadError;
 
@@ -271,6 +273,7 @@ const LandingSolaireContent = () => {
         },
         status: "new",
         attribution,
+        consent: getConsentPayload(),
       });
 
 

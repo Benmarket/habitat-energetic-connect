@@ -11,7 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Search, Mail, Phone, ChevronDown, ChevronRight, Users, Inbox, Repeat, Download, CalendarIcon, X, MapPin, Globe, BarChart3 } from "lucide-react";
+import { Search, Mail, Phone, ChevronDown, ChevronRight, Users, Inbox, Repeat, Download, CalendarIcon, X, MapPin, Globe, BarChart3, ShieldCheck, Cookie } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, Legend, CartesianGrid } from "recharts";
 
@@ -97,6 +97,14 @@ type Attribution = {
   fbclid?: string | null;
 } | null;
 
+type ConsentInfo = {
+  form_rgpd?: boolean;
+  cookies?: "accepted" | "refused" | "unknown";
+  cookies_at?: string | null;
+  timestamp?: string;
+  version?: string;
+} | null;
+
 type UnifiedLead = {
   id: string;
   formId: string | null;
@@ -110,6 +118,7 @@ type UnifiedLead = {
   region: RegionInfo;
   data: Record<string, any>;
   attribution?: Attribution;
+  consent?: ConsentInfo;
 };
 
 
@@ -170,8 +179,8 @@ export default function AllLeadsPanel() {
     queryFn: async () => {
       const [forms, subs, news] = await Promise.all([
         supabase.from("form_configurations").select("id, name, form_identifier"),
-        supabase.from("form_submissions").select("id, form_id, data, submitted_at, attribution").order("submitted_at", { ascending: false }).limit(2000),
-        supabase.from("newsletter_subscribers").select("id, email, source, subscribed_at, created_at, attribution").order("subscribed_at", { ascending: false }).limit(2000),
+        supabase.from("form_submissions").select("id, form_id, data, submitted_at, attribution, consent").order("submitted_at", { ascending: false }).limit(2000),
+        supabase.from("newsletter_subscribers").select("id, email, source, subscribed_at, created_at, attribution, consent").order("subscribed_at", { ascending: false }).limit(2000),
       ]);
       if (forms.error) throw forms.error;
       if (subs.error) throw subs.error;
@@ -196,6 +205,7 @@ export default function AllLeadsPanel() {
           region: detectRegion(postal),
           data: s.data || {},
           attribution: s.attribution || null,
+          consent: s.consent || null,
         });
       });
 
@@ -214,6 +224,7 @@ export default function AllLeadsPanel() {
             region: REGION_META.inconnu,
             data: { email: n.email, source: n.source },
             attribution: n.attribution || null,
+            consent: n.consent || null,
           });
         });
       }
@@ -690,6 +701,46 @@ export default function AllLeadsPanel() {
                                     {l.region.label}
                                     {l.postalCode && <span className="opacity-70">· {l.postalCode}</span>}
                                   </Badge>
+                                  {l.consent && (
+                                    <>
+                                      <Badge
+                                        variant="outline"
+                                        className={cn(
+                                          "h-5 text-[10px] gap-1",
+                                          l.consent.form_rgpd
+                                            ? "border-emerald-500/50 text-emerald-700 dark:text-emerald-400"
+                                            : "border-amber-500/50 text-amber-700 dark:text-amber-500",
+                                        )}
+                                        title={l.consent.form_rgpd ? "Consentement RGPD coché lors de la soumission" : "Consentement RGPD non coché"}
+                                      >
+                                        <ShieldCheck className="h-3 w-3" />
+                                        RGPD {l.consent.form_rgpd ? "✓" : "✗"}
+                                      </Badge>
+                                      <Badge
+                                        variant="outline"
+                                        className={cn(
+                                          "h-5 text-[10px] gap-1",
+                                          l.consent.cookies === "accepted"
+                                            ? "border-emerald-500/50 text-emerald-700 dark:text-emerald-400"
+                                            : l.consent.cookies === "refused"
+                                              ? "border-red-500/50 text-red-700 dark:text-red-400"
+                                              : "border-muted-foreground/40 text-muted-foreground",
+                                        )}
+                                        title={
+                                          l.consent.cookies_at
+                                            ? `Cookies: ${l.consent.cookies} (${new Date(l.consent.cookies_at).toLocaleString("fr-FR")})`
+                                            : `Cookies: ${l.consent.cookies ?? "inconnu"}`
+                                        }
+                                      >
+                                        <Cookie className="h-3 w-3" />
+                                        {l.consent.cookies === "accepted"
+                                          ? "Cookies ✓"
+                                          : l.consent.cookies === "refused"
+                                            ? "Cookies ✗"
+                                            : "Cookies ?"}
+                                      </Badge>
+                                    </>
+                                  )}
                                 </div>
                                 <span className="text-muted-foreground">{new Date(l.submittedAt).toLocaleString("fr-FR")}</span>
                               </div>

@@ -175,6 +175,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
     setIsSubmitting(true);
     try {
       const { getAttribution } = await import("@/lib/attribution");
+      const { getConsentPayload } = await import("@/lib/consent");
       const attribution = getAttribution();
       await supabase.from("leads").insert({
         first_name: wizardData.firstName, last_name: wizardData.lastName,
@@ -184,6 +185,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
         notes: `Landing solaire ${isRegional ? regionName : "nationale"} | Chauffage: ${wizardData.chauffage} | Surface: ${wizardData.surface}`,
         status: "new",
         attribution,
+        consent: getConsentPayload(),
       });
       // Meta Pixel — événement Lead (conversion)
       import("@/lib/metaPixel").then(({ trackMetaLead }) =>
@@ -198,6 +200,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
         data: { ...wizardData, region: regionCode },
         status: "new",
         attribution,
+        consent: getConsentPayload(),
       });
 
 

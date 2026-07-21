@@ -95,6 +95,7 @@ const ContactSection = () => {
 
       // Insert into leads table
       const { getAttribution } = await import("@/lib/attribution");
+      const { getConsentPayload } = await import("@/lib/consent");
       const leadData: any = {
         first_name: firstName,
         last_name: lastName,
@@ -107,6 +108,7 @@ const ContactSection = () => {
         notes: `Sujet: ${formData.subject}\n\n${accountType === "professionnel" && formData.companyName ? `Entreprise: ${formData.companyName}\n\n` : ""}Message: ${formData.message}`,
         status: "new",
         attribution: getAttribution(),
+          consent: getConsentPayload(),
       };
 
       const { error } = await supabase.from("leads").insert(leadData);
