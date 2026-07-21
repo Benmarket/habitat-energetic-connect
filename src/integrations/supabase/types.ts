@@ -981,6 +981,7 @@ export type Database = {
       form_submissions: {
         Row: {
           attribution: Json | null
+          consent: Json | null
           data: Json
           form_id: string
           id: string
@@ -993,6 +994,7 @@ export type Database = {
         }
         Insert: {
           attribution?: Json | null
+          consent?: Json | null
           data: Json
           form_id: string
           id?: string
@@ -1005,6 +1007,7 @@ export type Database = {
         }
         Update: {
           attribution?: Json | null
+          consent?: Json | null
           data?: Json
           form_id?: string
           id?: string
@@ -1376,6 +1379,7 @@ export type Database = {
           address: string
           attribution: Json | null
           city: string
+          consent: Json | null
           created_at: string
           email: string
           first_name: string
@@ -1396,6 +1400,7 @@ export type Database = {
           address: string
           attribution?: Json | null
           city: string
+          consent?: Json | null
           created_at?: string
           email: string
           first_name: string
@@ -1416,6 +1421,7 @@ export type Database = {
           address?: string
           attribution?: Json | null
           city?: string
+          consent?: Json | null
           created_at?: string
           email?: string
           first_name?: string
@@ -1586,6 +1592,7 @@ export type Database = {
       newsletter_subscribers: {
         Row: {
           attribution: Json | null
+          consent: Json | null
           created_at: string
           email: string
           id: string
@@ -1597,6 +1604,7 @@ export type Database = {
         }
         Insert: {
           attribution?: Json | null
+          consent?: Json | null
           created_at?: string
           email: string
           id?: string
@@ -1608,6 +1616,7 @@ export type Database = {
         }
         Update: {
           attribution?: Json | null
+          consent?: Json | null
           created_at?: string
           email?: string
           id?: string
