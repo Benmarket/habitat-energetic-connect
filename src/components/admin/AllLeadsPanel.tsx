@@ -11,7 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Search, Mail, Phone, ChevronDown, ChevronRight, Users, Inbox, Repeat, Download, CalendarIcon, X } from "lucide-react";
+import { Search, Mail, Phone, ChevronDown, ChevronRight, Users, Inbox, Repeat, Download, CalendarIcon, X, MapPin, Globe } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 
 type PresetKey = "today" | "yesterday" | "7d" | "30d" | "month" | "lastMonth" | "lastYear" | "max";
@@ -54,6 +54,37 @@ function computePreset(key: PresetKey): DateRange {
   }
 }
 
+type RegionInfo = { code: string; label: string; emoji: string };
+
+const REGION_META: Record<string, RegionInfo> = {
+  metropole: { code: "metropole", label: "France métropolitaine", emoji: "🇫🇷" },
+  corse: { code: "corse", label: "Corse", emoji: "🏝️" },
+  guadeloupe: { code: "guadeloupe", label: "Guadeloupe", emoji: "🌴" },
+  martinique: { code: "martinique", label: "Martinique", emoji: "🌺" },
+  guyane: { code: "guyane", label: "Guyane", emoji: "🌳" },
+  reunion: { code: "reunion", label: "La Réunion", emoji: "🌋" },
+  mayotte: { code: "mayotte", label: "Mayotte", emoji: "🐢" },
+  autre: { code: "autre", label: "Autres / Outre-mer", emoji: "🌐" },
+  inconnu: { code: "inconnu", label: "Région inconnue", emoji: "❓" },
+};
+
+function detectRegion(postal: string | null): RegionInfo {
+  if (!postal) return REGION_META.inconnu;
+  const cp = String(postal).replace(/\s/g, "").slice(0, 5);
+  if (/^(2[ab]|20)/i.test(cp)) return REGION_META.corse;
+  if (cp.startsWith("971")) return REGION_META.guadeloupe;
+  if (cp.startsWith("972")) return REGION_META.martinique;
+  if (cp.startsWith("973")) return REGION_META.guyane;
+  if (cp.startsWith("974")) return REGION_META.reunion;
+  if (cp.startsWith("976")) return REGION_META.mayotte;
+  if (/^\d{5}$/.test(cp)) {
+    const n = parseInt(cp, 10);
+    if (n >= 1000 && n <= 95999) return REGION_META.metropole;
+    return REGION_META.autre;
+  }
+  return REGION_META.inconnu;
+}
+
 type UnifiedLead = {
   id: string;
   formId: string | null;
@@ -63,10 +94,21 @@ type UnifiedLead = {
   email: string | null;
   phone: string | null;
   name: string | null;
+  postalCode: string | null;
+  region: RegionInfo;
   data: Record<string, any>;
 };
 
-// Extract email/phone/name from arbitrary submission data payloads
+function extractPostal(data: any): string | null {
+  if (!data || typeof data !== "object") return null;
+  const raw =
+    data.postalCode || data.postal_code || data.codePostal || data.code_postal ||
+    data.cp || data.zip || data.zipCode || data.zip_code || null;
+  if (!raw) return null;
+  const s = String(raw).trim();
+  return s || null;
+}
+
 function extractContact(data: any): { email: string | null; phone: string | null; name: string | null } {
   if (!data || typeof data !== "object") return { email: null, phone: null, name: null };
   const email =
@@ -124,6 +166,7 @@ export default function AllLeadsPanel() {
       (subs.data || []).forEach((s: any) => {
         const form = formMap.get(s.form_id);
         const c = extractContact(s.data);
+        const postal = extractPostal(s.data);
         leads.push({
           id: s.id,
           formId: s.form_id,
@@ -133,6 +176,8 @@ export default function AllLeadsPanel() {
           email: c.email,
           phone: c.phone,
           name: c.name,
+          postalCode: postal,
+          region: detectRegion(postal),
           data: s.data || {},
         });
       });
@@ -148,6 +193,8 @@ export default function AllLeadsPanel() {
             email: n.email ? String(n.email).toLowerCase().trim() : null,
             phone: null,
             name: null,
+            postalCode: null,
+            region: REGION_META.inconnu,
             data: { email: n.email, source: n.source },
           });
         });
@@ -170,6 +217,27 @@ export default function AllLeadsPanel() {
     });
   }, [allLeads, range]);
 
+  // Tracking sessions — used to backfill region + traffic source per lead
+  const { data: trackingByEmail } = useQuery({
+    queryKey: ["all-leads-tracking"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("simulator_tracking_sessions")
+        .select("email, referrer_source, referrer_url, utm_source, utm_medium, utm_campaign, landing_url, ip_hash, created_at")
+        .not("email", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(5000);
+      if (error) return new Map<string, any>();
+      const map = new Map<string, any>();
+      (data || []).forEach((r: any) => {
+        const key = String(r.email || "").toLowerCase().trim();
+        if (key && !map.has(key)) map.set(key, r);
+      });
+      return map;
+    },
+    refetchInterval: 30000,
+  });
+
   // Group by contact key
   const grouped = useMemo(() => {
     const map = new Map<string, { key: string; email: string | null; phone: string | null; name: string | null; leads: UnifiedLead[] }>();
@@ -189,13 +257,31 @@ export default function AllLeadsPanel() {
       if (!g.email && l.email) g.email = l.email;
       if (!g.phone && l.phone) g.phone = l.phone;
     });
-    const groups = Array.from(map.values()).map((g) => ({
-      ...g,
-      lastAt: g.leads[0]?.submittedAt,
-    }));
+    const groups = Array.from(map.values()).map((g) => {
+      // Region: use first submission with a postal code, else inconnu
+      const withPostal = g.leads.find((l) => l.postalCode);
+      const region: RegionInfo = withPostal?.region || REGION_META.inconnu;
+      const tracking = g.email ? trackingByEmail?.get(g.email) : null;
+      const trafficSource: string | null =
+        tracking?.utm_source ||
+        tracking?.referrer_source ||
+        (tracking?.referrer_url ? new URL(tracking.referrer_url).hostname.replace(/^www\./, "") : null) ||
+        null;
+      return {
+        ...g,
+        lastAt: g.leads[0]?.submittedAt,
+        region,
+        postalCode: withPostal?.postalCode || null,
+        trafficSource,
+        landingUrl: tracking?.landing_url || null,
+        utmMedium: tracking?.utm_medium || null,
+        utmCampaign: tracking?.utm_campaign || null,
+        referrerUrl: tracking?.referrer_url || null,
+      };
+    });
     groups.sort((a, b) => new Date(b.lastAt!).getTime() - new Date(a.lastAt!).getTime());
     return { groups, orphans };
-  }, [leads]);
+  }, [leads, trackingByEmail]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -370,6 +456,26 @@ export default function AllLeadsPanel() {
                                 </Badge>
                               )}
                               <Badge variant="outline" className="h-5 text-xs">{last.formName}</Badge>
+                              <Badge
+                                variant="secondary"
+                                className="h-5 text-xs gap-1"
+                                title={g.postalCode ? `Code postal: ${g.postalCode}` : "Aucun code postal renseigné"}
+                              >
+                                <span aria-hidden>{g.region.emoji}</span>
+                                <MapPin className="h-3 w-3" />
+                                {g.region.label}
+                                {g.postalCode && <span className="opacity-70 ml-1">({g.postalCode})</span>}
+                              </Badge>
+                              {g.trafficSource && (
+                                <Badge
+                                  variant="outline"
+                                  className="h-5 text-xs gap-1 border-primary/40 text-primary"
+                                  title={[g.landingUrl && `Landing: ${g.landingUrl}`, g.referrerUrl && `Referrer: ${g.referrerUrl}`, g.utmMedium && `Medium: ${g.utmMedium}`, g.utmCampaign && `Campagne: ${g.utmCampaign}`].filter(Boolean).join("\n") || undefined}
+                                >
+                                  <Globe className="h-3 w-3" />
+                                  {g.trafficSource}
+                                </Badge>
+                              )}
                             </div>
                             <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5 flex-wrap">
                               {g.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{g.email}</span>}
@@ -384,9 +490,14 @@ export default function AllLeadsPanel() {
                           {g.leads.map((l) => (
                             <div key={l.id} className="rounded-md border bg-muted/30 p-2.5 text-xs">
                               <div className="flex items-center justify-between gap-2 mb-1">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 flex-wrap">
                                   <Badge variant="secondary" className="h-5">{l.formName}</Badge>
                                   <span className="text-muted-foreground font-mono">{l.formIdentifier}</span>
+                                  <Badge variant="outline" className="h-5 text-[10px] gap-1">
+                                    <span aria-hidden>{l.region.emoji}</span>
+                                    {l.region.label}
+                                    {l.postalCode && <span className="opacity-70">· {l.postalCode}</span>}
+                                  </Badge>
                                 </div>
                                 <span className="text-muted-foreground">{new Date(l.submittedAt).toLocaleString("fr-FR")}</span>
                               </div>
