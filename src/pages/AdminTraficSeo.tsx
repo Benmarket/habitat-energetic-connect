@@ -73,8 +73,6 @@ const AdminTraficSeo = () => {
   });
   const [myVisitorIds, setMyVisitorIds] = useState<Set<string>>(new Set());
   const { user } = useAuth();
-  const [rows, setRows] = useState<PageViewRow[]>([]);
-  const [leadsCount, setLeadsCount] = useState<number>(0);
   const { liveCount } = useOnlinePresence();
 
   useEffect(() => {
