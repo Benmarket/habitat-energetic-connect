@@ -65,6 +65,8 @@ export default function DesinscriptionRegistre() {
         .maybeSingle();
       if (formError || !formConfig) throw formError ?? new Error("Formulaire introuvable");
 
+      const { getAttribution } = await import("@/lib/attribution");
+      const { getConsentPayload } = await import("@/lib/consent");
       const { error } = await supabase.from("form_submissions").insert({
         form_id: formConfig.id,
         data: {
@@ -74,6 +76,8 @@ export default function DesinscriptionRegistre() {
           _submitted_at: new Date().toISOString(),
           _ref_page: window.location.pathname,
         },
+        attribution: getAttribution(),
+        consent: getConsentPayload(),
       });
       if (error) throw error;
 
