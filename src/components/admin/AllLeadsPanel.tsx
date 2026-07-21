@@ -275,15 +275,73 @@ export default function AllLeadsPanel() {
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Rechercher par email, téléphone, nom ou formulaire..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 bg-background"
-          />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "justify-start text-left font-normal gap-2 sm:w-auto",
+                  !range.from && !range.to && "text-muted-foreground",
+                )}
+              >
+                <CalendarIcon className="h-4 w-4" />
+                <span className="truncate">{rangeLabel}</span>
+                <ChevronDown className="h-3.5 w-3.5 opacity-60 ml-1" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <div className="flex">
+                <div className="flex flex-col border-r p-2 min-w-[140px]">
+                  {PRESETS.map((p) => (
+                    <button
+                      key={p.key}
+                      onClick={() => applyPreset(p.key)}
+                      className={cn(
+                        "text-left text-sm px-3 py-2 rounded-md hover:bg-muted transition-colors",
+                        preset === p.key && "bg-muted font-medium",
+                      )}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="p-2">
+                  <Calendar
+                    mode="range"
+                    selected={range}
+                    onSelect={(r) => { if (r) setRange(r); }}
+                    numberOfMonths={1}
+                    locale={fr}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                  <div className="flex items-center justify-between px-2 pb-1">
+                    <button
+                      onClick={() => { setRange({ from: undefined, to: undefined }); setPreset("max"); }}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Effacer
+                    </button>
+                    <Button size="sm" variant="ghost" onClick={() => setPickerOpen(false)} className="h-7">
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher par email, téléphone, nom ou formulaire..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 bg-background"
+            />
+          </div>
         </div>
+
 
         <div className="max-h-[520px] overflow-y-auto rounded-md border bg-background">
           {isLoading ? (
