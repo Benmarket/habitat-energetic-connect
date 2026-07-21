@@ -143,6 +143,8 @@ export default function AllLeadsPanel() {
   const [preset, setPreset] = useState<PresetKey>("30d");
   const [range, setRange] = useState<DateRange>(() => computePreset("30d"));
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [regionFilter, setRegionFilter] = useState<Set<string>>(new Set());
+  const [chartMode, setChartMode] = useState<"total" | "region">("region");
 
   const applyPreset = (k: PresetKey) => { setPreset(k); setRange(computePreset(k)); };
   const rangeLabel = range.from || range.to
