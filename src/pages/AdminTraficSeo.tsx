@@ -7,7 +7,10 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, ArrowLeft, Eye, Users, Clock, MousePointerClick, Smartphone, Monitor, Tablet, Globe, TrendingUp } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Loader2, ArrowLeft, Eye, Users, Clock, MousePointerClick, Smartphone, Monitor, Tablet, Globe, TrendingUp, UserX } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import {
   LineChart,
   Line,
@@ -64,6 +67,12 @@ const AdminTraficSeo = () => {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<PageViewRow[]>([]);
   const [leadsCount, setLeadsCount] = useState<number>(0);
+  const [excludeMe, setExcludeMe] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("admin_trafic_exclude_me") !== "0";
+  });
+  const [myVisitorIds, setMyVisitorIds] = useState<Set<string>>(new Set());
+  const { user } = useAuth();
   const { liveCount } = useOnlinePresence();
 
   useEffect(() => {
@@ -92,17 +101,47 @@ const AdminTraficSeo = () => {
     load();
   }, [range]);
 
+  // Load visitor_ids linked to my user_id so we can exclude anonymous sessions too
+  useEffect(() => {
+    if (!user?.id) { setMyVisitorIds(new Set()); return; }
+    supabase
+      .from("page_views")
+      .select("visitor_id")
+      .eq("user_id", user.id)
+      .not("visitor_id", "is", null)
+      .limit(5000)
+      .then(({ data }) => {
+        const s = new Set<string>();
+        (data || []).forEach((r: any) => r.visitor_id && s.add(r.visitor_id));
+        setMyVisitorIds(s);
+      });
+  }, [user?.id]);
+
+  useEffect(() => {
+    localStorage.setItem("admin_trafic_exclude_me", excludeMe ? "1" : "0");
+  }, [excludeMe]);
+
+  const filteredRows = useMemo(() => {
+    if (!excludeMe || !user?.id) return rows;
+    return rows.filter((r) => {
+      if (r.user_id === user.id) return false;
+      if (r.visitor_id && myVisitorIds.has(r.visitor_id)) return false;
+      return true;
+    });
+  }, [rows, excludeMe, user?.id, myVisitorIds]);
+
+
   const kpi = useMemo(() => {
-    const uniques = new Set(rows.map((r) => r.visitor_id).filter(Boolean)).size;
-    const durations = rows.map((r) => r.duration_seconds || 0).filter((v) => v > 0);
+    const uniques = new Set(filteredRows.map((r) => r.visitor_id).filter(Boolean)).size;
+    const durations = filteredRows.map((r) => r.duration_seconds || 0).filter((v) => v > 0);
     const avgDuration = durations.length ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
     return {
-      views: rows.length,
+      views: filteredRows.length,
       uniques,
       avgDuration,
       conversion: uniques > 0 ? (leadsCount / uniques) * 100 : 0,
     };
-  }, [rows, leadsCount]);
+  }, [filteredRows, leadsCount]);
 
   const dailySeries = useMemo(() => {
     const days = parseInt(range, 10);
@@ -112,7 +151,7 @@ const AdminTraficSeo = () => {
       d.setDate(d.getDate() - i);
       map.set(d.toISOString().slice(0, 10), { views: 0, uniques: new Set() });
     }
-    rows.forEach((r) => {
+    filteredRows.forEach((r) => {
       const key = r.created_at.slice(0, 10);
       const bucket = map.get(key);
       if (!bucket) return;
@@ -124,11 +163,11 @@ const AdminTraficSeo = () => {
       views: v.views,
       visiteurs: v.uniques.size,
     }));
-  }, [rows, range]);
+  }, [filteredRows, range]);
 
   const topPages = useMemo(() => {
     const map = new Map<string, { views: number; durSum: number; durN: number }>();
-    rows.forEach((r) => {
+    filteredRows.forEach((r) => {
       const cur = map.get(r.page_url) || { views: 0, durSum: 0, durN: 0 };
       cur.views += 1;
       if (r.duration_seconds && r.duration_seconds > 0) {
@@ -141,11 +180,11 @@ const AdminTraficSeo = () => {
       .map(([url, v]) => ({ url, views: v.views, avg: v.durN ? v.durSum / v.durN : 0 }))
       .sort((a, b) => b.views - a.views)
       .slice(0, 10);
-  }, [rows]);
+  }, [filteredRows]);
 
   const sources = useMemo(() => {
     const map = new Map<string, number>();
-    rows.forEach((r) => {
+    filteredRows.forEach((r) => {
       const label = r.utm_source ? `utm:${r.utm_source}` : referrerLabel(r.referrer);
       map.set(label, (map.get(label) || 0) + 1);
     });
@@ -153,21 +192,21 @@ const AdminTraficSeo = () => {
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 8);
-  }, [rows]);
+  }, [filteredRows]);
 
   const devices = useMemo(() => {
     const map = new Map<string, number>();
-    rows.forEach((r) => {
+    filteredRows.forEach((r) => {
       const key = r.device_type || "inconnu";
       map.set(key, (map.get(key) || 0) + 1);
     });
-    const total = rows.length || 1;
+    const total = filteredRows.length || 1;
     return Array.from(map.entries()).map(([name, value]) => ({
       name,
       value,
       pct: Math.round((value / total) * 100),
     }));
-  }, [rows]);
+  }, [filteredRows]);
 
   const deviceIcon = (n: string) => {
     if (n === "mobile") return <Smartphone className="w-4 h-4" />;
@@ -203,7 +242,14 @@ const AdminTraficSeo = () => {
                 Données réelles de fréquentation, pages populaires, sources d'acquisition et santé SEO.
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border bg-card">
+                <UserX className="w-4 h-4 text-muted-foreground" />
+                <Label htmlFor="exclude-me" className="text-sm cursor-pointer whitespace-nowrap">
+                  Exclure ma navigation
+                </Label>
+                <Switch id="exclude-me" checked={excludeMe} onCheckedChange={setExcludeMe} />
+              </div>
               <Select value={range} onValueChange={(v) => setRange(v as Range)}>
                 <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
