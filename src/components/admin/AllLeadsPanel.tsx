@@ -456,6 +456,26 @@ export default function AllLeadsPanel() {
                                 </Badge>
                               )}
                               <Badge variant="outline" className="h-5 text-xs">{last.formName}</Badge>
+                              <Badge
+                                variant="secondary"
+                                className="h-5 text-xs gap-1"
+                                title={g.postalCode ? `Code postal: ${g.postalCode}` : "Aucun code postal renseigné"}
+                              >
+                                <span aria-hidden>{g.region.emoji}</span>
+                                <MapPin className="h-3 w-3" />
+                                {g.region.label}
+                                {g.postalCode && <span className="opacity-70 ml-1">({g.postalCode})</span>}
+                              </Badge>
+                              {g.trafficSource && (
+                                <Badge
+                                  variant="outline"
+                                  className="h-5 text-xs gap-1 border-primary/40 text-primary"
+                                  title={[g.landingUrl && `Landing: ${g.landingUrl}`, g.referrerUrl && `Referrer: ${g.referrerUrl}`, g.utmMedium && `Medium: ${g.utmMedium}`, g.utmCampaign && `Campagne: ${g.utmCampaign}`].filter(Boolean).join("\n") || undefined}
+                                >
+                                  <Globe className="h-3 w-3" />
+                                  {g.trafficSource}
+                                </Badge>
+                              )}
                             </div>
                             <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5 flex-wrap">
                               {g.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{g.email}</span>}
@@ -470,9 +490,14 @@ export default function AllLeadsPanel() {
                           {g.leads.map((l) => (
                             <div key={l.id} className="rounded-md border bg-muted/30 p-2.5 text-xs">
                               <div className="flex items-center justify-between gap-2 mb-1">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 flex-wrap">
                                   <Badge variant="secondary" className="h-5">{l.formName}</Badge>
                                   <span className="text-muted-foreground font-mono">{l.formIdentifier}</span>
+                                  <Badge variant="outline" className="h-5 text-[10px] gap-1">
+                                    <span aria-hidden>{l.region.emoji}</span>
+                                    {l.region.label}
+                                    {l.postalCode && <span className="opacity-70">· {l.postalCode}</span>}
+                                  </Badge>
                                 </div>
                                 <span className="text-muted-foreground">{new Date(l.submittedAt).toLocaleString("fr-FR")}</span>
                               </div>
