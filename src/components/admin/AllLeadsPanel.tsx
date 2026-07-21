@@ -97,6 +97,15 @@ function normalizeKey(email: string | null, phone: string | null): string | null
 export default function AllLeadsPanel() {
   const [search, setSearch] = useState("");
   const [openKeys, setOpenKeys] = useState<Set<string>>(new Set());
+  const [preset, setPreset] = useState<PresetKey>("30d");
+  const [range, setRange] = useState<DateRange>(() => computePreset("30d"));
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  const applyPreset = (k: PresetKey) => { setPreset(k); setRange(computePreset(k)); };
+  const rangeLabel = range.from || range.to
+    ? `${range.from ? format(range.from, "yyyy-MM-dd") : "…"} → ${range.to ? format(range.to, "yyyy-MM-dd") : "…"}`
+    : "Toutes les dates";
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["all-leads-unified"],
