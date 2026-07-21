@@ -11,8 +11,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Search, Mail, Phone, ChevronDown, ChevronRight, Users, Inbox, Repeat, Download, CalendarIcon, X, MapPin, Globe } from "lucide-react";
+import { Search, Mail, Phone, ChevronDown, ChevronRight, Users, Inbox, Repeat, Download, CalendarIcon, X, MapPin, Globe, BarChart3 } from "lucide-react";
 import type { DateRange } from "react-day-picker";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, Legend, CartesianGrid } from "recharts";
 
 type PresetKey = "today" | "yesterday" | "7d" | "30d" | "month" | "lastMonth" | "lastYear" | "max";
 const PRESETS: { key: PresetKey; label: string }[] = [
