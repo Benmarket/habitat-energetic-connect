@@ -288,8 +288,9 @@ export default function AllLeadsPanel() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return grouped.groups;
     return grouped.groups.filter((g) => {
+      if (regionFilter.size > 0 && !regionFilter.has(g.region.code)) return false;
+      if (!q) return true;
       return (
         g.email?.toLowerCase().includes(q) ||
         g.phone?.toLowerCase().includes(q) ||
@@ -297,7 +298,68 @@ export default function AllLeadsPanel() {
         g.leads.some((l) => l.formName.toLowerCase().includes(q))
       );
     });
-  }, [grouped, search]);
+  }, [grouped, search, regionFilter]);
+
+  // Chart: daily volume, optionally split by region. Uses grouped/region-filtered leads flattened.
+  const chartData = useMemo(() => {
+    const flat = filtered.flatMap((g) => g.leads.map((l) => ({ ...l, region: g.region })));
+    const byDay = new Map<string, Record<string, number>>();
+    flat.forEach((l) => {
+      const day = new Date(l.submittedAt).toISOString().slice(0, 10);
+      if (!byDay.has(day)) byDay.set(day, {});
+      const row = byDay.get(day)!;
+      const k = chartMode === "region" ? l.region.code : "total";
+      row[k] = (row[k] || 0) + 1;
+    });
+    // Build a sorted list of days spanning the range if defined
+    let start = range.from ? new Date(range.from) : null;
+    let end = range.to ? new Date(range.to) : null;
+    if (!start || !end) {
+      const days = Array.from(byDay.keys()).sort();
+      if (days.length) {
+        start = start || new Date(days[0]);
+        end = end || new Date(days[days.length - 1]);
+      }
+    }
+    const rows: any[] = [];
+    if (start && end) {
+      const cur = new Date(start); cur.setHours(0, 0, 0, 0);
+      const stop = new Date(end); stop.setHours(0, 0, 0, 0);
+      while (cur.getTime() <= stop.getTime()) {
+        const key = cur.toISOString().slice(0, 10);
+        const row: any = { day: key, label: format(cur, "dd/MM") };
+        const entries = byDay.get(key) || {};
+        Object.assign(row, entries);
+        rows.push(row);
+        cur.setDate(cur.getDate() + 1);
+      }
+    }
+    // Active region series (only those with data)
+    const activeCodes = new Set<string>();
+    byDay.forEach((row) => Object.keys(row).forEach((k) => activeCodes.add(k)));
+    return { rows, activeCodes: Array.from(activeCodes) };
+  }, [filtered, chartMode, range]);
+
+  const REGION_COLORS: Record<string, string> = {
+    metropole: "hsl(210 90% 55%)",
+    corse: "hsl(280 70% 55%)",
+    guadeloupe: "hsl(150 65% 45%)",
+    martinique: "hsl(0 75% 60%)",
+    guyane: "hsl(90 55% 45%)",
+    reunion: "hsl(25 90% 55%)",
+    mayotte: "hsl(190 70% 45%)",
+    autre: "hsl(45 90% 55%)",
+    inconnu: "hsl(220 10% 60%)",
+    total: "hsl(var(--primary))",
+  };
+
+  const toggleRegion = (code: string) => {
+    setRegionFilter((prev) => {
+      const n = new Set(prev);
+      n.has(code) ? n.delete(code) : n.add(code);
+      return n;
+    });
+  };
 
   const stats = useMemo(() => {
     const totalLeads = leads.length;
