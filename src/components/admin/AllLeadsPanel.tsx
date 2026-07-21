@@ -325,10 +325,16 @@ export default function AllLeadsPanel() {
 
   // Chart: daily volume, optionally split by region. Uses grouped/region-filtered leads flattened.
   const chartData = useMemo(() => {
+    const toLocalDay = (d: Date) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${dd}`;
+    };
     const flat = filtered.flatMap((g) => g.leads.map((l) => ({ ...l, region: g.region })));
     const byDay = new Map<string, Record<string, number>>();
     flat.forEach((l) => {
-      const day = new Date(l.submittedAt).toISOString().slice(0, 10);
+      const day = toLocalDay(new Date(l.submittedAt));
       if (!byDay.has(day)) byDay.set(day, {});
       const row = byDay.get(day)!;
       const k = chartMode === "region" ? l.region.code : "total";
@@ -340,8 +346,8 @@ export default function AllLeadsPanel() {
     if (!start || !end) {
       const days = Array.from(byDay.keys()).sort();
       if (days.length) {
-        start = start || new Date(days[0]);
-        end = end || new Date(days[days.length - 1]);
+        start = start || new Date(days[0] + "T00:00:00");
+        end = end || new Date(days[days.length - 1] + "T00:00:00");
       }
     }
     const rows: any[] = [];
@@ -349,7 +355,7 @@ export default function AllLeadsPanel() {
       const cur = new Date(start); cur.setHours(0, 0, 0, 0);
       const stop = new Date(end); stop.setHours(0, 0, 0, 0);
       while (cur.getTime() <= stop.getTime()) {
-        const key = cur.toISOString().slice(0, 10);
+        const key = toLocalDay(cur);
         const row: any = { day: key, label: format(cur, "dd/MM") };
         const entries = byDay.get(key) || {};
         Object.assign(row, entries);
@@ -357,6 +363,7 @@ export default function AllLeadsPanel() {
         cur.setDate(cur.getDate() + 1);
       }
     }
+
     // Active region series (only those with data)
     const activeCodes = new Set<string>();
     byDay.forEach((row) => Object.keys(row).forEach((k) => activeCodes.add(k)));
