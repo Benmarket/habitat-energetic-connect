@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { writeCookieConsent } from "@/lib/consent";
 
 interface CookieBannerSettings {
   enabled: boolean;
