@@ -701,6 +701,46 @@ export default function AllLeadsPanel() {
                                     {l.region.label}
                                     {l.postalCode && <span className="opacity-70">· {l.postalCode}</span>}
                                   </Badge>
+                                  {l.consent && (
+                                    <>
+                                      <Badge
+                                        variant="outline"
+                                        className={cn(
+                                          "h-5 text-[10px] gap-1",
+                                          l.consent.form_rgpd
+                                            ? "border-emerald-500/50 text-emerald-700 dark:text-emerald-400"
+                                            : "border-amber-500/50 text-amber-700 dark:text-amber-500",
+                                        )}
+                                        title={l.consent.form_rgpd ? "Consentement RGPD coché lors de la soumission" : "Consentement RGPD non coché"}
+                                      >
+                                        <ShieldCheck className="h-3 w-3" />
+                                        RGPD {l.consent.form_rgpd ? "✓" : "✗"}
+                                      </Badge>
+                                      <Badge
+                                        variant="outline"
+                                        className={cn(
+                                          "h-5 text-[10px] gap-1",
+                                          l.consent.cookies === "accepted"
+                                            ? "border-emerald-500/50 text-emerald-700 dark:text-emerald-400"
+                                            : l.consent.cookies === "refused"
+                                              ? "border-red-500/50 text-red-700 dark:text-red-400"
+                                              : "border-muted-foreground/40 text-muted-foreground",
+                                        )}
+                                        title={
+                                          l.consent.cookies_at
+                                            ? `Cookies: ${l.consent.cookies} (${new Date(l.consent.cookies_at).toLocaleString("fr-FR")})`
+                                            : `Cookies: ${l.consent.cookies ?? "inconnu"}`
+                                        }
+                                      >
+                                        <Cookie className="h-3 w-3" />
+                                        {l.consent.cookies === "accepted"
+                                          ? "Cookies ✓"
+                                          : l.consent.cookies === "refused"
+                                            ? "Cookies ✗"
+                                            : "Cookies ?"}
+                                      </Badge>
+                                    </>
+                                  )}
                                 </div>
                                 <span className="text-muted-foreground">{new Date(l.submittedAt).toLocaleString("fr-FR")}</span>
                               </div>
