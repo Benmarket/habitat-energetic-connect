@@ -86,6 +86,17 @@ function detectRegion(postal: string | null): RegionInfo {
   return REGION_META.inconnu;
 }
 
+type Attribution = {
+  referrer_source?: string | null;
+  referrer_url?: string | null;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  landing_url?: string | null;
+  gclid?: string | null;
+  fbclid?: string | null;
+} | null;
+
 type UnifiedLead = {
   id: string;
   formId: string | null;
@@ -98,7 +109,9 @@ type UnifiedLead = {
   postalCode: string | null;
   region: RegionInfo;
   data: Record<string, any>;
+  attribution?: Attribution;
 };
+
 
 function extractPostal(data: any): string | null {
   if (!data || typeof data !== "object") return null;
@@ -157,8 +170,8 @@ export default function AllLeadsPanel() {
     queryFn: async () => {
       const [forms, subs, news] = await Promise.all([
         supabase.from("form_configurations").select("id, name, form_identifier"),
-        supabase.from("form_submissions").select("id, form_id, data, submitted_at").order("submitted_at", { ascending: false }).limit(2000),
-        supabase.from("newsletter_subscribers").select("id, email, source, subscribed_at, created_at").order("subscribed_at", { ascending: false }).limit(2000),
+        supabase.from("form_submissions").select("id, form_id, data, submitted_at, attribution").order("submitted_at", { ascending: false }).limit(2000),
+        supabase.from("newsletter_subscribers").select("id, email, source, subscribed_at, created_at, attribution").order("subscribed_at", { ascending: false }).limit(2000),
       ]);
       if (forms.error) throw forms.error;
       if (subs.error) throw subs.error;
@@ -182,6 +195,7 @@ export default function AllLeadsPanel() {
           postalCode: postal,
           region: detectRegion(postal),
           data: s.data || {},
+          attribution: s.attribution || null,
         });
       });
 
@@ -199,6 +213,7 @@ export default function AllLeadsPanel() {
             postalCode: null,
             region: REGION_META.inconnu,
             data: { email: n.email, source: n.source },
+            attribution: n.attribution || null,
           });
         });
       }
@@ -208,6 +223,7 @@ export default function AllLeadsPanel() {
     },
     refetchInterval: 15000,
   });
+
 
   const allLeads = data || [];
   const leads = useMemo(() => {
