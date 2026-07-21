@@ -6,7 +6,53 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Search, Mail, Phone, ChevronDown, ChevronRight, Users, Inbox, Repeat, Download } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Search, Mail, Phone, ChevronDown, ChevronRight, Users, Inbox, Repeat, Download, CalendarIcon, X } from "lucide-react";
+import type { DateRange } from "react-day-picker";
+
+type PresetKey = "today" | "yesterday" | "7d" | "30d" | "month" | "lastMonth" | "lastYear" | "max";
+const PRESETS: { key: PresetKey; label: string }[] = [
+  { key: "today", label: "Aujourd'hui" },
+  { key: "yesterday", label: "Hier" },
+  { key: "7d", label: "7 jours" },
+  { key: "30d", label: "30 jours" },
+  { key: "month", label: "Ce mois" },
+  { key: "lastMonth", label: "Mois dernier" },
+  { key: "lastYear", label: "L'an dernier" },
+  { key: "max", label: "Maximum" },
+];
+
+function computePreset(key: PresetKey): DateRange {
+  const now = new Date();
+  const start = new Date(now); start.setHours(0, 0, 0, 0);
+  const end = new Date(now); end.setHours(23, 59, 59, 999);
+  switch (key) {
+    case "today": return { from: start, to: end };
+    case "yesterday": {
+      const s = new Date(start); s.setDate(s.getDate() - 1);
+      const e = new Date(end); e.setDate(e.getDate() - 1);
+      return { from: s, to: e };
+    }
+    case "7d": { const s = new Date(start); s.setDate(s.getDate() - 6); return { from: s, to: end }; }
+    case "30d": { const s = new Date(start); s.setDate(s.getDate() - 29); return { from: s, to: end }; }
+    case "month": return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: end };
+    case "lastMonth": {
+      const s = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const e = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+      return { from: s, to: e };
+    }
+    case "lastYear": {
+      const s = new Date(now.getFullYear() - 1, 0, 1);
+      const e = new Date(now.getFullYear() - 1, 11, 31, 23, 59, 59, 999);
+      return { from: s, to: e };
+    }
+    case "max": return { from: undefined, to: undefined };
+  }
+}
 
 type UnifiedLead = {
   id: string;
