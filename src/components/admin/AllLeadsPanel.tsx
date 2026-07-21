@@ -493,6 +493,103 @@ export default function AllLeadsPanel() {
           </div>
         </div>
 
+        {/* Region filter chips */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-xs text-muted-foreground mr-1">Régions :</span>
+          {Object.values(REGION_META).map((r) => {
+            const active = regionFilter.has(r.code);
+            const count = grouped.groups.filter((g) => g.region.code === r.code).length;
+            if (count === 0 && !active) return null;
+            return (
+              <button
+                key={r.code}
+                onClick={() => toggleRegion(r.code)}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors",
+                  active
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background hover:bg-muted border-border",
+                )}
+              >
+                <span aria-hidden>{r.emoji}</span>
+                <span>{r.label}</span>
+                <span className={cn("ml-0.5 opacity-70", active && "opacity-100")}>({count})</span>
+              </button>
+            );
+          })}
+          {regionFilter.size > 0 && (
+            <button
+              onClick={() => setRegionFilter(new Set())}
+              className="text-xs text-primary hover:underline ml-1"
+            >
+              Effacer
+            </button>
+          )}
+        </div>
+
+        {/* Volume chart */}
+        <div className="rounded-md border bg-background p-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <BarChart3 className="h-4 w-4 text-primary" />
+              Volume de leads sur la période
+            </div>
+            <div className="flex items-center gap-1 text-xs">
+              <button
+                onClick={() => setChartMode("total")}
+                className={cn(
+                  "px-2 py-1 rounded-md border transition-colors",
+                  chartMode === "total" ? "bg-primary text-primary-foreground border-primary" : "hover:bg-muted",
+                )}
+              >
+                Total
+              </button>
+              <button
+                onClick={() => setChartMode("region")}
+                className={cn(
+                  "px-2 py-1 rounded-md border transition-colors",
+                  chartMode === "region" ? "bg-primary text-primary-foreground border-primary" : "hover:bg-muted",
+                )}
+              >
+                Par région
+              </button>
+            </div>
+          </div>
+          {chartData.rows.length === 0 ? (
+            <div className="text-center text-xs text-muted-foreground py-8">Aucune donnée sur la période.</div>
+          ) : (
+            <div className="h-56 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData.rows} margin={{ top: 5, right: 8, left: -18, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                  <XAxis dataKey="label" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                  <RTooltip
+                    contentStyle={{ fontSize: 12, borderRadius: 6 }}
+                    formatter={(value: any, name: any) => [value, REGION_META[name]?.label || name]}
+                  />
+                  {chartMode === "region" && <Legend wrapperStyle={{ fontSize: 10 }} formatter={(v) => REGION_META[v]?.label || v} />}
+                  {chartMode === "total" ? (
+                    <Bar dataKey="total" fill={REGION_COLORS.total} radius={[4, 4, 0, 0]} />
+                  ) : (
+                    chartData.activeCodes.map((code) => (
+                      <Bar
+                        key={code}
+                        dataKey={code}
+                        stackId="regions"
+                        fill={REGION_COLORS[code] || REGION_COLORS.inconnu}
+                        radius={[0, 0, 0, 0]}
+                      />
+                    ))
+                  )}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+
+
+
 
         <div className="max-h-[520px] overflow-y-auto rounded-md border bg-background">
           {isLoading ? (
