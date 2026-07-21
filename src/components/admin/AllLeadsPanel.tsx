@@ -11,8 +11,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Search, Mail, Phone, ChevronDown, ChevronRight, Users, Inbox, Repeat, Download, CalendarIcon, X, MapPin, Globe } from "lucide-react";
+import { Search, Mail, Phone, ChevronDown, ChevronRight, Users, Inbox, Repeat, Download, CalendarIcon, X, MapPin, Globe, BarChart3 } from "lucide-react";
 import type { DateRange } from "react-day-picker";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, Legend, CartesianGrid } from "recharts";
 
 type PresetKey = "today" | "yesterday" | "7d" | "30d" | "month" | "lastMonth" | "lastYear" | "max";
 const PRESETS: { key: PresetKey; label: string }[] = [
@@ -142,6 +143,8 @@ export default function AllLeadsPanel() {
   const [preset, setPreset] = useState<PresetKey>("30d");
   const [range, setRange] = useState<DateRange>(() => computePreset("30d"));
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [regionFilter, setRegionFilter] = useState<Set<string>>(new Set());
+  const [chartMode, setChartMode] = useState<"total" | "region">("region");
 
   const applyPreset = (k: PresetKey) => { setPreset(k); setRange(computePreset(k)); };
   const rangeLabel = range.from || range.to
@@ -285,8 +288,9 @@ export default function AllLeadsPanel() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return grouped.groups;
     return grouped.groups.filter((g) => {
+      if (regionFilter.size > 0 && !regionFilter.has(g.region.code)) return false;
+      if (!q) return true;
       return (
         g.email?.toLowerCase().includes(q) ||
         g.phone?.toLowerCase().includes(q) ||
@@ -294,7 +298,68 @@ export default function AllLeadsPanel() {
         g.leads.some((l) => l.formName.toLowerCase().includes(q))
       );
     });
-  }, [grouped, search]);
+  }, [grouped, search, regionFilter]);
+
+  // Chart: daily volume, optionally split by region. Uses grouped/region-filtered leads flattened.
+  const chartData = useMemo(() => {
+    const flat = filtered.flatMap((g) => g.leads.map((l) => ({ ...l, region: g.region })));
+    const byDay = new Map<string, Record<string, number>>();
+    flat.forEach((l) => {
+      const day = new Date(l.submittedAt).toISOString().slice(0, 10);
+      if (!byDay.has(day)) byDay.set(day, {});
+      const row = byDay.get(day)!;
+      const k = chartMode === "region" ? l.region.code : "total";
+      row[k] = (row[k] || 0) + 1;
+    });
+    // Build a sorted list of days spanning the range if defined
+    let start = range.from ? new Date(range.from) : null;
+    let end = range.to ? new Date(range.to) : null;
+    if (!start || !end) {
+      const days = Array.from(byDay.keys()).sort();
+      if (days.length) {
+        start = start || new Date(days[0]);
+        end = end || new Date(days[days.length - 1]);
+      }
+    }
+    const rows: any[] = [];
+    if (start && end) {
+      const cur = new Date(start); cur.setHours(0, 0, 0, 0);
+      const stop = new Date(end); stop.setHours(0, 0, 0, 0);
+      while (cur.getTime() <= stop.getTime()) {
+        const key = cur.toISOString().slice(0, 10);
+        const row: any = { day: key, label: format(cur, "dd/MM") };
+        const entries = byDay.get(key) || {};
+        Object.assign(row, entries);
+        rows.push(row);
+        cur.setDate(cur.getDate() + 1);
+      }
+    }
+    // Active region series (only those with data)
+    const activeCodes = new Set<string>();
+    byDay.forEach((row) => Object.keys(row).forEach((k) => activeCodes.add(k)));
+    return { rows, activeCodes: Array.from(activeCodes) };
+  }, [filtered, chartMode, range]);
+
+  const REGION_COLORS: Record<string, string> = {
+    metropole: "hsl(210 90% 55%)",
+    corse: "hsl(280 70% 55%)",
+    guadeloupe: "hsl(150 65% 45%)",
+    martinique: "hsl(0 75% 60%)",
+    guyane: "hsl(90 55% 45%)",
+    reunion: "hsl(25 90% 55%)",
+    mayotte: "hsl(190 70% 45%)",
+    autre: "hsl(45 90% 55%)",
+    inconnu: "hsl(220 10% 60%)",
+    total: "hsl(var(--primary))",
+  };
+
+  const toggleRegion = (code: string) => {
+    setRegionFilter((prev) => {
+      const n = new Set(prev);
+      n.has(code) ? n.delete(code) : n.add(code);
+      return n;
+    });
+  };
 
   const stats = useMemo(() => {
     const totalLeads = leads.length;
@@ -427,6 +492,103 @@ export default function AllLeadsPanel() {
             />
           </div>
         </div>
+
+        {/* Region filter chips */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-xs text-muted-foreground mr-1">Régions :</span>
+          {Object.values(REGION_META).map((r) => {
+            const active = regionFilter.has(r.code);
+            const count = grouped.groups.filter((g) => g.region.code === r.code).length;
+            if (count === 0 && !active) return null;
+            return (
+              <button
+                key={r.code}
+                onClick={() => toggleRegion(r.code)}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors",
+                  active
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background hover:bg-muted border-border",
+                )}
+              >
+                <span aria-hidden>{r.emoji}</span>
+                <span>{r.label}</span>
+                <span className={cn("ml-0.5 opacity-70", active && "opacity-100")}>({count})</span>
+              </button>
+            );
+          })}
+          {regionFilter.size > 0 && (
+            <button
+              onClick={() => setRegionFilter(new Set())}
+              className="text-xs text-primary hover:underline ml-1"
+            >
+              Effacer
+            </button>
+          )}
+        </div>
+
+        {/* Volume chart */}
+        <div className="rounded-md border bg-background p-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <BarChart3 className="h-4 w-4 text-primary" />
+              Volume de leads sur la période
+            </div>
+            <div className="flex items-center gap-1 text-xs">
+              <button
+                onClick={() => setChartMode("total")}
+                className={cn(
+                  "px-2 py-1 rounded-md border transition-colors",
+                  chartMode === "total" ? "bg-primary text-primary-foreground border-primary" : "hover:bg-muted",
+                )}
+              >
+                Total
+              </button>
+              <button
+                onClick={() => setChartMode("region")}
+                className={cn(
+                  "px-2 py-1 rounded-md border transition-colors",
+                  chartMode === "region" ? "bg-primary text-primary-foreground border-primary" : "hover:bg-muted",
+                )}
+              >
+                Par région
+              </button>
+            </div>
+          </div>
+          {chartData.rows.length === 0 ? (
+            <div className="text-center text-xs text-muted-foreground py-8">Aucune donnée sur la période.</div>
+          ) : (
+            <div className="h-56 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData.rows} margin={{ top: 5, right: 8, left: -18, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                  <XAxis dataKey="label" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                  <RTooltip
+                    contentStyle={{ fontSize: 12, borderRadius: 6 }}
+                    formatter={(value: any, name: any) => [value, REGION_META[name]?.label || name]}
+                  />
+                  {chartMode === "region" && <Legend wrapperStyle={{ fontSize: 10 }} formatter={(v) => REGION_META[v]?.label || v} />}
+                  {chartMode === "total" ? (
+                    <Bar dataKey="total" fill={REGION_COLORS.total} radius={[4, 4, 0, 0]} />
+                  ) : (
+                    chartData.activeCodes.map((code) => (
+                      <Bar
+                        key={code}
+                        dataKey={code}
+                        stackId="regions"
+                        fill={REGION_COLORS[code] || REGION_COLORS.inconnu}
+                        radius={[0, 0, 0, 0]}
+                      />
+                    ))
+                  )}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+
+
 
 
         <div className="max-h-[520px] overflow-y-auto rounded-md border bg-background">
