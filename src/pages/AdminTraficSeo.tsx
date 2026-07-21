@@ -67,6 +67,14 @@ const AdminTraficSeo = () => {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<PageViewRow[]>([]);
   const [leadsCount, setLeadsCount] = useState<number>(0);
+  const [excludeMe, setExcludeMe] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("admin_trafic_exclude_me") !== "0";
+  });
+  const [myVisitorIds, setMyVisitorIds] = useState<Set<string>>(new Set());
+  const { user } = useAuth();
+  const [rows, setRows] = useState<PageViewRow[]>([]);
+  const [leadsCount, setLeadsCount] = useState<number>(0);
   const { liveCount } = useOnlinePresence();
 
   useEffect(() => {
