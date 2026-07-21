@@ -980,6 +980,7 @@ export type Database = {
       }
       form_submissions: {
         Row: {
+          attribution: Json | null
           data: Json
           form_id: string
           id: string
@@ -991,6 +992,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          attribution?: Json | null
           data: Json
           form_id: string
           id?: string
@@ -1002,6 +1004,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          attribution?: Json | null
           data?: Json
           form_id?: string
           id?: string
@@ -1371,6 +1374,7 @@ export type Database = {
       leads: {
         Row: {
           address: string
+          attribution: Json | null
           city: string
           created_at: string
           email: string
@@ -1390,6 +1394,7 @@ export type Database = {
         }
         Insert: {
           address: string
+          attribution?: Json | null
           city: string
           created_at?: string
           email: string
@@ -1409,6 +1414,7 @@ export type Database = {
         }
         Update: {
           address?: string
+          attribution?: Json | null
           city?: string
           created_at?: string
           email?: string
@@ -1579,6 +1585,7 @@ export type Database = {
       }
       newsletter_subscribers: {
         Row: {
+          attribution: Json | null
           created_at: string
           email: string
           id: string
@@ -1589,6 +1596,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          attribution?: Json | null
           created_at?: string
           email: string
           id?: string
@@ -1599,6 +1607,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          attribution?: Json | null
           created_at?: string
           email?: string
           id?: string
