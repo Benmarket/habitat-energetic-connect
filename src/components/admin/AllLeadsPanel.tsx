@@ -159,7 +159,16 @@ export default function AllLeadsPanel() {
     refetchInterval: 15000,
   });
 
-  const leads = data || [];
+  const allLeads = data || [];
+  const leads = useMemo(() => {
+    if (!range.from && !range.to) return allLeads;
+    const fromT = range.from ? new Date(range.from).setHours(0, 0, 0, 0) : -Infinity;
+    const toT = range.to ? new Date(range.to).setHours(23, 59, 59, 999) : Infinity;
+    return allLeads.filter((l) => {
+      const t = new Date(l.submittedAt).getTime();
+      return t >= fromT && t <= toT;
+    });
+  }, [allLeads, range]);
 
   // Group by contact key
   const grouped = useMemo(() => {
