@@ -132,16 +132,16 @@ const AdminTraficSeo = () => {
 
 
   const kpi = useMemo(() => {
-    const uniques = new Set(rows.map((r) => r.visitor_id).filter(Boolean)).size;
-    const durations = rows.map((r) => r.duration_seconds || 0).filter((v) => v > 0);
+    const uniques = new Set(filteredRows.map((r) => r.visitor_id).filter(Boolean)).size;
+    const durations = filteredRows.map((r) => r.duration_seconds || 0).filter((v) => v > 0);
     const avgDuration = durations.length ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
     return {
-      views: rows.length,
+      views: filteredRows.length,
       uniques,
       avgDuration,
       conversion: uniques > 0 ? (leadsCount / uniques) * 100 : 0,
     };
-  }, [rows, leadsCount]);
+  }, [filteredRows, leadsCount]);
 
   const dailySeries = useMemo(() => {
     const days = parseInt(range, 10);
@@ -151,7 +151,7 @@ const AdminTraficSeo = () => {
       d.setDate(d.getDate() - i);
       map.set(d.toISOString().slice(0, 10), { views: 0, uniques: new Set() });
     }
-    rows.forEach((r) => {
+    filteredRows.forEach((r) => {
       const key = r.created_at.slice(0, 10);
       const bucket = map.get(key);
       if (!bucket) return;
@@ -163,11 +163,11 @@ const AdminTraficSeo = () => {
       views: v.views,
       visiteurs: v.uniques.size,
     }));
-  }, [rows, range]);
+  }, [filteredRows, range]);
 
   const topPages = useMemo(() => {
     const map = new Map<string, { views: number; durSum: number; durN: number }>();
-    rows.forEach((r) => {
+    filteredRows.forEach((r) => {
       const cur = map.get(r.page_url) || { views: 0, durSum: 0, durN: 0 };
       cur.views += 1;
       if (r.duration_seconds && r.duration_seconds > 0) {
@@ -180,11 +180,11 @@ const AdminTraficSeo = () => {
       .map(([url, v]) => ({ url, views: v.views, avg: v.durN ? v.durSum / v.durN : 0 }))
       .sort((a, b) => b.views - a.views)
       .slice(0, 10);
-  }, [rows]);
+  }, [filteredRows]);
 
   const sources = useMemo(() => {
     const map = new Map<string, number>();
-    rows.forEach((r) => {
+    filteredRows.forEach((r) => {
       const label = r.utm_source ? `utm:${r.utm_source}` : referrerLabel(r.referrer);
       map.set(label, (map.get(label) || 0) + 1);
     });
@@ -192,21 +192,21 @@ const AdminTraficSeo = () => {
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 8);
-  }, [rows]);
+  }, [filteredRows]);
 
   const devices = useMemo(() => {
     const map = new Map<string, number>();
-    rows.forEach((r) => {
+    filteredRows.forEach((r) => {
       const key = r.device_type || "inconnu";
       map.set(key, (map.get(key) || 0) + 1);
     });
-    const total = rows.length || 1;
+    const total = filteredRows.length || 1;
     return Array.from(map.entries()).map(([name, value]) => ({
       name,
       value,
       pct: Math.round((value / total) * 100),
     }));
-  }, [rows]);
+  }, [filteredRows]);
 
   const deviceIcon = (n: string) => {
     if (n === "mobile") return <Smartphone className="w-4 h-4" />;
