@@ -97,6 +97,14 @@ type Attribution = {
   fbclid?: string | null;
 } | null;
 
+type ConsentInfo = {
+  form_rgpd?: boolean;
+  cookies?: "accepted" | "refused" | "unknown";
+  cookies_at?: string | null;
+  timestamp?: string;
+  version?: string;
+} | null;
+
 type UnifiedLead = {
   id: string;
   formId: string | null;
@@ -110,6 +118,7 @@ type UnifiedLead = {
   region: RegionInfo;
   data: Record<string, any>;
   attribution?: Attribution;
+  consent?: ConsentInfo;
 };
 
 
