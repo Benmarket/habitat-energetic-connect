@@ -387,6 +387,7 @@ export default function SimulateurSolaireLead() {
       consentAccepted: true, createdAt: new Date().toISOString(),
     };
 
+    const { getAttribution } = await import("@/lib/attribution");
     const { data: inserted, error } = await supabase.from("leads").insert({
       first_name: "Prospect",
       last_name: "Solaire",
@@ -397,7 +398,9 @@ export default function SimulateurSolaireLead() {
       is_owner: sim.ownership === "oui",
       needs: ["solaire", ...sim.equipments, ...(sim.batteryInterest === "oui" ? ["batterie"] : [])],
       notes: JSON.stringify(payload),
+      attribution: getAttribution(),
     }).select("id").single();
+
 
     setSubmitting(false);
 

@@ -230,6 +230,8 @@ const LandingSolaireContent = () => {
     }
     setIsSubmitting(true);
     try {
+      const { getAttribution } = await import("@/lib/attribution");
+      const attribution = getAttribution();
       // Insert into leads table
       const { error: leadError } = await supabase.from("leads").insert({
         first_name: wizardData.firstName,
@@ -243,6 +245,7 @@ const LandingSolaireContent = () => {
         needs: ["panneaux-solaires"],
         notes: `Landing solaire | Chauffage: ${wizardData.chauffage} | Surface: ${wizardData.surface}`,
         status: "new",
+        attribution,
       });
       if (leadError) throw leadError;
 
@@ -267,7 +270,9 @@ const LandingSolaireContent = () => {
           phone: wizardData.phone,
         },
         status: "new",
+        attribution,
       });
+
 
       // Fire-and-forget confirmation email
       const { sendFormConfirmationEmail } = await import("@/lib/sendFormConfirmationEmail");
