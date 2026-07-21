@@ -280,24 +280,31 @@ export default function AllLeadsPanel() {
       // Region: use first submission with a postal code, else inconnu
       const withPostal = g.leads.find((l) => l.postalCode);
       const region: RegionInfo = withPostal?.region || REGION_META.inconnu;
+      // Prefer the most recent submission's own attribution, fall back to tracking-session join
+      const withAttr = g.leads.find((l) => l.attribution && (l.attribution.referrer_source || l.attribution.utm_source || l.attribution.referrer_url));
+      const own = withAttr?.attribution || null;
       const tracking = g.email ? trackingByEmail?.get(g.email) : null;
-      const trafficSource: string | null =
-        tracking?.utm_source ||
-        tracking?.referrer_source ||
-        (tracking?.referrer_url ? new URL(tracking.referrer_url).hostname.replace(/^www\./, "") : null) ||
+      const src = own || tracking || null;
+      let trafficSource: string | null =
+        src?.utm_source ||
+        src?.referrer_source ||
         null;
+      if (!trafficSource && src?.referrer_url) {
+        try { trafficSource = new URL(src.referrer_url).hostname.replace(/^www\./, ""); } catch { /* noop */ }
+      }
       return {
         ...g,
         lastAt: g.leads[0]?.submittedAt,
         region,
         postalCode: withPostal?.postalCode || null,
         trafficSource,
-        landingUrl: tracking?.landing_url || null,
-        utmMedium: tracking?.utm_medium || null,
-        utmCampaign: tracking?.utm_campaign || null,
-        referrerUrl: tracking?.referrer_url || null,
+        landingUrl: src?.landing_url || null,
+        utmMedium: src?.utm_medium || null,
+        utmCampaign: src?.utm_campaign || null,
+        referrerUrl: src?.referrer_url || null,
       };
     });
+
     groups.sort((a, b) => new Date(b.lastAt!).getTime() - new Date(a.lastAt!).getTime());
     return { groups, orphans };
   }, [leads, trackingByEmail]);
