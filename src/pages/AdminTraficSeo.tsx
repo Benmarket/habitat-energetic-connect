@@ -242,7 +242,14 @@ const AdminTraficSeo = () => {
                 Données réelles de fréquentation, pages populaires, sources d'acquisition et santé SEO.
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border bg-card">
+                <UserX className="w-4 h-4 text-muted-foreground" />
+                <Label htmlFor="exclude-me" className="text-sm cursor-pointer whitespace-nowrap">
+                  Exclure ma navigation
+                </Label>
+                <Switch id="exclude-me" checked={excludeMe} onCheckedChange={setExcludeMe} />
+              </div>
               <Select value={range} onValueChange={(v) => setRange(v as Range)}>
                 <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
