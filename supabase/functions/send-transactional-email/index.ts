@@ -376,6 +376,30 @@ Deno.serve(async (req) => {
     )
   }
 
+  // ---- Open/click tracking injection ----
+  // Rewrite every http(s) href to go through the tracking redirect, then append
+  // a 1x1 open-pixel before </body>. Skips the unsubscribe link (handled separately)
+  // and mailto:/tel: links.
+  const trackBase = `${supabaseUrl}/functions/v1/email-track`
+  html = html.replace(
+    /href=(["'])(https?:\/\/[^"'\s>]+)\1/gi,
+    (match, quote, link) => {
+      if (link.includes('/handle-email-unsubscribe') || link.includes('/email-track')) {
+        return match
+      }
+      const wrapped = `${trackBase}/click?mid=${encodeURIComponent(messageId)}&u=${encodeURIComponent(link)}`
+      return `href=${quote}${wrapped}${quote}`
+    }
+  )
+  const pixelTag = `<img src="${trackBase}/pixel?mid=${encodeURIComponent(messageId)}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />`
+  if (/<\/body>/i.test(html)) {
+    html = html.replace(/<\/body>/i, `${pixelTag}</body>`)
+  } else {
+    html = html + pixelTag
+  }
+
+
+
   // Resolve subject — supports static string or dynamic function
   const resolvedSubject =
     typeof template.subject === 'function'
