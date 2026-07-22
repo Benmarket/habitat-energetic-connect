@@ -60,6 +60,7 @@ const AdminMediatheque = lazy(() => import("./pages/AdminMediatheque"));
 const AdminArticlesAudit = lazy(() => import("./pages/AdminArticlesAudit"));
 const AdminInternalReviews = lazy(() => import("./pages/AdminInternalReviews"));
 const LaisserAvis = lazy(() => import("./pages/LaisserAvis"));
+const AdminEmails = lazy(() => import("./pages/AdminEmails"));
 const DevenirPartenaire = lazy(() => import("./pages/DevenirPartenaire"));
 
 const Sitemap = lazy(() => import("./pages/Sitemap"));
