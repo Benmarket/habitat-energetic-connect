@@ -130,6 +130,12 @@ export const usePageViewTracking = () => {
     const trackPageView = async () => {
       const currentPath = location.pathname + location.search;
       if (lastTrackedPath.current === currentPath) return;
+      // Skip admin/backoffice routes
+      if (!shouldTrack(location.pathname)) {
+        lastTrackedPath.current = currentPath;
+        pageViewIdRef.current = null;
+        return;
+      }
 
       sendDuration();
       lastTrackedPath.current = currentPath;
@@ -137,6 +143,7 @@ export const usePageViewTracking = () => {
 
       try {
         const attribution = captureAttribution(location.search);
+        const info = await getVisitorInfo();
         const { data } = await supabase
           .from("page_views")
           .insert({
@@ -147,6 +154,9 @@ export const usePageViewTracking = () => {
             user_agent: navigator.userAgent,
             referrer: document.referrer || null,
             device_type: detectDevice(),
+            browser: detectBrowser(),
+            ip_address: info.ip,
+            country: info.country,
             utm_source: attribution.utm_source,
             utm_medium: attribution.utm_medium,
             utm_campaign: attribution.utm_campaign,
