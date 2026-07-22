@@ -440,9 +440,9 @@ export default function SimulateurSolaireLead() {
 
     setSubmitting(true);
     if (leadId) {
-      const { error } = await supabase.from("leads").update({
-        first_name: firstName, last_name: lastName,
-      }).eq("id", leadId);
+      const { error } = await supabase.functions.invoke("update-lead-name", {
+        body: { leadId, firstName, lastName },
+      });
       setSubmitting(false);
       if (error) {
         toast.error("Impossible d'enregistrer votre nom. Réessayez.");
