@@ -253,7 +253,7 @@ const TOTAL_STEPS = 8; // 8 étapes de questions, la 9e étant le résultat
 export default function SimulateurSolaireLead() {
   const [step, setStep] = useState<number>(0);
   const [sim, setSim] = useState<Sim>({
-    postalCode: "", city: "", housing: "", surface: "", ownership: "",
+    postalCode: "", city: "", housing: "", surface: 100, ownership: "",
     orientation: "", roofType: "", equipments: [], monthlyBill: "",
     householdSize: "", projectHorizon: "", hasQuote: "", batteryInterest: "",
   });
