@@ -48,3 +48,6 @@ verify_jwt = false
 [functions.admin-send-newsletter]
 verify_jwt = true
 
+
+[functions.email-track]
+verify_jwt = false
