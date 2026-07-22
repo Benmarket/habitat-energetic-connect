@@ -498,7 +498,7 @@ export default function SimulateurSolaireLead() {
                     onClick={goNext}
                     disabled={!canContinue()}
                     size="lg"
-                    className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold shadow-[0_15px_30px_-10px_hsl(35_95%_45%/0.7)] hover:scale-105 transition-all rounded-full px-4 md:px-7 text-sm md:text-base whitespace-nowrap"
+                    className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold shadow-[0_15px_30px_-10px_hsl(35_95%_45%/0.7)] hover:scale-105 transition-all rounded-full px-4 md:px-7 text-sm md:text-base whitespace-nowrap animate-subtle-bounce"
                   >
                     {step === 8 ? "Calculer mes économies" : "Continuer"} <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
