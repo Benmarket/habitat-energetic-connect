@@ -397,7 +397,55 @@ export function useArticleGeneration(
     }));
 
     toast.success("Article appliqué avec catégorie et étiquettes !");
+
+    // 🔍 Relecture IA automatique en tâche de fond — ACTUALITÉS uniquement
+    // Se déclenche juste après l'application de l'article, sans bloquer l'UI.
+    // Le résultat est rendu accessible via la modale de relecture existante.
+    if (contentType === 'actualite') {
+      (async () => {
+        setLoadingReview(true);
+        setArticleReview(null);
+        try {
+          const accessToken = await getAccessToken();
+          if (!accessToken) return;
+          const catName = options?.categories?.find(c => c.id === autoCategory)?.name || '';
+          const tagNames = (options?.tags || [])
+            .filter(t => autoTags.includes(t.id))
+            .map(t => t.name);
+          const { data, error } = await supabase.functions.invoke('generate-article', {
+            body: {
+              mode: 'review',
+              title: article.title,
+              content: article.content,
+              contentType,
+              categoryName: catName,
+              excerpt: article.excerpt || '',
+              metaTitle: article.metaTitle || '',
+              metaDescription: article.metaDescription || '',
+              focusKeywords: kws || [],
+              targetRegions: article.targetRegions || [],
+              faq: article.faq || [],
+              tldr: article.tldr || '',
+              tagNames,
+              featuredImage: article.featuredImageUrl || '',
+            },
+            headers: { Authorization: `Bearer ${accessToken}` }
+          });
+          if (!error && data?.success) {
+            setArticleReview(data.review);
+            toast.success("Relecture IA disponible 🔍", {
+              description: "Ouvre la modale de relecture pour consulter le rapport.",
+            });
+          }
+        } catch (e) {
+          console.error('[auto review actualite]', e);
+        } finally {
+          setLoadingReview(false);
+        }
+      })();
+    }
   };
+
 
   const openWizard = () => {
     setAngles(null);

@@ -399,7 +399,7 @@ const ArticleDetail = () => {
         />
       )}
 
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-hidden">
         <Header />
         <Breadcrumb items={breadcrumbItems} />
         
@@ -415,7 +415,8 @@ const ArticleDetail = () => {
               />
               <div className="absolute inset-0 z-20 flex items-end">
                 <div className="container mx-auto px-4 pb-12">
-                  <div className="flex items-center gap-4 mb-6">
+                  <div className="flex flex-wrap items-center gap-3 mb-6">
+
                     <Link 
                       to={`/${basePath}`}
                       className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors"
@@ -458,7 +459,7 @@ const ArticleDetail = () => {
           ) : (
             <section className="bg-muted py-16">
               <div className="container mx-auto px-4">
-                <div className="flex items-center gap-4 mb-6">
+                <div className="flex flex-wrap items-center gap-3 mb-6">
                   <Link 
                     to={`/${basePath}`}
                     className="inline-flex items-center gap-2 text-foreground hover:text-primary transition-colors"

@@ -595,16 +595,13 @@ export function useCreatePost() {
           })
           .catch((e) => console.error("[newsletter broadcast] exception:", e));
 
-        // Jobs de fond (n'impactent pas la publication) — ACTUALITÉS uniquement
-        // 1) Optimisation des images (conversion WebP à la volée)
+        // Job de fond (n'impacte pas la publication) — ACTUALITÉS uniquement
+        // Optimisation des images (conversion WebP à la volée)
         supabase.functions
           .invoke("optimize-post-images", { body: { postId } })
           .catch((e) => console.error("[optimize-post-images] exception:", e));
-        // 2) Relecture qualité par IA
-        supabase.functions
-          .invoke("review-article-quality", { body: { postId } })
-          .catch((e) => console.error("[review-article-quality] exception:", e));
       }
+
 
 
       // Redirect based on content type
