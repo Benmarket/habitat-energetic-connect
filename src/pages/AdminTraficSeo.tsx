@@ -442,12 +442,15 @@ const AdminTraficSeo = () => {
                 <RegionsStatsBlock />
               </div>
 
+              {/* Sessions visiteurs — données brutes du tracking */}
+              <VisitorSessionsTable rows={filteredRows} />
+
               <Card className="border-2 border-dashed">
                 <CardContent className="p-5 text-sm text-muted-foreground">
                   <p className="font-medium text-foreground mb-1">Conformité RGPD</p>
-                  Le tracking est activé uniquement après acceptation du bandeau cookies. Aucune donnée personnelle
-                  n'est collectée hors consentement. Les visiteurs peuvent retirer leur consentement à tout moment via
-                  le bandeau cookies, ce qui interrompt immédiatement la collecte.
+                  Le tracking anonyme (IP, pays, appareil, page vue) est activé dès la première visite pour mesurer la fréquentation.
+                  La persistance longue durée (identifiant visiteur récurrent) n'est activée qu'après acceptation du bandeau cookies.
+                  Les visiteurs peuvent retirer leur consentement à tout moment.
                 </CardContent>
               </Card>
             </div>
@@ -481,5 +484,167 @@ const KpiCard = ({
     </CardContent>
   </Card>
 );
+
+type VisitorSessionRow = {
+  visitor_id: string;
+  ip: string | null;
+  country: string | null;
+  browser: string | null;
+  device: string | null;
+  source: string;
+  utm_source: string | null;
+  landing: string;
+  pages: number;
+  first_seen: string;
+  last_seen: string;
+  duration: number;
+  user_id: string | null;
+};
+
+const VisitorSessionsTable = ({ rows }: { rows: PageViewRow[] }) => {
+  const [query, setQuery] = useState("");
+  const [limit, setLimit] = useState(50);
+
+  const sessions = useMemo<VisitorSessionRow[]>(() => {
+    const map = new Map<string, VisitorSessionRow>();
+    // rows are already sorted desc → traverse reverse chrono order
+    for (const r of rows) {
+      if (!r.visitor_id) continue;
+      const cur = map.get(r.visitor_id);
+      if (!cur) {
+        map.set(r.visitor_id, {
+          visitor_id: r.visitor_id,
+          ip: r.ip_address,
+          country: r.country,
+          browser: r.browser,
+          device: r.device_type,
+          source: referrerLabel(r.referrer),
+          utm_source: r.utm_source,
+          landing: r.page_url,
+          pages: 1,
+          first_seen: r.created_at,
+          last_seen: r.created_at,
+          duration: r.duration_seconds || 0,
+          user_id: r.user_id,
+        });
+      } else {
+        cur.pages += 1;
+        cur.duration += r.duration_seconds || 0;
+        // last_seen = max, first_seen = min
+        if (r.created_at > cur.last_seen) cur.last_seen = r.created_at;
+        if (r.created_at < cur.first_seen) {
+          cur.first_seen = r.created_at;
+          cur.landing = r.page_url; // earliest page = landing
+          cur.source = referrerLabel(r.referrer);
+          cur.utm_source = r.utm_source;
+        }
+        cur.ip = cur.ip || r.ip_address;
+        cur.country = cur.country || r.country;
+        cur.browser = cur.browser || r.browser;
+        cur.device = cur.device || r.device_type;
+        cur.user_id = cur.user_id || r.user_id;
+      }
+    }
+    return Array.from(map.values()).sort(
+      (a, b) => new Date(b.last_seen).getTime() - new Date(a.last_seen).getTime()
+    );
+  }, [rows]);
+
+  const filtered = useMemo(() => {
+    if (!query.trim()) return sessions;
+    const q = query.toLowerCase();
+    return sessions.filter(
+      (s) =>
+        s.visitor_id.toLowerCase().includes(q) ||
+        (s.ip || "").toLowerCase().includes(q) ||
+        (s.country || "").toLowerCase().includes(q) ||
+        (s.browser || "").toLowerCase().includes(q) ||
+        (s.landing || "").toLowerCase().includes(q) ||
+        s.source.toLowerCase().includes(q)
+    );
+  }, [sessions, query]);
+
+  const shown = filtered.slice(0, limit);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Sessions visiteurs</CardTitle>
+        <CardDescription>
+          {sessions.length.toLocaleString("fr-FR")} visiteurs uniques sur la période — IP, pays, appareil, source et pages visitées.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <input
+          type="text"
+          placeholder="Filtrer par IP, pays, navigateur, page, source…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full px-3 py-2 rounded-md border bg-background text-sm"
+        />
+        <div className="overflow-x-auto rounded-lg border">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+              <tr>
+                <th className="text-left px-3 py-2 font-medium">Vu le</th>
+                <th className="text-left px-3 py-2 font-medium">Visiteur</th>
+                <th className="text-left px-3 py-2 font-medium">IP</th>
+                <th className="text-left px-3 py-2 font-medium">Pays</th>
+                <th className="text-left px-3 py-2 font-medium">Appareil</th>
+                <th className="text-left px-3 py-2 font-medium">Navigateur</th>
+                <th className="text-left px-3 py-2 font-medium">Source</th>
+                <th className="text-left px-3 py-2 font-medium">Landing</th>
+                <th className="text-right px-3 py-2 font-medium">Pages</th>
+                <th className="text-right px-3 py-2 font-medium">Durée</th>
+              </tr>
+            </thead>
+            <tbody>
+              {shown.length === 0 && (
+                <tr>
+                  <td colSpan={10} className="text-center text-muted-foreground py-6">
+                    Aucune session sur la période.
+                  </td>
+                </tr>
+              )}
+              {shown.map((s) => (
+                <tr key={s.visitor_id} className="border-t hover:bg-muted/30">
+                  <td className="px-3 py-2 whitespace-nowrap text-xs">
+                    {new Date(s.last_seen).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}
+                  </td>
+                  <td className="px-3 py-2 font-mono text-xs truncate max-w-[140px]" title={s.visitor_id}>
+                    {s.user_id ? <Badge variant="secondary" className="mr-1">auth</Badge> : null}
+                    {s.visitor_id.slice(0, 12)}…
+                  </td>
+                  <td className="px-3 py-2 font-mono text-xs">{s.ip || "—"}</td>
+                  <td className="px-3 py-2 text-xs">{s.country || "—"}</td>
+                  <td className="px-3 py-2 text-xs capitalize">{s.device || "—"}</td>
+                  <td className="px-3 py-2 text-xs">{s.browser || "—"}</td>
+                  <td className="px-3 py-2 text-xs">
+                    {s.utm_source ? `utm:${s.utm_source}` : s.source}
+                  </td>
+                  <td className="px-3 py-2 text-xs truncate max-w-[220px]" title={s.landing}>
+                    {s.landing}
+                  </td>
+                  <td className="px-3 py-2 text-right font-medium">{s.pages}</td>
+                  <td className="px-3 py-2 text-right text-xs text-muted-foreground">{fmtDuration(s.duration)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {filtered.length > limit && (
+          <div className="text-center">
+            <button
+              onClick={() => setLimit((l) => l + 50)}
+              className="text-sm text-primary hover:underline"
+            >
+              Afficher 50 sessions de plus ({filtered.length - limit} restantes)
+            </button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 export default AdminTraficSeo;
