@@ -91,6 +91,8 @@ const AdminTraficSeo = () => {
   const { user } = useAuth();
   const { liveCount } = useOnlinePresence();
 
+  const [myIps, setMyIps] = useState<Set<string>>(() => loadMyIps());
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -100,7 +102,7 @@ const AdminTraficSeo = () => {
       const [{ data: pv }, { count: lc }] = await Promise.all([
         supabase
           .from("page_views")
-          .select("page_url,visitor_id,user_id,referrer,device_type,utm_source,duration_seconds,created_at")
+          .select("page_url,visitor_id,user_id,referrer,device_type,utm_source,duration_seconds,created_at,ip_address,country,browser")
           .gte("created_at", since.toISOString())
           .order("created_at", { ascending: false })
           .limit(20000),
@@ -110,14 +112,29 @@ const AdminTraficSeo = () => {
           .gte("created_at", since.toISOString()),
       ]);
 
-      setRows((pv as PageViewRow[]) || []);
+      // Defensively drop admin/backoffice URLs from analytics
+      const cleaned = ((pv as PageViewRow[]) || []).filter((r) => !isAdminUrl(r.page_url));
+      setRows(cleaned);
       setLeadsCount(lc || 0);
       setLoading(false);
     };
     load();
   }, [range]);
 
-  // Load visitor_ids linked to my user_id so we can exclude anonymous sessions too
+  // Auto-register IPs used while logged in as admin, so we can exclude them next time.
+  useEffect(() => {
+    if (!user?.id || rows.length === 0) return;
+    const mine = new Set(myIps);
+    let changed = false;
+    rows.forEach((r) => {
+      if (r.user_id === user.id && r.ip_address && !mine.has(r.ip_address)) {
+        mine.add(r.ip_address);
+        changed = true;
+      }
+    });
+    if (changed) { saveMyIps(mine); setMyIps(mine); }
+  }, [rows, user?.id]);
+
   useEffect(() => {
     if (!user?.id) { setMyVisitorIds(new Set()); return; }
     supabase
@@ -141,10 +158,12 @@ const AdminTraficSeo = () => {
     if (!excludeMe || !user?.id) return rows;
     return rows.filter((r) => {
       if (r.user_id === user.id) return false;
-      if (r.visitor_id && myVisitorIds.has(r.visitor_id)) return false;
+      if (r.ip_address && myIps.has(r.ip_address)) return false;
+      // Only exclude anonymous visitor_ids that also appear logged in as me
+      if (!r.user_id && r.visitor_id && myVisitorIds.has(r.visitor_id)) return false;
       return true;
     });
-  }, [rows, excludeMe, user?.id, myVisitorIds]);
+  }, [rows, excludeMe, user?.id, myVisitorIds, myIps]);
 
 
   const kpi = useMemo(() => {
