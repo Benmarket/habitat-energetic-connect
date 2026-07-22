@@ -11,7 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Search, Mail, Phone, ChevronDown, ChevronRight, Users, Inbox, Repeat, Download, CalendarIcon, X, MapPin, Globe, BarChart3, ShieldCheck, Cookie } from "lucide-react";
+import { Search, Mail, Phone, ChevronDown, ChevronRight, Users, Inbox, Repeat, Download, CalendarIcon, X, MapPin, Globe, BarChart3, ShieldCheck, Cookie, FileText } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, Legend, CartesianGrid } from "recharts";
 
@@ -93,9 +93,22 @@ type Attribution = {
   utm_medium?: string | null;
   utm_campaign?: string | null;
   landing_url?: string | null;
+  current_url?: string | null;
   gclid?: string | null;
   fbclid?: string | null;
 } | null;
+
+/** Turn a full URL into a short readable path like "/simulateurs/solaire". */
+function prettyPath(url?: string | null): string | null {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    const path = (u.pathname || "/") + (u.search || "");
+    return path.length > 60 ? path.slice(0, 57) + "…" : path;
+  } catch {
+    return url;
+  }
+}
 
 type ConsentInfo = {
   form_rgpd?: boolean;
@@ -683,6 +696,19 @@ export default function AllLeadsPanel() {
                             <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5 flex-wrap">
                               {g.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{g.email}</span>}
                               {g.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{g.phone}</span>}
+                              {(() => {
+                                const page = prettyPath(last.attribution?.current_url) || prettyPath(last.attribution?.landing_url);
+                                if (!page) return null;
+                                return (
+                                  <span
+                                    className="flex items-center gap-1 font-mono"
+                                    title={last.attribution?.current_url || last.attribution?.landing_url || undefined}
+                                  >
+                                    <FileText className="h-3 w-3" />
+                                    {page}
+                                  </span>
+                                );
+                              })()}
                               <span>· {new Date(last.submittedAt).toLocaleString("fr-FR")}</span>
                             </div>
                           </div>
@@ -701,6 +727,25 @@ export default function AllLeadsPanel() {
                                     {l.region.label}
                                     {l.postalCode && <span className="opacity-70">· {l.postalCode}</span>}
                                   </Badge>
+                                  {(() => {
+                                    const page = prettyPath(l.attribution?.current_url) || prettyPath(l.attribution?.landing_url);
+                                    if (!page) return null;
+                                    return (
+                                      <Badge
+                                        variant="outline"
+                                        className="h-5 text-[10px] gap-1 font-mono border-primary/30 text-primary"
+                                        title={
+                                          [
+                                            l.attribution?.current_url && `Page inscription: ${l.attribution.current_url}`,
+                                            l.attribution?.landing_url && l.attribution.landing_url !== l.attribution?.current_url && `Landing: ${l.attribution.landing_url}`,
+                                          ].filter(Boolean).join("\n") || undefined
+                                        }
+                                      >
+                                        <FileText className="h-3 w-3" />
+                                        {page}
+                                      </Badge>
+                                    );
+                                  })()}
                                   {l.consent && (
                                     <>
                                       <Badge
