@@ -330,6 +330,74 @@ export type Database = {
         }
         Relationships: []
       }
+      article_quality_reviews: {
+        Row: {
+          compliance_score: number | null
+          created_at: string
+          editorial_score: number | null
+          error_message: string | null
+          factual_score: number | null
+          id: string
+          issues: Json
+          model: string | null
+          overall_score: number | null
+          post_id: string
+          seo_score: number | null
+          status: string
+          suggestions: Json
+          summary: string | null
+          updated_at: string
+          verdict: string | null
+          warnings: Json
+        }
+        Insert: {
+          compliance_score?: number | null
+          created_at?: string
+          editorial_score?: number | null
+          error_message?: string | null
+          factual_score?: number | null
+          id?: string
+          issues?: Json
+          model?: string | null
+          overall_score?: number | null
+          post_id: string
+          seo_score?: number | null
+          status?: string
+          suggestions?: Json
+          summary?: string | null
+          updated_at?: string
+          verdict?: string | null
+          warnings?: Json
+        }
+        Update: {
+          compliance_score?: number | null
+          created_at?: string
+          editorial_score?: number | null
+          error_message?: string | null
+          factual_score?: number | null
+          id?: string
+          issues?: Json
+          model?: string | null
+          overall_score?: number | null
+          post_id?: string
+          seo_score?: number | null
+          status?: string
+          suggestions?: Json
+          summary?: string | null
+          updated_at?: string
+          verdict?: string | null
+          warnings?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_quality_reviews_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       authors: {
         Row: {
           avatar_url: string | null
