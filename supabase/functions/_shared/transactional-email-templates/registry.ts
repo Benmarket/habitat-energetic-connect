@@ -15,6 +15,7 @@ import { template as leadConfirmationSimple } from './lead-confirmation-simple.t
 import { template as guideDownloadConfirmation } from './guide-download-confirmation.tsx'
 import { template as passwordReset } from './password-reset.tsx'
 import { template as partnerApplicationConfirmation } from './partner-application-confirmation.tsx'
+import { template as newsletterNewArticle } from './newsletter-new-article.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'lead-confirmation-signup': leadConfirmationSignup,
@@ -23,4 +24,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'guide-download-confirmation': guideDownloadConfirmation,
   'password-reset': passwordReset,
   'partner-application-confirmation': partnerApplicationConfirmation,
+  'newsletter-new-article': newsletterNewArticle,
 }
