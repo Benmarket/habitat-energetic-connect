@@ -144,22 +144,19 @@ export const usePageViewTracking = () => {
       pageEntryTimeRef.current = Date.now();
 
       try {
-        // Mode anonyme (sans consentement) : mesure d'audience CNIL-exemptée
-        // -> pas d'IP, pas d'UA, pas d'UTM, pas de user_id, visitor_id éphémère.
-        const attribution = consent
-          ? captureAttribution(location.search)
-          : { utm_source: null, utm_medium: null, utm_campaign: null };
-        const info = consent
-          ? await getVisitorInfo()
-          : { ip: null, country: null };
+        // Tracking complet dès la première visite (IP/UA/UTM/user_id/country).
+        // Le cookie de consentement ne conditionne QUE la persistance longue durée
+        // du visitor_id (localStorage vs sessionStorage) — pas la collecte.
+        const attribution = captureAttribution(location.search);
+        const info = await getVisitorInfo();
 
         const payload = {
           page_url: location.pathname,
           region_code: activeRegion,
-          user_id: consent ? (user?.id || null) : null,
+          user_id: user?.id || null,
           visitor_id: getVisitorId(),
-          user_agent: consent ? navigator.userAgent : null,
-          referrer: consent ? (document.referrer || null) : null,
+          user_agent: navigator.userAgent,
+          referrer: document.referrer || null,
           device_type: detectDevice(),
           browser: detectBrowser(),
           ip_address: info.ip,
@@ -168,6 +165,7 @@ export const usePageViewTracking = () => {
           utm_medium: attribution.utm_medium,
           utm_campaign: attribution.utm_campaign,
         };
+
 
         const { data } = await supabase
           .from("page_views")
