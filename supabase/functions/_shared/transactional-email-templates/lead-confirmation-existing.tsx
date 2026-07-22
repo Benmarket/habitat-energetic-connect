@@ -41,6 +41,7 @@ import {
 import { WorkGallery, type CustomGalleryImage } from './_work-gallery.tsx'
 import type { WorkType } from './_email-design.ts'
 import { EmailBrandLogo } from './_email-brand-logo.tsx'
+import { NewsletterOptInBanner } from './_newsletter-opt-in-banner.tsx'
 
 interface Props {
   firstName?: string
@@ -51,6 +52,7 @@ interface Props {
   loginUrl?: string
   workType?: WorkType
   galleryImages?: CustomGalleryImage[]
+  newsletterOptInUrl?: string
 }
 
 const LeadConfirmationExistingEmail = ({
@@ -62,6 +64,7 @@ const LeadConfirmationExistingEmail = ({
   loginUrl = `${BRAND.siteUrl}/auth`,
   workType,
   galleryImages,
+  newsletterOptInUrl,
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head><meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" /><meta charSet="utf-8" /></Head>
@@ -151,6 +154,8 @@ const LeadConfirmationExistingEmail = ({
                       </Section>
                     </td>
                   </tr>
+
+                  <NewsletterOptInBanner url={newsletterOptInUrl} />
 
                   <tr>
                     <td style={hrSection}>
