@@ -95,6 +95,7 @@ const ActivateAccount = lazy(() => import("./pages/ActivateAccount"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const DesinscriptionRegistre = lazy(() => import("./pages/DesinscriptionRegistre"));
 const NewsletterUnsubscribe = lazy(() => import("./pages/NewsletterUnsubscribe"));
+const NewsletterQuickSubscribe = lazy(() => import("./pages/NewsletterQuickSubscribe"));
 const PasswordReset = lazy(() => import("./pages/PasswordReset"));
 const Economies = lazy(() => import("./pages/Economies"));
 const AdminEconomiesAccess = lazy(() => import("./pages/AdminEconomiesAccess"));
