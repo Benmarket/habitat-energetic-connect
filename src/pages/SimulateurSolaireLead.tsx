@@ -263,6 +263,7 @@ export default function SimulateurSolaireLead() {
   const [computing, setComputing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showBattery, setShowBattery] = useState(false); // toggle affichage avec batterie
+  const isMobile = useIsMobile();
 
   // Tracking d'abandon (source, étapes, retour visiteur)
   const { trackStep, trackComplete, trackLead } = useSimulatorTracking({
