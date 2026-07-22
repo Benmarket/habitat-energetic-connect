@@ -287,12 +287,20 @@ details summary {
   border-collapse: separate;
   border-spacing: 0;
   border-radius: 12px;
-  overflow: hidden;
   box-shadow: 0 4px 20px -4px hsl(220 13% 18% / 0.1);
   font-size: 0.9rem;
   margin: 2rem 0;
-  table-layout: auto;
-  word-break: break-word;
+  white-space: normal;
+}
+
+.article-content .article-data-table thead,
+.article-content table thead,
+.article-content .article-data-table tbody,
+.article-content table tbody {
+  display: table;
+  width: 100%;
+  min-width: 560px;
+  table-layout: fixed;
 }
 
 .article-content .article-data-table thead tr,
@@ -311,7 +319,7 @@ details summary {
   letter-spacing: 0.03em;
   color: hsl(var(--primary-foreground));
   white-space: normal;
-  word-break: break-word;
+  overflow-wrap: break-word;
   background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.85));
 }
 
@@ -336,7 +344,11 @@ details summary {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid hsl(var(--border) / 0.5);
   color: hsl(var(--foreground));
+  white-space: normal;
+  overflow-wrap: break-word;
+  vertical-align: top;
 }
+
 
 .article-content .article-data-table tbody tr:last-child td,
 .article-content table tbody tr:last-child td {
