@@ -727,6 +727,25 @@ export default function AllLeadsPanel() {
                                     {l.region.label}
                                     {l.postalCode && <span className="opacity-70">· {l.postalCode}</span>}
                                   </Badge>
+                                  {(() => {
+                                    const page = prettyPath(l.attribution?.current_url) || prettyPath(l.attribution?.landing_url);
+                                    if (!page) return null;
+                                    return (
+                                      <Badge
+                                        variant="outline"
+                                        className="h-5 text-[10px] gap-1 font-mono border-primary/30 text-primary"
+                                        title={
+                                          [
+                                            l.attribution?.current_url && `Page inscription: ${l.attribution.current_url}`,
+                                            l.attribution?.landing_url && l.attribution.landing_url !== l.attribution?.current_url && `Landing: ${l.attribution.landing_url}`,
+                                          ].filter(Boolean).join("\n") || undefined
+                                        }
+                                      >
+                                        <FileText className="h-3 w-3" />
+                                        {page}
+                                      </Badge>
+                                    );
+                                  })()}
                                   {l.consent && (
                                     <>
                                       <Badge
