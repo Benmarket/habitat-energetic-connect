@@ -19,6 +19,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useSimulatorTracking } from "@/hooks/useSimulatorTracking";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Sun, Check, ArrowLeft, ArrowRight, MapPin, Home, Building2, Store, Building,
   Compass, Snowflake, Flame, Thermometer, Waves, Car, Plug, HelpCircle, Ruler,
