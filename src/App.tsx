@@ -178,6 +178,7 @@ const App = () => (
                   <Route path="/admin/articles-audit" element={<AdminGuard allowedRoles={["super_admin"]}><AdminArticlesAudit /></AdminGuard>} />
                   <Route path="/admin/avis-internes" element={<AdminGuard allowedRoles={["super_admin"]}><AdminInternalReviews /></AdminGuard>} />
                   <Route path="/admin/trafic-seo" element={<AdminGuard allowedRoles={["super_admin"]}><AdminTraficSeo /></AdminGuard>} />
+                  <Route path="/admin/emails" element={<AdminGuard allowedRoles={["super_admin"]}><AdminEmails /></AdminGuard>} />
                   <Route path="/laisser-un-avis" element={<LaisserAvis />} />
 
 
