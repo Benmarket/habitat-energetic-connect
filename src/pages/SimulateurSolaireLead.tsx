@@ -475,12 +475,12 @@ export default function SimulateurSolaireLead() {
         {step === 0 && <EntryHero onStart={() => setStep(1)} />}
 
         {step > 0 && step < 9 && (
-          <div id="sim-wizard" className="container mx-auto px-4 max-w-3xl pt-10 md:pt-16">
+          <div id="sim-wizard" className="container mx-auto px-4 max-w-3xl pt-4 md:pt-16">
             <ProgressBar step={step} />
 
-            <div className="relative mt-5">
+            <div className="relative mt-4 md:mt-5">
               <div className="absolute -inset-1 bg-gradient-to-br from-amber-400/40 via-orange-500/30 to-amber-300/30 rounded-[2rem] blur-2xl opacity-70" aria-hidden />
-              <div className="relative bg-white rounded-3xl shadow-[0_30px_80px_-15px_hsl(24_60%_8%/0.6)] border border-amber-200/60 p-6 md:p-10">
+              <div className="relative bg-white rounded-3xl shadow-[0_30px_80px_-15px_hsl(24_60%_8%/0.6)] border border-amber-200/60 p-4 md:p-10">
                 {step === 1 && <Step1Location sim={sim} setSim={setSim} region={region} />}
                 {step === 2 && <Step2Housing sim={sim} setSim={setSim} />}
                 {step === 3 && <Step3Ownership sim={sim} setSim={setSim} />}
@@ -490,21 +490,21 @@ export default function SimulateurSolaireLead() {
                 {step === 7 && <Step7Project sim={sim} setSim={setSim} region={region} />}
                 {step === 8 && <Step8Battery sim={sim} setSim={setSim} region={region} />}
 
-                <div className="flex items-center justify-between mt-10 pt-6 border-t border-slate-100">
-                  <Button variant="ghost" onClick={goBack} disabled={step === 1} className="text-slate-500 hover:text-slate-900">
-                    <ArrowLeft className="w-4 h-4 mr-1.5" /> Retour
+                <div className="flex items-center justify-between gap-2 mt-6 md:mt-10 pt-4 md:pt-6 border-t border-slate-100">
+                  <Button variant="ghost" onClick={goBack} disabled={step === 1} className="text-slate-500 hover:text-slate-900 px-2 md:px-4">
+                    <ArrowLeft className="w-4 h-4 md:mr-1.5" /> <span className="hidden md:inline">Retour</span>
                   </Button>
                   <Button
                     onClick={goNext}
                     disabled={!canContinue()}
                     size="lg"
-                    className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold shadow-[0_15px_30px_-10px_hsl(35_95%_45%/0.7)] hover:scale-105 transition-all rounded-full px-7"
+                    className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold shadow-[0_15px_30px_-10px_hsl(35_95%_45%/0.7)] hover:scale-105 transition-all rounded-full px-4 md:px-7 text-sm md:text-base whitespace-nowrap"
                   >
                     {step === 8 ? "Calculer mes économies" : "Continuer"} <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
                 </div>
 
-                <p className="mt-5 pt-4 border-t border-slate-200/70 text-center text-[11px] leading-relaxed text-slate-500 max-w-2xl mx-auto italic">
+                <p className="mt-4 md:mt-5 pt-3 md:pt-4 border-t border-slate-200/70 text-center text-[10px] md:text-[11px] leading-relaxed text-slate-500 max-w-2xl mx-auto italic">
                   Estimations indicatives : les économies et subventions affichées peuvent varier selon votre situation, votre toiture et les dispositifs en vigueur. Une étude personnalisée gratuite peut vous être proposée en fin de parcours.
                 </p>
               </div>
@@ -812,23 +812,23 @@ const InfoBanner = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-const ChoiceCard = ({ selected, onClick, title, description, icon: Icon }: { selected: boolean; onClick: () => void; title: string; description?: string; icon?: any; }) => (
+const ChoiceCard = ({ selected, onClick, title, description, icon: Icon, compact }: { selected: boolean; onClick: () => void; title: string; description?: string; icon?: any; compact?: boolean }) => (
   <button type="button" onClick={onClick} aria-pressed={selected}
-    className={`group relative w-full text-left p-5 rounded-2xl border-2 transition-all duration-300 overflow-hidden ${selected ? "border-orange-500 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-[0_18px_40px_-15px_hsl(35_95%_45%/0.55)] -translate-y-0.5" : "border-slate-200 bg-white hover:border-amber-400 hover:shadow-[0_12px_30px_-15px_hsl(35_95%_45%/0.35)] hover:-translate-y-0.5"}`}>
+    className={`group relative w-full text-left ${compact ? "p-3" : "p-3.5 md:p-5"} rounded-2xl border-2 transition-all duration-300 overflow-hidden ${selected ? "border-orange-500 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-[0_18px_40px_-15px_hsl(35_95%_45%/0.55)] -translate-y-0.5" : "border-slate-200 bg-white hover:border-amber-400 hover:shadow-[0_12px_30px_-15px_hsl(35_95%_45%/0.35)] hover:-translate-y-0.5"}`}>
     {selected && <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-gradient-to-br from-amber-300/40 to-orange-400/30 blur-2xl pointer-events-none" aria-hidden />}
-    <div className="relative flex items-start justify-between mb-4">
+    <div className={`relative flex items-center ${compact ? "gap-2.5" : "gap-3 md:block md:gap-0"}`}>
       {Icon && (
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${selected ? "bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 shadow-[0_8px_20px_-6px_hsl(35_95%_45%/0.6)] scale-110" : "bg-gradient-to-br from-slate-100 to-slate-50 text-slate-400 group-hover:from-amber-100 group-hover:to-orange-100 group-hover:text-orange-600"}`}>
-          <Icon className="w-6 h-6" strokeWidth={2} />
+        <div className={`${compact ? "w-9 h-9" : "w-10 h-10 md:w-12 md:h-12 md:mb-3"} rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${selected ? "bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 shadow-[0_8px_20px_-6px_hsl(35_95%_45%/0.6)]" : "bg-gradient-to-br from-slate-100 to-slate-50 text-slate-400 group-hover:from-amber-100 group-hover:to-orange-100 group-hover:text-orange-600"}`}>
+          <Icon className={compact ? "w-4 h-4" : "w-5 h-5 md:w-6 md:h-6"} strokeWidth={2} />
         </div>
       )}
-      <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${selected ? "bg-orange-500 text-white scale-100 shadow-md" : "bg-slate-100 text-transparent scale-90 group-hover:bg-amber-100"}`}>
-        <Check className="w-3.5 h-3.5" strokeWidth={3} />
+      <div className="relative flex-1 min-w-0">
+        <h4 className={`font-bold ${compact ? "text-sm" : "text-sm md:text-base"} leading-tight ${selected ? "text-slate-900" : "text-slate-800"}`}>{title}</h4>
+        {description && !compact && <p className={`text-[11px] md:text-xs mt-0.5 md:mt-1 leading-snug ${selected ? "text-slate-600" : "text-slate-500"}`}>{description}</p>}
       </div>
-    </div>
-    <div className="relative">
-      <h4 className={`font-bold text-base leading-tight ${selected ? "text-slate-900" : "text-slate-800"}`}>{title}</h4>
-      {description && <p className={`text-xs mt-1 leading-relaxed ${selected ? "text-slate-600" : "text-slate-500"}`}>{description}</p>}
+      <div className={`w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 ${selected ? "bg-orange-500 text-white shadow-md" : "bg-slate-100 text-transparent group-hover:bg-amber-100"} ${compact ? "" : "md:absolute md:top-4 md:right-4"}`}>
+        <Check className="w-3 h-3 md:w-3.5 md:h-3.5" strokeWidth={3} />
+      </div>
     </div>
   </button>
 );
@@ -908,29 +908,29 @@ const Step1Location = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
 const SurfaceSlider = ({ value, onChange }: { value: number | ""; onChange: (n: number) => void }) => {
   const v = typeof value === "number" ? value : 100;
   const pct = Math.max(0, Math.min(100, ((v - 20) / (400 - 20)) * 100));
-  const tier = v < 80 ? "Petit logement" : v < 130 ? "Logement standard" : v < 200 ? "Grand logement" : "Très grand logement";
+  const tier = v < 80 ? "Petit" : v < 130 ? "Standard" : v < 200 ? "Grand" : "Très grand";
   return (
-    <div className="relative p-5 md:p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 border border-amber-400/30 shadow-[0_15px_40px_-15px_hsl(24_60%_8%/0.5)] overflow-hidden">
+    <div className="relative p-4 md:p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 border border-amber-400/30 shadow-[0_15px_40px_-15px_hsl(24_60%_8%/0.5)] overflow-hidden">
       <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-amber-400/20 blur-3xl pointer-events-none" aria-hidden />
       <div className="absolute -bottom-12 -left-12 w-40 h-40 rounded-full bg-orange-500/20 blur-3xl pointer-events-none" aria-hidden />
       <div className="relative">
-        <div className="flex items-end justify-between mb-5 gap-4">
-          <div>
-            <p className="text-amber-300 text-[11px] font-bold uppercase tracking-widest mb-1">Superficie habitable</p>
-            <div className="flex items-baseline gap-2">
+        <div className="flex items-center justify-between mb-4 gap-3">
+          <div className="min-w-0">
+            <p className="text-amber-300 text-[10px] md:text-[11px] font-bold uppercase tracking-widest mb-0.5">Superficie habitable</p>
+            <div className="flex items-baseline gap-1.5">
               <input type="number" min={20} max={1000} value={typeof value === "number" ? value : ""}
                 onChange={(e) => { const n = e.target.value === "" ? 0 : Math.max(0, Math.min(1000, parseInt(e.target.value, 10) || 0)); onChange(n); }}
-                placeholder="100" className="bg-transparent text-white text-5xl md:text-6xl font-bold tracking-tight w-32 md:w-40 outline-none border-b-2 border-amber-400/40 focus:border-amber-300 transition-colors" />
-              <span className="text-amber-300 text-2xl md:text-3xl font-bold">m²</span>
+                placeholder="100" className="bg-transparent text-white text-4xl md:text-6xl font-bold tracking-tight w-24 md:w-40 outline-none border-b-2 border-amber-400/40 focus:border-amber-300 transition-colors" />
+              <span className="text-amber-300 text-xl md:text-3xl font-bold">m²</span>
             </div>
           </div>
-          <span className="text-xs font-semibold text-slate-900 bg-gradient-to-r from-amber-300 to-amber-400 px-3 py-1.5 rounded-full whitespace-nowrap shadow-md">{tier}</span>
+          <span className="text-[10px] md:text-xs font-semibold text-slate-900 bg-gradient-to-r from-amber-300 to-amber-400 px-2.5 py-1 md:px-3 md:py-1.5 rounded-full whitespace-nowrap shadow-md shrink-0">{tier}</span>
         </div>
-        <div className="relative pt-2">
+        <div className="relative pt-1">
           <Slider min={20} max={400} step={5} value={[v]} onValueChange={(vals) => onChange(vals[0])}
-            className="[&_[role=slider]]:h-7 [&_[role=slider]]:w-7 [&_[role=slider]]:border-2 [&_[role=slider]]:border-amber-300 [&_[role=slider]]:bg-gradient-to-br [&_[role=slider]]:from-amber-300 [&_[role=slider]]:to-orange-500 [&_[role=slider]]:shadow-[0_0_20px_hsl(35_95%_60%/0.7)] [&_[role=slider]]:focus-visible:ring-amber-300 [&>span:first-child]:h-2 [&>span:first-child]:bg-white/10 [&_[data-orientation=horizontal]>span]:bg-gradient-to-r [&_[data-orientation=horizontal]>span]:from-amber-400 [&_[data-orientation=horizontal]>span]:to-orange-500" />
-          <div className="relative mt-3 h-6 px-[14px]">
-            {[20, 80, 130, 200, 400].map((m) => {
+            className="[&_[role=slider]]:h-6 [&_[role=slider]]:w-6 [&_[role=slider]]:border-2 [&_[role=slider]]:border-amber-300 [&_[role=slider]]:bg-gradient-to-br [&_[role=slider]]:from-amber-300 [&_[role=slider]]:to-orange-500 [&_[role=slider]]:shadow-[0_0_20px_hsl(35_95%_60%/0.7)] [&_[role=slider]]:focus-visible:ring-amber-300 [&>span:first-child]:h-2 [&>span:first-child]:bg-white/10 [&_[data-orientation=horizontal]>span]:bg-gradient-to-r [&_[data-orientation=horizontal]>span]:from-amber-400 [&_[data-orientation=horizontal]>span]:to-orange-500" />
+          <div className="relative mt-2.5 h-5 px-[12px]">
+            {[20, 130, 400].map((m) => {
               const left = ((m - 20) / (400 - 20)) * 100;
               return (
                 <span key={m} className="absolute top-0 flex flex-col items-center gap-1 text-[10px] text-white/60 font-semibold -translate-x-1/2" style={{ left: `${left}%` }}>
@@ -939,9 +939,6 @@ const SurfaceSlider = ({ value, onChange }: { value: number | ""; onChange: (n: 
               );
             })}
           </div>
-        </div>
-        <div className="mt-5 flex items-center gap-2 text-amber-200/80 text-xs">
-          <Ruler className="w-3.5 h-3.5" /><span>Faites glisser ou saisissez directement votre superficie</span>
         </div>
       </div>
       <div className="absolute left-0 right-0 bottom-0 h-1">
@@ -1097,9 +1094,9 @@ const Step5Equipments = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
   return (
     <div>
       <StepTitle icon={Zap} title="Quels équipements possédez-vous ?" subtitle="Plusieurs choix possibles. Cela nous aide à mieux estimer votre consommation." />
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
         {EQUIPMENTS.map((e) => (
-          <ChoiceCard key={e.id} icon={e.icon} title={e.label} description={e.desc} selected={sim.equipments.includes(e.id)} onClick={() => toggle(e.id)} />
+          <ChoiceCard key={e.id} icon={e.icon} title={e.label} selected={sim.equipments.includes(e.id)} onClick={() => toggle(e.id)} compact />
         ))}
       </div>
       {sim.equipments.length > 0 && (
@@ -1200,15 +1197,15 @@ const Step8Battery = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: 
       {/* Visuel animé */}
       <div className="relative rounded-3xl overflow-hidden border-2 border-amber-200 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-[0_25px_60px_-20px_hsl(35_95%_45%/0.55)]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(35_95%_60%/0.25),transparent_60%)]" aria-hidden />
-        <div className="relative flex items-center justify-center p-6 md:p-8 min-h-[280px]">
+        <div className="relative flex items-center justify-center p-4 md:p-8 min-h-[180px] md:min-h-[280px]">
           <img
             key={gifSrc}
             src={gifSrc}
             alt={showWithBattery ? "Installation solaire avec batterie de stockage" : "Installation solaire avec onduleur"}
-            className="max-h-[280px] w-auto object-contain animate-fade-in drop-shadow-[0_10px_30px_hsl(35_95%_45%/0.35)]"
+            className="max-h-[180px] md:max-h-[280px] w-auto object-contain animate-fade-in drop-shadow-[0_10px_30px_hsl(35_95%_45%/0.35)]"
           />
         </div>
-        <div className="relative px-6 pb-5 flex flex-wrap items-center justify-center gap-2">
+        <div className="relative px-4 md:px-6 pb-4 md:pb-5 flex flex-wrap items-center justify-center gap-2">
           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all ${!showWithBattery ? "bg-amber-400 text-slate-900 shadow-md" : "bg-white/10 text-white/70"}`}>
             Sans batterie
           </span>
@@ -1219,22 +1216,22 @@ const Step8Battery = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: 
         </div>
       </div>
 
-      {/* Bénéfices */}
-      <div className="grid sm:grid-cols-3 gap-3 mt-6">
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200">
-          <ShieldCheck className="w-5 h-5 text-orange-600 mb-2" />
-          <p className="text-sm font-bold text-slate-900">Backup anti-coupure</p>
-          <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">Vos appareils continuent de fonctionner en cas de coupure réseau.{region.island && <> Essentiel dans les îles.</>}</p>
+      {/* Bénéfices — compact mobile */}
+      <div className="grid grid-cols-3 gap-2 md:gap-3 mt-4 md:mt-6">
+        <div className="p-2.5 md:p-4 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200">
+          <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-2" />
+          <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Backup anti-coupure</p>
+          <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Vos appareils continuent de fonctionner en cas de coupure réseau.{region.island && <> Essentiel dans les îles.</>}</p>
         </div>
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200">
-          <TrendingUp className="w-5 h-5 text-orange-600 mb-2" />
-          <p className="text-sm font-bold text-slate-900">Meilleure autonomie</p>
-          <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">Consommez votre propre énergie même la nuit. Autoconsommation jusqu'à 80%.</p>
+        <div className="p-2.5 md:p-4 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200">
+          <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-2" />
+          <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Meilleure autonomie</p>
+          <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Consommez votre propre énergie même la nuit. Autoconsommation jusqu'à 80%.</p>
         </div>
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200">
-          <PiggyBank className="w-5 h-5 text-orange-600 mb-2" />
-          <p className="text-sm font-bold text-slate-900">Rentable à long terme</p>
-          <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">Coût initial supérieur, mais protège contre la hausse continue du prix de l'électricité.</p>
+        <div className="p-2.5 md:p-4 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200">
+          <PiggyBank className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-2" />
+          <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Rentable long terme</p>
+          <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Coût initial supérieur, mais protège contre la hausse continue du prix de l'électricité.</p>
         </div>
       </div>
 
@@ -1640,32 +1637,57 @@ const ResultsPanel = ({
           </div>
         </div>
 
-        {/* Overlay CTA de déblocage */}
+        {/* Overlay CTA de déblocage — sticky sur mobile pour suivre le scroll */}
         {!unlocked && (
-          <div className="absolute inset-0 z-10 flex items-end md:items-center justify-center px-4 pb-8 md:pb-0">
-            <div className="w-full max-w-md bg-white/95 backdrop-blur-xl border border-amber-200 rounded-2xl shadow-[0_25px_60px_-15px_hsl(24_60%_8%/0.5)] p-6 text-center">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 mb-3 shadow-lg">
-                <Lock className="w-7 h-7" />
-              </div>
-              <p className="text-lg font-bold text-slate-900 mb-1">Débloquez votre étude complète</p>
-              <p className="text-xs text-slate-600 mb-4">
-                Économies sur 25 ans, aides estimées, rentabilité, impact CO₂ et détail personnalisé.
-              </p>
-              <div className="flex items-center gap-2 justify-center">
-                <Button variant="ghost" size="sm" onClick={onEdit} className="text-slate-600 hover:text-slate-900">
-                  Modifier
-                </Button>
-                <Button size="lg" onClick={onUnlockClick} className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold rounded-full shadow-lg px-6">
-                  Débloquer <ArrowRight className="w-4 h-4 ml-1.5" />
-                </Button>
-              </div>
-              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-4 text-[10px] font-semibold text-slate-500">
-                <span className="inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-emerald-600" /> RGPD</span>
-                <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3 text-orange-500" /> 30 secondes</span>
-                <span className="inline-flex items-center gap-1"><Lock className="w-3 h-3 text-slate-400" /> Aucun spam</span>
+          <>
+            {/* Mobile : fixed bottom, suit toujours */}
+            <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 px-3 pb-3 pt-6 bg-gradient-to-t from-white via-white/95 to-transparent pointer-events-none">
+              <div className="pointer-events-auto w-full max-w-md mx-auto bg-white/95 backdrop-blur-xl border border-amber-200 rounded-2xl shadow-[0_25px_60px_-15px_hsl(24_60%_8%/0.5)] p-4 text-center">
+                <div className="flex items-center gap-3">
+                  <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 shadow-lg shrink-0">
+                    <Lock className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0 text-left">
+                    <p className="text-sm font-bold text-slate-900 leading-tight">Débloquez votre étude</p>
+                    <p className="text-[11px] text-slate-600 leading-tight">Économies 25 ans · aides · rentabilité</p>
+                  </div>
+                  <Button size="sm" onClick={onUnlockClick} className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold rounded-full shadow-lg px-4 shrink-0">
+                    Débloquer <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                  </Button>
+                </div>
+                <div className="flex items-center justify-center gap-x-3 mt-2.5 text-[10px] font-semibold text-slate-500">
+                  <span className="inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-emerald-600" /> RGPD</span>
+                  <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3 text-orange-500" /> 30 s</span>
+                  <button onClick={onEdit} className="text-slate-500 underline hover:text-slate-900">Modifier</button>
+                </div>
               </div>
             </div>
-          </div>
+            {/* Desktop : centré */}
+            <div className="hidden md:flex absolute inset-0 z-10 items-center justify-center px-4">
+              <div className="w-full max-w-md bg-white/95 backdrop-blur-xl border border-amber-200 rounded-2xl shadow-[0_25px_60px_-15px_hsl(24_60%_8%/0.5)] p-6 text-center">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 mb-3 shadow-lg">
+                  <Lock className="w-7 h-7" />
+                </div>
+                <p className="text-lg font-bold text-slate-900 mb-1">Débloquez votre étude complète</p>
+                <p className="text-xs text-slate-600 mb-4">
+                  Économies sur 25 ans, aides estimées, rentabilité, impact CO₂ et détail personnalisé.
+                </p>
+                <div className="flex items-center gap-2 justify-center">
+                  <Button variant="ghost" size="sm" onClick={onEdit} className="text-slate-600 hover:text-slate-900">
+                    Modifier
+                  </Button>
+                  <Button size="lg" onClick={onUnlockClick} className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold rounded-full shadow-lg px-6">
+                    Débloquer <ArrowRight className="w-4 h-4 ml-1.5" />
+                  </Button>
+                </div>
+                <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-4 text-[10px] font-semibold text-slate-500">
+                  <span className="inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-emerald-600" /> RGPD</span>
+                  <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3 text-orange-500" /> 30 secondes</span>
+                  <span className="inline-flex items-center gap-1"><Lock className="w-3 h-3 text-slate-400" /> Aucun spam</span>
+                </div>
+              </div>
+            </div>
+          </>
         )}
 
         <p className="mt-8 text-center text-[11px] leading-relaxed text-slate-400 max-w-2xl mx-auto px-4">
