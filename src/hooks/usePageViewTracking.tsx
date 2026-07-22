@@ -7,6 +7,19 @@ import { useAuth } from "@/hooks/useAuth";
 const VISITOR_KEY = "visitor_id";
 const UTM_KEY = "attribution";
 const CONSENT_KEY = "cookies_accepted";
+const VISITOR_INFO_KEY = "visitor_info_v1";
+
+// Backoffice / admin routes NEVER tracked — they pollute analytics.
+const EXCLUDED_PREFIXES = [
+  "/admin",
+  "/administration",
+  "/dashboard",
+  "/gerer-",
+  "/mon-compte",
+  "/profil",
+];
+const shouldTrack = (path: string) =>
+  !EXCLUDED_PREFIXES.some((p) => path === p || path.startsWith(p + "/"));
 
 const hasConsent = (): boolean => {
   try {
@@ -32,6 +45,33 @@ const detectDevice = (): string => {
   return "desktop";
 };
 
+const detectBrowser = (): string => {
+  const ua = navigator.userAgent;
+  if (/Edg\//.test(ua)) return "Edge";
+  if (/OPR\//.test(ua)) return "Opera";
+  if (/Chrome\//.test(ua) && !/Chromium/.test(ua)) return "Chrome";
+  if (/Firefox\//.test(ua)) return "Firefox";
+  if (/Safari\//.test(ua) && !/Chrome/.test(ua)) return "Safari";
+  return "Autre";
+};
+
+type VisitorInfo = { ip: string | null; country: string | null };
+
+const getVisitorInfo = async (): Promise<VisitorInfo> => {
+  try {
+    const cached = sessionStorage.getItem(VISITOR_INFO_KEY);
+    if (cached) return JSON.parse(cached);
+  } catch { /* noop */ }
+  try {
+    const { data } = await supabase.functions.invoke("visitor-info", { body: {} });
+    const info = { ip: data?.ip ?? null, country: data?.country ?? null };
+    try { sessionStorage.setItem(VISITOR_INFO_KEY, JSON.stringify(info)); } catch { /* noop */ }
+    return info;
+  } catch {
+    return { ip: null, country: null };
+  }
+};
+
 type Attribution = {
   utm_source: string | null;
   utm_medium: string | null;
@@ -45,23 +85,14 @@ const captureAttribution = (search: string): Attribution => {
     utm_medium: params.get("utm_medium"),
     utm_campaign: params.get("utm_campaign"),
   };
-
-  // Persist first-touch attribution for the session
   if (fromUrl.utm_source || fromUrl.utm_medium || fromUrl.utm_campaign) {
-    try {
-      sessionStorage.setItem(UTM_KEY, JSON.stringify(fromUrl));
-    } catch {
-      /* noop */
-    }
+    try { sessionStorage.setItem(UTM_KEY, JSON.stringify(fromUrl)); } catch { /* noop */ }
     return fromUrl;
   }
-
   try {
     const stored = sessionStorage.getItem(UTM_KEY);
     if (stored) return JSON.parse(stored) as Attribution;
-  } catch {
-    /* noop */
-  }
+  } catch { /* noop */ }
   return { utm_source: null, utm_medium: null, utm_campaign: null };
 };
 
@@ -99,6 +130,12 @@ export const usePageViewTracking = () => {
     const trackPageView = async () => {
       const currentPath = location.pathname + location.search;
       if (lastTrackedPath.current === currentPath) return;
+      // Skip admin/backoffice routes
+      if (!shouldTrack(location.pathname)) {
+        lastTrackedPath.current = currentPath;
+        pageViewIdRef.current = null;
+        return;
+      }
 
       sendDuration();
       lastTrackedPath.current = currentPath;
@@ -106,6 +143,7 @@ export const usePageViewTracking = () => {
 
       try {
         const attribution = captureAttribution(location.search);
+        const info = await getVisitorInfo();
         const { data } = await supabase
           .from("page_views")
           .insert({
@@ -116,6 +154,9 @@ export const usePageViewTracking = () => {
             user_agent: navigator.userAgent,
             referrer: document.referrer || null,
             device_type: detectDevice(),
+            browser: detectBrowser(),
+            ip_address: info.ip,
+            country: info.country,
             utm_source: attribution.utm_source,
             utm_medium: attribution.utm_medium,
             utm_campaign: attribution.utm_campaign,
