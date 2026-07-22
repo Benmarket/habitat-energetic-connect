@@ -3,9 +3,10 @@ import { useSearchParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Loader2, AlertCircle, Mail } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle2, Loader2, AlertCircle, ArrowRight, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 type Status = "loading" | "success" | "already" | "error";
@@ -39,7 +40,7 @@ const NewsletterQuickSubscribe = () => {
           setMessage("Vous êtes déjà inscrit(e) à notre newsletter.");
         } else {
           setStatus("success");
-          setMessage("Votre inscription à la newsletter est confirmée !");
+          setMessage("Inscription confirmée !");
         }
       } catch {
         if (!cancelled) {
@@ -48,7 +49,9 @@ const NewsletterQuickSubscribe = () => {
         }
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [email]);
 
   return (
@@ -60,68 +63,84 @@ const NewsletterQuickSubscribe = () => {
       <div className="min-h-screen bg-background flex flex-col">
         <Header />
         <main className="flex-1 container mx-auto px-4 py-16 max-w-2xl">
-          <Card className="border-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-2xl">
-                <Mail className="w-6 h-6 text-emerald-600" />
+          <Card className="overflow-hidden border-border/50 shadow-xl border-l-4 border-l-primary">
+            <CardContent className="p-8 md:p-10 flex flex-col">
+              <Badge
+                variant="secondary"
+                className="mb-5 self-start bg-primary/10 text-primary hover:bg-primary/20 rounded-full px-4 py-1 uppercase tracking-wider text-xs font-bold"
+              >
+                <Sparkles className="w-3.5 h-3.5 mr-1.5" />
                 Newsletter Prime Energies
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
+              </Badge>
+
               {status === "loading" && (
-                <div className="flex items-center gap-3 text-muted-foreground">
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Confirmation de votre inscription en cours…
-                </div>
+                <>
+                  <h1 className="text-2xl md:text-3xl font-bold mb-3 leading-tight tracking-tight">
+                    Confirmation en cours…
+                  </h1>
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Validation de votre inscription</span>
+                  </div>
+                </>
               )}
 
               {status === "success" && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 text-emerald-700">
-                    <CheckCircle2 className="w-6 h-6" />
-                    <p className="font-semibold text-lg">{message}</p>
-                  </div>
-                  <p className="text-muted-foreground">
+                <>
+                  <h1 className="text-2xl md:text-3xl font-bold mb-3 leading-tight tracking-tight flex items-center gap-2">
+                    <CheckCircle2 className="w-7 h-7 text-primary shrink-0" />
+                    {message}
+                  </h1>
+                  <p className="text-muted-foreground text-base leading-relaxed mb-6">
                     Merci ! Vous recevrez nos prochaines actualités énergie
-                    (aides, économies, innovations) directement dans votre boîte
-                    <strong> {email}</strong>. Un email de bienvenue vient de
-                    partir avec nos 3 derniers articles.
+                    (aides, primes, économies, innovations) directement sur{" "}
+                    <strong className="text-foreground">{email}</strong>. Un
+                    email de bienvenue vient de partir avec nos derniers
+                    articles.
                   </p>
-                </div>
+                </>
               )}
 
               {status === "already" && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 text-blue-700">
-                    <CheckCircle2 className="w-6 h-6" />
-                    <p className="font-semibold text-lg">{message}</p>
-                  </div>
-                  <p className="text-muted-foreground">
-                    Rien à faire, vous recevrez chaque nouvelle actualité
-                    publiée.
+                <>
+                  <h1 className="text-2xl md:text-3xl font-bold mb-3 leading-tight tracking-tight flex items-center gap-2">
+                    <CheckCircle2 className="w-7 h-7 text-primary shrink-0" />
+                    {message}
+                  </h1>
+                  <p className="text-muted-foreground text-base leading-relaxed mb-6">
+                    Rien à faire de plus, vous recevrez chaque nouvelle
+                    actualité publiée par notre équipe.
                   </p>
-                </div>
+                </>
               )}
 
               {status === "error" && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 text-destructive">
-                    <AlertCircle className="w-6 h-6" />
-                    <p className="font-semibold">{message}</p>
-                  </div>
-                  <p className="text-muted-foreground text-sm">
+                <>
+                  <h1 className="text-2xl md:text-3xl font-bold mb-3 leading-tight tracking-tight flex items-center gap-2">
+                    <AlertCircle className="w-7 h-7 text-destructive shrink-0" />
+                    Oups…
+                  </h1>
+                  <p className="text-muted-foreground text-base leading-relaxed mb-2">
+                    {message}
+                  </p>
+                  <p className="text-muted-foreground text-sm mb-6">
                     Vous pouvez vous inscrire manuellement via le formulaire en
                     pied de page du site.
                   </p>
-                </div>
+                </>
               )}
 
-              <div className="pt-4 flex gap-2">
-                <Link to="/">
-                  <Button variant="outline">Retour à l'accueil</Button>
+              <div className="flex flex-col sm:flex-row gap-3 pt-2 border-t border-border/50 mt-2">
+                <Link to="/actualites" className="flex-1">
+                  <Button className="w-full group">
+                    Voir les actualités
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Button>
                 </Link>
-                <Link to="/actualites">
-                  <Button>Voir les actualités</Button>
+                <Link to="/" className="flex-1">
+                  <Button variant="outline" className="w-full">
+                    Retour à l'accueil
+                  </Button>
                 </Link>
               </div>
             </CardContent>

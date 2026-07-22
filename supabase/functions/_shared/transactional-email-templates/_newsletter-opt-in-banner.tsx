@@ -7,59 +7,74 @@ interface Props {
 }
 
 /**
- * Small green CTA banner inserted in lead-confirmation emails to invite the
- * recipient to opt-in to the newsletter in one click. Mimics the visual style
- * of the site's actualités (news) cards: rounded, subtle border, green accent.
- * Renders nothing when `url` is missing (admin toggle OFF).
+ * Card-style opt-in block inspired by the site's ArticleCard component:
+ * white surface, subtle border, left green accent, bold title, muted excerpt,
+ * outlined green CTA button. Rendered inside lead-confirmation emails.
  */
 export const NewsletterOptInBanner = ({ url }: Props) => {
   if (!url) return null
   return (
     <tr>
-      <td style={{ padding: '0 40px 24px 40px' }}>
+      <td style={{ padding: '0 40px 28px 40px' }}>
         <Section
           style={{
-            background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
-            border: '1px solid #a7f3d0',
-            borderLeft: '4px solid #059669',
-            borderRadius: '12px',
-            padding: '20px 22px',
+            backgroundColor: '#ffffff',
+            border: '1px solid #e5e7eb',
+            borderLeft: '4px solid #10b981',
+            borderRadius: '14px',
+            padding: '24px 26px',
+            boxShadow: '0 1px 2px rgba(16, 24, 40, 0.04)',
           }}
         >
+          <Text
+            style={{
+              margin: '0 0 10px 0',
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              color: '#10b981',
+            }}
+          >
+            Newsletter Prime Energies
+          </Text>
           <Heading
             as="h3"
             style={{
-              margin: '0 0 6px 0',
-              fontSize: '17px',
+              margin: '0 0 10px 0',
+              fontSize: '20px',
               fontWeight: 700,
-              color: '#065f46',
+              color: '#0f172a',
               lineHeight: 1.3,
+              letterSpacing: '-0.01em',
             }}
           >
-            📩 Recevez nos actualités énergie
+            Restez informé des dernières actualités énergie
           </Heading>
           <Text
             style={{
-              margin: '0 0 14px 0',
+              margin: '0 0 20px 0',
               fontSize: '14px',
-              lineHeight: 1.55,
-              color: '#065f46',
+              lineHeight: 1.6,
+              color: '#64748b',
             }}
           >
-            Aides, économies, innovations : rejoignez notre newsletter en
-            <strong> 1 clic</strong>, sans remplir de formulaire.
+            Aides, primes, économies et innovations : recevez chaque nouvelle
+            publication directement dans votre boîte mail. Inscription en un
+            clic, sans formulaire.
           </Text>
           <Button
             href={url}
             style={{
-              backgroundColor: '#059669',
-              color: '#ffffff',
-              padding: '11px 22px',
-              borderRadius: '8px',
+              backgroundColor: '#ffffff',
+              color: '#10b981',
+              padding: '12px 24px',
+              borderRadius: '10px',
               fontSize: '14px',
-              fontWeight: 600,
+              fontWeight: 700,
               textDecoration: 'none',
               display: 'inline-block',
+              border: '1.5px solid #10b981',
             }}
           >
             Je m'inscris en 1 clic →
