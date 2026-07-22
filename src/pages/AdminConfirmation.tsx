@@ -85,10 +85,11 @@ const AdminConfirmation = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("");
   const [workType, setWorkType] = useState<WorkType>("mix");
-  const [memberLinks, setMemberLinks] = useState<{ signup: boolean; existing: boolean; guide: boolean }>({
+  const [memberLinks, setMemberLinks] = useState<{ signup: boolean; existing: boolean; guide: boolean; newsletter: boolean }>({
     signup: true,
     existing: true,
     guide: true,
+    newsletter: true,
   });
   const [savingLinks, setSavingLinks] = useState(false);
 
