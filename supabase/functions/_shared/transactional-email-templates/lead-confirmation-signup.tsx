@@ -42,6 +42,7 @@ import {
 import { WorkGallery, type CustomGalleryImage } from './_work-gallery.tsx'
 import type { WorkType } from './_email-design.ts'
 import { EmailBrandLogo } from './_email-brand-logo.tsx'
+import { NewsletterOptInBanner } from './_newsletter-opt-in-banner.tsx'
 
 interface Props {
   firstName?: string
@@ -53,6 +54,7 @@ interface Props {
   activationUrl?: string
   workType?: WorkType
   galleryImages?: CustomGalleryImage[]
+  newsletterOptInUrl?: string
 }
 
 const LeadConfirmationSignupEmail = ({
@@ -64,6 +66,7 @@ const LeadConfirmationSignupEmail = ({
   activationUrl = BRAND.siteUrl,
   workType,
   galleryImages,
+  newsletterOptInUrl,
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head><meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" /><meta charSet="utf-8" /></Head>
@@ -154,6 +157,8 @@ const LeadConfirmationSignupEmail = ({
                     </td>
                   </tr>
 
+                  <NewsletterOptInBanner url={newsletterOptInUrl} />
+
                   <tr>
                     <td style={hrSection}>
                       <div style={hr}>&nbsp;</div>
@@ -217,5 +222,6 @@ export const template = {
     formLabel: 'votre demande de devis solaire',
     requestSummary: 'Installation panneaux solaires • Maison individuelle • 75001 Paris',
     activationUrl: 'https://prime-energies.fr/inscription/activer?token=preview',
+    newsletterOptInUrl: 'https://prime-energies.fr/newsletter/inscription-rapide?email=jean.dupont%40example.com',
   },
 } satisfies TemplateEntry

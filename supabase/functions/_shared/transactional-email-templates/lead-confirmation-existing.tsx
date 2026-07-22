@@ -41,6 +41,7 @@ import {
 import { WorkGallery, type CustomGalleryImage } from './_work-gallery.tsx'
 import type { WorkType } from './_email-design.ts'
 import { EmailBrandLogo } from './_email-brand-logo.tsx'
+import { NewsletterOptInBanner } from './_newsletter-opt-in-banner.tsx'
 
 interface Props {
   firstName?: string
@@ -51,6 +52,7 @@ interface Props {
   loginUrl?: string
   workType?: WorkType
   galleryImages?: CustomGalleryImage[]
+  newsletterOptInUrl?: string
 }
 
 const LeadConfirmationExistingEmail = ({
@@ -62,6 +64,7 @@ const LeadConfirmationExistingEmail = ({
   loginUrl = `${BRAND.siteUrl}/auth`,
   workType,
   galleryImages,
+  newsletterOptInUrl,
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head><meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" /><meta charSet="utf-8" /></Head>
@@ -152,6 +155,8 @@ const LeadConfirmationExistingEmail = ({
                     </td>
                   </tr>
 
+                  <NewsletterOptInBanner url={newsletterOptInUrl} />
+
                   <tr>
                     <td style={hrSection}>
                       <div style={hr}>&nbsp;</div>
@@ -214,5 +219,6 @@ export const template = {
     formLabel: 'votre demande pour isolation des combles',
     requestSummary: 'Isolation combles perdus • Maison 110 m² • 33000 Bordeaux',
     loginUrl: 'https://prime-energies.fr/auth',
+    newsletterOptInUrl: 'https://prime-energies.fr/newsletter/inscription-rapide?email=jean.dupont%40example.com',
   },
 } satisfies TemplateEntry

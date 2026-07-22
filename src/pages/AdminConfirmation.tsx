@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Mail, CheckCircle2, AlertCircle, Loader2, ExternalLink, FileText, RefreshCw, Eye, Sun, Snowflake, Flame, Hammer, HelpCircle, Phone, UserPlus, LogIn, BookOpen } from "lucide-react";
+import { ArrowLeft, Mail, CheckCircle2, AlertCircle, Loader2, ExternalLink, FileText, RefreshCw, Eye, Sun, Snowflake, Flame, Hammer, HelpCircle, Phone, UserPlus, LogIn, BookOpen, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -85,10 +85,11 @@ const AdminConfirmation = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("");
   const [workType, setWorkType] = useState<WorkType>("mix");
-  const [memberLinks, setMemberLinks] = useState<{ signup: boolean; existing: boolean; guide: boolean }>({
+  const [memberLinks, setMemberLinks] = useState<{ signup: boolean; existing: boolean; guide: boolean; newsletter: boolean }>({
     signup: true,
     existing: true,
     guide: true,
+    newsletter: true,
   });
   const [savingLinks, setSavingLinks] = useState(false);
 
@@ -104,11 +105,12 @@ const AdminConfirmation = () => {
         signup: v.signup !== false,
         existing: v.existing !== false,
         guide: v.guide !== false,
+        newsletter: v.newsletter !== false,
       });
     }
   };
 
-  const updateMemberLink = async (key: "signup" | "existing" | "guide", value: boolean) => {
+  const updateMemberLink = async (key: "signup" | "existing" | "guide" | "newsletter", value: boolean) => {
     const next = { ...memberLinks, [key]: value };
     setMemberLinks(next);
     setSavingLinks(true);
@@ -271,6 +273,7 @@ const AdminConfirmation = () => {
                 { key: "signup", icon: UserPlus, label: "Nouveau lead — bandeau « Activer votre espace »", desc: "Template lead-confirmation-signup. Si OFF → bascule sur la confirmation simple (sans lien magique)." },
                 { key: "existing", icon: LogIn, label: "Compte existant — bandeau « Se connecter »", desc: "Template lead-confirmation-existing. Si OFF → bascule sur la confirmation simple." },
                 { key: "guide", icon: BookOpen, label: "Téléchargement guide — lien d'activation bonus", desc: "Template guide-download-confirmation. Si OFF → le lien d'activation n'est plus inclus dans l'email guide." },
+                { key: "newsletter", icon: Send, label: "Bandeau newsletter (vert) dans les emails de confirmation lead", desc: "Ajoute un CTA « Inscrivez-vous en 1 clic à la newsletter » (design actus) dans les 3 emails de confirmation lead. Non lié aux emails newsletter." },
               ] as const).map(({ key, icon: Icon, label, desc }) => {
                 const active = memberLinks[key];
                 return (

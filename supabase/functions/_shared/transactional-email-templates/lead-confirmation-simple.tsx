@@ -37,6 +37,7 @@ import {
 import { WorkGallery, type CustomGalleryImage } from './_work-gallery.tsx'
 import type { WorkType } from './_email-design.ts'
 import { EmailBrandLogo } from './_email-brand-logo.tsx'
+import { NewsletterOptInBanner } from './_newsletter-opt-in-banner.tsx'
 
 interface Props {
   firstName?: string
@@ -46,6 +47,7 @@ interface Props {
   requestSummary?: string
   workType?: WorkType
   galleryImages?: CustomGalleryImage[]
+  newsletterOptInUrl?: string
 }
 
 const LeadConfirmationSimpleEmail = ({
@@ -56,6 +58,7 @@ const LeadConfirmationSimpleEmail = ({
   requestSummary,
   workType,
   galleryImages,
+  newsletterOptInUrl,
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head><meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" /><meta charSet="utf-8" /></Head>
@@ -127,6 +130,8 @@ const LeadConfirmationSimpleEmail = ({
                     hint={`${formLabel} ${requestSummary ?? ''}`}
                   />
 
+                  <NewsletterOptInBanner url={newsletterOptInUrl} />
+
                   <tr>
                     <td style={hrSection}>
                       <div style={hr}>&nbsp;</div>
@@ -186,6 +191,7 @@ export const template = {
     firstName: 'Jean',
     phone: '06 12 34 56 78',
     email: 'jean.dupont@example.com',
+    newsletterOptInUrl: 'https://prime-energies.fr/newsletter/inscription-rapide?email=jean.dupont%40example.com',
     formLabel: 'votre demande de rappel',
     requestSummary: 'Demande de rappel téléphonique',
   },

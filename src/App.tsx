@@ -95,6 +95,7 @@ const ActivateAccount = lazy(() => import("./pages/ActivateAccount"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const DesinscriptionRegistre = lazy(() => import("./pages/DesinscriptionRegistre"));
 const NewsletterUnsubscribe = lazy(() => import("./pages/NewsletterUnsubscribe"));
+const NewsletterQuickSubscribe = lazy(() => import("./pages/NewsletterQuickSubscribe"));
 const PasswordReset = lazy(() => import("./pages/PasswordReset"));
 const Economies = lazy(() => import("./pages/Economies"));
 const AdminEconomiesAccess = lazy(() => import("./pages/AdminEconomiesAccess"));
@@ -242,6 +243,7 @@ const App = () => (
                   <Route path="/rgpd/desinscription" element={<Navigate to="/desinscription-registre" replace />} />
                   <Route path="/newsletter/desinscription" element={<NewsletterUnsubscribe />} />
                   <Route path="/newsletter/unsubscribe" element={<Navigate to="/newsletter/desinscription" replace />} />
+                  <Route path="/newsletter/inscription-rapide" element={<NewsletterQuickSubscribe />} />
 
                   {/* Catch-all */}
                   <Route path="*" element={<NotFound />} />
