@@ -236,6 +236,12 @@ Deno.serve(async (req) => {
   }
 
 
+  // Newsletter CTA (green banner) — only for lead confirmation emails,
+  // not guide-download nor partner-application.
+  if (allowNewsletterCta && !isGuideDownload) {
+    templateData.newsletterOptInUrl = `${origin}/newsletter/inscription-rapide?email=${encodeURIComponent(recipient.email)}`
+  }
+
   if (isGuideDownload) {
     // Template dédié téléchargement guide
     templateName = 'guide-download-confirmation'
