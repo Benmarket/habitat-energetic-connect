@@ -273,6 +273,7 @@ const AdminConfirmation = () => {
                 { key: "signup", icon: UserPlus, label: "Nouveau lead — bandeau « Activer votre espace »", desc: "Template lead-confirmation-signup. Si OFF → bascule sur la confirmation simple (sans lien magique)." },
                 { key: "existing", icon: LogIn, label: "Compte existant — bandeau « Se connecter »", desc: "Template lead-confirmation-existing. Si OFF → bascule sur la confirmation simple." },
                 { key: "guide", icon: BookOpen, label: "Téléchargement guide — lien d'activation bonus", desc: "Template guide-download-confirmation. Si OFF → le lien d'activation n'est plus inclus dans l'email guide." },
+                { key: "newsletter", icon: Send, label: "Bandeau newsletter (vert) dans les emails de confirmation lead", desc: "Ajoute un CTA « Inscrivez-vous en 1 clic à la newsletter » (design actus) dans les 3 emails de confirmation lead. Non lié aux emails newsletter." },
               ] as const).map(({ key, icon: Icon, label, desc }) => {
                 const active = memberLinks[key];
                 return (
