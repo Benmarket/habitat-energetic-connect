@@ -696,6 +696,19 @@ export default function AllLeadsPanel() {
                             <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5 flex-wrap">
                               {g.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{g.email}</span>}
                               {g.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{g.phone}</span>}
+                              {(() => {
+                                const page = prettyPath(last.attribution?.current_url) || prettyPath(last.attribution?.landing_url);
+                                if (!page) return null;
+                                return (
+                                  <span
+                                    className="flex items-center gap-1 font-mono"
+                                    title={last.attribution?.current_url || last.attribution?.landing_url || undefined}
+                                  >
+                                    <FileText className="h-3 w-3" />
+                                    {page}
+                                  </span>
+                                );
+                              })()}
                               <span>· {new Date(last.submittedAt).toLocaleString("fr-FR")}</span>
                             </div>
                           </div>
