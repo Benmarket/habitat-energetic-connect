@@ -569,7 +569,33 @@ export function useCreatePost() {
           ? "Article publié avec succès"
           : "Brouillon enregistré avec succès"
       );
-      
+
+      // Auto-broadcast newsletter for FIRST publication of an ACTUALITE only
+      const isFirstPublish =
+        status === "published" &&
+        contentType === "actualite" &&
+        previousStatus !== "published";
+      if (isFirstPublish && postId) {
+        supabase.functions
+          .invoke("admin-send-newsletter", {
+            body: { action: "broadcast_new_article", articleId: postId },
+          })
+          .then(({ data, error }) => {
+            if (error) {
+              console.error("[newsletter broadcast] error:", error);
+              toast.error("Newsletter : échec du déclenchement");
+            } else {
+              const queued = (data as any)?.queued ?? 0;
+              if (queued > 0) {
+                toast.success(`Newsletter envoyée à ${queued} abonné(s) 📧`);
+              } else {
+                toast.info("Aucun abonné actif à la newsletter");
+              }
+            }
+          })
+          .catch((e) => console.error("[newsletter broadcast] exception:", e));
+      }
+
       // Redirect based on content type
       const redirectMap: Record<string, string> = {
         guide: "/gerer-guides",
