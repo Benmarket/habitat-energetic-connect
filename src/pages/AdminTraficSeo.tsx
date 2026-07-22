@@ -442,12 +442,15 @@ const AdminTraficSeo = () => {
                 <RegionsStatsBlock />
               </div>
 
+              {/* Sessions visiteurs — données brutes du tracking */}
+              <VisitorSessionsTable rows={filteredRows} />
+
               <Card className="border-2 border-dashed">
                 <CardContent className="p-5 text-sm text-muted-foreground">
                   <p className="font-medium text-foreground mb-1">Conformité RGPD</p>
-                  Le tracking est activé uniquement après acceptation du bandeau cookies. Aucune donnée personnelle
-                  n'est collectée hors consentement. Les visiteurs peuvent retirer leur consentement à tout moment via
-                  le bandeau cookies, ce qui interrompt immédiatement la collecte.
+                  Le tracking anonyme (IP, pays, appareil, page vue) est activé dès la première visite pour mesurer la fréquentation.
+                  La persistance longue durée (identifiant visiteur récurrent) n'est activée qu'après acceptation du bandeau cookies.
+                  Les visiteurs peuvent retirer leur consentement à tout moment.
                 </CardContent>
               </Card>
             </div>
