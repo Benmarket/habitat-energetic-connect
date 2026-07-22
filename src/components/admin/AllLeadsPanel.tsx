@@ -93,9 +93,22 @@ type Attribution = {
   utm_medium?: string | null;
   utm_campaign?: string | null;
   landing_url?: string | null;
+  current_url?: string | null;
   gclid?: string | null;
   fbclid?: string | null;
 } | null;
+
+/** Turn a full URL into a short readable path like "/simulateurs/solaire". */
+function prettyPath(url?: string | null): string | null {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    const path = (u.pathname || "/") + (u.search || "");
+    return path.length > 60 ? path.slice(0, 57) + "…" : path;
+  } catch {
+    return url;
+  }
+}
 
 type ConsentInfo = {
   form_rgpd?: boolean;
