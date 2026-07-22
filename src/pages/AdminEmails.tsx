@@ -52,7 +52,12 @@ interface EmailLogRow {
   status: string | null;
   error_message: string | null;
   created_at: string;
+  opens?: number;
+  clicks?: number;
+  first_open_at?: string | null;
+  last_click_url?: string | null;
 }
+
 
 const STATUS_STYLES: Record<string, string> = {
   sent: "bg-emerald-100 text-emerald-700 border-emerald-200",
