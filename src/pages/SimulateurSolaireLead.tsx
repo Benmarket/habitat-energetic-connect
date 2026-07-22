@@ -794,12 +794,12 @@ const ProgressBar = ({ step }: { step: number }) => (
 );
 
 const StepTitle = ({ icon: Icon, title, subtitle }: { icon: any; title: React.ReactNode; subtitle?: string }) => (
-  <div className="mb-8">
-    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 mb-4 shadow-[0_12px_25px_-8px_hsl(35_95%_45%/0.6)]">
-      <Icon className="w-7 h-7" />
+  <div className="mb-5 md:mb-8">
+    <div className="inline-flex items-center justify-center w-11 h-11 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 mb-3 md:mb-4 shadow-[0_12px_25px_-8px_hsl(35_95%_45%/0.6)]">
+      <Icon className="w-6 h-6 md:w-7 md:h-7" />
     </div>
-    <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{title}</h2>
-    {subtitle && <p className="text-sm md:text-base text-slate-600 mt-2 leading-relaxed">{subtitle}</p>}
+    <h2 className="text-xl md:text-3xl font-bold text-slate-900 tracking-tight leading-tight">{title}</h2>
+    {subtitle && <p className="text-sm md:text-base text-slate-600 mt-1.5 md:mt-2 leading-relaxed">{subtitle}</p>}
   </div>
 );
 
