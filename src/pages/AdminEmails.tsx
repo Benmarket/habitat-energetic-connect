@@ -295,13 +295,26 @@ const AdminEmails = () => {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
             <StatCard label="Total" value={stats.total} />
             <StatCard label="Envoyés" value={stats.sent} tone="emerald" />
+            <StatCard
+              label="Ouverts"
+              value={stats.opened}
+              tone="blue"
+              hint={stats.sent > 0 ? `${Math.round((stats.opened / stats.sent) * 100)}%` : undefined}
+            />
+            <StatCard
+              label="Cliqués"
+              value={stats.clicked}
+              tone="violet"
+              hint={stats.sent > 0 ? `${Math.round((stats.clicked / stats.sent) * 100)}%` : undefined}
+            />
             <StatCard label="Échecs" value={stats.failed} tone="red" />
             <StatCard label="Supprimés" value={stats.suppressed} tone="amber" />
             <StatCard label="En attente" value={stats.pending} tone="slate" />
           </div>
+
 
           {/* Filters */}
           <Card className="mb-6">
