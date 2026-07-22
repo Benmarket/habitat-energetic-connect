@@ -219,5 +219,6 @@ export const template = {
     formLabel: 'votre demande pour isolation des combles',
     requestSummary: 'Isolation combles perdus • Maison 110 m² • 33000 Bordeaux',
     loginUrl: 'https://prime-energies.fr/auth',
+    newsletterOptInUrl: 'https://prime-energies.fr/newsletter/inscription-rapide?email=jean.dupont%40example.com',
   },
 } satisfies TemplateEntry

@@ -191,6 +191,7 @@ export const template = {
     firstName: 'Jean',
     phone: '06 12 34 56 78',
     email: 'jean.dupont@example.com',
+    newsletterOptInUrl: 'https://prime-energies.fr/newsletter/inscription-rapide?email=jean.dupont%40example.com',
     formLabel: 'votre demande de rappel',
     requestSummary: 'Demande de rappel téléphonique',
   },

@@ -222,5 +222,6 @@ export const template = {
     formLabel: 'votre demande de devis solaire',
     requestSummary: 'Installation panneaux solaires • Maison individuelle • 75001 Paris',
     activationUrl: 'https://prime-energies.fr/inscription/activer?token=preview',
+    newsletterOptInUrl: 'https://prime-energies.fr/newsletter/inscription-rapide?email=jean.dupont%40example.com',
   },
 } satisfies TemplateEntry
