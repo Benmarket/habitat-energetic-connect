@@ -403,10 +403,10 @@ const ArticleDetail = () => {
         <Header />
         <Breadcrumb items={breadcrumbItems} />
         
-        <main className="pt-20">
+        <main>
           {/* Hero Section */}
           {article.featured_image ? (
-            <section className="relative h-[400px] lg:h-[500px] overflow-hidden">
+            <section className="relative h-[320px] sm:h-[400px] lg:h-[500px] overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 z-10" />
               <img
                 src={article.featured_image}
@@ -414,12 +414,12 @@ const ArticleDetail = () => {
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 z-20 flex items-end">
-                <div className="container mx-auto px-4 pb-12">
-                  <div className="flex flex-wrap items-center gap-3 mb-6">
+                <div className="container mx-auto px-4 pb-6 sm:pb-12">
+                  <div className="flex flex-wrap items-center gap-3 mb-3 sm:mb-6">
 
                     <Link 
                       to={`/${basePath}`}
-                      className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors"
+                      className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors text-sm sm:text-base"
                     >
                       <ArrowLeft className="w-4 h-4" />
                       Retour aux {basePath}
@@ -432,7 +432,7 @@ const ArticleDetail = () => {
                       </Link>
                     )}
                   </div>
-                  <h1 className="text-3xl lg:text-5xl font-bold text-white mb-4 max-w-4xl">
+                  <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-white mb-3 sm:mb-4 max-w-4xl break-words hyphens-auto" lang="fr">
                     {article.title}
                   </h1>
                   <div className="flex flex-wrap items-center gap-4 text-white/90 text-sm">
@@ -457,12 +457,12 @@ const ArticleDetail = () => {
               </div>
             </section>
           ) : (
-            <section className="bg-muted py-16">
+            <section className="bg-muted py-8 sm:py-16">
               <div className="container mx-auto px-4">
-                <div className="flex flex-wrap items-center gap-3 mb-6">
+                <div className="flex flex-wrap items-center gap-3 mb-4 sm:mb-6">
                   <Link 
                     to={`/${basePath}`}
-                    className="inline-flex items-center gap-2 text-foreground hover:text-primary transition-colors"
+                    className="inline-flex items-center gap-2 text-foreground hover:text-primary transition-colors text-sm sm:text-base"
                   >
                     <ArrowLeft className="w-4 h-4" />
                     Retour aux {basePath}
@@ -475,7 +475,7 @@ const ArticleDetail = () => {
                     </Link>
                   )}
                 </div>
-                <h1 className="text-3xl lg:text-5xl font-bold text-foreground mb-4 max-w-4xl">
+                <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-foreground mb-3 sm:mb-4 max-w-4xl break-words hyphens-auto" lang="fr">
                   {article.title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-4 text-muted-foreground text-sm">
@@ -501,7 +501,7 @@ const ArticleDetail = () => {
           )}
 
           {/* Article Content */}
-          <article className="py-12 lg:py-16">
+          <article className="py-8 sm:py-12 lg:py-16">
             <div className="container mx-auto px-4">
               <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10 max-w-6xl mx-auto">
                 {/* Main Content Column */}
@@ -550,7 +550,7 @@ const ArticleDetail = () => {
 
                   {/* Lead / Excerpt */}
                   {article.excerpt && (
-                    <p className="text-lg lg:text-xl text-muted-foreground mb-8 leading-relaxed font-light">
+                    <p className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-8 leading-relaxed font-light">
                       {article.excerpt}
                     </p>
                   )}
@@ -572,14 +572,16 @@ const ArticleDetail = () => {
 
                   {/* Article Body */}
                   <div 
-                    className="article-content prose prose-lg max-w-none
-                      prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight
-                      prose-h2:text-[1.75rem] lg:prose-h2:text-[2rem] prose-h2:mt-14 prose-h2:mb-6 prose-h2:pb-3 prose-h2:border-b prose-h2:border-primary/20
-                      prose-h3:text-[1.35rem] lg:prose-h3:text-[1.5rem] prose-h3:mt-10 prose-h3:mb-4 prose-h3:text-foreground/90
-                      prose-p:text-foreground prose-p:leading-[1.8] prose-p:mb-5
+                    lang="fr"
+                    className="article-content prose prose-base sm:prose-lg max-w-none break-words hyphens-auto
+                      prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight prose-headings:break-words prose-headings:hyphens-auto
+                      prose-h1:text-2xl sm:prose-h1:text-3xl lg:prose-h1:text-4xl prose-h1:mt-10 prose-h1:mb-5
+                      prose-h2:text-xl sm:prose-h2:text-[1.75rem] lg:prose-h2:text-[2rem] prose-h2:mt-10 sm:prose-h2:mt-14 prose-h2:mb-5 sm:prose-h2:mb-6 prose-h2:pb-3 prose-h2:border-b prose-h2:border-primary/20
+                      prose-h3:text-lg sm:prose-h3:text-[1.35rem] lg:prose-h3:text-[1.5rem] prose-h3:mt-8 sm:prose-h3:mt-10 prose-h3:mb-4 prose-h3:text-foreground/90
+                      prose-p:text-foreground prose-p:leading-[1.75] prose-p:mb-5
                       prose-strong:text-foreground prose-strong:font-semibold
-                      prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground prose-li:leading-[1.8]
-                      prose-a:text-primary prose-a:font-medium prose-a:no-underline hover:prose-a:underline
+                      prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground prose-li:leading-[1.75]
+                      prose-a:text-primary prose-a:font-medium prose-a:no-underline hover:prose-a:underline prose-a:break-words
                       prose-img:rounded-xl prose-img:shadow-lg prose-img:my-8
                       prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-1 prose-blockquote:rounded-r-lg
                     "
