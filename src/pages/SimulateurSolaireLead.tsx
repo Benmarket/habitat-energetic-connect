@@ -567,7 +567,7 @@ export default function SimulateurSolaireLead() {
                       onClick={() => !submitting && setShowLeadModal(false)}
                       aria-hidden
                     />
-                    <div className="md:hidden absolute left-2 right-2 top-[230px] z-50 animate-scale-in">
+                    <div className="md:hidden absolute left-2 right-2 top-[185px] z-50 animate-scale-in">
                       <div className="bg-white rounded-3xl shadow-[0_25px_70px_-15px_hsl(24_60%_8%/0.55)] border border-amber-200/70 overflow-hidden relative">
                         <button
                           onClick={() => !submitting && setShowLeadModal(false)}
