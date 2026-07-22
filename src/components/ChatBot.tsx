@@ -27,6 +27,7 @@ const HIDDEN_ROUTES = [
   '/actualites/', // Articles detail pages
   '/aide/',      // Aides detail pages
   '/landing/',   // Landing pages
+  '/simulateurs/solaire', // Solar simulator (focus mode)
 ];
 
 type Message = {
