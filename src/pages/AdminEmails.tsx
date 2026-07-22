@@ -485,10 +485,12 @@ function StatCard({
   label,
   value,
   tone = "default",
+  hint,
 }: {
   label: string;
   value: number;
-  tone?: "default" | "emerald" | "red" | "amber" | "slate";
+  tone?: "default" | "emerald" | "red" | "amber" | "slate" | "blue" | "violet";
+  hint?: string;
 }) {
   const toneClass: Record<string, string> = {
     default: "text-foreground",
@@ -496,15 +498,19 @@ function StatCard({
     red: "text-red-600",
     amber: "text-amber-600",
     slate: "text-slate-600",
+    blue: "text-blue-600",
+    violet: "text-violet-600",
   };
   return (
     <Card>
       <CardContent className="pt-5 pb-4">
         <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">{label}</p>
         <p className={`text-2xl font-bold ${toneClass[tone]}`}>{value}</p>
+        {hint && <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>}
       </CardContent>
     </Card>
   );
 }
+
 
 export default AdminEmails;
