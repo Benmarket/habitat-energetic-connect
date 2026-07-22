@@ -206,7 +206,7 @@ const AdminEmails = () => {
   }, [deduped, templateFilter, statusFilter, search]);
 
   const stats = useMemo(() => {
-    const s = { total: 0, sent: 0, failed: 0, suppressed: 0, pending: 0 };
+    const s = { total: 0, sent: 0, failed: 0, suppressed: 0, pending: 0, opened: 0, clicked: 0 };
     filtered.forEach((r) => {
       s.total++;
       const st = r.status || "";
@@ -214,9 +214,12 @@ const AdminEmails = () => {
       else if (["failed", "dlq", "bounced", "complained"].includes(st)) s.failed++;
       else if (st === "suppressed") s.suppressed++;
       else if (st === "pending") s.pending++;
+      if ((r.opens ?? 0) > 0) s.opened++;
+      if ((r.clicks ?? 0) > 0) s.clicked++;
     });
     return s;
   }, [filtered]);
+
 
   const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
