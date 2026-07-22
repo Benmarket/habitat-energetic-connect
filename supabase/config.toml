@@ -41,3 +41,10 @@ verify_jwt = false
 
 [functions.admin-preview-emails]
 verify_jwt = true
+
+[functions.newsletter-welcome]
+verify_jwt = false
+
+[functions.admin-send-newsletter]
+verify_jwt = true
+

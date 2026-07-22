@@ -74,6 +74,11 @@ export const NewsletterForm = () => {
         throw error;
       }
 
+      // Fire welcome confirmation email (best-effort, non-blocking UX)
+      supabase.functions
+        .invoke("newsletter-welcome", { body: { email: validatedEmail } })
+        .catch((err) => console.warn("newsletter-welcome invoke failed", err));
+
       // Redirect to thank you page for newsletter
       setEmail("");
       navigate(`/merci?type=newsletter&email=${encodeURIComponent(validatedEmail)}`);
