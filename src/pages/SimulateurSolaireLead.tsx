@@ -655,6 +655,7 @@ export default function SimulateurSolaireLead() {
                             {submitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Envoi…</> : <><Sun className="w-4 h-4 mr-2" /> Voir mon étude <ArrowRight className="w-4 h-4 ml-2" /></>}
                           </Button>
                         </div>
+                        </div>
                       </div>
                     </div>
                   </>
