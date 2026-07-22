@@ -1630,10 +1630,13 @@ export type Database = {
       }
       page_views: {
         Row: {
+          browser: string | null
+          country: string | null
           created_at: string
           device_type: string | null
           duration_seconds: number | null
           id: string
+          ip_address: string | null
           page_url: string
           referrer: string | null
           region_code: string
@@ -1645,10 +1648,13 @@ export type Database = {
           visitor_id: string | null
         }
         Insert: {
+          browser?: string | null
+          country?: string | null
           created_at?: string
           device_type?: string | null
           duration_seconds?: number | null
           id?: string
+          ip_address?: string | null
           page_url: string
           referrer?: string | null
           region_code?: string
@@ -1660,10 +1666,13 @@ export type Database = {
           visitor_id?: string | null
         }
         Update: {
+          browser?: string | null
+          country?: string | null
           created_at?: string
           device_type?: string | null
           duration_seconds?: number | null
           id?: string
+          ip_address?: string | null
           page_url?: string
           referrer?: string | null
           region_code?: string

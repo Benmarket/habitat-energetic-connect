@@ -1,0 +1,1 @@
+ALTER TABLE public.page_views ADD COLUMN IF NOT EXISTS ip_address text, ADD COLUMN IF NOT EXISTS country text, ADD COLUMN IF NOT EXISTS browser text; CREATE INDEX IF NOT EXISTS page_views_ip_idx ON public.page_views(ip_address);
