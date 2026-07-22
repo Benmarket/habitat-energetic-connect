@@ -283,8 +283,8 @@ export default function SimulateurSolaireLead() {
   }, [step, trackStep, trackComplete]);
 
   useEffect(() => {
-    if (step === 9 && !unlocked && !isMobile) {
-      const t = setTimeout(() => setShowLeadModal(true), 900);
+    if (step === 9 && !unlocked) {
+      const t = setTimeout(() => setShowLeadModal(true), isMobile ? 600 : 900);
       return () => clearTimeout(t);
     }
   }, [step, unlocked, isMobile]);
