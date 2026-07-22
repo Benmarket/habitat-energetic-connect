@@ -414,12 +414,12 @@ const ArticleDetail = () => {
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 z-20 flex items-end">
-                <div className="container mx-auto px-4 pb-12">
-                  <div className="flex flex-wrap items-center gap-3 mb-6">
+                <div className="container mx-auto px-4 pb-6 sm:pb-12">
+                  <div className="flex flex-wrap items-center gap-3 mb-3 sm:mb-6">
 
                     <Link 
                       to={`/${basePath}`}
-                      className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors"
+                      className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors text-sm sm:text-base"
                     >
                       <ArrowLeft className="w-4 h-4" />
                       Retour aux {basePath}
@@ -432,7 +432,7 @@ const ArticleDetail = () => {
                       </Link>
                     )}
                   </div>
-                  <h1 className="text-3xl lg:text-5xl font-bold text-white mb-4 max-w-4xl">
+                  <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-white mb-3 sm:mb-4 max-w-4xl break-words hyphens-auto" lang="fr">
                     {article.title}
                   </h1>
                   <div className="flex flex-wrap items-center gap-4 text-white/90 text-sm">
