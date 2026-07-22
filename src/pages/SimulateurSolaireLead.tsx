@@ -1707,7 +1707,7 @@ const ResultsPanel = ({
         {!unlocked && (
           <>
             {/* Mobile : fixed bottom, suit toujours */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 px-3 pb-3 pt-6 bg-gradient-to-t from-white via-white/95 to-transparent pointer-events-none">
+            <div className={`${hideMobileSticky ? "hidden" : "md:hidden"} fixed bottom-0 left-0 right-0 z-30 px-3 pb-3 pt-6 bg-gradient-to-t from-white via-white/95 to-transparent pointer-events-none`}>
               <div className="pointer-events-auto w-full max-w-md mx-auto bg-white/95 backdrop-blur-xl border border-amber-200 rounded-2xl shadow-[0_25px_60px_-15px_hsl(24_60%_8%/0.5)] p-4 text-center">
                 <div className="flex items-center gap-3">
                   <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 shadow-lg shrink-0">
