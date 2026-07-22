@@ -416,6 +416,8 @@ const AdminEmails = () => {
                           <TableHead>Type</TableHead>
                           <TableHead>Destinataire</TableHead>
                           <TableHead>Statut</TableHead>
+                          <TableHead className="text-center">Ouvert</TableHead>
+                          <TableHead className="text-center">Cliqué</TableHead>
                           <TableHead>Erreur</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -437,11 +439,42 @@ const AdminEmails = () => {
                                 {STATUS_LABEL[r.status ?? ""] ?? r.status ?? "—"}
                               </Badge>
                             </TableCell>
+                            <TableCell className="text-center">
+                              {(r.opens ?? 0) > 0 ? (
+                                <Badge
+                                  variant="outline"
+                                  className="bg-blue-50 text-blue-700 border-blue-200"
+                                  title={
+                                    r.first_open_at
+                                      ? `1ère ouverture : ${format(new Date(r.first_open_at), "dd/MM HH:mm", { locale: fr })}`
+                                      : undefined
+                                  }
+                                >
+                                  {r.opens}×
+                                </Badge>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">—</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {(r.clicks ?? 0) > 0 ? (
+                                <Badge
+                                  variant="outline"
+                                  className="bg-violet-50 text-violet-700 border-violet-200"
+                                  title={r.last_click_url ?? undefined}
+                                >
+                                  {r.clicks}×
+                                </Badge>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">—</span>
+                              )}
+                            </TableCell>
                             <TableCell className="text-xs text-muted-foreground max-w-xs truncate">
                               {r.error_message ?? ""}
                             </TableCell>
                           </TableRow>
                         ))}
+
                       </TableBody>
                     </Table>
                   </div>
