@@ -243,6 +243,7 @@ const App = () => (
                   <Route path="/rgpd/desinscription" element={<Navigate to="/desinscription-registre" replace />} />
                   <Route path="/newsletter/desinscription" element={<NewsletterUnsubscribe />} />
                   <Route path="/newsletter/unsubscribe" element={<Navigate to="/newsletter/desinscription" replace />} />
+                  <Route path="/newsletter/inscription-rapide" element={<NewsletterQuickSubscribe />} />
 
                   {/* Catch-all */}
                   <Route path="*" element={<NotFound />} />
