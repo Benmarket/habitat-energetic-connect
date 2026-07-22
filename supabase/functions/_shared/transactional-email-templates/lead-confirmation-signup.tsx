@@ -54,6 +54,7 @@ interface Props {
   activationUrl?: string
   workType?: WorkType
   galleryImages?: CustomGalleryImage[]
+  newsletterOptInUrl?: string
 }
 
 const LeadConfirmationSignupEmail = ({
@@ -65,6 +66,7 @@ const LeadConfirmationSignupEmail = ({
   activationUrl = BRAND.siteUrl,
   workType,
   galleryImages,
+  newsletterOptInUrl,
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head><meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" /><meta charSet="utf-8" /></Head>
@@ -154,6 +156,8 @@ const LeadConfirmationSignupEmail = ({
                       </Section>
                     </td>
                   </tr>
+
+                  <NewsletterOptInBanner url={newsletterOptInUrl} />
 
                   <tr>
                     <td style={hrSection}>
