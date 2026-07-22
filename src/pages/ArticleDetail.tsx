@@ -459,7 +459,7 @@ const ArticleDetail = () => {
           ) : (
             <section className="bg-muted py-16">
               <div className="container mx-auto px-4">
-                <div className="flex items-center gap-4 mb-6">
+                <div className="flex flex-wrap items-center gap-3 mb-6">
                   <Link 
                     to={`/${basePath}`}
                     className="inline-flex items-center gap-2 text-foreground hover:text-primary transition-colors"
