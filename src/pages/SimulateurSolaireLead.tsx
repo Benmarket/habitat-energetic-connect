@@ -641,7 +641,7 @@ export default function SimulateurSolaireLead() {
       </main>
 
       {/* Lead modal redesigné */}
-      <Dialog open={showLeadModal} onOpenChange={(o) => !submitting && setShowLeadModal(o)}>
+      <Dialog open={showLeadModal && !isMobile} onOpenChange={(o) => !submitting && setShowLeadModal(o)}>
         <DialogContent className="max-w-2xl p-0 overflow-hidden [&>button]:hidden border-0">
           <button
             type="button"
