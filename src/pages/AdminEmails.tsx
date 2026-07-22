@@ -52,7 +52,12 @@ interface EmailLogRow {
   status: string | null;
   error_message: string | null;
   created_at: string;
+  opens?: number;
+  clicks?: number;
+  first_open_at?: string | null;
+  last_click_url?: string | null;
 }
+
 
 const STATUS_STYLES: Record<string, string> = {
   sent: "bg-emerald-100 text-emerald-700 border-emerald-200",
@@ -110,9 +115,58 @@ const AdminEmails = () => {
     if (error) {
       console.error("[AdminEmails] load error:", error);
       setRows([]);
-    } else {
-      setRows((data as EmailLogRow[]) || []);
+      setLoading(false);
+      return;
     }
+
+    const baseRows = (data as EmailLogRow[]) || [];
+    // Fetch tracking events for the message_ids in view
+    const messageIds = Array.from(
+      new Set(baseRows.map((r) => r.message_id).filter(Boolean) as string[])
+    );
+
+    let eventsByMid = new Map<
+      string,
+      { opens: number; clicks: number; firstOpen: string | null; lastClickUrl: string | null }
+    >();
+
+    if (messageIds.length > 0) {
+      const { data: evData, error: evErr } = await supabase
+        .from("email_events")
+        .select("message_id,event_type,url,created_at")
+        .in("message_id", messageIds)
+        .order("created_at", { ascending: true });
+      if (evErr) console.warn("[AdminEmails] events load error:", evErr);
+      for (const ev of (evData as any[]) || []) {
+        const agg = eventsByMid.get(ev.message_id) || {
+          opens: 0,
+          clicks: 0,
+          firstOpen: null as string | null,
+          lastClickUrl: null as string | null,
+        };
+        if (ev.event_type === "open") {
+          agg.opens++;
+          if (!agg.firstOpen) agg.firstOpen = ev.created_at;
+        } else if (ev.event_type === "click") {
+          agg.clicks++;
+          agg.lastClickUrl = ev.url;
+        }
+        eventsByMid.set(ev.message_id, agg);
+      }
+    }
+
+    const enriched = baseRows.map((r) => {
+      const agg = r.message_id ? eventsByMid.get(r.message_id) : undefined;
+      return {
+        ...r,
+        opens: agg?.opens ?? 0,
+        clicks: agg?.clicks ?? 0,
+        first_open_at: agg?.firstOpen ?? null,
+        last_click_url: agg?.lastClickUrl ?? null,
+      };
+    });
+
+    setRows(enriched);
     setLoading(false);
   };
 
@@ -120,6 +174,7 @@ const AdminEmails = () => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [range.from?.toISOString(), range.to?.toISOString()]);
+
 
   // Deduplicate by message_id — keep the latest status per email.
   const deduped = useMemo(() => {
@@ -151,7 +206,7 @@ const AdminEmails = () => {
   }, [deduped, templateFilter, statusFilter, search]);
 
   const stats = useMemo(() => {
-    const s = { total: 0, sent: 0, failed: 0, suppressed: 0, pending: 0 };
+    const s = { total: 0, sent: 0, failed: 0, suppressed: 0, pending: 0, opened: 0, clicked: 0 };
     filtered.forEach((r) => {
       s.total++;
       const st = r.status || "";
@@ -159,9 +214,12 @@ const AdminEmails = () => {
       else if (["failed", "dlq", "bounced", "complained"].includes(st)) s.failed++;
       else if (st === "suppressed") s.suppressed++;
       else if (st === "pending") s.pending++;
+      if ((r.opens ?? 0) > 0) s.opened++;
+      if ((r.clicks ?? 0) > 0) s.clicked++;
     });
     return s;
   }, [filtered]);
+
 
   const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -237,13 +295,26 @@ const AdminEmails = () => {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
             <StatCard label="Total" value={stats.total} />
             <StatCard label="Envoyés" value={stats.sent} tone="emerald" />
+            <StatCard
+              label="Ouverts"
+              value={stats.opened}
+              tone="blue"
+              hint={stats.sent > 0 ? `${Math.round((stats.opened / stats.sent) * 100)}%` : undefined}
+            />
+            <StatCard
+              label="Cliqués"
+              value={stats.clicked}
+              tone="violet"
+              hint={stats.sent > 0 ? `${Math.round((stats.clicked / stats.sent) * 100)}%` : undefined}
+            />
             <StatCard label="Échecs" value={stats.failed} tone="red" />
             <StatCard label="Supprimés" value={stats.suppressed} tone="amber" />
             <StatCard label="En attente" value={stats.pending} tone="slate" />
           </div>
+
 
           {/* Filters */}
           <Card className="mb-6">
@@ -345,6 +416,8 @@ const AdminEmails = () => {
                           <TableHead>Type</TableHead>
                           <TableHead>Destinataire</TableHead>
                           <TableHead>Statut</TableHead>
+                          <TableHead className="text-center">Ouvert</TableHead>
+                          <TableHead className="text-center">Cliqué</TableHead>
                           <TableHead>Erreur</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -366,11 +439,42 @@ const AdminEmails = () => {
                                 {STATUS_LABEL[r.status ?? ""] ?? r.status ?? "—"}
                               </Badge>
                             </TableCell>
+                            <TableCell className="text-center">
+                              {(r.opens ?? 0) > 0 ? (
+                                <Badge
+                                  variant="outline"
+                                  className="bg-blue-50 text-blue-700 border-blue-200"
+                                  title={
+                                    r.first_open_at
+                                      ? `1ère ouverture : ${format(new Date(r.first_open_at), "dd/MM HH:mm", { locale: fr })}`
+                                      : undefined
+                                  }
+                                >
+                                  {r.opens}×
+                                </Badge>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">—</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {(r.clicks ?? 0) > 0 ? (
+                                <Badge
+                                  variant="outline"
+                                  className="bg-violet-50 text-violet-700 border-violet-200"
+                                  title={r.last_click_url ?? undefined}
+                                >
+                                  {r.clicks}×
+                                </Badge>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">—</span>
+                              )}
+                            </TableCell>
                             <TableCell className="text-xs text-muted-foreground max-w-xs truncate">
                               {r.error_message ?? ""}
                             </TableCell>
                           </TableRow>
                         ))}
+
                       </TableBody>
                     </Table>
                   </div>
@@ -414,10 +518,12 @@ function StatCard({
   label,
   value,
   tone = "default",
+  hint,
 }: {
   label: string;
   value: number;
-  tone?: "default" | "emerald" | "red" | "amber" | "slate";
+  tone?: "default" | "emerald" | "red" | "amber" | "slate" | "blue" | "violet";
+  hint?: string;
 }) {
   const toneClass: Record<string, string> = {
     default: "text-foreground",
@@ -425,15 +531,19 @@ function StatCard({
     red: "text-red-600",
     amber: "text-amber-600",
     slate: "text-slate-600",
+    blue: "text-blue-600",
+    violet: "text-violet-600",
   };
   return (
     <Card>
       <CardContent className="pt-5 pb-4">
         <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">{label}</p>
         <p className={`text-2xl font-bold ${toneClass[tone]}`}>{value}</p>
+        {hint && <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>}
       </CardContent>
     </Card>
   );
 }
+
 
 export default AdminEmails;
