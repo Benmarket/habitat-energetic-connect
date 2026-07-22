@@ -534,26 +534,24 @@ const Administration = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="group relative overflow-hidden border-l-4 border-l-purple-300 hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-purple-100/30"></div>
-                  <CardHeader className="relative">
+                <Card className="group hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 border-l-4 border-l-purple-500 hover:scale-[1.02] hover:-translate-y-1">
+                  <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-3 bg-purple-500/10 rounded-xl">
-                        <Send className="w-6 h-6 text-purple-400" />
+                      <div className="p-3 bg-gradient-to-br from-purple-500/10 to-purple-600/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <Send className="w-6 h-6 text-purple-600" />
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <CardTitle className="text-purple-400">Emailing Client</CardTitle>
-                      <Badge className="text-xs bg-purple-100 text-purple-700 hover:bg-purple-100">Bientôt</Badge>
-                    </div>
-                    <CardDescription className="text-muted-foreground/70">
-                      Automatisations et campagnes d'emailing clients
+                    <CardTitle className="group-hover:text-purple-600 transition-colors">Emails automatiques</CardTitle>
+                    <CardDescription>
+                      Journal de tous les emails envoyés (leads, confirmations, newsletter…)
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="relative">
-                    <Button className="w-full bg-purple-200 text-purple-700 cursor-not-allowed" disabled>
-                      Prochainement
-                    </Button>
+                  <CardContent>
+                    <Link to="/admin/emails">
+                      <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 shadow-lg shadow-purple-500/30">
+                        Voir le journal
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
 
