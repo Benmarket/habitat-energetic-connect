@@ -187,12 +187,14 @@ Deno.serve(async (req) => {
       })
     }
     const p: any = post
+    const cat = p.post_categories?.[0]?.categories
+    const catSlug = cat?.slug || 'actualites'
     const templateData = {
       articleTitle: p.title,
       articleExcerpt: p.excerpt || undefined,
       articleImageUrl: p.featured_image || undefined,
-      articleUrl: `${SITE_URL}/actualites/${p.slug}`,
-      categoryLabel: p.post_categories?.[0]?.categories?.name || 'Actualités',
+      articleUrl: `${SITE_URL}/actualites/${catSlug}/${p.slug}`,
+      categoryLabel: cat?.name || 'Actualités',
       readingTime: estimateReadingTime(p.content),
       publishedAtLabel: formatDateLabel(p.published_at),
     }
