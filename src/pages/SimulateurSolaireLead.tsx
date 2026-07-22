@@ -551,76 +551,79 @@ export default function SimulateurSolaireLead() {
                 </div>
               </div>
 
-              <ResultsPanel {...resultsProps} hideMobileSticky={isMobile} onUnlockClick={() => setShowLeadModal(true)} onEdit={() => setStep(8)} />
+              <ResultsPanel
+                {...resultsProps}
+                hideMobileSticky={isMobile}
+                onUnlockClick={() => setShowLeadModal(true)}
+                onEdit={() => setStep(8)}
+                mobileInlineForm={!unlocked && isMobile ? (
+                  <div className="md:hidden bg-white border-y border-amber-200/60 p-5">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 text-amber-300 text-[10px] font-bold uppercase tracking-wider mb-3">
+                      <Lock className="w-3 h-3" /> Débloquez votre étude
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900 leading-tight">Débloquez votre étude complète</h3>
+                    <p className="text-slate-600 text-sm mt-1">Détail par email + un expert vous rappelle sous 24h. Sans engagement.</p>
 
-              {/* Formulaire inline mobile — sous le cadre orange */}
-              {!unlocked && (
-                <div className="md:hidden mt-5 bg-white rounded-3xl shadow-[0_20px_60px_-15px_hsl(24_60%_8%/0.35)] border border-amber-200/60 p-5">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 text-amber-300 text-[10px] font-bold uppercase tracking-wider mb-3">
-                    <Lock className="w-3 h-3" /> Débloquez votre étude
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-900 leading-tight">Débloquez votre étude complète</h3>
-                  <p className="text-slate-600 text-sm mt-1">Détail par email + un expert vous rappelle sous 24h. Sans engagement.</p>
-
-                  <div className="space-y-3 mt-4">
-                    <div>
-                      <Label htmlFor="lead-phone-m" className="text-slate-700 font-medium text-sm">Téléphone *</Label>
-                      <div className="relative mt-1.5">
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-lg">📞</span>
-                        <Input
-                          id="lead-phone-m" type="tel" value={lead.phone}
-                          onChange={(e) => setLead({ ...lead, phone: e.target.value })}
-                          placeholder="06 12 34 56 78"
-                          className="h-12 pl-10 border-slate-200 focus-visible:ring-orange-500 text-base"
-                        />
+                    <div className="space-y-3 mt-4">
+                      <div>
+                        <Label htmlFor="lead-phone-m" className="text-slate-700 font-medium text-sm">Téléphone *</Label>
+                        <div className="relative mt-1.5">
+                          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-lg">📞</span>
+                          <Input
+                            id="lead-phone-m" type="tel" value={lead.phone}
+                            onChange={(e) => setLead({ ...lead, phone: e.target.value })}
+                            placeholder="06 12 34 56 78"
+                            className="h-12 pl-10 border-slate-200 focus-visible:ring-orange-500 text-base"
+                          />
+                        </div>
+                        {leadErrors.phone && <p className="text-xs text-destructive mt-1">{leadErrors.phone}</p>}
                       </div>
-                      {leadErrors.phone && <p className="text-xs text-destructive mt-1">{leadErrors.phone}</p>}
-                    </div>
 
-                    <div>
-                      <Label htmlFor="lead-email-m" className="text-slate-700 font-medium text-sm">Email *</Label>
-                      <div className="relative mt-1.5">
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-lg">✉️</span>
-                        <Input
-                          id="lead-email-m" type="email" value={lead.email}
-                          onChange={(e) => setLead({ ...lead, email: e.target.value })}
-                          placeholder="vous@email.com"
-                          className="h-12 pl-10 border-slate-200 focus-visible:ring-orange-500 text-base"
-                        />
+                      <div>
+                        <Label htmlFor="lead-email-m" className="text-slate-700 font-medium text-sm">Email *</Label>
+                        <div className="relative mt-1.5">
+                          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-lg">✉️</span>
+                          <Input
+                            id="lead-email-m" type="email" value={lead.email}
+                            onChange={(e) => setLead({ ...lead, email: e.target.value })}
+                            placeholder="vous@email.com"
+                            className="h-12 pl-10 border-slate-200 focus-visible:ring-orange-500 text-base"
+                          />
+                        </div>
+                        {leadErrors.email && <p className="text-xs text-destructive mt-1">{leadErrors.email}</p>}
                       </div>
-                      {leadErrors.email && <p className="text-xs text-destructive mt-1">{leadErrors.email}</p>}
+
+                      <div className="flex items-start gap-2 rounded-lg bg-slate-50 border border-slate-200 p-2.5">
+                        <Checkbox id="lead-consent-m" checked={lead.consent} onCheckedChange={(c) => setLead({ ...lead, consent: c === true })} className="mt-0.5" />
+                        <label htmlFor="lead-consent-m" className="text-[11px] text-slate-600 leading-snug cursor-pointer">
+                          J'accepte d'être recontacté par email et/ou téléphone dans le cadre de ma simulation solaire.
+                        </label>
+                      </div>
+                      {leadErrors.consent && <p className="text-xs text-destructive">{leadErrors.consent}</p>}
+
+                      <Button
+                        onClick={submitLead}
+                        disabled={submitting}
+                        size="lg"
+                        className="w-full py-6 bg-gradient-to-r from-amber-400 via-orange-500 to-orange-600 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold rounded-full shadow-[0_15px_35px_-8px_hsl(35_95%_45%/0.75)] transition-all text-base animate-subtle-bounce"
+                      >
+                        {submitting ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Envoi…</> : <><Sun className="w-5 h-5 mr-2" /> Voir mon étude complète <ArrowRight className="w-5 h-5 ml-2" /></>}
+                      </Button>
+
+                      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 pt-1 text-[10px] font-semibold text-slate-500">
+                        <span className="inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-emerald-600" /> RGPD</span>
+                        <span className="inline-flex items-center gap-1"><Star className="w-3 h-3 text-amber-500" /> 4,9/5</span>
+                        <span className="inline-flex items-center gap-1"><Award className="w-3 h-3 text-orange-600" /> RGE</span>
+                        <span className="inline-flex items-center gap-1"><Lock className="w-3 h-3 text-slate-400" /> Aucun spam</span>
+                      </div>
+
+                      <p className="text-[10px] text-center text-slate-400 leading-relaxed">
+                        <Link to="/politique-confidentialite" className="underline hover:text-orange-600">Politique de confidentialité</Link>
+                      </p>
                     </div>
-
-                    <div className="flex items-start gap-2 rounded-lg bg-slate-50 border border-slate-200 p-2.5">
-                      <Checkbox id="lead-consent-m" checked={lead.consent} onCheckedChange={(c) => setLead({ ...lead, consent: c === true })} className="mt-0.5" />
-                      <label htmlFor="lead-consent-m" className="text-[11px] text-slate-600 leading-snug cursor-pointer">
-                        J'accepte d'être recontacté par email et/ou téléphone dans le cadre de ma simulation solaire.
-                      </label>
-                    </div>
-                    {leadErrors.consent && <p className="text-xs text-destructive">{leadErrors.consent}</p>}
-
-                    <Button
-                      onClick={submitLead}
-                      disabled={submitting}
-                      size="lg"
-                      className="w-full py-6 bg-gradient-to-r from-amber-400 via-orange-500 to-orange-600 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold rounded-full shadow-[0_15px_35px_-8px_hsl(35_95%_45%/0.75)] transition-all text-base animate-subtle-bounce"
-                    >
-                      {submitting ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Envoi…</> : <><Sun className="w-5 h-5 mr-2" /> Voir mon étude complète <ArrowRight className="w-5 h-5 ml-2" /></>}
-                    </Button>
-
-                    <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 pt-1 text-[10px] font-semibold text-slate-500">
-                      <span className="inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-emerald-600" /> RGPD</span>
-                      <span className="inline-flex items-center gap-1"><Star className="w-3 h-3 text-amber-500" /> 4,9/5</span>
-                      <span className="inline-flex items-center gap-1"><Award className="w-3 h-3 text-orange-600" /> RGE</span>
-                      <span className="inline-flex items-center gap-1"><Lock className="w-3 h-3 text-slate-400" /> Aucun spam</span>
-                    </div>
-
-                    <p className="text-[10px] text-center text-slate-400 leading-relaxed">
-                      <Link to="/politique-confidentialite" className="underline hover:text-orange-600">Politique de confidentialité</Link>
-                    </p>
                   </div>
-                </div>
-              )}
+                ) : null}
+              />
             </div>
           </div>
         )}
