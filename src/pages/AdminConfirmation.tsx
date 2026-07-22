@@ -105,11 +105,12 @@ const AdminConfirmation = () => {
         signup: v.signup !== false,
         existing: v.existing !== false,
         guide: v.guide !== false,
+        newsletter: v.newsletter !== false,
       });
     }
   };
 
-  const updateMemberLink = async (key: "signup" | "existing" | "guide", value: boolean) => {
+  const updateMemberLink = async (key: "signup" | "existing" | "guide" | "newsletter", value: boolean) => {
     const next = { ...memberLinks, [key]: value };
     setMemberLinks(next);
     setSavingLinks(true);
