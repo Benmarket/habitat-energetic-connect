@@ -37,6 +37,22 @@ type PageViewRow = {
   utm_source: string | null;
   duration_seconds: number | null;
   created_at: string;
+  ip_address: string | null;
+  country: string | null;
+  browser: string | null;
+};
+
+// Admin/backoffice prefixes never counted (defensive: old rows may exist).
+const ADMIN_URL_PREFIXES = ["/admin", "/administration", "/dashboard", "/gerer-", "/mon-compte", "/profil"];
+const isAdminUrl = (u: string | null | undefined) =>
+  !!u && ADMIN_URL_PREFIXES.some((p) => u === p || u.startsWith(p + "/"));
+
+const MY_IPS_KEY = "admin_trafic_my_ips";
+const loadMyIps = (): Set<string> => {
+  try { return new Set(JSON.parse(localStorage.getItem(MY_IPS_KEY) || "[]")); } catch { return new Set(); }
+};
+const saveMyIps = (s: Set<string>) => {
+  try { localStorage.setItem(MY_IPS_KEY, JSON.stringify(Array.from(s))); } catch { /* noop */ }
 };
 
 const fmtDuration = (sec: number) => {
