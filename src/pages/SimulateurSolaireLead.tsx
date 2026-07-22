@@ -567,20 +567,47 @@ export default function SimulateurSolaireLead() {
                       onClick={() => !submitting && setShowLeadModal(false)}
                       aria-hidden
                     />
-                    <div className="md:hidden absolute left-2 right-2 top-[250px] z-50 animate-scale-in">
-                      <div className="bg-white rounded-3xl shadow-[0_25px_70px_-15px_hsl(24_60%_8%/0.55)] border border-amber-200/70 p-5 relative">
+                    <div className="md:hidden absolute left-2 right-2 top-[230px] z-50 animate-scale-in">
+                      <div className="bg-white rounded-3xl shadow-[0_25px_70px_-15px_hsl(24_60%_8%/0.55)] border border-amber-200/70 overflow-hidden relative">
                         <button
                           onClick={() => !submitting && setShowLeadModal(false)}
-                          className="absolute right-3 top-3 w-8 h-8 inline-flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600"
+                          className="absolute right-3 top-3 w-8 h-8 inline-flex items-center justify-center rounded-full bg-white/90 hover:bg-white text-slate-700 shadow z-10"
                           aria-label="Fermer"
                         >
                           <X className="w-4 h-4" />
                         </button>
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 text-amber-300 text-[10px] font-bold uppercase tracking-wider mb-3">
+
+                        {/* Bandeau orange — 5 infos alléchantes */}
+                        <div className="bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 px-4 pt-4 pb-3 text-slate-900">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-900/75">Vous avez débloqué</p>
+                          <div className="flex items-baseline gap-1.5 mt-0.5">
+                            <span className="text-3xl font-black leading-none tabular-nums">
+                              {(savingsMid > 0 ? savingsMid : 1200).toLocaleString("fr-FR")}
+                            </span>
+                            <span className="text-xl font-black">€</span>
+                            <span className="text-xs font-bold text-slate-900/80">/ an</span>
+                          </div>
+                          <div className="mt-2.5 grid grid-cols-2 gap-1.5">
+                            {[
+                              { icon: PiggyBank, label: `~${(savings25 || 27000).toLocaleString("fr-FR")} € / 25 ans` },
+                              { icon: Coins, label: `Aides ~${(aidesMin || 1200).toLocaleString("fr-FR")} €` },
+                              { icon: LineChart, label: `Rentabilité ~${roi} ans` },
+                              { icon: Leaf, label: `${co2 || 700} kg CO₂ / an` },
+                            ].map((item, i) => (
+                              <div key={i} className="flex items-center gap-1.5 text-[11px] text-slate-900/90 bg-white/30 rounded-md px-2 py-1">
+                                <item.icon className="w-3 h-3 shrink-0" />
+                                <span className="font-semibold leading-tight">{item.label}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="p-4">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 text-amber-300 text-[10px] font-bold uppercase tracking-wider mb-2">
                           <Lock className="w-3 h-3" /> Débloquez votre étude
                         </div>
-                        <h3 className="text-lg font-bold text-slate-900 leading-tight pr-8">Débloquez votre étude complète</h3>
-                        <p className="text-slate-600 text-xs mt-1">Détail par email + un expert vous rappelle sous 24h.</p>
+                        <h3 className="text-base font-bold text-slate-900 leading-tight pr-6">Débloquez votre étude complète</h3>
+                        <p className="text-slate-600 text-[11px] mt-0.5">Détail par email + un expert vous rappelle sous 24h.</p>
 
                         <div className="space-y-2.5 mt-3">
                           <div>
