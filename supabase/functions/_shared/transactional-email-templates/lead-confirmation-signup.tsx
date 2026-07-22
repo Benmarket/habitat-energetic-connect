@@ -42,6 +42,7 @@ import {
 import { WorkGallery, type CustomGalleryImage } from './_work-gallery.tsx'
 import type { WorkType } from './_email-design.ts'
 import { EmailBrandLogo } from './_email-brand-logo.tsx'
+import { NewsletterOptInBanner } from './_newsletter-opt-in-banner.tsx'
 
 interface Props {
   firstName?: string
