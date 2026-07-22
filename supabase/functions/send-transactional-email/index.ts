@@ -357,8 +357,15 @@ Deno.serve(async (req) => {
 
   // Encode all non-ASCII characters as numeric HTML entities to guarantee correct
   // rendering in every email client regardless of the Content-Type charset they
-  // assume (some clients fall back to Latin-1 and turn UTF-8 "é" into "��").
-  html = html.replace(/[\u0080-\uFFFF]/g, (ch) => `&#${ch.charCodeAt(0)};`)
+  // assume. Uses codePointAt / Array.from so astral chars (emojis U+1F000+) are
+  // encoded as ONE entity instead of two invalid surrogate-half entities, which
+  // was corrupting emojis (💚) and typographic apostrophes (’) into "??".
+  html = Array.from(html)
+    .map((ch) => {
+      const cp = ch.codePointAt(0)!
+      return cp < 0x80 ? ch : `&#${cp};`
+    })
+    .join('')
 
   // Ensure the HTML declares UTF-8 explicitly (defensive — most clients ignore this
   // but it helps webmail previews).

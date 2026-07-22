@@ -105,21 +105,25 @@ Deno.serve(async (req) => {
   const { data: posts } = await admin
     .from('posts')
     .select(`id, title, slug, excerpt, content, featured_image, published_at,
-             post_categories(categories(name))`)
+             post_categories(categories(name, slug))`)
     .eq('content_type', 'actualite')
     .eq('status', 'published')
     .order('published_at', { ascending: false })
     .limit(3)
 
-  const articles = (posts || []).map((p: any) => ({
-    title: p.title,
-    excerpt: p.excerpt || undefined,
-    url: `${SITE_URL}/actualites/${p.slug}`,
-    imageUrl: p.featured_image || undefined,
-    categoryLabel: p.post_categories?.[0]?.categories?.name || 'Actualités',
-    publishedAtLabel: formatDateLabel(p.published_at),
-    readingTime: estimateReadingTime(p.content),
-  }))
+  const articles = (posts || []).map((p: any) => {
+    const cat = p.post_categories?.[0]?.categories
+    const catSlug = cat?.slug || 'actualites'
+    return {
+      title: p.title,
+      excerpt: p.excerpt || undefined,
+      url: `${SITE_URL}/actualites/${catSlug}/${p.slug}`,
+      imageUrl: p.featured_image || undefined,
+      categoryLabel: cat?.name || 'Actualités',
+      publishedAtLabel: formatDateLabel(p.published_at),
+      readingTime: estimateReadingTime(p.content),
+    }
+  })
 
   const { data: sendResult, error: sendErr } = await admin.functions.invoke(
     'send-transactional-email',
