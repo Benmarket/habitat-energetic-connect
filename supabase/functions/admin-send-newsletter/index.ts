@@ -141,7 +141,7 @@ Deno.serve(async (req) => {
       }
     })
   }
-  }
+
 
   if (body.action === 'test_welcome') {
     if (!body.recipientEmail) {
