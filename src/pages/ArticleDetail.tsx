@@ -415,7 +415,8 @@ const ArticleDetail = () => {
               />
               <div className="absolute inset-0 z-20 flex items-end">
                 <div className="container mx-auto px-4 pb-12">
-                  <div className="flex items-center gap-4 mb-6">
+                  <div className="flex flex-wrap items-center gap-3 mb-6">
+
                     <Link 
                       to={`/${basePath}`}
                       className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors"
