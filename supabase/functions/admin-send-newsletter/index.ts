@@ -238,27 +238,61 @@ Deno.serve(async (req) => {
       .from('newsletter_subscribers')
       .select('email')
       .eq('status', 'active')
-    let sent = 0
-    let failed = 0
-    for (const s of subs || []) {
-      const { error } = await admin.functions.invoke('send-transactional-email', {
-        body: {
-          templateName: 'newsletter-new-article',
-          recipientEmail: s.email,
-          idempotencyKey: `newsletter-article-${p.id}-${s.email}`,
-          templateData: {
-            ...templateData,
-            recipientEmail: s.email,
-          },
-        },
+
+    const recipients = (subs || []).map((s: { email: string }) => s.email)
+
+    // Fire-and-forget: enqueue with limited concurrency in the background so
+    // the HTTP call returns immediately even for hundreds of subscribers.
+    const CONCURRENCY = 5
+    const DELAY_MS = 250
+    const runBroadcast = async () => {
+      let sent = 0
+      let failed = 0
+      let idx = 0
+      const workers = Array.from({ length: CONCURRENCY }, async () => {
+        while (idx < recipients.length) {
+          const i = idx++
+          const email = recipients[i]
+          try {
+            const { error } = await admin.functions.invoke('send-transactional-email', {
+              body: {
+                templateName: 'newsletter-new-article',
+                recipientEmail: email,
+                idempotencyKey: `newsletter-article-${p.id}-${email}`,
+                templateData: { ...templateData, recipientEmail: email },
+              },
+            })
+            if (error) failed++
+            else sent++
+          } catch (_e) {
+            failed++
+          }
+          if (DELAY_MS > 0) await new Promise((r) => setTimeout(r, DELAY_MS))
+        }
       })
-      if (error) failed++
-      else sent++
+      await Promise.all(workers)
+      console.log(
+        `[admin-send-newsletter] broadcast complete article=${p.id} sent=${sent} failed=${failed} total=${recipients.length}`,
+      )
     }
-    return new Response(JSON.stringify({ success: true, sent, failed, article: p.title }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+
+    // @ts-ignore EdgeRuntime is provided by Supabase Edge Runtime
+    if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime?.waitUntil) {
+      // @ts-ignore
+      EdgeRuntime.waitUntil(runBroadcast())
+    } else {
+      runBroadcast().catch((e) => console.error('[admin-send-newsletter] broadcast error', e))
+    }
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        queued: recipients.length,
+        article: p.title,
+        message: 'Broadcast lancé en arrière-plan',
+      }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    )
   }
 
   return new Response(JSON.stringify({ error: 'unknown_action' }), {
