@@ -143,11 +143,12 @@ Deno.serve(async (req) => {
     .eq('key', 'member_link_settings')
     .maybeSingle()
   const memberLinks = (memberLinkSetting?.value as
-    | { signup?: boolean; existing?: boolean; guide?: boolean }
+    | { signup?: boolean; existing?: boolean; guide?: boolean; newsletter?: boolean }
     | null) ?? {}
   const allowSignupLink = memberLinks.signup !== false // default true
   const allowExistingLink = memberLinks.existing !== false // default true
   const allowGuideLink = memberLinks.guide !== false // default true
+  const allowNewsletterCta = memberLinks.newsletter !== false // default true
 
   if (!allowSignupLink) includeSignup = false
 
