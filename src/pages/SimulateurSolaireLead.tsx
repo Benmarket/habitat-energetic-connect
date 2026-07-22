@@ -1500,10 +1500,6 @@ const ResultsPanel = ({
           )}
         </div>
       </div>
-
-      {/* Formulaire inline mobile — directement sous le cadre orange */}
-      {mobileInlineForm}
-
       {/* TEASER : cartes floutées si !unlocked */}
       <div className="relative p-6 md:p-10">
         {!unlocked && (
