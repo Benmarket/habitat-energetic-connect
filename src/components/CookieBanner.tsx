@@ -167,10 +167,31 @@ const CookieBanner = () => {
     >
       <div className="container mx-auto px-4 py-4">
         <div className="flex flex-col items-center justify-center gap-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
-          <p className="text-sm sm:flex-1 leading-relaxed max-w-2xl">
-            {settings.text}
-          </p>
-          
+          <div className="sm:flex-1 max-w-2xl">
+            <p className="text-sm leading-relaxed">
+              {settings.text}
+            </p>
+            <details className="mt-2 text-xs opacity-90">
+              <summary className="cursor-pointer underline underline-offset-2 hover:opacity-100">
+                Voir les données collectées
+              </summary>
+              <div className="mt-2 leading-relaxed text-left">
+                <p className="font-semibold mb-1">Toujours collecté (mesure d'audience) :</p>
+                <ul className="list-disc pl-5 space-y-0.5">
+                  <li>Page visitée, date/heure, durée</li>
+                  <li>Adresse IP, pays, navigateur, type d'appareil</li>
+                  <li>Source de trafic (referrer, UTM)</li>
+                  <li>Identifiant visiteur de session (anonyme)</li>
+                </ul>
+                <p className="font-semibold mt-2 mb-1">Uniquement avec votre accord :</p>
+                <ul className="list-disc pl-5 space-y-0.5">
+                  <li>Identifiant visiteur persistant (reconnaissance entre visites)</li>
+                  <li>Association à votre compte si connecté</li>
+                </ul>
+              </div>
+            </details>
+          </div>
+
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto sm:flex-shrink-0">
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <button
@@ -183,7 +204,7 @@ const CookieBanner = () => {
               >
                 J'accepte
               </button>
-              
+
               <button
                 onClick={handleRefuse}
                 className="flex-1 sm:flex-none px-6 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-90 hover:scale-105 active:scale-95 shadow-md border-2 whitespace-nowrap"
@@ -199,6 +220,7 @@ const CookieBanner = () => {
           </div>
         </div>
       </div>
+
     </div>
   );
 };
