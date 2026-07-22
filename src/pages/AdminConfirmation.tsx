@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Mail, CheckCircle2, AlertCircle, Loader2, ExternalLink, FileText, RefreshCw, Eye, Sun, Snowflake, Flame, Hammer, HelpCircle, Phone, UserPlus, LogIn, BookOpen } from "lucide-react";
+import { ArrowLeft, Mail, CheckCircle2, AlertCircle, Loader2, ExternalLink, FileText, RefreshCw, Eye, Sun, Snowflake, Flame, Hammer, HelpCircle, Phone, UserPlus, LogIn, BookOpen, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
