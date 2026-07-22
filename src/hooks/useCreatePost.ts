@@ -505,8 +505,17 @@ export function useCreatePost() {
       }
 
       let postId = editId;
+      let previousStatus: string | null = null;
 
       if (editId) {
+        // Récupérer le statut précédent pour détecter une première publication
+        const { data: existing } = await supabase
+          .from("posts")
+          .select("status")
+          .eq("id", editId)
+          .single();
+        previousStatus = (existing?.status as string) || null;
+
         // Toujours mettre à jour la date d'édition lors d'une modification
         postData.updated_at = new Date().toISOString();
         const { error: updateError } = await supabase
