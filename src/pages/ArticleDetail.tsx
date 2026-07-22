@@ -403,10 +403,10 @@ const ArticleDetail = () => {
         <Header />
         <Breadcrumb items={breadcrumbItems} />
         
-        <main className="pt-20">
+        <main>
           {/* Hero Section */}
           {article.featured_image ? (
-            <section className="relative h-[400px] lg:h-[500px] overflow-hidden">
+            <section className="relative h-[320px] sm:h-[400px] lg:h-[500px] overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 z-10" />
               <img
                 src={article.featured_image}
