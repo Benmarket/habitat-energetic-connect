@@ -804,11 +804,11 @@ const StepTitle = ({ icon: Icon, title, subtitle }: { icon: any; title: React.Re
 );
 
 const InfoBanner = ({ children }: { children: React.ReactNode }) => (
-  <div className="mt-6 p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/60 border border-amber-200 text-sm text-slate-700 flex gap-3">
-    <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-      <Sun className="w-4 h-4 text-orange-600" />
+  <div className="mt-4 md:mt-6 p-3 md:p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/60 border border-amber-200 text-xs md:text-sm text-slate-700 flex gap-2.5 md:gap-3">
+    <div className="w-7 h-7 md:w-8 md:h-8 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+      <Sun className="w-3.5 h-3.5 md:w-4 md:h-4 text-orange-600" />
     </div>
-    <div className="flex-1">{children}</div>
+    <div className="flex-1 min-w-0">{children}</div>
   </div>
 );
 
@@ -886,16 +886,11 @@ const Step1Location = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
 
       {/^\d{5}$/.test(sim.postalCode) && (
         <InfoBanner>
-          <div className="flex items-start gap-4">
-            {REGION_SHAPES[region.id] && <img src={REGION_SHAPES[region.id]} alt={`Silhouette ${region.label}`} className="w-16 h-16 md:w-20 md:h-20 object-contain shrink-0 opacity-90" loading="lazy" />}
+          <div className="flex items-start gap-3">
+            {REGION_SHAPES[region.id] && <img src={REGION_SHAPES[region.id]} alt={`Silhouette ${region.label}`} className="w-12 h-12 md:w-20 md:h-20 object-contain shrink-0 opacity-90" loading="lazy" />}
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-slate-900 mb-1.5">Votre zone est analysée — {region.label}</p>
-              <ul className="space-y-1 text-slate-600">
-                <li>• Ensoleillement régional : <strong className="text-orange-600">{region.sun}</strong></li>
-                <li>• Aides possibles selon votre éligibilité</li>
-                <li>• Simulation adaptée à votre région</li>
-                {region.sun.toLowerCase().includes("nuageux") && <li>• Même par temps couvert, les panneaux photovoltaïques captent la lumière diffuse et restent pertinents.</li>}
-              </ul>
+              <p className="font-semibold text-slate-900 mb-1 text-sm md:text-base">Zone analysée — {region.label}</p>
+              <p className="text-slate-600 leading-snug">Ensoleillement : <strong className="text-orange-600">{region.sun}</strong>. Simulation adaptée à votre région.</p>
             </div>
           </div>
         </InfoBanner>
