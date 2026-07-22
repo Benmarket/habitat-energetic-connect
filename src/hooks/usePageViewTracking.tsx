@@ -30,10 +30,13 @@ const hasConsent = (): boolean => {
 };
 
 const getVisitorId = (): string => {
-  let visitorId = localStorage.getItem(VISITOR_KEY);
+  const consent = hasConsent();
+  // Avec consentement : id persistant (localStorage). Sans : id éphémère par session.
+  const storage = consent ? localStorage : sessionStorage;
+  let visitorId = storage.getItem(VISITOR_KEY);
   if (!visitorId) {
     visitorId = `visitor-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-    localStorage.setItem(VISITOR_KEY, visitorId);
+    try { storage.setItem(VISITOR_KEY, visitorId); } catch { /* noop */ }
   }
   return visitorId;
 };
@@ -105,8 +108,7 @@ export const usePageViewTracking = () => {
   const pageEntryTimeRef = useRef<number>(Date.now());
 
   useEffect(() => {
-    // GDPR: only track when the user has accepted cookies
-    if (!hasConsent()) return;
+    const consent = hasConsent();
 
     const sendDuration = () => {
       const pvId = pageViewIdRef.current;
@@ -142,25 +144,34 @@ export const usePageViewTracking = () => {
       pageEntryTimeRef.current = Date.now();
 
       try {
-        const attribution = captureAttribution(location.search);
-        const info = await getVisitorInfo();
+        // Mode anonyme (sans consentement) : mesure d'audience CNIL-exemptée
+        // -> pas d'IP, pas d'UA, pas d'UTM, pas de user_id, visitor_id éphémère.
+        const attribution = consent
+          ? captureAttribution(location.search)
+          : { utm_source: null, utm_medium: null, utm_campaign: null };
+        const info = consent
+          ? await getVisitorInfo()
+          : { ip: null, country: null };
+
+        const payload = {
+          page_url: location.pathname,
+          region_code: activeRegion,
+          user_id: consent ? (user?.id || null) : null,
+          visitor_id: getVisitorId(),
+          user_agent: consent ? navigator.userAgent : null,
+          referrer: consent ? (document.referrer || null) : null,
+          device_type: detectDevice(),
+          browser: detectBrowser(),
+          ip_address: info.ip,
+          country: info.country,
+          utm_source: attribution.utm_source,
+          utm_medium: attribution.utm_medium,
+          utm_campaign: attribution.utm_campaign,
+        };
+
         const { data } = await supabase
           .from("page_views")
-          .insert({
-            page_url: location.pathname,
-            region_code: activeRegion,
-            user_id: user?.id || null,
-            visitor_id: getVisitorId(),
-            user_agent: navigator.userAgent,
-            referrer: document.referrer || null,
-            device_type: detectDevice(),
-            browser: detectBrowser(),
-            ip_address: info.ip,
-            country: info.country,
-            utm_source: attribution.utm_source,
-            utm_medium: attribution.utm_medium,
-            utm_campaign: attribution.utm_campaign,
-          })
+          .insert(payload)
           .select("id")
           .single();
 
