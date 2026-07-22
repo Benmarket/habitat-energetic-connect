@@ -457,12 +457,12 @@ const ArticleDetail = () => {
               </div>
             </section>
           ) : (
-            <section className="bg-muted py-16">
+            <section className="bg-muted py-8 sm:py-16">
               <div className="container mx-auto px-4">
-                <div className="flex flex-wrap items-center gap-3 mb-6">
+                <div className="flex flex-wrap items-center gap-3 mb-4 sm:mb-6">
                   <Link 
                     to={`/${basePath}`}
-                    className="inline-flex items-center gap-2 text-foreground hover:text-primary transition-colors"
+                    className="inline-flex items-center gap-2 text-foreground hover:text-primary transition-colors text-sm sm:text-base"
                   >
                     <ArrowLeft className="w-4 h-4" />
                     Retour aux {basePath}
@@ -475,7 +475,7 @@ const ArticleDetail = () => {
                     </Link>
                   )}
                 </div>
-                <h1 className="text-3xl lg:text-5xl font-bold text-foreground mb-4 max-w-4xl">
+                <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-foreground mb-3 sm:mb-4 max-w-4xl break-words hyphens-auto" lang="fr">
                   {article.title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-4 text-muted-foreground text-sm">
