@@ -25,6 +25,8 @@ import {
 } from "recharts";
 import { useOnlinePresence } from "@/hooks/useOnlinePresence";
 import RegionsStatsBlock from "@/components/RegionsStatsBlock";
+import SitemapStatusCard from "@/components/admin/SitemapStatusCard";
+
 
 type Range = "7" | "30" | "90";
 
