@@ -25,6 +25,8 @@ import {
 } from "recharts";
 import { useOnlinePresence } from "@/hooks/useOnlinePresence";
 import RegionsStatsBlock from "@/components/RegionsStatsBlock";
+import SitemapStatusCard from "@/components/admin/SitemapStatusCard";
+
 
 type Range = "7" | "30" | "90";
 
@@ -302,7 +304,10 @@ const AdminTraficSeo = () => {
             </div>
           ) : (
             <div className="space-y-6">
+              <SitemapStatusCard />
+
               {/* KPI cards */}
+
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 <KpiCard icon={<Eye className="w-5 h-5" />} label="Pages vues" value={kpi.views.toLocaleString("fr-FR")} tint="bg-primary/10 text-primary" />
                 <KpiCard icon={<Users className="w-5 h-5" />} label="Visiteurs uniques" value={kpi.uniques.toLocaleString("fr-FR")} tint="bg-blue-500/10 text-blue-600" />

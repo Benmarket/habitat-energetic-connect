@@ -21,15 +21,38 @@ function checkRateLimit(clientIP: string): boolean {
   return true;
 }
 
+const BASE_URL = "https://prime-energies.fr";
+
+// Doit rester aligné avec scripts/generate-sitemap.ts
+const STATIC_PAGES = [
+  { url: "/", priority: "1.0", changefreq: "daily" },
+  { url: "/actualites", priority: "0.9", changefreq: "daily" },
+  { url: "/guides", priority: "0.9", changefreq: "weekly" },
+  { url: "/aides", priority: "0.9", changefreq: "weekly" },
+  { url: "/faq", priority: "0.7", changefreq: "monthly" },
+  { url: "/simulateurs/solaire", priority: "0.8", changefreq: "monthly" },
+  { url: "/services/installation-solaire", priority: "0.8", changefreq: "monthly" },
+  { url: "/services/pompes-a-chaleur", priority: "0.8", changefreq: "monthly" },
+  { url: "/services/stockage-energie", priority: "0.8", changefreq: "monthly" },
+  { url: "/services/audit-energetique", priority: "0.8", changefreq: "monthly" },
+  { url: "/services/amelioration-habitat", priority: "0.8", changefreq: "monthly" },
+  { url: "/devenir-partenaire", priority: "0.6", changefreq: "monthly" },
+  { url: "/forum", priority: "0.7", changefreq: "daily" },
+  { url: "/plan-du-site", priority: "0.5", changefreq: "monthly" },
+  { url: "/mentions-legales", priority: "0.3", changefreq: "monthly" },
+  { url: "/politique-confidentialite", priority: "0.3", changefreq: "monthly" },
+  { url: "/conditions-utilisation", priority: "0.3", changefreq: "monthly" },
+];
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || 
-                     req.headers.get("cf-connecting-ip") || 
-                     req.headers.get("x-real-ip") || 
+    const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+                     req.headers.get("cf-connecting-ip") ||
+                     req.headers.get("x-real-ip") ||
                      "unknown";
 
     if (!checkRateLimit(clientIP)) {
@@ -43,7 +66,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch all published posts WITH their categories for proper URL building
+    // Articles publiés + leur catégorie (nécessaire à l'URL des actualités)
     const { data: posts, error } = await supabase
       .from("posts")
       .select(`
@@ -57,123 +80,72 @@ serve(async (req) => {
 
     if (error) throw error;
 
-    // Fetch landing pages with SEO status
     const { data: landingPages, error: lpError } = await supabase
       .from("landing_pages")
       .select("path, updated_at, slug")
       .eq("seo_status", "seo");
 
-    if (lpError) {
-      console.error("Error fetching landing pages:", lpError);
-    }
+    if (lpError) console.error("Error fetching landing pages:", lpError);
 
-    // Fetch forum categories for forum URLs
     const { data: forumCategories, error: fcError } = await supabase
       .from("forum_categories")
       .select("slug, updated_at");
 
-    if (fcError) {
-      console.error("Error fetching forum categories:", fcError);
-    }
+    if (fcError) console.error("Error fetching forum categories:", fcError);
 
-    const baseUrl = "https://prime-energies.fr";
-    const currentDate = new Date().toISOString();
+    const seen = new Set<string>();
+    const urls: string[] = [];
 
-    let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n';
-    sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+    const push = (path: string, opts: { lastmod?: string | null; changefreq?: string; priority?: string }) => {
+      if (!path || seen.has(path)) return;
+      seen.add(path);
+      urls.push(
+        [
+          `  <url>`,
+          `    <loc>${BASE_URL}${path}</loc>`,
+          opts.lastmod ? `    <lastmod>${opts.lastmod}</lastmod>` : null,
+          opts.changefreq ? `    <changefreq>${opts.changefreq}</changefreq>` : null,
+          opts.priority ? `    <priority>${opts.priority}</priority>` : null,
+          `  </url>`,
+        ].filter(Boolean).join("\n"),
+      );
+    };
 
-    // Homepage
-    sitemap += `  <url>
-    <loc>${baseUrl}/</loc>
-    <lastmod>${currentDate}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>\n`;
+    STATIC_PAGES.forEach((p) => push(p.url, { changefreq: p.changefreq, priority: p.priority }));
 
-    // Static pages
-    const staticPages = [
-      { url: "/actualites", priority: "0.9", changefreq: "daily" },
-      { url: "/guides", priority: "0.9", changefreq: "weekly" },
-      { url: "/aides", priority: "0.9", changefreq: "weekly" },
-      { url: "/faq", priority: "0.7", changefreq: "monthly" },
-      { url: "/simulateurs/solaire", priority: "0.8", changefreq: "monthly" },
-      { url: "/forum", priority: "0.7", changefreq: "daily" },
-      { url: "/plan-du-site", priority: "0.5", changefreq: "monthly" },
-      { url: "/mentions-legales", priority: "0.5", changefreq: "monthly" },
-      { url: "/politique-confidentialite", priority: "0.5", changefreq: "monthly" },
-      { url: "/conditions-utilisation", priority: "0.5", changefreq: "monthly" },
-    ];
-
-    staticPages.forEach((page) => {
-      sitemap += `  <url>
-    <loc>${baseUrl}${page.url}</loc>
-    <lastmod>${currentDate}</lastmod>
-    <changefreq>${page.changefreq}</changefreq>
-    <priority>${page.priority}</priority>
-  </url>\n`;
-    });
-
-    // Dynamic content — CORRECT URLs matching actual routes
     posts?.forEach((post: any) => {
-      let url = "";
-      let priority = "0.7";
-      let changefreq = "monthly";
-
+      const lastmod = post.updated_at || post.published_at || null;
       if (post.content_type === "actualite") {
-        // Route: /actualites/:categorySlug/:slug
         const categorySlug = post.post_categories?.[0]?.categories?.slug || "non-classe";
-        url = `${baseUrl}/actualites/${categorySlug}/${post.slug}`;
-        priority = "0.8";
-        changefreq = "weekly";
+        push(`/actualites/${categorySlug}/${post.slug}`, { lastmod, changefreq: "weekly", priority: "0.8" });
       } else if (post.content_type === "guide") {
-        // Route: /guide/:slug (singular!)
-        url = `${baseUrl}/guide/${post.slug}`;
-        priority = "0.8";
-        changefreq = "monthly";
+        push(`/guide/${post.slug}`, { lastmod, changefreq: "monthly", priority: "0.8" });
       } else if (post.content_type === "aide") {
-        // Route: /aide/:slug (singular!)
-        url = `${baseUrl}/aide/${post.slug}`;
-        priority = "0.7";
-        changefreq = "monthly";
-      } else {
-        return; // skip unknown types
+        push(`/aide/${post.slug}`, { lastmod, changefreq: "monthly", priority: "0.7" });
       }
-
-      sitemap += `  <url>
-    <loc>${url}</loc>
-    <lastmod>${post.updated_at || post.published_at}</lastmod>
-    <changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
-  </url>\n`;
     });
 
-    // Landing pages with SEO status
     landingPages?.forEach((lp: any) => {
-      sitemap += `  <url>
-    <loc>${baseUrl}${lp.path}</loc>
-    <lastmod>${lp.updated_at || currentDate}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>\n`;
+      push(lp.path, { lastmod: lp.updated_at, changefreq: "weekly", priority: "0.9" });
     });
 
-    // Forum categories
     forumCategories?.forEach((fc: any) => {
-      sitemap += `  <url>
-    <loc>${baseUrl}/forum/categorie/${fc.slug}</loc>
-    <lastmod>${fc.updated_at || currentDate}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>\n`;
+      push(`/forum/categorie/${fc.slug}`, { lastmod: fc.updated_at, changefreq: "daily", priority: "0.6" });
     });
 
-    sitemap += "</urlset>";
+    const sitemap = [
+      `<?xml version="1.0" encoding="UTF-8"?>`,
+      `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
+      ...urls,
+      `</urlset>`,
+      ``,
+    ].join("\n");
 
     return new Response(sitemap, {
       headers: {
         ...corsHeaders,
         "Content-Type": "application/xml",
-        "Cache-Control": "public, max-age=3600, s-maxage=3600",
+        "Cache-Control": "public, max-age=600, s-maxage=600",
       },
     });
   } catch (error) {
