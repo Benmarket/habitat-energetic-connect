@@ -1,10 +1,24 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 export type RegionCode = "fr" | "corse" | "reunion" | "martinique" | "guadeloupe" | "guyane";
 
 const VALID_REGIONS: RegionCode[] = ["fr", "corse", "reunion", "martinique", "guadeloupe", "guyane"];
 const STORAGE_KEY = "prime-energies-region";
+const STORAGE_TS_KEY = "prime-energies-region-ts";
+const LEGACY_STORAGE_KEY = "prime-energies-region";
+/** Durée d'inactivité au bout de laquelle le contexte région est vidé (30 min) */
+const INACTIVITY_MS = 30 * 60 * 1000;
+
+/** Mapping pays (ISO-2) -> région. La Corse n'est pas détectable (code FR). */
+const COUNTRY_TO_REGION: Record<string, RegionCode> = {
+  RE: "reunion",
+  YT: "reunion",
+  MQ: "martinique",
+  GP: "guadeloupe",
+  GF: "guyane",
+};
 
 const isValidRegion = (value: string | null | undefined): value is RegionCode => {
   return Boolean(value && VALID_REGIONS.includes(value as RegionCode));
@@ -12,16 +26,51 @@ const isValidRegion = (value: string | null | undefined): value is RegionCode =>
 
 const isRegionActivePath = (pathname: string) => pathname === "/" || pathname.startsWith("/offre-partenaire/");
 
-function getStoredRegion(): RegionCode {
-  if (typeof window === "undefined") return "fr";
+/** Lit la région de session, en la purgeant si trop ancienne (inactivité). */
+function getStoredRegion(): RegionCode | null {
+  if (typeof window === "undefined") return null;
 
-  const storedRegion = localStorage.getItem(STORAGE_KEY)?.toLowerCase();
-  return isValidRegion(storedRegion) ? storedRegion : "fr";
+  try {
+    // Purge d'un éventuel ancien stockage persistant (localStorage)
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
+  } catch {
+    /* noop */
+  }
+
+  try {
+    const stored = sessionStorage.getItem(STORAGE_KEY)?.toLowerCase();
+    if (!isValidRegion(stored)) return null;
+
+    const ts = Number(sessionStorage.getItem(STORAGE_TS_KEY) || 0);
+    if (!ts || Date.now() - ts > INACTIVITY_MS) {
+      sessionStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(STORAGE_TS_KEY);
+      return null;
+    }
+
+    return stored;
+  } catch {
+    return null;
+  }
 }
 
-function getHomepageRegion(search: string): RegionCode {
-  const regionParam = new URLSearchParams(search).get("region")?.toLowerCase();
-  return isValidRegion(regionParam) ? regionParam : getStoredRegion();
+function storeRegion(region: RegionCode) {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, region);
+    sessionStorage.setItem(STORAGE_TS_KEY, String(Date.now()));
+  } catch {
+    /* noop */
+  }
+}
+
+function touchRegion() {
+  try {
+    if (sessionStorage.getItem(STORAGE_KEY)) {
+      sessionStorage.setItem(STORAGE_TS_KEY, String(Date.now()));
+    }
+  } catch {
+    /* noop */
+  }
 }
 
 interface RegionContextType {
@@ -32,59 +81,102 @@ interface RegionContextType {
 const RegionContext = createContext<RegionContextType | undefined>(undefined);
 
 function getInitialRegion(): RegionCode {
-  if (typeof window !== "undefined") {
-    if (isRegionActivePath(window.location.pathname)) {
-      return getHomepageRegion(window.location.search);
-    }
+  if (typeof window === "undefined") return "fr";
 
-    return getStoredRegion();
+  if (isRegionActivePath(window.location.pathname)) {
+    const regionParam = new URLSearchParams(window.location.search).get("region")?.toLowerCase();
+    if (isValidRegion(regionParam)) return regionParam;
   }
 
-  return "fr";
+  return getStoredRegion() ?? "fr";
 }
 
 export function RegionProvider({ children }: { children: ReactNode }) {
   const location = useLocation();
   const isRegionActive = isRegionActivePath(location.pathname);
   const [selectedRegion, setSelectedRegionState] = useState<RegionCode>(getInitialRegion);
+  /** true dès que l'utilisateur a explicitement choisi une région (clic ou URL) */
+  const userChoiceRef = useRef<boolean>(Boolean(getStoredRegion()));
 
+  // Détection géographique automatique (uniquement si aucun choix explicite)
   useEffect(() => {
-    const storedRegion = getStoredRegion();
+    let cancelled = false;
 
-    if (!isRegionActive) {
-      setSelectedRegionState((currentRegion) => (currentRegion === storedRegion ? currentRegion : storedRegion));
-      return;
-    }
+    const detect = async () => {
+      if (userChoiceRef.current) return;
+
+      try {
+        const { data } = await supabase.functions.invoke("visitor-info");
+        const country = (data as { country?: string } | null)?.country?.toUpperCase();
+        const detected = country ? COUNTRY_TO_REGION[country] : undefined;
+
+        if (cancelled || !detected) return;
+        if (userChoiceRef.current) return;
+
+        setSelectedRegionState(detected);
+      } catch {
+        /* silencieux : on reste sur "fr" */
+      }
+    };
+
+    detect();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Purge automatique après inactivité prolongée
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      if (!userChoiceRef.current) return;
+      if (getStoredRegion() === null) {
+        userChoiceRef.current = false;
+        setSelectedRegionState("fr");
+      }
+    }, 60 * 1000);
+
+    const onActivity = () => touchRegion();
+    window.addEventListener("click", onActivity);
+    window.addEventListener("keydown", onActivity);
+    window.addEventListener("scroll", onActivity, { passive: true });
+
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("click", onActivity);
+      window.removeEventListener("keydown", onActivity);
+      window.removeEventListener("scroll", onActivity);
+    };
+  }, []);
+
+  // Synchronisation URL <-> région (l'URL fait toujours foi)
+  useEffect(() => {
+    if (!isRegionActive) return;
 
     const urlParams = new URLSearchParams(location.search);
     const regionParam = urlParams.get("region")?.toLowerCase();
-    const nextRegion = isValidRegion(regionParam) ? regionParam : storedRegion;
 
-    setSelectedRegionState((currentRegion) => (currentRegion === nextRegion ? currentRegion : nextRegion));
-
-    if (nextRegion === "fr") {
-      if (urlParams.has("region")) {
-        urlParams.delete("region");
-        const queryString = urlParams.toString();
-        const newUrl = queryString ? `${location.pathname}?${queryString}` : location.pathname;
-        window.history.replaceState({}, "", newUrl);
-      }
+    if (isValidRegion(regionParam)) {
+      userChoiceRef.current = true;
+      storeRegion(regionParam);
+      setSelectedRegionState((current) => (current === regionParam ? current : regionParam));
       return;
     }
 
-    if (regionParam !== nextRegion) {
-      urlParams.set("region", nextRegion);
-      window.history.replaceState({}, "", `${location.pathname}?${urlParams.toString()}`);
+    if (urlParams.has("region")) {
+      urlParams.delete("region");
+      const queryString = urlParams.toString();
+      window.history.replaceState({}, "", queryString ? `${location.pathname}?${queryString}` : location.pathname);
     }
   }, [isRegionActive, location.pathname, location.search]);
 
   const setActiveRegion = (region: RegionCode) => {
     if (!VALID_REGIONS.includes(region)) return;
 
+    userChoiceRef.current = true;
     setSelectedRegionState(region);
-    localStorage.setItem(STORAGE_KEY, region);
+    storeRegion(region);
 
-    if (window.location.pathname === "/") {
+    if (isRegionActivePath(window.location.pathname)) {
       const urlParams = new URLSearchParams(window.location.search);
 
       if (region === "fr") {
