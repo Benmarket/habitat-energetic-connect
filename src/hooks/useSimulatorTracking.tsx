@@ -126,6 +126,22 @@ export function useSimulatorTracking({ simulatorId, totalSteps, stepLabels = [] 
   const completedRef = useRef<boolean>(false);
   const startedRef = useRef<boolean>(false);
 
+  const call = useCallback(async (payload: Record<string, unknown>) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("track-simulator", {
+        body: { simulator_id: simulatorId, ...payload },
+      });
+      if (error) {
+        console.warn("[tracking] call failed", error);
+        return null;
+      }
+      return data as { session_id?: string } | null;
+    } catch (e) {
+      console.warn("[tracking] call error", e);
+      return null;
+    }
+  }, [simulatorId]);
+
   // Init session
   useEffect(() => {
     if (startedRef.current) return;
@@ -133,45 +149,19 @@ export function useSimulatorTracking({ simulatorId, totalSteps, stepLabels = [] 
 
     const init = async () => {
       const session_key = getOrCreateSessionKey();
-      const fingerprint = computeFingerprint();
       const referrer_url = document.referrer || null;
       const utm = parseUtm();
-      const referrer_source = detectSource(referrer_url || "", utm.utm_source);
-      const landing_url = window.location.href;
-
-      const { data, error } = await supabase
-        .from("simulator_tracking_sessions")
-        .insert({
-          simulator_id: simulatorId,
-          session_key,
-          visitor_id: session_key,
-          user_id: user?.id || null,
-          fingerprint,
-          user_agent: navigator.userAgent,
-          referrer_url,
-          referrer_source,
-          landing_url,
-          utm_source: utm.utm_source,
-          utm_medium: utm.utm_medium,
-          utm_campaign: utm.utm_campaign,
-          total_steps: totalSteps,
-        })
-        .select("id")
-        .single();
-
-      if (error) {
-        console.warn("[tracking] session insert failed", error);
-        return;
-      }
-      sessionIdRef.current = data.id;
-
-      // Log session_start event
-      await supabase.from("simulator_tracking_events").insert({
-        session_id: data.id,
-        simulator_id: simulatorId,
-        event_type: "session_start",
-        payload: { referrer_source, referrer_url, ...utm },
+      const data = await call({
+        action: "start",
+        session_key,
+        fingerprint: computeFingerprint(),
+        referrer_url,
+        referrer_source: detectSource(referrer_url || "", utm.utm_source),
+        landing_url: window.location.href,
+        total_steps: totalSteps,
+        ...utm,
       });
+      if (data?.session_id) sessionIdRef.current = data.session_id;
     };
 
     init().catch((e) => console.warn("[tracking] init error", e));
@@ -181,16 +171,14 @@ export function useSimulatorTracking({ simulatorId, totalSteps, stepLabels = [] 
       if (!sessionIdRef.current || completedRef.current) return;
       try {
         const body = JSON.stringify({
-          session_id: sessionIdRef.current,
+          action: "abandon",
           simulator_id: simulatorId,
-          event_type: "abandon",
+          session_id: sessionIdRef.current,
           step: maxStepRef.current,
           step_label: stepLabels[maxStepRef.current - 1] || null,
-          payload: { reason: "unload" },
         });
-        // fire-and-forget best effort
         navigator.sendBeacon?.(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/simulator_tracking_events`,
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/track-simulator`,
           new Blob([body], { type: "application/json" })
         );
       } catch {}
@@ -202,73 +190,32 @@ export function useSimulatorTracking({ simulatorId, totalSteps, stepLabels = [] 
 
   const trackStep = useCallback(
     async (step: number) => {
-      const sid = sessionIdRef.current;
-      if (!sid || step <= 0) return;
-      const label = stepLabels[step - 1] || null;
-
-      // event
-      supabase
-        .from("simulator_tracking_events")
-        .insert({
-          session_id: sid,
-          simulator_id: simulatorId,
-          event_type: "step_view",
-          step,
-          step_label: label,
-        })
-        .then(() => {});
-
-      // update max_step if greater
-      if (step > maxStepRef.current) {
-        maxStepRef.current = step;
-        supabase
-          .from("simulator_tracking_sessions")
-          .update({ max_step: step, max_step_label: label, last_event_at: new Date().toISOString() })
-          .eq("id", sid)
-          .then(() => {});
-      }
+      if (!sessionIdRef.current || step <= 0) return;
+      if (step > maxStepRef.current) maxStepRef.current = step;
+      await call({
+        action: "step",
+        session_id: sessionIdRef.current,
+        step,
+        step_label: stepLabels[step - 1] || null,
+      });
     },
-    [simulatorId, stepLabels]
+    [call, stepLabels]
   );
 
   const trackComplete = useCallback(async () => {
-    const sid = sessionIdRef.current;
-    if (!sid) return;
+    if (!sessionIdRef.current) return;
     completedRef.current = true;
-    await supabase
-      .from("simulator_tracking_sessions")
-      .update({
-        completed: true,
-        completed_at: new Date().toISOString(),
-        max_step: Math.max(maxStepRef.current, totalSteps + 1),
-        last_event_at: new Date().toISOString(),
-      })
-      .eq("id", sid);
-    await supabase.from("simulator_tracking_events").insert({
-      session_id: sid,
-      simulator_id: simulatorId,
-      event_type: "completion",
-      step: totalSteps + 1,
-    });
-  }, [simulatorId, totalSteps]);
+    await call({ action: "complete", session_id: sessionIdRef.current, total_steps: totalSteps });
+  }, [call, totalSteps]);
 
   const trackLead = useCallback(
     async (email: string) => {
-      const sid = sessionIdRef.current;
-      if (!sid) return;
-      await supabase
-        .from("simulator_tracking_sessions")
-        .update({ email, last_event_at: new Date().toISOString() })
-        .eq("id", sid);
-      await supabase.from("simulator_tracking_events").insert({
-        session_id: sid,
-        simulator_id: simulatorId,
-        event_type: "lead_captured",
-        payload: { email },
-      });
+      if (!sessionIdRef.current) return;
+      await call({ action: "lead", session_id: sessionIdRef.current, email });
     },
-    [simulatorId]
+    [call]
   );
 
   return { trackStep, trackComplete, trackLead };
 }
+
