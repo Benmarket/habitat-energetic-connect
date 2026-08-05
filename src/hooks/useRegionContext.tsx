@@ -226,7 +226,7 @@ export const regionCodeToName: Record<RegionCode, string> = {
   "fr": "France",
   "corse": "Corse",
   "reunion": "Réunion",
-  "martinique": "martinique" as RegionCode extends never ? never : string,
+  "martinique": "Martinique",
   "guadeloupe": "Guadeloupe",
   "guyane": "Guyane",
-} as Record<RegionCode, string>;
+};
