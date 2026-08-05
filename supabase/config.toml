@@ -57,3 +57,6 @@ verify_jwt = true
 
 [functions.optimize-post-images]
 verify_jwt = true
+
+[functions.track-simulator]
+verify_jwt = false
