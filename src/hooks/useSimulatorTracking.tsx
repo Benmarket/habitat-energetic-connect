@@ -1,6 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 
 /**
  * Tracking d'abandon pour les simulateurs.
@@ -120,7 +119,6 @@ interface UseSimulatorTrackingOptions {
 }
 
 export function useSimulatorTracking({ simulatorId, totalSteps, stepLabels = [] }: UseSimulatorTrackingOptions) {
-  const { user } = useAuth();
   const sessionIdRef = useRef<string | null>(null);
   const maxStepRef = useRef<number>(0);
   const completedRef = useRef<boolean>(false);
