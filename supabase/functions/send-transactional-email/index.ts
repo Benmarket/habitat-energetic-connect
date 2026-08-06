@@ -428,7 +428,14 @@ Deno.serve(async (req) => {
     purpose: 'transactional',
     label: templateName,
     idempotency_key: idempotencyKey,
-    unsubscribe_token: unsubscribeToken,
+    // NOTE: `unsubscribe_token` est volontairement omis du payload.
+    // Le transmettre déclenche l'ajout automatique d'un pied de page en anglais
+    // ("You received this email because of an action on…") par l'infrastructure
+    // d'envoi. Chaque template embarque déjà son propre lien de désinscription
+    // en français (newsletter → /newsletter/desinscription, autres →
+    // /desinscription-registre), ce qui couvre l'obligation RGPD.
+    // Le jeton reste généré et stocké plus haut pour la validation de ces liens.
+
     queued_at: new Date().toISOString(),
   })
 
