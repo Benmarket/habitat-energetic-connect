@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Users can create conversations" ON public.chat_conversations;
