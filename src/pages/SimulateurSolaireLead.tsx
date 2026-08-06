@@ -141,7 +141,13 @@ function detectRegion(postal: string): { id: string; label: string; sun: string;
   if (p.startsWith("971")) return { id: "guadeloupe", label: "Guadeloupe", sun: "très élevé (~1 800 kWh/m²/an)", island: true };
   if (p.startsWith("976")) return { id: "mayotte", label: "Mayotte", sun: "très élevé (~1 900 kWh/m²/an)", island: true };
   if (/^\d{5}$/.test(p)) {
+    // Départements d'outre-mer non couverts / codes fantaisistes (96, 98, 99, 970, 975, 977…)
+    if (p.startsWith("96") || p.startsWith("97") || p.startsWith("98") || p.startsWith("99"))
+      return { id: "unknown", label: "Zone non détectée", sun: "à évaluer selon la localisation", island: false };
     const n = parseInt(p.slice(0, 2), 10);
+    // Départements métropolitains valides : 01 à 95
+    if (!(n >= 1 && n <= 95))
+      return { id: "unknown", label: "Zone non détectée", sun: "à évaluer selon la localisation", island: false };
     if ([13, 30, 34, 11, 66, 6, 83, 84, 4, 5, 7, 26].includes(n))
       return { id: "fr-sud", label: "France continentale (sud)", sun: "élevé (~1 500–1 700 kWh/m²/an)", island: false };
     if ([33, 40, 47, 24, 46, 82, 32, 31, 65, 9, 81, 12, 48, 43, 63, 15, 19, 87, 16, 17, 79, 86].includes(n))
@@ -150,7 +156,8 @@ function detectRegion(postal: string): { id: string; label: string; sun: string;
       return { id: "fr-nord", label: "France continentale (nord)", sun: "modéré (~1 000–1 150 kWh/m²/an)", island: false };
     return { id: "fr", label: "France continentale", sun: "modéré à correct (~1 150–1 300 kWh/m²/an)", island: false };
   }
-  return { id: "unknown", label: "Zone non reconnue", sun: "à évaluer selon la localisation", island: false };
+  return { id: "unknown", label: "Zone non détectée", sun: "à évaluer selon la localisation", island: false };
+
 }
 
 function suggestedKwc(monthly: number): { kwc: number; panels: number; label: string } {
