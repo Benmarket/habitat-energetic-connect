@@ -1002,7 +1002,14 @@ const Step1Location = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
         </div>
       </div>
 
-      {/^\d{5}$/.test(sim.postalCode) && (
+      {/^\d{5}$/.test(sim.postalCode) && region.id === "unknown" && (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 md:p-4">
+          <p className="font-semibold text-destructive mb-1 text-sm md:text-base">Zone non détectée</p>
+          <p className="text-slate-600 leading-snug text-sm">Ce code postal ne correspond à aucun département couvert. Vérifiez votre saisie pour continuer.</p>
+        </div>
+      )}
+
+      {/^\d{5}$/.test(sim.postalCode) && region.id !== "unknown" && (
         <InfoBanner>
           <div className="flex items-start gap-3">
             {REGION_SHAPES[region.id] && <img src={REGION_SHAPES[region.id]} alt={`Silhouette ${region.label}`} className="w-12 h-12 md:w-20 md:h-20 object-contain shrink-0 opacity-90" loading="lazy" />}
@@ -1013,6 +1020,7 @@ const Step1Location = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
           </div>
         </InfoBanner>
       )}
+
     </div>
   );
 };
