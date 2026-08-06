@@ -306,7 +306,7 @@ export default function SimulateurSolaireLead() {
 
   const canContinue = (): boolean => {
     switch (step) {
-      case 1: return /^\d{5}$/.test(sim.postalCode);
+      case 1: return /^\d{5}$/.test(sim.postalCode) && region.id !== "unknown";
       case 2: return !!sim.housing && typeof sim.surface === "number" && sim.surface >= 20;
       case 3: return !!sim.ownership;
       case 4: return !!sim.orientation; // roofType facultatif
