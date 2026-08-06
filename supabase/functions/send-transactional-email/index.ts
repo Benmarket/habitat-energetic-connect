@@ -290,12 +290,6 @@ Deno.serve(async (req) => {
       )
     }
     unsubscribeToken = storedToken.token
-  }
-  console.log('Unsubscribe token ready', {
-    hasToken: Boolean(unsubscribeToken),
-    templateName,
-  })
-  if (false) {
   } else {
     // Token exists but is already used — email should have been caught by suppression check above.
     // This is a safety fallback; log and skip sending.
