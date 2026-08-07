@@ -21,7 +21,33 @@ export type Attribution = {
   current_url: string | null;
   gclid: string | null;
   fbclid: string | null;
+  /** Région du contexte de page au moment de la soumission (fr, corse, reunion…) */
+  region_context: string | null;
 };
+
+const REGION_CODES = ["fr", "corse", "reunion", "martinique", "guadeloupe", "guyane", "mayotte"];
+
+/**
+ * Région "contexte de page" : segment régional de l'URL (ex. /landing/solaire/reunion),
+ * sinon ?region=xxx, sinon la région active en session (choix utilisateur ou géo-détection).
+ */
+export function getRegionContext(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const segs = window.location.pathname.toLowerCase().split("/").filter(Boolean);
+    const fromPath = segs.find((s) => REGION_CODES.includes(s));
+    if (fromPath) return fromPath;
+
+    const param = new URLSearchParams(window.location.search).get("region")?.toLowerCase();
+    if (param && REGION_CODES.includes(param)) return param;
+
+    const stored = sessionStorage.getItem("prime-energies-region")?.toLowerCase();
+    if (stored && REGION_CODES.includes(stored)) return stored;
+  } catch {
+    /* noop */
+  }
+  return null;
+}
 
 function detectSource(referrer: string, utmSource?: string | null): string {
   const src = (utmSource || "").toLowerCase();
