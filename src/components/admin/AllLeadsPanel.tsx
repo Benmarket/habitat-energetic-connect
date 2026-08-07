@@ -334,9 +334,11 @@ export default function AllLeadsPanel() {
       if (!g.phone && l.phone) g.phone = l.phone;
     });
     const groups = Array.from(map.values()).map((g) => {
-      // Region: use first submission with a postal code, else inconnu
+      // Region: code postal en priorité, sinon contexte de page (URL régionale / région active)
       const withPostal = g.leads.find((l) => l.postalCode);
-      const region: RegionInfo = withPostal?.region || REGION_META.inconnu;
+      const withContext = g.leads.find((l) => l.region.code !== "inconnu");
+      const region: RegionInfo = withPostal?.region || withContext?.region || REGION_META.inconnu;
+      const regionFromPageContext = !withPostal && !!withContext;
       // Prefer the most recent submission's own attribution, fall back to tracking-session join
       const withAttr = g.leads.find((l) => l.attribution && (l.attribution.referrer_source || l.attribution.utm_source || l.attribution.referrer_url));
       const own = withAttr?.attribution || null;
