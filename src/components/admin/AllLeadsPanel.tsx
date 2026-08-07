@@ -265,7 +265,9 @@ export default function AllLeadsPanel() {
             phone: null,
             name: null,
             postalCode: null,
-            region: REGION_META.inconnu,
+            region:
+              regionFromContext(n.attribution?.region_context, n.attribution?.current_url || n.attribution?.landing_url) ||
+              REGION_META.inconnu,
             data: { email: n.email, source: n.source },
             attribution: n.attribution || null,
             consent: n.consent || null,
