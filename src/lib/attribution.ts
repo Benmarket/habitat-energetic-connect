@@ -159,6 +159,7 @@ export function captureAttribution(): Attribution {
         current_url: window.location.href,
         gclid,
         fbclid,
+        region_context: getRegionContext(),
       };
       try {
         sessionStorage.setItem(ATTR_KEY, JSON.stringify(next));
@@ -168,8 +169,9 @@ export function captureAttribution(): Attribution {
       return next;
     }
 
-    // Refresh current URL only
+    // Refresh current URL + region context only
     stored.current_url = window.location.href;
+    stored.region_context = getRegionContext() ?? stored.region_context ?? null;
     return stored;
   } catch {
     return fallback;
