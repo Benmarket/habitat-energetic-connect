@@ -220,7 +220,8 @@ export function RegionProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const activeRegion: RegionCode = isRegionActive ? selectedRegion : "fr";
+  // Le contexte régional s'applique partout (URL régionale > choix > géo-détection).
+  const activeRegion: RegionCode = pathRegion ?? selectedRegion;
 
   return (
     <RegionContext.Provider value={{ activeRegion, setActiveRegion }}>
