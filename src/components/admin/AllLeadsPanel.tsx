@@ -356,6 +356,7 @@ export default function AllLeadsPanel() {
         lastAt: g.leads[0]?.submittedAt,
         region,
         postalCode: withPostal?.postalCode || null,
+        regionFromPageContext,
         trafficSource,
         landingUrl: src?.landing_url || null,
         utmMedium: src?.utm_medium || null,
