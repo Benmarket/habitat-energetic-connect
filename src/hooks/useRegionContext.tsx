@@ -24,7 +24,18 @@ const isValidRegion = (value: string | null | undefined): value is RegionCode =>
   return Boolean(value && VALID_REGIONS.includes(value as RegionCode));
 };
 
+/** Pages où l'utilisateur peut choisir sa région (l'URL est alors synchronisée). */
 const isRegionActivePath = (pathname: string) => pathname === "/" || pathname.startsWith("/offre-partenaire/");
+
+/** Région portée par l'URL elle-même (ex. /landing/solaire/reunion). */
+function getRegionFromPath(pathname: string): RegionCode | null {
+  const seg = pathname
+    .toLowerCase()
+    .split("/")
+    .filter(Boolean)
+    .find((s) => isValidRegion(s));
+  return (seg as RegionCode) ?? null;
+}
 
 /** Lit la région de session, en la purgeant si trop ancienne (inactivité). */
 function getStoredRegion(): RegionCode | null {
@@ -83,6 +94,9 @@ const RegionContext = createContext<RegionContextType | undefined>(undefined);
 function getInitialRegion(): RegionCode {
   if (typeof window === "undefined") return "fr";
 
+  const fromPath = getRegionFromPath(window.location.pathname);
+  if (fromPath) return fromPath;
+
   if (isRegionActivePath(window.location.pathname)) {
     const regionParam = new URLSearchParams(window.location.search).get("region")?.toLowerCase();
     if (isValidRegion(regionParam)) return regionParam;
@@ -94,9 +108,18 @@ function getInitialRegion(): RegionCode {
 export function RegionProvider({ children }: { children: ReactNode }) {
   const location = useLocation();
   const isRegionActive = isRegionActivePath(location.pathname);
+  const pathRegion = getRegionFromPath(location.pathname);
   const [selectedRegion, setSelectedRegionState] = useState<RegionCode>(getInitialRegion);
   /** true dès que l'utilisateur a explicitement choisi une région (clic ou URL) */
   const userChoiceRef = useRef<boolean>(Boolean(getStoredRegion()));
+
+  // Une URL régionale (ex. /landing/solaire/reunion) fait autorité sur le contexte
+  useEffect(() => {
+    if (!pathRegion) return;
+    userChoiceRef.current = true;
+    storeRegion(pathRegion);
+    setSelectedRegionState((current) => (current === pathRegion ? current : pathRegion));
+  }, [pathRegion]);
 
   // Détection géographique automatique (uniquement si aucun choix explicite)
   useEffect(() => {
@@ -113,6 +136,9 @@ export function RegionProvider({ children }: { children: ReactNode }) {
         if (cancelled || !detected) return;
         if (userChoiceRef.current) return;
 
+        // Persisté pour la session afin que tout le site (et l'attribution des leads)
+        // partage le même contexte régional, sans être marqué comme choix utilisateur.
+        storeRegion(detected);
         setSelectedRegionState(detected);
       } catch {
         /* silencieux : on reste sur "fr" */
@@ -194,7 +220,8 @@ export function RegionProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const activeRegion: RegionCode = isRegionActive ? selectedRegion : "fr";
+  // Le contexte régional s'applique partout (URL régionale > choix > géo-détection).
+  const activeRegion: RegionCode = pathRegion ?? selectedRegion;
 
   return (
     <RegionContext.Provider value={{ activeRegion, setActiveRegion }}>

@@ -86,6 +86,32 @@ function detectRegion(postal: string | null): RegionInfo {
   return REGION_META.inconnu;
 }
 
+/** Région déduite du contexte de page (URL régionale / région active) faute de code postal. */
+const CONTEXT_TO_REGION: Record<string, string> = {
+  fr: "metropole",
+  corse: "corse",
+  reunion: "reunion",
+  martinique: "martinique",
+  guadeloupe: "guadeloupe",
+  guyane: "guyane",
+  mayotte: "mayotte",
+};
+
+function regionFromContext(ctx?: string | null, url?: string | null): RegionInfo | null {
+  const code = ctx?.toLowerCase();
+  if (code && CONTEXT_TO_REGION[code]) return REGION_META[CONTEXT_TO_REGION[code]];
+  if (url) {
+    try {
+      const segs = new URL(url).pathname.toLowerCase().split("/").filter(Boolean);
+      const seg = segs.find((s) => CONTEXT_TO_REGION[s]);
+      if (seg) return REGION_META[CONTEXT_TO_REGION[seg]];
+    } catch {
+      /* noop */
+    }
+  }
+  return null;
+}
+
 type Attribution = {
   referrer_source?: string | null;
   referrer_url?: string | null;
@@ -96,6 +122,7 @@ type Attribution = {
   current_url?: string | null;
   gclid?: string | null;
   fbclid?: string | null;
+  region_context?: string | null;
 } | null;
 
 /** Turn a full URL into a short readable path like "/simulateurs/solaire". */
@@ -215,7 +242,11 @@ export default function AllLeadsPanel() {
           phone: c.phone,
           name: c.name,
           postalCode: postal,
-          region: detectRegion(postal),
+          region:
+            postal
+              ? detectRegion(postal)
+              : regionFromContext(s.attribution?.region_context, s.attribution?.current_url || s.attribution?.landing_url) ||
+                REGION_META.inconnu,
           data: s.data || {},
           attribution: s.attribution || null,
           consent: s.consent || null,
@@ -234,7 +265,9 @@ export default function AllLeadsPanel() {
             phone: null,
             name: null,
             postalCode: null,
-            region: REGION_META.inconnu,
+            region:
+              regionFromContext(n.attribution?.region_context, n.attribution?.current_url || n.attribution?.landing_url) ||
+              REGION_META.inconnu,
             data: { email: n.email, source: n.source },
             attribution: n.attribution || null,
             consent: n.consent || null,
@@ -301,9 +334,11 @@ export default function AllLeadsPanel() {
       if (!g.phone && l.phone) g.phone = l.phone;
     });
     const groups = Array.from(map.values()).map((g) => {
-      // Region: use first submission with a postal code, else inconnu
+      // Region: code postal en priorité, sinon contexte de page (URL régionale / région active)
       const withPostal = g.leads.find((l) => l.postalCode);
-      const region: RegionInfo = withPostal?.region || REGION_META.inconnu;
+      const withContext = g.leads.find((l) => l.region.code !== "inconnu");
+      const region: RegionInfo = withPostal?.region || withContext?.region || REGION_META.inconnu;
+      const regionFromPageContext = !withPostal && !!withContext;
       // Prefer the most recent submission's own attribution, fall back to tracking-session join
       const withAttr = g.leads.find((l) => l.attribution && (l.attribution.referrer_source || l.attribution.utm_source || l.attribution.referrer_url));
       const own = withAttr?.attribution || null;
@@ -321,6 +356,7 @@ export default function AllLeadsPanel() {
         lastAt: g.leads[0]?.submittedAt,
         region,
         postalCode: withPostal?.postalCode || null,
+        regionFromPageContext,
         trafficSource,
         landingUrl: src?.landing_url || null,
         utmMedium: src?.utm_medium || null,
@@ -675,12 +711,22 @@ export default function AllLeadsPanel() {
                               <Badge
                                 variant="secondary"
                                 className="h-5 text-xs gap-1"
-                                title={g.postalCode ? `Code postal: ${g.postalCode}` : "Aucun code postal renseigné"}
+                                title={
+                                  g.postalCode
+                                    ? `Code postal: ${g.postalCode}`
+                                    : g.regionFromPageContext
+                                      ? "Région déduite du contexte de page (aucun code postal renseigné)"
+                                      : "Aucun code postal renseigné"
+                                }
                               >
                                 <span aria-hidden>{g.region.emoji}</span>
                                 <MapPin className="h-3 w-3" />
                                 {g.region.label}
-                                {g.postalCode && <span className="opacity-70 ml-1">({g.postalCode})</span>}
+                                {g.postalCode ? (
+                                  <span className="opacity-70 ml-1">({g.postalCode})</span>
+                                ) : g.regionFromPageContext ? (
+                                  <span className="opacity-60 ml-1 italic">(contexte page)</span>
+                                ) : null}
                               </Badge>
                               {g.trafficSource && (
                                 <Badge
