@@ -711,12 +711,22 @@ export default function AllLeadsPanel() {
                               <Badge
                                 variant="secondary"
                                 className="h-5 text-xs gap-1"
-                                title={g.postalCode ? `Code postal: ${g.postalCode}` : "Aucun code postal renseigné"}
+                                title={
+                                  g.postalCode
+                                    ? `Code postal: ${g.postalCode}`
+                                    : g.regionFromPageContext
+                                      ? "Région déduite du contexte de page (aucun code postal renseigné)"
+                                      : "Aucun code postal renseigné"
+                                }
                               >
                                 <span aria-hidden>{g.region.emoji}</span>
                                 <MapPin className="h-3 w-3" />
                                 {g.region.label}
-                                {g.postalCode && <span className="opacity-70 ml-1">({g.postalCode})</span>}
+                                {g.postalCode ? (
+                                  <span className="opacity-70 ml-1">({g.postalCode})</span>
+                                ) : g.regionFromPageContext ? (
+                                  <span className="opacity-60 ml-1 italic">(contexte page)</span>
+                                ) : null}
                               </Badge>
                               {g.trafficSource && (
                                 <Badge
