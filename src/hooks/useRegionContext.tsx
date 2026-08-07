@@ -24,7 +24,18 @@ const isValidRegion = (value: string | null | undefined): value is RegionCode =>
   return Boolean(value && VALID_REGIONS.includes(value as RegionCode));
 };
 
+/** Pages où l'utilisateur peut choisir sa région (l'URL est alors synchronisée). */
 const isRegionActivePath = (pathname: string) => pathname === "/" || pathname.startsWith("/offre-partenaire/");
+
+/** Région portée par l'URL elle-même (ex. /landing/solaire/reunion). */
+function getRegionFromPath(pathname: string): RegionCode | null {
+  const seg = pathname
+    .toLowerCase()
+    .split("/")
+    .filter(Boolean)
+    .find((s) => isValidRegion(s));
+  return (seg as RegionCode) ?? null;
+}
 
 /** Lit la région de session, en la purgeant si trop ancienne (inactivité). */
 function getStoredRegion(): RegionCode | null {
