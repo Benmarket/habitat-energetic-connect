@@ -242,7 +242,11 @@ export default function AllLeadsPanel() {
           phone: c.phone,
           name: c.name,
           postalCode: postal,
-          region: detectRegion(postal),
+          region:
+            postal
+              ? detectRegion(postal)
+              : regionFromContext(s.attribution?.region_context, s.attribution?.current_url || s.attribution?.landing_url) ||
+                REGION_META.inconnu,
           data: s.data || {},
           attribution: s.attribution || null,
           consent: s.consent || null,
