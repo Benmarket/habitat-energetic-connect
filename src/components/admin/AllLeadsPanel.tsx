@@ -86,6 +86,32 @@ function detectRegion(postal: string | null): RegionInfo {
   return REGION_META.inconnu;
 }
 
+/** Région déduite du contexte de page (URL régionale / région active) faute de code postal. */
+const CONTEXT_TO_REGION: Record<string, string> = {
+  fr: "metropole",
+  corse: "corse",
+  reunion: "reunion",
+  martinique: "martinique",
+  guadeloupe: "guadeloupe",
+  guyane: "guyane",
+  mayotte: "mayotte",
+};
+
+function regionFromContext(ctx?: string | null, url?: string | null): RegionInfo | null {
+  const code = ctx?.toLowerCase();
+  if (code && CONTEXT_TO_REGION[code]) return REGION_META[CONTEXT_TO_REGION[code]];
+  if (url) {
+    try {
+      const segs = new URL(url).pathname.toLowerCase().split("/").filter(Boolean);
+      const seg = segs.find((s) => CONTEXT_TO_REGION[s]);
+      if (seg) return REGION_META[CONTEXT_TO_REGION[seg]];
+    } catch {
+      /* noop */
+    }
+  }
+  return null;
+}
+
 type Attribution = {
   referrer_source?: string | null;
   referrer_url?: string | null;
