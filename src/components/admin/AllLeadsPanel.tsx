@@ -122,6 +122,7 @@ type Attribution = {
   current_url?: string | null;
   gclid?: string | null;
   fbclid?: string | null;
+  region_context?: string | null;
 } | null;
 
 /** Turn a full URL into a short readable path like "/simulateurs/solaire". */
