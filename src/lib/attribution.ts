@@ -122,6 +122,7 @@ export function captureAttribution(): Attribution {
     current_url: null,
     gclid: null,
     fbclid: null,
+    region_context: null,
   };
   if (typeof window === "undefined") return fallback;
 
