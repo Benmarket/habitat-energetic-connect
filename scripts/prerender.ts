@@ -266,7 +266,7 @@ function buildHtml(template: string, page: Page): string {
     .replace(/<title>[\s\S]*?<\/title>/i, "")
     .replace(/<meta name="description"[^>]*>/i, "")
     .replace(/<link rel="canonical"[^>]*>/i, "")
-    .replace(/<meta property="og:(title|description|url|type|image)"[^>]*>/gi, "")
+    .replace(/<meta property="og:(title|description|url|type|image|site_name|locale)"[^>]*>/gi, "")
     .replace(/<meta name="twitter:(title|description|image|card)"[^>]*>/gi, "");
 
   html = html.replace("</head>", `  ${head}\n  </head>`);
