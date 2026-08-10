@@ -272,7 +272,7 @@ function buildHtml(template: string, page: Page): string {
   html = html.replace("</head>", `  ${head}\n  </head>`);
 
   // Contenu à l'intérieur de #root : React le remplace au montage.
-  const noscriptBody = `<div id="prerender-content"><main><h1>${esc(page.h1)}</h1>${page.body}</main></div>`;
+  const noscriptBody = `<div id="prerender-content" style="max-width:760px;margin:0 auto;padding:24px 20px;font-family:system-ui,sans-serif;line-height:1.6;color:#1f2937"><main><h1>${esc(page.h1)}</h1>${page.body}</main></div>`;
   html = html.replace('<div id="root"></div>', `<div id="root">${noscriptBody}</div>`);
 
   return html;
