@@ -2106,6 +2106,7 @@ export type Database = {
           id: string
           is_downloadable: boolean
           is_members_only: boolean
+          legacy_slug: string | null
           meta_description: string | null
           meta_title: string | null
           published_at: string | null
@@ -2148,6 +2149,7 @@ export type Database = {
           id?: string
           is_downloadable?: boolean
           is_members_only?: boolean
+          legacy_slug?: string | null
           meta_description?: string | null
           meta_title?: string | null
           published_at?: string | null
@@ -2190,6 +2192,7 @@ export type Database = {
           id?: string
           is_downloadable?: boolean
           is_members_only?: boolean
+          legacy_slug?: string | null
           meta_description?: string | null
           meta_title?: string | null
           published_at?: string | null

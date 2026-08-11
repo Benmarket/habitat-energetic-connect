@@ -152,6 +152,18 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://prime-energies.fr/actualites/photovoltaique/estimer-la-rentabilite-de-mon-installation-photovoltaique</loc>
+    <lastmod>2023-01-15T22:29:47+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prime-energies.fr/actualites/photovoltaique/comment-fonctionne-un-panneau-photovoltaique</loc>
+    <lastmod>2023-01-03T13:21:51+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://prime-energies.fr/guide/adoptez-l-energie-solaire-guide-ultime-sur-les-panneaux-photovoltaiques-et-les-aides-gouvernementales</loc>
     <lastmod>2026-05-06T15:52:36.47943+00:00</lastmod>
     <changefreq>monthly</changefreq>
@@ -284,9 +296,45 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://prime-energies.fr/actualites/photovoltaique/les-regions-les-plus-rentables-pour-une-installation-photovoltaique</loc>
+    <lastmod>2023-01-18T14:28:22+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prime-energies.fr/actualites/photovoltaique/realiser-son-projet-solaire-en-6-etapes</loc>
+    <lastmod>2023-01-15T17:11:43+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prime-energies.fr/actualites/solaire/differences-entre-le-photovoltaique-et-le-solaire</loc>
+    <lastmod>2023-01-03T11:31:02+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://prime-energies.fr/guide/economies-sur-le-chauffage-solutions-efficaces</loc>
     <lastmod>2026-05-07T10:54:58.355729+00:00</lastmod>
     <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prime-energies.fr/actualites/subventions/les-aides-financieres-pour-une-installation-photovoltaique</loc>
+    <lastmod>2023-01-17T11:48:43+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prime-energies.fr/actualites/environnement/les-leaders-des-energies-renouvelables</loc>
+    <lastmod>2023-01-04T15:13:28+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prime-energies.fr/actualites/environnement/qu-est-ce-que-la-transition-energetique</loc>
+    <lastmod>2022-12-26T13:26:27+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
@@ -314,8 +362,56 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://prime-energies.fr/actualites/environnement/quelle-est-la-situation-du-nucleaire-en-france</loc>
+    <lastmod>2023-01-17T11:08:20+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prime-energies.fr/actualites/solaire/le-systeme-solaire-combine-ssc</loc>
+    <lastmod>2023-01-03T14:18:54+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://prime-energies.fr/actualites/solaire/ajouter-du-stockage-sur-un-kit-solaire-existant-pourquoi-les-installateurs-refusent-ils-presque-toujours</loc>
     <lastmod>2026-08-06T14:39:28.176858+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prime-energies.fr/actualites/electricite/hausse-prevue-du-prix-de-lelectricite-en-2026-comment-anticiper-et-reduire-votre</loc>
+    <lastmod>2025-02-26T09:43:52+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prime-energies.fr/actualites/temoignages/les-familles-corses-reduisent-leur-facture-delectricite-grace-a-lenergie-solaire</loc>
+    <lastmod>2025-02-03T12:56:22+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prime-energies.fr/actualites/temoignages/prime-energies-reference-des-meilleurs-installateurs-solaires-en-corse</loc>
+    <lastmod>2024-07-16T08:53:11+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prime-energies.fr/actualites/photovoltaique/l-onduleur-kezako</loc>
+    <lastmod>2023-01-28T20:59:25+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prime-energies.fr/actualites/photovoltaique/entretenir-son-installation</loc>
+    <lastmod>2023-01-22T16:02:25+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prime-energies.fr/actualites/photovoltaique/les-differents-types-de-panneaux-photovoltaiques</loc>
+    <lastmod>2023-01-18T15:42:56+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

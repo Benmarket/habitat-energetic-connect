@@ -20,6 +20,8 @@ import Actualites from "./pages/Actualites";
 import Aides from "./pages/Aides";
 import Guides from "./pages/Guides";
 import ArticleDetail from "./pages/ArticleDetail";
+import LegacyPost from "./pages/LegacyPost";
+import LegacyBlog from "./pages/LegacyBlog";
 import GuideDetail from "./pages/GuideDetail";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -132,6 +134,10 @@ const App = () => (
                   <Route path="/" element={<Index />} />
                   <Route path="/actualites" element={<Actualites />} />
                   <Route path="/actualites/:categorySlug/:slug" element={<ArticleDetail />} />
+                  {/* Anciennes URLs du blog Wix — conservation du référencement */}
+                  <Route path="/post/:legacySlug" element={<LegacyPost />} />
+                  <Route path="/blog" element={<LegacyBlog />} />
+                  <Route path="/blog/categories/:categorySlug" element={<LegacyBlog />} />
                   <Route path="/aides" element={<Aides />} />
                   <Route path="/aide/:slug" element={<ArticleDetail />} />
                   <Route path="/guides" element={<Guides />} />
