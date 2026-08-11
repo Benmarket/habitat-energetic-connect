@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.get_simulator_tracking_stats(text, timestamptz, timestamptz) FROM anon;
