@@ -5,6 +5,7 @@
 //      relecture d'un draft juste après génération, retourne le rapport dans la réponse.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
+import { requireAuth } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -77,7 +78,24 @@ async function runReview(article: any) {
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  const auth = await requireAuth(req, { corsHeaders, requireAdmin: true });
+  if (!auth.ok) return auth.response;
+
   try {
+    // Rate limit AI usage per admin user
+    const { data: allowed } = await admin.rpc("check_ai_rate_limit", {
+      p_user_id: auth.userId,
+      p_endpoint: "review-article-quality",
+      p_max_per_hour: 30,
+    });
+    if (allowed === false) {
+      return new Response(JSON.stringify({ error: "Trop de requêtes, réessayez plus tard." }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    await admin.rpc("record_ai_call", { p_user_id: auth.userId, p_endpoint: "review-article-quality" });
+
     const body = await req.json();
     const { postId, article } = body || {};
 
