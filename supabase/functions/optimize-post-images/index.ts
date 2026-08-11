@@ -6,6 +6,7 @@
 // n'est pas dispo, on tombe simplement en no-op sans casser la publication.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
+import { requireAuth } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -42,6 +43,9 @@ function rewriteContent(html: string): string {
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const auth = await requireAuth(req, { corsHeaders, requireAdmin: true });
+  if (!auth.ok) return auth.response;
 
   try {
     const { postId } = await req.json();

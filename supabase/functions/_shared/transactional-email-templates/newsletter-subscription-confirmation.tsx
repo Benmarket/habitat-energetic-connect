@@ -43,6 +43,8 @@ interface Props {
   firstName?: string
   articles?: ArticleItem[]
   recipientEmail?: string
+  /** Per-recipient unsubscribe proof token */
+  unsubscribeToken?: string
 }
 
 const NEWSLETTER_UNSUB_PATH = '/newsletter/desinscription'
@@ -149,9 +151,14 @@ const NewsletterSubscriptionConfirmationEmail = ({
   firstName,
   articles = [],
   recipientEmail,
+  unsubscribeToken,
 }: Props) => {
   const unsubUrl = `${BRAND.siteUrl}${NEWSLETTER_UNSUB_PATH}${
     recipientEmail ? `?email=${encodeURIComponent(recipientEmail)}` : ''
+  }${
+    unsubscribeToken
+      ? `${recipientEmail ? '&' : '?'}token=${encodeURIComponent(unsubscribeToken)}`
+      : ''
   }`
 
   return (
