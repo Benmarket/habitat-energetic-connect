@@ -233,7 +233,7 @@ async function dynamicPages(): Promise<Page[]> {
 
     // Ancienne URL Wix encore indexée : même contenu, canonical vers la nouvelle URL.
     if (p.legacy_slug) {
-      const legacyPath = `/post/${encodeURIComponent(p.legacy_slug)}`;
+      const legacyPath = `/post/${p.legacy_slug}`;
       pages.push({
         path: legacyPath,
         canonical: `${BASE_URL}${path}`,
@@ -320,9 +320,17 @@ async function main() {
   }
 
   for (const page of pages) {
-    const out = resolve(DIST, `.${page.path}/index.html`);
-    mkdirSync(dirname(out), { recursive: true });
-    writeFileSync(out, buildHtml(template, page));
+    const html = buildHtml(template, page);
+
+    // Certains chemins hérités contiennent des accents : on écrit la version brute
+    // ET la version percent-encodée pour couvrir les deux formes servies par les crawlers.
+    const variants = new Set([page.path, `/${page.path.slice(1).split("/").map(encodeURIComponent).join("/")}`]);
+
+    for (const variant of variants) {
+      const out = resolve(DIST, `.${variant}/index.html`);
+      mkdirSync(dirname(out), { recursive: true });
+      writeFileSync(out, html);
+    }
   }
 
   console.log(`prerender: ${pages.length} pages générées dans dist/`);
