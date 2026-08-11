@@ -344,6 +344,8 @@ Deno.serve(async (req) => {
     requestSummary: humanizedSummary,
     formLabel: humanizedFormLabel,
     galleryImages,
+    recipientEmail: effectiveRecipient,
+    unsubscribeToken,
   }
 
   // 4. Render React Email template to HTML and plain text
