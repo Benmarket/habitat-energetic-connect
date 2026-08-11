@@ -36,18 +36,60 @@ Deno.serve(async (req) => {
   }
 
   let email: string | null = null
+  let token: string | null = null
   try {
     const body = await req.json()
     email = normalizeEmail(body?.email)
+    token = typeof body?.token === 'string' ? body.token.trim() : null
   } catch {
     return json({ error: 'Invalid JSON body' }, 400)
   }
 
-  if (!email) {
-    return json({ error: 'Adresse email invalide' }, 400)
+  const supabase = createClient(supabaseUrl, serviceKey)
+
+  // --- Proof of ownership -------------------------------------------------
+  // 1) A per-recipient unsubscribe token (embedded in newsletter emails), or
+  // 2) an authenticated session whose email matches the requested address.
+  let verifiedEmail: string | null = null
+
+  if (token) {
+    const { data: tokenRow } = await supabase
+      .from('email_unsubscribe_tokens')
+      .select('email')
+      .eq('token', token)
+      .maybeSingle()
+    if (tokenRow?.email) {
+      verifiedEmail = normalizeEmail(tokenRow.email)
+    }
   }
 
-  const supabase = createClient(supabaseUrl, serviceKey)
+  if (!verifiedEmail) {
+    const authHeader = req.headers.get('Authorization') ?? ''
+    const jwt = authHeader.toLowerCase().startsWith('bearer ')
+      ? authHeader.slice(7).trim()
+      : null
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY')
+    if (jwt && anonKey && jwt !== anonKey) {
+      const { data: claimsData } = await createClient(supabaseUrl, anonKey)
+        .auth.getClaims(jwt)
+      const claimEmail = normalizeEmail((claimsData?.claims as any)?.email)
+      if (claimEmail && (!email || claimEmail === email)) {
+        verifiedEmail = claimEmail
+      }
+    }
+  }
+
+  if (!verifiedEmail) {
+    return json(
+      {
+        error:
+          "Lien de désinscription invalide ou expiré. Utilisez le lien « Se désinscrire » présent en bas de l'un de nos emails, ou connectez-vous à votre compte.",
+      },
+      403,
+    )
+  }
+
+  email = verifiedEmail
 
   // Mark newsletter subscriber as unsubscribed (idempotent)
   const { data: existing, error: findErr } = await supabase
