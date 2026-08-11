@@ -35,6 +35,7 @@ interface Page {
   image?: string;
   h1: string;
   body: string; // HTML déjà nettoyé
+  canonical?: string; // URL absolue si différente du chemin (anciennes URLs Wix)
   jsonLd?: Record<string, unknown>[];
 }
 
@@ -189,7 +190,7 @@ async function dynamicPages(): Promise<Page[]> {
   const pages: Page[] = [];
 
   const posts = await rest(
-    "posts?select=title,slug,excerpt,content,featured_image,content_type,published_at,updated_at,meta_title,meta_description,post_categories(categories(slug))&status=eq.published&order=published_at.desc",
+    "posts?select=title,slug,excerpt,content,featured_image,content_type,published_at,updated_at,meta_title,meta_description,legacy_slug,post_categories(categories(slug))&status=eq.published&order=published_at.desc",
   );
 
   for (const p of posts) {
@@ -229,6 +230,20 @@ async function dynamicPages(): Promise<Page[]> {
         },
       ],
     });
+
+    // Ancienne URL Wix encore indexée : même contenu, canonical vers la nouvelle URL.
+    if (p.legacy_slug) {
+      const legacyPath = `/post/${p.legacy_slug}`;
+      pages.push({
+        path: legacyPath,
+        canonical: `${BASE_URL}${path}`,
+        title: clamp(p.meta_title || p.title, 65),
+        description: clamp(description, 158),
+        image: p.featured_image || undefined,
+        h1: p.title,
+        body: `${p.excerpt ? `<p>${esc(p.excerpt)}</p>` : ""}${cleanHtml(p.content || "")}`,
+      });
+    }
   }
 
   return pages;
@@ -238,16 +253,17 @@ async function dynamicPages(): Promise<Page[]> {
 
 function buildHtml(template: string, page: Page): string {
   const url = `${BASE_URL}${page.path}`;
+  const canonical = page.canonical || url;
   const image = page.image || DEFAULT_OG;
 
   const head = [
     `<title>${esc(page.title)} | ${SITE_NAME}</title>`,
     `<meta name="description" content="${esc(page.description)}" />`,
-    `<link rel="canonical" href="${url}" />`,
+    `<link rel="canonical" href="${canonical}" />`,
     `<meta property="og:title" content="${esc(page.title)}" />`,
     `<meta property="og:description" content="${esc(page.description)}" />`,
     `<meta property="og:type" content="article" />`,
-    `<meta property="og:url" content="${url}" />`,
+    `<meta property="og:url" content="${canonical}" />`,
     `<meta property="og:image" content="${esc(image)}" />`,
     `<meta property="og:site_name" content="${SITE_NAME}" />`,
     `<meta property="og:locale" content="fr_FR" />`,
@@ -304,9 +320,17 @@ async function main() {
   }
 
   for (const page of pages) {
-    const out = resolve(DIST, `.${page.path}/index.html`);
-    mkdirSync(dirname(out), { recursive: true });
-    writeFileSync(out, buildHtml(template, page));
+    const html = buildHtml(template, page);
+
+    // Certains chemins hérités contiennent des accents : on écrit la version brute
+    // ET la version percent-encodée pour couvrir les deux formes servies par les crawlers.
+    const variants = new Set([page.path, `/${page.path.slice(1).split("/").map(encodeURIComponent).join("/")}`]);
+
+    for (const variant of variants) {
+      const out = resolve(DIST, `.${variant}/index.html`);
+      mkdirSync(dirname(out), { recursive: true });
+      writeFileSync(out, html);
+    }
   }
 
   console.log(`prerender: ${pages.length} pages générées dans dist/`);
