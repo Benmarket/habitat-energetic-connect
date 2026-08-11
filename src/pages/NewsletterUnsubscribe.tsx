@@ -25,6 +25,7 @@ type Status = "idle" | "loading" | "done" | "error";
 
 export default function NewsletterUnsubscribe() {
   const [params] = useSearchParams();
+  const token = params.get("token");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -47,7 +48,7 @@ export default function NewsletterUnsubscribe() {
     try {
       const { data, error } = await supabase.functions.invoke(
         "newsletter-unsubscribe",
-        { body: { email: trimmed } },
+        { body: { email: trimmed, token } },
       );
       if (error) throw error;
       if (data?.success) {
@@ -59,7 +60,9 @@ export default function NewsletterUnsubscribe() {
       console.error(err);
       setStatus("error");
       setErrorMsg(
-        "Impossible de traiter votre demande pour l'instant. Merci de réessayer plus tard.",
+        token
+          ? "Impossible de traiter votre demande pour l'instant. Merci de réessayer plus tard."
+          : "Pour des raisons de sécurité, la désinscription doit être confirmée depuis le lien « Se désinscrire » présent en bas de nos emails (ou en étant connecté à votre compte).",
       );
       toast({
         title: "Erreur",
