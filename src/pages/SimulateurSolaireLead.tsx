@@ -1939,6 +1939,55 @@ const ResultsPanel = ({
             </div>
           )}
 
+          {/* Consommation vs production solaire — 2 courbes + taux d'autoconsommation */}
+          {engine && (
+            <section className="mb-8 p-5 md:p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
+              <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+                <div>
+                  <h3 className="text-xs font-bold text-slate-700 uppercase tracking-widest flex items-center gap-1.5">
+                    <Sun className="w-3.5 h-3.5 text-amber-600" /> Consommation vs production solaire
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Répartition mensuelle estimée · {engine.consoAnnuelleKwh.toLocaleString("fr-FR")} kWh consommés vs {(scenario?.productionAnnuelleKwh ?? 0).toLocaleString("fr-FR")} kWh produits / an
+                  </p>
+                </div>
+                {dTaux !== null && (
+                  <div className="rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 px-4 py-2.5 shadow-md min-w-[150px]">
+                    <p className="text-[10px] font-bold uppercase tracking-widest">Autoconsommation</p>
+                    <p className="text-3xl font-black leading-none mt-0.5">{dTaux} %</p>
+                    <p className="text-[10px] font-semibold mt-1">de votre production consommée sur place</p>
+                  </div>
+                )}
+              </div>
+              <div className="h-64 md:h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={energyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="gradProd" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.55} />
+                        <stop offset="100%" stopColor="#fbbf24" stopOpacity={0.05} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                    <XAxis dataKey="mois" tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }} axisLine={{ stroke: "#cbd5e1" }} tickLine={false} />
+                    <YAxis tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v} kWh`} width={60} />
+                    <RTooltip
+                      contentStyle={{ borderRadius: 12, border: "1px solid #fde68a", boxShadow: "0 10px 25px -10px rgba(0,0,0,0.2)", fontSize: 12 }}
+                      formatter={(v: any, name: string) => [`${Number(v).toLocaleString("fr-FR")} kWh`, name]}
+                      labelStyle={{ fontWeight: 700, color: "#0f172a" }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 11, fontWeight: 600 }} />
+                    <Area type="monotone" dataKey="production" name="Production solaire" stroke="#f59e0b" strokeWidth={3} fill="url(#gradProd)" dot={false} />
+                    <Line type="monotone" dataKey="conso" name="Votre consommation" stroke="#0f172a" strokeWidth={3} dot={false} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-3 leading-relaxed">
+                Le taux d'autoconsommation représente la part de l'électricité produite que vous consommez directement{showBattery ? " (batterie incluse)" : ""} ; le reste est revendu au réseau. Profils mensuels indicatifs.
+              </p>
+            </section>
+          )}
+
           {/* Projection 25 ans — Graphique */}
           <section className="mb-8 p-5 md:p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-2 mb-4">
