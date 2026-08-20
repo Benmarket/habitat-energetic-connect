@@ -868,6 +868,20 @@ export default function SimulateurSolaireLead() {
                     <span className="font-semibold leading-tight">≈ {dNouvelleFacture.toLocaleString("fr-FR")} €/mois<span className="block text-[10px] font-medium text-slate-900/70">nouvelle facture*</span></span>
                   </div>
                 </div>
+                {dTaux !== null && (
+                  <div className="mt-2 flex items-center gap-2 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2">
+                    <Sun className="w-4 h-4 shrink-0 text-amber-700" />
+                    <div className="flex-1">
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-[10px] font-medium text-slate-900/70 uppercase tracking-wide">Autoconsommation</span>
+                        <span className="text-sm font-black">{dTaux} %</span>
+                      </div>
+                      <div className="mt-1 h-1.5 rounded-full bg-slate-900/15 overflow-hidden">
+                        <div className="h-full rounded-full bg-slate-900/70" style={{ width: `${Math.min(100, dTaux)}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Estimée après autoconsommation — varie selon votre consommation réelle.</p>
                 <p className="mt-2 text-[10px] text-slate-900/60 leading-tight">
                   Base : {engine?.territoire}{sim.city ? ` · ${sim.city}` : ""} · facture {annualBill.toLocaleString("fr-FR")} €/an · {engine?.puissanceKwc ?? suggest.kwc} kWc ({engine?.nbPanneaux ?? suggest.panels} panneaux) · {dCost.toLocaleString("fr-FR")} €
