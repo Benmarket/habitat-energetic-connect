@@ -596,13 +596,30 @@ export default function SimulateurSolaireLead() {
 
                         {/* Bandeau orange — 5 infos alléchantes */}
                         <div className="bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 px-4 pt-4 pb-3 text-slate-900">
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-900/75">Vous avez débloqué</p>
-                          <div className="flex items-baseline gap-1.5 mt-0.5">
-                            <span className="text-3xl font-black leading-none tabular-nums">
-                              {(savingsMid > 0 ? savingsMid : 1200).toLocaleString("fr-FR")}
-                            </span>
-                            <span className="text-xl font-black">€</span>
-                            <span className="text-xs font-bold text-slate-900/80">/ an</span>
+                          <div className="flex items-start justify-between gap-2 pr-8">
+                            <div>
+                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-900/75">Vous avez débloqué</p>
+                              <div className="flex items-baseline gap-1.5 mt-0.5">
+                                <span className="text-3xl font-black leading-none tabular-nums">
+                                  {(savingsMid > 0 ? savingsMid : 1200).toLocaleString("fr-FR")}
+                                </span>
+                                <span className="text-xl font-black">€</span>
+                                <span className="text-xs font-bold text-slate-900/80">/ an</span>
+                              </div>
+                            </div>
+                            {REGION_SHAPES[region.id] && (
+                              <div className="flex flex-col items-center gap-0.5 shrink-0">
+                                <img
+                                  src={REGION_SHAPES[region.id]}
+                                  alt={`Silhouette ${regionDisplayName(region.id, region.label)}`}
+                                  className="w-9 h-9 object-contain opacity-90"
+                                  loading="lazy"
+                                />
+                                <span className="text-[9px] font-bold uppercase tracking-wide text-slate-900/80 text-center leading-tight max-w-[72px]">
+                                  {regionDisplayName(region.id, region.label)}
+                                </span>
+                              </div>
+                            )}
                           </div>
                           <div className="mt-2.5 grid grid-cols-2 gap-1.5">
                             {[
