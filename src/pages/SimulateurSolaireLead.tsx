@@ -1568,10 +1568,10 @@ const ResultsPanel = ({
           {/* 4 chiffres clés — visibles desktop + mobile, avant le déverrouillage */}
           <div className="mt-5 grid grid-cols-2 gap-2 md:gap-2.5 max-w-xl">
             {[
-              { icon: PiggyBank, label: `~${(has25 ? savings25 : 27000).toLocaleString("fr-FR")} € sur 25 ans` },
-              { icon: Coins, label: `Aides ~${aidesMin.toLocaleString("fr-FR") || "1 200"} €` },
-              { icon: LineChart, label: `Rentabilité ~${showBattery ? roiWithBattery : roi} ans` },
-              { icon: Leaf, label: `${co2 || 700} kg CO₂ évités / an` },
+              { icon: PiggyBank, label: `~${savings25.toLocaleString("fr-FR")} € sur 25 ans` },
+              { icon: Coins, label: aidesMin > 0 ? `Aides ~${aidesMin.toLocaleString("fr-FR")} €` : "Prime d'État supprimée en juin 2026" },
+              { icon: LineChart, label: (showBattery ? roiWithBattery : roi) ? `Rentabilité ~${showBattery ? roiWithBattery : roi} ans` : "Rentabilité à l'étude" },
+              { icon: Leaf, label: `${co2.toLocaleString("fr-FR")} kg CO₂ évités / an` },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-2 text-xs md:text-sm text-slate-900/90 bg-white/30 backdrop-blur-sm rounded-lg px-2.5 py-1.5 md:px-3 md:py-2">
                 <item.icon className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
