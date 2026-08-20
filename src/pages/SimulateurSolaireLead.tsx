@@ -25,7 +25,7 @@ import {
   Compass, Snowflake, Flame, Thermometer, Waves, Car, Plug, HelpCircle, Ruler,
   Loader2, Lock, Sparkles, ShieldCheck, Clock, Zap, TrendingUp, Star, Award, Leaf, X,
   Users, CalendarClock, FileText, BatteryCharging, Trees, Coins, LineChart, PiggyBank, Info,
-  Phone, Mail, ClipboardCheck, Wrench, Rocket, TrendingDown,
+  Phone, Mail, ClipboardCheck, Wrench, Rocket, TrendingDown, Receipt,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
@@ -1586,6 +1586,7 @@ const ResultsPanel = ({
   const dRoi = scenario?.rentabiliteAns ?? roi;
   const dCo2 = scenario?.co2KgAn ?? co2;
   const dCost = scenario?.cout ?? installCost;
+  const dNouvelleFacture = scenario?.nouvelleFactureMensuelle ?? engine?.nouvelleFactureMensuelle ?? 0;
 
   const displayedYearly = showBattery ? savingsWithBattery : savingsMid;
   const displayedYearlyCounted = useCountUp(displayedYearly);
