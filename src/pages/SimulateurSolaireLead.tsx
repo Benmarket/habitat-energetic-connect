@@ -1499,7 +1499,7 @@ const ResultsPanel = ({
   const yearlySavings = showBattery ? savingsWithBattery : savingsMid;
   const totalInvest = installCost + (showBattery ? batteryCost : 0);
   const aidesTotal = Math.round((aidesMin + aidesMax) / 2);
-  const inflation = 0.04; // +4%/an prix élec
+  const inflation = 0.03; // +3%/an prix élec (hypothèse du moteur, cf. solar-data.ts)
   const degradation = 0.005; // -0.5%/an rendement
   const buckets = [
     { label: "1-5 ans", from: 1, to: 5 },
