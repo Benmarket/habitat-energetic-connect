@@ -1566,8 +1566,23 @@ const ResultsPanel = ({
         <div className="absolute inset-0 opacity-30" style={{ backgroundImage: "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.4), transparent 40%)" }} aria-hidden />
 
         <div className="relative">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/15 backdrop-blur text-xs font-bold mb-4 uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" /> Votre potentiel solaire
+          <div className="flex items-start justify-between gap-3 mb-4">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/15 backdrop-blur text-xs font-bold uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5" /> Votre potentiel solaire
+            </div>
+            {REGION_SHAPES[region.id] && (
+              <div className="flex items-center gap-2 bg-white/30 backdrop-blur-sm rounded-xl pl-2 pr-3 py-1.5 shrink-0">
+                <img
+                  src={REGION_SHAPES[region.id]}
+                  alt={`Silhouette ${regionDisplayName(region.id, region.label)}`}
+                  className="w-8 h-8 md:w-10 md:h-10 object-contain"
+                  loading="lazy"
+                />
+                <span className="text-[10px] md:text-xs font-bold uppercase tracking-wide leading-tight max-w-[110px]">
+                  {regionDisplayName(region.id, region.label)}
+                </span>
+              </div>
+            )}
           </div>
           {engine ? (
             <>
