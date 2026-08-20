@@ -162,16 +162,6 @@ function detectRegion(postal: string): { id: string; label: string; sun: string;
 
 }
 
-function suggestedKwc(monthly: number): { kwc: number; panels: number; label: string } {
-  const annual = monthly * 12;
-  // Approximation : 1 kWc ≈ 1100 kWh/an en métropole ; on vise ~70% de la conso annuelle
-  const kwh = annual / 0.22; // conso estimée à partir de la facture (0.22€/kWh moyen)
-  const kwc = Math.max(3, Math.min(12, Math.round((kwh * 0.7) / 1100)));
-  const panels = kwc * 2; // ~500Wc par panneau
-  const label = kwc <= 3 ? "3 kWc" : kwc <= 6 ? `${kwc} kWc` : `${kwc} kWc`;
-  return { kwc, panels, label };
-}
-
 function orientationFeedback(o: Orientation): string {
   if (o === "S" || o === "SE" || o === "SO")
     return "Excellente orientation solaire. Cette exposition est souvent favorable pour produire davantage d'électricité dans la journée.";
