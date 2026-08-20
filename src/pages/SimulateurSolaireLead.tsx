@@ -140,7 +140,7 @@ function bestOrientation(regionId?: string): Exclude<Orientation, "?"> {
 const ROOF_TYPES: { id: Exclude<RoofType, "">; label: string; desc: string }[] = [
   { id: "tuiles", label: "Tuiles", desc: "Cas le plus courant" },
   { id: "ardoise", label: "Ardoise", desc: "Toit plus délicat mais faisable" },
-  { id: "bac-acier", label: "Bac acier", desc: "Idéal pour la pose" },
+  { id: "bac-acier", label: "Toiture en tôle", desc: "Idéal pour la pose" },
   { id: "toit-plat", label: "Toit plat / terrasse", desc: "Pose sur bacs lestés" },
   { id: "?", label: "Je ne sais pas", desc: "On vérifiera à l'étude" },
 ];
