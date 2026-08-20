@@ -1670,6 +1670,11 @@ const ResultsPanel = ({
                 Estimation personnalisée pour {engine.territoire}{sim.city ? ` — ${sim.city}` : ""} · facture actuelle {annualBill.toLocaleString("fr-FR")} €/an · installation {engine.puissanceKwc} kWc ({engine.nbPanneaux} panneaux) · {dCost.toLocaleString("fr-FR")} €
                 {canToggleBattery && <span className="ml-2 inline-flex items-center gap-1 text-xs bg-slate-900/20 backdrop-blur px-2 py-0.5 rounded-full font-bold"><BatteryCharging className="w-3 h-3" /> {showBattery ? "Avec batterie" : "Sans batterie"}</span>}
               </p>
+              <p className="text-xs text-slate-900/80 mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-semibold">
+                <span className="inline-flex items-center gap-1"><Zap className="w-3.5 h-3.5 text-amber-600" /> Puissance préconisée : {suggest.kwc} kWc</span>
+                <span className="inline-flex items-center gap-1"><Receipt className="w-3.5 h-3.5 text-emerald-700" /> Nouvelle facture ≈ {dNouvelleFacture.toLocaleString("fr-FR")} €/mois*</span>
+              </p>
+              <p className="text-[10px] text-slate-900/55 mt-1 italic">* Facture estimée après autoconsommation solaire — varie selon votre consommation réelle et le tarif en vigueur.</p>
             </>
           ) : (
             <>
