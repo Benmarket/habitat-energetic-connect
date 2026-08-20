@@ -1852,7 +1852,7 @@ const ResultsPanel = ({
             </h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-3xl font-bold text-emerald-800">{co2.toLocaleString("fr-FR")} kg</p>
+                <p className="text-3xl font-bold text-emerald-800">{dCo2.toLocaleString("fr-FR")} kg</p>
                 <p className="text-xs text-emerald-700 mt-0.5">CO₂ évités chaque année</p>
               </div>
               <div>
@@ -1881,8 +1881,8 @@ const ResultsPanel = ({
           <section className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-50/40 border border-blue-200">
             <h3 className="text-xs font-bold text-blue-700 uppercase tracking-widest mb-2">Aides & financement</h3>
             <p className="text-slate-700 text-sm">
-              {aidesMin > 0
-                ? `Prime à l'investissement estimée à ${aidesMin.toLocaleString("fr-FR")} € pour une installation de ${suggest.kwc} kWc${engine ? ` en ${engine.territoire}` : ""}, à laquelle peuvent s'ajouter la TVA réduite et l'éco-prêt à taux zéro sous réserve d'éligibilité. Un conseiller vérifie tout gratuitement.`
+              {dAides > 0
+                ? `Prime à l'investissement estimée à ${dAides.toLocaleString("fr-FR")} € pour une installation de ${suggest.kwc} kWc${engine ? ` en ${engine.territoire}` : ""}, à laquelle peuvent s'ajouter la TVA réduite et l'éco-prêt à taux zéro sous réserve d'éligibilité. Un conseiller vérifie tout gratuitement.`
                 : "La prime d'État à l'autoconsommation est supprimée depuis juin 2026 : votre gain provient de l'autoconsommation et de la revente du surplus. TVA réduite et éco-prêt à taux zéro restent possibles sous réserve d'éligibilité."}
             </p>
           </section>
