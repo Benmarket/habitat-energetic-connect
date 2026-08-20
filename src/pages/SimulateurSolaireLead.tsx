@@ -1933,6 +1933,75 @@ const ResultsPanel = ({
             <StatCard icon={LineChart} label="Rentabilité" value={dRoi ? `~${dRoi} ans` : "À l'étude"} accent="from-purple-100 to-purple-50" iconColor="text-purple-700" />
           </div>
 
+          {/* Deux scénarios comparés (A / B) */}
+          {engine && (
+            <section className="mb-8">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
+                {engine.scenarioIdentiques ? "Votre installation en détail" : "Deux installations possibles"}
+              </h3>
+              <div className={`grid gap-4 ${engine.scenarioIdentiques ? "" : "md:grid-cols-2"}`}>
+                {(engine.scenarioIdentiques ? [engine.scenarioB] : [engine.scenarioA, engine.scenarioB]).map((sc, i) => {
+                  const isB = engine.scenarioIdentiques || i === 1;
+                  return (
+                    <div
+                      key={sc.libelle}
+                      className={`p-5 rounded-2xl border-2 ${isB && !engine.scenarioIdentiques ? "border-amber-400 bg-amber-50/60" : "border-slate-200 bg-white"}`}
+                    >
+                      <div className="flex flex-wrap items-center gap-2 mb-3">
+                        <span className="text-xs font-black uppercase tracking-widest text-slate-700">{sc.libelle}</span>
+                        {isB && !engine.scenarioIdentiques && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400 text-slate-900 text-[10px] font-black uppercase tracking-wide">
+                            <Check className="w-3 h-3" /> Le plus avantageux pour vous
+                          </span>
+                        )}
+                        {isB && !engine.scenarioIdentiques && engine.comparatif.bPlusRapide && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wide">
+                            <Check className="w-3 h-3" /> et remboursé plus vite
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm font-bold text-slate-900">
+                        {sc.puissanceKwc} kWc, {sc.nbPanneaux} panneaux
+                      </p>
+                      <p className="text-xs text-slate-600 mt-0.5">
+                        {sc.cout.toLocaleString("fr-FR")} €{sc.AIDES > 0 ? ` · ${sc.AIDES.toLocaleString("fr-FR")} € d'aides` : ""} · reste à charge {sc.resteACharge.toLocaleString("fr-FR")} €
+                      </p>
+                      <p className="text-xl font-black text-slate-900 mt-2">
+                        {sc.economiesAn.toLocaleString("fr-FR")} € d'économies par an
+                        {sc.rentabiliteAns ? <span className="text-sm font-bold text-slate-600"> · rentabilisé en {String(sc.rentabiliteAns).replace(".", ",")} ans</span> : null}
+                      </p>
+                      <p className="text-sm font-bold text-emerald-700 mt-1">
+                        Gain net sur 25 ans : {(sc.economies25ans - sc.resteACharge).toLocaleString("fr-FR")} €
+                      </p>
+                      <ul className="mt-3 space-y-1 text-[12px] text-slate-600 leading-relaxed">
+                        {sc.AIDES > 0 && (
+                          <li>— {sc.AIDES.toLocaleString("fr-FR")} € de prime à l'investissement, versée en une seule fois</li>
+                        )}
+                        <li>— {sc.economieAutoconso.toLocaleString("fr-FR")} €/an d'électricité que vous n'achetez plus</li>
+                        <li>
+                          — {sc.revenuSurplusAn1.toLocaleString("fr-FR")} €/an de surplus revendu à EDF, soit {sc.revenuSurplus20ans.toLocaleString("fr-FR")} € sur 20 ans, à un tarif de {String(sc.tarifRachatCts).replace(".", ",")} c€/kWh garanti 20 ans par arrêté
+                        </li>
+                        {sc.impotAnnuel > 0 && (
+                          <li>— − {sc.impotAnnuel.toLocaleString("fr-FR")} €/an d'impôt sur les revenus de revente</li>
+                        )}
+                      </ul>
+                    </div>
+                  );
+                })}
+              </div>
+              {!engine.scenarioIdentiques && (
+                <p className="mt-4 text-sm text-slate-700 leading-relaxed">
+                  <strong>Le maximum</strong> vous coûte {engine.comparatif.surcoutInitial.toLocaleString("fr-FR")} € de plus au départ et vous rapporte {engine.comparatif.gainNetSupplementaire.toLocaleString("fr-FR")} € de plus sur 25 ans
+                  {engine.comparatif.bPlusRapide
+                    ? ", et il se rembourse même plus vite."
+                    : " ; il se rembourse un peu plus tard, mais vous rapporte davantage au total."}
+                </p>
+              )}
+            </section>
+          )}
+
+
+
           {/* Comparaison batterie */}
           {engine && sim.batteryInterest && sim.batteryInterest !== "non" && (
             <div className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white border border-amber-400/30 relative overflow-hidden">
