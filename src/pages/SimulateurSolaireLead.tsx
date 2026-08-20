@@ -866,6 +866,9 @@ export default function SimulateurSolaireLead() {
                   </div>
                 </div>
                 <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Estimée après autoconsommation — varie selon votre consommation réelle.</p>
+                <p className="mt-2 text-[10px] text-slate-900/60 leading-tight">
+                  Base : {engine?.territoire}{sim.city ? ` · ${sim.city}` : ""} · facture {annualBill.toLocaleString("fr-FR")} €/an · {engine?.puissanceKwc ?? suggest.kwc} kWc ({engine?.nbPanneaux ?? suggest.panels} panneaux) · {dCost.toLocaleString("fr-FR")} €
+                </p>
 
                 <div className="mt-4 pt-5 border-t border-slate-900/15 flex items-center gap-2 text-[11px] font-semibold text-slate-900/75">
                   <Lock className="w-3.5 h-3.5" /> Détail complet côté droit →
