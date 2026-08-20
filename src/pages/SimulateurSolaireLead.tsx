@@ -591,10 +591,10 @@ export default function SimulateurSolaireLead() {
               </div>
             </div>
 
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-white/80">
-              <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-amber-300" /> 100% gratuit et sans engagement</span>
-              <span className="inline-flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-amber-300" /> Vos données sont protégées</span>
-              <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-amber-300" /> Moins de 2 minutes</span>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-800">
+              <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-amber-500" /> 100% gratuit et sans engagement</span>
+              <span className="inline-flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-amber-500" /> Vos données sont protégées</span>
+              <span className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-amber-500" /> Moins de 2 minutes</span>
             </div>
 
           </div>
