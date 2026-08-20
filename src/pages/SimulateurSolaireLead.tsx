@@ -1577,14 +1577,22 @@ const ResultsPanel = ({
   const surfaceLabel = typeof sim.surface === "number" ? `${sim.surface} m²` : "—";
   const orientationLabel = ORIENTATIONS.find((o) => o.id === sim.orientation)?.label || (sim.orientation === "?" ? "À confirmer" : "—");
 
+  const canToggleBattery = !!(engine && sim.batteryInterest && sim.batteryInterest !== "non");
+  const scenario = engine ? (showBattery ? engine.avec : engine.sans) : null;
+  const dSavings25 = scenario?.economies25ans ?? savings25;
+  const dAides = scenario?.AIDES ?? aidesMin;
+  const dRoi = scenario?.rentabiliteAns ?? roi;
+  const dCo2 = scenario?.co2KgAn ?? co2;
+  const dCost = scenario?.cout ?? installCost;
+
   const displayedYearly = showBattery ? savingsWithBattery : savingsMid;
   const displayedYearlyCounted = useCountUp(displayedYearly);
-  const has25 = savings25 > 0;
+  const has25 = dSavings25 > 0;
 
   // ------ Projection 25 ans (par tranches de 5 ans) ------
   const yearlySavings = showBattery ? savingsWithBattery : savingsMid;
-  const totalInvest = installCost + (showBattery ? batteryCost : 0);
-  const aidesTotal = Math.round((aidesMin + aidesMax) / 2);
+  const totalInvest = dCost;
+  const aidesTotal = dAides;
   const inflation = 0.03; // +3%/an prix élec (hypothèse du moteur, cf. solar-data.ts)
   const degradation = 0.005; // -0.5%/an rendement
   const buckets = [
