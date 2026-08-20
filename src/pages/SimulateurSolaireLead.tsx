@@ -533,6 +533,16 @@ export default function SimulateurSolaireLead() {
   const dCost = scenario?.cout ?? installCost;
   /** Taux d'autoconsommation (part de la production consommée sur place). */
   const dTaux = scenario?.tauxAutoconsoPct ?? null;
+  /** Répartition de la production : consommée sur place vs revendue. */
+  const dProdKwh = scenario?.productionAnnuelleKwh ?? 0;
+  const dAutoKwh = scenario?.autoconsommee ?? 0;
+  const dSurplusKwh = scenario?.surplus ?? 0;
+  const dPartAuto = scenario?.partAutoconsommeePct ?? 0;
+  const dPartRevendue = scenario?.partRevenduePct ?? 0;
+  const dCouverture = scenario?.couvertureBesoinsPct ?? null;
+  const dFactureEvitee = scenario?.factureEvitee25ans ?? 0;
+  const dReventeNette = scenario?.reventeNette25ans ?? 0;
+  const mentionTVA: string = engine?.mentionTVA ?? "";
 
   /** Libellé de la tuile « Aides » — jamais « 0 € » brut en métropole. */
   const aidesTileLabel = dispAides > 0
@@ -705,13 +715,13 @@ export default function SimulateurSolaireLead() {
                           )}
                           <div className="mt-2.5 grid grid-cols-2 gap-1.5">
                             {[
-                              { icon: PiggyBank, label: `~${dispSavings25.toLocaleString("fr-FR")} € / 25 ans` },
+                              { icon: PiggyBank, label: `~${dispSavings25.toLocaleString("fr-FR")} € de gains / 25 ans` },
                               { icon: Coins, label: aidesTileLabel },
                               { icon: Zap, label: `${suggest.kwc} kWc préconisés` },
                               { icon: Receipt, label: `Facture ≈ ${dNouvelleFacture.toLocaleString("fr-FR")} €/mois*` },
                               { icon: LineChart, label: dispRoi ? `Rentabilité ~${dispRoi} ans` : "Rentabilité à l'étude" },
                               { icon: Leaf, label: `${dispCo2.toLocaleString("fr-FR")} kg CO₂ / an` },
-                              ...(dTaux !== null ? [{ icon: Sun, label: `Autoconsommation ~${dTaux} %` }] : []),
+                              ...(dCouverture !== null ? [{ icon: Sun, label: `${dCouverture} % de vos besoins couverts` }] : []),
                             ].map((item, i) => (
                               <div key={i} className="flex items-center gap-1.5 text-[11px] text-slate-900/90 bg-white/30 rounded-md px-2 py-1">
                                 <item.icon className="w-3 h-3 shrink-0" />
@@ -719,7 +729,23 @@ export default function SimulateurSolaireLead() {
                               </div>
                             ))}
                           </div>
-                          <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Facture estimée après autoconsommation — varie selon votre consommation réelle.</p>
+                          {dProdKwh > 0 && (
+                            <div className="mt-2 bg-white/30 rounded-md px-2 py-1.5">
+                              <div className="flex items-baseline justify-between">
+                                <span className="text-[9px] font-bold uppercase tracking-wide text-slate-900/70">Ce que produisent vos panneaux</span>
+                                <span className="text-[10px] font-black">{dProdKwh.toLocaleString("fr-FR")} kWh/an</span>
+                              </div>
+                              <div className="mt-1 flex h-2 rounded-full overflow-hidden bg-slate-900/10">
+                                <div className="h-full bg-slate-900/80" style={{ width: `${dPartAuto}%` }} />
+                                <div className="h-full bg-slate-900/25" style={{ width: `${dPartRevendue}%` }} />
+                              </div>
+                              <div className="mt-1 flex flex-wrap gap-x-2 text-[9px] font-semibold text-slate-900/80">
+                                <span>● Vous consommez {dAutoKwh.toLocaleString("fr-FR")} kWh ({dPartAuto} %)</span>
+                                <span>● Vous revendez {dSurplusKwh.toLocaleString("fr-FR")} kWh ({dPartRevendue} %)</span>
+                              </div>
+                            </div>
+                          )}
+                          <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Facture estimée après autoconsommation — varie selon votre consommation réelle. Prix TTC, TVA comprise.</p>
                           <p className="mt-1 text-[9px] text-slate-900/55 leading-tight">
                             Base : {engine?.territoire}{sim.city ? ` · ${sim.city}` : ""} · facture {annualBill.toLocaleString("fr-FR")} €/an · {engine?.puissanceKwc ?? suggest.kwc} kWc ({engine?.nbPanneaux ?? suggest.panels} pan.) · {dCost.toLocaleString("fr-FR")} €
                           </p>
@@ -833,7 +859,7 @@ export default function SimulateurSolaireLead() {
                 <p className="text-4xl font-black leading-none">
                   {dispYearly > 0 ? dispYearly.toLocaleString("fr-FR") : "1 200"} €
                 </p>
-                <p className="text-sm font-bold text-slate-900/80 mt-1">d'économies estimées par an</p>
+                <p className="text-sm font-bold text-slate-900/80 mt-1">de gains estimés par an</p>
 
                 {canToggleBattery && (
                   <div className="mt-4 inline-flex items-center gap-1 p-1 rounded-full bg-slate-900/15 backdrop-blur">
@@ -856,7 +882,7 @@ export default function SimulateurSolaireLead() {
 
                 <div className="mt-6 space-y-2.5">
                   {[
-                    { icon: PiggyBank, label: `~${dispSavings25.toLocaleString("fr-FR")} € sur 25 ans` },
+                    { icon: PiggyBank, label: `~${dispSavings25.toLocaleString("fr-FR")} € de gains sur 25 ans` },
                     { icon: Coins, label: aidesTileLabel },
                     { icon: LineChart, label: dispRoi ? `Rentabilité ~${dispRoi} ans` : "Rentabilité à l'étude" },
                     { icon: Leaf, label: `${dispCo2.toLocaleString("fr-FR")} kg CO₂ évités / an` },
@@ -879,21 +905,32 @@ export default function SimulateurSolaireLead() {
                     <span className="font-semibold leading-tight">≈ {dNouvelleFacture.toLocaleString("fr-FR")} €/mois<span className="block text-[10px] font-medium text-slate-900/70">nouvelle facture*</span></span>
                   </div>
                 </div>
-                {dTaux !== null && (
-                  <div className="mt-2 flex items-center gap-2 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2">
-                    <Sun className="w-4 h-4 shrink-0 text-amber-700" />
-                    <div className="flex-1">
-                      <div className="flex items-baseline justify-between">
-                        <span className="text-[10px] font-medium text-slate-900/70 uppercase tracking-wide">Autoconsommation</span>
-                        <span className="text-sm font-black">{dTaux} %</span>
-                      </div>
-                      <div className="mt-1 h-1.5 rounded-full bg-slate-900/15 overflow-hidden">
-                        <div className="h-full rounded-full bg-slate-900/70" style={{ width: `${Math.min(100, dTaux)}%` }} />
-                      </div>
+                {dispSavings25 > 0 && (
+                  <p className="mt-2 text-[11px] font-medium text-slate-900/75 leading-snug">
+                    dont ~{dFactureEvitee.toLocaleString("fr-FR")} € de facture évitée et ~{dReventeNette.toLocaleString("fr-FR")} € de revente à EDF, nets d'impôt
+                  </p>
+                )}
+                {dProdKwh > 0 && (
+                  <div className="mt-3 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2.5">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-slate-900/70">Ce que produisent vos panneaux</span>
+                      <span className="text-xs font-black">{dProdKwh.toLocaleString("fr-FR")} kWh/an</span>
                     </div>
+                    <div className="mt-1.5 flex h-3 rounded-full overflow-hidden bg-slate-900/10">
+                      <div className="h-full bg-slate-900/80" style={{ width: `${dPartAuto}%` }} />
+                      <div className="h-full bg-slate-900/25" style={{ width: `${dPartRevendue}%` }} />
+                    </div>
+                    <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] font-semibold text-slate-900/85">
+                      <span>● Vous consommez {dAutoKwh.toLocaleString("fr-FR")} kWh ({dPartAuto} %)</span>
+                      <span>● Vous revendez {dSurplusKwh.toLocaleString("fr-FR")} kWh ({dPartRevendue} %)</span>
+                    </div>
+                    {dCouverture !== null && (
+                      <p className="mt-1.5 text-xs font-black text-slate-900">{dCouverture} % de vos besoins couverts</p>
+                    )}
                   </div>
                 )}
-                <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Estimée après autoconsommation — varie selon votre consommation réelle.</p>
+                <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Estimée après autoconsommation — varie selon votre consommation réelle. Prix TTC, TVA comprise.</p>
+                {mentionTVA && <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">{mentionTVA}</p>}
                 <p className="mt-2 text-[10px] text-slate-900/60 leading-tight">
                   Base : {engine?.territoire}{sim.city ? ` · ${sim.city}` : ""} · facture {annualBill.toLocaleString("fr-FR")} €/an · {engine?.puissanceKwc ?? suggest.kwc} kWc ({engine?.nbPanneaux ?? suggest.panels} panneaux) · {dCost.toLocaleString("fr-FR")} €
                 </p>
