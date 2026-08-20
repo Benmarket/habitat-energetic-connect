@@ -1577,6 +1577,7 @@ const ResultsPanel = ({
           )}
 
           {/* 4 chiffres clés — visibles desktop + mobile, avant le déverrouillage */}
+          {engine && (
           <div className="mt-5 grid grid-cols-2 gap-2 md:gap-2.5 max-w-xl">
             {[
               { icon: PiggyBank, label: `~${savings25.toLocaleString("fr-FR")} € sur 25 ans` },
