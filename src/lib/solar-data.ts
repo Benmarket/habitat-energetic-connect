@@ -1,8 +1,8 @@
 /**
  * SOURCE DE VÉRITÉ UNIQUE du simulateur. Aucune valeur tarifaire ailleurs.
  *
- * Primes & rachat outre-mer : arrêté du 5 janvier 2024 (« S24 PV ZNI »), période T9,
- *   demande de raccordement du 01/05/2026 au 31/07/2026. Source CRE open data.
+ * Primes & rachat outre-mer : arrêté du 5 janvier 2024 (« S24 PV ZNI »), période T10,
+ *   demande de raccordement du 01/08/2026 au 31/10/2026. Source CRE open data.
  *   ⚠️ À rafraîchir chaque trimestre.
  * Métropole : arrêté du 6 octobre 2021 modifié par l'arrêté du 1er juin 2026 —
  *   prime supprimée, rachat unique 1,1 c€/kWh depuis le 05/06/2026.
@@ -25,6 +25,7 @@ export interface Territoire {
   productible: number; // kWh produits par kWc et par an
   prixKwh: number; // € TTC / kWh consommé
   abo: number; // abonnement € TTC / an en 6 kVA
+  refactionIR: number; // réfaction d'impôt outre-mer appliquée au montant de l'IR
   co2: number; // kg CO₂ évités par kWh produit
   prime: Record<Seg, number>; // € par Watt-crête
   rachat: Record<Seg, number>; // € par kWh revendu
@@ -43,6 +44,7 @@ const METRO_BASE = {
   actif: true,
   prixKwh: 0.2001,
   abo: 190.32,
+  refactionIR: 0,
   co2: 0.06,
   prime: { p0_3: 0, p3_9: 0 },
   rachat: { p0_3: 0.011, p3_9: 0.011 },
@@ -59,30 +61,30 @@ export const TERRITOIRES: Territoire[] = [
   // ═══ OUTRE-MER — prix issus des ventes réelles 2026 ═══
   {
     id: "martinique", nom: "Martinique", zone: "ZNI", actif: true, productible: 1573,
-    prixKwh: 0.1896, abo: 175.56, co2: 0.84,
-    prime: { p0_3: 1.72, p3_9: 1.04 }, rachat: { p0_3: 0.1804, p3_9: 0.1804 },
+    prixKwh: 0.1896, abo: 175.56, refactionIR: 0.30, co2: 0.84,
+    prime: { p0_3: 1.71, p3_9: 1.04 }, rachat: { p0_3: 0.1822, p3_9: 0.1822 },
     prix: { 3: [11900, 12900], 6: [16900, 17900], 9: [19900, 21900] }, panneaux: { 3: 6, 6: 12, 9: 18 },
     batterie: { surcout: { 3: 1000, 6: 1000, 9: 2000 }, adoption: 0.77, reco: "CONFORT" },
   },
   {
     id: "guadeloupe", nom: "Guadeloupe", zone: "ZNI", actif: true, productible: 1546,
-    prixKwh: 0.1889, abo: 175.56, co2: 0.702,
-    prime: { p0_3: 1.79, p3_9: 1.09 }, rachat: { p0_3: 0.1804, p3_9: 0.1804 },
+    prixKwh: 0.1889, abo: 175.56, refactionIR: 0.30, co2: 0.702,
+    prime: { p0_3: 1.80, p3_9: 1.09 }, rachat: { p0_3: 0.1822, p3_9: 0.1822 },
     prix: { 3: [11900, 13900], 6: [16900, 19900], 9: [19900, 23900] }, panneaux: { 3: 6, 6: 12, 9: 18 },
     batterie: { surcout: { 3: 2000, 6: 3000, 9: 4000 }, adoption: 0.46, reco: "CONFORT" },
   },
   {
     id: "guyane", nom: "Guyane", zone: "ZNI", actif: true, productible: 1406,
-    prixKwh: 0.1905, abo: 187.53, co2: 0.35,
-    prime: { p0_3: 1.69, p3_9: 1.02 }, rachat: { p0_3: 0.1804, p3_9: 0.1804 },
+    prixKwh: 0.1905, abo: 187.53, refactionIR: 0.40, co2: 0.35,
+    prime: { p0_3: 1.70, p3_9: 1.03 }, rachat: { p0_3: 0.1822, p3_9: 0.1822 },
     prix: { 3: [9900, 13900], 6: [16900, 20900], 9: [19900, 24900] }, panneaux: { 3: 6, 6: 12, 9: 18 },
     batterie: { surcout: { 3: 4000, 6: 4000, 9: 5000 }, adoption: 0.07, reco: "OPTIONNELLE" },
     alerte: "Aucun dispositif de soutien dans les communes de Maripasoula et Papaichton.",
   },
   {
     id: "reunion", nom: "La Réunion", zone: "ZNI", actif: true, productible: 1488,
-    prixKwh: 0.1948, abo: 173.16, co2: 0.78,
-    prime: { p0_3: 1.55, p3_9: 0.93 }, rachat: { p0_3: 0.1756, p3_9: 0.1756 },
+    prixKwh: 0.1948, abo: 173.16, refactionIR: 0.30, co2: 0.78,
+    prime: { p0_3: 1.54, p3_9: 0.92 }, rachat: { p0_3: 0.1774, p3_9: 0.1774 },
     prix: { 3: [7990, 10900], 6: [12990, 15900], 9: [19900, 19900] }, panneaux: { 3: 8, 6: 16, 9: 24 },
     batterie: { surcout: { 3: 2910, 6: 2910, 9: 0 }, adoption: 0.6, reco: "CONFORT" },
     alerte:
@@ -90,8 +92,8 @@ export const TERRITOIRES: Territoire[] = [
   },
   {
     id: "corse", nom: "Corse", zone: "ZNI", actif: true, productible: 1433,
-    prixKwh: 0.1834, abo: 175.56, co2: 0.45,
-    prime: { p0_3: 1.15, p3_9: 0.65 }, rachat: { p0_3: 0.1661, p3_9: 0.1661 },
+    prixKwh: 0.1834, abo: 175.56, refactionIR: 0, co2: 0.45,
+    prime: { p0_3: 1.14, p3_9: 0.64 }, rachat: { p0_3: 0.1678, p3_9: 0.1678 },
     prix: { 3: [9900, 12900], 6: [16900, 18900], 9: [18900, 21900] }, panneaux: { 3: 6, 6: 12, 9: 18 },
     batterie: { surcout: { 3: 3000, 6: 2000, 9: 3000 }, adoption: 0.1, reco: "OPTIONNELLE" },
   },
@@ -113,7 +115,11 @@ export const TERRITOIRES: Territoire[] = [
 ];
 
 export const HYP = {
-  ratioDimensionnement: 0.7, // production cible en fraction de la consommation annuelle
+  ratioScenarioA: 0.7, // production cible du scénario « L'essentiel »
+  productionMaxRatio: 2.5, // garde-fou : production ≤ 2,5 × consommation annuelle
+  indexationRachat: 0.004, // indexation annuelle du tarif de rachat (coefficient L)
+  plafondHeures: 1600, // h × kWc rachetés au tarif plein, au-delà 5 c€/kWh
+  tarifSurplusReduit: 0.05,
   seuils: { vers3: 4.5, vers6: 7.5, vers9: 12 },
   inflationElec: 0.03, // par an
   degradation: 0.005, // par an
