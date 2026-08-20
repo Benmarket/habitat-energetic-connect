@@ -520,6 +520,8 @@ export default function SimulateurSolaireLead() {
   const dNouvelleFacture = scenario?.nouvelleFactureMensuelle ?? engine?.nouvelleFactureMensuelle ?? 0;
   /** Coût d'installation du scénario affiché (parent scope, pour les aperçus). */
   const dCost = scenario?.cout ?? installCost;
+  /** Taux d'autoconsommation (part de la production consommée sur place). */
+  const dTaux = scenario?.tauxAutoconsoPct ?? null;
 
   /** Libellé de la tuile « Aides » — jamais « 0 € » brut en métropole. */
   const aidesTileLabel = dispAides > 0
