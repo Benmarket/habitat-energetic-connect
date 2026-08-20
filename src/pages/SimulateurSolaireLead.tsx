@@ -1713,15 +1713,21 @@ const ResultsPanel = ({
 
         <div className={`transition-all duration-500 ${!unlocked ? "blur-md select-none pointer-events-none" : "blur-0"}`} aria-hidden={!unlocked}>
           {/* Chiffres clés en grille */}
+          {canToggleBattery && (
+            <div className="mb-4 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600">
+              <BatteryCharging className="w-4 h-4 text-orange-500" />
+              Scénario affiché : {showBattery ? "avec batterie" : "sans batterie"}
+            </div>
+          )}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
-            <StatCard icon={PiggyBank} label="Sur 25 ans" value={`~${savings25.toLocaleString("fr-FR")} €`} accent="from-emerald-100 to-emerald-50" iconColor="text-emerald-700" />
-            <StatCard icon={Zap} label="Installation" value={suggest.kwc > 0 ? `${suggest.kwc} kWc` : "—"} sub={suggest.panels > 0 ? `~${suggest.panels} panneaux · ${installCost.toLocaleString("fr-FR")} €` : undefined} accent="from-amber-100 to-orange-50" iconColor="text-orange-600" />
-            {aidesMin > 0 ? (
-              <StatCard icon={Coins} label="Aides estimées" value={`${aidesMin.toLocaleString("fr-FR")} €`} sub="prime versée sur la puissance installée" accent="from-blue-100 to-blue-50" iconColor="text-blue-700" />
+            <StatCard icon={PiggyBank} label="Sur 25 ans" value={`~${dSavings25.toLocaleString("fr-FR")} €`} accent="from-emerald-100 to-emerald-50" iconColor="text-emerald-700" />
+            <StatCard icon={Zap} label="Installation" value={suggest.kwc > 0 ? `${suggest.kwc} kWc${showBattery ? " + batterie" : ""}` : "—"} sub={suggest.panels > 0 ? `~${suggest.panels} panneaux · ${dCost.toLocaleString("fr-FR")} €` : undefined} accent="from-amber-100 to-orange-50" iconColor="text-orange-600" />
+            {dAides > 0 ? (
+              <StatCard icon={Coins} label="Aides estimées" value={`${dAides.toLocaleString("fr-FR")} €`} sub="prime versée sur la puissance installée" accent="from-blue-100 to-blue-50" iconColor="text-blue-700" />
             ) : (
               <StatCard icon={Coins} label="Aides" value="Prime supprimée" sub="Prime d'État supprimée en juin 2026 — votre gain vient de l'autoconsommation" accent="from-blue-100 to-blue-50" iconColor="text-blue-700" />
             )}
-            <StatCard icon={LineChart} label="Rentabilité" value={(showBattery ? roiWithBattery : roi) ? `~${showBattery ? roiWithBattery : roi} ans` : "À l'étude"} accent="from-purple-100 to-purple-50" iconColor="text-purple-700" />
+            <StatCard icon={LineChart} label="Rentabilité" value={dRoi ? `~${dRoi} ans` : "À l'étude"} accent="from-purple-100 to-purple-50" iconColor="text-purple-700" />
           </div>
 
           {/* Comparaison batterie */}
