@@ -720,8 +720,23 @@ export default function SimulateurSolaireLead() {
               <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-yellow-200/40 blur-3xl" aria-hidden />
               <div className="absolute -bottom-20 -left-10 w-52 h-52 rounded-full bg-orange-300/30 blur-3xl" aria-hidden />
               <div className="relative">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/15 backdrop-blur text-[10px] font-bold uppercase tracking-wider mb-4">
-                  <Sparkles className="w-3 h-3" /> Aperçu
+                <div className="flex items-start justify-between gap-3 mb-4">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/15 backdrop-blur text-[10px] font-bold uppercase tracking-wider">
+                    <Sparkles className="w-3 h-3" /> Aperçu
+                  </div>
+                  {REGION_SHAPES[region.id] && (
+                    <div className="flex items-center gap-2 bg-white/25 backdrop-blur-sm rounded-lg pl-1.5 pr-2.5 py-1 shrink-0">
+                      <img
+                        src={REGION_SHAPES[region.id]}
+                        alt={`Silhouette ${regionDisplayName(region.id, region.label)}`}
+                        className="w-7 h-7 object-contain"
+                        loading="lazy"
+                      />
+                      <span className="text-[10px] font-bold uppercase tracking-wide leading-tight max-w-[92px]">
+                        {regionDisplayName(region.id, region.label)}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <p className="text-xs font-semibold text-slate-900/80 mb-1">Vous avez débloqué</p>
                 <p className="text-4xl font-black leading-none">
