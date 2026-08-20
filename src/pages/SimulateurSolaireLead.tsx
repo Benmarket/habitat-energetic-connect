@@ -55,6 +55,12 @@ const REGION_SHAPES: Record<string, string> = {
   fr: regionFrance,
 };
 
+/** Nom affiché dans les récapitulatifs (le détail nord/sud/sud-ouest reste interne). */
+function regionDisplayName(id: string, label: string): string {
+  if (id === "fr" || id.startsWith("fr-")) return "France métropolitaine";
+  return label;
+}
+
 // ---------- Types ----------
 type HousingType = "maison" | "appartement" | "pro";
 type Ownership = "oui" | "non" | "achat";
