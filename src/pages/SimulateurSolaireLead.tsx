@@ -1844,6 +1844,7 @@ const ResultsPanel = ({
               { icon: Coins, label: dAides > 0 ? `Aides ~${dAides.toLocaleString("fr-FR")} €` : "Prime d'État supprimée en juin 2026" },
               { icon: LineChart, label: dRoi ? `Rentabilité ~${dRoi} ans` : "Rentabilité à l'étude" },
               { icon: Leaf, label: `${dCo2.toLocaleString("fr-FR")} kg CO₂ évités / an` },
+              ...(dTaux !== null ? [{ icon: Sun, label: `Autoconsommation ~${dTaux} %` }] : []),
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-2 text-xs md:text-sm text-slate-900/90 bg-white/30 backdrop-blur-sm rounded-lg px-2.5 py-1.5 md:px-3 md:py-2">
                 <item.icon className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
