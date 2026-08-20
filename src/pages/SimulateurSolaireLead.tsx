@@ -139,13 +139,22 @@ function bestOrientation(regionId?: string): Exclude<Orientation, "?"> {
 }
 
 const ROOF_TYPES: { id: Exclude<RoofType, "">; label: string; desc: string }[] = [
+  { id: "tole", label: "Toiture en tôle", desc: "Tôle ondulée, pose adaptée" },
   { id: "tuiles", label: "Tuiles", desc: "Cas le plus courant" },
   { id: "ardoise", label: "Ardoise", desc: "Toit plus délicat mais faisable" },
   { id: "bac-acier", label: "Bac acier", desc: "Idéal pour la pose" },
-  { id: "tole", label: "Toiture en tôle", desc: "Tôle ondulée, pose adaptée" },
   { id: "toit-plat", label: "Toit plat / terrasse", desc: "Pose sur bacs lestés" },
   { id: "?", label: "Je ne sais pas", desc: "On vérifiera à l'étude" },
 ];
+
+/** Toiture la plus représentative selon le territoire (★). */
+const DOM_REGIONS = ["reunion", "guyane", "martinique", "guadeloupe"];
+function recommendedRoof(regionId?: string): Exclude<RoofType, ""> | null {
+  if (!regionId) return null;
+  if (DOM_REGIONS.includes(regionId)) return "tole"; // outre-mer : tôle
+  if (regionId === "corse" || regionId === "unknown") return "tuiles"; // corse & métropole
+  return "tuiles";
+}
 
 const EQUIPMENTS: { id: string; label: string; desc: string; icon: any }[] = [
   { id: "clim", label: "Climatisation", desc: "Consommation forte l'été", icon: Snowflake },
