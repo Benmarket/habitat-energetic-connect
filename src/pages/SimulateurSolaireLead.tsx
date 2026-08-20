@@ -813,7 +813,20 @@ export default function SimulateurSolaireLead() {
                   ))}
                 </div>
 
-                <div className="mt-6 pt-5 border-t border-slate-900/15 flex items-center gap-2 text-[11px] font-semibold text-slate-900/75">
+                {/* Puissance préconisée + nouvelle facture (dynamique selon le scénario) */}
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div className="flex items-center gap-2 text-sm text-slate-900/90 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2">
+                    <Zap className="w-4 h-4 shrink-0 text-amber-600" />
+                    <span className="font-semibold leading-tight">{suggest.kwc > 0 ? `${suggest.kwc} kWc` : "—"}<span className="block text-[10px] font-medium text-slate-900/70">puissance préconisée</span></span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-slate-900/90 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2">
+                    <Receipt className="w-4 h-4 shrink-0 text-emerald-700" />
+                    <span className="font-semibold leading-tight">≈ {dNouvelleFacture.toLocaleString("fr-FR")} €/mois<span className="block text-[10px] font-medium text-slate-900/70">nouvelle facture*</span></span>
+                  </div>
+                </div>
+                <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Estimée après autoconsommation — varie selon votre consommation réelle.</p>
+
+                <div className="mt-4 pt-5 border-t border-slate-900/15 flex items-center gap-2 text-[11px] font-semibold text-slate-900/75">
                   <Lock className="w-3.5 h-3.5" /> Détail complet côté droit →
                 </div>
               </div>
