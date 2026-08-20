@@ -1751,6 +1751,24 @@ const ResultsPanel = ({
   const gainNet = cumulSolaire + aidesTotal - totalInvest;
   const cumulConso25 = projectionData.reduce((s, d) => s + d.conso, 0);
 
+  // ------ Courbes conso vs production (profil mensuel) ------
+  const dTaux: number | null = scenario?.tauxAutoconsoPct ?? null;
+  const MOIS = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
+  const PROFIL_NORD = [0.045, 0.058, 0.083, 0.098, 0.111, 0.115, 0.121, 0.112, 0.092, 0.069, 0.05, 0.046];
+  const PROFIL_SUD = [0.104, 0.096, 0.094, 0.081, 0.069, 0.062, 0.067, 0.075, 0.082, 0.09, 0.09, 0.09];
+  const PROFIL_EQUATEUR = Array(12).fill(1 / 12);
+  const solarProfile =
+    region.id === "reunion" || region.id === "mayotte" ? PROFIL_SUD
+    : region.id === "guyane" || region.id === "guadeloupe" || region.id === "martinique" ? PROFIL_EQUATEUR
+    : PROFIL_NORD;
+  const consoAn = engine?.consoAnnuelleKwh ?? 0;
+  const prodAn = scenario?.productionAnnuelleKwh ?? 0;
+  const energyData = MOIS.map((m, i) => ({
+    mois: m,
+    conso: Math.round((consoAn / 12) * (solarProfile === PROFIL_NORD ? [1.24, 1.18, 1.06, 0.94, 0.85, 0.8, 0.8, 0.8, 0.88, 1.0, 1.13, 1.32][i] : 1)),
+    production: Math.round(prodAn * solarProfile[i]),
+  }));
+
   return (
     <div className="bg-white rounded-3xl shadow-[0_30px_80px_-20px_hsl(24_60%_8%/0.55)] border border-amber-300/40 overflow-hidden">
       {/* HERO — TOUJOURS visible avec le gros chiffre alléchant */}
