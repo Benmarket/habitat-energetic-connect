@@ -515,7 +515,9 @@ export default function SimulateurSolaireLead() {
 
                 <p className="mt-4 md:mt-5 pt-3 md:pt-4 border-t border-slate-200/70 text-center text-[10px] md:text-[11px] leading-relaxed text-slate-500 max-w-2xl mx-auto italic">
                   Estimations indicatives : les économies et subventions affichées peuvent varier selon votre situation, votre toiture et les dispositifs en vigueur. Une étude personnalisée gratuite peut vous être proposée en fin de parcours.
+                  <span className="block mt-1 not-italic font-medium text-slate-500">Dernière mise à jour des aides et subventions : Mai 2026.</span>
                 </p>
+
               </div>
             </div>
 
@@ -1827,7 +1829,9 @@ const ResultsPanel = ({
 
         <p className="mt-8 text-center text-[11px] leading-relaxed text-slate-400 max-w-2xl mx-auto px-4">
           Estimations indicatives. Les montants d'économies et de subventions peuvent varier selon votre situation, votre toiture et les dispositifs en vigueur. Une étude personnalisée gratuite peut vous être proposée en fin de parcours.
+          <span className="block mt-1 font-medium">Dernière mise à jour des aides et subventions : Mai 2026.</span>
         </p>
+
       </div>
     </div>
   );
