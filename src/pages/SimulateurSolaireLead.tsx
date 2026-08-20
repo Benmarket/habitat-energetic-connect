@@ -1541,18 +1541,29 @@ const ResultsPanel = ({
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/15 backdrop-blur text-xs font-bold mb-4 uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" /> Votre potentiel solaire
           </div>
-          <p className="text-sm md:text-base font-semibold text-slate-900/80">Vous pourriez économiser jusqu'à</p>
-          <div className="flex items-baseline gap-3 mt-2 flex-wrap">
-            <span className="text-6xl md:text-8xl font-black tabular-nums leading-none tracking-tight drop-shadow-sm">
-              {displayedYearlyCounted.toLocaleString("fr-FR")}
-            </span>
-            <span className="text-3xl md:text-4xl font-black">€</span>
-            <span className="text-lg md:text-xl font-bold text-slate-900/80">/ an</span>
-          </div>
-          <p className="text-sm text-slate-900/75 mt-3 max-w-xl">
-            Estimation personnalisée pour {region.label}{sim.city ? ` — ${sim.city}` : ""} · facture actuelle {annualBill.toLocaleString("fr-FR")} €/an
-            {showBattery && <span className="ml-2 inline-flex items-center gap-1 text-xs bg-slate-900/20 backdrop-blur px-2 py-0.5 rounded-full font-bold"><BatteryCharging className="w-3 h-3" /> Avec batterie</span>}
-          </p>
+          {engine ? (
+            <>
+              <p className="text-sm md:text-base font-semibold text-slate-900/80">Vous pourriez économiser jusqu'à</p>
+              <div className="flex items-baseline gap-3 mt-2 flex-wrap">
+                <span className="text-6xl md:text-8xl font-black tabular-nums leading-none tracking-tight drop-shadow-sm">
+                  {displayedYearlyCounted.toLocaleString("fr-FR")}
+                </span>
+                <span className="text-3xl md:text-4xl font-black">€</span>
+                <span className="text-lg md:text-xl font-bold text-slate-900/80">/ an</span>
+              </div>
+              <p className="text-sm text-slate-900/75 mt-3 max-w-xl">
+                Estimation personnalisée pour {engine.territoire}{sim.city ? ` — ${sim.city}` : ""} · facture actuelle {annualBill.toLocaleString("fr-FR")} €/an · installation {engine.puissanceKwc} kWc ({engine.nbPanneaux} panneaux)
+                {showBattery && <span className="ml-2 inline-flex items-center gap-1 text-xs bg-slate-900/20 backdrop-blur px-2 py-0.5 rounded-full font-bold"><BatteryCharging className="w-3 h-3" /> Avec batterie</span>}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-2xl md:text-4xl font-black leading-tight mt-2 max-w-xl">Votre profil nécessite une étude personnalisée</p>
+              <p className="text-sm text-slate-900/75 mt-3 max-w-xl">
+                Votre consommation sort de nos configurations standard : un conseiller calcule votre potentiel exact gratuitement.
+              </p>
+            </>
+          )}
 
           {sim.batteryInterest && sim.batteryInterest !== "non" && (
             <div className="mt-5 inline-flex items-center gap-1 p-1 rounded-full bg-slate-900/15 backdrop-blur">
