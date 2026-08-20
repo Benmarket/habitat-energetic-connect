@@ -1753,9 +1753,24 @@ const ResultsPanel = ({
           <section className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-50/40 border border-blue-200">
             <h3 className="text-xs font-bold text-blue-700 uppercase tracking-widest mb-2">Aides & financement</h3>
             <p className="text-slate-700 text-sm">
-              Prime à l'autoconsommation, TVA réduite, éco-prêt à taux zéro… Votre région peut donner accès à certaines aides sous réserve d'éligibilité. Un conseiller vérifie tout gratuitement.
+              {aidesMin > 0
+                ? `Prime à l'investissement estimée à ${aidesMin.toLocaleString("fr-FR")} € pour une installation de ${suggest.kwc} kWc${engine ? ` en ${engine.territoire}` : ""}, à laquelle peuvent s'ajouter la TVA réduite et l'éco-prêt à taux zéro sous réserve d'éligibilité. Un conseiller vérifie tout gratuitement.`
+                : "La prime d'État à l'autoconsommation est supprimée depuis juin 2026 : votre gain provient de l'autoconsommation et de la revente du surplus. TVA réduite et éco-prêt à taux zéro restent possibles sous réserve d'éligibilité."}
             </p>
           </section>
+
+          {/* Alerte territoriale */}
+          {engine?.alerte && (
+            <div className="mb-8 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-2.5">
+              <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <p className="text-xs text-amber-900 leading-relaxed">{engine.alerte}</p>
+            </div>
+          )}
+
+          {/* Mention légale */}
+          <p className="mb-8 text-[11px] text-slate-500 leading-relaxed">
+            Estimation non contractuelle. Primes et tarifs de rachat : arrêté du 5 janvier 2024 (outre-mer), période du 1<sup>er</sup> mai au 31 juillet 2026, source CRE. Prix de l'électricité : tarif réglementé au 1<sup>er</sup> août 2026. Ensoleillement : PVGIS v5.3 (Commission européenne), ±5 %. Prix d'installation : tarif le plus fréquemment facturé sur nos ventes 2026. Hypothèses : inflation de l'électricité 3 %/an, dégradation des panneaux 0,5 %/an, contrat de rachat du surplus sur 20 ans.
+          </p>
 
           {/* Prochaines étapes */}
           <section className="mb-8">
