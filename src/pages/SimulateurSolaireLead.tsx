@@ -1388,17 +1388,25 @@ const Step4Orientation = ({ sim, setSim, region }: { sim: Sim; setSim: any; regi
         {ROOF_TYPES.map((r) => {
           const selected = sim.roofType === r.id;
           const unknown = r.id === "?";
+          const recommended = recommendedRoof(region?.id) === r.id;
           return (
             <button key={r.id} type="button" onClick={() => setSim({ ...sim, roofType: selected ? "" : r.id })}
-              className={`p-3 rounded-xl border-2 text-left transition-all ${
+              className={`relative p-3 rounded-xl border-2 text-left transition-all ${
                 selected
                   ? unknown
                     ? "border-sky-500 bg-gradient-to-br from-sky-50 to-blue-50 shadow-md"
                     : "border-orange-500 bg-gradient-to-br from-amber-50 to-orange-50 shadow-md"
                   : unknown
                   ? "border-sky-200 bg-sky-50/60 hover:border-sky-400"
+                  : recommended
+                  ? "border-amber-300 bg-amber-50/40 hover:border-amber-500"
                   : "border-slate-200 bg-white hover:border-amber-400"
               }`}>
+              {recommended && (
+                <span className="absolute -top-2 -right-2 z-10 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-400 text-[9px] font-bold text-slate-900 shadow-md leading-none">
+                  <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
+                </span>
+              )}
               <p className={`text-sm font-bold ${unknown ? "text-sky-700" : "text-slate-900"}`}>{r.label}</p>
               <p className={`text-[11px] mt-0.5 ${unknown ? "text-sky-600/80" : "text-slate-500"}`}>{r.desc}</p>
             </button>
@@ -1408,7 +1416,7 @@ const Step4Orientation = ({ sim, setSim, region }: { sim: Sim; setSim: any; regi
 
       {/* Aperçu 3D */}
       {ROOF_MODELS[sim.roofType] && (
-        <div className="mt-5 relative rounded-2xl overflow-hidden border-2 border-amber-200 bg-gradient-to-b from-sky-200 via-sky-100 to-blue-50 shadow-[0_20px_50px_-20px_hsl(35_95%_45%/0.5)] animate-fade-in">
+        <div className="mt-5 relative rounded-2xl overflow-hidden border-2 border-amber-200 bg-gradient-to-b from-stone-100 via-stone-50 to-stone-100 shadow-[0_20px_50px_-20px_hsl(35_95%_45%/0.5)] animate-fade-in">
           <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/95 backdrop-blur text-[10px] font-bold uppercase tracking-wider text-slate-900 shadow-md">
             Aperçu 3D · {ROOF_TYPES.find(r => r.id === sim.roofType)?.label}
           </div>
