@@ -1447,7 +1447,7 @@ function RoofModel({ url }: { url: string }) {
 
 const RoofPreview3D = ({ url }: { url: string }) => (
   <Canvas camera={{ position: [4, 3, 5], fov: 45 }} dpr={[1, 1.5]}>
-    <color attach="background" args={["#DFE6F5"]} />
+    <color attach="background" args={["#5B8FC4"]} />
     <Suspense fallback={null}>
       <Stage environment="sunset" intensity={0.9} adjustCamera={1.2} shadows={false}>
         <RoofModel url={url} />
