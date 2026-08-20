@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
-  ResponsiveContainer, Legend, Cell,
+  ResponsiveContainer, Legend, Cell, ComposedChart, Area, Line,
 } from "recharts";
 import solarSimBg from "@/assets/simulators/solar-simulator-bg.jpg";
 import { simuler } from "@/lib/solar-engine";
@@ -520,6 +520,8 @@ export default function SimulateurSolaireLead() {
   const dNouvelleFacture = scenario?.nouvelleFactureMensuelle ?? engine?.nouvelleFactureMensuelle ?? 0;
   /** Coût d'installation du scénario affiché (parent scope, pour les aperçus). */
   const dCost = scenario?.cout ?? installCost;
+  /** Taux d'autoconsommation (part de la production consommée sur place). */
+  const dTaux = scenario?.tauxAutoconsoPct ?? null;
 
   /** Libellé de la tuile « Aides » — jamais « 0 € » brut en métropole. */
   const aidesTileLabel = dispAides > 0
@@ -698,6 +700,7 @@ export default function SimulateurSolaireLead() {
                               { icon: Receipt, label: `Facture ≈ ${dNouvelleFacture.toLocaleString("fr-FR")} €/mois*` },
                               { icon: LineChart, label: dispRoi ? `Rentabilité ~${dispRoi} ans` : "Rentabilité à l'étude" },
                               { icon: Leaf, label: `${dispCo2.toLocaleString("fr-FR")} kg CO₂ / an` },
+                              ...(dTaux !== null ? [{ icon: Sun, label: `Autoconsommation ~${dTaux} %` }] : []),
                             ].map((item, i) => (
                               <div key={i} className="flex items-center gap-1.5 text-[11px] text-slate-900/90 bg-white/30 rounded-md px-2 py-1">
                                 <item.icon className="w-3 h-3 shrink-0" />
@@ -865,6 +868,20 @@ export default function SimulateurSolaireLead() {
                     <span className="font-semibold leading-tight">≈ {dNouvelleFacture.toLocaleString("fr-FR")} €/mois<span className="block text-[10px] font-medium text-slate-900/70">nouvelle facture*</span></span>
                   </div>
                 </div>
+                {dTaux !== null && (
+                  <div className="mt-2 flex items-center gap-2 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2">
+                    <Sun className="w-4 h-4 shrink-0 text-amber-700" />
+                    <div className="flex-1">
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-[10px] font-medium text-slate-900/70 uppercase tracking-wide">Autoconsommation</span>
+                        <span className="text-sm font-black">{dTaux} %</span>
+                      </div>
+                      <div className="mt-1 h-1.5 rounded-full bg-slate-900/15 overflow-hidden">
+                        <div className="h-full rounded-full bg-slate-900/70" style={{ width: `${Math.min(100, dTaux)}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Estimée après autoconsommation — varie selon votre consommation réelle.</p>
                 <p className="mt-2 text-[10px] text-slate-900/60 leading-tight">
                   Base : {engine?.territoire}{sim.city ? ` · ${sim.city}` : ""} · facture {annualBill.toLocaleString("fr-FR")} €/an · {engine?.puissanceKwc ?? suggest.kwc} kWc ({engine?.nbPanneaux ?? suggest.panels} panneaux) · {dCost.toLocaleString("fr-FR")} €
@@ -1734,6 +1751,24 @@ const ResultsPanel = ({
   const gainNet = cumulSolaire + aidesTotal - totalInvest;
   const cumulConso25 = projectionData.reduce((s, d) => s + d.conso, 0);
 
+  // ------ Courbes conso vs production (profil mensuel) ------
+  const dTaux: number | null = scenario?.tauxAutoconsoPct ?? null;
+  const MOIS = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
+  const PROFIL_NORD = [0.045, 0.058, 0.083, 0.098, 0.111, 0.115, 0.121, 0.112, 0.092, 0.069, 0.05, 0.046];
+  const PROFIL_SUD = [0.104, 0.096, 0.094, 0.081, 0.069, 0.062, 0.067, 0.075, 0.082, 0.09, 0.09, 0.09];
+  const PROFIL_EQUATEUR = Array(12).fill(1 / 12);
+  const solarProfile =
+    region.id === "reunion" || region.id === "mayotte" ? PROFIL_SUD
+    : region.id === "guyane" || region.id === "guadeloupe" || region.id === "martinique" ? PROFIL_EQUATEUR
+    : PROFIL_NORD;
+  const consoAn = engine?.consoAnnuelleKwh ?? 0;
+  const prodAn = scenario?.productionAnnuelleKwh ?? 0;
+  const energyData = MOIS.map((m, i) => ({
+    mois: m,
+    conso: Math.round((consoAn / 12) * (solarProfile === PROFIL_NORD ? [1.24, 1.18, 1.06, 0.94, 0.85, 0.8, 0.8, 0.8, 0.88, 1.0, 1.13, 1.32][i] : 1)),
+    production: Math.round(prodAn * solarProfile[i]),
+  }));
+
   return (
     <div className="bg-white rounded-3xl shadow-[0_30px_80px_-20px_hsl(24_60%_8%/0.55)] border border-amber-300/40 overflow-hidden">
       {/* HERO — TOUJOURS visible avec le gros chiffre alléchant */}
@@ -1809,6 +1844,7 @@ const ResultsPanel = ({
               { icon: Coins, label: dAides > 0 ? `Aides ~${dAides.toLocaleString("fr-FR")} €` : "Prime d'État supprimée en juin 2026" },
               { icon: LineChart, label: dRoi ? `Rentabilité ~${dRoi} ans` : "Rentabilité à l'étude" },
               { icon: Leaf, label: `${dCo2.toLocaleString("fr-FR")} kg CO₂ évités / an` },
+              ...(dTaux !== null ? [{ icon: Sun, label: `Autoconsommation ~${dTaux} %` }] : []),
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-2 text-xs md:text-sm text-slate-900/90 bg-white/30 backdrop-blur-sm rounded-lg px-2.5 py-1.5 md:px-3 md:py-2">
                 <item.icon className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
@@ -1901,6 +1937,55 @@ const ResultsPanel = ({
                 </p>
               </div>
             </div>
+          )}
+
+          {/* Consommation vs production solaire — 2 courbes + taux d'autoconsommation */}
+          {engine && (
+            <section className="mb-8 p-5 md:p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
+              <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+                <div>
+                  <h3 className="text-xs font-bold text-slate-700 uppercase tracking-widest flex items-center gap-1.5">
+                    <Sun className="w-3.5 h-3.5 text-amber-600" /> Consommation vs production solaire
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Répartition mensuelle estimée · {engine.consoAnnuelleKwh.toLocaleString("fr-FR")} kWh consommés vs {(scenario?.productionAnnuelleKwh ?? 0).toLocaleString("fr-FR")} kWh produits / an
+                  </p>
+                </div>
+                {dTaux !== null && (
+                  <div className="rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 px-4 py-2.5 shadow-md min-w-[150px]">
+                    <p className="text-[10px] font-bold uppercase tracking-widest">Autoconsommation</p>
+                    <p className="text-3xl font-black leading-none mt-0.5">{dTaux} %</p>
+                    <p className="text-[10px] font-semibold mt-1">de votre production consommée sur place</p>
+                  </div>
+                )}
+              </div>
+              <div className="h-64 md:h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={energyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="gradProd" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.55} />
+                        <stop offset="100%" stopColor="#fbbf24" stopOpacity={0.05} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                    <XAxis dataKey="mois" tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }} axisLine={{ stroke: "#cbd5e1" }} tickLine={false} />
+                    <YAxis tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v} kWh`} width={60} />
+                    <RTooltip
+                      contentStyle={{ borderRadius: 12, border: "1px solid #fde68a", boxShadow: "0 10px 25px -10px rgba(0,0,0,0.2)", fontSize: 12 }}
+                      formatter={(v: any, name: string) => [`${Number(v).toLocaleString("fr-FR")} kWh`, name]}
+                      labelStyle={{ fontWeight: 700, color: "#0f172a" }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 11, fontWeight: 600 }} />
+                    <Area type="monotone" dataKey="production" name="Production solaire" stroke="#f59e0b" strokeWidth={3} fill="url(#gradProd)" dot={false} />
+                    <Line type="monotone" dataKey="conso" name="Votre consommation" stroke="#0f172a" strokeWidth={3} dot={false} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-3 leading-relaxed">
+                Le taux d'autoconsommation représente la part de l'électricité produite que vous consommez directement{showBattery ? " (batterie incluse)" : ""} ; le reste est revendu au réseau. Profils mensuels indicatifs.
+              </p>
+            </section>
           )}
 
           {/* Projection 25 ans — Graphique */}
