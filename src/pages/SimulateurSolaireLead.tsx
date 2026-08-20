@@ -32,6 +32,8 @@ import {
   ResponsiveContainer, Legend, Cell,
 } from "recharts";
 import solarSimBg from "@/assets/simulators/solar-simulator-bg.jpg";
+import { simuler } from "@/lib/solar-engine";
+import { territoireFromPostal } from "@/lib/solar-data";
 import regionFrance from "@/assets/regions/france.png";
 import regionCorse from "@/assets/regions/corse.png";
 import regionGuyane from "@/assets/regions/guyane.png";
