@@ -472,9 +472,18 @@ export default function SimulateurSolaireLead() {
     unlocked, engine,
   };
 
+  /** Scénario affiché (avec ou sans batterie) — pilote tous les chiffres de l'aperçu final. */
+  const canToggleBattery = !!(engine && sim.batteryInterest && sim.batteryInterest !== "non");
+  const scenario = engine ? (showBattery ? engine.avec : engine.sans) : null;
+  const dispYearly = scenario?.economiesAn ?? savingsMid;
+  const dispSavings25 = scenario?.economies25ans ?? savings25;
+  const dispAides = scenario?.AIDES ?? aidesMin;
+  const dispRoi = scenario?.rentabiliteAns ?? roi;
+  const dispCo2 = scenario?.co2KgAn ?? co2;
+
   /** Libellé de la tuile « Aides » — jamais « 0 € » brut en métropole. */
-  const aidesTileLabel = engine && engine.sans.AIDES > 0
-    ? `Aides ~${engine.sans.AIDES.toLocaleString("fr-FR")} €`
+  const aidesTileLabel = dispAides > 0
+    ? `Aides ~${dispAides.toLocaleString("fr-FR")} €`
     : "Prime d'État supprimée en juin 2026";
 
   return (
