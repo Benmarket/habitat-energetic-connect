@@ -1416,11 +1416,11 @@ const Step4Orientation = ({ sim, setSim, region }: { sim: Sim; setSim: any; regi
 
       {/* Aperçu 3D */}
       {ROOF_MODELS[sim.roofType] && (
-        <div className="mt-5 relative rounded-2xl overflow-hidden border-2 border-amber-200 bg-gradient-to-b from-stone-100 via-stone-50 to-stone-100 shadow-[0_20px_50px_-20px_hsl(35_95%_45%/0.5)] animate-fade-in">
+        <div className="mt-5 relative rounded-2xl overflow-hidden border-2 border-stone-700 bg-gradient-to-b from-stone-800 to-stone-900 shadow-[0_20px_50px_-20px_hsl(35_95%_45%/0.5)] animate-fade-in">
           <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/95 backdrop-blur text-[10px] font-bold uppercase tracking-wider text-slate-900 shadow-md">
             Aperçu 3D · {ROOF_TYPES.find(r => r.id === sim.roofType)?.label}
           </div>
-          <div className="absolute top-3 right-3 z-10 text-[10px] text-slate-700/80 font-medium bg-white/70 backdrop-blur px-2 py-1 rounded-full">Rotation automatique</div>
+          <div className="absolute top-3 right-3 z-10 text-[10px] text-stone-300/90 font-medium bg-stone-800/80 backdrop-blur px-2 py-1 rounded-full border border-stone-700">Rotation automatique</div>
           <div className="h-[280px] md:h-[340px]">
             <RoofPreview3D url={ROOF_MODELS[sim.roofType]!} />
           </div>
@@ -1447,9 +1447,9 @@ function RoofModel({ url }: { url: string }) {
 
 const RoofPreview3D = ({ url }: { url: string }) => (
   <Canvas camera={{ position: [4, 3, 5], fov: 45 }} dpr={[1, 1.5]}>
-    <color attach="background" args={["#f5f5f4"]} />
+    <color attach="background" args={["#1c1917"]} />
     <Suspense fallback={null}>
-      <Stage environment="sunset" intensity={0.4} adjustCamera={1.2} shadows={false}>
+      <Stage environment="sunset" intensity={0.6} adjustCamera={1.2} shadows={false}>
         <RoofModel url={url} />
       </Stage>
     </Suspense>
