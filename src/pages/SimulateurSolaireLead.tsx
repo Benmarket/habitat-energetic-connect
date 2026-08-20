@@ -767,18 +767,39 @@ export default function SimulateurSolaireLead() {
                     </div>
                   )}
                 </div>
-                <p className="text-xs font-semibold text-slate-900/80 mb-1">Vous avez débloqué</p>
+                <p className="text-xs font-semibold text-slate-900/80 mb-1">
+                  Vous avez débloqué {canToggleBattery && <span className="font-bold">· {showBattery ? "avec batterie" : "sans batterie"}</span>}
+                </p>
                 <p className="text-4xl font-black leading-none">
-                  {savingsMid > 0 ? savingsMid.toLocaleString("fr-FR") : "1 200"} €
+                  {dispYearly > 0 ? dispYearly.toLocaleString("fr-FR") : "1 200"} €
                 </p>
                 <p className="text-sm font-bold text-slate-900/80 mt-1">d'économies estimées par an</p>
 
+                {canToggleBattery && (
+                  <div className="mt-4 inline-flex items-center gap-1 p-1 rounded-full bg-slate-900/15 backdrop-blur">
+                    <button
+                      type="button"
+                      onClick={() => setShowBattery(false)}
+                      className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${!showBattery ? "bg-white text-slate-900 shadow" : "text-slate-900/70"}`}
+                    >
+                      Sans batterie
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowBattery(true)}
+                      className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all inline-flex items-center gap-1 ${showBattery ? "bg-white text-slate-900 shadow" : "text-slate-900/70"}`}
+                    >
+                      <BatteryCharging className="w-3 h-3" /> Avec batterie
+                    </button>
+                  </div>
+                )}
+
                 <div className="mt-6 space-y-2.5">
                   {[
-                    { icon: PiggyBank, label: `~${savings25.toLocaleString("fr-FR")} € sur 25 ans` },
+                    { icon: PiggyBank, label: `~${dispSavings25.toLocaleString("fr-FR")} € sur 25 ans` },
                     { icon: Coins, label: aidesTileLabel },
-                    { icon: LineChart, label: roi ? `Rentabilité ~${roi} ans` : "Rentabilité à l'étude" },
-                    { icon: Leaf, label: `${co2.toLocaleString("fr-FR")} kg CO₂ évités / an` },
+                    { icon: LineChart, label: dispRoi ? `Rentabilité ~${dispRoi} ans` : "Rentabilité à l'étude" },
+                    { icon: Leaf, label: `${dispCo2.toLocaleString("fr-FR")} kg CO₂ évités / an` },
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-2.5 text-sm text-slate-900/90 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2">
                       <item.icon className="w-4 h-4 shrink-0" />
