@@ -632,12 +632,30 @@ export default function SimulateurSolaireLead() {
                               </div>
                             )}
                           </div>
+                          {canToggleBattery && (
+                            <div className="mt-2.5 inline-flex items-center gap-1 p-0.5 rounded-full bg-slate-900/15 backdrop-blur w-full">
+                              <button
+                                type="button"
+                                onClick={() => setShowBattery(false)}
+                                className={`flex-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide transition-all ${!showBattery ? "bg-white text-slate-900 shadow" : "text-slate-900/70"}`}
+                              >
+                                Sans batterie
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setShowBattery(true)}
+                                className={`flex-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide transition-all inline-flex items-center justify-center gap-1 ${showBattery ? "bg-white text-slate-900 shadow" : "text-slate-900/70"}`}
+                              >
+                                <BatteryCharging className="w-3 h-3" /> Avec batterie
+                              </button>
+                            </div>
+                          )}
                           <div className="mt-2.5 grid grid-cols-2 gap-1.5">
                             {[
-                              { icon: PiggyBank, label: `~${savings25.toLocaleString("fr-FR")} € / 25 ans` },
+                              { icon: PiggyBank, label: `~${dispSavings25.toLocaleString("fr-FR")} € / 25 ans` },
                               { icon: Coins, label: aidesTileLabel },
-                              { icon: LineChart, label: roi ? `Rentabilité ~${roi} ans` : "Rentabilité à l'étude" },
-                              { icon: Leaf, label: `${co2.toLocaleString("fr-FR")} kg CO₂ / an` },
+                              { icon: LineChart, label: dispRoi ? `Rentabilité ~${dispRoi} ans` : "Rentabilité à l'étude" },
+                              { icon: Leaf, label: `${dispCo2.toLocaleString("fr-FR")} kg CO₂ / an` },
                             ].map((item, i) => (
                               <div key={i} className="flex items-center gap-1.5 text-[11px] text-slate-900/90 bg-white/30 rounded-md px-2 py-1">
                                 <item.icon className="w-3 h-3 shrink-0" />
