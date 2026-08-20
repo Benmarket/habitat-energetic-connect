@@ -1485,7 +1485,7 @@ const ResultsPanel = ({
   sim, region, annualBill, savingsMin, savingsMax, savingsMid, savings25,
   aidesMin, aidesMax, roi, co2, trees, suggest, installCost,
   showBattery, setShowBattery, savingsWithBattery, batteryCost, roiWithBattery,
-  unlocked, onUnlockClick, onEdit, hideMobileSticky,
+  unlocked, engine, onUnlockClick, onEdit, hideMobileSticky,
 }: any) => {
   const housingLabel = HOUSING.find((h) => h.id === sim.housing)?.label || "—";
   const surfaceLabel = typeof sim.surface === "number" ? `${sim.surface} m²` : "—";
