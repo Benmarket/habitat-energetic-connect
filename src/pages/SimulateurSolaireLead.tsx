@@ -1225,23 +1225,71 @@ const Step2Housing = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
   );
 };
 
-const Step3Ownership = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
-  <div>
-    <StepTitle icon={Building} title="Vous êtes propriétaire du logement ?" />
-    <div className="grid sm:grid-cols-3 gap-3">
-      {OWNERSHIPS.map((o) => (
-        <ChoiceCard key={o.id} icon={o.id === "oui" ? Check : o.id === "non" ? Lock : Sparkles} title={o.label} description={o.desc} selected={sim.ownership === o.id} onClick={() => setSim({ ...sim, ownership: o.id })} />
-      ))}
+const Step3Ownership = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
+  const [showOwnerDisclaimer, setShowOwnerDisclaimer] = useState(false);
+  const [ownerContext, setOwnerContext] = useState<Ownership | "">("");
+  const handleOwnershipSelect = (id: Ownership) => {
+    setSim({ ...sim, ownership: id });
+    if ((id === "non" || id === "achat") && ownerContext !== id) {
+      setOwnerContext(id);
+      setShowOwnerDisclaimer(true);
+    }
+  };
+  const disclaimerConfig: Record<"non" | "achat", { title: string; icon: any; body: React.ReactNode }> = {
+    non: {
+      title: "Vous êtes locataire",
+      icon: Lock,
+      body: (
+        <span className="block">
+          Une installation solaire nécessite l'accord du propriétaire. Vous pouvez néanmoins poursuivre la simulation à titre indicatif : un conseiller pourra ensuite vous orienter vers les démarches à engager avec votre bailleur.
+        </span>
+      ),
+    },
+    achat: {
+      title: "Achat en cours",
+      icon: Sparkles,
+      body: (
+        <span className="block">
+          Vous n'êtes pas encore propriétaire du logement : la simulation reste indicative. Une fois votre acquisition finalisée, nous pourrons lancer une étude concrète adaptée à votre toiture.
+        </span>
+      ),
+    },
+  };
+  return (
+    <div>
+      <StepTitle icon={Building} title="Vous êtes propriétaire du logement ?" />
+      <div className="grid sm:grid-cols-3 gap-3">
+        {OWNERSHIPS.map((o) => (
+          <ChoiceCard key={o.id} icon={o.id === "oui" ? Check : o.id === "non" ? Lock : Sparkles} title={o.label} description={o.desc} selected={sim.ownership === o.id} onClick={() => handleOwnershipSelect(o.id)} />
+        ))}
+      </div>
+      {sim.ownership && (
+        <InfoBanner>
+          {sim.ownership === "oui" && "Parfait. Les propriétaires peuvent généralement avancer plus rapidement sur une étude solaire et vérifier leur éligibilité."}
+          {sim.ownership === "non" && "Vous pouvez continuer la simulation. Une installation nécessitera probablement l'accord du propriétaire."}
+          {sim.ownership === "achat" && "Très bien. Cette simulation peut vous aider à anticiper le potentiel solaire du logement."}
+        </InfoBanner>
+      )}
+      <Dialog open={showOwnerDisclaimer} onOpenChange={setShowOwnerDisclaimer}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mx-auto mb-3 w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center">
+              {(() => {
+                const Icon = ownerContext ? disclaimerConfig[ownerContext].icon : Info;
+                return <Icon className="w-8 h-8 text-amber-600" strokeWidth={2.5} />;
+              })()}
+            </div>
+            <DialogTitle className="text-center text-lg">{ownerContext ? disclaimerConfig[ownerContext].title : ""}</DialogTitle>
+            <DialogDescription className="text-center pt-2 space-y-2 text-slate-600">{ownerContext ? disclaimerConfig[ownerContext].body : null}</DialogDescription>
+          </DialogHeader>
+          <Button onClick={() => setShowOwnerDisclaimer(false)} className="w-full h-11 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold">
+            Continuer la simulation
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
-    {sim.ownership && (
-      <InfoBanner>
-        {sim.ownership === "oui" && "Parfait. Les propriétaires peuvent généralement avancer plus rapidement sur une étude solaire et vérifier leur éligibilité."}
-        {sim.ownership === "non" && "Vous pouvez continuer la simulation. Une installation nécessitera probablement l'accord du propriétaire."}
-        {sim.ownership === "achat" && "Très bien. Cette simulation peut vous aider à anticiper le potentiel solaire du logement."}
-      </InfoBanner>
-    )}
-  </div>
-);
+  );
+};
 
 const Step4Orientation = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
   <div>
