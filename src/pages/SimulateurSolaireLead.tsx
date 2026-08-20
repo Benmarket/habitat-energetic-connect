@@ -518,6 +518,8 @@ export default function SimulateurSolaireLead() {
   const dispCo2 = scenario?.co2KgAn ?? co2;
   /** Nouvelle facture mensuelle estimée après autoconsommation (dynamique selon le scénario). */
   const dNouvelleFacture = scenario?.nouvelleFactureMensuelle ?? engine?.nouvelleFactureMensuelle ?? 0;
+  /** Coût d'installation du scénario affiché (parent scope, pour les aperçus). */
+  const dCost = scenario?.cout ?? installCost;
 
   /** Libellé de la tuile « Aides » — jamais « 0 € » brut en métropole. */
   const aidesTileLabel = dispAides > 0
@@ -704,6 +706,9 @@ export default function SimulateurSolaireLead() {
                             ))}
                           </div>
                           <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Facture estimée après autoconsommation — varie selon votre consommation réelle.</p>
+                          <p className="mt-1 text-[9px] text-slate-900/55 leading-tight">
+                            Base : {engine?.territoire}{sim.city ? ` · ${sim.city}` : ""} · facture {annualBill.toLocaleString("fr-FR")} €/an · {engine?.puissanceKwc ?? suggest.kwc} kWc ({engine?.nbPanneaux ?? suggest.panels} pan.) · {dCost.toLocaleString("fr-FR")} €
+                          </p>
                         </div>
 
                         <div className="p-4">
@@ -861,6 +866,9 @@ export default function SimulateurSolaireLead() {
                   </div>
                 </div>
                 <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Estimée après autoconsommation — varie selon votre consommation réelle.</p>
+                <p className="mt-2 text-[10px] text-slate-900/60 leading-tight">
+                  Base : {engine?.territoire}{sim.city ? ` · ${sim.city}` : ""} · facture {annualBill.toLocaleString("fr-FR")} €/an · {engine?.puissanceKwc ?? suggest.kwc} kWc ({engine?.nbPanneaux ?? suggest.panels} panneaux) · {dCost.toLocaleString("fr-FR")} €
+                </p>
 
                 <div className="mt-4 pt-5 border-t border-slate-900/15 flex items-center gap-2 text-[11px] font-semibold text-slate-900/75">
                   <Lock className="w-3.5 h-3.5" /> Détail complet côté droit →
