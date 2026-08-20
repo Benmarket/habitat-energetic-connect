@@ -36,8 +36,8 @@ export function simuler(input: Input) {
     return { statut: "CONTACT" as const, raison: "puissance_hors_catalogue" as const, conso };
 
   // ── ÉTAPES 3 à 6 · les deux scénarios ──────────────────────────────────────
-  const sans = scenario(t, conso, kwc, false);
-  const avec = scenario(t, conso, kwc, true);
+  const sans = scenario(t, conso, kwc, false, abo);
+  const avec = scenario(t, conso, kwc, true, abo);
 
   const surcout = avec.cout - sans.cout;
   const gainAnnuel = Math.round(avec.economiesAn - sans.economiesAn);
@@ -65,7 +65,7 @@ export function simuler(input: Input) {
   };
 }
 
-function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean) {
+function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: number) {
   const seg: Seg = kwc <= 3 ? "p0_3" : "p3_9";
   const productionAn1 = kwc * t.productible; // le productible PVGIS inclut déjà 14 % de pertes
 
@@ -109,6 +109,7 @@ function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean) {
     autoconsommee: Math.round(r1.autoconsommee),
     surplus: Math.round(r1.surplus),
     tauxAutoconsoPct: Math.round(r1.taux * 100),
+    nouvelleFactureMensuelle: Math.round(((conso - r1.autoconsommee) * t.prixKwh + abo) / 12),
   };
 }
 

@@ -25,7 +25,7 @@ import {
   Compass, Snowflake, Flame, Thermometer, Waves, Car, Plug, HelpCircle, Ruler,
   Loader2, Lock, Sparkles, ShieldCheck, Clock, Zap, TrendingUp, Star, Award, Leaf, X,
   Users, CalendarClock, FileText, BatteryCharging, Trees, Coins, LineChart, PiggyBank, Info,
-  Phone, Mail, ClipboardCheck, Wrench, Rocket, TrendingDown,
+  Phone, Mail, ClipboardCheck, Wrench, Rocket, TrendingDown, Receipt,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
@@ -480,6 +480,8 @@ export default function SimulateurSolaireLead() {
   const dispAides = scenario?.AIDES ?? aidesMin;
   const dispRoi = scenario?.rentabiliteAns ?? roi;
   const dispCo2 = scenario?.co2KgAn ?? co2;
+  /** Nouvelle facture mensuelle estimée après autoconsommation (dynamique selon le scénario). */
+  const dNouvelleFacture = scenario?.nouvelleFactureMensuelle ?? engine?.nouvelleFactureMensuelle ?? 0;
 
   /** Libellé de la tuile « Aides » — jamais « 0 € » brut en métropole. */
   const aidesTileLabel = dispAides > 0
@@ -654,6 +656,8 @@ export default function SimulateurSolaireLead() {
                             {[
                               { icon: PiggyBank, label: `~${dispSavings25.toLocaleString("fr-FR")} € / 25 ans` },
                               { icon: Coins, label: aidesTileLabel },
+                              { icon: Zap, label: `${suggest.kwc} kWc préconisés` },
+                              { icon: Receipt, label: `Facture ≈ ${dNouvelleFacture.toLocaleString("fr-FR")} €/mois*` },
                               { icon: LineChart, label: dispRoi ? `Rentabilité ~${dispRoi} ans` : "Rentabilité à l'étude" },
                               { icon: Leaf, label: `${dispCo2.toLocaleString("fr-FR")} kg CO₂ / an` },
                             ].map((item, i) => (
@@ -663,6 +667,7 @@ export default function SimulateurSolaireLead() {
                               </div>
                             ))}
                           </div>
+                          <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Facture estimée après autoconsommation — varie selon votre consommation réelle.</p>
                         </div>
 
                         <div className="p-4">
@@ -1584,6 +1589,7 @@ const ResultsPanel = ({
   const dRoi = scenario?.rentabiliteAns ?? roi;
   const dCo2 = scenario?.co2KgAn ?? co2;
   const dCost = scenario?.cout ?? installCost;
+  const dNouvelleFacture = scenario?.nouvelleFactureMensuelle ?? engine?.nouvelleFactureMensuelle ?? 0;
 
   const displayedYearly = showBattery ? savingsWithBattery : savingsMid;
   const displayedYearlyCounted = useCountUp(displayedYearly);
@@ -1664,6 +1670,11 @@ const ResultsPanel = ({
                 Estimation personnalisée pour {engine.territoire}{sim.city ? ` — ${sim.city}` : ""} · facture actuelle {annualBill.toLocaleString("fr-FR")} €/an · installation {engine.puissanceKwc} kWc ({engine.nbPanneaux} panneaux) · {dCost.toLocaleString("fr-FR")} €
                 {canToggleBattery && <span className="ml-2 inline-flex items-center gap-1 text-xs bg-slate-900/20 backdrop-blur px-2 py-0.5 rounded-full font-bold"><BatteryCharging className="w-3 h-3" /> {showBattery ? "Avec batterie" : "Sans batterie"}</span>}
               </p>
+              <p className="text-xs text-slate-900/80 mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-semibold">
+                <span className="inline-flex items-center gap-1"><Zap className="w-3.5 h-3.5 text-amber-600" /> Puissance préconisée : {suggest.kwc} kWc</span>
+                <span className="inline-flex items-center gap-1"><Receipt className="w-3.5 h-3.5 text-emerald-700" /> Nouvelle facture ≈ {dNouvelleFacture.toLocaleString("fr-FR")} €/mois*</span>
+              </p>
+              <p className="text-[10px] text-slate-900/55 mt-1 italic">* Facture estimée après autoconsommation solaire — varie selon votre consommation réelle et le tarif en vigueur.</p>
             </>
           ) : (
             <>
@@ -1714,11 +1725,30 @@ const ResultsPanel = ({
         <div className={`transition-all duration-500 ${!unlocked ? "blur-md select-none pointer-events-none" : "blur-0"}`} aria-hidden={!unlocked}>
           {/* Chiffres clés en grille */}
           {canToggleBattery && (
-            <div className="mb-4 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600">
-              <BatteryCharging className="w-4 h-4 text-orange-500" />
-              Scénario affiché : {showBattery ? "avec batterie" : "sans batterie"}
+            <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-bold uppercase tracking-wider text-slate-600">
+              <span className="inline-flex items-center gap-2">
+                <BatteryCharging className="w-4 h-4 text-orange-500" />
+                Scénario affiché : {showBattery ? "avec batterie" : "sans batterie"}
+              </span>
+              <span className="inline-flex items-center gap-1 normal-case tracking-normal text-slate-700">
+                <Zap className="w-3.5 h-3.5 text-amber-500" /> Puissance préconisée : {suggest.kwc} kWc
+              </span>
+              <span className="inline-flex items-center gap-1 normal-case tracking-normal text-slate-700">
+                <Receipt className="w-3.5 h-3.5 text-emerald-600" /> Nouvelle facture ≈ {dNouvelleFacture.toLocaleString("fr-FR")} €/mois*
+              </span>
             </div>
           )}
+          {!canToggleBattery && engine && (
+            <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-bold uppercase tracking-wider text-slate-600">
+              <span className="inline-flex items-center gap-1 normal-case tracking-normal text-slate-700">
+                <Zap className="w-3.5 h-3.5 text-amber-500" /> Puissance préconisée : {suggest.kwc} kWc
+              </span>
+              <span className="inline-flex items-center gap-1 normal-case tracking-normal text-slate-700">
+                <Receipt className="w-3.5 h-3.5 text-emerald-600" /> Nouvelle facture ≈ {dNouvelleFacture.toLocaleString("fr-FR")} €/mois*
+              </span>
+            </div>
+          )}
+          <p className="mb-4 text-[10px] text-slate-400 italic">* Nouvelle facture estimée après autoconsommation solaire — varie selon votre consommation réelle et le tarif en vigueur.</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
             <StatCard icon={PiggyBank} label="Sur 25 ans" value={`~${dSavings25.toLocaleString("fr-FR")} €`} accent="from-emerald-100 to-emerald-50" iconColor="text-emerald-700" />
             <StatCard icon={Zap} label="Installation" value={suggest.kwc > 0 ? `${suggest.kwc} kWc${showBattery ? " + batterie" : ""}` : "—"} sub={suggest.panels > 0 ? `~${suggest.panels} panneaux · ${dCost.toLocaleString("fr-FR")} €` : undefined} accent="from-amber-100 to-orange-50" iconColor="text-orange-600" />
