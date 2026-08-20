@@ -6,6 +6,7 @@ import { OrbitControls, useGLTF, Stage } from "@react-three/drei";
 import roofTuilesAsset from "@/assets/roof-tuiles.glb.asset.json";
 import roofArdoisesAsset from "@/assets/roof-ardoises.glb.asset.json";
 import roofBacAcierAsset from "@/assets/roof-bac-acier.glb.asset.json";
+import roofToleAsset from "@/assets/roof-tole.glb.asset.json";
 import roofPlateAsset from "@/assets/roof-plate.glb.asset.json";
 import { z } from "zod";
 import Header from "@/components/Header";
@@ -65,7 +66,7 @@ function regionDisplayName(id: string, label: string): string {
 type HousingType = "maison" | "appartement" | "pro";
 type Ownership = "oui" | "non" | "achat";
 type Orientation = "N" | "NE" | "E" | "SE" | "S" | "SO" | "O" | "NO" | "?";
-type RoofType = "tuiles" | "ardoise" | "bac-acier" | "toit-plat" | "?" | "";
+type RoofType = "tuiles" | "ardoise" | "bac-acier" | "tole" | "toit-plat" | "?" | "";
 type ProjectHorizon = "3m" | "6m" | "1a" | "info" | "";
 type YesNo = "oui" | "non" | "";
 type BatteryInterest = "oui" | "non" | "peut-etre" | "";
@@ -140,7 +141,8 @@ function bestOrientation(regionId?: string): Exclude<Orientation, "?"> {
 const ROOF_TYPES: { id: Exclude<RoofType, "">; label: string; desc: string }[] = [
   { id: "tuiles", label: "Tuiles", desc: "Cas le plus courant" },
   { id: "ardoise", label: "Ardoise", desc: "Toit plus délicat mais faisable" },
-  { id: "bac-acier", label: "Toiture en tôle", desc: "Idéal pour la pose" },
+  { id: "bac-acier", label: "Bac acier", desc: "Idéal pour la pose" },
+  { id: "tole", label: "Toiture en tôle", desc: "Tôle ondulée, pose adaptée" },
   { id: "toit-plat", label: "Toit plat / terrasse", desc: "Pose sur bacs lestés" },
   { id: "?", label: "Je ne sais pas", desc: "On vérifiera à l'étude" },
 ];
@@ -1373,14 +1375,26 @@ const Step4Orientation = ({ sim, setSim, region }: { sim: Sim; setSim: any; regi
         <h3 className="font-semibold text-slate-900">Type de toiture</h3>
         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">Facultatif</span>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-        {ROOF_TYPES.map((r) => (
-          <button key={r.id} type="button" onClick={() => setSim({ ...sim, roofType: sim.roofType === r.id ? "" : r.id })}
-            className={`p-3 rounded-xl border-2 text-left transition-all ${sim.roofType === r.id ? "border-orange-500 bg-gradient-to-br from-amber-50 to-orange-50 shadow-md" : "border-slate-200 bg-white hover:border-amber-400"}`}>
-            <p className="text-sm font-bold text-slate-900">{r.label}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">{r.desc}</p>
-          </button>
-        ))}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+        {ROOF_TYPES.map((r) => {
+          const selected = sim.roofType === r.id;
+          const unknown = r.id === "?";
+          return (
+            <button key={r.id} type="button" onClick={() => setSim({ ...sim, roofType: selected ? "" : r.id })}
+              className={`p-3 rounded-xl border-2 text-left transition-all ${
+                selected
+                  ? unknown
+                    ? "border-sky-500 bg-gradient-to-br from-sky-50 to-blue-50 shadow-md"
+                    : "border-orange-500 bg-gradient-to-br from-amber-50 to-orange-50 shadow-md"
+                  : unknown
+                  ? "border-sky-200 bg-sky-50/60 hover:border-sky-400"
+                  : "border-slate-200 bg-white hover:border-amber-400"
+              }`}>
+              <p className={`text-sm font-bold ${unknown ? "text-sky-700" : "text-slate-900"}`}>{r.label}</p>
+              <p className={`text-[11px] mt-0.5 ${unknown ? "text-sky-600/80" : "text-slate-500"}`}>{r.desc}</p>
+            </button>
+          );
+        })}
       </div>
 
       {/* Aperçu 3D */}
@@ -1403,6 +1417,7 @@ const ROOF_MODELS: Record<string, string | undefined> = {
   "tuiles": roofTuilesAsset.url,
   "ardoise": roofArdoisesAsset.url,
   "bac-acier": roofBacAcierAsset.url,
+  "tole": roofToleAsset.url,
   "toit-plat": roofPlateAsset.url,
   "?": undefined,
   "": undefined,
