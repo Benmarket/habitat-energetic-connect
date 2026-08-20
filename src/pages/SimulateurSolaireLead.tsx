@@ -1417,6 +1417,7 @@ const ROOF_MODELS: Record<string, string | undefined> = {
   "tuiles": roofTuilesAsset.url,
   "ardoise": roofArdoisesAsset.url,
   "bac-acier": roofBacAcierAsset.url,
+  "tole": roofToleAsset.url,
   "toit-plat": roofPlateAsset.url,
   "?": undefined,
   "": undefined,
