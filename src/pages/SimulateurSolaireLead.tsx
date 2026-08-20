@@ -65,7 +65,7 @@ function regionDisplayName(id: string, label: string): string {
 type HousingType = "maison" | "appartement" | "pro";
 type Ownership = "oui" | "non" | "achat";
 type Orientation = "N" | "NE" | "E" | "SE" | "S" | "SO" | "O" | "NO" | "?";
-type RoofType = "tuiles" | "ardoise" | "bac-acier" | "toit-plat" | "?" | "";
+type RoofType = "tuiles" | "ardoise" | "bac-acier" | "tole" | "toit-plat" | "?" | "";
 type ProjectHorizon = "3m" | "6m" | "1a" | "info" | "";
 type YesNo = "oui" | "non" | "";
 type BatteryInterest = "oui" | "non" | "peut-etre" | "";
