@@ -145,6 +145,8 @@ function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: num
 
   let cumul = 0;
   let cumulRevente = 0;
+  let cumulAutoconso = 0;
+  let cumulImpot = 0;
   let roi: number | null = null;
   for (let n = 1; n <= HYP.horizonAns; n++) {
     const prod = productionAn1 * Math.pow(1 - HYP.degradation, n - 1);
@@ -156,11 +158,17 @@ function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: num
         ? r.surplusTarifPlein * tarifAnnee + r.surplusTarifReduit * HYP.tarifSurplusReduit
         : 0;
     cumulRevente += revente;
-    const gain = r.autoconsommee * prixElec + revente - impotRevente(revente, kwc, t.refactionIR);
+    const impot = impotRevente(revente, kwc, t.refactionIR);
+    cumulImpot += impot;
+    const autoconso = r.autoconsommee * prixElec;
+    cumulAutoconso += autoconso;
+    const gain = autoconso + revente - impot;
     const avant = cumul;
     cumul += gain;
     if (roi === null && cumul >= resteACharge) roi = n - 1 + (resteACharge - avant) / gain;
   }
+
+  const tauxPct = Math.round(r1.taux * 100);
 
   return {
     cout,
@@ -168,13 +176,19 @@ function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: num
     resteACharge,
     economiesAn: Math.round(economiesAn),
     economies25ans: Math.round(cumul),
+    gains25ans: Math.round(cumul),
     gainNet25ans: Math.round(cumul - resteACharge),
+    factureEvitee25ans: Math.round(cumulAutoconso),
+    reventeNette25ans: Math.round(cumulRevente - cumulImpot),
     rentabiliteAns: roi ? Math.round(roi * 10) / 10 : null,
     co2KgAn: Math.round(productionAn1 * t.co2),
     productionAnnuelleKwh: Math.round(productionAn1),
     autoconsommee: Math.round(r1.autoconsommee),
     surplus: Math.round(r1.surplus),
-    tauxAutoconsoPct: Math.round(r1.taux * 100),
+    tauxAutoconsoPct: tauxPct,
+    partAutoconsommeePct: tauxPct,
+    partRevenduePct: 100 - tauxPct,
+    couvertureBesoinsPct: Math.round((r1.autoconsommee / conso) * 100),
     nouvelleFactureMensuelle: Math.round(((conso - r1.autoconsommee) * t.prixKwh + abo) / 12),
     // Détail affiché sous chaque scénario
     economieAutoconso: Math.round(economieAutoconso),
