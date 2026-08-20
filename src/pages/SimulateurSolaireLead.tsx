@@ -718,10 +718,10 @@ export default function SimulateurSolaireLead() {
 
                 <div className="mt-6 space-y-2.5">
                   {[
-                    { icon: PiggyBank, label: `~${savings25.toLocaleString("fr-FR") || "27 000"} € sur 25 ans` },
-                    { icon: Coins, label: `Aides ~${aidesMin.toLocaleString("fr-FR") || "1 200"} €` },
-                    { icon: LineChart, label: `Rentabilité ~${roi} ans` },
-                    { icon: Leaf, label: `${co2 || 700} kg CO₂ évités / an` },
+                    { icon: PiggyBank, label: `~${savings25.toLocaleString("fr-FR")} € sur 25 ans` },
+                    { icon: Coins, label: aidesTileLabel },
+                    { icon: LineChart, label: roi ? `Rentabilité ~${roi} ans` : "Rentabilité à l'étude" },
+                    { icon: Leaf, label: `${co2.toLocaleString("fr-FR")} kg CO₂ évités / an` },
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-2.5 text-sm text-slate-900/90 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2">
                       <item.icon className="w-4 h-4 shrink-0" />
