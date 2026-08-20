@@ -32,6 +32,8 @@ import {
   ResponsiveContainer, Legend, Cell,
 } from "recharts";
 import solarSimBg from "@/assets/simulators/solar-simulator-bg.jpg";
+import { simuler } from "@/lib/solar-engine";
+import { territoireFromPostal } from "@/lib/solar-data";
 import regionFrance from "@/assets/regions/france.png";
 import regionCorse from "@/assets/regions/corse.png";
 import regionGuyane from "@/assets/regions/guyane.png";
@@ -158,16 +160,6 @@ function detectRegion(postal: string): { id: string; label: string; sun: string;
   }
   return { id: "unknown", label: "Zone non détectée", sun: "à évaluer selon la localisation", island: false };
 
-}
-
-function suggestedKwc(monthly: number): { kwc: number; panels: number; label: string } {
-  const annual = monthly * 12;
-  // Approximation : 1 kWc ≈ 1100 kWh/an en métropole ; on vise ~70% de la conso annuelle
-  const kwh = annual / 0.22; // conso estimée à partir de la facture (0.22€/kWh moyen)
-  const kwc = Math.max(3, Math.min(12, Math.round((kwh * 0.7) / 1100)));
-  const panels = kwc * 2; // ~500Wc par panneau
-  const label = kwc <= 3 ? "3 kWc" : kwc <= 6 ? `${kwc} kWc` : `${kwc} kWc`;
-  return { kwc, panels, label };
 }
 
 function orientationFeedback(o: Orientation): string {
@@ -338,35 +330,40 @@ export default function SimulateurSolaireLead() {
   const [nameErrors, setNameErrors] = useState<Record<string, string>>({});
   const [leadId, setLeadId] = useState<string | null>(null);
 
-  // ---------- Calculs "alléchants" (indicatifs) ----------
+  // ---------- Moteur de calcul (src/lib/solar-engine.ts — source de vérité unique) ----------
   const annualBill = typeof sim.monthlyBill === "number" ? sim.monthlyBill * 12 : 0;
-  const suggest = typeof sim.monthlyBill === "number" && sim.monthlyBill > 0 ? suggestedKwc(sim.monthlyBill) : { kwc: 0, panels: 0, label: "—" };
 
-  // Facteur région (bonus ensoleillement)
-  const sunFactor = region.id === "fr-sud" ? 1.15 : region.id === "corse" || region.id.match(/reunion|guadeloupe|martinique|mayotte/) ? 1.25 : region.id === "fr-nord" ? 0.85 : region.id === "fr-so" ? 1.05 : 1;
-  // Facteur orientation
-  const orientPerf = (ORIENTATIONS.find((o) => o.id === sim.orientation)?.perf ?? 85) / 100;
+  const engine = useMemo(() => {
+    const territoireId = territoireFromPostal(sim.postalCode);
+    if (!territoireId || typeof sim.monthlyBill !== "number" || sim.monthlyBill <= 0) return null;
+    try {
+      const r = simuler({ territoireId, factureMensuelleTTC: sim.monthlyBill });
+      return r.statut === "OK" ? r : null;
+    } catch {
+      return null;
+    }
+  }, [sim.postalCode, sim.monthlyBill]);
 
-  // Économies annuelles estimées (autoconsommation + revente surplus)
-  const savingsMid = Math.round(annualBill * 0.50 * sunFactor * orientPerf);
-  const savingsMin = Math.round(savingsMid * 0.85);
-  const savingsMax = Math.round(savingsMid * 1.15);
-  // Sur 25 ans (dégradation panneaux ~0.5%/an + inflation élec compensée)
-  const savings25 = Math.round(savingsMid * 22);
-  // Aides estimées (prime autoconsommation + TVA réduite)
-  const aidesMin = suggest.kwc * 220;
-  const aidesMax = suggest.kwc * 380;
-  // ROI (retour sur investissement en années)
-  const installCost = suggest.kwc * 2400;
-  const roi = savingsMid > 0 ? Math.max(5, Math.min(12, +(installCost / (savingsMid + aidesMin / 25)).toFixed(1))) : 8;
-  // CO2 évité (kg/an, 55g CO2/kWh évité solaire vs mix FR)
-  const co2 = Math.round(suggest.kwc * 1100 * 0.055);
+  const suggest = engine
+    ? { kwc: engine.puissanceKwc, panels: engine.nbPanneaux, label: `${engine.puissanceKwc} kWc` }
+    : { kwc: 0, panels: 0, label: "—" };
+
+  // Scénario par défaut affiché : SANS batterie
+  const savingsMid = engine?.sans.economiesAn ?? 0;
+  const savingsMin = Math.round(savingsMid * 0.9);
+  const savingsMax = Math.round(savingsMid * 1.1);
+  const savings25 = engine?.sans.economies25ans ?? 0;
+  const aidesMin = engine?.sans.AIDES ?? 0;
+  const aidesMax = engine?.sans.AIDES ?? 0;
+  const installCost = engine?.sans.cout ?? 0;
+  const roi = engine?.sans.rentabiliteAns ?? null;
+  const co2 = engine?.sans.co2KgAn ?? 0;
   const trees = Math.round(co2 / 25); // 1 arbre = ~25kg CO2/an
 
   // Scénario batterie
-  const batteryCost = 4500;
-  const savingsWithBattery = Math.round(savingsMid * 1.35); // meilleure autoconso
-  const roiWithBattery = savingsWithBattery > 0 ? +((installCost + batteryCost) / (savingsWithBattery + aidesMin / 25)).toFixed(1) : 10;
+  const batteryCost = engine?.batterie.surcout ?? 0;
+  const savingsWithBattery = engine?.avec.economiesAn ?? 0;
+  const roiWithBattery = engine?.avec.rentabiliteAns ?? null;
 
   const submitLead = async () => {
     const parsed = leadSchema.safeParse(lead);
@@ -466,8 +463,13 @@ export default function SimulateurSolaireLead() {
     sim, region, annualBill, savingsMin, savingsMax, savingsMid, savings25,
     aidesMin, aidesMax, roi, co2, trees, suggest, installCost,
     showBattery, setShowBattery, savingsWithBattery, batteryCost, roiWithBattery,
-    unlocked,
+    unlocked, engine,
   };
+
+  /** Libellé de la tuile « Aides » — jamais « 0 € » brut en métropole. */
+  const aidesTileLabel = engine && engine.sans.AIDES > 0
+    ? `Aides ~${engine.sans.AIDES.toLocaleString("fr-FR")} €`
+    : "Prime d'État supprimée en juin 2026";
 
   return (
     <>
@@ -598,10 +600,10 @@ export default function SimulateurSolaireLead() {
                           </div>
                           <div className="mt-2.5 grid grid-cols-2 gap-1.5">
                             {[
-                              { icon: PiggyBank, label: `~${(savings25 || 27000).toLocaleString("fr-FR")} € / 25 ans` },
-                              { icon: Coins, label: `Aides ~${(aidesMin || 1200).toLocaleString("fr-FR")} €` },
-                              { icon: LineChart, label: `Rentabilité ~${roi} ans` },
-                              { icon: Leaf, label: `${co2 || 700} kg CO₂ / an` },
+                              { icon: PiggyBank, label: `~${savings25.toLocaleString("fr-FR")} € / 25 ans` },
+                              { icon: Coins, label: aidesTileLabel },
+                              { icon: LineChart, label: roi ? `Rentabilité ~${roi} ans` : "Rentabilité à l'étude" },
+                              { icon: Leaf, label: `${co2.toLocaleString("fr-FR")} kg CO₂ / an` },
                             ].map((item, i) => (
                               <div key={i} className="flex items-center gap-1.5 text-[11px] text-slate-900/90 bg-white/30 rounded-md px-2 py-1">
                                 <item.icon className="w-3 h-3 shrink-0" />
@@ -706,10 +708,10 @@ export default function SimulateurSolaireLead() {
 
                 <div className="mt-6 space-y-2.5">
                   {[
-                    { icon: PiggyBank, label: `~${savings25.toLocaleString("fr-FR") || "27 000"} € sur 25 ans` },
-                    { icon: Coins, label: `Aides ~${aidesMin.toLocaleString("fr-FR") || "1 200"} €` },
-                    { icon: LineChart, label: `Rentabilité ~${roi} ans` },
-                    { icon: Leaf, label: `${co2 || 700} kg CO₂ évités / an` },
+                    { icon: PiggyBank, label: `~${savings25.toLocaleString("fr-FR")} € sur 25 ans` },
+                    { icon: Coins, label: aidesTileLabel },
+                    { icon: LineChart, label: roi ? `Rentabilité ~${roi} ans` : "Rentabilité à l'étude" },
+                    { icon: Leaf, label: `${co2.toLocaleString("fr-FR")} kg CO₂ évités / an` },
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-2.5 text-sm text-slate-900/90 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2">
                       <item.icon className="w-4 h-4 shrink-0" />
@@ -1473,7 +1475,7 @@ const ResultsPanel = ({
   sim, region, annualBill, savingsMin, savingsMax, savingsMid, savings25,
   aidesMin, aidesMax, roi, co2, trees, suggest, installCost,
   showBattery, setShowBattery, savingsWithBattery, batteryCost, roiWithBattery,
-  unlocked, onUnlockClick, onEdit, hideMobileSticky,
+  unlocked, engine, onUnlockClick, onEdit, hideMobileSticky,
 }: any) => {
   const housingLabel = HOUSING.find((h) => h.id === sim.housing)?.label || "—";
   const surfaceLabel = typeof sim.surface === "number" ? `${sim.surface} m²` : "—";
@@ -1487,7 +1489,7 @@ const ResultsPanel = ({
   const yearlySavings = showBattery ? savingsWithBattery : savingsMid;
   const totalInvest = installCost + (showBattery ? batteryCost : 0);
   const aidesTotal = Math.round((aidesMin + aidesMax) / 2);
-  const inflation = 0.04; // +4%/an prix élec
+  const inflation = 0.03; // +3%/an prix élec (hypothèse du moteur, cf. solar-data.ts)
   const degradation = 0.005; // -0.5%/an rendement
   const buckets = [
     { label: "1-5 ans", from: 1, to: 5 },
@@ -1529,18 +1531,29 @@ const ResultsPanel = ({
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/15 backdrop-blur text-xs font-bold mb-4 uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" /> Votre potentiel solaire
           </div>
-          <p className="text-sm md:text-base font-semibold text-slate-900/80">Vous pourriez économiser jusqu'à</p>
-          <div className="flex items-baseline gap-3 mt-2 flex-wrap">
-            <span className="text-6xl md:text-8xl font-black tabular-nums leading-none tracking-tight drop-shadow-sm">
-              {displayedYearlyCounted.toLocaleString("fr-FR")}
-            </span>
-            <span className="text-3xl md:text-4xl font-black">€</span>
-            <span className="text-lg md:text-xl font-bold text-slate-900/80">/ an</span>
-          </div>
-          <p className="text-sm text-slate-900/75 mt-3 max-w-xl">
-            Estimation personnalisée pour {region.label}{sim.city ? ` — ${sim.city}` : ""} · facture actuelle {annualBill.toLocaleString("fr-FR")} €/an
-            {showBattery && <span className="ml-2 inline-flex items-center gap-1 text-xs bg-slate-900/20 backdrop-blur px-2 py-0.5 rounded-full font-bold"><BatteryCharging className="w-3 h-3" /> Avec batterie</span>}
-          </p>
+          {engine ? (
+            <>
+              <p className="text-sm md:text-base font-semibold text-slate-900/80">Vous pourriez économiser jusqu'à</p>
+              <div className="flex items-baseline gap-3 mt-2 flex-wrap">
+                <span className="text-6xl md:text-8xl font-black tabular-nums leading-none tracking-tight drop-shadow-sm">
+                  {displayedYearlyCounted.toLocaleString("fr-FR")}
+                </span>
+                <span className="text-3xl md:text-4xl font-black">€</span>
+                <span className="text-lg md:text-xl font-bold text-slate-900/80">/ an</span>
+              </div>
+              <p className="text-sm text-slate-900/75 mt-3 max-w-xl">
+                Estimation personnalisée pour {engine.territoire}{sim.city ? ` — ${sim.city}` : ""} · facture actuelle {annualBill.toLocaleString("fr-FR")} €/an · installation {engine.puissanceKwc} kWc ({engine.nbPanneaux} panneaux)
+                {showBattery && <span className="ml-2 inline-flex items-center gap-1 text-xs bg-slate-900/20 backdrop-blur px-2 py-0.5 rounded-full font-bold"><BatteryCharging className="w-3 h-3" /> Avec batterie</span>}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-2xl md:text-4xl font-black leading-tight mt-2 max-w-xl">Votre profil nécessite une étude personnalisée</p>
+              <p className="text-sm text-slate-900/75 mt-3 max-w-xl">
+                Votre consommation sort de nos configurations standard : un conseiller calcule votre potentiel exact gratuitement.
+              </p>
+            </>
+          )}
 
           {sim.batteryInterest && sim.batteryInterest !== "non" && (
             <div className="mt-5 inline-flex items-center gap-1 p-1 rounded-full bg-slate-900/15 backdrop-blur">
@@ -1554,12 +1567,13 @@ const ResultsPanel = ({
           )}
 
           {/* 4 chiffres clés — visibles desktop + mobile, avant le déverrouillage */}
+          {engine && (
           <div className="mt-5 grid grid-cols-2 gap-2 md:gap-2.5 max-w-xl">
             {[
-              { icon: PiggyBank, label: `~${(has25 ? savings25 : 27000).toLocaleString("fr-FR")} € sur 25 ans` },
-              { icon: Coins, label: `Aides ~${aidesMin.toLocaleString("fr-FR") || "1 200"} €` },
-              { icon: LineChart, label: `Rentabilité ~${showBattery ? roiWithBattery : roi} ans` },
-              { icon: Leaf, label: `${co2 || 700} kg CO₂ évités / an` },
+              { icon: PiggyBank, label: `~${savings25.toLocaleString("fr-FR")} € sur 25 ans` },
+              { icon: Coins, label: aidesMin > 0 ? `Aides ~${aidesMin.toLocaleString("fr-FR")} €` : "Prime d'État supprimée en juin 2026" },
+              { icon: LineChart, label: (showBattery ? roiWithBattery : roi) ? `Rentabilité ~${showBattery ? roiWithBattery : roi} ans` : "Rentabilité à l'étude" },
+              { icon: Leaf, label: `${co2.toLocaleString("fr-FR")} kg CO₂ évités / an` },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-2 text-xs md:text-sm text-slate-900/90 bg-white/30 backdrop-blur-sm rounded-lg px-2.5 py-1.5 md:px-3 md:py-2">
                 <item.icon className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
@@ -1567,6 +1581,7 @@ const ResultsPanel = ({
               </div>
             ))}
           </div>
+          )}
         </div>
       </div>
       {/* TEASER : cartes floutées si !unlocked */}
@@ -1580,14 +1595,18 @@ const ResultsPanel = ({
         <div className={`transition-all duration-500 ${!unlocked ? "blur-md select-none pointer-events-none" : "blur-0"}`} aria-hidden={!unlocked}>
           {/* Chiffres clés en grille */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
-            <StatCard icon={PiggyBank} label="Sur 25 ans" value={`~${(has25 ? savings25 : 27000).toLocaleString("fr-FR")} €`} accent="from-emerald-100 to-emerald-50" iconColor="text-emerald-700" />
-            <StatCard icon={Zap} label="Installation" value={suggest.kwc > 0 ? `${suggest.kwc} kWc` : "6 kWc"} sub={suggest.panels > 0 ? `~${suggest.panels} panneaux` : "~12 panneaux"} accent="from-amber-100 to-orange-50" iconColor="text-orange-600" />
-            <StatCard icon={Coins} label="Aides estimées" value={`${aidesMin.toLocaleString("fr-FR")}–${aidesMax.toLocaleString("fr-FR")} €`} accent="from-blue-100 to-blue-50" iconColor="text-blue-700" />
-            <StatCard icon={LineChart} label="Rentabilité" value={`~${showBattery ? roiWithBattery : roi} ans`} accent="from-purple-100 to-purple-50" iconColor="text-purple-700" />
+            <StatCard icon={PiggyBank} label="Sur 25 ans" value={`~${savings25.toLocaleString("fr-FR")} €`} accent="from-emerald-100 to-emerald-50" iconColor="text-emerald-700" />
+            <StatCard icon={Zap} label="Installation" value={suggest.kwc > 0 ? `${suggest.kwc} kWc` : "—"} sub={suggest.panels > 0 ? `~${suggest.panels} panneaux · ${installCost.toLocaleString("fr-FR")} €` : undefined} accent="from-amber-100 to-orange-50" iconColor="text-orange-600" />
+            {aidesMin > 0 ? (
+              <StatCard icon={Coins} label="Aides estimées" value={`${aidesMin.toLocaleString("fr-FR")} €`} sub="prime versée sur la puissance installée" accent="from-blue-100 to-blue-50" iconColor="text-blue-700" />
+            ) : (
+              <StatCard icon={Coins} label="Aides" value="Prime supprimée" sub="Prime d'État supprimée en juin 2026 — votre gain vient de l'autoconsommation" accent="from-blue-100 to-blue-50" iconColor="text-blue-700" />
+            )}
+            <StatCard icon={LineChart} label="Rentabilité" value={(showBattery ? roiWithBattery : roi) ? `~${showBattery ? roiWithBattery : roi} ans` : "À l'étude"} accent="from-purple-100 to-purple-50" iconColor="text-purple-700" />
           </div>
 
           {/* Comparaison batterie */}
-          {sim.batteryInterest && sim.batteryInterest !== "non" && (
+          {engine && sim.batteryInterest && sim.batteryInterest !== "non" && (
             <div className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white border border-amber-400/30 relative overflow-hidden">
               <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-amber-400/20 blur-3xl" aria-hidden />
               <div className="relative">
@@ -1599,14 +1618,27 @@ const ResultsPanel = ({
                   <div className={`p-4 rounded-xl border-2 transition-all ${!showBattery ? "border-amber-400 bg-white/10" : "border-white/10"}`}>
                     <p className="text-[11px] uppercase tracking-widest text-white/60 font-bold mb-1">Sans batterie</p>
                     <p className="text-2xl font-bold">{savingsMid.toLocaleString("fr-FR")} € / an</p>
-                    <p className="text-xs text-white/70 mt-1">ROI : {roi} ans · Investissement estimé : {(suggest.kwc * 2400).toLocaleString("fr-FR")} €</p>
+                    <p className="text-xs text-white/70 mt-1">Installation : {engine.sans.cout.toLocaleString("fr-FR")} €{roi ? ` · rentabilité ${roi} ans` : ""}</p>
                   </div>
                   <div className={`p-4 rounded-xl border-2 transition-all ${showBattery ? "border-amber-400 bg-white/10" : "border-white/10"}`}>
                     <p className="text-[11px] uppercase tracking-widest text-white/60 font-bold mb-1">Avec batterie</p>
                     <p className="text-2xl font-bold text-amber-300">{savingsWithBattery.toLocaleString("fr-FR")} € / an</p>
-                    <p className="text-xs text-white/70 mt-1">ROI : {roiWithBattery} ans · Investissement : {(suggest.kwc * 2400 + batteryCost).toLocaleString("fr-FR")} € · <span className="text-amber-300">+ backup anti-coupure</span></p>
+                    <p className="text-xs text-white/70 mt-1">Installation : {engine.avec.cout.toLocaleString("fr-FR")} € · <span className="text-amber-300">+ backup anti-coupure</span></p>
                   </div>
                 </div>
+
+                {/* Recommandation batterie — copy adaptée au territoire */}
+                <p className="mt-4 text-sm text-white/85 leading-relaxed">
+                  {engine.batterie.reco === "RENTABLE" && (
+                    <>Batterie : + {engine.batterie.surcout.toLocaleString("fr-FR")} €, mais + {engine.batterie.gainAnnuel.toLocaleString("fr-FR")} €/an d'économies supplémentaires{engine.batterie.paybackBatterie ? <> — remboursée en {engine.batterie.paybackBatterie} ans</> : null}.</>
+                  )}
+                  {engine.batterie.reco === "CONFORT" && (
+                    <>Batterie : + {engine.batterie.surcout.toLocaleString("fr-FR")} € — vous gardez l'électricité en cas de coupure.{engine.batterie.adoption ? <> {Math.round(engine.batterie.adoption * 100)} % de nos clients {engine.territoire} la choisissent.</> : null}</>
+                  )}
+                  {engine.batterie.reco === "OPTIONNELLE" && (
+                    <>Batterie disponible en option : + {engine.batterie.surcout.toLocaleString("fr-FR")} €. Utile si vous subissez des coupures régulières.</>
+                  )}
+                </p>
               </div>
             </div>
           )}
@@ -1724,9 +1756,24 @@ const ResultsPanel = ({
           <section className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-50/40 border border-blue-200">
             <h3 className="text-xs font-bold text-blue-700 uppercase tracking-widest mb-2">Aides & financement</h3>
             <p className="text-slate-700 text-sm">
-              Prime à l'autoconsommation, TVA réduite, éco-prêt à taux zéro… Votre région peut donner accès à certaines aides sous réserve d'éligibilité. Un conseiller vérifie tout gratuitement.
+              {aidesMin > 0
+                ? `Prime à l'investissement estimée à ${aidesMin.toLocaleString("fr-FR")} € pour une installation de ${suggest.kwc} kWc${engine ? ` en ${engine.territoire}` : ""}, à laquelle peuvent s'ajouter la TVA réduite et l'éco-prêt à taux zéro sous réserve d'éligibilité. Un conseiller vérifie tout gratuitement.`
+                : "La prime d'État à l'autoconsommation est supprimée depuis juin 2026 : votre gain provient de l'autoconsommation et de la revente du surplus. TVA réduite et éco-prêt à taux zéro restent possibles sous réserve d'éligibilité."}
             </p>
           </section>
+
+          {/* Alerte territoriale */}
+          {engine?.alerte && (
+            <div className="mb-8 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-2.5">
+              <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <p className="text-xs text-amber-900 leading-relaxed">{engine.alerte}</p>
+            </div>
+          )}
+
+          {/* Mention légale */}
+          <p className="mb-8 text-[11px] text-slate-500 leading-relaxed">
+            Estimation non contractuelle. Primes et tarifs de rachat : arrêté du 5 janvier 2024 (outre-mer), période du 1<sup>er</sup> mai au 31 juillet 2026, source CRE. Prix de l'électricité : tarif réglementé au 1<sup>er</sup> août 2026. Ensoleillement : PVGIS v5.3 (Commission européenne), ±5 %. Prix d'installation : tarif le plus fréquemment facturé sur nos ventes 2026. Hypothèses : inflation de l'électricité 3 %/an, dégradation des panneaux 0,5 %/an, contrat de rachat du surplus sur 20 ans.
+          </p>
 
           {/* Prochaines étapes */}
           <section className="mb-8">
