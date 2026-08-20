@@ -2216,10 +2216,26 @@ const ResultsPanel = ({
             </div>
           )}
 
+          {/* TVA outre-mer */}
+          {engine?.zone === "ZNI" && engine.territoireId !== "corse" && (
+            <div className="mb-4 p-4 rounded-xl bg-blue-50 border border-blue-200 flex items-start gap-2.5">
+              <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+              <p className="text-xs text-blue-900 leading-relaxed">
+                <strong>TVA : 0 % sur le matériel.</strong> Les panneaux photovoltaïques sont exonérés de TVA outre-mer (article 295 du CGI), et la TVA ne s'applique pas du tout en Guyane (article 294). Seule la prestation de pose est taxée. Sous conditions, voir votre devis.
+              </p>
+            </div>
+          )}
+
+          {/* Taxe foncière */}
+          <p className="mb-4 text-[11px] text-slate-600 leading-relaxed">
+            Une installation photovoltaïque n'augmente pas votre taxe foncière (article 1382, 12° du CGI).
+          </p>
+
           {/* Mention légale */}
           <p className="mb-8 text-[11px] text-slate-500 leading-relaxed">
-            Estimation non contractuelle. Primes et tarifs de rachat : arrêté du 5 janvier 2024 (outre-mer), période du 1<sup>er</sup> mai au 31 juillet 2026, source CRE. Prix de l'électricité : tarif réglementé au 1<sup>er</sup> août 2026. Ensoleillement : PVGIS v5.3 (Commission européenne), ±5 %. Prix d'installation : tarif le plus fréquemment facturé sur nos ventes 2026. Hypothèses : inflation de l'électricité 3 %/an, dégradation des panneaux 0,5 %/an, contrat de rachat du surplus sur 20 ans.
+            Estimation non contractuelle. Primes et tarifs de rachat : arrêté du 5 janvier 2024 (outre-mer), période T10, demande de raccordement déposée entre le 1<sup>er</sup> août et le 31 octobre 2026, source CRE. Prix de l'électricité : tarif réglementé au 1<sup>er</sup> août 2026. Ensoleillement : PVGIS v5.3 (Commission européenne), ±5 %. Prix d'installation : tarif le plus fréquemment facturé sur nos ventes 2026. Hypothèses : inflation de l'électricité 3 %/an, indexation du tarif de rachat 0,4 %/an, dégradation des panneaux 0,5 %/an, contrat de rachat du surplus sur 20 ans, revenus de revente imposés au micro-BIC au-delà de 3 kWc.
           </p>
+
 
           {/* Prochaines étapes */}
           <section className="mb-8">
