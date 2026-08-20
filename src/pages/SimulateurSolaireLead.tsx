@@ -481,7 +481,7 @@ export default function SimulateurSolaireLead() {
   const dispRoi = scenario?.rentabiliteAns ?? roi;
   const dispCo2 = scenario?.co2KgAn ?? co2;
   /** Nouvelle facture mensuelle estimée après autoconsommation (dynamique selon le scénario). */
-  const dispNouvelleFacture = scenario?.nouvelleFactureMensuelle ?? engine?.nouvelleFactureMensuelle ?? 0;
+  const dNouvelleFacture = scenario?.nouvelleFactureMensuelle ?? engine?.nouvelleFactureMensuelle ?? 0;
 
   /** Libellé de la tuile « Aides » — jamais « 0 € » brut en métropole. */
   const aidesTileLabel = dispAides > 0
@@ -1726,7 +1726,7 @@ const ResultsPanel = ({
                 <Zap className="w-3.5 h-3.5 text-amber-500" /> Puissance préconisée : {suggest.kwc} kWc
               </span>
               <span className="inline-flex items-center gap-1 normal-case tracking-normal text-slate-700">
-                <Receipt className="w-3.5 h-3.5 text-emerald-600" /> Nouvelle facture ≈ {dispNouvelleFacture.toLocaleString("fr-FR")} €/mois*
+                <Receipt className="w-3.5 h-3.5 text-emerald-600" /> Nouvelle facture ≈ {dNouvelleFacture.toLocaleString("fr-FR")} €/mois*
               </span>
             </div>
           )}
@@ -1736,7 +1736,7 @@ const ResultsPanel = ({
                 <Zap className="w-3.5 h-3.5 text-amber-500" /> Puissance préconisée : {suggest.kwc} kWc
               </span>
               <span className="inline-flex items-center gap-1 normal-case tracking-normal text-slate-700">
-                <Receipt className="w-3.5 h-3.5 text-emerald-600" /> Nouvelle facture ≈ {dispNouvelleFacture.toLocaleString("fr-FR")} €/mois*
+                <Receipt className="w-3.5 h-3.5 text-emerald-600" /> Nouvelle facture ≈ {dNouvelleFacture.toLocaleString("fr-FR")} €/mois*
               </span>
             </div>
           )}
