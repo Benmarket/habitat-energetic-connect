@@ -110,6 +110,33 @@ const ORIENTATIONS: { id: Orientation; label: string; perf: number }[] = [
   { id: "N", label: "Nord", perf: 60 },
 ];
 
+// Rendement relatif par orientation selon la latitude du territoire.
+// Hémisphère nord : le Sud est optimal. Hémisphère sud (La Réunion, Mayotte) : le Nord est optimal.
+// Zone quasi équatoriale (Guyane) : écarts très faibles entre orientations.
+type OrientationPerfMap = Record<Exclude<Orientation, "?">, number>;
+
+const PERF_NORTH_HEMI: OrientationPerfMap = { S: 100, SE: 97, SO: 97, E: 85, O: 85, NE: 72, NO: 72, N: 60 };
+const PERF_TROPICAL_NORTH: OrientationPerfMap = { S: 100, SE: 98, SO: 98, E: 93, O: 93, NE: 87, NO: 87, N: 82 };
+const PERF_EQUATORIAL: OrientationPerfMap = { S: 100, SE: 99, SO: 99, E: 97, O: 97, NE: 95, NO: 95, N: 94 };
+const PERF_SOUTH_HEMI: OrientationPerfMap = { N: 100, NE: 98, NO: 98, E: 92, O: 92, SE: 85, SO: 85, S: 78 };
+
+const REGION_ORIENTATION_PERF: Record<string, OrientationPerfMap> = {
+  reunion: PERF_SOUTH_HEMI,
+  mayotte: PERF_SOUTH_HEMI,
+  guyane: PERF_EQUATORIAL,
+  guadeloupe: PERF_TROPICAL_NORTH,
+  martinique: PERF_TROPICAL_NORTH,
+};
+
+function orientationPerfMap(regionId?: string): OrientationPerfMap {
+  return (regionId && REGION_ORIENTATION_PERF[regionId]) || PERF_NORTH_HEMI;
+}
+
+function bestOrientation(regionId?: string): Exclude<Orientation, "?"> {
+  const map = orientationPerfMap(regionId);
+  return (Object.keys(map) as Exclude<Orientation, "?">[]).reduce((a, b) => (map[b] > map[a] ? b : a));
+}
+
 const ROOF_TYPES: { id: Exclude<RoofType, "">; label: string; desc: string }[] = [
   { id: "tuiles", label: "Tuiles", desc: "Cas le plus courant" },
   { id: "ardoise", label: "Ardoise", desc: "Toit plus délicat mais faisable" },
@@ -168,13 +195,21 @@ function detectRegion(postal: string): { id: string; label: string; sun: string;
 
 }
 
-function orientationFeedback(o: Orientation): string {
-  if (o === "S" || o === "SE" || o === "SO")
-    return "Excellente orientation solaire. Cette exposition est souvent favorable pour produire davantage d'électricité dans la journée.";
-  if (o === "E" || o === "O")
-    return "Orientation intéressante. Une exposition Est ou Ouest peut rester pertinente, notamment pour répartir la production solaire sur la journée.";
+function orientationFeedback(o: Orientation, regionId?: string): string {
   if (o === "?") return "Pas de souci. L'orientation peut être vérifiée facilement lors de l'étude solaire.";
-  return "Une étude permet de confirmer le potentiel réel. Même si l'orientation semble moins favorable, certaines configurations restent exploitables.";
+  const map = orientationPerfMap(regionId);
+  const perf = map[o as Exclude<Orientation, "?">] ?? 0;
+  const best = bestOrientation(regionId);
+  const bestLabel = ORIENTATIONS.find((x) => x.id === best)?.label || "Sud";
+  const southern = best === "N";
+  const context = southern
+    ? `Dans ce territoire situé dans l'hémisphère sud, c'est le ${bestLabel} qui capte le plus de soleil.`
+    : regionId === "guyane"
+      ? "Proche de l'équateur, les écarts entre orientations restent faibles."
+      : `Ici, l'exposition ${bestLabel} reste la plus productive.`;
+  if (perf >= 95) return `Excellente orientation solaire. ${context}`;
+  if (perf >= 85) return `Orientation intéressante : la production reste bien répartie sur la journée. ${context}`;
+  return `Une étude permet de confirmer le potentiel réel. Même si l'orientation semble moins favorable, certaines configurations restent exploitables. ${context}`;
 }
 
 // ---------- Solar background ----------
@@ -186,7 +221,8 @@ const SolarBackdrop = () => (
 );
 
 // ---------- Compass ----------
-const Compass8 = ({ value, onChange }: { value: Orientation | ""; onChange: (o: Orientation) => void }) => {
+const Compass8 = ({ value, onChange, regionId }: { value: Orientation | ""; onChange: (o: Orientation) => void; regionId?: string }) => {
+  const perfMap = orientationPerfMap(regionId);
   const size = 300;
   const cx = size / 2;
   const cy = size / 2;
@@ -219,7 +255,7 @@ const Compass8 = ({ value, onChange }: { value: Orientation | ""; onChange: (o: 
           const [x4, y4] = polar(startAngle, rInner);
           const d = `M ${x1} ${y1} A ${rOuter} ${rOuter} 0 0 1 ${x2} ${y2} L ${x3} ${y3} A ${rInner} ${rInner} 0 0 0 ${x4} ${y4} Z`;
           const selected = value === s;
-          const perf = ORIENTATIONS.find((o) => o.id === s)?.perf ?? 0;
+          const perf = perfMap[s as Exclude<Orientation, "?">] ?? 0;
           const [lx, ly] = polar(startAngle + 22.5, (rOuter + rInner) / 2);
           return (
             <g key={s} onClick={() => onChange(s)} className="cursor-pointer">
@@ -512,7 +548,7 @@ export default function SimulateurSolaireLead() {
                 {step === 1 && <Step1Location sim={sim} setSim={setSim} region={region} />}
                 {step === 2 && <Step2Housing sim={sim} setSim={setSim} />}
                 {step === 3 && <Step3Ownership sim={sim} setSim={setSim} />}
-                {step === 4 && <Step4Orientation sim={sim} setSim={setSim} />}
+                {step === 4 && <Step4Orientation sim={sim} setSim={setSim} region={region} />}
                 {step === 5 && <Step5Equipments sim={sim} setSim={setSim} />}
                 {step === 6 && <Step6Bill sim={sim} setSim={setSim} />}
                 {step === 7 && <Step7Project sim={sim} setSim={setSim} region={region} />}
@@ -1291,13 +1327,13 @@ const Step3Ownership = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
   );
 };
 
-const Step4Orientation = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
+const Step4Orientation = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => (
   <div>
     <StepTitle icon={Compass} title="Quelle est l'orientation principale de votre toiture ?" subtitle="Le Sud capte généralement le maximum de soleil, mais d'autres orientations restent intéressantes." />
     <div className="grid md:grid-cols-[1fr_1fr] gap-8 items-center">
-      <Compass8 value={sim.orientation} onChange={(o) => setSim({ ...sim, orientation: o })} />
+      <Compass8 value={sim.orientation} onChange={(o) => setSim({ ...sim, orientation: o })} regionId={region?.id} />
       <div className="space-y-3">
-        {sim.orientation ? <InfoBanner>{orientationFeedback(sim.orientation as Orientation)}</InfoBanner> : (
+        {sim.orientation ? <InfoBanner>{orientationFeedback(sim.orientation as Orientation, region?.id)}</InfoBanner> : (
           <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-slate-600">
             <Compass className="w-6 h-6 text-slate-400 mb-2" />
             Sélectionnez l'orientation correspondant à votre toiture. Plus l'exposition est proche du Sud, plus la production solaire est généralement importante.
