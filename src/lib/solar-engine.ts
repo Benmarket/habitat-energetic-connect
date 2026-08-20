@@ -109,6 +109,7 @@ function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: num
     autoconsommee: Math.round(r1.autoconsommee),
     surplus: Math.round(r1.surplus),
     tauxAutoconsoPct: Math.round(r1.taux * 100),
+    nouvelleFactureMensuelle: Math.round(((conso - r1.autoconsommee) * t.prixKwh + abo) / 12),
   };
 }
 
