@@ -37,7 +37,16 @@ export interface Territoire {
     reco: RecoBatterie;
   };
   alerte?: string;
+  /** Mention TVA affichée telle quelle dans l'UI (aucune logique conditionnelle côté composant). */
+  mentionTVA: string;
 }
+
+const TVA_OUTRE_MER =
+  "TVA — Les panneaux photovoltaïques sont exonérés de TVA en outre-mer (art. 295-1-5° du CGI) ; seule la pose est taxée. Cet avantage est déjà intégré dans le prix affiché.";
+const TVA_GUYANE =
+  "TVA — La TVA ne s'applique pas en Guyane (art. 294 du CGI). Le prix affiché est net de toute TVA.";
+const TVA_METROPOLE =
+  "TVA réduite à 5,5 % — Applicable aux installations de 9 kWc ou moins qui répondent aux critères de l'arrêté du 8 septembre 2025 (bilan carbone du matériel, système de pilotage de la consommation). Tous les installateurs ne proposent pas de matériel éligible. Vérifiez ce point avant de signer.";
 
 const METRO_BASE = {
   zone: "METROPOLE" as const,
@@ -55,6 +64,7 @@ const METRO_BASE = {
     adoption: null,
     reco: "RENTABLE" as const,
   },
+  mentionTVA: TVA_METROPOLE,
 };
 
 export const TERRITOIRES: Territoire[] = [
@@ -65,6 +75,7 @@ export const TERRITOIRES: Territoire[] = [
     prime: { p0_3: 1.71, p3_9: 1.04 }, rachat: { p0_3: 0.1822, p3_9: 0.1822 },
     prix: { 3: [11900, 12900], 6: [16900, 17900], 9: [19900, 21900] }, panneaux: { 3: 6, 6: 12, 9: 18 },
     batterie: { surcout: { 3: 1000, 6: 1000, 9: 2000 }, adoption: 0.77, reco: "CONFORT" },
+    mentionTVA: TVA_OUTRE_MER,
   },
   {
     id: "guadeloupe", nom: "Guadeloupe", zone: "ZNI", actif: true, productible: 1546,
@@ -72,6 +83,7 @@ export const TERRITOIRES: Territoire[] = [
     prime: { p0_3: 1.80, p3_9: 1.09 }, rachat: { p0_3: 0.1822, p3_9: 0.1822 },
     prix: { 3: [11900, 13900], 6: [16900, 19900], 9: [19900, 23900] }, panneaux: { 3: 6, 6: 12, 9: 18 },
     batterie: { surcout: { 3: 2000, 6: 3000, 9: 4000 }, adoption: 0.46, reco: "CONFORT" },
+    mentionTVA: TVA_OUTRE_MER,
   },
   {
     id: "guyane", nom: "Guyane", zone: "ZNI", actif: true, productible: 1406,
@@ -79,6 +91,7 @@ export const TERRITOIRES: Territoire[] = [
     prime: { p0_3: 1.70, p3_9: 1.03 }, rachat: { p0_3: 0.1822, p3_9: 0.1822 },
     prix: { 3: [9900, 13900], 6: [16900, 20900], 9: [19900, 24900] }, panneaux: { 3: 6, 6: 12, 9: 18 },
     batterie: { surcout: { 3: 4000, 6: 4000, 9: 5000 }, adoption: 0.07, reco: "OPTIONNELLE" },
+    mentionTVA: TVA_GUYANE,
     alerte: "Aucun dispositif de soutien dans les communes de Maripasoula et Papaichton.",
   },
   {
@@ -87,6 +100,7 @@ export const TERRITOIRES: Territoire[] = [
     prime: { p0_3: 1.54, p3_9: 0.92 }, rachat: { p0_3: 0.1774, p3_9: 0.1774 },
     prix: { 3: [7990, 10900], 6: [12990, 15900], 9: [19900, 19900] }, panneaux: { 3: 8, 6: 16, 9: 24 },
     batterie: { surcout: { 3: 2910, 6: 2910, 9: 0 }, adoption: 0.6, reco: "CONFORT" },
+    mentionTVA: TVA_OUTRE_MER,
     alerte:
       "Prix hors dossiers avec aide régionale SPL, volontairement exclus. Le surcoût batterie en 9 kWc ressort à 0 € sur un échantillon faible (n=12 sans batterie) — à confirmer.",
   },
@@ -96,6 +110,7 @@ export const TERRITOIRES: Territoire[] = [
     prime: { p0_3: 1.14, p3_9: 0.64 }, rachat: { p0_3: 0.1678, p3_9: 0.1678 },
     prix: { 3: [9900, 12900], 6: [16900, 18900], 9: [18900, 21900] }, panneaux: { 3: 6, 6: 12, 9: 18 },
     batterie: { surcout: { 3: 3000, 6: 2000, 9: 3000 }, adoption: 0.1, reco: "OPTIONNELLE" },
+    mentionTVA: TVA_METROPOLE,
   },
 
   // ═══ MÉTROPOLE — prime 0 €, rachat 1,1 c€/kWh depuis le 05/06/2026 ═══
