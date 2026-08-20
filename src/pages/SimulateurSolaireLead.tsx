@@ -1591,6 +1591,7 @@ const ResultsPanel = ({
               </div>
             ))}
           </div>
+          )}
         </div>
       </div>
       {/* TEASER : cartes floutées si !unlocked */}
