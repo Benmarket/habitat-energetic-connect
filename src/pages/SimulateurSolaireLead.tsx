@@ -472,9 +472,18 @@ export default function SimulateurSolaireLead() {
     unlocked, engine,
   };
 
+  /** Scénario affiché (avec ou sans batterie) — pilote tous les chiffres de l'aperçu final. */
+  const canToggleBattery = !!(engine && sim.batteryInterest && sim.batteryInterest !== "non");
+  const scenario = engine ? (showBattery ? engine.avec : engine.sans) : null;
+  const dispYearly = scenario?.economiesAn ?? savingsMid;
+  const dispSavings25 = scenario?.economies25ans ?? savings25;
+  const dispAides = scenario?.AIDES ?? aidesMin;
+  const dispRoi = scenario?.rentabiliteAns ?? roi;
+  const dispCo2 = scenario?.co2KgAn ?? co2;
+
   /** Libellé de la tuile « Aides » — jamais « 0 € » brut en métropole. */
-  const aidesTileLabel = engine && engine.sans.AIDES > 0
-    ? `Aides ~${engine.sans.AIDES.toLocaleString("fr-FR")} €`
+  const aidesTileLabel = dispAides > 0
+    ? `Aides ~${dispAides.toLocaleString("fr-FR")} €`
     : "Prime d'État supprimée en juin 2026";
 
   return (
@@ -598,10 +607,12 @@ export default function SimulateurSolaireLead() {
                         <div className="bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 px-4 pt-4 pb-3 text-slate-900">
                           <div className="flex items-start justify-between gap-2 pr-8">
                             <div>
-                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-900/75">Vous avez débloqué</p>
+                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-900/75">
+                                Vous avez débloqué {canToggleBattery && <span className="ml-1 normal-case tracking-normal">· {showBattery ? "avec batterie" : "sans batterie"}</span>}
+                              </p>
                               <div className="flex items-baseline gap-1.5 mt-0.5">
                                 <span className="text-3xl font-black leading-none tabular-nums">
-                                  {(savingsMid > 0 ? savingsMid : 1200).toLocaleString("fr-FR")}
+                                  {(dispYearly > 0 ? dispYearly : 1200).toLocaleString("fr-FR")}
                                 </span>
                                 <span className="text-xl font-black">€</span>
                                 <span className="text-xs font-bold text-slate-900/80">/ an</span>
@@ -621,12 +632,30 @@ export default function SimulateurSolaireLead() {
                               </div>
                             )}
                           </div>
+                          {canToggleBattery && (
+                            <div className="mt-2.5 inline-flex items-center gap-1 p-0.5 rounded-full bg-slate-900/15 backdrop-blur w-full">
+                              <button
+                                type="button"
+                                onClick={() => setShowBattery(false)}
+                                className={`flex-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide transition-all ${!showBattery ? "bg-white text-slate-900 shadow" : "text-slate-900/70"}`}
+                              >
+                                Sans batterie
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setShowBattery(true)}
+                                className={`flex-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide transition-all inline-flex items-center justify-center gap-1 ${showBattery ? "bg-white text-slate-900 shadow" : "text-slate-900/70"}`}
+                              >
+                                <BatteryCharging className="w-3 h-3" /> Avec batterie
+                              </button>
+                            </div>
+                          )}
                           <div className="mt-2.5 grid grid-cols-2 gap-1.5">
                             {[
-                              { icon: PiggyBank, label: `~${savings25.toLocaleString("fr-FR")} € / 25 ans` },
+                              { icon: PiggyBank, label: `~${dispSavings25.toLocaleString("fr-FR")} € / 25 ans` },
                               { icon: Coins, label: aidesTileLabel },
-                              { icon: LineChart, label: roi ? `Rentabilité ~${roi} ans` : "Rentabilité à l'étude" },
-                              { icon: Leaf, label: `${co2.toLocaleString("fr-FR")} kg CO₂ / an` },
+                              { icon: LineChart, label: dispRoi ? `Rentabilité ~${dispRoi} ans` : "Rentabilité à l'étude" },
+                              { icon: Leaf, label: `${dispCo2.toLocaleString("fr-FR")} kg CO₂ / an` },
                             ].map((item, i) => (
                               <div key={i} className="flex items-center gap-1.5 text-[11px] text-slate-900/90 bg-white/30 rounded-md px-2 py-1">
                                 <item.icon className="w-3 h-3 shrink-0" />
@@ -738,18 +767,39 @@ export default function SimulateurSolaireLead() {
                     </div>
                   )}
                 </div>
-                <p className="text-xs font-semibold text-slate-900/80 mb-1">Vous avez débloqué</p>
+                <p className="text-xs font-semibold text-slate-900/80 mb-1">
+                  Vous avez débloqué {canToggleBattery && <span className="font-bold">· {showBattery ? "avec batterie" : "sans batterie"}</span>}
+                </p>
                 <p className="text-4xl font-black leading-none">
-                  {savingsMid > 0 ? savingsMid.toLocaleString("fr-FR") : "1 200"} €
+                  {dispYearly > 0 ? dispYearly.toLocaleString("fr-FR") : "1 200"} €
                 </p>
                 <p className="text-sm font-bold text-slate-900/80 mt-1">d'économies estimées par an</p>
 
+                {canToggleBattery && (
+                  <div className="mt-4 inline-flex items-center gap-1 p-1 rounded-full bg-slate-900/15 backdrop-blur">
+                    <button
+                      type="button"
+                      onClick={() => setShowBattery(false)}
+                      className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${!showBattery ? "bg-white text-slate-900 shadow" : "text-slate-900/70"}`}
+                    >
+                      Sans batterie
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowBattery(true)}
+                      className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all inline-flex items-center gap-1 ${showBattery ? "bg-white text-slate-900 shadow" : "text-slate-900/70"}`}
+                    >
+                      <BatteryCharging className="w-3 h-3" /> Avec batterie
+                    </button>
+                  </div>
+                )}
+
                 <div className="mt-6 space-y-2.5">
                   {[
-                    { icon: PiggyBank, label: `~${savings25.toLocaleString("fr-FR")} € sur 25 ans` },
+                    { icon: PiggyBank, label: `~${dispSavings25.toLocaleString("fr-FR")} € sur 25 ans` },
                     { icon: Coins, label: aidesTileLabel },
-                    { icon: LineChart, label: roi ? `Rentabilité ~${roi} ans` : "Rentabilité à l'étude" },
-                    { icon: Leaf, label: `${co2.toLocaleString("fr-FR")} kg CO₂ évités / an` },
+                    { icon: LineChart, label: dispRoi ? `Rentabilité ~${dispRoi} ans` : "Rentabilité à l'étude" },
+                    { icon: Leaf, label: `${dispCo2.toLocaleString("fr-FR")} kg CO₂ évités / an` },
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-2.5 text-sm text-slate-900/90 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2">
                       <item.icon className="w-4 h-4 shrink-0" />
@@ -1527,14 +1577,22 @@ const ResultsPanel = ({
   const surfaceLabel = typeof sim.surface === "number" ? `${sim.surface} m²` : "—";
   const orientationLabel = ORIENTATIONS.find((o) => o.id === sim.orientation)?.label || (sim.orientation === "?" ? "À confirmer" : "—");
 
+  const canToggleBattery = !!(engine && sim.batteryInterest && sim.batteryInterest !== "non");
+  const scenario = engine ? (showBattery ? engine.avec : engine.sans) : null;
+  const dSavings25 = scenario?.economies25ans ?? savings25;
+  const dAides = scenario?.AIDES ?? aidesMin;
+  const dRoi = scenario?.rentabiliteAns ?? roi;
+  const dCo2 = scenario?.co2KgAn ?? co2;
+  const dCost = scenario?.cout ?? installCost;
+
   const displayedYearly = showBattery ? savingsWithBattery : savingsMid;
   const displayedYearlyCounted = useCountUp(displayedYearly);
-  const has25 = savings25 > 0;
+  const has25 = dSavings25 > 0;
 
   // ------ Projection 25 ans (par tranches de 5 ans) ------
   const yearlySavings = showBattery ? savingsWithBattery : savingsMid;
-  const totalInvest = installCost + (showBattery ? batteryCost : 0);
-  const aidesTotal = Math.round((aidesMin + aidesMax) / 2);
+  const totalInvest = dCost;
+  const aidesTotal = dAides;
   const inflation = 0.03; // +3%/an prix élec (hypothèse du moteur, cf. solar-data.ts)
   const degradation = 0.005; // -0.5%/an rendement
   const buckets = [
@@ -1603,8 +1661,8 @@ const ResultsPanel = ({
                 <span className="text-lg md:text-xl font-bold text-slate-900/80">/ an</span>
               </div>
               <p className="text-sm text-slate-900/75 mt-3 max-w-xl">
-                Estimation personnalisée pour {engine.territoire}{sim.city ? ` — ${sim.city}` : ""} · facture actuelle {annualBill.toLocaleString("fr-FR")} €/an · installation {engine.puissanceKwc} kWc ({engine.nbPanneaux} panneaux)
-                {showBattery && <span className="ml-2 inline-flex items-center gap-1 text-xs bg-slate-900/20 backdrop-blur px-2 py-0.5 rounded-full font-bold"><BatteryCharging className="w-3 h-3" /> Avec batterie</span>}
+                Estimation personnalisée pour {engine.territoire}{sim.city ? ` — ${sim.city}` : ""} · facture actuelle {annualBill.toLocaleString("fr-FR")} €/an · installation {engine.puissanceKwc} kWc ({engine.nbPanneaux} panneaux) · {dCost.toLocaleString("fr-FR")} €
+                {canToggleBattery && <span className="ml-2 inline-flex items-center gap-1 text-xs bg-slate-900/20 backdrop-blur px-2 py-0.5 rounded-full font-bold"><BatteryCharging className="w-3 h-3" /> {showBattery ? "Avec batterie" : "Sans batterie"}</span>}
               </p>
             </>
           ) : (
@@ -1631,10 +1689,10 @@ const ResultsPanel = ({
           {engine && (
           <div className="mt-5 grid grid-cols-2 gap-2 md:gap-2.5 max-w-xl">
             {[
-              { icon: PiggyBank, label: `~${savings25.toLocaleString("fr-FR")} € sur 25 ans` },
-              { icon: Coins, label: aidesMin > 0 ? `Aides ~${aidesMin.toLocaleString("fr-FR")} €` : "Prime d'État supprimée en juin 2026" },
-              { icon: LineChart, label: (showBattery ? roiWithBattery : roi) ? `Rentabilité ~${showBattery ? roiWithBattery : roi} ans` : "Rentabilité à l'étude" },
-              { icon: Leaf, label: `${co2.toLocaleString("fr-FR")} kg CO₂ évités / an` },
+              { icon: PiggyBank, label: `~${dSavings25.toLocaleString("fr-FR")} € sur 25 ans` },
+              { icon: Coins, label: dAides > 0 ? `Aides ~${dAides.toLocaleString("fr-FR")} €` : "Prime d'État supprimée en juin 2026" },
+              { icon: LineChart, label: dRoi ? `Rentabilité ~${dRoi} ans` : "Rentabilité à l'étude" },
+              { icon: Leaf, label: `${dCo2.toLocaleString("fr-FR")} kg CO₂ évités / an` },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-2 text-xs md:text-sm text-slate-900/90 bg-white/30 backdrop-blur-sm rounded-lg px-2.5 py-1.5 md:px-3 md:py-2">
                 <item.icon className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
@@ -1655,15 +1713,21 @@ const ResultsPanel = ({
 
         <div className={`transition-all duration-500 ${!unlocked ? "blur-md select-none pointer-events-none" : "blur-0"}`} aria-hidden={!unlocked}>
           {/* Chiffres clés en grille */}
+          {canToggleBattery && (
+            <div className="mb-4 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600">
+              <BatteryCharging className="w-4 h-4 text-orange-500" />
+              Scénario affiché : {showBattery ? "avec batterie" : "sans batterie"}
+            </div>
+          )}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
-            <StatCard icon={PiggyBank} label="Sur 25 ans" value={`~${savings25.toLocaleString("fr-FR")} €`} accent="from-emerald-100 to-emerald-50" iconColor="text-emerald-700" />
-            <StatCard icon={Zap} label="Installation" value={suggest.kwc > 0 ? `${suggest.kwc} kWc` : "—"} sub={suggest.panels > 0 ? `~${suggest.panels} panneaux · ${installCost.toLocaleString("fr-FR")} €` : undefined} accent="from-amber-100 to-orange-50" iconColor="text-orange-600" />
-            {aidesMin > 0 ? (
-              <StatCard icon={Coins} label="Aides estimées" value={`${aidesMin.toLocaleString("fr-FR")} €`} sub="prime versée sur la puissance installée" accent="from-blue-100 to-blue-50" iconColor="text-blue-700" />
+            <StatCard icon={PiggyBank} label="Sur 25 ans" value={`~${dSavings25.toLocaleString("fr-FR")} €`} accent="from-emerald-100 to-emerald-50" iconColor="text-emerald-700" />
+            <StatCard icon={Zap} label="Installation" value={suggest.kwc > 0 ? `${suggest.kwc} kWc${showBattery ? " + batterie" : ""}` : "—"} sub={suggest.panels > 0 ? `~${suggest.panels} panneaux · ${dCost.toLocaleString("fr-FR")} €` : undefined} accent="from-amber-100 to-orange-50" iconColor="text-orange-600" />
+            {dAides > 0 ? (
+              <StatCard icon={Coins} label="Aides estimées" value={`${dAides.toLocaleString("fr-FR")} €`} sub="prime versée sur la puissance installée" accent="from-blue-100 to-blue-50" iconColor="text-blue-700" />
             ) : (
               <StatCard icon={Coins} label="Aides" value="Prime supprimée" sub="Prime d'État supprimée en juin 2026 — votre gain vient de l'autoconsommation" accent="from-blue-100 to-blue-50" iconColor="text-blue-700" />
             )}
-            <StatCard icon={LineChart} label="Rentabilité" value={(showBattery ? roiWithBattery : roi) ? `~${showBattery ? roiWithBattery : roi} ans` : "À l'étude"} accent="from-purple-100 to-purple-50" iconColor="text-purple-700" />
+            <StatCard icon={LineChart} label="Rentabilité" value={dRoi ? `~${dRoi} ans` : "À l'étude"} accent="from-purple-100 to-purple-50" iconColor="text-purple-700" />
           </div>
 
           {/* Comparaison batterie */}
@@ -1788,7 +1852,7 @@ const ResultsPanel = ({
             </h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-3xl font-bold text-emerald-800">{co2.toLocaleString("fr-FR")} kg</p>
+                <p className="text-3xl font-bold text-emerald-800">{dCo2.toLocaleString("fr-FR")} kg</p>
                 <p className="text-xs text-emerald-700 mt-0.5">CO₂ évités chaque année</p>
               </div>
               <div>
@@ -1817,8 +1881,8 @@ const ResultsPanel = ({
           <section className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-50/40 border border-blue-200">
             <h3 className="text-xs font-bold text-blue-700 uppercase tracking-widest mb-2">Aides & financement</h3>
             <p className="text-slate-700 text-sm">
-              {aidesMin > 0
-                ? `Prime à l'investissement estimée à ${aidesMin.toLocaleString("fr-FR")} € pour une installation de ${suggest.kwc} kWc${engine ? ` en ${engine.territoire}` : ""}, à laquelle peuvent s'ajouter la TVA réduite et l'éco-prêt à taux zéro sous réserve d'éligibilité. Un conseiller vérifie tout gratuitement.`
+              {dAides > 0
+                ? `Prime à l'investissement estimée à ${dAides.toLocaleString("fr-FR")} € pour une installation de ${suggest.kwc} kWc${engine ? ` en ${engine.territoire}` : ""}, à laquelle peuvent s'ajouter la TVA réduite et l'éco-prêt à taux zéro sous réserve d'éligibilité. Un conseiller vérifie tout gratuitement.`
                 : "La prime d'État à l'autoconsommation est supprimée depuis juin 2026 : votre gain provient de l'autoconsommation et de la revente du surplus. TVA réduite et éco-prêt à taux zéro restent possibles sous réserve d'éligibilité."}
             </p>
           </section>
