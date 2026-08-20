@@ -338,35 +338,40 @@ export default function SimulateurSolaireLead() {
   const [nameErrors, setNameErrors] = useState<Record<string, string>>({});
   const [leadId, setLeadId] = useState<string | null>(null);
 
-  // ---------- Calculs "alléchants" (indicatifs) ----------
+  // ---------- Moteur de calcul (src/lib/solar-engine.ts — source de vérité unique) ----------
   const annualBill = typeof sim.monthlyBill === "number" ? sim.monthlyBill * 12 : 0;
-  const suggest = typeof sim.monthlyBill === "number" && sim.monthlyBill > 0 ? suggestedKwc(sim.monthlyBill) : { kwc: 0, panels: 0, label: "—" };
 
-  // Facteur région (bonus ensoleillement)
-  const sunFactor = region.id === "fr-sud" ? 1.15 : region.id === "corse" || region.id.match(/reunion|guadeloupe|martinique|mayotte/) ? 1.25 : region.id === "fr-nord" ? 0.85 : region.id === "fr-so" ? 1.05 : 1;
-  // Facteur orientation
-  const orientPerf = (ORIENTATIONS.find((o) => o.id === sim.orientation)?.perf ?? 85) / 100;
+  const engine = useMemo(() => {
+    const territoireId = territoireFromPostal(sim.postalCode);
+    if (!territoireId || typeof sim.monthlyBill !== "number" || sim.monthlyBill <= 0) return null;
+    try {
+      const r = simuler({ territoireId, factureMensuelleTTC: sim.monthlyBill });
+      return r.statut === "OK" ? r : null;
+    } catch {
+      return null;
+    }
+  }, [sim.postalCode, sim.monthlyBill]);
 
-  // Économies annuelles estimées (autoconsommation + revente surplus)
-  const savingsMid = Math.round(annualBill * 0.50 * sunFactor * orientPerf);
-  const savingsMin = Math.round(savingsMid * 0.85);
-  const savingsMax = Math.round(savingsMid * 1.15);
-  // Sur 25 ans (dégradation panneaux ~0.5%/an + inflation élec compensée)
-  const savings25 = Math.round(savingsMid * 22);
-  // Aides estimées (prime autoconsommation + TVA réduite)
-  const aidesMin = suggest.kwc * 220;
-  const aidesMax = suggest.kwc * 380;
-  // ROI (retour sur investissement en années)
-  const installCost = suggest.kwc * 2400;
-  const roi = savingsMid > 0 ? Math.max(5, Math.min(12, +(installCost / (savingsMid + aidesMin / 25)).toFixed(1))) : 8;
-  // CO2 évité (kg/an, 55g CO2/kWh évité solaire vs mix FR)
-  const co2 = Math.round(suggest.kwc * 1100 * 0.055);
+  const suggest = engine
+    ? { kwc: engine.puissanceKwc, panels: engine.nbPanneaux, label: `${engine.puissanceKwc} kWc` }
+    : { kwc: 0, panels: 0, label: "—" };
+
+  // Scénario par défaut affiché : SANS batterie
+  const savingsMid = engine?.sans.economiesAn ?? 0;
+  const savingsMin = Math.round(savingsMid * 0.9);
+  const savingsMax = Math.round(savingsMid * 1.1);
+  const savings25 = engine?.sans.economies25ans ?? 0;
+  const aidesMin = engine?.sans.AIDES ?? 0;
+  const aidesMax = engine?.sans.AIDES ?? 0;
+  const installCost = engine?.sans.cout ?? 0;
+  const roi = engine?.sans.rentabiliteAns ?? null;
+  const co2 = engine?.sans.co2KgAn ?? 0;
   const trees = Math.round(co2 / 25); // 1 arbre = ~25kg CO2/an
 
   // Scénario batterie
-  const batteryCost = 4500;
-  const savingsWithBattery = Math.round(savingsMid * 1.35); // meilleure autoconso
-  const roiWithBattery = savingsWithBattery > 0 ? +((installCost + batteryCost) / (savingsWithBattery + aidesMin / 25)).toFixed(1) : 10;
+  const batteryCost = engine?.batterie.surcout ?? 0;
+  const savingsWithBattery = engine?.avec.economiesAn ?? 0;
+  const roiWithBattery = engine?.avec.rentabiliteAns ?? null;
 
   const submitLead = async () => {
     const parsed = leadSchema.safeParse(lead);
