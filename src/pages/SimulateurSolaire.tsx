@@ -1923,7 +1923,7 @@ const SimulateurSolaire = () => {
                           <SelectItem value="tuiles">Tuiles</SelectItem>
                           <SelectItem value="ardoises">Ardoises</SelectItem>
                           <SelectItem value="plaques">Plaques</SelectItem>
-                          <SelectItem value="bac-acier">Toiture en tôle</SelectItem>
+                          <SelectItem value="bac-acier">Bac acier</SelectItem>
                           <SelectItem value="membrane-epdm">Membrane EPDM</SelectItem>
                           <SelectItem value="toiture-plate">Toiture plate</SelectItem>
                         </SelectContent>
