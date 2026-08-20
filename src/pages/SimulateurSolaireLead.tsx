@@ -1416,7 +1416,7 @@ const Step4Orientation = ({ sim, setSim, region }: { sim: Sim; setSim: any; regi
 
       {/* Aperçu 3D */}
       {ROOF_MODELS[sim.roofType] && (
-        <div className="mt-5 relative rounded-2xl overflow-hidden border-2 border-sky-200 bg-[#DFE6F5] shadow-[0_20px_50px_-20px_hsl(210_60%_55%/0.4)] animate-fade-in">
+        <div className="mt-5 relative rounded-2xl overflow-hidden border-2 border-sky-700 bg-[#5B8FC4] shadow-[0_20px_50px_-20px_hsl(210_60%_45%/0.5)] animate-fade-in">
           <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/95 backdrop-blur text-[10px] font-bold uppercase tracking-wider text-slate-900 shadow-md">
             Aperçu 3D · {ROOF_TYPES.find(r => r.id === sim.roofType)?.label}
           </div>
