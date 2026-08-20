@@ -1357,44 +1357,52 @@ const Step8Battery = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: 
     <div>
       <StepTitle icon={BatteryCharging} title="Souhaitez-vous une batterie de stockage ?" subtitle="Stockez votre énergie solaire pour la réutiliser la nuit ou en cas de coupure." />
 
-      {/* Visuel animé */}
-      <div className="relative rounded-3xl overflow-hidden border-2 border-amber-200 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-[0_25px_60px_-20px_hsl(35_95%_45%/0.55)]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(35_95%_60%/0.25),transparent_60%)]" aria-hidden />
-        <div className="relative flex items-center justify-center p-4 md:p-8 min-h-[180px] md:min-h-[280px]">
-          <img
-            key={gifSrc}
-            src={gifSrc}
-            alt={showWithBattery ? "Installation solaire avec batterie de stockage" : "Installation solaire avec onduleur"}
-            className="max-h-[180px] md:max-h-[280px] w-auto object-contain animate-fade-in drop-shadow-[0_10px_30px_hsl(35_95%_45%/0.35)]"
-          />
+      {/* Visuel animé + bénéfices côte à côte en desktop */}
+      <div className="grid md:grid-cols-[1.15fr_1fr] gap-3 md:gap-4 items-stretch">
+        <div className="relative rounded-3xl overflow-hidden border-2 border-amber-200 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-[0_25px_60px_-20px_hsl(35_95%_45%/0.55)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(35_95%_60%/0.25),transparent_60%)]" aria-hidden />
+          <div className="relative flex items-center justify-center p-4 md:p-6 min-h-[180px] md:min-h-[210px]">
+            <img
+              key={gifSrc}
+              src={gifSrc}
+              alt={showWithBattery ? "Installation solaire avec batterie de stockage" : "Installation solaire avec onduleur"}
+              className="max-h-[180px] md:max-h-[200px] w-auto object-contain animate-fade-in drop-shadow-[0_10px_30px_hsl(35_95%_45%/0.35)]"
+            />
+          </div>
+          <div className="relative px-4 md:px-5 pb-4 flex flex-wrap items-center justify-center gap-2">
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all ${!showWithBattery ? "bg-amber-400 text-slate-900 shadow-md" : "bg-white/10 text-white/70"}`}>
+              Sans batterie
+            </span>
+            <span className="text-white/40 text-xs">↔</span>
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all ${showWithBattery ? "bg-amber-400 text-slate-900 shadow-md" : "bg-white/10 text-white/70"}`}>
+              <BatteryCharging className="w-3 h-3" /> Avec batterie
+            </span>
+          </div>
         </div>
-        <div className="relative px-4 md:px-6 pb-4 md:pb-5 flex flex-wrap items-center justify-center gap-2">
-          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all ${!showWithBattery ? "bg-amber-400 text-slate-900 shadow-md" : "bg-white/10 text-white/70"}`}>
-            Sans batterie
-          </span>
-          <span className="text-white/40 text-xs">↔</span>
-          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all ${showWithBattery ? "bg-amber-400 text-slate-900 shadow-md" : "bg-white/10 text-white/70"}`}>
-            <BatteryCharging className="w-3 h-3" /> Avec batterie
-          </span>
-        </div>
-      </div>
 
-      {/* Bénéfices — compact mobile */}
-      <div className="grid grid-cols-3 gap-2 md:gap-3 mt-4 md:mt-6">
-        <div className="p-2.5 md:p-4 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200">
-          <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-2" />
-          <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Backup anti-coupure</p>
-          <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Vos appareils continuent de fonctionner en cas de coupure réseau.{region.island && <> Essentiel dans les îles.</>}</p>
-        </div>
-        <div className="p-2.5 md:p-4 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200">
-          <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-2" />
-          <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Meilleure autonomie</p>
-          <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Consommez votre propre énergie même la nuit. Autoconsommation jusqu'à 80%.</p>
-        </div>
-        <div className="p-2.5 md:p-4 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200">
-          <PiggyBank className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-2" />
-          <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Rentable long terme</p>
-          <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Coût initial supérieur, mais protège contre la hausse continue du prix de l'électricité.</p>
+        {/* Bénéfices — 3 colonnes en mobile, empilés à droite en desktop */}
+        <div className="grid grid-cols-3 md:grid-cols-1 gap-2 md:gap-2.5">
+          <div className="p-2.5 md:px-4 md:py-3 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200 md:flex md:items-start md:gap-3">
+            <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-0 md:mt-0.5 shrink-0" />
+            <div>
+              <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Backup anti-coupure</p>
+              <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Vos appareils continuent de fonctionner en cas de coupure réseau.{region.island && <> Essentiel dans les îles.</>}</p>
+            </div>
+          </div>
+          <div className="p-2.5 md:px-4 md:py-3 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200 md:flex md:items-start md:gap-3">
+            <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-0 md:mt-0.5 shrink-0" />
+            <div>
+              <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Meilleure autonomie</p>
+              <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Consommez votre propre énergie même la nuit. Autoconsommation jusqu'à 80%.</p>
+            </div>
+          </div>
+          <div className="p-2.5 md:px-4 md:py-3 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200 md:flex md:items-start md:gap-3">
+            <PiggyBank className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-0 md:mt-0.5 shrink-0" />
+            <div>
+              <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Rentable long terme</p>
+              <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Coût initial supérieur, mais protège contre la hausse du prix de l'électricité.</p>
+            </div>
+          </div>
         </div>
       </div>
 
