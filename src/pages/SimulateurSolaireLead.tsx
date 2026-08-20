@@ -55,6 +55,12 @@ const REGION_SHAPES: Record<string, string> = {
   fr: regionFrance,
 };
 
+/** Nom affiché dans les récapitulatifs (le détail nord/sud/sud-ouest reste interne). */
+function regionDisplayName(id: string, label: string): string {
+  if (id === "fr" || id.startsWith("fr-")) return "France métropolitaine";
+  return label;
+}
+
 // ---------- Types ----------
 type HousingType = "maison" | "appartement" | "pro";
 type Ownership = "oui" | "non" | "achat";
@@ -590,13 +596,30 @@ export default function SimulateurSolaireLead() {
 
                         {/* Bandeau orange — 5 infos alléchantes */}
                         <div className="bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 px-4 pt-4 pb-3 text-slate-900">
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-900/75">Vous avez débloqué</p>
-                          <div className="flex items-baseline gap-1.5 mt-0.5">
-                            <span className="text-3xl font-black leading-none tabular-nums">
-                              {(savingsMid > 0 ? savingsMid : 1200).toLocaleString("fr-FR")}
-                            </span>
-                            <span className="text-xl font-black">€</span>
-                            <span className="text-xs font-bold text-slate-900/80">/ an</span>
+                          <div className="flex items-start justify-between gap-2 pr-8">
+                            <div>
+                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-900/75">Vous avez débloqué</p>
+                              <div className="flex items-baseline gap-1.5 mt-0.5">
+                                <span className="text-3xl font-black leading-none tabular-nums">
+                                  {(savingsMid > 0 ? savingsMid : 1200).toLocaleString("fr-FR")}
+                                </span>
+                                <span className="text-xl font-black">€</span>
+                                <span className="text-xs font-bold text-slate-900/80">/ an</span>
+                              </div>
+                            </div>
+                            {REGION_SHAPES[region.id] && (
+                              <div className="flex flex-col items-center gap-0.5 shrink-0">
+                                <img
+                                  src={REGION_SHAPES[region.id]}
+                                  alt={`Silhouette ${regionDisplayName(region.id, region.label)}`}
+                                  className="w-9 h-9 object-contain opacity-90"
+                                  loading="lazy"
+                                />
+                                <span className="text-[9px] font-bold uppercase tracking-wide text-slate-900/80 text-center leading-tight max-w-[72px]">
+                                  {regionDisplayName(region.id, region.label)}
+                                </span>
+                              </div>
+                            )}
                           </div>
                           <div className="mt-2.5 grid grid-cols-2 gap-1.5">
                             {[
@@ -697,8 +720,23 @@ export default function SimulateurSolaireLead() {
               <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-yellow-200/40 blur-3xl" aria-hidden />
               <div className="absolute -bottom-20 -left-10 w-52 h-52 rounded-full bg-orange-300/30 blur-3xl" aria-hidden />
               <div className="relative">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/15 backdrop-blur text-[10px] font-bold uppercase tracking-wider mb-4">
-                  <Sparkles className="w-3 h-3" /> Aperçu
+                <div className="flex items-start justify-between gap-3 mb-4">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/15 backdrop-blur text-[10px] font-bold uppercase tracking-wider">
+                    <Sparkles className="w-3 h-3" /> Aperçu
+                  </div>
+                  {REGION_SHAPES[region.id] && (
+                    <div className="flex items-center gap-2 bg-white/25 backdrop-blur-sm rounded-lg pl-1.5 pr-2.5 py-1 shrink-0">
+                      <img
+                        src={REGION_SHAPES[region.id]}
+                        alt={`Silhouette ${regionDisplayName(region.id, region.label)}`}
+                        className="w-7 h-7 object-contain"
+                        loading="lazy"
+                      />
+                      <span className="text-[10px] font-bold uppercase tracking-wide leading-tight max-w-[92px]">
+                        {regionDisplayName(region.id, region.label)}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <p className="text-xs font-semibold text-slate-900/80 mb-1">Vous avez débloqué</p>
                 <p className="text-4xl font-black leading-none">
@@ -1528,8 +1566,23 @@ const ResultsPanel = ({
         <div className="absolute inset-0 opacity-30" style={{ backgroundImage: "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.4), transparent 40%)" }} aria-hidden />
 
         <div className="relative">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/15 backdrop-blur text-xs font-bold mb-4 uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" /> Votre potentiel solaire
+          <div className="flex items-start justify-between gap-3 mb-4">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/15 backdrop-blur text-xs font-bold uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5" /> Votre potentiel solaire
+            </div>
+            {REGION_SHAPES[region.id] && (
+              <div className="flex items-center gap-2 bg-white/30 backdrop-blur-sm rounded-xl pl-2 pr-3 py-1.5 shrink-0">
+                <img
+                  src={REGION_SHAPES[region.id]}
+                  alt={`Silhouette ${regionDisplayName(region.id, region.label)}`}
+                  className="w-8 h-8 md:w-10 md:h-10 object-contain"
+                  loading="lazy"
+                />
+                <span className="text-[10px] md:text-xs font-bold uppercase tracking-wide leading-tight max-w-[110px]">
+                  {regionDisplayName(region.id, region.label)}
+                </span>
+              </div>
+            )}
           </div>
           {engine ? (
             <>
