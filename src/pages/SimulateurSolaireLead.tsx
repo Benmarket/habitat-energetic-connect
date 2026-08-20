@@ -1407,7 +1407,7 @@ const Step8Battery = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: 
       </div>
 
       {/* Choix */}
-      <div className="mt-7">
+      <div className="mt-5 md:mt-6">
         <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
           <BatteryCharging className="w-4 h-4 text-orange-600" /> Votre choix
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">Facultatif</span>
