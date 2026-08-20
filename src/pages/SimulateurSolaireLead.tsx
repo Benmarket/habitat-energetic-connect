@@ -607,10 +607,12 @@ export default function SimulateurSolaireLead() {
                         <div className="bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 px-4 pt-4 pb-3 text-slate-900">
                           <div className="flex items-start justify-between gap-2 pr-8">
                             <div>
-                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-900/75">Vous avez débloqué</p>
+                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-900/75">
+                                Vous avez débloqué {canToggleBattery && <span className="ml-1 normal-case tracking-normal">· {showBattery ? "avec batterie" : "sans batterie"}</span>}
+                              </p>
                               <div className="flex items-baseline gap-1.5 mt-0.5">
                                 <span className="text-3xl font-black leading-none tabular-nums">
-                                  {(savingsMid > 0 ? savingsMid : 1200).toLocaleString("fr-FR")}
+                                  {(dispYearly > 0 ? dispYearly : 1200).toLocaleString("fr-FR")}
                                 </span>
                                 <span className="text-xl font-black">€</span>
                                 <span className="text-xs font-bold text-slate-900/80">/ an</span>
