@@ -108,6 +108,7 @@ export function simuler(input: Input) {
       reco: t.batterie.reco,
     },
     alerte: t.alerte ?? null,
+    mentionTVA: t.mentionTVA,
   };
 }
 
