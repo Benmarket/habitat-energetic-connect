@@ -656,6 +656,8 @@ export default function SimulateurSolaireLead() {
                             {[
                               { icon: PiggyBank, label: `~${dispSavings25.toLocaleString("fr-FR")} € / 25 ans` },
                               { icon: Coins, label: aidesTileLabel },
+                              { icon: Zap, label: `${suggest.kwc} kWc préconisés` },
+                              { icon: Receipt, label: `Facture ≈ ${dNouvelleFacture.toLocaleString("fr-FR")} €/mois*` },
                               { icon: LineChart, label: dispRoi ? `Rentabilité ~${dispRoi} ans` : "Rentabilité à l'étude" },
                               { icon: Leaf, label: `${dispCo2.toLocaleString("fr-FR")} kg CO₂ / an` },
                             ].map((item, i) => (
@@ -665,6 +667,7 @@ export default function SimulateurSolaireLead() {
                               </div>
                             ))}
                           </div>
+                          <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Facture estimée après autoconsommation — varie selon votre consommation réelle.</p>
                         </div>
 
                         <div className="p-4">
