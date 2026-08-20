@@ -1592,10 +1592,14 @@ const ResultsPanel = ({
         <div className={`transition-all duration-500 ${!unlocked ? "blur-md select-none pointer-events-none" : "blur-0"}`} aria-hidden={!unlocked}>
           {/* Chiffres clés en grille */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
-            <StatCard icon={PiggyBank} label="Sur 25 ans" value={`~${(has25 ? savings25 : 27000).toLocaleString("fr-FR")} €`} accent="from-emerald-100 to-emerald-50" iconColor="text-emerald-700" />
-            <StatCard icon={Zap} label="Installation" value={suggest.kwc > 0 ? `${suggest.kwc} kWc` : "6 kWc"} sub={suggest.panels > 0 ? `~${suggest.panels} panneaux` : "~12 panneaux"} accent="from-amber-100 to-orange-50" iconColor="text-orange-600" />
-            <StatCard icon={Coins} label="Aides estimées" value={`${aidesMin.toLocaleString("fr-FR")}–${aidesMax.toLocaleString("fr-FR")} €`} accent="from-blue-100 to-blue-50" iconColor="text-blue-700" />
-            <StatCard icon={LineChart} label="Rentabilité" value={`~${showBattery ? roiWithBattery : roi} ans`} accent="from-purple-100 to-purple-50" iconColor="text-purple-700" />
+            <StatCard icon={PiggyBank} label="Sur 25 ans" value={`~${savings25.toLocaleString("fr-FR")} €`} accent="from-emerald-100 to-emerald-50" iconColor="text-emerald-700" />
+            <StatCard icon={Zap} label="Installation" value={suggest.kwc > 0 ? `${suggest.kwc} kWc` : "—"} sub={suggest.panels > 0 ? `~${suggest.panels} panneaux · ${installCost.toLocaleString("fr-FR")} €` : undefined} accent="from-amber-100 to-orange-50" iconColor="text-orange-600" />
+            {aidesMin > 0 ? (
+              <StatCard icon={Coins} label="Aides estimées" value={`${aidesMin.toLocaleString("fr-FR")} €`} sub="prime versée sur la puissance installée" accent="from-blue-100 to-blue-50" iconColor="text-blue-700" />
+            ) : (
+              <StatCard icon={Coins} label="Aides" value="Prime supprimée" sub="Prime d'État supprimée en juin 2026 — votre gain vient de l'autoconsommation" accent="from-blue-100 to-blue-50" iconColor="text-blue-700" />
+            )}
+            <StatCard icon={LineChart} label="Rentabilité" value={(showBattery ? roiWithBattery : roi) ? `~${showBattery ? roiWithBattery : roi} ans` : "À l'étude"} accent="from-purple-100 to-purple-50" iconColor="text-purple-700" />
           </div>
 
           {/* Comparaison batterie */}
