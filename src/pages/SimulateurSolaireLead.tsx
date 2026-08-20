@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
-  ResponsiveContainer, Legend, Cell,
+  ResponsiveContainer, Legend, Cell, ComposedChart, Area, Line,
 } from "recharts";
 import solarSimBg from "@/assets/simulators/solar-simulator-bg.jpg";
 import { simuler } from "@/lib/solar-engine";
