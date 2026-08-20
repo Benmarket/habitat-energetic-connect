@@ -473,8 +473,13 @@ export default function SimulateurSolaireLead() {
     sim, region, annualBill, savingsMin, savingsMax, savingsMid, savings25,
     aidesMin, aidesMax, roi, co2, trees, suggest, installCost,
     showBattery, setShowBattery, savingsWithBattery, batteryCost, roiWithBattery,
-    unlocked,
+    unlocked, engine,
   };
+
+  /** Libellé de la tuile « Aides » — jamais « 0 € » brut en métropole. */
+  const aidesTileLabel = engine && engine.sans.AIDES > 0
+    ? `Aides ~${engine.sans.AIDES.toLocaleString("fr-FR")} €`
+    : "Prime d'État supprimée en juin 2026";
 
   return (
     <>
