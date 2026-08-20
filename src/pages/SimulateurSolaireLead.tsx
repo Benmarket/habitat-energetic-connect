@@ -480,6 +480,8 @@ export default function SimulateurSolaireLead() {
   const dispAides = scenario?.AIDES ?? aidesMin;
   const dispRoi = scenario?.rentabiliteAns ?? roi;
   const dispCo2 = scenario?.co2KgAn ?? co2;
+  /** Nouvelle facture mensuelle estimée après autoconsommation (dynamique selon le scénario). */
+  const dispNouvelleFacture = scenario?.nouvelleFactureMensuelle ?? engine?.nouvelleFactureMensuelle ?? 0;
 
   /** Libellé de la tuile « Aides » — jamais « 0 € » brut en métropole. */
   const aidesTileLabel = dispAides > 0
