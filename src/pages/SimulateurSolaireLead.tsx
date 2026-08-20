@@ -1599,7 +1599,7 @@ const ResultsPanel = ({
           </div>
 
           {/* Comparaison batterie */}
-          {sim.batteryInterest && sim.batteryInterest !== "non" && (
+          {engine && sim.batteryInterest && sim.batteryInterest !== "non" && (
             <div className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white border border-amber-400/30 relative overflow-hidden">
               <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-amber-400/20 blur-3xl" aria-hidden />
               <div className="relative">
@@ -1611,14 +1611,27 @@ const ResultsPanel = ({
                   <div className={`p-4 rounded-xl border-2 transition-all ${!showBattery ? "border-amber-400 bg-white/10" : "border-white/10"}`}>
                     <p className="text-[11px] uppercase tracking-widest text-white/60 font-bold mb-1">Sans batterie</p>
                     <p className="text-2xl font-bold">{savingsMid.toLocaleString("fr-FR")} € / an</p>
-                    <p className="text-xs text-white/70 mt-1">ROI : {roi} ans · Investissement estimé : {(suggest.kwc * 2400).toLocaleString("fr-FR")} €</p>
+                    <p className="text-xs text-white/70 mt-1">Installation : {engine.sans.cout.toLocaleString("fr-FR")} €{roi ? ` · rentabilité ${roi} ans` : ""}</p>
                   </div>
                   <div className={`p-4 rounded-xl border-2 transition-all ${showBattery ? "border-amber-400 bg-white/10" : "border-white/10"}`}>
                     <p className="text-[11px] uppercase tracking-widest text-white/60 font-bold mb-1">Avec batterie</p>
                     <p className="text-2xl font-bold text-amber-300">{savingsWithBattery.toLocaleString("fr-FR")} € / an</p>
-                    <p className="text-xs text-white/70 mt-1">ROI : {roiWithBattery} ans · Investissement : {(suggest.kwc * 2400 + batteryCost).toLocaleString("fr-FR")} € · <span className="text-amber-300">+ backup anti-coupure</span></p>
+                    <p className="text-xs text-white/70 mt-1">Installation : {engine.avec.cout.toLocaleString("fr-FR")} € · <span className="text-amber-300">+ backup anti-coupure</span></p>
                   </div>
                 </div>
+
+                {/* Recommandation batterie — copy adaptée au territoire */}
+                <p className="mt-4 text-sm text-white/85 leading-relaxed">
+                  {engine.batterie.reco === "RENTABLE" && (
+                    <>Batterie : + {engine.batterie.surcout.toLocaleString("fr-FR")} €, mais + {engine.batterie.gainAnnuel.toLocaleString("fr-FR")} €/an d'économies supplémentaires{engine.batterie.paybackBatterie ? <> — remboursée en {engine.batterie.paybackBatterie} ans</> : null}.</>
+                  )}
+                  {engine.batterie.reco === "CONFORT" && (
+                    <>Batterie : + {engine.batterie.surcout.toLocaleString("fr-FR")} € — vous gardez l'électricité en cas de coupure.{engine.batterie.adoption ? <> {Math.round(engine.batterie.adoption * 100)} % de nos clients {engine.territoire} la choisissent.</> : null}</>
+                  )}
+                  {engine.batterie.reco === "OPTIONNELLE" && (
+                    <>Batterie disponible en option : + {engine.batterie.surcout.toLocaleString("fr-FR")} €. Utile si vous subissez des coupures régulières.</>
+                  )}
+                </p>
               </div>
             </div>
           )}
