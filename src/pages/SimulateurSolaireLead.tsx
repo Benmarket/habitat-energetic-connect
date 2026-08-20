@@ -1716,11 +1716,30 @@ const ResultsPanel = ({
         <div className={`transition-all duration-500 ${!unlocked ? "blur-md select-none pointer-events-none" : "blur-0"}`} aria-hidden={!unlocked}>
           {/* Chiffres clés en grille */}
           {canToggleBattery && (
-            <div className="mb-4 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600">
-              <BatteryCharging className="w-4 h-4 text-orange-500" />
-              Scénario affiché : {showBattery ? "avec batterie" : "sans batterie"}
+            <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-bold uppercase tracking-wider text-slate-600">
+              <span className="inline-flex items-center gap-2">
+                <BatteryCharging className="w-4 h-4 text-orange-500" />
+                Scénario affiché : {showBattery ? "avec batterie" : "sans batterie"}
+              </span>
+              <span className="inline-flex items-center gap-1 normal-case tracking-normal text-slate-700">
+                <Zap className="w-3.5 h-3.5 text-amber-500" /> Puissance préconisée : {suggest.kwc} kWc
+              </span>
+              <span className="inline-flex items-center gap-1 normal-case tracking-normal text-slate-700">
+                <Receipt className="w-3.5 h-3.5 text-emerald-600" /> Nouvelle facture ≈ {dispNouvelleFacture.toLocaleString("fr-FR")} €/mois*
+              </span>
             </div>
           )}
+          {!canToggleBattery && engine && (
+            <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-bold uppercase tracking-wider text-slate-600">
+              <span className="inline-flex items-center gap-1 normal-case tracking-normal text-slate-700">
+                <Zap className="w-3.5 h-3.5 text-amber-500" /> Puissance préconisée : {suggest.kwc} kWc
+              </span>
+              <span className="inline-flex items-center gap-1 normal-case tracking-normal text-slate-700">
+                <Receipt className="w-3.5 h-3.5 text-emerald-600" /> Nouvelle facture ≈ {dispNouvelleFacture.toLocaleString("fr-FR")} €/mois*
+              </span>
+            </div>
+          )}
+          <p className="mb-4 text-[10px] text-slate-400 italic">* Nouvelle facture estimée après autoconsommation solaire — varie selon votre consommation réelle et le tarif en vigueur.</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
             <StatCard icon={PiggyBank} label="Sur 25 ans" value={`~${dSavings25.toLocaleString("fr-FR")} €`} accent="from-emerald-100 to-emerald-50" iconColor="text-emerald-700" />
             <StatCard icon={Zap} label="Installation" value={suggest.kwc > 0 ? `${suggest.kwc} kWc${showBattery ? " + batterie" : ""}` : "—"} sub={suggest.panels > 0 ? `~${suggest.panels} panneaux · ${dCost.toLocaleString("fr-FR")} €` : undefined} accent="from-amber-100 to-orange-50" iconColor="text-orange-600" />
