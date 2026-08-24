@@ -32,6 +32,15 @@ export function simuler(input: Input) {
   if (input.factureMensuelleTTC < HYP.factureMin || input.factureMensuelleTTC > HYP.factureMax)
     return { statut: "CONTACT" as const, raison: "facture_hors_bornes" as const };
 
+  // ── ÉTAPE 0 · orientation → productible effectif ───────────────────────────
+  // Le référentiel est le territoire : 100 % = meilleure orientation de la région.
+  const perfMap = orientationPerfMap(t.id);
+  const orientationRetenue: Exclude<Orientation, "?"> =
+    input.orientation && input.orientation !== "?" ? input.orientation : bestOrientation(t.id);
+  const scoreOrientation = perfMap[orientationRetenue];
+  const coefOrientation = scoreOrientation / 100;
+  const productibleEffectif = t.productible * coefOrientation;
+
   // ── ÉTAPE 1 · facture mensuelle → consommation annuelle ────────────────────
   // La facture contient un abonnement fixe. Le retirer AVANT de diviser par le
   // prix du kWh, sinon on surestime la consommation.
