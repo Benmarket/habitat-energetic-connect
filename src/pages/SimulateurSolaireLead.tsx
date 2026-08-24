@@ -2111,18 +2111,21 @@ const ResultsPanel = ({
                   </div>
                 </div>
 
-                {/* Recommandation batterie — copy adaptée au territoire */}
-                <p className="mt-4 text-sm text-white/85 leading-relaxed">
-                  {engine.batterie.reco === "RENTABLE" && (
-                    <>Batterie : + {engine.batterie.surcout.toLocaleString("fr-FR")} €, mais + {engine.batterie.gainAnnuel.toLocaleString("fr-FR")} €/an d'économies supplémentaires{engine.batterie.paybackBatterie ? <> — remboursée en {engine.batterie.paybackBatterie} ans</> : null}.</>
-                  )}
-                  {engine.batterie.reco === "CONFORT" && (
-                    <>Batterie : + {engine.batterie.surcout.toLocaleString("fr-FR")} € — vous gardez l'électricité en cas de coupure.{engine.batterie.adoption ? <> {Math.round(engine.batterie.adoption * 100)} % de nos clients {engine.territoire} la choisissent.</> : null}</>
-                  )}
-                  {engine.batterie.reco === "OPTIONNELLE" && (
-                    <>Batterie disponible en option : + {engine.batterie.surcout.toLocaleString("fr-FR")} €. Utile si vous subissez des coupures régulières.</>
-                  )}
-                </p>
+                {/* Positionnement batterie — comparaison du gain net sur 25 ans */}
+                {(() => {
+                  const gainNetSans = engine.sans.economies25ans - engine.sans.resteACharge;
+                  const gainNetAvec = engine.avec.economies25ans - engine.avec.resteACharge;
+                  const rentable = gainNetAvec > gainNetSans;
+                  const diff = Math.round(gainNetAvec - gainNetSans);
+                  const surcoutBat = engine.batterie.surcout;
+                  return (
+                    <p className="mt-4 text-sm text-white/85 leading-relaxed">
+                      {rentable
+                        ? <>La batterie augmente vos gains de <strong className="text-amber-300">{diff.toLocaleString("fr-FR")} €</strong> sur 25 ans, en plus de vous protéger des coupures de courant.</>
+                        : <>Sur ce projet, la batterie ne se rembourse pas : elle coûte <strong className="text-amber-300">{surcoutBat.toLocaleString("fr-FR")} €</strong> et rapporte moins que ce qu'elle coûte. Son intérêt ici est le confort — vous gardez l'électricité en cas de coupure.</>}
+                    </p>
+                  );
+                })()}
               </div>
             </div>
           )}
