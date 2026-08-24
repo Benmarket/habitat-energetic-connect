@@ -350,17 +350,6 @@ const OffrePartenaire = () => {
                         </span>
                       </div>
                     )}
-                    {offer.advertiser.contact_email && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Mail className="w-4 h-4 text-muted-foreground" />
-                        <a 
-                          href={`mailto:${offer.advertiser.contact_email}`}
-                          className="text-primary hover:underline"
-                        >
-                          {offer.advertiser.contact_email}
-                        </a>
-                      </div>
-                    )}
                     {offer.cta_url && offer.cta_url.trim() !== '' && (
                       <div className="flex items-center gap-2 text-sm">
                         <Globe className="w-4 h-4 text-muted-foreground" />
