@@ -561,10 +561,11 @@ export default function SimulateurSolaireLead() {
 
       <Header />
 
-      <main className="relative min-h-screen pb-20">
-        <SolarBackdrop />
+      <main className={`relative isolate overflow-hidden ${step === 0 ? "" : "min-h-[70vh] pb-20"}`}>
+        {step !== 0 && <SolarBackdrop />}
 
         {step === 0 && <EntryHero onStart={() => setStep(1)} />}
+
 
         {step > 0 && step < 9 && (
           <div id="sim-wizard" className="container mx-auto px-4 max-w-3xl pt-4 md:pt-16">
