@@ -537,10 +537,11 @@ export default function SimulateurSolaireLead() {
   /** Nouvelle facture mensuelle estimée après autoconsommation (dynamique selon le scénario). */
   const dNouvelleFacture = scenario?.nouvelleFactureMensuelle ?? engine?.nouvelleFactureMensuelle ?? 0;
   /** Gains mensuels estimés (dynamique selon le scénario). */
-  const dGainsMensuels = scenario?.gainsMensuels ?? engine?.scenarioB?.gainsMensuels ?? 0;
+  const dGainsMensuels = scenario?.gainsMensuels ?? 0;
   /** Décomposition mensuelle : facture évitée + revente nette d'impôt. */
-  const dGainsMensuelsAutoconso = scenario?.gainsMensuelsAutoconso ?? engine?.scenarioB?.gainsMensuelsAutoconso ?? 0;
-  const dGainsMensuelsRevente = scenario?.gainsMensuelsRevente ?? engine?.scenarioB?.gainsMensuelsRevente ?? 0;
+  const dGainsMensuelsAutoconso = scenario?.gainsMensuelsAutoconso ?? 0;
+  const dGainsMensuelsRevente = scenario?.gainsMensuelsRevente ?? 0;
+
   /** Coût d'installation du scénario affiché (parent scope, pour les aperçus). */
   const dCost = scenario?.cout ?? installCost;
   /** Taux d'autoconsommation (part de la production consommée sur place). */
