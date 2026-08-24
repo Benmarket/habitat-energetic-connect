@@ -211,6 +211,13 @@ export type Database = {
             foreignKeyName: "advertisements_advertiser_id_fkey"
             columns: ["advertiser_id"]
             isOneToOne: false
+            referencedRelation: "advertisers_admin"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisements_advertiser_id_fkey"
+            columns: ["advertiser_id"]
+            isOneToOne: false
             referencedRelation: "advertisers_public"
             referencedColumns: ["id"]
           },
@@ -2754,6 +2761,60 @@ export type Database = {
       }
     }
     Views: {
+      advertisers_admin: {
+        Row: {
+          city: string | null
+          contact_email: string | null
+          created_at: string | null
+          department: string | null
+          description: string | null
+          id: string | null
+          intervention_departments: string[] | null
+          intervention_radius_km: number | null
+          is_active: boolean | null
+          logo: string | null
+          name: string | null
+          postal_code: string | null
+          region: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          city?: string | null
+          contact_email?: string | null
+          created_at?: string | null
+          department?: string | null
+          description?: string | null
+          id?: string | null
+          intervention_departments?: string[] | null
+          intervention_radius_km?: number | null
+          is_active?: boolean | null
+          logo?: string | null
+          name?: string | null
+          postal_code?: string | null
+          region?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          city?: string | null
+          contact_email?: string | null
+          created_at?: string | null
+          department?: string | null
+          description?: string | null
+          id?: string | null
+          intervention_departments?: string[] | null
+          intervention_radius_km?: number | null
+          is_active?: boolean | null
+          logo?: string | null
+          name?: string | null
+          postal_code?: string | null
+          region?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
       advertisers_public: {
         Row: {
           city: string | null
