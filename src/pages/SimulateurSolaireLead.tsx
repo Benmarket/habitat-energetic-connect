@@ -534,6 +534,9 @@ export default function SimulateurSolaireLead() {
   const dNouvelleFacture = scenario?.nouvelleFactureMensuelle ?? engine?.nouvelleFactureMensuelle ?? 0;
   /** Gains mensuels estimés (dynamique selon le scénario). */
   const dGainsMensuels = scenario?.gainsMensuels ?? engine?.scenarioB?.gainsMensuels ?? 0;
+  /** Décomposition mensuelle : facture évitée + revente nette d'impôt. */
+  const dGainsMensuelsAutoconso = scenario?.gainsMensuelsAutoconso ?? engine?.scenarioB?.gainsMensuelsAutoconso ?? 0;
+  const dGainsMensuelsRevente = scenario?.gainsMensuelsRevente ?? engine?.scenarioB?.gainsMensuelsRevente ?? 0;
   /** Coût d'installation du scénario affiché (parent scope, pour les aperçus). */
   const dCost = scenario?.cout ?? installCost;
   /** Taux d'autoconsommation (part de la production consommée sur place). */
@@ -902,15 +905,27 @@ export default function SimulateurSolaireLead() {
                   ))}
                 </div>
 
-                {/* Puissance préconisée + nouvelle facture (dynamique selon le scénario) */}
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <div className="flex items-center gap-2 text-sm text-slate-900/90 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2">
+                {/* Puissance préconisée + gains par mois (dynamique selon le scénario) */}
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  <div className="col-span-1 flex items-center gap-2 text-sm text-slate-900/90 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2">
                     <Zap className="w-4 h-4 shrink-0 text-amber-600" />
                     <span className="font-semibold leading-tight">{suggest.kwc > 0 ? `${suggest.kwc} kWc` : "—"}<span className="block text-[10px] font-medium text-slate-900/70">puissance préconisée</span></span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-slate-900/90 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2">
-                    <Receipt className="w-4 h-4 shrink-0 text-emerald-700" />
-                    <span className="font-semibold leading-tight">≈ {dGainsMensuels.toLocaleString("fr-FR")} €/mois<span className="block text-[10px] font-medium text-slate-900/70">de gains estimés</span></span>
+                  <div className="col-span-2 flex flex-col justify-center text-sm text-slate-900/90 bg-white/30 backdrop-blur-sm rounded-lg px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <Receipt className="w-4 h-4 shrink-0 text-emerald-700" />
+                      <span className="font-bold leading-tight text-[15px]">≈ {dGainsMensuels.toLocaleString("fr-FR")} €/mois<span className="block text-[10px] font-medium text-slate-900/70 font-normal">de gains estimés</span></span>
+                    </div>
+                    <div className="mt-1.5 pl-6 space-y-0.5 text-[11px] font-medium text-slate-900/80">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-slate-500">↳</span>
+                        <span>{dGainsMensuelsAutoconso.toLocaleString("fr-FR")} € de facture évitée</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-slate-500">↳</span>
+                        <span>{dGainsMensuelsRevente.toLocaleString("fr-FR")} € de revente à EDF</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 {dispSavings25 > 0 && (
