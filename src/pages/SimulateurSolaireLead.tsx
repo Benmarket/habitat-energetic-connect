@@ -748,6 +748,7 @@ export default function SimulateurSolaireLead() {
                             </div>
                           )}
                           <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Facture estimée après autoconsommation — varie selon votre consommation réelle. Prix TTC, TVA comprise.</p>
+                          {showBattery && <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Estimation hors remplacement de la batterie. Une batterie a une durée de vie de 12 à 15 ans ; un remplacement est à prévoir sur un horizon de 25 ans.</p>}
                           <p className="mt-1 text-[9px] text-slate-900/55 leading-tight">
                             Base : {engine?.territoire}{sim.city ? ` · ${sim.city}` : ""} · facture {annualBill.toLocaleString("fr-FR")} €/an · {engine?.puissanceKwc ?? suggest.kwc} kWc ({engine?.nbPanneaux ?? suggest.panels} pan.) · {dCost.toLocaleString("fr-FR")} €
                           </p>
@@ -933,6 +934,7 @@ export default function SimulateurSolaireLead() {
                 )}
                 
                 {mentionTVA && <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">{mentionTVA}</p>}
+                {showBattery && <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Estimation hors remplacement de la batterie. Une batterie a une durée de vie de 12 à 15 ans ; un remplacement est à prévoir sur un horizon de 25 ans.</p>}
                 <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Calcul incluant une hausse du prix de l'électricité de 3 % par an. Hypothèse prudente : le tarif réglementé a augmenté de 3,4 % par an en moyenne entre 2012 et 2026 (source CRE).</p>
                 <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Estimation pour une toiture correctement orientée et inclinée. Le rendement réel dépend de votre toiture, évalué lors de l'étude technique.</p>
                 <p className="mt-2 text-[10px] text-slate-900/60 leading-tight">
@@ -1962,6 +1964,7 @@ const ResultsPanel = ({
               <p className="mt-2 max-w-xl text-[10px] text-slate-900/60 leading-snug">Prix TTC, TVA comprise. {mentionTVA}</p>
               <p className="mt-1 max-w-xl text-[10px] text-slate-900/60 leading-snug">Estimation pour une toiture correctement orientée et inclinée. Le rendement réel dépend de votre toiture, évalué lors de l'étude technique.</p>
               <p className="mt-1 max-w-xl text-[10px] text-slate-900/60 leading-snug">Calcul incluant une hausse du prix de l'électricité de 3 % par an. Hypothèse prudente : le tarif réglementé a augmenté de 3,4 % par an en moyenne entre 2012 et 2026 (source CRE).</p>
+              {showBattery && <p className="mt-1 max-w-xl text-[10px] text-slate-900/60 leading-snug">Estimation hors remplacement de la batterie. Une batterie a une durée de vie de 12 à 15 ans ; un remplacement est à prévoir sur un horizon de 25 ans.</p>}
             </div>
           )}
         </div>
