@@ -197,6 +197,10 @@ function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: num
     resteACharge,
     economiesAn: Math.round(economiesAn),
     gainsMensuels: Math.round(economiesAn / 12),
+    // Décomposition mensuelle du gain (facture évitée + revente nette d'impôt).
+    // La somme des deux sous-lignes doit égaler `gainsMensuels` à 1 € d'arrondi près.
+    gainsMensuelsAutoconso: Math.round(economieAutoconso / 12),
+    gainsMensuelsRevente: Math.round((revenuAn1 - impotAn1) / 12),
     economies25ans: Math.round(cumul),
     gains25ans: Math.round(cumul),
     gainNet25ans: Math.round(cumul - resteACharge),
