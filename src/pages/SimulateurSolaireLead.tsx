@@ -519,7 +519,7 @@ export default function SimulateurSolaireLead() {
     sim, region, annualBill, savingsMin, savingsMax, savingsMid, savings25,
     aidesMin, aidesMax, roi, co2, trees, suggest, installCost,
     showBattery, setShowBattery, savingsWithBattery, batteryCost, roiWithBattery,
-    unlocked, engine,
+    unlocked, engine, engineOptimal, viewOptimal, setViewOptimal,
   };
 
   /** Scénario affiché (avec ou sans batterie) — pilote tous les chiffres de l'aperçu final. */
@@ -548,6 +548,10 @@ export default function SimulateurSolaireLead() {
   const dFactureEvitee = scenario?.factureEvitee25ans ?? 0;
   const dReventeNette = scenario?.reventeNette25ans ?? 0;
   const mentionTVA: string = engine?.mentionTVA ?? "";
+  /** Orientation : score (100 % = meilleure orientation du territoire) et production optimale. */
+  const dScoreOrientation: number = engine?.scoreOrientation ?? 100;
+  const dProdOptimalKwh: number =
+    (showBattery ? engineOptimal?.avec.productionAnnuelleKwh : engineOptimal?.sans.productionAnnuelleKwh) ?? 0;
 
   /** Libellé de la tuile « Aides » — jamais « 0 € » brut en métropole. */
   const aidesTileLabel = dispAides > 0
@@ -736,19 +740,13 @@ export default function SimulateurSolaireLead() {
                             ))}
                           </div>
                           {dProdKwh > 0 && (
-                            <div className="mt-2 bg-white/30 rounded-md px-2 py-1.5">
-                              <div className="flex items-baseline justify-between">
-                                <span className="text-[9px] font-bold uppercase tracking-wide text-slate-900/70">Ce que produisent vos panneaux</span>
-                                <span className="text-[10px] font-black">{dProdKwh.toLocaleString("fr-FR")} kWh/an</span>
-                              </div>
-                              <div className="mt-1 flex h-2 rounded-full overflow-hidden bg-slate-900/10">
-                                <div className="h-full bg-slate-900/80" style={{ width: `${dPartAuto}%` }} />
-                                <div className="h-full bg-slate-900/25" style={{ width: `${dPartRevendue}%` }} />
-                              </div>
-                              <div className="mt-1 flex flex-wrap gap-x-2 text-[9px] font-semibold text-slate-900/80">
-                                <span>● Vous consommez {dAutoKwh.toLocaleString("fr-FR")} kWh ({dPartAuto} %)</span>
-                                <span>● Vous revendez {dSurplusKwh.toLocaleString("fr-FR")} kWh ({dPartRevendue} %)</span>
-                              </div>
+                            <div className="mt-2">
+                              <ProductionConditions
+                                score={dScoreOrientation} prodKwh={dProdKwh} autoKwh={dAutoKwh} surplusKwh={dSurplusKwh}
+                                variant="amber" size="sm" orientation={sim.orientation}
+                                prodOptimalKwh={dProdOptimalKwh}
+                                isOptimalView={viewOptimal}
+                              />
                             </div>
                           )}
                           <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Facture estimée après autoconsommation — varie selon votre consommation réelle. Prix TTC, TVA comprise.</p>
@@ -918,19 +916,13 @@ export default function SimulateurSolaireLead() {
                   </p>
                 )}
                 {dProdKwh > 0 && (
-                  <div className="mt-3 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2.5">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wide text-slate-900/70">Ce que produisent vos panneaux</span>
-                      <span className="text-xs font-black">{dProdKwh.toLocaleString("fr-FR")} kWh/an</span>
-                    </div>
-                    <div className="mt-1.5 flex h-3 rounded-full overflow-hidden bg-slate-900/10">
-                      <div className="h-full bg-slate-900/80" style={{ width: `${dPartAuto}%` }} />
-                      <div className="h-full bg-slate-900/25" style={{ width: `${dPartRevendue}%` }} />
-                    </div>
-                    <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] font-semibold text-slate-900/85">
-                      <span>● Vous consommez {dAutoKwh.toLocaleString("fr-FR")} kWh ({dPartAuto} %)</span>
-                      <span>● Vous revendez {dSurplusKwh.toLocaleString("fr-FR")} kWh ({dPartRevendue} %)</span>
-                    </div>
+                  <div className="mt-3">
+                    <ProductionConditions
+                      score={dScoreOrientation} prodKwh={dProdKwh} autoKwh={dAutoKwh} surplusKwh={dSurplusKwh}
+                      variant="amber" orientation={sim.orientation}
+                      prodOptimalKwh={dProdOptimalKwh}
+                      isOptimalView={viewOptimal}
+                    />
                     {dCouverture !== null && (
                       <p className="mt-1.5 text-xs font-black text-slate-900">{dCouverture} % de vos besoins couverts</p>
                     )}
@@ -1861,7 +1853,7 @@ const ResultsPanel = ({
   sim, region, annualBill, savingsMin, savingsMax, savingsMid, savings25,
   aidesMin, aidesMax, roi, co2, trees, suggest, installCost,
   showBattery, setShowBattery, savingsWithBattery, batteryCost, roiWithBattery,
-  unlocked, engine, onUnlockClick, onEdit, hideMobileSticky,
+  unlocked, engine, engineOptimal, viewOptimal, setViewOptimal, onUnlockClick, onEdit, hideMobileSticky,
 }: any) => {
   const housingLabel = HOUSING.find((h) => h.id === sim.housing)?.label || "—";
   const surfaceLabel = typeof sim.surface === "number" ? `${sim.surface} m²` : "—";
@@ -1926,6 +1918,9 @@ const ResultsPanel = ({
   const rReventeNette = scenario?.reventeNette25ans ?? 0;
   const rResteACharge = scenario?.resteACharge ?? 0;
   const mentionTVA: string = engine?.mentionTVA ?? "";
+  const rScoreOrientation: number = engine?.scoreOrientation ?? 100;
+  const rProdOptimalKwh: number =
+    (showBattery ? engineOptimal?.avec.productionAnnuelleKwh : engineOptimal?.sans.productionAnnuelleKwh) ?? 0;
   const MOIS = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
   const PROFIL_NORD = [0.045, 0.058, 0.083, 0.098, 0.111, 0.115, 0.121, 0.112, 0.092, 0.069, 0.05, 0.046];
   const PROFIL_SUD = [0.104, 0.096, 0.094, 0.081, 0.069, 0.062, 0.067, 0.075, 0.082, 0.09, 0.09, 0.09];
@@ -2032,19 +2027,15 @@ const ResultsPanel = ({
             </p>
           )}
           {engine && rProdKwh > 0 && (
-            <div className="mt-3 max-w-xl bg-white/30 backdrop-blur-sm rounded-xl px-3 py-2.5">
-              <div className="flex items-baseline justify-between gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wide text-slate-900/70">Ce que produisent vos panneaux</span>
-                <span className="text-xs font-black">{rProdKwh.toLocaleString("fr-FR")} kWh/an</span>
-              </div>
-              <div className="mt-1.5 flex h-3.5 rounded-full overflow-hidden bg-slate-900/10">
-                <div className="h-full bg-slate-900/80" style={{ width: `${rPartAuto}%` }} />
-                <div className="h-full bg-slate-900/25" style={{ width: `${rPartRevendue}%` }} />
-              </div>
-              <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5 text-[11px] font-semibold text-slate-900/85">
-                <span>● Vous consommez {rAutoKwh.toLocaleString("fr-FR")} kWh ({rPartAuto} %)</span>
-                <span>● Vous revendez {rSurplusKwh.toLocaleString("fr-FR")} kWh ({rPartRevendue} %)</span>
-              </div>
+            <div className="mt-3 max-w-xl">
+              <ProductionConditions
+                score={rScoreOrientation} prodKwh={rProdKwh} autoKwh={rAutoKwh} surplusKwh={rSurplusKwh}
+                variant="amber" orientation={sim.orientation}
+                prodOptimalKwh={rProdOptimalKwh}
+                onViewOptimal={!viewOptimal ? () => setViewOptimal?.(true) : undefined}
+                onBackToReal={() => setViewOptimal?.(false)}
+                isOptimalView={viewOptimal}
+              />
             </div>
           )}
           {engine && mentionTVA && (
@@ -2239,19 +2230,15 @@ const ResultsPanel = ({
                 )}
               </div>
               {rProdKwh > 0 && (
-                <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-3">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-700">Ce que produisent vos panneaux</span>
-                    <span className="text-sm font-black text-slate-900">{rProdKwh.toLocaleString("fr-FR")} kWh/an</span>
-                  </div>
-                  <div className="mt-2 flex h-4 rounded-full overflow-hidden bg-amber-100">
-                    <div className="h-full bg-amber-500" style={{ width: `${rPartAuto}%` }} />
-                    <div className="h-full bg-amber-500/30" style={{ width: `${rPartRevendue}%` }} />
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs font-semibold text-slate-700">
-                    <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Vous consommez {rAutoKwh.toLocaleString("fr-FR")} kWh ({rPartAuto} %)</span>
-                    <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500/30" /> Vous revendez {rSurplusKwh.toLocaleString("fr-FR")} kWh ({rPartRevendue} %)</span>
-                  </div>
+                <div className="mb-5">
+                  <ProductionConditions
+                    score={rScoreOrientation} prodKwh={rProdKwh} autoKwh={rAutoKwh} surplusKwh={rSurplusKwh}
+                    variant="card" orientation={sim.orientation}
+                    prodOptimalKwh={rProdOptimalKwh}
+                    onViewOptimal={!viewOptimal ? () => setViewOptimal?.(true) : undefined}
+                    onBackToReal={() => setViewOptimal?.(false)}
+                    isOptimalView={viewOptimal}
+                  />
                   <p className="mt-1.5 text-[11px] text-slate-500">Le surplus n'est pas perdu : il est racheté par EDF et constitue une part importante de vos gains.</p>
                 </div>
               )}
