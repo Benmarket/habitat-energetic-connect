@@ -529,6 +529,8 @@ export default function SimulateurSolaireLead() {
   const dispCo2 = scenario?.co2KgAn ?? co2;
   /** Nouvelle facture mensuelle estimée après autoconsommation (dynamique selon le scénario). */
   const dNouvelleFacture = scenario?.nouvelleFactureMensuelle ?? engine?.nouvelleFactureMensuelle ?? 0;
+  /** Gains mensuels estimés (dynamique selon le scénario). */
+  const dGainsMensuels = scenario?.gainsMensuels ?? engine?.scenarioB?.gainsMensuels ?? 0;
   /** Coût d'installation du scénario affiché (parent scope, pour les aperçus). */
   const dCost = scenario?.cout ?? installCost;
   /** Taux d'autoconsommation (part de la production consommée sur place). */
@@ -902,7 +904,7 @@ export default function SimulateurSolaireLead() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-slate-900/90 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2">
                     <Receipt className="w-4 h-4 shrink-0 text-emerald-700" />
-                    <span className="font-semibold leading-tight">≈ {dNouvelleFacture.toLocaleString("fr-FR")} €/mois<span className="block text-[10px] font-medium text-slate-900/70">nouvelle facture*</span></span>
+                    <span className="font-semibold leading-tight">≈ {dGainsMensuels.toLocaleString("fr-FR")} €/mois<span className="block text-[10px] font-medium text-slate-900/70">de gains estimés</span></span>
                   </div>
                 </div>
                 {dispSavings25 > 0 && (
@@ -929,7 +931,7 @@ export default function SimulateurSolaireLead() {
                     )}
                   </div>
                 )}
-                <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Estimée après autoconsommation — varie selon votre consommation réelle. Prix TTC, TVA comprise.</p>
+                
                 {mentionTVA && <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">{mentionTVA}</p>}
                 <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Estimation pour une toiture correctement orientée et inclinée. Le rendement réel dépend de votre toiture, évalué lors de l'étude technique.</p>
                 <p className="mt-2 text-[10px] text-slate-900/60 leading-tight">
