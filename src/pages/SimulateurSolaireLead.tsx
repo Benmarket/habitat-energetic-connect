@@ -2141,77 +2141,52 @@ const ResultsPanel = ({
             <StatCard icon={LineChart} label="Rentabilité" value={dRoi ? `~${dRoi} ans` : "À l'étude"} accent="from-purple-100 to-purple-50" iconColor="text-purple-700" />
           </div>
 
-          {/* Deux scénarios comparés (A / B) */}
-          {engine && (
+          {/* Installation recommandée (une seule puissance, dimensionnée sur l'autoconsommation) */}
+          {engine && scenario && (
             <section className="mb-8">
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
-                {engine.scenarioIdentiques ? "Votre installation en détail" : "Deux installations possibles"}
+                Votre installation en détail
               </h3>
-              <div className={`grid gap-4 ${engine.scenarioIdentiques ? "" : "md:grid-cols-2"}`}>
-                {(engine.scenarioIdentiques ? [engine.scenarioB] : [engine.scenarioA, engine.scenarioB]).map((sc, i) => {
-                  const isB = engine.scenarioIdentiques || i === 1;
-                  return (
-                    <div
-                      key={sc.libelle}
-                      className={`p-5 rounded-2xl border-2 ${isB && !engine.scenarioIdentiques ? "border-amber-400 bg-amber-50/60" : "border-slate-200 bg-white"}`}
-                    >
-                      <div className="flex flex-wrap items-center gap-2 mb-3">
-                        <span className="text-xs font-black uppercase tracking-widest text-slate-700">{sc.libelle}</span>
-                        {isB && !engine.scenarioIdentiques && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400 text-slate-900 text-[10px] font-black uppercase tracking-wide">
-                            <Check className="w-3 h-3" /> Le plus avantageux pour vous
-                          </span>
-                        )}
-                        {isB && !engine.scenarioIdentiques && engine.comparatif.bPlusRapide && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wide">
-                            <Check className="w-3 h-3" /> et remboursé plus vite
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm font-bold text-slate-900">
-                        {sc.puissanceKwc} kWc, {sc.nbPanneaux} panneaux
-                      </p>
-                      <p className="text-xs text-slate-600 mt-0.5">
-                        {sc.cout.toLocaleString("fr-FR")} €{sc.AIDES > 0 ? ` · ${sc.AIDES.toLocaleString("fr-FR")} € d'aides` : ""} · reste à charge {sc.resteACharge.toLocaleString("fr-FR")} €
-                      </p>
-                      <p className="text-xl font-black text-slate-900 mt-2">
-                        {sc.economiesAn.toLocaleString("fr-FR")} € de gains par an
-                        {sc.rentabiliteAns ? <span className="text-sm font-bold text-slate-600"> · rentabilisé en {String(sc.rentabiliteAns).replace(".", ",")} ans</span> : null}
-                      </p>
-                      <div className="mt-2 rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-[12px] text-slate-700 space-y-0.5">
-                        <p className="flex justify-between"><span>Gains cumulés sur 25 ans</span><span className="font-bold text-slate-900">{sc.gains25ans.toLocaleString("fr-FR")} €</span></p>
-                        <p className="flex justify-between"><span>Reste à charge</span><span className="font-bold text-slate-900">− {sc.resteACharge.toLocaleString("fr-FR")} €</span></p>
-                        <p className="flex justify-between text-emerald-700 font-black pt-0.5 border-t border-slate-200"><span>Vous gagnez</span><span>{(sc.gains25ans - sc.resteACharge).toLocaleString("fr-FR")} €</span></p>
-                      </div>
-                      <p className="mt-1 text-[11px] text-slate-500">
-                        dont ~{sc.factureEvitee25ans.toLocaleString("fr-FR")} € de facture évitée et ~{sc.reventeNette25ans.toLocaleString("fr-FR")} € de revente à EDF, nets d'impôt
-                      </p>
-                      <ul className="mt-3 space-y-1 text-[12px] text-slate-600 leading-relaxed">
-                        {sc.AIDES > 0 && (
-                          <li>— {sc.AIDES.toLocaleString("fr-FR")} € de prime à l'investissement, versée en une seule fois</li>
-                        )}
-                        <li>— {sc.economieAutoconso.toLocaleString("fr-FR")} €/an d'électricité que vous n'achetez plus</li>
-                        <li>
-                          — {sc.revenuSurplusAn1.toLocaleString("fr-FR")} €/an de surplus revendu à EDF, soit {sc.revenuSurplus20ans.toLocaleString("fr-FR")} € sur 20 ans, à un tarif de {String(sc.tarifRachatCts).replace(".", ",")} c€/kWh garanti 20 ans par arrêté
-                        </li>
-                        {sc.impotAnnuel > 0 && (
-                          <li>— − {sc.impotAnnuel.toLocaleString("fr-FR")} €/an d'impôt sur les revenus de revente</li>
-                        )}
-                      </ul>
-                    </div>
-                  );
-                })}
-              </div>
-              {!engine.scenarioIdentiques && (
-                <p className="mt-4 text-sm text-slate-700 leading-relaxed">
-                  <strong>Le maximum</strong> vous coûte {engine.comparatif.surcoutInitial.toLocaleString("fr-FR")} € de plus au départ et vous rapporte {engine.comparatif.gainNetSupplementaire.toLocaleString("fr-FR")} € de plus sur 25 ans
-                  {engine.comparatif.bPlusRapide
-                    ? ", et il se rembourse même plus vite."
-                    : " ; il se rembourse un peu plus tard, mais vous rapporte davantage au total."}
+              <div className="p-5 rounded-2xl border-2 border-amber-400 bg-amber-50/60">
+                <p className="text-sm font-bold text-slate-900">
+                  {scenario.puissanceKwc} kWc, {scenario.nbPanneaux} panneaux{showBattery ? " + batterie" : ""}
                 </p>
-              )}
+                <p className="text-xs text-slate-600 mt-0.5">
+                  {scenario.cout.toLocaleString("fr-FR")} €{scenario.AIDES > 0 ? ` · ${scenario.AIDES.toLocaleString("fr-FR")} € d'aides` : ""} · reste à charge {scenario.resteACharge.toLocaleString("fr-FR")} €
+                </p>
+                <p className="text-xl font-black text-slate-900 mt-2">
+                  {scenario.economiesAn.toLocaleString("fr-FR")} € de gains par an
+                  {scenario.rentabiliteAns ? <span className="text-sm font-bold text-slate-600"> · rentabilisé en {String(scenario.rentabiliteAns).replace(".", ",")} ans</span> : null}
+                </p>
+                <div className="mt-2 rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-[12px] text-slate-700 space-y-0.5">
+                  <p className="flex justify-between"><span>Gains cumulés sur 25 ans</span><span className="font-bold text-slate-900">{scenario.gains25ans.toLocaleString("fr-FR")} €</span></p>
+                  <p className="flex justify-between"><span>Reste à charge</span><span className="font-bold text-slate-900">− {scenario.resteACharge.toLocaleString("fr-FR")} €</span></p>
+                  <p className="flex justify-between text-emerald-700 font-black pt-0.5 border-t border-slate-200"><span>Vous gagnez</span><span>{(scenario.gains25ans - scenario.resteACharge).toLocaleString("fr-FR")} €</span></p>
+                </div>
+                <p className="mt-1 text-[11px] text-slate-500">
+                  dont ~{scenario.factureEvitee25ans.toLocaleString("fr-FR")} € de facture évitée et ~{scenario.reventeNette25ans.toLocaleString("fr-FR")} € de revente à EDF, nets d'impôt
+                </p>
+                <ul className="mt-3 space-y-1 text-[12px] text-slate-600 leading-relaxed">
+                  {scenario.AIDES > 0 && (
+                    <li>— {scenario.AIDES.toLocaleString("fr-FR")} € de prime à l'investissement, versée en une seule fois</li>
+                  )}
+                  <li>— {scenario.economieAutoconso.toLocaleString("fr-FR")} €/an d'électricité que vous n'achetez plus</li>
+                  <li>
+                    — {scenario.revenuSurplusAn1.toLocaleString("fr-FR")} €/an de surplus revendu à EDF, soit {scenario.revenuSurplus20ans.toLocaleString("fr-FR")} € sur 20 ans, à un tarif de {String(scenario.tarifRachatCts).replace(".", ",")} c€/kWh garanti 20 ans par arrêté
+                  </li>
+                  {scenario.impotAnnuel > 0 && (
+                    <li>— − {scenario.impotAnnuel.toLocaleString("fr-FR")} €/an d'impôt sur les revenus de revente</li>
+                  )}
+                </ul>
+                {scenario.plancher && (
+                  <p className="mt-3 rounded-xl bg-white border border-amber-200 px-3 py-2 text-[12px] text-slate-700 leading-relaxed">
+                    Votre consommation est modeste : la plus petite installation de notre gamme (3 kWc) produira un peu plus que vos besoins. Le surplus est revendu à EDF. Une puissance inférieure peut être étudiée lors de l'appel conseil.
+                  </p>
+                )}
+              </div>
             </section>
           )}
+
 
 
 
