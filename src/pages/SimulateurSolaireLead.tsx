@@ -400,9 +400,13 @@ export default function SimulateurSolaireLead() {
 
   const engine = viewOptimal && engineOptimal ? engineOptimal : engineReel;
 
+  /** Puissance recommandée — dépend du scénario affiché (batterie = cible 100 % de la conso). */
+  const suggestKwc = engine ? (showBattery ? engine.avec.puissanceKwc : engine.sans.puissanceKwc) : 0;
+  const suggestPanels = engine ? (showBattery ? engine.avec.nbPanneaux : engine.sans.nbPanneaux) : 0;
   const suggest = engine
-    ? { kwc: engine.puissanceKwc, panels: engine.nbPanneaux, label: `${engine.puissanceKwc} kWc` }
+    ? { kwc: suggestKwc, panels: suggestPanels, label: `${suggestKwc} kWc` }
     : { kwc: 0, panels: 0, label: "—" };
+
 
   // Scénario par défaut affiché : SANS batterie
   const savingsMid = engine?.sans.economiesAn ?? 0;
