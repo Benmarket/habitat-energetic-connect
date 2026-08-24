@@ -176,6 +176,7 @@ function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: num
     AIDES,
     resteACharge,
     economiesAn: Math.round(economiesAn),
+    gainsMensuels: Math.round(economiesAn / 12),
     economies25ans: Math.round(cumul),
     gains25ans: Math.round(cumul),
     gainNet25ans: Math.round(cumul - resteACharge),
