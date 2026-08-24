@@ -225,11 +225,12 @@ function orientationFeedback(o: Orientation, regionId?: string): string {
 
 // ---------- Solar background ----------
 const SolarBackdrop = () => (
-  <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden>
+  <div className="absolute inset-0 -z-10 overflow-hidden" aria-hidden>
     <img src={solarSimBg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50" loading="eager" />
     <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/30 to-white/60" />
   </div>
 );
+
 
 // ---------- Compass ----------
 const Compass8 = ({ value, onChange, regionId }: { value: Orientation | ""; onChange: (o: Orientation) => void; regionId?: string }) => {
@@ -560,10 +561,11 @@ export default function SimulateurSolaireLead() {
 
       <Header />
 
-      <main className="relative min-h-screen pb-20">
-        <SolarBackdrop />
+      <main className={`relative isolate overflow-hidden ${step === 0 ? "" : "min-h-[70vh] pb-20"}`}>
+        {step !== 0 && <SolarBackdrop />}
 
         {step === 0 && <EntryHero onStart={() => setStep(1)} />}
+
 
         {step > 0 && step < 9 && (
           <div id="sim-wizard" className="container mx-auto px-4 max-w-3xl pt-4 md:pt-16">
