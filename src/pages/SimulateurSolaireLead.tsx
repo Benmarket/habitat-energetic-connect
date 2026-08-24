@@ -225,11 +225,12 @@ function orientationFeedback(o: Orientation, regionId?: string): string {
 
 // ---------- Solar background ----------
 const SolarBackdrop = () => (
-  <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden>
+  <div className="absolute inset-0 -z-10 overflow-hidden" aria-hidden>
     <img src={solarSimBg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50" loading="eager" />
     <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/30 to-white/60" />
   </div>
 );
+
 
 // ---------- Compass ----------
 const Compass8 = ({ value, onChange, regionId }: { value: Orientation | ""; onChange: (o: Orientation) => void; regionId?: string }) => {
