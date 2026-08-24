@@ -181,6 +181,13 @@ function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: num
     // La somme des deux sous-lignes doit égaler `gainsMensuels` à 1 € d'arrondi près.
     gainsMensuelsAutoconso: Math.round(economieAutoconso / 12),
     gainsMensuelsRevente: Math.round((revenuAn1 - impotAn1) / 12),
+    /**
+     * Part de la revente du surplus dans les gains annuels (%).
+     * Contrôle de dimensionnement : doit rester < 35 % sans batterie, < 25 % avec.
+     */
+    partReventeDansGains:
+      economiesAn > 0 ? Math.round(((revenuAn1 - impotAn1) / economiesAn) * 100) : 0,
+
     economies25ans: Math.round(cumul),
     gains25ans: Math.round(cumul),
     gainNet25ans: Math.round(cumul - resteACharge),
