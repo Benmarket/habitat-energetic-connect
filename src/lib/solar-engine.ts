@@ -58,7 +58,7 @@ export function simuler(input: Input) {
   // La cible se calcule toujours sur le productible optimal du territoire :
   // une mauvaise orientation ne doit jamais débloquer une puissance supérieure.
   const dimensionner = (bat: boolean) => {
-    const cible = (bat ? 1.0 : 0.7) * conso;
+    const cible = (bat ? HYP.ratioCibleAvecBatterie : HYP.ratioCibleSansBatterie) * conso;
     const eligibles = ([3, 6, 9] as const).filter((p) => p * t.productible <= cible);
     return {
       kwc: (eligibles.length ? Math.max(...eligibles) : 3) as Kwc,
