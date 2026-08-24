@@ -34,7 +34,7 @@ import {
 } from "recharts";
 import solarSimBg from "@/assets/simulators/solar-simulator-bg.jpg";
 import { simuler } from "@/lib/solar-engine";
-import { territoireFromPostal } from "@/lib/solar-data";
+import { territoireFromPostal, orientationPerfMap, bestOrientation, ORIENTATION_LABELS, type Orientation as EngineOrientation } from "@/lib/solar-data";
 import regionFrance from "@/assets/regions/france.png";
 import regionCorse from "@/assets/regions/corse.png";
 import regionGuyane from "@/assets/regions/guyane.png";
@@ -111,32 +111,9 @@ const ORIENTATIONS: { id: Orientation; label: string; perf: number }[] = [
   { id: "N", label: "Nord", perf: 60 },
 ];
 
-// Rendement relatif par orientation selon la latitude du territoire.
-// Hémisphère nord : le Sud est optimal. Hémisphère sud (La Réunion, Mayotte) : le Nord est optimal.
-// Zone quasi équatoriale (Guyane) : écarts très faibles entre orientations.
+// Rendement relatif par orientation — table unique dans src/lib/solar-data.ts
+// (partagée avec le moteur de calcul, ne jamais en recréer une seconde ici).
 type OrientationPerfMap = Record<Exclude<Orientation, "?">, number>;
-
-const PERF_NORTH_HEMI: OrientationPerfMap = { S: 100, SE: 97, SO: 97, E: 85, O: 85, NE: 72, NO: 72, N: 60 };
-const PERF_TROPICAL_NORTH: OrientationPerfMap = { S: 100, SE: 98, SO: 98, E: 93, O: 93, NE: 87, NO: 87, N: 82 };
-const PERF_EQUATORIAL: OrientationPerfMap = { S: 100, SE: 99, SO: 99, E: 97, O: 97, NE: 95, NO: 95, N: 94 };
-const PERF_SOUTH_HEMI: OrientationPerfMap = { N: 100, NE: 98, NO: 98, E: 92, O: 92, SE: 85, SO: 85, S: 78 };
-
-const REGION_ORIENTATION_PERF: Record<string, OrientationPerfMap> = {
-  reunion: PERF_SOUTH_HEMI,
-  mayotte: PERF_SOUTH_HEMI,
-  guyane: PERF_EQUATORIAL,
-  guadeloupe: PERF_TROPICAL_NORTH,
-  martinique: PERF_TROPICAL_NORTH,
-};
-
-function orientationPerfMap(regionId?: string): OrientationPerfMap {
-  return (regionId && REGION_ORIENTATION_PERF[regionId]) || PERF_NORTH_HEMI;
-}
-
-function bestOrientation(regionId?: string): Exclude<Orientation, "?"> {
-  const map = orientationPerfMap(regionId);
-  return (Object.keys(map) as Exclude<Orientation, "?">[]).reduce((a, b) => (map[b] > map[a] ? b : a));
-}
 
 const ROOF_TYPES: { id: Exclude<RoofType, "">; label: string; desc: string }[] = [
   { id: "tole", label: "Toiture en tôle", desc: "Tôle ondulée, pose adaptée" },
@@ -391,7 +368,27 @@ export default function SimulateurSolaireLead() {
     const territoireId = territoireFromPostal(sim.postalCode);
     if (!territoireId || typeof sim.monthlyBill !== "number" || sim.monthlyBill <= 0) return null;
     try {
-      const r = simuler({ territoireId, factureMensuelleTTC: sim.monthlyBill });
+      const r = simuler({
+        territoireId,
+        factureMensuelleTTC: sim.monthlyBill,
+        orientation: (sim.orientation || undefined) as EngineOrientation | undefined,
+      });
+      return r.statut === "OK" ? r : null;
+    } catch {
+      return null;
+    }
+  }, [sim.postalCode, sim.monthlyBill, sim.orientation]);
+
+  /** Simulation de comparaison, en orientation optimale du territoire. */
+  const engineOptimal = useMemo(() => {
+    const territoireId = territoireFromPostal(sim.postalCode);
+    if (!territoireId || typeof sim.monthlyBill !== "number" || sim.monthlyBill <= 0) return null;
+    try {
+      const r = simuler({
+        territoireId,
+        factureMensuelleTTC: sim.monthlyBill,
+        orientation: bestOrientation(territoireId),
+      });
       return r.statut === "OK" ? r : null;
     } catch {
       return null;
