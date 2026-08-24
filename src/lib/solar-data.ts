@@ -190,3 +190,39 @@ export function territoireFromPostal(postal: string): string | null {
 export function getTerritoire(id: string | null | undefined): Territoire | null {
   return TERRITOIRES.find((t) => t.id === id) ?? null;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ORIENTATION — rendement relatif par orientation selon la latitude du territoire.
+// 100 % = meilleure orientation possible DANS la région (aucune comparaison inter-territoires).
+// Hémisphère nord : Sud optimal. Hémisphère sud (La Réunion, Mayotte) : Nord optimal.
+// Zone quasi équatoriale (Guyane) : écarts très faibles.
+// ─────────────────────────────────────────────────────────────────────────────
+export type Orientation = "N" | "NE" | "E" | "SE" | "S" | "SO" | "O" | "NO" | "?";
+export type OrientationPerfMap = Record<Exclude<Orientation, "?">, number>;
+
+export const PERF_NORTH_HEMI: OrientationPerfMap = { S: 100, SE: 97, SO: 97, E: 85, O: 85, NE: 72, NO: 72, N: 60 };
+export const PERF_TROPICAL_NORTH: OrientationPerfMap = { S: 100, SE: 98, SO: 98, E: 93, O: 93, NE: 87, NO: 87, N: 82 };
+export const PERF_EQUATORIAL: OrientationPerfMap = { S: 100, SE: 99, SO: 99, E: 97, O: 97, NE: 95, NO: 95, N: 94 };
+export const PERF_SOUTH_HEMI: OrientationPerfMap = { N: 100, NE: 98, NO: 98, E: 92, O: 92, SE: 85, SO: 85, S: 78 };
+
+export const REGION_ORIENTATION_PERF: Record<string, OrientationPerfMap> = {
+  reunion: PERF_SOUTH_HEMI,
+  mayotte: PERF_SOUTH_HEMI,
+  guyane: PERF_EQUATORIAL,
+  guadeloupe: PERF_TROPICAL_NORTH,
+  martinique: PERF_TROPICAL_NORTH,
+};
+
+export function orientationPerfMap(regionId?: string): OrientationPerfMap {
+  return (regionId && REGION_ORIENTATION_PERF[regionId]) || PERF_NORTH_HEMI;
+}
+
+export function bestOrientation(regionId?: string): Exclude<Orientation, "?"> {
+  const map = orientationPerfMap(regionId);
+  return (Object.keys(map) as Exclude<Orientation, "?">[]).reduce((a, b) => (map[b] > map[a] ? b : a));
+}
+
+export const ORIENTATION_LABELS: Record<Exclude<Orientation, "?">, string> = {
+  S: "Sud", SE: "Sud-Est", SO: "Sud-Ouest", E: "Est", O: "Ouest",
+  NE: "Nord-Est", NO: "Nord-Ouest", N: "Nord",
+};
