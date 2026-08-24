@@ -1955,8 +1955,10 @@ const ResultsPanel = ({
             </div>
           )}
           {engine && mentionTVA && (
-            <p className="mt-2 max-w-xl text-[10px] text-slate-900/60 leading-snug">Prix TTC, TVA comprise. {mentionTVA}</p>
-            <p className="mt-1 max-w-xl text-[10px] text-slate-900/60 leading-snug">Estimation pour une toiture correctement orientée et inclinée. Le rendement réel dépend de votre toiture, évalué lors de l'étude technique.</p>
+            <div>
+              <p className="mt-2 max-w-xl text-[10px] text-slate-900/60 leading-snug">Prix TTC, TVA comprise. {mentionTVA}</p>
+              <p className="mt-1 max-w-xl text-[10px] text-slate-900/60 leading-snug">Estimation pour une toiture correctement orientée et inclinée. Le rendement réel dépend de votre toiture, évalué lors de l'étude technique.</p>
+            </div>
           )}
         </div>
       </div>
