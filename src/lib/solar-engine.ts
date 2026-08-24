@@ -70,7 +70,9 @@ export function simuler(input: Input) {
   let kwcB: Kwc = kwcA;
   let meilleurGainNet = -Infinity;
   for (const p of candidats) {
-    const s = scenario(t, conso, p, false, abo);
+    // Sélection de puissance TOUJOURS sur le productible optimal : l'orientation
+    // ne doit jamais changer la puissance recommandée ni les aides.
+    const s = scenario(t, conso, p, false, abo, t.productible);
     const gainNet = s.economies25ans - s.resteACharge;
     if (gainNet > meilleurGainNet) {
       meilleurGainNet = gainNet;
@@ -78,13 +80,13 @@ export function simuler(input: Input) {
     }
   }
 
-  const A = scenario(t, conso, kwcA, false, abo);
-  const B = scenario(t, conso, kwcB, false, abo);
+  const A = scenario(t, conso, kwcA, false, abo, productibleEffectif);
+  const B = scenario(t, conso, kwcB, false, abo, productibleEffectif);
   const identiques = kwcA === kwcB;
 
   // Scénarios batterie (comparatif conservé, calé sur la puissance retenue B)
   const sans = B;
-  const avec = scenario(t, conso, kwcB, true, abo);
+  const avec = scenario(t, conso, kwcB, true, abo, productibleEffectif);
   const surcout = avec.cout - sans.cout;
   const gainAnnuel = Math.round(avec.economiesAn - sans.economiesAn);
   const paybackBatterie = gainAnnuel > 0 ? Math.round(surcout / gainAnnuel) : null;
@@ -95,6 +97,9 @@ export function simuler(input: Input) {
     territoire: t.nom,
     zone: t.zone,
     consoAnnuelleKwh: Math.round(conso),
+    orientation: orientationRetenue,
+    scoreOrientation,
+    orientationOptimale: bestOrientation(t.id),
     tarifRachatCts: Math.round(t.rachat[kwcB <= 3 ? "p0_3" : "p3_9"] * 10000) / 100,
 
     // ── Les deux scénarios comparés ──
@@ -127,10 +132,10 @@ export function simuler(input: Input) {
   };
 }
 
-function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: number) {
+function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: number, productible: number) {
   const seg: Seg = kwc <= 3 ? "p0_3" : "p3_9";
   const tarifRachat = t.rachat[seg];
-  const productionAn1 = kwc * t.productible; // le productible PVGIS inclut déjà 14 % de pertes
+  const productionAn1 = kwc * productible; // le productible PVGIS inclut déjà 14 % de pertes
   const plafond = kwc * HYP.plafondHeures; // au-delà, surplus racheté 5 c€/kWh
 
   const repartir = (prod: number) => {
