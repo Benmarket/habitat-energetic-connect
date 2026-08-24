@@ -739,6 +739,9 @@ export default function SimulateurSolaireLead() {
                               </div>
                             ))}
                           </div>
+                          {viewOptimal && (
+                            <div className="mt-2"><OptimalBanner orientation={sim.orientation} onBack={() => setViewOptimal(false)} /></div>
+                          )}
                           {dProdKwh > 0 && (
                             <div className="mt-2">
                               <ProductionConditions
@@ -914,6 +917,9 @@ export default function SimulateurSolaireLead() {
                   <p className="mt-2 text-[11px] font-medium text-slate-900/75 leading-snug">
                     dont ~{dFactureEvitee.toLocaleString("fr-FR")} € de facture évitée et ~{dReventeNette.toLocaleString("fr-FR")} € de revente à EDF, nets d'impôt
                   </p>
+                )}
+                {viewOptimal && (
+                  <div className="mt-3"><OptimalBanner orientation={sim.orientation} onBack={() => setViewOptimal(false)} /></div>
                 )}
                 {dProdKwh > 0 && (
                   <div className="mt-3">
@@ -1765,6 +1771,24 @@ const useCountUp = (target: number, duration = 1400) => {
 };
 
 
+/** Bandeau obligatoire dès que la vue « orientation optimale » est affichée. */
+const OptimalBanner = ({ orientation, onBack, tone = "amber" }: { orientation?: Orientation | ""; onBack?: () => void; tone?: "amber" | "card" }) => {
+  const label = orientation && orientation !== "?" ? ORIENTATION_LABELS[orientation as Exclude<Orientation, "?">].toLowerCase() : null;
+  const cls = tone === "amber"
+    ? "bg-slate-900 text-amber-200"
+    : "bg-slate-900 text-amber-200";
+  return (
+    <div className={`${cls} rounded-lg px-3 py-2 text-[10px] font-bold leading-snug flex flex-wrap items-center gap-2`}>
+      <span className="inline-flex items-center gap-1.5"><Info className="w-3 h-3 shrink-0" />
+        Simulation en orientation optimale — à titre de comparaison.{label ? ` Votre orientation actuelle est le ${label}.` : ""}
+      </span>
+      {onBack && (
+        <button type="button" onClick={onBack} className="underline underline-offset-2 hover:text-white">Revenir à ma simulation</button>
+      )}
+    </div>
+  );
+};
+
 // ---------- Conditions de production (jauge d'orientation) ----------
 function libelleConditions(score: number): string {
   if (score >= 100) return "Conditions optimales";
@@ -2026,6 +2050,9 @@ const ResultsPanel = ({
               dont ~{rFactureEvitee.toLocaleString("fr-FR")} € de facture évitée et ~{rReventeNette.toLocaleString("fr-FR")} € de revente à EDF, nets d'impôt
             </p>
           )}
+          {viewOptimal && (
+            <div className="mt-3 max-w-xl"><OptimalBanner orientation={sim.orientation} onBack={() => setViewOptimal?.(false)} /></div>
+          )}
           {engine && rProdKwh > 0 && (
             <div className="mt-3 max-w-xl">
               <ProductionConditions
@@ -2229,6 +2256,9 @@ const ResultsPanel = ({
                   </div>
                 )}
               </div>
+              {viewOptimal && (
+                <div className="mb-4"><OptimalBanner orientation={sim.orientation} onBack={() => setViewOptimal?.(false)} tone="card" /></div>
+              )}
               {rProdKwh > 0 && (
                 <div className="mb-5">
                   <ProductionConditions
