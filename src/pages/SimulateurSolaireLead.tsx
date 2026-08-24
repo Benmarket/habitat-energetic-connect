@@ -748,6 +748,7 @@ export default function SimulateurSolaireLead() {
                             </div>
                           )}
                           <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Facture estimée après autoconsommation — varie selon votre consommation réelle. Prix TTC, TVA comprise.</p>
+                          {showBattery && <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Estimation hors remplacement de la batterie. Une batterie a une durée de vie de 12 à 15 ans ; un remplacement est à prévoir sur un horizon de 25 ans.</p>}
                           <p className="mt-1 text-[9px] text-slate-900/55 leading-tight">
                             Base : {engine?.territoire}{sim.city ? ` · ${sim.city}` : ""} · facture {annualBill.toLocaleString("fr-FR")} €/an · {engine?.puissanceKwc ?? suggest.kwc} kWc ({engine?.nbPanneaux ?? suggest.panels} pan.) · {dCost.toLocaleString("fr-FR")} €
                           </p>
@@ -933,6 +934,7 @@ export default function SimulateurSolaireLead() {
                 )}
                 
                 {mentionTVA && <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">{mentionTVA}</p>}
+                {showBattery && <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Estimation hors remplacement de la batterie. Une batterie a une durée de vie de 12 à 15 ans ; un remplacement est à prévoir sur un horizon de 25 ans.</p>}
                 <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Calcul incluant une hausse du prix de l'électricité de 3 % par an. Hypothèse prudente : le tarif réglementé a augmenté de 3,4 % par an en moyenne entre 2012 et 2026 (source CRE).</p>
                 <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Estimation pour une toiture correctement orientée et inclinée. Le rendement réel dépend de votre toiture, évalué lors de l'étude technique.</p>
                 <p className="mt-2 text-[10px] text-slate-900/60 leading-tight">
@@ -1962,6 +1964,7 @@ const ResultsPanel = ({
               <p className="mt-2 max-w-xl text-[10px] text-slate-900/60 leading-snug">Prix TTC, TVA comprise. {mentionTVA}</p>
               <p className="mt-1 max-w-xl text-[10px] text-slate-900/60 leading-snug">Estimation pour une toiture correctement orientée et inclinée. Le rendement réel dépend de votre toiture, évalué lors de l'étude technique.</p>
               <p className="mt-1 max-w-xl text-[10px] text-slate-900/60 leading-snug">Calcul incluant une hausse du prix de l'électricité de 3 % par an. Hypothèse prudente : le tarif réglementé a augmenté de 3,4 % par an en moyenne entre 2012 et 2026 (source CRE).</p>
+              {showBattery && <p className="mt-1 max-w-xl text-[10px] text-slate-900/60 leading-snug">Estimation hors remplacement de la batterie. Une batterie a une durée de vie de 12 à 15 ans ; un remplacement est à prévoir sur un horizon de 25 ans.</p>}
             </div>
           )}
         </div>
@@ -2108,18 +2111,21 @@ const ResultsPanel = ({
                   </div>
                 </div>
 
-                {/* Recommandation batterie — copy adaptée au territoire */}
-                <p className="mt-4 text-sm text-white/85 leading-relaxed">
-                  {engine.batterie.reco === "RENTABLE" && (
-                    <>Batterie : + {engine.batterie.surcout.toLocaleString("fr-FR")} €, mais + {engine.batterie.gainAnnuel.toLocaleString("fr-FR")} €/an d'économies supplémentaires{engine.batterie.paybackBatterie ? <> — remboursée en {engine.batterie.paybackBatterie} ans</> : null}.</>
-                  )}
-                  {engine.batterie.reco === "CONFORT" && (
-                    <>Batterie : + {engine.batterie.surcout.toLocaleString("fr-FR")} € — vous gardez l'électricité en cas de coupure.{engine.batterie.adoption ? <> {Math.round(engine.batterie.adoption * 100)} % de nos clients {engine.territoire} la choisissent.</> : null}</>
-                  )}
-                  {engine.batterie.reco === "OPTIONNELLE" && (
-                    <>Batterie disponible en option : + {engine.batterie.surcout.toLocaleString("fr-FR")} €. Utile si vous subissez des coupures régulières.</>
-                  )}
-                </p>
+                {/* Positionnement batterie — comparaison du gain net sur 25 ans */}
+                {(() => {
+                  const gainNetSans = engine.sans.economies25ans - engine.sans.resteACharge;
+                  const gainNetAvec = engine.avec.economies25ans - engine.avec.resteACharge;
+                  const rentable = gainNetAvec > gainNetSans;
+                  const diff = Math.round(gainNetAvec - gainNetSans);
+                  const surcoutBat = engine.batterie.surcout;
+                  return (
+                    <p className="mt-4 text-sm text-white/85 leading-relaxed">
+                      {rentable
+                        ? <>La batterie augmente vos gains de <strong className="text-amber-300">{diff.toLocaleString("fr-FR")} €</strong> sur 25 ans, en plus de vous protéger des coupures de courant.</>
+                        : <>Sur ce projet, la batterie ne se rembourse pas : elle coûte <strong className="text-amber-300">{surcoutBat.toLocaleString("fr-FR")} €</strong> et rapporte moins que ce qu'elle coûte. Son intérêt ici est le confort — vous gardez l'électricité en cas de coupure.</>}
+                    </p>
+                  );
+                })()}
               </div>
             </div>
           )}
