@@ -364,7 +364,7 @@ export default function SimulateurSolaireLead() {
   // ---------- Moteur de calcul (src/lib/solar-engine.ts — source de vérité unique) ----------
   const annualBill = typeof sim.monthlyBill === "number" ? sim.monthlyBill * 12 : 0;
 
-  const engine = useMemo(() => {
+  const engineReel = useMemo(() => {
     const territoireId = territoireFromPostal(sim.postalCode);
     if (!territoireId || typeof sim.monthlyBill !== "number" || sim.monthlyBill <= 0) return null;
     try {
@@ -378,6 +378,9 @@ export default function SimulateurSolaireLead() {
       return null;
     }
   }, [sim.postalCode, sim.monthlyBill, sim.orientation]);
+
+  /** Vue « orientation optimale » (comparaison), toujours signalée par un bandeau. */
+  const [viewOptimal, setViewOptimal] = useState(false);
 
   /** Simulation de comparaison, en orientation optimale du territoire. */
   const engineOptimal = useMemo(() => {
@@ -394,6 +397,8 @@ export default function SimulateurSolaireLead() {
       return null;
     }
   }, [sim.postalCode, sim.monthlyBill]);
+
+  const engine = viewOptimal && engineOptimal ? engineOptimal : engineReel;
 
   const suggest = engine
     ? { kwc: engine.puissanceKwc, panels: engine.nbPanneaux, label: `${engine.puissanceKwc} kWc` }
@@ -1765,6 +1770,90 @@ const useCountUp = (target: number, duration = 1400) => {
     return () => clearInterval(id);
   }, [target, duration]);
   return n;
+};
+
+
+// ---------- Conditions de production (jauge d'orientation) ----------
+function libelleConditions(score: number): string {
+  if (score >= 100) return "Conditions optimales";
+  if (score >= 90) return "Conditions très favorables";
+  if (score >= 75) return "Conditions favorables";
+  return "Conditions perfectibles";
+}
+
+const DISCLAIMER_INCLINAISON =
+  "Le calcul retient une inclinaison de toiture optimale. Nos installateurs partenaires s'engagent à rechercher l'inclinaison la plus favorable lors de la pose ; l'écart résiduel constaté reste généralement inférieur à 10-15 %. Ce point est validé lors de l'étude technique.";
+
+/** Jauge « conditions de production » + répartition, déclinée sur fond orange ou fond clair. */
+const ProductionConditions = ({
+  score, prodKwh, autoKwh, surplusKwh, variant = "amber", size = "md",
+  orientation, prodOptimalKwh, onViewOptimal, onBackToReal, isOptimalView,
+}: {
+  score: number; prodKwh: number; autoKwh: number; surplusKwh: number;
+  variant?: "amber" | "card"; size?: "sm" | "md";
+  orientation?: Orientation | "";
+  prodOptimalKwh?: number;
+  onViewOptimal?: () => void;
+  onBackToReal?: () => void;
+  isOptimalView?: boolean;
+}) => {
+  const onAmber = variant === "amber";
+  const box = onAmber ? "bg-white/30 rounded-lg" : "rounded-xl border border-amber-200 bg-amber-50/60";
+  const pad = size === "sm" ? "px-2 py-1.5" : "px-3 py-2.5";
+  const muted = onAmber ? "text-slate-900/70" : "text-slate-600";
+  const strong = onAmber ? "text-slate-900" : "text-slate-900";
+  const track = onAmber ? "bg-slate-900/10" : "bg-amber-100";
+  const fill = onAmber ? "bg-slate-900/80" : "bg-amber-500";
+  const tiny = size === "sm" ? "text-[9px]" : "text-[10px]";
+  const oLabel = orientation && orientation !== "?" ? ORIENTATION_LABELS[orientation as Exclude<Orientation, "?">] : null;
+  return (
+    <div className={`${box} ${pad}`}>
+      <div className="flex items-baseline justify-between gap-2">
+        <span className={`${tiny} font-bold uppercase tracking-wide ${muted}`}>Conditions de production</span>
+        <span className={`text-xs font-black ${strong}`}>{score} %</span>
+      </div>
+      <div className={`mt-1.5 h-2.5 rounded-full overflow-hidden ${track}`}>
+        <div className={`h-full ${fill}`} style={{ width: `${score}%` }} />
+      </div>
+      <p className={`mt-1 ${tiny} font-bold ${strong}`}>{libelleConditions(score)}</p>
+      <p className={`${tiny} ${muted}`}>Référence : la meilleure orientation possible dans votre région.</p>
+      {prodKwh > 0 && (
+        <div className={`mt-2 ${tiny} font-semibold ${strong}`}>
+          <p>{prodKwh.toLocaleString("fr-FR")} kWh produits par an</p>
+          <p className={`font-medium ${muted}`}>
+            {autoKwh.toLocaleString("fr-FR")} kWh consommés chez vous, {surplusKwh.toLocaleString("fr-FR")} kWh revendus à EDF
+          </p>
+        </div>
+      )}
+      {score < 100 ? (
+        <div className={`mt-2 ${tiny} ${muted}`}>
+          <p>
+            {oLabel ? `Votre toiture est orientée au ${oLabel.toLowerCase()}.` : "Orientation à confirmer."}
+            {prodOptimalKwh ? ` Avec la meilleure orientation, cette installation produirait ${prodOptimalKwh.toLocaleString("fr-FR")} kWh/an au lieu de ${prodKwh.toLocaleString("fr-FR")} kWh/an.` : ""}
+          </p>
+          {onViewOptimal && (
+            <button type="button" onClick={onViewOptimal}
+              className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1.5 text-[10px] font-bold text-amber-300 hover:bg-slate-800 transition-colors">
+              <Sun className="w-3 h-3" /> Voir mon rapport en orientation optimale
+            </button>
+          )}
+        </div>
+      ) : (
+        <p className={`mt-2 ${tiny} ${muted}`}>
+          {isOptimalView
+            ? "Simulation en orientation optimale."
+            : "Votre toiture est orientée de façon optimale pour votre région."}
+        </p>
+      )}
+      {isOptimalView && onBackToReal && (
+        <button type="button" onClick={onBackToReal}
+          className="mt-1.5 inline-flex items-center gap-1.5 rounded-full border border-slate-900/30 px-3 py-1.5 text-[10px] font-bold text-slate-900 hover:bg-slate-900/10 transition-colors">
+          <ArrowLeft className="w-3 h-3" /> Revenir à ma simulation
+        </button>
+      )}
+      <p className={`mt-2 ${tiny} ${muted} leading-snug`}>{DISCLAIMER_INCLINAISON}</p>
+    </div>
+  );
 };
 
 // ---------- Results Panel (hero visible + teaser flouté) ----------
