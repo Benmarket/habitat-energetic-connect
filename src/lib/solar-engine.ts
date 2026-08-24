@@ -1,11 +1,17 @@
-import { TERRITOIRES, HYP, COURBES, type Seg, type Kwc, type Territoire } from "./solar-data";
+import {
+  TERRITOIRES, HYP, COURBES, orientationPerfMap, bestOrientation,
+  type Seg, type Kwc, type Territoire, type Orientation,
+} from "./solar-data";
 
 export interface Input {
   territoireId: string;
   factureMensuelleTTC: number;
+  /** Orientation de toiture. Défaut : la meilleure orientation du territoire. */
+  orientation?: Orientation | "";
 }
 
 export type SimulationResult = ReturnType<typeof simuler>;
+
 
 /**
  * Impôt annuel sur les revenus de revente.
