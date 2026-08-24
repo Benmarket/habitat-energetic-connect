@@ -52,41 +52,26 @@ export function simuler(input: Input) {
     conso = Math.max(0, factureAnnuelle - abo) / t.prixKwh;
   }
 
-  // ── ÉTAPE 2 · les deux scénarios ───────────────────────────────────────────
-  // Garde-fou interne (non affiché) : production ≤ 2,5 × consommation annuelle.
-  const productionMax = HYP.productionMaxRatio * conso;
-  const candidats = ([3, 6, 9] as const).filter((p) => p * t.productible <= productionMax);
-  if (candidats.length === 0)
-    return { statut: "CONTACT" as const, raison: "consommation_trop_faible" as const, conso };
+  // ── ÉTAPE 2 · dimensionnement orienté AUTOCONSOMMATION ─────────────────────
+  // Cible = fraction de la consommation annuelle. On retient la plus grande
+  // puissance dont la production annuelle reste SOUS la cible. Jamais au-dessus.
+  // La cible se calcule toujours sur le productible optimal du territoire :
+  // une mauvaise orientation ne doit jamais débloquer une puissance supérieure.
+  const dimensionner = (bat: boolean) => {
+    const cible = (bat ? 1.0 : 0.7) * conso;
+    const eligibles = ([3, 6, 9] as const).filter((p) => p * t.productible <= cible);
+    return {
+      kwc: (eligibles.length ? Math.max(...eligibles) : 3) as Kwc,
+      plancher: eligibles.length === 0, // 3 kWc = plancher catalogue
+    };
+  };
 
-  // A — l'essentiel : règle des 70 %, bornée aux candidats autorisés
-  const pTheorique = (conso * HYP.ratioScenarioA) / t.productible;
-  const kwcTheorique: Kwc = pTheorique < HYP.seuils.vers3 ? 3 : pTheorique < HYP.seuils.vers6 ? 6 : 9;
-  const kwcA: Kwc = candidats.includes(kwcTheorique as never)
-    ? kwcTheorique
-    : candidats[candidats.length - 1];
+  const dimSans = dimensionner(false);
+  const dimAvec = dimensionner(true);
 
-  // B — le maximum : plus grand gain net sur 25 ans
-  let kwcB: Kwc = kwcA;
-  let meilleurGainNet = -Infinity;
-  for (const p of candidats) {
-    // Sélection de puissance TOUJOURS sur le productible optimal : l'orientation
-    // ne doit jamais changer la puissance recommandée ni les aides.
-    const s = scenario(t, conso, p, false, abo, t.productible);
-    const gainNet = s.economies25ans - s.resteACharge;
-    if (gainNet > meilleurGainNet) {
-      meilleurGainNet = gainNet;
-      kwcB = p;
-    }
-  }
+  const sans = scenario(t, conso, dimSans.kwc, false, abo, productibleEffectif);
+  const avec = scenario(t, conso, dimAvec.kwc, true, abo, productibleEffectif);
 
-  const A = scenario(t, conso, kwcA, false, abo, productibleEffectif);
-  const B = scenario(t, conso, kwcB, false, abo, productibleEffectif);
-  const identiques = kwcA === kwcB;
-
-  // Scénarios batterie (comparatif conservé, calé sur la puissance retenue B)
-  const sans = B;
-  const avec = scenario(t, conso, kwcB, true, abo, productibleEffectif);
   const surcout = avec.cout - sans.cout;
   const gainAnnuel = Math.round(avec.economiesAn - sans.economiesAn);
   const paybackBatterie = gainAnnuel > 0 ? Math.round(surcout / gainAnnuel) : null;
@@ -100,26 +85,20 @@ export function simuler(input: Input) {
     orientation: orientationRetenue,
     scoreOrientation,
     orientationOptimale: bestOrientation(t.id),
-    tarifRachatCts: Math.round(t.rachat[kwcB <= 3 ? "p0_3" : "p3_9"] * 10000) / 100,
+    tarifRachatCts: Math.round(t.rachat[dimSans.kwc <= 3 ? "p0_3" : "p3_9"] * 10000) / 100,
 
-    // ── Les deux scénarios comparés ──
-    scenarioA: { ...A, puissanceKwc: kwcA, nbPanneaux: t.panneaux[kwcA], libelle: "L'essentiel" },
-    scenarioB: { ...B, puissanceKwc: kwcB, nbPanneaux: t.panneaux[kwcB], libelle: "Le maximum" },
-    scenarioIdentiques: identiques,
-    recommande: "B" as const,
-    comparatif: {
-      surcoutInitial: B.resteACharge - A.resteACharge,
-      gainNetSupplementaire:
-        B.economies25ans - B.resteACharge - (A.economies25ans - A.resteACharge),
-      bPlusRapide: (B.rentabiliteAns ?? Infinity) <= (A.rentabiliteAns ?? Infinity),
-    },
+    // ── Puissance recommandée (référence : scénario sans batterie) ──
+    puissanceKwc: dimSans.kwc,
+    nbPanneaux: t.panneaux[dimSans.kwc],
+    puissanceKwcAvecBatterie: dimAvec.kwc,
+    nbPanneauxAvecBatterie: t.panneaux[dimAvec.kwc],
+    /** true = la consommation est inférieure à ce que produit un 3 kWc. */
+    plancherApplique: dimSans.plancher,
+    plancherAppliqueAvecBatterie: dimAvec.plancher,
 
-    // ── Compatibilité affichage existant (scénario B) ──
-    puissanceKwc: kwcB,
-    nbPanneaux: t.panneaux[kwcB],
     nouvelleFactureMensuelle: sans.nouvelleFactureMensuelle,
-    sans,
-    avec,
+    sans: { ...sans, puissanceKwc: dimSans.kwc, nbPanneaux: t.panneaux[dimSans.kwc], plancher: dimSans.plancher },
+    avec: { ...avec, puissanceKwc: dimAvec.kwc, nbPanneaux: t.panneaux[dimAvec.kwc], plancher: dimAvec.plancher },
     batterie: {
       surcout,
       gainAnnuel,
@@ -131,6 +110,7 @@ export function simuler(input: Input) {
     mentionTVA: t.mentionTVA,
   };
 }
+
 
 function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: number, productible: number) {
   const seg: Seg = kwc <= 3 ? "p0_3" : "p3_9";
