@@ -931,6 +931,7 @@ export default function SimulateurSolaireLead() {
                 )}
                 <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Estimée après autoconsommation — varie selon votre consommation réelle. Prix TTC, TVA comprise.</p>
                 {mentionTVA && <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">{mentionTVA}</p>}
+                <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Estimation pour une toiture correctement orientée et inclinée. Le rendement réel dépend de votre toiture, évalué lors de l'étude technique.</p>
                 <p className="mt-2 text-[10px] text-slate-900/60 leading-tight">
                   Base : {engine?.territoire}{sim.city ? ` · ${sim.city}` : ""} · facture {annualBill.toLocaleString("fr-FR")} €/an · {engine?.puissanceKwc ?? suggest.kwc} kWc ({engine?.nbPanneaux ?? suggest.panels} panneaux) · {dCost.toLocaleString("fr-FR")} €
                 </p>
@@ -1954,7 +1955,10 @@ const ResultsPanel = ({
             </div>
           )}
           {engine && mentionTVA && (
-            <p className="mt-2 max-w-xl text-[10px] text-slate-900/60 leading-snug">Prix TTC, TVA comprise. {mentionTVA}</p>
+            <div>
+              <p className="mt-2 max-w-xl text-[10px] text-slate-900/60 leading-snug">Prix TTC, TVA comprise. {mentionTVA}</p>
+              <p className="mt-1 max-w-xl text-[10px] text-slate-900/60 leading-snug">Estimation pour une toiture correctement orientée et inclinée. Le rendement réel dépend de votre toiture, évalué lors de l'étude technique.</p>
+            </div>
           )}
         </div>
       </div>
