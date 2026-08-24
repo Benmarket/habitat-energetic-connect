@@ -41,7 +41,6 @@ interface Advertisement {
     city: string | null;
     department: string | null;
     region: string | null;
-    contact_email: string | null;
     website: string | null;
     intervention_departments: string[] | null;
   };
@@ -69,7 +68,7 @@ const OffrePartenaire = () => {
         .from("advertisements")
         .select(`
           *,
-          advertiser:advertisers(id, name, logo, description, city, department, region, contact_email, website, intervention_departments)
+          advertiser:advertisers(id, name, logo, description, city, department, region, website, intervention_departments)
         `)
         .eq("id", id)
         .single();
@@ -89,7 +88,7 @@ const OffrePartenaire = () => {
           .from("advertisements")
           .select(`
             *,
-            advertiser:advertisers(id, name, logo, description, city, department, region, contact_email, website, intervention_departments)
+            advertiser:advertisers(id, name, logo, description, city, department, region, website, intervention_departments)
           `)
           .eq("advertiser_id", data.advertiser_id)
           .eq("status", "active")
@@ -349,17 +348,6 @@ const OffrePartenaire = () => {
                             .filter(Boolean)
                             .join(', ')}
                         </span>
-                      </div>
-                    )}
-                    {offer.advertiser.contact_email && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Mail className="w-4 h-4 text-muted-foreground" />
-                        <a 
-                          href={`mailto:${offer.advertiser.contact_email}`}
-                          className="text-primary hover:underline"
-                        >
-                          {offer.advertiser.contact_email}
-                        </a>
                       </div>
                     )}
                     {offer.cta_url && offer.cta_url.trim() !== '' && (

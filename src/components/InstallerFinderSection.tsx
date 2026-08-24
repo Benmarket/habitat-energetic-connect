@@ -27,7 +27,6 @@ interface SearchResult {
     region: string | null;
     postal_code: string | null;
     website: string | null;
-    contact_email: string | null;
   };
 }
 
@@ -77,7 +76,6 @@ const InstallerFinderSection = () => {
             region,
             postal_code,
             website,
-            contact_email,
             is_active,
             intervention_departments
           )
@@ -298,15 +296,6 @@ const InstallerFinderSection = () => {
                                   >
                                     <Globe className="h-4 w-4" />
                                     Site web
-                                  </a>
-                                )}
-                                {result.advertiser.contact_email && (
-                                  <a 
-                                    href={`mailto:${result.advertiser.contact_email}`}
-                                    className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
-                                  >
-                                    <Phone className="h-4 w-4" />
-                                    Contact
                                   </a>
                                 )}
                               </div>
