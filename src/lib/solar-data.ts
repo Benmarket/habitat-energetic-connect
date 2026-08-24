@@ -130,12 +130,14 @@ export const TERRITOIRES: Territoire[] = [
 ];
 
 export const HYP = {
-  ratioScenarioA: 0.7, // production cible du scénario « L'essentiel »
-  productionMaxRatio: 2.5, // garde-fou : production ≤ 2,5 × consommation annuelle
+  // Dimensionnement orienté autoconsommation : la production annuelle doit rester
+  // sous une fraction de la consommation (100 % avec batterie, 70 % sans).
+  ratioCibleSansBatterie: 0.7,
+  ratioCibleAvecBatterie: 1.0,
   indexationRachat: 0.004, // indexation annuelle du tarif de rachat (coefficient L)
   plafondHeures: 1600, // h × kWc rachetés au tarif plein, au-delà 5 c€/kWh
   tarifSurplusReduit: 0.05,
-  seuils: { vers3: 4.5, vers6: 7.5, vers9: 12 },
+
   inflationElec: 0.03, // par an
   degradation: 0.005, // par an
   horizonAns: 25,
