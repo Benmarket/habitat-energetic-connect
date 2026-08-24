@@ -7,6 +7,13 @@ All colors MUST be HSL.
 */
 
 @layer base {
+  /* Réduction visuelle globale de 20 % — tout le site est dimensionné en rem,
+     donc texte, paddings, marges, gaps et largeurs max se réduisent proportionnellement.
+     On évite zoom/transform pour ne pas casser fixed/scroll/clic. */
+  html {
+    font-size: 80%; /* 12.8px au lieu de 16px */
+  }
+
   :root {
     --background: 0 0% 100%;
     --foreground: 220 13% 18%;
