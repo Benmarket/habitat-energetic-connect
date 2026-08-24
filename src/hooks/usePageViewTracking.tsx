@@ -150,7 +150,15 @@ export const usePageViewTracking = () => {
         const attribution = captureAttribution(location.search);
         const info = await getVisitorInfo();
 
+        // L'id est généré côté client : l'insertion n'a alors pas besoin de relire
+        // la ligne (la lecture des statistiques reste réservée aux administrateurs).
+        const pageViewId =
+          typeof crypto !== "undefined" && "randomUUID" in crypto
+            ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
         const payload = {
+          id: pageViewId,
           page_url: location.pathname,
           region_code: activeRegion,
           user_id: user?.id || null,
@@ -167,13 +175,8 @@ export const usePageViewTracking = () => {
         };
 
 
-        const { data } = await supabase
-          .from("page_views")
-          .insert(payload)
-          .select("id")
-          .single();
-
-        if (data) pageViewIdRef.current = data.id;
+        const { error } = await supabase.from("page_views").insert(payload);
+        if (!error) pageViewIdRef.current = pageViewId;
       } catch (error) {
         console.error("Error tracking page view:", error);
       }
