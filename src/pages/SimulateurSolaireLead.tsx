@@ -34,7 +34,7 @@ import {
 } from "recharts";
 import solarSimBg from "@/assets/simulators/solar-simulator-bg.jpg";
 import { simuler } from "@/lib/solar-engine";
-import { territoireFromPostal, orientationPerfMap, bestOrientation, ORIENTATION_LABELS, type Orientation as EngineOrientation } from "@/lib/solar-data";
+import { territoireFromPostal, orientationPerfMap, bestOrientation, ORIENTATION_LABELS, AUTOCONSO, type Orientation as EngineOrientation } from "@/lib/solar-data";
 import regionFrance from "@/assets/regions/france.png";
 import regionCorse from "@/assets/regions/corse.png";
 import regionGuyane from "@/assets/regions/guyane.png";
@@ -2293,6 +2293,36 @@ const ResultsPanel = ({
               <p className="text-[11px] text-slate-500 mt-3 leading-relaxed">
                 Le taux d'autoconsommation représente la part de l'électricité produite que vous consommez directement{showBattery ? " (batterie incluse)" : ""} ; le reste est revendu au réseau. Profils mensuels indicatifs.
               </p>
+            </section>
+          )}
+
+          {/* Habitudes diurnes — le calcul repose sur les usages du foyer, autant le dire et conseiller */}
+          {engine && (
+            <section className="mb-8 p-5 md:p-6 rounded-2xl bg-amber-50 border border-amber-200 shadow-sm">
+              <h3 className="text-xs font-bold text-slate-700 uppercase tracking-widest flex items-center gap-1.5 mb-2.5">
+                <Sun className="w-3.5 h-3.5 text-amber-600" /> Tirez le maximum de vos panneaux
+              </h3>
+              <p className="text-sm text-slate-700 leading-relaxed">
+                Votre estimation repose sur une consommation réalisée à{" "}
+                <strong>{Math.round((showBattery ? AUTOCONSO.partDiurneAvecBatterie : AUTOCONSO.partDiurneSansBatterie) * 100)} %</strong>{" "}
+                pendant les heures de production solaire.
+                {engine.zone === "ZNI"
+                  ? " C'est la moyenne constatée en outre-mer, où la climatisation fonctionne aux heures chaudes."
+                  : " C'est la moyenne constatée des foyers français."}
+              </p>
+              <p className="text-sm font-semibold text-slate-800 mt-3">Vous pouvez faire beaucoup mieux, sans rien dépenser :</p>
+              <ul className="mt-1.5 space-y-1 text-sm text-slate-700">
+                <li className="flex gap-2"><span className="text-amber-600 font-bold">—</span> lancer lave-linge et lave-vaisselle entre 10h et 16h plutôt que le soir</li>
+                <li className="flex gap-2"><span className="text-amber-600 font-bold">—</span> programmer le chauffe-eau électrique en milieu de journée</li>
+                <li className="flex gap-2"><span className="text-amber-600 font-bold">—</span> faire fonctionner la pompe de piscine aux heures solaires</li>
+                <li className="flex gap-2"><span className="text-amber-600 font-bold">—</span> précharger le véhicule électrique en journée quand c'est possible</li>
+              </ul>
+              {!showBattery && (
+                <p className="text-sm text-slate-700 leading-relaxed mt-3">
+                  Chaque kWh déplacé vers la journée est un kWh que vous ne payez plus. Un foyer qui atteint{" "}
+                  <strong>70 % de consommation diurne</strong> réduit sa facture d'environ <strong>15 % de plus</strong> que cette estimation.
+                </p>
+              )}
             </section>
           )}
 
