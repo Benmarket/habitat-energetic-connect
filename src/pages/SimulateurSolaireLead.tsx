@@ -34,7 +34,7 @@ import {
 } from "recharts";
 import solarSimBg from "@/assets/simulators/solar-simulator-bg.jpg";
 import { simuler } from "@/lib/solar-engine";
-import { territoireFromPostal, orientationPerfMap, bestOrientation, ORIENTATION_LABELS, AUTOCONSO, type Orientation as EngineOrientation } from "@/lib/solar-data";
+import { territoireFromPostal, orientationPerfMap, bestOrientation, ORIENTATION_LABELS, type Orientation as EngineOrientation } from "@/lib/solar-data";
 import regionFrance from "@/assets/regions/france.png";
 import regionCorse from "@/assets/regions/corse.png";
 import regionGuyane from "@/assets/regions/guyane.png";
