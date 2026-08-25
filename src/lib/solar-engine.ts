@@ -38,23 +38,23 @@ function impotRevente(revenu: number, kwc: number, refactionIR: number): number 
   return baseImposable * (0.11 * (1 - refactionIR) + 0.186);
 }
 
-export function simuler(input: Input) {
+/**
+ * Entrées communes à simuler() et comparerConfigurations() :
+ * orientation → productible effectif, puis facture mensuelle → consommation.
+ */
+function baseCalcul(input: Input) {
   const t = TERRITOIRES.find((x) => x.id === input.territoireId);
   if (!t) throw new Error(`Territoire inconnu : ${input.territoireId}`);
-  if (!t.actif) return { statut: "CONTACT" as const, raison: "territoire_non_couvert" as const };
-  if (input.factureMensuelleTTC < HYP.factureMin || input.factureMensuelleTTC > HYP.factureMax)
-    return { statut: "CONTACT" as const, raison: "facture_hors_bornes" as const };
 
-  // ── ÉTAPE 0 · orientation → productible effectif ───────────────────────────
+  // ── orientation → productible effectif ─────────────────────────────────────
   // Le référentiel est le territoire : 100 % = meilleure orientation de la région.
   const perfMap = orientationPerfMap(t.id);
   const orientationRetenue: Exclude<Orientation, "?"> =
     input.orientation && input.orientation !== "?" ? input.orientation : bestOrientation(t.id);
   const scoreOrientation = perfMap[orientationRetenue];
-  const coefOrientation = scoreOrientation / 100;
-  const productibleEffectif = t.productible * coefOrientation;
+  const productibleEffectif = t.productible * (scoreOrientation / 100);
 
-  // ── ÉTAPE 1 · facture mensuelle → consommation annuelle ────────────────────
+  // ── facture mensuelle → consommation annuelle ──────────────────────────────
   // La facture contient un abonnement fixe. Le retirer AVANT de diviser par le
   // prix du kWh, sinon on surestime la consommation.
   const factureAnnuelle = input.factureMensuelleTTC * 12;
@@ -65,29 +65,41 @@ export function simuler(input: Input) {
     conso = Math.max(0, factureAnnuelle - abo) / t.prixKwh;
   }
 
-  // ── ÉTAPE 2 · dimensionnement orienté AUTOCONSOMMATION ─────────────────────
-  // Cible = fraction de la consommation annuelle. On retient la plus grande
-  // puissance dont la production annuelle reste SOUS la cible. Jamais au-dessus.
-  // La cible se calcule toujours sur le productible optimal du territoire :
-  // une mauvaise orientation ne doit jamais débloquer une puissance supérieure.
-  const dimensionner = (bat: boolean) => {
-    const cible = (bat ? HYP.ratioCibleAvecBatterie : HYP.ratioCibleSansBatterie) * conso;
-    const eligibles = ([3, 6, 9] as const).filter((p) => p * t.productible <= cible);
-    return {
-      kwc: (eligibles.length ? Math.max(...eligibles) : 3) as Kwc,
-      plancher: eligibles.length === 0, // 3 kWc = plancher catalogue
-    };
-  };
+  return { t, conso, abo, productibleEffectif, orientationRetenue, scoreOrientation };
+}
 
-  const dimSans = dimensionner(false);
-  const dimAvec = dimensionner(true);
+export function simuler(input: Input) {
+  const t = TERRITOIRES.find((x) => x.id === input.territoireId);
+  if (!t) throw new Error(`Territoire inconnu : ${input.territoireId}`);
+  if (!t.actif) return { statut: "CONTACT" as const, raison: "territoire_non_couvert" as const };
+  if (input.factureMensuelleTTC < HYP.factureMin || input.factureMensuelleTTC > HYP.factureMax)
+    return { statut: "CONTACT" as const, raison: "facture_hors_bornes" as const };
 
-  const sans = scenario(t, conso, dimSans.kwc, false, abo, productibleEffectif);
-  const avec = scenario(t, conso, dimAvec.kwc, true, abo, productibleEffectif);
+  const { conso, abo, productibleEffectif, orientationRetenue, scoreOrientation } = baseCalcul(input);
+
+  // ── Dimensionnement ────────────────────────────────────────────────────────
+  // Cible = 100 % de la consommation annuelle, avec ou sans batterie : la
+  // batterie ne change que le taux d'autoconsommation, PAS la puissance.
+  // On retient la plus grande puissance catalogue dont la production reste
+  // SOUS la consommation. Garde-fou : la cible se calcule toujours sur le
+  // productible OPTIMAL du territoire — une mauvaise orientation ne doit
+  // jamais débloquer une puissance supérieure.
+  const eligibles = ([3, 6, 9] as const).filter((p) => p * t.productible <= conso);
+  const kwcReco = (eligibles.length ? Math.max(...eligibles) : 3) as Kwc;
+  const plancher = eligibles.length === 0; // 3 kWc = plancher catalogue
+
+  const sans = scenario(t, conso, kwcReco, false, abo, productibleEffectif);
+  const avec = scenario(t, conso, kwcReco, true, abo, productibleEffectif);
 
   const surcout = avec.cout - sans.cout;
   const gainAnnuel = Math.round(avec.economiesAn - sans.economiesAn);
   const paybackBatterie = gainAnnuel > 0 ? Math.round(surcout / gainAnnuel) : null;
+
+  // ── Ordre d'affichage des configurations ───────────────────────────────────
+  // Critère : gain net sur 25 ans (gains cumulés − reste à charge).
+  const gainNet25Sans = Math.round(sans.economies25ans - sans.resteACharge);
+  const gainNet25Avec = Math.round(avec.economies25ans - avec.resteACharge);
+  const batterieAvantageuse = gainNet25Avec > gainNet25Sans;
 
   return {
     statut: "OK" as const,
@@ -98,20 +110,25 @@ export function simuler(input: Input) {
     orientation: orientationRetenue,
     scoreOrientation,
     orientationOptimale: bestOrientation(t.id),
-    tarifRachatCts: Math.round(t.rachat[dimSans.kwc <= 3 ? "p0_3" : "p3_9"] * 10000) / 100,
+    tarifRachatCts: Math.round(t.rachat[kwcReco <= 3 ? "p0_3" : "p3_9"] * 10000) / 100,
 
-    // ── Puissance recommandée (référence : scénario sans batterie) ──
-    puissanceKwc: dimSans.kwc,
-    nbPanneaux: t.panneaux[dimSans.kwc],
-    puissanceKwcAvecBatterie: dimAvec.kwc,
-    nbPanneauxAvecBatterie: t.panneaux[dimAvec.kwc],
+    // ── Puissance recommandée (identique avec et sans batterie) ──
+    puissanceKwc: kwcReco,
+    nbPanneaux: t.panneaux[kwcReco],
+    puissanceKwcAvecBatterie: kwcReco,
+    nbPanneauxAvecBatterie: t.panneaux[kwcReco],
     /** true = la consommation est inférieure à ce que produit un 3 kWc. */
-    plancherApplique: dimSans.plancher,
-    plancherAppliqueAvecBatterie: dimAvec.plancher,
+    plancherApplique: plancher,
+    plancherAppliqueAvecBatterie: plancher,
+
+    /** Ordre d'affichage : la configuration au meilleur gain net 25 ans d'abord. */
+    gainNet25Sans,
+    gainNet25Avec,
+    batterieAvantageuse,
 
     nouvelleFactureMensuelle: sans.nouvelleFactureMensuelle,
-    sans: { ...sans, puissanceKwc: dimSans.kwc, nbPanneaux: t.panneaux[dimSans.kwc], plancher: dimSans.plancher },
-    avec: { ...avec, puissanceKwc: dimAvec.kwc, nbPanneaux: t.panneaux[dimAvec.kwc], plancher: dimAvec.plancher },
+    sans: { ...sans, puissanceKwc: kwcReco, nbPanneaux: t.panneaux[kwcReco], plancher },
+    avec: { ...avec, puissanceKwc: kwcReco, nbPanneaux: t.panneaux[kwcReco], plancher },
     batterie: {
       surcout,
       gainAnnuel,
@@ -223,4 +240,64 @@ function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: num
     revenuSurplus20ans: Math.round(cumulRevente),
     tarifRachatCts: Math.round(tarifRachat * 10000) / 100,
   };
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TABLEAU COMPARATIF — toutes les configurations réalisables, sans et avec
+// batterie, pour l'étude complète. Une ligne par (puissance × variante).
+// ─────────────────────────────────────────────────────────────────────────────
+export interface ConfigurationComparee {
+  kwc: Kwc;
+  batterie: boolean;
+  productionAnnuelleKwh: number;
+  /** Production en % de la consommation annuelle. */
+  productionPctConso: number;
+  couvertureBesoinsPct: number;
+  economiesAn: number;
+  partReventeDansGains: number;
+  prixTTC: number;
+  resteACharge: number;
+  rentabiliteAns: number | null;
+  nouvelleFactureMensuelle: number;
+  gainNet25ans: number;
+}
+
+/**
+ * Lignes du tableau « Comparez les configurations possibles ».
+ * Ne retient que les puissances dont la production ne dépasse pas 140 % de la
+ * consommation (au productible effectif, donc à l'orientation réelle) ;
+ * le 3 kWc est toujours affiché. Ordre : puissance croissante, sans puis avec.
+ */
+export function comparerConfigurations(input: Input): ConfigurationComparee[] | null {
+  const t = TERRITOIRES.find((x) => x.id === input.territoireId);
+  if (!t || !t.actif) return null;
+  if (input.factureMensuelleTTC < HYP.factureMin || input.factureMensuelleTTC > HYP.factureMax) return null;
+
+  const { conso, abo, productibleEffectif } = baseCalcul(input);
+  const puissances = ([3, 6, 9] as const).filter(
+    (p) => p * productibleEffectif <= 1.4 * conso || p === 3,
+  );
+
+  const rows: ConfigurationComparee[] = [];
+  for (const kwc of puissances) {
+    for (const batterie of [false, true]) {
+      const s = scenario(t, conso, kwc, batterie, abo, productibleEffectif);
+      rows.push({
+        kwc,
+        batterie,
+        productionAnnuelleKwh: s.productionAnnuelleKwh,
+        productionPctConso: Math.round((s.productionAnnuelleKwh / conso) * 100),
+        couvertureBesoinsPct: s.couvertureBesoinsPct,
+        economiesAn: s.economiesAn,
+        partReventeDansGains: s.partReventeDansGains,
+        prixTTC: s.cout,
+        resteACharge: s.resteACharge,
+        rentabiliteAns: s.rentabiliteAns,
+        nouvelleFactureMensuelle: s.nouvelleFactureMensuelle,
+        gainNet25ans: s.gainNet25ans,
+      });
+    }
+  }
+  return rows;
 }
