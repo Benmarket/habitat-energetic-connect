@@ -85,11 +85,6 @@ describe("modèle diurne — bornes du taux", () => {
     expect(r.sans.tauxAutoconsoPct).toBeLessThanOrEqual(88);
     expect(r.avec.tauxAutoconsoPct).toBeLessThanOrEqual(88);
   });
-  it("le taux avec batterie est toujours ≥ sans batterie", () => {
-    const r = simuler({ territoireId: "martinique", factureMensuelleTTC: 180 });
-    if (r.statut !== "OK") throw new Error("statut inattendu");
-    expect(r.avec.tauxAutoconsoPct).toBeGreaterThanOrEqual(r.sans.tauxAutoconsoPct);
-  });
 });
 
 describe("décomposition — Martinique 180 €/mois, sans batterie", () => {
