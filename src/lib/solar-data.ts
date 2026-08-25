@@ -148,10 +148,20 @@ export const HYP = {
   factureMax: 800,
 } as const;
 
-/** Courbes du taux d'autoconsommation selon le ratio production / consommation. */
-export const COURBES = {
-  sansBatterie: [[0.2, 0.85], [0.4, 0.75], [0.6, 0.65], [0.8, 0.53], [1.0, 0.45], [1.5, 0.32], [2.0, 0.25]],
-  avecBatterie: [[0.2, 0.95], [0.4, 0.92], [0.6, 0.88], [0.8, 0.8], [1.0, 0.72], [1.5, 0.52], [2.0, 0.4]],
+/**
+ * Modèle d'autoconsommation — remplace les anciennes courbes empiriques.
+ * Les panneaux n'alimentent que ce qui est consommé pendant qu'ils produisent :
+ * le seul paramètre qui compte est la part de la consommation réalisée en journée.
+ * En outre-mer elle est élevée (climatisation aux heures chaudes, retraités
+ * présents, lave-linge / chauffe-eau / lave-vaisselle déplacés sur les heures
+ * solaires) → 60 %. Avec batterie, le surplus du jour est restitué le soir
+ * → 85 % valorisables. Le rendement intra-journalier (0,88) traduit le décalage
+ * résiduel entre pointe de production et pointe de consommation.
+ */
+export const AUTOCONSO = {
+  partDiurneSansBatterie: 0.6, // part de la conso annuelle consommée pendant la production
+  partDiurneAvecBatterie: 0.85, // la batterie reporte le surplus du jour vers le soir
+  rendementIntraJournalier: 0.88, // décalage résiduel pointe production / pointe conso
 } as const;
 
 /** Département (2 ou 3 chiffres) → territoire. */

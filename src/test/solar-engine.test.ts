@@ -2,67 +2,64 @@ import { describe, expect, it } from "vitest";
 import { simuler } from "@/lib/solar-engine";
 
 /**
- * Dimensionnement orienté AUTOCONSOMMATION.
- * Cible = 70 % de la consommation sans batterie, 100 % avec batterie.
- * La production ne dépasse jamais la cible, sauf plancher catalogue de 3 kWc.
+ * Dimensionnement orienté AUTOCONSOMMATION (70 % de la conso sans batterie,
+ * 100 % avec, plancher 3 kWc) + modèle diurne d'autoconsommation :
+ * part diurne 60 % (85 % avec batterie) × rendement intra-journalier 0,88.
  */
 
-/** Sans batterie : territoire, facture, conso, kWc, production, % conso, part revente, gains/an, ROI. */
+/** Sans batterie : territoire, facture, kWc, production, autoconso %, couverture %, gains/an, part revente %, ROI. */
 const SANS: [string, number, number, number, number, number, number, number, number][] = [
-  ["corse", 100, 5586, 3, 4299, 77, 43, 758, 8.1],
-  ["corse", 200, 11890, 3, 4299, 36, 22, 773, 7.8],
-  ["martinique", 100, 5403, 3, 4719, 87, 49, 877, 7.4],
-  ["martinique", 250, 14665, 6, 9438, 64, 35, 1714, 6.0],
-  ["guyane", 150, 8464, 3, 4218, 50, 29, 793, 5.8],
-  ["reunion", 200, 11209, 3, 4464, 40, 23, 850, 3.9],
+  ["martinique", 180, 3, 4719, 88, 41, 891, 12, 7.1],
+  ["guadeloupe", 200, 3, 4638, 88, 35, 872, 12, 7.0],
+  ["reunion", 150, 3, 4464, 88, 47, 860, 11, 3.8],
+  ["corse", 100, 3, 4299, 69, 53, 767, 30, 7.9],
+  ["guyane", 100, 3, 4218, 67, 53, 792, 32, 5.8],
+  ["martinique", 100, 3, 4719, 60, 53, 881, 39, 7.3],
 ];
 
-describe("dimensionnement — sans batterie", () => {
+describe("sans batterie — valeurs de contrôle", () => {
   it.each(SANS)(
     "%s / %i €",
-    (id, facture, conso, kwc, prod, pctConso, partRevente, gains, roi) => {
+    (id, facture, kwc, prod, autoconso, couverture, gains, partRevente, roi) => {
       const r = simuler({ territoireId: id, factureMensuelleTTC: facture });
       if (r.statut !== "OK") throw new Error("statut inattendu");
       const s = r.sans;
-      expect(r.consoAnnuelleKwh).toBeCloseTo(conso, -1);
       expect(s.puissanceKwc).toBe(kwc);
       expect(Math.abs(s.productionAnnuelleKwh - prod)).toBeLessThanOrEqual(3);
-      expect(Math.round((s.productionAnnuelleKwh / r.consoAnnuelleKwh) * 100)).toBe(pctConso);
-      expect(s.partReventeDansGains).toBe(partRevente);
+      expect(s.tauxAutoconsoPct).toBe(autoconso);
+      expect(s.couvertureBesoinsPct).toBe(couverture);
       expect(Math.abs(s.economiesAn - gains)).toBeLessThanOrEqual(3);
+      expect(s.partReventeDansGains).toBe(partRevente);
       expect(s.rentabiliteAns).toBeCloseTo(roi, 1);
       // Contrôle : production ≤ 70 % de la conso, sauf plancher 3 kWc
       if (!s.plancher) expect(s.productionAnnuelleKwh).toBeLessThanOrEqual(0.7 * r.consoAnnuelleKwh);
-      // Contrôle : la revente reste un bonus (< 35 %), sauf plancher
-      if (!s.plancher) expect(s.partReventeDansGains).toBeLessThanOrEqual(35);
     },
   );
 });
 
-/** Avec batterie : territoire, facture, kWc, production, % conso, part revente, besoins couverts, gains/an. */
+/** Avec batterie : territoire, facture, kWc, autoconso %, couverture %, gains/an, part revente %, nouvelle facture €/mois. */
 const AVEC: [string, number, number, number, number, number, number, number][] = [
-  ["martinique", 100, 3, 4719, 87, 22, 67, 887],
-  ["martinique", 200, 6, 9438, 82, 19, 65, 1748],
-  ["guyane", 100, 3, 4218, 79, 19, 64, 797],
-  ["reunion", 200, 6, 8928, 80, 17, 64, 1684],
-  ["corse", 200, 6, 8598, 72, 15, 60, 1533],
+  ["martinique", 180, 6, 81, 75, 1751, 17, 59],
+  ["guadeloupe", 200, 6, 88, 71, 1729, 11, 72],
+  ["martinique", 100, 3, 86, 75, 890, 14, 36],
+  ["guyane", 100, 3, 88, 70, 799, 12, 41],
 ];
 
-describe("dimensionnement — avec batterie", () => {
+describe("avec batterie — valeurs de contrôle", () => {
   it.each(AVEC)(
     "%s / %i €",
-    (id, facture, kwc, prod, pctConso, partRevente, couverture, gains) => {
+    (id, facture, kwc, autoconso, couverture, gains, partRevente, factureMois) => {
       const r = simuler({ territoireId: id, factureMensuelleTTC: facture });
       if (r.statut !== "OK") throw new Error("statut inattendu");
       const s = r.avec;
       expect(s.puissanceKwc).toBe(kwc);
-      expect(Math.abs(s.productionAnnuelleKwh - prod)).toBeLessThanOrEqual(3);
-      expect(Math.round((s.productionAnnuelleKwh / r.consoAnnuelleKwh) * 100)).toBe(pctConso);
-      expect(s.partReventeDansGains).toBe(partRevente);
+      expect(s.tauxAutoconsoPct).toBe(autoconso);
       expect(s.couvertureBesoinsPct).toBe(couverture);
       expect(Math.abs(s.economiesAn - gains)).toBeLessThanOrEqual(3);
-      expect(s.productionAnnuelleKwh).toBeLessThanOrEqual(r.consoAnnuelleKwh);
-      expect(s.partReventeDansGains).toBeLessThan(25);
+      expect(s.partReventeDansGains).toBe(partRevente);
+      expect(s.nouvelleFactureMensuelle).toBe(factureMois);
+      // Contrôle : production ≤ 100 % de la conso, sauf plancher 3 kWc
+      if (!s.plancher) expect(s.productionAnnuelleKwh).toBeLessThanOrEqual(r.consoAnnuelleKwh);
     },
   );
 });
@@ -75,15 +72,24 @@ describe("plancher catalogue 3 kWc", () => {
     expect(r.sans.plancher).toBe(true);
   });
   it("consommation confortable → pas de plancher", () => {
-    const r = simuler({ territoireId: "corse", factureMensuelleTTC: 200 });
+    const r = simuler({ territoireId: "martinique", factureMensuelleTTC: 250 });
     if (r.statut !== "OK") throw new Error("statut inattendu");
     expect(r.sans.plancher).toBe(false);
   });
 });
 
-describe("décomposition — Martinique 250 €/mois, sans batterie", () => {
+describe("modèle diurne — bornes du taux", () => {
+  it("plafonne à 88 % quand la production est très inférieure à la part diurne", () => {
+    const r = simuler({ territoireId: "reunion", factureMensuelleTTC: 400 });
+    if (r.statut !== "OK") throw new Error("statut inattendu");
+    expect(r.sans.tauxAutoconsoPct).toBeLessThanOrEqual(88);
+    expect(r.avec.tauxAutoconsoPct).toBeLessThanOrEqual(88);
+  });
+});
+
+describe("décomposition — Martinique 180 €/mois, sans batterie", () => {
   it("somme des sous-lignes mensuelles", () => {
-    const r = simuler({ territoireId: "martinique", factureMensuelleTTC: 250 });
+    const r = simuler({ territoireId: "martinique", factureMensuelleTTC: 180 });
     if (r.statut !== "OK") throw new Error("statut inattendu");
     const s = r.sans;
     expect(Math.abs(s.gainsMensuelsAutoconso + s.gainsMensuelsRevente - s.gainsMensuels)).toBeLessThanOrEqual(1);

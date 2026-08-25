@@ -1,5 +1,5 @@
 import {
-  TERRITOIRES, HYP, COURBES, orientationPerfMap, bestOrientation,
+  TERRITOIRES, HYP, AUTOCONSO, orientationPerfMap, bestOrientation,
   type Seg, type Kwc, type Territoire, type Orientation,
 } from "./solar-data";
 
@@ -11,6 +11,19 @@ export interface Input {
 }
 
 export type SimulationResult = ReturnType<typeof simuler>;
+
+
+/**
+ * Taux d'autoconsommation selon le modèle diurne (cf. AUTOCONSO).
+ * Les panneaux ne couvrent que la part diurne de la consommation ; au-delà,
+ * toute la production est valorisée (taux plafonné par le rendement 0,88).
+ *   ratio prod/conso 0,4 → 88 % · 0,8 → 66 % · 1,0 → 53 % · 1,5 → 35 % (sans batterie)
+ */
+function tauxAutoconsommation(production: number, conso: number, batterie: boolean): number {
+  const d = batterie ? AUTOCONSO.partDiurneAvecBatterie : AUTOCONSO.partDiurneSansBatterie;
+  const ratio = production / conso;
+  return Math.min(1, d / ratio) * AUTOCONSO.rendementIntraJournalier;
+}
 
 
 /**
@@ -119,7 +132,7 @@ function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: num
   const plafond = kwc * HYP.plafondHeures; // au-delà, surplus racheté 5 c€/kWh
 
   const repartir = (prod: number) => {
-    const taux = interp(bat ? COURBES.avecBatterie : COURBES.sansBatterie, prod / conso);
+    const taux = tauxAutoconsommation(prod, conso, bat);
     const autoconsommee = Math.min(prod * taux, conso);
     const surplus = prod - autoconsommee;
     return {
@@ -210,16 +223,4 @@ function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: num
     revenuSurplus20ans: Math.round(cumulRevente),
     tarifRachatCts: Math.round(tarifRachat * 10000) / 100,
   };
-}
-
-function interp(courbe: readonly (readonly [number, number])[] | number[][], x: number): number {
-  const c = courbe as number[][];
-  if (x <= c[0][0]) return c[0][1];
-  if (x >= c[c.length - 1][0]) return c[c.length - 1][1];
-  for (let i = 0; i < c.length - 1; i++) {
-    const [x1, y1] = c[i];
-    const [x2, y2] = c[i + 1];
-    if (x >= x1 && x <= x2) return y1 + ((x - x1) / (x2 - x1)) * (y2 - y1);
-  }
-  return c[c.length - 1][1];
 }
