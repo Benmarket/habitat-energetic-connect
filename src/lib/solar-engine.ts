@@ -125,6 +125,16 @@ export function simuler(input: Input) {
     gainNet25Sans,
     gainNet25Avec,
     batterieAvantageuse,
+    /**
+     * Configuration mise en avant — calculée ICI, une seule fois.
+     * L'aperçu ET l'étude complète lisent ce champ ; aucun écran ne recalcule
+     * la recommandation de son côté. Critère : meilleur gain net sur 25 ans.
+     */
+    configRecommandee: {
+      kwc: kwcReco,
+      batterie: batterieAvantageuse,
+      gainNet25ans: batterieAvantageuse ? gainNet25Avec : gainNet25Sans,
+    },
 
     nouvelleFactureMensuelle: sans.nouvelleFactureMensuelle,
     sans: { ...sans, puissanceKwc: kwcReco, nbPanneaux: t.panneaux[kwcReco], plancher },

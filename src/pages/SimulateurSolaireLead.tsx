@@ -413,9 +413,10 @@ export default function SimulateurSolaireLead() {
     }
   }, [sim.postalCode, sim.monthlyBill, sim.orientation, viewOptimal]);
 
-  // Par défaut, présenter la configuration la plus avantageuse (gain net sur 25 ans).
+  // Par défaut, présenter la configuration recommandée par le moteur
+  // (configRecommandee — meilleur gain net sur 25 ans). Le toggle reste actif.
   useEffect(() => {
-    if (engineReel) setShowBattery(engineReel.batterieAvantageuse);
+    if (engineReel) setShowBattery(engineReel.configRecommandee.batterie);
   }, [engineReel]);
 
   const engine = viewOptimal && engineOptimal ? engineOptimal : engineReel;
@@ -550,6 +551,8 @@ export default function SimulateurSolaireLead() {
    *  L'étape batterie est informative : le rapport présente toujours les deux configurations. */
   const canToggleBattery = !!engine;
   const scenario = engine ? (showBattery ? engine.avec : engine.sans) : null;
+  /** true si le scénario affiché à l'aperçu est la configuration recommandée par le moteur. */
+  const isRecoDisplayed = engine ? showBattery === engine.configRecommandee.batterie : false;
   const dispYearly = scenario?.economiesAn ?? savingsMid;
   const dispSavings25 = scenario?.economies25ans ?? savings25;
   const dispAides = scenario?.AIDES ?? aidesMin;
