@@ -2207,7 +2207,7 @@ const ResultsPanel = ({
 
                     {/* Phrase de positionnement sous le bloc mis en avant */}
                     <p className="mt-3 text-sm text-slate-700 leading-relaxed">
-                      {engine.batterieAvantageuse ? (
+                      {engine.configRecommandee.batterie ? (
                         <>Avec batterie, vous couvrez <strong>{engine.avec.couvertureBesoinsPct} %</strong> de vos besoins au lieu de {engine.sans.couvertureBesoinsPct} %, et vous gagnez <strong>{ecart.toLocaleString("fr-FR")} € de plus</strong> sur 25 ans.</>
                       ) : (
                         <>Sans batterie, vous gagnez <strong>{ecart.toLocaleString("fr-FR")} € de plus</strong> sur 25 ans. La batterie reste intéressante pour l'autonomie en cas de coupure — elle couvre <strong>{engine.avec.couvertureBesoinsPct} %</strong> de vos besoins au lieu de {engine.sans.couvertureBesoinsPct} %.</>
