@@ -771,6 +771,11 @@ export default function SimulateurSolaireLead() {
                               </div>
                             ))}
                           </div>
+                          {isRecoDisplayed && (
+                            <p className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-slate-900/80 leading-snug">
+                              <Star className="w-3 h-3 shrink-0" /> Configuration recommandée. Voir le comparatif complet dans l'étude détaillée.
+                            </p>
+                          )}
                           {viewOptimal && (
                             <div className="mt-2"><OptimalBanner orientation={sim.orientation} onBack={() => setViewOptimal(false)} /></div>
                           )}
@@ -960,6 +965,11 @@ export default function SimulateurSolaireLead() {
                 {dispSavings25 > 0 && (
                   <p className="mt-2 text-[11px] font-medium text-slate-900/75 leading-snug">
                     dont ~{dFactureEvitee.toLocaleString("fr-FR")} € de facture évitée et ~{dReventeNette.toLocaleString("fr-FR")} € de revente à EDF, nets d'impôt
+                  </p>
+                )}
+                {isRecoDisplayed && (
+                  <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-900/85 leading-snug">
+                    <Star className="w-3.5 h-3.5 shrink-0" /> Configuration recommandée. Voir le comparatif complet dans l'étude détaillée.
                   </p>
                 )}
                 {viewOptimal && (
@@ -2145,8 +2155,8 @@ const ResultsPanel = ({
                 Votre installation en détail
               </h3>
               {(() => {
-                const best = engine.batterieAvantageuse ? { bat: true, sc: engine.avec } : { bat: false, sc: engine.sans };
-                const other = engine.batterieAvantageuse ? { bat: false, sc: engine.sans } : { bat: true, sc: engine.avec };
+                const best = engine.configRecommandee.batterie ? { bat: true, sc: engine.avec } : { bat: false, sc: engine.sans };
+                const other = engine.configRecommandee.batterie ? { bat: false, sc: engine.sans } : { bat: true, sc: engine.avec };
                 const ecart = Math.abs(engine.gainNet25Avec - engine.gainNet25Sans);
                 return (
                   <>
@@ -2257,7 +2267,7 @@ const ResultsPanel = ({
                       </thead>
                       <tbody>
                         {compRows.map((row: ConfigurationComparee) => {
-                          const isReco = row.kwc === engine.puissanceKwc && row.batterie === engine.batterieAvantageuse;
+                          const isReco = row.kwc === engine.configRecommandee.kwc && row.batterie === engine.configRecommandee.batterie;
                           const isBestRoi = bestRoi !== null && row.rentabiliteAns === bestRoi;
                           return (
                             <tr key={`${row.kwc}-${row.batterie ? "bat" : "sans"}`} className={`border-t border-slate-100 ${isReco ? "bg-amber-50" : ""}`}>
