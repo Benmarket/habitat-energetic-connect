@@ -14,6 +14,19 @@ export type SimulationResult = ReturnType<typeof simuler>;
 
 
 /**
+ * Taux d'autoconsommation selon le modèle diurne (cf. AUTOCONSO).
+ * Les panneaux ne couvrent que la part diurne de la consommation ; au-delà,
+ * toute la production est valorisée (taux plafonné par le rendement 0,88).
+ *   ratio prod/conso 0,4 → 88 % · 0,8 → 66 % · 1,0 → 53 % · 1,5 → 35 % (sans batterie)
+ */
+function tauxAutoconsommation(production: number, conso: number, batterie: boolean): number {
+  const d = batterie ? AUTOCONSO.partDiurneAvecBatterie : AUTOCONSO.partDiurneSansBatterie;
+  const ratio = production / conso;
+  return Math.min(1, d / ratio) * AUTOCONSO.rendementIntraJournalier;
+}
+
+
+/**
  * Impôt annuel sur les revenus de revente.
  * ≤ 3 kWc : exonéré (art. 35 ter du CGI).
  * > 3 kWc : micro-BIC, abattement 71 %, puis IR au TMI de 11 % (hypothèse par
