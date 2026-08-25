@@ -2296,33 +2296,40 @@ const ResultsPanel = ({
             </section>
           )}
 
-          {/* Habitudes diurnes — le calcul repose sur les usages du foyer, autant le dire et conseiller */}
+          {/* Habitudes diurnes — bloc explicatif statique sur l'hypothèse de calcul */}
           {engine && (
             <section className="mb-8 p-5 md:p-6 rounded-2xl bg-amber-50 border border-amber-200 shadow-sm">
               <h3 className="text-xs font-bold text-slate-700 uppercase tracking-widest flex items-center gap-1.5 mb-2.5">
-                <Sun className="w-3.5 h-3.5 text-amber-600" /> Tirez le maximum de vos panneaux
+                <Sun className="w-3.5 h-3.5 text-amber-600" /> Ce qui fait varier votre résultat
               </h3>
               <p className="text-sm text-slate-700 leading-relaxed">
-                Votre estimation repose sur une consommation réalisée à{" "}
-                <strong>{Math.round((showBattery ? AUTOCONSO.partDiurneAvecBatterie : AUTOCONSO.partDiurneSansBatterie) * 100)} %</strong>{" "}
-                pendant les heures de production solaire.
-                {engine.zone === "ZNI"
-                  ? " C'est la moyenne constatée en outre-mer, où la climatisation fonctionne aux heures chaudes."
-                  : " C'est la moyenne constatée des foyers français."}
+                Votre estimation repose sur une hypothèse : <strong>60 %</strong> de votre électricité est consommée pendant les
+                heures de production solaire, entre <strong>9h et 17h</strong>. C'est la moyenne constatée en outre-mer, où la
+                climatisation fonctionne aux heures les plus chaudes.
               </p>
-              <p className="text-sm font-semibold text-slate-800 mt-3">Vous pouvez faire beaucoup mieux, sans rien dépenser :</p>
+              <p className="text-sm text-slate-700 leading-relaxed mt-3">
+                Ce chiffre dépend de vos habitudes, et il évolue presque toujours à la hausse après une installation.
+              </p>
+              <p className="text-sm font-semibold text-slate-800 mt-3">Vous êtes probablement au-dessus de 60 % si :</p>
+              <ul className="mt-1.5 space-y-1 text-sm text-slate-700">
+                <li className="flex gap-2"><span className="text-amber-600 font-bold">—</span> une personne est présente au domicile en journée — télétravail, retraite, jeunes enfants</li>
+                <li className="flex gap-2"><span className="text-amber-600 font-bold">—</span> vous utilisez la climatisation aux heures chaudes</li>
+                <li className="flex gap-2"><span className="text-amber-600 font-bold">—</span> vous avez une piscine, un chauffe-eau électrique ou un véhicule électrique</li>
+              </ul>
+              <p className="text-sm font-semibold text-slate-800 mt-3">Trois gestes qui augmentent votre part diurne, sans rien dépenser :</p>
               <ul className="mt-1.5 space-y-1 text-sm text-slate-700">
                 <li className="flex gap-2"><span className="text-amber-600 font-bold">—</span> lancer lave-linge et lave-vaisselle entre 10h et 16h plutôt que le soir</li>
                 <li className="flex gap-2"><span className="text-amber-600 font-bold">—</span> programmer le chauffe-eau électrique en milieu de journée</li>
-                <li className="flex gap-2"><span className="text-amber-600 font-bold">—</span> faire fonctionner la pompe de piscine aux heures solaires</li>
-                <li className="flex gap-2"><span className="text-amber-600 font-bold">—</span> précharger le véhicule électrique en journée quand c'est possible</li>
+                <li className="flex gap-2"><span className="text-amber-600 font-bold">—</span> faire tourner la pompe de piscine et recharger le véhicule aux heures solaires</li>
               </ul>
-              {!showBattery && (
-                <p className="text-sm text-slate-700 leading-relaxed mt-3">
-                  Chaque kWh déplacé vers la journée est un kWh que vous ne payez plus. Un foyer qui atteint{" "}
-                  <strong>70 % de consommation diurne</strong> réduit sa facture d'environ <strong>15 % de plus</strong> que cette estimation.
-                </p>
-              )}
+              <p className="text-sm text-slate-700 leading-relaxed mt-3">
+                Chaque kWh déplacé vers la journée est un kWh que vous ne payez plus. Un foyer qui atteint{" "}
+                <strong>70 % de consommation diurne</strong> réduit sa facture d'environ <strong>15 % de plus</strong> que cette
+                estimation. À l'inverse, un logement inoccupé toute la journée se situera en dessous.
+              </p>
+              <p className="text-xs text-slate-500 leading-relaxed mt-3">
+                Ce point est affiné lors de l'appel conseil, à partir de vos habitudes réelles.
+              </p>
             </section>
           )}
 
