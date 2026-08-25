@@ -33,7 +33,7 @@ import {
   ResponsiveContainer, Legend, Cell, ComposedChart, Area, Line,
 } from "recharts";
 import solarSimBg from "@/assets/simulators/solar-simulator-bg.jpg";
-import { simuler } from "@/lib/solar-engine";
+import { simuler, comparerConfigurations, type ConfigurationComparee } from "@/lib/solar-engine";
 import { territoireFromPostal, orientationPerfMap, bestOrientation, ORIENTATION_LABELS, type Orientation as EngineOrientation } from "@/lib/solar-data";
 import regionFrance from "@/assets/regions/france.png";
 import regionCorse from "@/assets/regions/corse.png";
@@ -398,9 +398,29 @@ export default function SimulateurSolaireLead() {
     }
   }, [sim.postalCode, sim.monthlyBill]);
 
+  /** Tableau comparatif des configurations (étude complète) — mêmes entrées que le moteur affiché. */
+  const compRows = useMemo<ConfigurationComparee[] | null>(() => {
+    const territoireId = territoireFromPostal(sim.postalCode);
+    if (!territoireId || typeof sim.monthlyBill !== "number" || sim.monthlyBill <= 0) return null;
+    try {
+      return comparerConfigurations({
+        territoireId,
+        factureMensuelleTTC: sim.monthlyBill,
+        orientation: viewOptimal ? bestOrientation(territoireId) : ((sim.orientation || undefined) as EngineOrientation | undefined),
+      });
+    } catch {
+      return null;
+    }
+  }, [sim.postalCode, sim.monthlyBill, sim.orientation, viewOptimal]);
+
+  // Par défaut, présenter la configuration la plus avantageuse (gain net sur 25 ans).
+  useEffect(() => {
+    if (engineReel) setShowBattery(engineReel.batterieAvantageuse);
+  }, [engineReel]);
+
   const engine = viewOptimal && engineOptimal ? engineOptimal : engineReel;
 
-  /** Puissance recommandée — dépend du scénario affiché (batterie = cible 100 % de la conso). */
+  /** Puissance recommandée — identique avec ou sans batterie (cible 100 % de la conso). */
   const suggestKwc = engine ? (showBattery ? engine.avec.puissanceKwc : engine.sans.puissanceKwc) : 0;
   const suggestPanels = engine ? (showBattery ? engine.avec.nbPanneaux : engine.sans.nbPanneaux) : 0;
   const suggest = engine
@@ -408,7 +428,7 @@ export default function SimulateurSolaireLead() {
     : { kwc: 0, panels: 0, label: "—" };
 
 
-  // Scénario par défaut affiché : SANS batterie
+  // Scénario par défaut affiché : le plus avantageux (gain net 25 ans, cf. useEffect ci-dessus)
   const savingsMid = engine?.sans.economiesAn ?? 0;
   const savingsMin = Math.round(savingsMid * 0.9);
   const savingsMax = Math.round(savingsMid * 1.1);
@@ -523,11 +543,12 @@ export default function SimulateurSolaireLead() {
     sim, region, annualBill, savingsMin, savingsMax, savingsMid, savings25,
     aidesMin, aidesMax, roi, co2, trees, suggest, installCost,
     showBattery, setShowBattery, savingsWithBattery, batteryCost, roiWithBattery,
-    unlocked, engine, engineOptimal, viewOptimal, setViewOptimal,
+    unlocked, engine, engineOptimal, viewOptimal, setViewOptimal, compRows,
   };
 
-  /** Scénario affiché (avec ou sans batterie) — pilote tous les chiffres de l'aperçu final. */
-  const canToggleBattery = !!(engine && sim.batteryInterest && sim.batteryInterest !== "non");
+  /** Scénario affiché (avec ou sans batterie) — pilote tous les chiffres de l'aperçu final.
+   *  L'étape batterie est informative : le rapport présente toujours les deux configurations. */
+  const canToggleBattery = !!engine;
   const scenario = engine ? (showBattery ? engine.avec : engine.sans) : null;
   const dispYearly = scenario?.economiesAn ?? savingsMid;
   const dispSavings25 = scenario?.economies25ans ?? savings25;
@@ -1869,13 +1890,14 @@ const ResultsPanel = ({
   sim, region, annualBill, savingsMin, savingsMax, savingsMid, savings25,
   aidesMin, aidesMax, roi, co2, trees, suggest, installCost,
   showBattery, setShowBattery, savingsWithBattery, batteryCost, roiWithBattery,
-  unlocked, engine, engineOptimal, viewOptimal, setViewOptimal, onUnlockClick, onEdit, hideMobileSticky,
+  unlocked, engine, engineOptimal, viewOptimal, setViewOptimal, compRows, onUnlockClick, onEdit, hideMobileSticky,
 }: any) => {
   const housingLabel = HOUSING.find((h) => h.id === sim.housing)?.label || "—";
   const surfaceLabel = typeof sim.surface === "number" ? `${sim.surface} m²` : "—";
   const orientationLabel = ORIENTATIONS.find((o) => o.id === sim.orientation)?.label || (sim.orientation === "?" ? "À confirmer" : "—");
 
-  const canToggleBattery = !!(engine && sim.batteryInterest && sim.batteryInterest !== "non");
+  // L'étape batterie est informative : les deux configurations sont toujours présentées.
+  const canToggleBattery = !!engine;
   const scenario = engine ? (showBattery ? engine.avec : engine.sans) : null;
   const dSavings25 = scenario?.economies25ans ?? savings25;
   const dAides = scenario?.AIDES ?? aidesMin;
@@ -2009,7 +2031,7 @@ const ResultsPanel = ({
             </>
           )}
 
-          {sim.batteryInterest && sim.batteryInterest !== "non" && (
+          {engine && (
             <div className="mt-5 inline-flex items-center gap-1 p-1 rounded-full bg-slate-900/15 backdrop-blur">
               <button onClick={() => setShowBattery(false)} className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${!showBattery ? "bg-white text-slate-900 shadow-md" : "text-slate-900/70 hover:text-slate-900"}`}>
                 Sans batterie
@@ -2113,94 +2135,162 @@ const ResultsPanel = ({
             <StatCard icon={LineChart} label="Rentabilité" value={dRoi ? `~${dRoi} ans` : "À l'étude"} accent="from-purple-100 to-purple-50" iconColor="text-purple-700" />
           </div>
 
-          {/* Installation recommandée (une seule puissance, dimensionnée sur l'autoconsommation) */}
-          {engine && scenario && (
+          {/* Configurations ordonnées par intérêt réel (gain net sur 25 ans) */}
+          {engine && (
             <section className="mb-8">
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
                 Votre installation en détail
               </h3>
-              <div className="p-5 rounded-2xl border-2 border-amber-400 bg-amber-50/60">
-                <p className="text-sm font-bold text-slate-900">
-                  {scenario.puissanceKwc} kWc, {scenario.nbPanneaux} panneaux{showBattery ? " + batterie" : ""}
-                </p>
-                <p className="text-xs text-slate-600 mt-0.5">
-                  {scenario.cout.toLocaleString("fr-FR")} €{scenario.AIDES > 0 ? ` · ${scenario.AIDES.toLocaleString("fr-FR")} € d'aides` : ""} · reste à charge {scenario.resteACharge.toLocaleString("fr-FR")} €
-                </p>
-                <p className="text-xl font-black text-slate-900 mt-2">
-                  {scenario.economiesAn.toLocaleString("fr-FR")} € de gains par an
-                  {scenario.rentabiliteAns ? <span className="text-sm font-bold text-slate-600"> · rentabilisé en {String(scenario.rentabiliteAns).replace(".", ",")} ans</span> : null}
-                </p>
-                <div className="mt-2 rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-[12px] text-slate-700 space-y-0.5">
-                  <p className="flex justify-between"><span>Gains cumulés sur 25 ans</span><span className="font-bold text-slate-900">{scenario.gains25ans.toLocaleString("fr-FR")} €</span></p>
-                  <p className="flex justify-between"><span>Reste à charge</span><span className="font-bold text-slate-900">− {scenario.resteACharge.toLocaleString("fr-FR")} €</span></p>
-                  <p className="flex justify-between text-emerald-700 font-black pt-0.5 border-t border-slate-200"><span>Vous gagnez</span><span>{(scenario.gains25ans - scenario.resteACharge).toLocaleString("fr-FR")} €</span></p>
-                </div>
-                <p className="mt-1 text-[11px] text-slate-500">
-                  dont ~{scenario.factureEvitee25ans.toLocaleString("fr-FR")} € de facture évitée et ~{scenario.reventeNette25ans.toLocaleString("fr-FR")} € de revente à EDF, nets d'impôt
-                </p>
-                <ul className="mt-3 space-y-1 text-[12px] text-slate-600 leading-relaxed">
-                  {scenario.AIDES > 0 && (
-                    <li>— {scenario.AIDES.toLocaleString("fr-FR")} € de prime à l'investissement, versée en une seule fois</li>
-                  )}
-                  <li>— {scenario.economieAutoconso.toLocaleString("fr-FR")} €/an d'électricité que vous n'achetez plus</li>
-                  <li>
-                    — {scenario.revenuSurplusAn1.toLocaleString("fr-FR")} €/an de surplus revendu à EDF, soit {scenario.revenuSurplus20ans.toLocaleString("fr-FR")} € sur 20 ans, à un tarif de {String(scenario.tarifRachatCts).replace(".", ",")} c€/kWh garanti 20 ans par arrêté
-                  </li>
-                  {scenario.impotAnnuel > 0 && (
-                    <li>— − {scenario.impotAnnuel.toLocaleString("fr-FR")} €/an d'impôt sur les revenus de revente</li>
-                  )}
-                </ul>
-                {scenario.plancher && (
-                  <p className="mt-3 rounded-xl bg-white border border-amber-200 px-3 py-2 text-[12px] text-slate-700 leading-relaxed">
-                    Votre consommation est modeste : la plus petite installation de notre gamme (3 kWc) produira un peu plus que vos besoins. Le surplus est revendu à EDF. Une puissance inférieure peut être étudiée lors de l'appel conseil.
-                  </p>
-                )}
-              </div>
+              {(() => {
+                const best = engine.batterieAvantageuse ? { bat: true, sc: engine.avec } : { bat: false, sc: engine.sans };
+                const other = engine.batterieAvantageuse ? { bat: false, sc: engine.sans } : { bat: true, sc: engine.avec };
+                const ecart = Math.abs(engine.gainNet25Avec - engine.gainNet25Sans);
+                return (
+                  <>
+                    {/* Configuration la plus avantageuse — encadrée et badgée */}
+                    <div className="relative p-5 rounded-2xl border-2 border-amber-400 bg-amber-50/60">
+                      <span className="absolute -top-3 left-4 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-slate-900 text-[11px] font-black uppercase tracking-wider shadow-md">
+                        <Star className="w-3 h-3" /> Le meilleur choix pour vous
+                      </span>
+                      <p className="mt-1 text-sm font-bold text-slate-900">
+                        {best.sc.puissanceKwc} kWc, {best.sc.nbPanneaux} panneaux{best.bat ? " + batterie" : ""}
+                      </p>
+                      <p className="text-xs text-slate-600 mt-0.5">
+                        {best.sc.cout.toLocaleString("fr-FR")} €{best.sc.AIDES > 0 ? ` · ${best.sc.AIDES.toLocaleString("fr-FR")} € d'aides` : ""} · reste à charge {best.sc.resteACharge.toLocaleString("fr-FR")} €
+                      </p>
+                      <p className="text-xl font-black text-slate-900 mt-2">
+                        {best.sc.economiesAn.toLocaleString("fr-FR")} € de gains par an
+                        {best.sc.rentabiliteAns ? <span className="text-sm font-bold text-slate-600"> · rentabilisé en {String(best.sc.rentabiliteAns).replace(".", ",")} ans</span> : null}
+                      </p>
+                      <div className="mt-2 rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-[12px] text-slate-700 space-y-0.5">
+                        <p className="flex justify-between"><span>Gains cumulés sur 25 ans</span><span className="font-bold text-slate-900">{best.sc.gains25ans.toLocaleString("fr-FR")} €</span></p>
+                        <p className="flex justify-between"><span>Reste à charge</span><span className="font-bold text-slate-900">− {best.sc.resteACharge.toLocaleString("fr-FR")} €</span></p>
+                        <p className="flex justify-between text-emerald-700 font-black pt-0.5 border-t border-slate-200"><span>Vous gagnez</span><span>{(best.sc.gains25ans - best.sc.resteACharge).toLocaleString("fr-FR")} €</span></p>
+                      </div>
+                      <p className="mt-1 text-[11px] text-slate-500">
+                        dont ~{best.sc.factureEvitee25ans.toLocaleString("fr-FR")} € de facture évitée et ~{best.sc.reventeNette25ans.toLocaleString("fr-FR")} € de revente à EDF, nets d'impôt
+                      </p>
+                      <ul className="mt-3 space-y-1 text-[12px] text-slate-600 leading-relaxed">
+                        {best.sc.AIDES > 0 && (
+                          <li>— {best.sc.AIDES.toLocaleString("fr-FR")} € de prime à l'investissement, versée en une seule fois</li>
+                        )}
+                        <li>— {best.sc.economieAutoconso.toLocaleString("fr-FR")} €/an d'électricité que vous n'achetez plus</li>
+                        <li>
+                          — {best.sc.revenuSurplusAn1.toLocaleString("fr-FR")} €/an de surplus revendu à EDF, soit {best.sc.revenuSurplus20ans.toLocaleString("fr-FR")} € sur 20 ans, à un tarif de {String(best.sc.tarifRachatCts).replace(".", ",")} c€/kWh garanti 20 ans par arrêté
+                        </li>
+                        {best.sc.impotAnnuel > 0 && (
+                          <li>— − {best.sc.impotAnnuel.toLocaleString("fr-FR")} €/an d'impôt sur les revenus de revente</li>
+                        )}
+                      </ul>
+                      {best.bat && (
+                        <p className="mt-2 text-[11px] text-slate-500">Estimation hors remplacement de la batterie (durée de vie 12 à 15 ans).</p>
+                      )}
+                      {best.sc.plancher && (
+                        <p className="mt-3 rounded-xl bg-white border border-amber-200 px-3 py-2 text-[12px] text-slate-700 leading-relaxed">
+                          Votre consommation est modeste : la plus petite installation de notre gamme (3 kWc) produira un peu plus que vos besoins. Le surplus est revendu à EDF. Une puissance inférieure peut être étudiée lors de l'appel conseil.
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Phrase de positionnement sous le bloc mis en avant */}
+                    <p className="mt-3 text-sm text-slate-700 leading-relaxed">
+                      {engine.batterieAvantageuse ? (
+                        <>Avec batterie, vous couvrez <strong>{engine.avec.couvertureBesoinsPct} %</strong> de vos besoins au lieu de {engine.sans.couvertureBesoinsPct} %, et vous gagnez <strong>{ecart.toLocaleString("fr-FR")} € de plus</strong> sur 25 ans.</>
+                      ) : (
+                        <>Sans batterie, vous gagnez <strong>{ecart.toLocaleString("fr-FR")} € de plus</strong> sur 25 ans. La batterie reste intéressante pour l'autonomie en cas de coupure — elle couvre <strong>{engine.avec.couvertureBesoinsPct} %</strong> de vos besoins au lieu de {engine.sans.couvertureBesoinsPct} %.</>
+                      )}
+                    </p>
+
+                    {/* Autre configuration — sans encadré */}
+                    <div className="mt-4 p-5 rounded-2xl border border-slate-200 bg-white">
+                      <p className="text-sm font-bold text-slate-900">
+                        {other.sc.puissanceKwc} kWc, {other.sc.nbPanneaux} panneaux{other.bat ? " + batterie" : ""}
+                      </p>
+                      <p className="text-xs text-slate-600 mt-0.5">
+                        {other.sc.cout.toLocaleString("fr-FR")} €{other.sc.AIDES > 0 ? ` · ${other.sc.AIDES.toLocaleString("fr-FR")} € d'aides` : ""} · reste à charge {other.sc.resteACharge.toLocaleString("fr-FR")} €
+                      </p>
+                      <p className="text-base font-black text-slate-900 mt-2">
+                        {other.sc.economiesAn.toLocaleString("fr-FR")} € de gains par an
+                        {other.sc.rentabiliteAns ? <span className="text-sm font-bold text-slate-600"> · rentabilisé en {String(other.sc.rentabiliteAns).replace(".", ",")} ans</span> : null}
+                      </p>
+                      <p className="mt-1 text-[12px] text-slate-600">
+                        Sur 25 ans : {other.sc.gains25ans.toLocaleString("fr-FR")} € de gains, soit <strong className="text-emerald-700">{(other.sc.gains25ans - other.sc.resteACharge).toLocaleString("fr-FR")} €</strong> une fois l'installation remboursée.
+                      </p>
+                      {other.bat && (
+                        <p className="mt-1 text-[11px] text-slate-500">Estimation hors remplacement de la batterie (durée de vie 12 à 15 ans).</p>
+                      )}
+                    </div>
+                  </>
+                );
+              })()}
             </section>
           )}
 
-
-
-
-          {/* Comparaison batterie */}
-          {engine && sim.batteryInterest && sim.batteryInterest !== "non" && (
-            <div className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white border border-amber-400/30 relative overflow-hidden">
-              <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-amber-400/20 blur-3xl" aria-hidden />
-              <div className="relative">
-                <div className="flex items-center gap-2 mb-4">
-                  <BatteryCharging className="w-5 h-5 text-amber-300" />
-                  <h3 className="font-bold text-amber-300 uppercase tracking-widest text-xs">Comparaison avec / sans batterie</h3>
-                </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className={`p-4 rounded-xl border-2 transition-all ${!showBattery ? "border-amber-400 bg-white/10" : "border-white/10"}`}>
-                    <p className="text-[11px] uppercase tracking-widest text-white/60 font-bold mb-1">Sans batterie</p>
-                    <p className="text-2xl font-bold">{savingsMid.toLocaleString("fr-FR")} € / an</p>
-                    <p className="text-xs text-white/70 mt-1">Installation : {engine.sans.cout.toLocaleString("fr-FR")} €{roi ? ` · rentabilité ${roi} ans` : ""}</p>
+          {/* Tableau comparatif — toutes les configurations réalisables (étude complète uniquement) */}
+          {engine && compRows && compRows.length > 0 && (
+            <section className="mb-8">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
+                Comparez les configurations possibles
+              </h3>
+              <p className="text-xs text-slate-500 mb-4">Toutes ces installations sont réalisables chez vous. Voici ce que chacune donne.</p>
+              {(() => {
+                const roiValues = compRows.map((r: ConfigurationComparee) => r.rentabiliteAns).filter((v: number | null): v is number => v !== null);
+                const bestRoi = roiValues.length ? Math.min(...roiValues) : null;
+                return (
+                  <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm bg-white">
+                    <table className="w-full min-w-[920px] text-[12px] text-slate-700">
+                      <thead>
+                        <tr className="bg-slate-900 text-white text-left">
+                          <th className="px-3 py-2.5 font-bold">Puissance</th>
+                          <th className="px-3 py-2.5 font-bold">Production</th>
+                          <th className="px-3 py-2.5 font-bold">Besoins couverts</th>
+                          <th className="px-3 py-2.5 font-bold">Gains/an</th>
+                          <th className="px-3 py-2.5 font-bold">Part de la revente</th>
+                          <th className="px-3 py-2.5 font-bold">Prix TTC</th>
+                          <th className="px-3 py-2.5 font-bold">Reste à charge</th>
+                          <th className="px-3 py-2.5 font-bold">Rentabilité</th>
+                          <th className="px-3 py-2.5 font-bold">Nouvelle facture</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {compRows.map((row: ConfigurationComparee) => {
+                          const isReco = row.kwc === engine.puissanceKwc && row.batterie === engine.batterieAvantageuse;
+                          const isBestRoi = bestRoi !== null && row.rentabiliteAns === bestRoi;
+                          return (
+                            <tr key={`${row.kwc}-${row.batterie ? "bat" : "sans"}`} className={`border-t border-slate-100 ${isReco ? "bg-amber-50" : ""}`}>
+                              <td className="px-3 py-2.5">
+                                <p className="font-bold text-slate-900 whitespace-nowrap">{row.kwc} kWc</p>
+                                <p className="text-[11px] text-slate-500 whitespace-nowrap inline-flex items-center gap-1">
+                                  {row.batterie ? <><BatteryCharging className="w-3 h-3 text-amber-600" /> avec batterie</> : "sans batterie"}
+                                </p>
+                                {(isReco || isBestRoi) && (
+                                  <span className="mt-1 flex flex-wrap gap-1">
+                                    {isReco && <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-slate-900 text-[9px] font-black uppercase tracking-wide"><Star className="w-2.5 h-2.5" /> Recommandé</span>}
+                                    {isBestRoi && <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-black uppercase tracking-wide">Meilleure rentabilité</span>}
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-3 py-2.5 whitespace-nowrap">
+                                <p className="font-semibold text-slate-900">{row.productionAnnuelleKwh.toLocaleString("fr-FR")} kWh</p>
+                                <p className="text-[11px] text-slate-500">{row.productionPctConso} % de la conso</p>
+                              </td>
+                              <td className="px-3 py-2.5 font-semibold">{row.couvertureBesoinsPct} %</td>
+                              <td className="px-3 py-2.5 font-bold text-slate-900 whitespace-nowrap">{row.economiesAn.toLocaleString("fr-FR")} €</td>
+                              <td className="px-3 py-2.5">{row.partReventeDansGains} %</td>
+                              <td className="px-3 py-2.5 whitespace-nowrap">{row.prixTTC.toLocaleString("fr-FR")} €</td>
+                              <td className="px-3 py-2.5 whitespace-nowrap">{row.resteACharge.toLocaleString("fr-FR")} €</td>
+                              <td className="px-3 py-2.5 whitespace-nowrap">{row.rentabiliteAns ? `${String(row.rentabiliteAns).replace(".", ",")} ans` : "—"}</td>
+                              <td className="px-3 py-2.5 whitespace-nowrap">≈ {row.nouvelleFactureMensuelle.toLocaleString("fr-FR")} €/mois</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
-                  <div className={`p-4 rounded-xl border-2 transition-all ${showBattery ? "border-amber-400 bg-white/10" : "border-white/10"}`}>
-                    <p className="text-[11px] uppercase tracking-widest text-white/60 font-bold mb-1">Avec batterie</p>
-                    <p className="text-2xl font-bold text-amber-300">{savingsWithBattery.toLocaleString("fr-FR")} € / an</p>
-                    <p className="text-xs text-white/70 mt-1">Installation : {engine.avec.cout.toLocaleString("fr-FR")} € · <span className="text-amber-300">+ backup anti-coupure</span></p>
-                  </div>
-                </div>
-
-                {/* Positionnement batterie — comparaison du gain net sur 25 ans */}
-                {(() => {
-                  const gainNetSans = engine.sans.economies25ans - engine.sans.resteACharge;
-                  const gainNetAvec = engine.avec.economies25ans - engine.avec.resteACharge;
-                  const rentable = gainNetAvec > gainNetSans;
-                  const diff = Math.round(gainNetAvec - gainNetSans);
-                  const surcoutBat = engine.batterie.surcout;
-                  return (
-                    <p className="mt-4 text-sm text-white/85 leading-relaxed">
-                      {rentable
-                        ? <>La batterie augmente vos gains de <strong className="text-amber-300">{diff.toLocaleString("fr-FR")} €</strong> sur 25 ans, en plus de vous protéger des coupures de courant.</>
-                        : <>Sur ce projet, la batterie ne se rembourse pas : elle coûte <strong className="text-amber-300">{surcoutBat.toLocaleString("fr-FR")} €</strong> et rapporte moins que ce qu'elle coûte. Son intérêt ici est le confort — vous gardez l'électricité en cas de coupure.</>}
-                    </p>
-                  );
-                })()}
-              </div>
-            </div>
+                );
+              })()}
+              <p className="mt-2 text-[10px] text-slate-400 italic">Prix TTC, aides déduites dans le reste à charge. Gains nets d'impôt sur la revente. Nouvelle facture estimée après autoconsommation.</p>
+            </section>
           )}
 
           {/* Consommation vs production solaire — 2 courbes + taux d'autoconsommation */}

@@ -130,10 +130,8 @@ export const TERRITOIRES: Territoire[] = [
 ];
 
 export const HYP = {
-  // Dimensionnement orienté autoconsommation : la production annuelle doit rester
-  // sous une fraction de la consommation (100 % avec batterie, 70 % sans).
-  ratioCibleSansBatterie: 0.7,
-  ratioCibleAvecBatterie: 1.0,
+  // Dimensionnement : cible 100 % de la consommation annuelle, identique avec
+  // ou sans batterie (la batterie ne change que le taux d'autoconsommation).
   indexationRachat: 0.004, // indexation annuelle du tarif de rachat (coefficient L)
   plafondHeures: 1600, // h × kWc rachetés au tarif plein, au-delà 5 c€/kWh
   tarifSurplusReduit: 0.05,
