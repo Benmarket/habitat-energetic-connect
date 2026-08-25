@@ -199,6 +199,32 @@ describe("comparerConfigurations — filtre 140 % de la consommation", () => {
   });
 });
 
+describe("configRecommandee — champ unique lu par l'aperçu et l'étude", () => {
+  it("Martinique 180 €/mois : 6 kWc AVEC batterie, gain net ≈ 45 524 €", () => {
+    const r = simuler({ territoireId: "martinique", factureMensuelleTTC: 180 });
+    if (r.statut !== "OK") throw new Error("statut inattendu");
+    expect(r.configRecommandee.kwc).toBe(6);
+    expect(r.configRecommandee.batterie).toBe(true);
+    expect(Math.abs(r.configRecommandee.gainNet25ans - 45524)).toBeLessThanOrEqual(150);
+    // Le gain net exposé est toujours le meilleur des deux configurations.
+    expect(r.configRecommandee.gainNet25ans).toBe(Math.max(r.gainNet25Sans, r.gainNet25Avec));
+  });
+  it("Reunion 150 €/mois : 3 kWc SANS batterie", () => {
+    const r = simuler({ territoireId: "reunion", factureMensuelleTTC: 150 });
+    if (r.statut !== "OK") throw new Error("statut inattendu");
+    expect(r.configRecommandee.kwc).toBe(3);
+    expect(r.configRecommandee.batterie).toBe(false);
+    expect(r.configRecommandee.gainNet25ans).toBe(r.gainNet25Sans);
+  });
+  it("cohérence avec le booléen historique batterieAvantageuse", () => {
+    for (const [id, facture] of [["martinique", 180], ["guadeloupe", 200], ["corse", 100], ["guyane", 200], ["reunion", 150]] as const) {
+      const r = simuler({ territoireId: id, factureMensuelleTTC: facture });
+      if (r.statut !== "OK") throw new Error("statut inattendu");
+      expect(r.configRecommandee.batterie).toBe(r.batterieAvantageuse);
+    }
+  });
+});
+
 describe("cas limites", () => {
   it("facture trop basse", () => {
     const r = simuler({ territoireId: "martinique", factureMensuelleTTC: 10 });
