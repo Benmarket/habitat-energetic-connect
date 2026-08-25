@@ -1622,14 +1622,15 @@ const Step7Project = ({ sim, setSim, region: _region }: { sim: Sim; setSim: any;
   </div>
 );
 
-// ---------- Step 8 : Batterie de stockage (étape dédiée) ----------
-const Step8Battery = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => {
-  const showWithBattery = sim.batteryInterest === "oui" || sim.batteryInterest === "peut-etre";
-  const gifSrc = showWithBattery ? pvBatterieGif.url : pvOnduleurGif.url;
-
+// ---------- Step 8 : Batterie de stockage (étape purement informative) ----------
+const Step8Battery = ({ region }: { sim: Sim; setSim: any; region: any }) => {
   return (
     <div>
-      <StepTitle icon={BatteryCharging} title="Souhaitez-vous une batterie de stockage ?" subtitle="Stockez votre énergie solaire pour la réutiliser la nuit ou en cas de coupure." />
+      <StepTitle
+        icon={BatteryCharging}
+        title="La batterie, pour aller plus loin"
+        subtitle="Elle stocke votre production de la journée pour vous la restituer le soir. Votre étude vous présentera les deux configurations, avec et sans batterie, pour que vous puissiez comparer."
+      />
 
       {/* Visuel animé + bénéfices côte à côte en desktop */}
       <div className="grid md:grid-cols-[1.15fr_1fr] gap-3 md:gap-4 items-stretch">
@@ -1637,66 +1638,37 @@ const Step8Battery = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: 
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(35_95%_60%/0.25),transparent_60%)]" aria-hidden />
           <div className="relative flex items-center justify-center p-4 md:p-6 min-h-[180px] md:min-h-[210px]">
             <img
-              key={gifSrc}
-              src={gifSrc}
-              alt={showWithBattery ? "Installation solaire avec batterie de stockage" : "Installation solaire avec onduleur"}
+              src={pvBatterieGif.url}
+              alt="Installation solaire avec batterie de stockage"
               className="max-h-[180px] md:max-h-[200px] w-auto object-contain animate-fade-in drop-shadow-[0_10px_30px_hsl(35_95%_45%/0.35)]"
             />
-          </div>
-          <div className="relative px-4 md:px-5 pb-4 flex flex-wrap items-center justify-center gap-2">
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all ${!showWithBattery ? "bg-amber-400 text-slate-900 shadow-md" : "bg-white/10 text-white/70"}`}>
-              Sans batterie
-            </span>
-            <span className="text-white/40 text-xs">↔</span>
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all ${showWithBattery ? "bg-amber-400 text-slate-900 shadow-md" : "bg-white/10 text-white/70"}`}>
-              <BatteryCharging className="w-3 h-3" /> Avec batterie
-            </span>
           </div>
         </div>
 
         {/* Bénéfices — 3 colonnes en mobile, empilés à droite en desktop */}
-        <div className="grid grid-cols-3 md:grid-cols-1 gap-2 md:gap-2.5">
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-2 md:gap-2.5">
           <div className="p-2.5 md:px-4 md:py-3 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200 md:flex md:items-start md:gap-3">
             <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-0 md:mt-0.5 shrink-0" />
             <div>
-              <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Backup anti-coupure</p>
-              <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Vos appareils continuent de fonctionner en cas de coupure réseau.{region.island && <> Essentiel dans les îles.</>}</p>
+              <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Vous gardez le courant en cas de coupure</p>
+              <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Vos appareils continuent de fonctionner quand le réseau tombe.{region.island ? <> En zone cyclonique, c'est souvent la première raison d'installer une batterie.</> : null}</p>
             </div>
           </div>
           <div className="p-2.5 md:px-4 md:py-3 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200 md:flex md:items-start md:gap-3">
-            <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-0 md:mt-0.5 shrink-0" />
+            <Zap className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-0 md:mt-0.5 shrink-0" />
             <div>
-              <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Meilleure autonomie</p>
-              <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Consommez votre propre énergie même la nuit. Autoconsommation jusqu'à 80%.</p>
+              <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Vous couvrez jusqu'à 75 % de vos besoins</p>
+              <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Sans batterie, les panneaux couvrent environ la moitié de votre consommation : ce qui est produit à midi ne sert pas le soir. Avec batterie, vous montez à 75 %.</p>
             </div>
           </div>
           <div className="p-2.5 md:px-4 md:py-3 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200 md:flex md:items-start md:gap-3">
-            <PiggyBank className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-0 md:mt-0.5 shrink-0" />
+            <Coins className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-0 md:mt-0.5 shrink-0" />
             <div>
-              <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Rentable long terme</p>
-              <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Coût initial supérieur, mais protège contre la hausse du prix de l'électricité.</p>
+              <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Vous consommez au lieu de revendre</p>
+              <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Un kWh consommé chez vous vaut plus qu'un kWh revendu à EDF. La batterie transforme votre surplus en électricité gratuite le soir.</p>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Choix */}
-      <div className="mt-5 md:mt-6">
-        <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-          <BatteryCharging className="w-4 h-4 text-orange-600" /> Votre choix
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">Facultatif</span>
-        </h3>
-        <div className="grid grid-cols-3 gap-2">
-          <PillButton selected={sim.batteryInterest === "oui"} onClick={() => setSim({ ...sim, batteryInterest: sim.batteryInterest === "oui" ? "" : "oui" })}>Oui, intéressé</PillButton>
-          <PillButton selected={sim.batteryInterest === "peut-etre"} onClick={() => setSim({ ...sim, batteryInterest: sim.batteryInterest === "peut-etre" ? "" : "peut-etre" })}>Peut-être</PillButton>
-          <PillButton selected={sim.batteryInterest === "non"} onClick={() => setSim({ ...sim, batteryInterest: sim.batteryInterest === "non" ? "" : "non" })}>Non merci</PillButton>
-        </div>
-        {sim.batteryInterest && sim.batteryInterest !== "non" && (
-          <p className="mt-3 text-xs text-slate-600 flex items-center gap-1.5">
-            <Info className="w-3.5 h-3.5 text-orange-600" />
-            Vous pourrez comparer les résultats <strong>avec et sans batterie</strong> à l'écran final.
-          </p>
-        )}
       </div>
     </div>
   );
