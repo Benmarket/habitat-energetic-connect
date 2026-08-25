@@ -1,5 +1,5 @@
 import {
-  TERRITOIRES, HYP, COURBES, orientationPerfMap, bestOrientation,
+  TERRITOIRES, HYP, AUTOCONSO, orientationPerfMap, bestOrientation,
   type Seg, type Kwc, type Territoire, type Orientation,
 } from "./solar-data";
 
