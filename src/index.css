@@ -202,6 +202,37 @@ All colors MUST be HSL.
   animation: subtle-bounce 2s ease-in-out infinite;
 }
 
+/* Double bump léger à la sélection d'un choix, avant avance automatique */
+@keyframes double-bump {
+  0% { transform: scale(1); }
+  20% { transform: scale(1.06); }
+  40% { transform: scale(0.97); }
+  65% { transform: scale(1.04); }
+  85% { transform: scale(0.99); }
+  100% { transform: scale(1); }
+}
+
+.animate-double-bump {
+  animation: double-bump 0.55s ease-out;
+}
+
+/* Variante SVG (la rosace) : origine centrée sur l'élément */
+.svg-double-bump {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: double-bump 0.55s ease-out;
+}
+
+/* Transition d'entrée entre les étapes du simulateur */
+@keyframes step-enter {
+  0% { opacity: 0; transform: translateY(14px) scale(0.985); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-step-enter {
+  animation: step-enter 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
 /* ═══ Article Content Styling ═══ */
 .article-content img {
   border-radius: 12px;

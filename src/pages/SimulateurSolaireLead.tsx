@@ -210,7 +210,7 @@ const SolarBackdrop = () => (
 
 
 // ---------- Compass ----------
-const Compass8 = ({ value, onChange, regionId }: { value: Orientation | ""; onChange: (o: Orientation) => void; regionId?: string }) => {
+const Compass8 = ({ value, onChange, regionId, bumpActive }: { value: Orientation | ""; onChange: (o: Orientation) => void; regionId?: string; bumpActive?: boolean }) => {
   const perfMap = orientationPerfMap(regionId);
   const size = 320;
   const cx = size / 2;
@@ -266,7 +266,7 @@ const Compass8 = ({ value, onChange, regionId }: { value: Orientation | ""; onCh
           const parts = COMPASS_LABELS[s].split(" ");
           const cardinal = parts.length === 1; // N / E / S / O uniquement
           return (
-            <g key={s} onClick={() => onChange(s)} className="cursor-pointer">
+            <g key={s} onClick={() => onChange(s)} className={`cursor-pointer ${selected && bumpActive ? "svg-double-bump" : ""}`}>
               <path d={d} fill={selected ? "url(#sectorSelected)" : "hsl(28 25% 96%)"} stroke={selected ? "hsl(24 90% 35%)" : "hsl(28 25% 85%)"} strokeWidth={2} className="transition-all hover:fill-[hsl(38_85%_88%)]" />
               {cardinal ? (
                 <>
@@ -294,7 +294,7 @@ const Compass8 = ({ value, onChange, regionId }: { value: Orientation | ""; onCh
         </g>
 
       </svg>
-      <button type="button" onClick={() => onChange("?")} className={`text-sm px-5 py-2.5 rounded-full border-2 transition-all ${value === "?" ? "bg-amber-500 border-amber-500 text-slate-900 font-semibold shadow-md" : "bg-white border-slate-200 text-slate-600 hover:border-amber-400"}`}>
+      <button type="button" onClick={() => onChange("?")} className={`text-sm px-5 py-2.5 rounded-full border-2 transition-all ${value === "?" ? "bg-amber-500 border-amber-500 text-slate-900 font-semibold shadow-md" : "bg-white border-slate-200 text-slate-600 hover:border-amber-400"} ${value === "?" && bumpActive ? "animate-double-bump" : ""}`}>
         Je ne sais pas
       </button>
     </div>
@@ -683,15 +683,18 @@ export default function SimulateurSolaireLead() {
             <div className="relative mt-4 md:mt-5">
               <div className="absolute -inset-1 bg-gradient-to-br from-amber-400/40 via-orange-500/30 to-amber-300/30 rounded-[2rem] blur-2xl opacity-70" aria-hidden />
               <div className="relative bg-white rounded-3xl shadow-[0_30px_80px_-15px_hsl(24_60%_8%/0.6)] border border-amber-200/60 p-4 md:p-10">
+                {/* key={step} : rejoue la transition d'entrée à chaque changement d'étape */}
+                <div key={step} className="animate-step-enter">
                 {step === 1 && <Step1Location sim={sim} setSim={setSim} region={region} />}
                 {step === 2 && <Step2Housing sim={sim} setSim={setSim} />}
                 {step === 3 && <Step3Ownership sim={sim} setSim={setSim} onAdvance={goNext} />}
                 {step === 4 && <Step4Orientation sim={sim} setSim={setSim} region={region} onAdvance={goNext} />}
-                {step === 5 && <Step5RoofType sim={sim} setSim={setSim} region={region} onAdvance={goNext} />}
+                {step === 5 && <Step5RoofType sim={sim} setSim={setSim} region={region} />}
                 {step === 6 && <Step5Equipments sim={sim} setSim={setSim} />}
                 {step === 7 && <Step6Bill sim={sim} setSim={setSim} />}
                 {step === 8 && <Step7Project sim={sim} setSim={setSim} region={region} />}
                 {step === 9 && <Step8Battery sim={sim} setSim={setSim} region={region} />}
+                </div>
 
                 <div className="flex items-center justify-between gap-2 mt-6 md:mt-10 pt-4 md:pt-6 border-t border-slate-100">
                   <Button variant="ghost" onClick={goBack} disabled={step === 1} className="text-slate-500 hover:text-slate-900 px-2 md:px-4">
@@ -1284,9 +1287,9 @@ const InfoBanner = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-const ChoiceCard = ({ selected, onClick, title, description, icon: Icon, compact }: { selected: boolean; onClick: () => void; title: string; description?: string; icon?: any; compact?: boolean }) => (
+const ChoiceCard = ({ selected, onClick, title, description, icon: Icon, compact, bump }: { selected: boolean; onClick: () => void; title: string; description?: string; icon?: any; compact?: boolean; bump?: boolean }) => (
   <button type="button" onClick={onClick} aria-pressed={selected}
-    className={`group relative w-full text-left ${compact ? "p-3" : "p-3.5 md:p-5"} rounded-2xl border-2 transition-all duration-300 overflow-hidden ${selected ? "border-orange-500 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-[0_18px_40px_-15px_hsl(35_95%_45%/0.55)] -translate-y-0.5" : "border-slate-200 bg-white hover:border-amber-400 hover:shadow-[0_12px_30px_-15px_hsl(35_95%_45%/0.35)] hover:-translate-y-0.5"}`}>
+    className={`group relative w-full text-left ${compact ? "p-3" : "p-3.5 md:p-5"} rounded-2xl border-2 transition-all duration-300 overflow-hidden ${selected ? "border-orange-500 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-[0_18px_40px_-15px_hsl(35_95%_45%/0.55)] -translate-y-0.5" : "border-slate-200 bg-white hover:border-amber-400 hover:shadow-[0_12px_30px_-15px_hsl(35_95%_45%/0.35)] hover:-translate-y-0.5"} ${bump ? "animate-double-bump" : ""}`}>
     {selected && <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-gradient-to-br from-amber-300/40 to-orange-400/30 blur-2xl pointer-events-none" aria-hidden />}
     <div className={`relative flex items-center ${compact ? "gap-2.5" : "gap-3 md:block md:gap-0"}`}>
       {Icon && (
@@ -1472,6 +1475,7 @@ const Step2Housing = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
 const Step3Ownership = ({ sim, setSim, onAdvance }: { sim: Sim; setSim: any; onAdvance: () => void }) => {
   const [showOwnerDisclaimer, setShowOwnerDisclaimer] = useState(false);
   const [ownerContext, setOwnerContext] = useState<Ownership | "">("");
+  const [bumping, setBumping] = useState<Ownership | null>(null);
   const handleOwnershipSelect = (id: Ownership) => {
     setSim({ ...sim, ownership: id });
     if ((id === "non" || id === "achat") && ownerContext !== id) {
@@ -1479,8 +1483,10 @@ const Step3Ownership = ({ sim, setSim, onAdvance }: { sim: Sim; setSim: any; onA
       setOwnerContext(id);
       setShowOwnerDisclaimer(true);
     } else if (id === "oui") {
-      // Propriétaire : aucun disclaimer, passage direct à l'étape suivante.
-      onAdvance();
+      // Propriétaire : double bump léger, puis passage automatique à l'étape suivante.
+      if (bumping) return;
+      setBumping(id);
+      setTimeout(() => onAdvance(), 480);
     }
   };
   const disclaimerConfig: Record<"non" | "achat", { title: string; icon: any; body: React.ReactNode }> = {
@@ -1508,7 +1514,7 @@ const Step3Ownership = ({ sim, setSim, onAdvance }: { sim: Sim; setSim: any; onA
       <StepTitle icon={Building} title="Vous êtes propriétaire du logement ?" />
       <div className="grid sm:grid-cols-3 gap-3">
         {OWNERSHIPS.map((o) => (
-          <ChoiceCard key={o.id} icon={o.id === "oui" ? Check : o.id === "non" ? Lock : Sparkles} title={o.label} description={o.desc} selected={sim.ownership === o.id} onClick={() => handleOwnershipSelect(o.id)} />
+          <ChoiceCard key={o.id} icon={o.id === "oui" ? Check : o.id === "non" ? Lock : Sparkles} title={o.label} description={o.desc} selected={sim.ownership === o.id} bump={bumping === o.id} onClick={() => handleOwnershipSelect(o.id)} />
         ))}
       </div>
       {sim.ownership && (
@@ -1539,25 +1545,35 @@ const Step3Ownership = ({ sim, setSim, onAdvance }: { sim: Sim; setSim: any; onA
   );
 };
 
-const Step4Orientation = ({ sim, setSim, region, onAdvance }: { sim: Sim; setSim: any; region: any; onAdvance: () => void }) => (
-  <div>
-    <StepTitle icon={Compass} title="Orientation de votre toiture ?" subtitle={`Dans votre zone (${region?.label || "France"}), l'exposition ${ORIENTATIONS.find((o) => o.id === bestOrientation(region?.id))?.label || "Sud"} capte généralement le maximum de soleil, mais d'autres orientations restent intéressantes.`} />
-    <div className="grid md:grid-cols-[1fr_1fr] gap-8 items-center">
-      <Compass8 value={sim.orientation} onChange={(o) => { setSim({ ...sim, orientation: o }); onAdvance(); }} regionId={region?.id} />
-      <div className="space-y-3">
-        {sim.orientation ? <InfoBanner>{orientationFeedback(sim.orientation as Orientation, region?.id)}</InfoBanner> : (
-          <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-slate-600">
-            <Compass className="w-6 h-6 text-slate-400 mb-2" />
-            Sélectionnez l'orientation correspondant à votre toiture. Plus l'exposition est proche du Sud, plus la production solaire est généralement importante.
-          </div>
-        )}
+const Step4Orientation = ({ sim, setSim, region, onAdvance }: { sim: Sim; setSim: any; region: any; onAdvance: () => void }) => {
+  const [bumping, setBumping] = useState(false);
+  // Sélection : enregistre le choix, joue le double bump sur la rosace, puis avance automatiquement.
+  const handleOrientation = (o: Orientation) => {
+    setSim({ ...sim, orientation: o });
+    if (bumping) return;
+    setBumping(true);
+    setTimeout(() => onAdvance(), 480);
+  };
+  return (
+    <div>
+      <StepTitle icon={Compass} title="Orientation de votre toiture ?" subtitle={`Dans votre zone (${region?.label || "France"}), l'exposition ${ORIENTATIONS.find((o) => o.id === bestOrientation(region?.id))?.label || "Sud"} capte généralement le maximum de soleil, mais d'autres orientations restent intéressantes.`} />
+      <div className="grid md:grid-cols-[1fr_1fr] gap-8 items-center">
+        <Compass8 value={sim.orientation} onChange={handleOrientation} regionId={region?.id} bumpActive={bumping} />
+        <div className="space-y-3">
+          {sim.orientation ? <InfoBanner>{orientationFeedback(sim.orientation as Orientation, region?.id)}</InfoBanner> : (
+            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-slate-600">
+              <Compass className="w-6 h-6 text-slate-400 mb-2" />
+              Sélectionnez l'orientation correspondant à votre toiture. Plus l'exposition est proche du Sud, plus la production solaire est généralement importante.
+            </div>
+          )}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 /** Étape facultative : type de toiture, pré-sélectionnée sur la toiture de référence régionale. */
-const Step5RoofType = ({ sim, setSim, region, onAdvance }: { sim: Sim; setSim: any; region: any; onAdvance: () => void }) => {
+const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => {
   const reco = recommendedRoof(region?.id);
 
   // Pré-sélection de la toiture de référence régionale (aperçu 3D visible d'emblée)
@@ -1634,7 +1650,7 @@ const Step5RoofType = ({ sim, setSim, region, onAdvance }: { sim: Sim; setSim: a
           const unknown = r.id === "?";
           const recommended = reco === r.id;
           return (
-            <button key={r.id} type="button" onClick={() => { setSim({ ...sim, roofType: r.id }); onAdvance(); }}
+            <button key={r.id} type="button" onClick={() => setSim({ ...sim, roofType: r.id })}
               className={`relative p-3 rounded-xl border-2 text-left transition-all ${
                 unknown
                   ? "border-sky-200 bg-sky-50/60 hover:border-sky-400"
