@@ -313,7 +313,7 @@ const nameSchema = z.object({
 });
 
 // ---------- Main page ----------
-const STEP_LABELS = ["Localisation", "Logement", "Propriété", "Orientation", "Type de toiture", "Équipements", "Facture", "Projet", "Batterie", "Résultat"];
+const STEP_LABELS = ["Localisation", "Logement", "Propriété", "Orientation", "Type de toiture", "Facture", "Équipements", "Projet", "Batterie", "Résultat"];
 const TOTAL_STEPS = 9; // 9 étapes de questions, la 10e étant le résultat
 
 /** URLs des modèles 3D, dans l'ordre de priorité de préchargement. */
@@ -421,8 +421,8 @@ export default function SimulateurSolaireLead() {
       case 3: return !!sim.ownership;
       case 4: return !!sim.orientation;
       case 5: return true; // type de toiture facultatif
-      case 6: return true; // équipements facultatifs
-      case 7: return typeof sim.monthlyBill === "number" && sim.monthlyBill > 0;
+      case 6: return typeof sim.monthlyBill === "number" && sim.monthlyBill > 0;
+      case 7: return true; // équipements facultatifs
       case 8: return !!sim.projectHorizon; // hasQuote facultatif
       case 9: return true; // batterie facultative
       default: return true;
@@ -708,8 +708,8 @@ export default function SimulateurSolaireLead() {
                 {step === 3 && <Step3Ownership sim={sim} setSim={setSim} onAdvance={goNext} />}
                 {step === 4 && <Step4Orientation sim={sim} setSim={setSim} region={region} onAdvance={goNext} />}
                 {step === 5 && <Step5RoofType sim={sim} setSim={setSim} region={region} />}
-                {step === 6 && <Step5Equipments sim={sim} setSim={setSim} />}
-                {step === 7 && <Step6Bill sim={sim} setSim={setSim} />}
+                {step === 6 && <Step6Bill sim={sim} setSim={setSim} />}
+                {step === 7 && <Step5Equipments sim={sim} setSim={setSim} />}
                 {step === 8 && <Step7Project sim={sim} setSim={setSim} region={region} />}
                 {step === 9 && <Step8Battery sim={sim} setSim={setSim} region={region} />}
                 </div>
