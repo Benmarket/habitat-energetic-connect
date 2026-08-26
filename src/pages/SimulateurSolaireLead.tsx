@@ -1519,11 +1519,11 @@ const Step3Ownership = ({ sim, setSim, onAdvance }: { sim: Sim; setSim: any; onA
   );
 };
 
-const Step4Orientation = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => (
+const Step4Orientation = ({ sim, setSim, region, onAdvance }: { sim: Sim; setSim: any; region: any; onAdvance: () => void }) => (
   <div>
     <StepTitle icon={Compass} title="Quelle est l'orientation principale de votre toiture ?" subtitle={`Dans votre zone (${region?.label || "France"}), l'exposition ${ORIENTATIONS.find((o) => o.id === bestOrientation(region?.id))?.label || "Sud"} capte généralement le maximum de soleil, mais d'autres orientations restent intéressantes.`} />
     <div className="grid md:grid-cols-[1fr_1fr] gap-8 items-center">
-      <Compass8 value={sim.orientation} onChange={(o) => setSim({ ...sim, orientation: o })} regionId={region?.id} />
+      <Compass8 value={sim.orientation} onChange={(o) => { setSim({ ...sim, orientation: o }); onAdvance(); }} regionId={region?.id} />
       <div className="space-y-3">
         {sim.orientation ? <InfoBanner>{orientationFeedback(sim.orientation as Orientation, region?.id)}</InfoBanner> : (
           <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-slate-600">
