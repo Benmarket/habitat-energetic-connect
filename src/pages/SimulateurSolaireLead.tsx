@@ -278,8 +278,39 @@ const nameSchema = z.object({
 });
 
 // ---------- Main page ----------
-const STEP_LABELS = ["Localisation", "Logement", "Propriété", "Toiture", "Équipements", "Facture", "Projet", "Batterie", "Résultat"];
-const TOTAL_STEPS = 8; // 8 étapes de questions, la 9e étant le résultat
+const STEP_LABELS = ["Localisation", "Logement", "Propriété", "Orientation", "Type de toiture", "Équipements", "Facture", "Projet", "Batterie", "Résultat"];
+const TOTAL_STEPS = 9; // 9 étapes de questions, la 10e étant le résultat
+
+/** URLs des modèles 3D, dans l'ordre de priorité de préchargement. */
+const ROOF_MODEL_URLS = [roofToleAsset.url, roofTuilesAsset.url, roofBacAcierAsset.url, roofArdoisesAsset.url, roofPlateAsset.url];
+
+/**
+ * Micro-préchargement séquentiel des GLB dès l'étape 0 : un modèle à la fois,
+ * pour ne pas saturer la bande passante ni bloquer le rendu du wizard.
+ */
+function useProgressiveRoofPreload(priorityUrl?: string) {
+  useEffect(() => {
+    let cancelled = false;
+    const urls = priorityUrl
+      ? [priorityUrl, ...ROOF_MODEL_URLS.filter((u) => u !== priorityUrl)]
+      : ROOF_MODEL_URLS;
+
+    (async () => {
+      for (const url of urls) {
+        if (cancelled) return;
+        try {
+          await fetch(url, { cache: "force-cache" });
+        } catch { /* réseau indisponible : on tentera au rendu */ }
+        if (cancelled) return;
+        useGLTF.preload(url);
+        await new Promise((r) => setTimeout(r, 400));
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [priorityUrl]);
+}
+
 
 export default function SimulateurSolaireLead() {
   const [step, setStep] = useState<number>(0);
@@ -304,27 +335,30 @@ export default function SimulateurSolaireLead() {
 
   const region = useMemo(() => detectRegion(sim.postalCode || ""), [sim.postalCode]);
 
+  // Micro-préchargement des modèles 3D dès l'écran d'accueil du simulateur
+  useProgressiveRoofPreload(ROOF_MODELS[recommendedRoof(region?.id) || ""]);
+
   // Track chaque changement d'étape
   useEffect(() => {
-    if (step >= 1 && step <= 9) {
+    if (step >= 1 && step <= 10) {
       trackStep(step);
-      if (step === 9) trackComplete();
+      if (step === 10) trackComplete();
     }
   }, [step, trackStep, trackComplete]);
 
   useEffect(() => {
-    if (step === 9 && !unlocked) {
+    if (step === 10 && !unlocked) {
       const t = setTimeout(() => setShowLeadModal(true), isMobile ? 600 : 900);
       return () => clearTimeout(t);
     }
   }, [step, unlocked, isMobile]);
 
   useEffect(() => {
-    if (step > 0 && step < 9) {
+    if (step > 0 && step < 10) {
       const el = document.getElementById("sim-wizard");
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-    if (step === 9) window.scrollTo({ top: 0, behavior: "smooth" });
+    if (step === 10) window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step]);
 
   const canContinue = (): boolean => {
@@ -332,26 +366,28 @@ export default function SimulateurSolaireLead() {
       case 1: return /^\d{5}$/.test(sim.postalCode) && region.id !== "unknown";
       case 2: return !!sim.housing && typeof sim.surface === "number" && sim.surface >= 20;
       case 3: return !!sim.ownership;
-      case 4: return !!sim.orientation; // roofType facultatif
-      case 5: return sim.equipments.length > 0;
-      case 6: return typeof sim.monthlyBill === "number" && sim.monthlyBill > 0;
-      case 7: return !!sim.projectHorizon; // hasQuote facultatif
-      case 8: return true; // batterie facultative
+      case 4: return !!sim.orientation;
+      case 5: return true; // type de toiture facultatif
+      case 6: return sim.equipments.length > 0;
+      case 7: return typeof sim.monthlyBill === "number" && sim.monthlyBill > 0;
+      case 8: return !!sim.projectHorizon; // hasQuote facultatif
+      case 9: return true; // batterie facultative
       default: return true;
     }
   };
 
   const goNext = () => {
-    if (step === 8) {
+    if (step === 9) {
       setComputing(true);
       setTimeout(() => {
         setComputing(false);
-        setStep(9);
+        setStep(10);
       }, 2800);
       return;
     }
-    setStep((s) => Math.min(s + 1, 9));
+    setStep((s) => Math.min(s + 1, 10));
   };
+
   const goBack = () => setStep((s) => Math.max(s - 1, 1));
 
   const [lead, setLead] = useState({ email: "", phone: "", consent: false });
@@ -605,7 +641,7 @@ export default function SimulateurSolaireLead() {
         {step === 0 && <EntryHero onStart={() => setStep(1)} />}
 
 
-        {step > 0 && step < 9 && (
+        {step > 0 && step < 10 && (
           <div id="sim-wizard" className="container mx-auto px-4 max-w-3xl pt-4 md:pt-16">
             <ProgressBar step={step} />
 
@@ -616,10 +652,11 @@ export default function SimulateurSolaireLead() {
                 {step === 2 && <Step2Housing sim={sim} setSim={setSim} />}
                 {step === 3 && <Step3Ownership sim={sim} setSim={setSim} />}
                 {step === 4 && <Step4Orientation sim={sim} setSim={setSim} region={region} />}
-                {step === 5 && <Step5Equipments sim={sim} setSim={setSim} />}
-                {step === 6 && <Step6Bill sim={sim} setSim={setSim} />}
-                {step === 7 && <Step7Project sim={sim} setSim={setSim} region={region} />}
-                {step === 8 && <Step8Battery sim={sim} setSim={setSim} region={region} />}
+                {step === 5 && <Step5RoofType sim={sim} setSim={setSim} region={region} />}
+                {step === 6 && <Step5Equipments sim={sim} setSim={setSim} />}
+                {step === 7 && <Step6Bill sim={sim} setSim={setSim} />}
+                {step === 8 && <Step7Project sim={sim} setSim={setSim} region={region} />}
+                {step === 9 && <Step8Battery sim={sim} setSim={setSim} region={region} />}
 
                 <div className="flex items-center justify-between gap-2 mt-6 md:mt-10 pt-4 md:pt-6 border-t border-slate-100">
                   <Button variant="ghost" onClick={goBack} disabled={step === 1} className="text-slate-500 hover:text-slate-900 px-2 md:px-4">
@@ -631,7 +668,8 @@ export default function SimulateurSolaireLead() {
                     size="lg"
                     className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold shadow-[0_15px_30px_-10px_hsl(35_95%_45%/0.7)] hover:scale-105 transition-all rounded-full px-4 md:px-7 text-sm md:text-base whitespace-nowrap animate-subtle-bounce"
                   >
-                    {step === 8 ? "Bien reçu, continuer" : "Continuer"} <ArrowRight className="w-4 h-4 ml-1.5" />
+                    {step === 9 ? "Bien reçu, continuer" : "Continuer"} <ArrowRight className="w-4 h-4 ml-1.5" />
+
                   </Button>
                 </div>
 
@@ -652,7 +690,7 @@ export default function SimulateurSolaireLead() {
           </div>
         )}
 
-        {step === 9 && (
+        {step === 10 && (
           <div className="relative">
             {/* Fond papier à motifs discrets */}
             <div
@@ -687,7 +725,7 @@ export default function SimulateurSolaireLead() {
                   {...resultsProps}
                   hideMobileSticky={isMobile && showLeadModal}
                   onUnlockClick={() => setShowLeadModal(true)}
-                  onEdit={() => setStep(8)}
+                  onEdit={() => setStep(9)}
                 />
 
                 {/* Popover mobile — apparaît juste sous le chiffre 873€/an, clic hors -> ferme */}
@@ -1476,18 +1514,29 @@ const Step4Orientation = ({ sim, setSim, region }: { sim: Sim; setSim: any; regi
         )}
       </div>
     </div>
+  </div>
+);
 
-    {/* Type de toiture — facultatif */}
-    <div className="mt-8 pt-6 border-t border-slate-100">
-      <div className="flex items-center gap-2 mb-3">
-        <h3 className="font-semibold text-slate-900">Type de toiture</h3>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">Facultatif</span>
-      </div>
+/** Étape facultative : type de toiture, pré-sélectionnée sur la toiture de référence régionale. */
+const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => {
+  const reco = recommendedRoof(region?.id);
+
+  // Pré-sélection de la toiture de référence régionale (aperçu 3D visible d'emblée)
+  useEffect(() => {
+    if (!sim.roofType && reco) setSim((s: Sim) => ({ ...s, roofType: reco }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reco]);
+
+  const modelUrl = ROOF_MODELS[sim.roofType];
+
+  return (
+    <div>
+      <StepTitle icon={Home} title="Quel est le type de votre toiture ?" subtitle="Étape facultative — vous pouvez la modifier ou passer directement à la suite." />
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
         {ROOF_TYPES.map((r) => {
           const selected = sim.roofType === r.id;
           const unknown = r.id === "?";
-          const recommended = recommendedRoof(region?.id) === r.id;
+          const recommended = reco === r.id;
           return (
             <button key={r.id} type="button" onClick={() => setSim({ ...sim, roofType: selected ? "" : r.id })}
               className={`relative p-3 rounded-xl border-2 text-left transition-all ${
@@ -1514,20 +1563,21 @@ const Step4Orientation = ({ sim, setSim, region }: { sim: Sim; setSim: any; regi
       </div>
 
       {/* Aperçu 3D */}
-      {ROOF_MODELS[sim.roofType] && (
+      {modelUrl && (
         <div className="mt-5 relative rounded-2xl overflow-hidden border-2 border-sky-700 bg-[#5B8FC4] shadow-[0_20px_50px_-20px_hsl(210_60%_45%/0.5)] animate-fade-in">
           <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/95 backdrop-blur text-[10px] font-bold uppercase tracking-wider text-slate-900 shadow-md">
             Aperçu 3D · {ROOF_TYPES.find(r => r.id === sim.roofType)?.label}
           </div>
           <div className="absolute top-3 right-3 z-10 text-[10px] text-white font-medium bg-sky-900/60 backdrop-blur px-2 py-1 rounded-full border border-sky-600">Rotation automatique</div>
           <div className="h-[280px] md:h-[340px]">
-            <RoofPreview3D url={ROOF_MODELS[sim.roofType]!} />
+            <RoofPreview3D url={modelUrl} />
           </div>
         </div>
       )}
     </div>
-  </div>
-);
+  );
+};
+
 
 const ROOF_MODELS: Record<string, string | undefined> = {
   "tuiles": roofTuilesAsset.url,
