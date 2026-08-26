@@ -235,6 +235,16 @@ const Compass8 = ({ value, onChange, regionId }: { value: Orientation | ""; onCh
             <stop offset="100%" stopColor="hsl(24 90% 45%)" />
           </linearGradient>
         </defs>
+        {/* Anneau extérieur façon boussole : cercle fin + graduations */}
+        <circle cx={cx} cy={cy} r={rOuter + 10} fill="none" stroke="hsl(28 25% 82%)" strokeWidth={1.5} />
+        <circle cx={cx} cy={cy} r={rOuter + 4} fill="none" stroke="hsl(28 25% 88%)" strokeWidth={1} />
+        {Array.from({ length: 72 }).map((_, i) => {
+          const deg = i * 5;
+          const major = deg % 45 === 0;
+          const [tx1, ty1] = polar(deg, rOuter + 4);
+          const [tx2, ty2] = polar(deg, rOuter + (major ? 10 : 7));
+          return <line key={`t${i}`} x1={tx1} y1={ty1} x2={tx2} y2={ty2} stroke={major ? "hsl(28 35% 60%)" : "hsl(28 25% 82%)"} strokeWidth={major ? 1.8 : 1} />;
+        })}
         {sectors.map((s, i) => {
           const startAngle = i * 45 - 22.5;
           const endAngle = startAngle + 45;
@@ -254,25 +264,35 @@ const Compass8 = ({ value, onChange, regionId }: { value: Orientation | ""; onCh
             S: "Sud", SO: "Sud Ouest", O: "Ouest", NO: "Nord Ouest", "?": "?",
           };
           const parts = COMPASS_LABELS[s].split(" ");
+          const cardinal = parts.length === 1; // N / E / S / O uniquement
           return (
             <g key={s} onClick={() => onChange(s)} className="cursor-pointer">
               <path d={d} fill={selected ? "url(#sectorSelected)" : "hsl(28 25% 96%)"} stroke={selected ? "hsl(24 90% 35%)" : "hsl(28 25% 85%)"} strokeWidth={2} className="transition-all hover:fill-[hsl(38_85%_88%)]" />
-              {parts.length > 1 ? (
+              {cardinal ? (
+                <>
+                  <text x={lx} y={ly - 6} textAnchor="middle" className={`text-[20px] font-black tracking-tight ${selected ? "fill-white" : "fill-slate-900"}`}>{s === "O" ? "O" : s}</text>
+                  <text x={lx} y={ly + 9} textAnchor="middle" className={`text-[12px] font-bold ${selected ? "fill-white" : "fill-slate-700"}`}>{parts[0]}</text>
+                </>
+              ) : (
                 <text x={lx} textAnchor="middle" className={`text-[12px] font-bold leading-tight ${selected ? "fill-white" : "fill-slate-800"}`}>
                   <tspan x={lx} y={ly - 6}>{parts[0]}</tspan>
                   <tspan x={lx} y={ly + 7}>{parts[1]}</tspan>
                 </text>
-              ) : (
-                <text x={lx} y={ly + 4} textAnchor="middle" className={`text-[12px] font-bold ${selected ? "fill-white" : "fill-slate-800"}`}>{parts[0]}</text>
               )}
-              <text x={lx} y={ly + 21} textAnchor="middle" className={`text-[10px] font-semibold ${selected ? "fill-white/90" : "fill-slate-500"}`}>{perf}%</text>
+              <text x={lx} y={ly + 23} textAnchor="middle" className={`text-[10px] font-semibold ${selected ? "fill-white/90" : "fill-slate-500"}`}>{perf}%</text>
             </g>
           );
         })}
-        <circle cx={cx} cy={cy} r={rInner - 4} fill="url(#compassCenter)" stroke="hsl(28 92% 45%)" strokeWidth={2} />
+        {/* Aiguille façon boussole, discrète, intégrée au style solaire */}
+        <g opacity={0.9}>
+          <path d={`M ${cx} ${cy - rInner + 8} L ${cx - 9} ${cy} L ${cx} ${cy + 8} L ${cx + 9} ${cy} Z`} fill="hsl(24 90% 45%)" />
+          <path d={`M ${cx} ${cy + rInner - 8} L ${cx - 9} ${cy} L ${cx} ${cy - 8} L ${cx + 9} ${cy} Z`} fill="hsl(28 20% 78%)" />
+        </g>
+        <circle cx={cx} cy={cy} r={rInner - 4} fill="url(#compassCenter)" stroke="hsl(28 92% 45%)" strokeWidth={2} opacity={0.97} />
         <g transform={`translate(${cx - 18}, ${cy - 18})`}>
           <Sun className="text-white drop-shadow" width={36} height={36} />
         </g>
+
       </svg>
       <button type="button" onClick={() => onChange("?")} className={`text-sm px-5 py-2.5 rounded-full border-2 transition-all ${value === "?" ? "bg-amber-500 border-amber-500 text-slate-900 font-semibold shadow-md" : "bg-white border-slate-200 text-slate-600 hover:border-amber-400"}`}>
         Je ne sais pas
