@@ -708,8 +708,8 @@ export default function SimulateurSolaireLead() {
                 {step === 3 && <Step3Ownership sim={sim} setSim={setSim} onAdvance={goNext} />}
                 {step === 4 && <Step4Orientation sim={sim} setSim={setSim} region={region} onAdvance={goNext} />}
                 {step === 5 && <Step5RoofType sim={sim} setSim={setSim} region={region} />}
-                {step === 6 && <Step5Equipments sim={sim} setSim={setSim} />}
-                {step === 7 && <Step6Bill sim={sim} setSim={setSim} />}
+                {step === 6 && <Step6Bill sim={sim} setSim={setSim} />}
+                {step === 7 && <Step5Equipments sim={sim} setSim={setSim} />}
                 {step === 8 && <Step7Project sim={sim} setSim={setSim} region={region} />}
                 {step === 9 && <Step8Battery sim={sim} setSim={setSim} region={region} />}
                 </div>
