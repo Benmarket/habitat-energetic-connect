@@ -1326,13 +1326,8 @@ const InfoBanner = ({ children }: { children: React.ReactNode }) => (
  */
 const FacultativeFrame = ({ children, skipLabel = "Vous pouvez passer cette étape" }: { children: React.ReactNode; skipLabel?: string }) => (
   <div className="relative rounded-3xl border-2 border-dashed border-amber-300/70 bg-gradient-to-br from-amber-50/60 via-orange-50/30 to-amber-50/40 p-3.5 md:p-5 shadow-[0_10px_40px_-22px_hsl(35_95%_50%/0.45)]">
-    {/* Lien d'évitement discret en haut à droite */}
-    <span className="absolute top-2.5 right-3 z-10 hidden md:inline-flex items-center gap-1 text-[10px] font-medium text-amber-700/70">
-      {skipLabel}
-      <ChevronRight className="w-3 h-3" />
-    </span>
     {/* Bandeau badge + flèches pointillées */}
-    <div className="mb-3.5 md:mb-4 flex items-center gap-2.5">
+    <div className="mb-3 md:mb-3.5 flex items-center gap-2.5">
       <span className="h-px flex-1 bg-[repeating-linear-gradient(90deg,hsl(35_95%_55%/0.5)_0_7px,transparent_7px_14px)]" aria-hidden />
       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 border border-amber-300 text-[10px] md:text-[11px] font-bold uppercase tracking-wider text-amber-700 shadow-sm">
         <Info className="w-3 h-3" />
@@ -1341,6 +1336,11 @@ const FacultativeFrame = ({ children, skipLabel = "Vous pouvez passer cette éta
       <span className="h-px flex-1 bg-[repeating-linear-gradient(90deg,hsl(35_95%_55%/0.5)_0_7px,transparent_7px_14px)]" aria-hidden />
     </div>
     {children}
+    {/* Mention d'évitement en bas, centrée */}
+    <p className="mt-3 text-center text-[10px] md:text-[11px] font-medium text-amber-700/70 inline-flex items-center gap-1 w-full justify-center">
+      {skipLabel}
+      <ChevronRight className="w-3 h-3" />
+    </p>
   </div>
 );
 
