@@ -246,24 +246,17 @@ const Compass8 = ({ value, onChange, regionId }: { value: Orientation | ""; onCh
           const selected = value === s;
           const perf = perfMap[s as Exclude<Orientation, "?">] ?? 0;
           const [lx, ly] = polar(startAngle + 22.5, (rOuter + rInner) / 2);
-          // Libellés complets en toutes lettres, sans casser la rosace :
-          // les orientations composées (nord-est, sud-ouest…) sont repliées sur deux lignes.
+          // Libellés complets en toutes lettres, même taille partout (un ou deux mots),
+          // première lettre de chaque mot en majuscule. Rendus sur une seule ligne.
           const COMPASS_LABELS: Record<Orientation, string> = {
-            N: "nord", NE: "nord-est", E: "est", SE: "sud-est",
-            S: "sud", SO: "sud-ouest", O: "ouest", NO: "nord-ouest", "?": "?",
+            N: "Nord", NE: "Nord Est", E: "Est", SE: "Sud Est",
+            S: "Sud", SO: "Sud Ouest", O: "Ouest", NO: "Nord Ouest", "?": "?",
           };
-          const parts = COMPASS_LABELS[s].split("-");
+          const label = COMPASS_LABELS[s];
           return (
             <g key={s} onClick={() => onChange(s)} className="cursor-pointer">
               <path d={d} fill={selected ? "url(#sectorSelected)" : "hsl(28 25% 96%)"} stroke={selected ? "hsl(24 90% 35%)" : "hsl(28 25% 85%)"} strokeWidth={2} className="transition-all hover:fill-[hsl(38_85%_88%)]" />
-              {parts.length > 1 ? (
-                <text x={lx} textAnchor="middle" className={`text-[10px] font-bold leading-tight ${selected ? "fill-white" : "fill-slate-800"}`}>
-                  <tspan x={lx} y={ly - 9}>{parts[0]}</tspan>
-                  <tspan x={lx} y={ly + 3}>{parts[1]}</tspan>
-                </text>
-              ) : (
-                <text x={lx} y={ly - 2} textAnchor="middle" className={`text-[12px] font-bold ${selected ? "fill-white" : "fill-slate-800"}`}>{parts[0]}</text>
-              )}
+              <text x={lx} y={ly + 4} textAnchor="middle" className={`text-[9px] font-bold ${selected ? "fill-white" : "fill-slate-800"}`}>{label}</text>
               <text x={lx} y={ly + 15} textAnchor="middle" className={`text-[9px] font-semibold ${selected ? "fill-white/90" : "fill-slate-500"}`}>{perf}%</text>
             </g>
           );
