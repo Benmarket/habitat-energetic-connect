@@ -212,7 +212,7 @@ const SolarBackdrop = () => (
 // ---------- Compass ----------
 const Compass8 = ({ value, onChange, regionId }: { value: Orientation | ""; onChange: (o: Orientation) => void; regionId?: string }) => {
   const perfMap = orientationPerfMap(regionId);
-  const size = 300;
+  const size = 320;
   const cx = size / 2;
   const cy = size / 2;
   const rOuter = 140;
@@ -283,14 +283,14 @@ const Compass8 = ({ value, onChange, regionId }: { value: Orientation | ""; onCh
             </g>
           );
         })}
-        {/* Aiguille façon boussole, discrète, intégrée au style solaire */}
-        <g opacity={0.9}>
-          <path d={`M ${cx} ${cy - rInner + 8} L ${cx - 9} ${cy} L ${cx} ${cy + 8} L ${cx + 9} ${cy} Z`} fill="hsl(24 90% 45%)" />
-          <path d={`M ${cx} ${cy + rInner - 8} L ${cx - 9} ${cy} L ${cx} ${cy - 8} L ${cx + 9} ${cy} Z`} fill="hsl(28 20% 78%)" />
+        <circle cx={cx} cy={cy} r={rInner - 4} fill="url(#compassCenter)" stroke="hsl(28 92% 45%)" strokeWidth={2} />
+        {/* Aiguille Nord façon boussole, discrète, posée sur le disque central */}
+        <g opacity={0.95}>
+          <path d={`M ${cx} ${cy - rInner + 12} L ${cx - 7} ${cy} L ${cx} ${cy + 7} L ${cx + 7} ${cy} Z`} fill="hsl(24 90% 40%)" />
+          <circle cx={cx} cy={cy} r={4} fill="hsl(30 30% 98%)" stroke="hsl(24 90% 40%)" strokeWidth={1.5} />
         </g>
-        <circle cx={cx} cy={cy} r={rInner - 4} fill="url(#compassCenter)" stroke="hsl(28 92% 45%)" strokeWidth={2} opacity={0.97} />
-        <g transform={`translate(${cx - 18}, ${cy - 18})`}>
-          <Sun className="text-white drop-shadow" width={36} height={36} />
+        <g transform={`translate(${cx - 13}, ${cy + 12})`} opacity={0.9}>
+          <Sun className="text-white drop-shadow" width={26} height={26} />
         </g>
 
       </svg>
@@ -1541,7 +1541,7 @@ const Step3Ownership = ({ sim, setSim, onAdvance }: { sim: Sim; setSim: any; onA
 
 const Step4Orientation = ({ sim, setSim, region, onAdvance }: { sim: Sim; setSim: any; region: any; onAdvance: () => void }) => (
   <div>
-    <StepTitle icon={Compass} title="Quelle est l'orientation principale de votre toiture ?" subtitle={`Dans votre zone (${region?.label || "France"}), l'exposition ${ORIENTATIONS.find((o) => o.id === bestOrientation(region?.id))?.label || "Sud"} capte généralement le maximum de soleil, mais d'autres orientations restent intéressantes.`} />
+    <StepTitle icon={Compass} title="Orientation de votre toiture ?" subtitle={`Dans votre zone (${region?.label || "France"}), l'exposition ${ORIENTATIONS.find((o) => o.id === bestOrientation(region?.id))?.label || "Sud"} capte généralement le maximum de soleil, mais d'autres orientations restent intéressantes.`} />
     <div className="grid md:grid-cols-[1fr_1fr] gap-8 items-center">
       <Compass8 value={sim.orientation} onChange={(o) => { setSim({ ...sim, orientation: o }); onAdvance(); }} regionId={region?.id} />
       <div className="space-y-3">
