@@ -421,7 +421,7 @@ export default function SimulateurSolaireLead() {
       case 3: return !!sim.ownership;
       case 4: return !!sim.orientation;
       case 5: return true; // type de toiture facultatif
-      case 6: return sim.equipments.length > 0;
+      case 6: return true; // équipements facultatifs
       case 7: return typeof sim.monthlyBill === "number" && sim.monthlyBill > 0;
       case 8: return !!sim.projectHorizon; // hasQuote facultatif
       case 9: return true; // batterie facultative
@@ -1772,7 +1772,7 @@ const Step5Equipments = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
     setSim({ ...sim, equipments: without.includes(id) ? without.filter((e) => e !== id) : [...without, id] });
   };
   return (
-    <div>
+    <FacultativeFrame>
       <StepTitle icon={Zap} title="Quels équipements possédez-vous ?" subtitle="Plusieurs choix possibles. Cela nous aide à mieux estimer votre consommation." />
       <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
         {EQUIPMENTS.map((e) => (
@@ -1786,7 +1786,7 @@ const Step5Equipments = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
           {sim.equipments.includes("ve") && <p className="mt-2 text-xs text-slate-500">Une voiture électrique double souvent la rentabilité d'une installation solaire.</p>}
         </InfoBanner>
       )}
-    </div>
+    </FacultativeFrame>
   );
 };
 
