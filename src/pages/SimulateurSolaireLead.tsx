@@ -1449,14 +1449,18 @@ const Step2Housing = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
   );
 };
 
-const Step3Ownership = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
+const Step3Ownership = ({ sim, setSim, onAdvance }: { sim: Sim; setSim: any; onAdvance: () => void }) => {
   const [showOwnerDisclaimer, setShowOwnerDisclaimer] = useState(false);
   const [ownerContext, setOwnerContext] = useState<Ownership | "">("");
   const handleOwnershipSelect = (id: Ownership) => {
     setSim({ ...sim, ownership: id });
     if ((id === "non" || id === "achat") && ownerContext !== id) {
+      // Cas avec disclaimer : on ouvre la modale, l'avance se fait à la confirmation.
       setOwnerContext(id);
       setShowOwnerDisclaimer(true);
+    } else if (id === "oui") {
+      // Propriétaire : aucun disclaimer, passage direct à l'étape suivante.
+      onAdvance();
     }
   };
   const disclaimerConfig: Record<"non" | "achat", { title: string; icon: any; body: React.ReactNode }> = {
