@@ -1614,7 +1614,7 @@ const Step5RoofType = ({ sim, setSim, region, onAdvance }: { sim: Sim; setSim: a
           const unknown = r.id === "?";
           const recommended = reco === r.id;
           return (
-            <button key={r.id} type="button" onClick={() => setSim({ ...sim, roofType: r.id })}
+            <button key={r.id} type="button" onClick={() => { setSim({ ...sim, roofType: r.id }); onAdvance(); }}
               className={`relative p-3 rounded-xl border-2 text-left transition-all ${
                 unknown
                   ? "border-sky-200 bg-sky-50/60 hover:border-sky-400"
