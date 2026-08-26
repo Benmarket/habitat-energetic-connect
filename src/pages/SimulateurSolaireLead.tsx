@@ -1284,9 +1284,9 @@ const InfoBanner = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-const ChoiceCard = ({ selected, onClick, title, description, icon: Icon, compact }: { selected: boolean; onClick: () => void; title: string; description?: string; icon?: any; compact?: boolean }) => (
+const ChoiceCard = ({ selected, onClick, title, description, icon: Icon, compact, bump }: { selected: boolean; onClick: () => void; title: string; description?: string; icon?: any; compact?: boolean; bump?: boolean }) => (
   <button type="button" onClick={onClick} aria-pressed={selected}
-    className={`group relative w-full text-left ${compact ? "p-3" : "p-3.5 md:p-5"} rounded-2xl border-2 transition-all duration-300 overflow-hidden ${selected ? "border-orange-500 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-[0_18px_40px_-15px_hsl(35_95%_45%/0.55)] -translate-y-0.5" : "border-slate-200 bg-white hover:border-amber-400 hover:shadow-[0_12px_30px_-15px_hsl(35_95%_45%/0.35)] hover:-translate-y-0.5"}`}>
+    className={`group relative w-full text-left ${compact ? "p-3" : "p-3.5 md:p-5"} rounded-2xl border-2 transition-all duration-300 overflow-hidden ${selected ? "border-orange-500 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-[0_18px_40px_-15px_hsl(35_95%_45%/0.55)] -translate-y-0.5" : "border-slate-200 bg-white hover:border-amber-400 hover:shadow-[0_12px_30px_-15px_hsl(35_95%_45%/0.35)] hover:-translate-y-0.5"} ${bump ? "animate-double-bump" : ""}`}>
     {selected && <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-gradient-to-br from-amber-300/40 to-orange-400/30 blur-2xl pointer-events-none" aria-hidden />}
     <div className={`relative flex items-center ${compact ? "gap-2.5" : "gap-3 md:block md:gap-0"}`}>
       {Icon && (
