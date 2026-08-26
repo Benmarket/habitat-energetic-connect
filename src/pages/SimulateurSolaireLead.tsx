@@ -411,7 +411,8 @@ export default function SimulateurSolaireLead() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [step]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, sim]);
 
   const canContinue = (): boolean => {
     switch (step) {
