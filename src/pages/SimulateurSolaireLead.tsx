@@ -1510,7 +1510,7 @@ const Step3Ownership = ({ sim, setSim, onAdvance }: { sim: Sim; setSim: any; onA
             <DialogTitle className="text-center text-lg">{ownerContext ? disclaimerConfig[ownerContext].title : ""}</DialogTitle>
             <DialogDescription className="text-center pt-2 space-y-2 text-slate-600">{ownerContext ? disclaimerConfig[ownerContext].body : null}</DialogDescription>
           </DialogHeader>
-          <Button onClick={() => setShowOwnerDisclaimer(false)} className="w-full h-11 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold">
+          <Button onClick={() => { setShowOwnerDisclaimer(false); onAdvance(); }} className="w-full h-11 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold">
             Continuer la simulation
           </Button>
         </DialogContent>
