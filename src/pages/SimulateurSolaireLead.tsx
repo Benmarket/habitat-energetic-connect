@@ -865,11 +865,6 @@ export default function SimulateurSolaireLead() {
                               </div>
                             ))}
                           </div>
-                          {isRecoDisplayed && (
-                            <p className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-slate-900/80 leading-snug">
-                              <Star className="w-3 h-3 shrink-0" /> Configuration recommandée. Voir le comparatif complet dans l'étude détaillée.
-                            </p>
-                          )}
                           {viewOptimal && (
                             <div className="mt-2"><OptimalBanner orientation={sim.orientation} onBack={() => setViewOptimal(false)} /></div>
                           )}
@@ -880,6 +875,7 @@ export default function SimulateurSolaireLead() {
                                 variant="amber" size="sm" orientation={sim.orientation}
                                 prodOptimalKwh={dProdOptimalKwh}
                                 isOptimalView={viewOptimal}
+                                compact
                               />
                             </div>
                           )}
@@ -1061,11 +1057,6 @@ export default function SimulateurSolaireLead() {
                     dont ~{dFactureEvitee.toLocaleString("fr-FR")} € de facture évitée et ~{dReventeNette.toLocaleString("fr-FR")} € de revente à EDF, nets d'impôt
                   </p>
                 )}
-                {isRecoDisplayed && (
-                  <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-900/85 leading-snug">
-                    <Star className="w-3.5 h-3.5 shrink-0" /> Configuration recommandée. Voir le comparatif complet dans l'étude détaillée.
-                  </p>
-                )}
                 {viewOptimal && (
                   <div className="mt-3"><OptimalBanner orientation={sim.orientation} onBack={() => setViewOptimal(false)} /></div>
                 )}
@@ -1076,17 +1067,11 @@ export default function SimulateurSolaireLead() {
                       variant="amber" orientation={sim.orientation}
                       prodOptimalKwh={dProdOptimalKwh}
                       isOptimalView={viewOptimal}
+                      compact
                     />
-                    {dCouverture !== null && (
-                      <p className="mt-1.5 text-xs font-black text-slate-900">{dCouverture} % de vos besoins couverts</p>
-                    )}
                   </div>
                 )}
-                
-                {mentionTVA && <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">{mentionTVA}</p>}
                 {showBattery && <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Estimation hors remplacement de la batterie. Une batterie a une durée de vie de 12 à 15 ans ; un remplacement est à prévoir sur un horizon de 25 ans.</p>}
-                <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Calcul incluant une hausse du prix de l'électricité de 3 % par an. Hypothèse prudente : le tarif réglementé a augmenté de 3,4 % par an en moyenne entre 2012 et 2026 (source CRE).</p>
-                <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Estimation pour une toiture correctement orientée et inclinée. Le rendement réel dépend de votre toiture, évalué lors de l'étude technique.</p>
                 <p className="mt-2 text-[10px] text-slate-900/60 leading-tight">
                   Base : {engine?.territoire}{sim.city ? ` · ${sim.city}` : ""} · facture {annualBill.toLocaleString("fr-FR")} €/an · {engine?.puissanceKwc ?? suggest.kwc} kWc ({engine?.nbPanneaux ?? suggest.panels} panneaux) · {dCost.toLocaleString("fr-FR")} €
                 </p>
