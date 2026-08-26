@@ -26,7 +26,7 @@ import {
   Compass, Snowflake, Flame, Thermometer, Waves, Car, Plug, HelpCircle, Ruler,
   Loader2, Lock, Sparkles, ShieldCheck, Clock, Zap, TrendingUp, Star, Award, Leaf, X,
   Users, CalendarClock, FileText, BatteryCharging, Trees, Coins, LineChart, PiggyBank, Info,
-  Phone, Mail, ClipboardCheck, Wrench, Rocket, TrendingDown, Receipt,
+  Phone, Mail, ClipboardCheck, Wrench, Rocket, TrendingDown, Receipt, ChevronRight,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
@@ -1319,6 +1319,31 @@ const InfoBanner = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
+/**
+ * Identité visuelle des étapes facultatives / informatives.
+ * Cadre cream + bordure tiretée, badge "Étape facultative" encadré de flèches
+ * pointillées, et mention "Vous pouvez passer cette étape".
+ */
+const FacultativeFrame = ({ children, skipLabel = "Vous pouvez passer cette étape" }: { children: React.ReactNode; skipLabel?: string }) => (
+  <div className="relative rounded-3xl border-2 border-dashed border-amber-300/70 bg-gradient-to-br from-amber-50/60 via-orange-50/30 to-amber-50/40 p-3.5 md:p-5 shadow-[0_10px_40px_-22px_hsl(35_95%_50%/0.45)]">
+    {/* Lien d'évitement discret en haut à droite */}
+    <span className="absolute top-2.5 right-3 z-10 hidden md:inline-flex items-center gap-1 text-[10px] font-medium text-amber-700/70">
+      {skipLabel}
+      <ChevronRight className="w-3 h-3" />
+    </span>
+    {/* Bandeau badge + flèches pointillées */}
+    <div className="mb-3.5 md:mb-4 flex items-center gap-2.5">
+      <span className="h-px flex-1 bg-[repeating-linear-gradient(90deg,hsl(35_95%_55%/0.5)_0_7px,transparent_7px_14px)]" aria-hidden />
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 border border-amber-300 text-[10px] md:text-[11px] font-bold uppercase tracking-wider text-amber-700 shadow-sm">
+        <Info className="w-3 h-3" />
+        Étape facultative
+      </span>
+      <span className="h-px flex-1 bg-[repeating-linear-gradient(90deg,hsl(35_95%_55%/0.5)_0_7px,transparent_7px_14px)]" aria-hidden />
+    </div>
+    {children}
+  </div>
+);
+
 const ChoiceCard = ({ selected, onClick, title, description, icon: Icon, compact, bump }: { selected: boolean; onClick: () => void; title: string; description?: string; icon?: any; compact?: boolean; bump?: boolean }) => (
   <button type="button" onClick={onClick} aria-pressed={selected}
     className={`group relative w-full text-left ${compact ? "p-3" : "p-3.5 md:p-5"} rounded-2xl border-2 transition-all duration-300 overflow-hidden ${selected ? "border-orange-500 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-[0_18px_40px_-15px_hsl(35_95%_45%/0.55)] -translate-y-0.5" : "border-slate-200 bg-white hover:border-amber-400 hover:shadow-[0_12px_30px_-15px_hsl(35_95%_45%/0.35)] hover:-translate-y-0.5"} ${bump ? "animate-double-bump" : ""}`}>
@@ -1624,8 +1649,8 @@ const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
   const gridRoofs = ROOF_TYPES.filter((r) => r.id !== sim.roofType);
 
   return (
-    <div>
-      <StepTitle icon={Home} title="Quel est le type de votre toiture ?" subtitle="Étape facultative — modifiable ou à passer directement." inline />
+    <FacultativeFrame>
+      <StepTitle icon={Home} title="Quel est le type de votre toiture ?" subtitle="Modifiable ou à passer directement." inline />
 
       {/* Rappel contexte régional : silhouette + région + ville (compact, une ligne) */}
       {region && region.id !== "unknown" && (
@@ -1708,7 +1733,7 @@ const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
           </div>
         </div>
       )}
-    </div>
+    </FacultativeFrame>
   );
 };
 
@@ -1843,7 +1868,7 @@ const Step7Project = ({ sim, setSim, region: _region }: { sim: Sim; setSim: any;
 // ---------- Step 8 : Batterie de stockage (étape purement informative) ----------
 const Step8Battery = ({ region }: { sim: Sim; setSim: any; region: any }) => {
   return (
-    <div>
+    <FacultativeFrame skipLabel="Informations utiles, sans engagement">
       <StepTitle
         icon={BatteryCharging}
         title="La batterie, pour aller plus loin"
@@ -1888,7 +1913,7 @@ const Step8Battery = ({ region }: { sim: Sim; setSim: any; region: any }) => {
           </div>
         </div>
       </div>
-    </div>
+    </FacultativeFrame>
   );
 };
 
