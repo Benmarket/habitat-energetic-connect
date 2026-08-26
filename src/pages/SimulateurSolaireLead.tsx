@@ -313,7 +313,7 @@ const nameSchema = z.object({
 });
 
 // ---------- Main page ----------
-const STEP_LABELS = ["Localisation", "Logement", "Propriété", "Orientation", "Type de toiture", "Équipements", "Facture", "Projet", "Batterie", "Résultat"];
+const STEP_LABELS = ["Localisation", "Logement", "Propriété", "Orientation", "Type de toiture", "Facture", "Équipements", "Projet", "Batterie", "Résultat"];
 const TOTAL_STEPS = 9; // 9 étapes de questions, la 10e étant le résultat
 
 /** URLs des modèles 3D, dans l'ordre de priorité de préchargement. */
