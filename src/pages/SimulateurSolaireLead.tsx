@@ -690,7 +690,7 @@ export default function SimulateurSolaireLead() {
           </div>
         )}
 
-        {step === 9 && (
+        {step === 10 && (
           <div className="relative">
             {/* Fond papier à motifs discrets */}
             <div
@@ -725,7 +725,7 @@ export default function SimulateurSolaireLead() {
                   {...resultsProps}
                   hideMobileSticky={isMobile && showLeadModal}
                   onUnlockClick={() => setShowLeadModal(true)}
-                  onEdit={() => setStep(8)}
+                  onEdit={() => setStep(9)}
                 />
 
                 {/* Popover mobile — apparaît juste sous le chiffre 873€/an, clic hors -> ferme */}
