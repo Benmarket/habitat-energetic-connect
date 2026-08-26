@@ -1537,7 +1537,7 @@ const Step4Orientation = ({ sim, setSim, region, onAdvance }: { sim: Sim; setSim
 );
 
 /** Étape facultative : type de toiture, pré-sélectionnée sur la toiture de référence régionale. */
-const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => {
+const Step5RoofType = ({ sim, setSim, region, onAdvance }: { sim: Sim; setSim: any; region: any; onAdvance: () => void }) => {
   const reco = recommendedRoof(region?.id);
 
   // Pré-sélection de la toiture de référence régionale (aperçu 3D visible d'emblée)
