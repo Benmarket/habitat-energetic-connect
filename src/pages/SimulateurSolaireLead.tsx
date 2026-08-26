@@ -210,7 +210,7 @@ const SolarBackdrop = () => (
 
 
 // ---------- Compass ----------
-const Compass8 = ({ value, onChange, regionId }: { value: Orientation | ""; onChange: (o: Orientation) => void; regionId?: string }) => {
+const Compass8 = ({ value, onChange, regionId, bumpActive }: { value: Orientation | ""; onChange: (o: Orientation) => void; regionId?: string; bumpActive?: boolean }) => {
   const perfMap = orientationPerfMap(regionId);
   const size = 320;
   const cx = size / 2;
@@ -683,15 +683,18 @@ export default function SimulateurSolaireLead() {
             <div className="relative mt-4 md:mt-5">
               <div className="absolute -inset-1 bg-gradient-to-br from-amber-400/40 via-orange-500/30 to-amber-300/30 rounded-[2rem] blur-2xl opacity-70" aria-hidden />
               <div className="relative bg-white rounded-3xl shadow-[0_30px_80px_-15px_hsl(24_60%_8%/0.6)] border border-amber-200/60 p-4 md:p-10">
+                {/* key={step} : rejoue la transition d'entrée à chaque changement d'étape */}
+                <div key={step} className="animate-step-enter">
                 {step === 1 && <Step1Location sim={sim} setSim={setSim} region={region} />}
                 {step === 2 && <Step2Housing sim={sim} setSim={setSim} />}
                 {step === 3 && <Step3Ownership sim={sim} setSim={setSim} onAdvance={goNext} />}
                 {step === 4 && <Step4Orientation sim={sim} setSim={setSim} region={region} onAdvance={goNext} />}
-                {step === 5 && <Step5RoofType sim={sim} setSim={setSim} region={region} onAdvance={goNext} />}
+                {step === 5 && <Step5RoofType sim={sim} setSim={setSim} region={region} />}
                 {step === 6 && <Step5Equipments sim={sim} setSim={setSim} />}
                 {step === 7 && <Step6Bill sim={sim} setSim={setSim} />}
                 {step === 8 && <Step7Project sim={sim} setSim={setSim} region={region} />}
                 {step === 9 && <Step8Battery sim={sim} setSim={setSim} region={region} />}
+                </div>
 
                 <div className="flex items-center justify-between gap-2 mt-6 md:mt-10 pt-4 md:pt-6 border-t border-slate-100">
                   <Button variant="ghost" onClick={goBack} disabled={step === 1} className="text-slate-500 hover:text-slate-900 px-2 md:px-4">
@@ -1511,7 +1514,7 @@ const Step3Ownership = ({ sim, setSim, onAdvance }: { sim: Sim; setSim: any; onA
       <StepTitle icon={Building} title="Vous êtes propriétaire du logement ?" />
       <div className="grid sm:grid-cols-3 gap-3">
         {OWNERSHIPS.map((o) => (
-          <ChoiceCard key={o.id} icon={o.id === "oui" ? Check : o.id === "non" ? Lock : Sparkles} title={o.label} description={o.desc} selected={sim.ownership === o.id} onClick={() => handleOwnershipSelect(o.id)} />
+          <ChoiceCard key={o.id} icon={o.id === "oui" ? Check : o.id === "non" ? Lock : Sparkles} title={o.label} description={o.desc} selected={sim.ownership === o.id} bump={bumping === o.id} onClick={() => handleOwnershipSelect(o.id)} />
         ))}
       </div>
       {sim.ownership && (
@@ -1570,7 +1573,7 @@ const Step4Orientation = ({ sim, setSim, region, onAdvance }: { sim: Sim; setSim
 };
 
 /** Étape facultative : type de toiture, pré-sélectionnée sur la toiture de référence régionale. */
-const Step5RoofType = ({ sim, setSim, region, onAdvance }: { sim: Sim; setSim: any; region: any; onAdvance: () => void }) => {
+const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => {
   const reco = recommendedRoof(region?.id);
 
   // Pré-sélection de la toiture de référence régionale (aperçu 3D visible d'emblée)
