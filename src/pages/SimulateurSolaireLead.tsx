@@ -1060,18 +1060,6 @@ export default function SimulateurSolaireLead() {
                 {viewOptimal && (
                   <div className="mt-3"><OptimalBanner orientation={sim.orientation} onBack={() => setViewOptimal(false)} /></div>
                 )}
-                {dProdKwh > 0 && (
-                  <div className="mt-3">
-                    <ProductionConditions
-                      score={dScoreOrientation} prodKwh={dProdKwh} autoKwh={dAutoKwh} surplusKwh={dSurplusKwh}
-                      variant="amber" orientation={sim.orientation}
-                      prodOptimalKwh={dProdOptimalKwh}
-                      isOptimalView={viewOptimal}
-                      compact
-                    />
-                  </div>
-                )}
-                {showBattery && <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Estimation hors remplacement de la batterie. Une batterie a une durée de vie de 12 à 15 ans ; un remplacement est à prévoir sur un horizon de 25 ans.</p>}
                 <p className="mt-2 text-[10px] text-slate-900/60 leading-tight">
                   Base : {engine?.territoire}{sim.city ? ` · ${sim.city}` : ""} · facture {annualBill.toLocaleString("fr-FR")} €/an · {engine?.puissanceKwc ?? suggest.kwc} kWc ({engine?.nbPanneaux ?? suggest.panels} panneaux) · {dCost.toLocaleString("fr-FR")} €
                 </p>
@@ -1150,6 +1138,19 @@ export default function SimulateurSolaireLead() {
                   <Link to="/politique-confidentialite" className="underline hover:text-orange-600">Politique de confidentialité</Link>
                 </p>
               </div>
+
+              {dProdKwh > 0 && (
+                <div className="mt-5 pt-5 border-t border-slate-100">
+                  <ProductionConditions
+                    score={dScoreOrientation} prodKwh={dProdKwh} autoKwh={dAutoKwh} surplusKwh={dSurplusKwh}
+                    variant="card" orientation={sim.orientation}
+                    prodOptimalKwh={dProdOptimalKwh}
+                    isOptimalView={viewOptimal}
+                    compact
+                  />
+                  {showBattery && <p className="mt-2 text-[10px] text-slate-500 leading-snug">Estimation hors remplacement de la batterie. Une batterie a une durée de vie de 12 à 15 ans ; un remplacement est à prévoir sur un horizon de 25 ans.</p>}
+                </div>
+              )}
             </div>
           </div>
         </DialogContent>
