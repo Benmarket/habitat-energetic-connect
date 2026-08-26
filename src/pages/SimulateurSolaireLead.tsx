@@ -665,9 +665,9 @@ export default function SimulateurSolaireLead() {
               <div className="relative bg-white rounded-3xl shadow-[0_30px_80px_-15px_hsl(24_60%_8%/0.6)] border border-amber-200/60 p-4 md:p-10">
                 {step === 1 && <Step1Location sim={sim} setSim={setSim} region={region} />}
                 {step === 2 && <Step2Housing sim={sim} setSim={setSim} />}
-                {step === 3 && <Step3Ownership sim={sim} setSim={setSim} />}
-                {step === 4 && <Step4Orientation sim={sim} setSim={setSim} region={region} />}
-                {step === 5 && <Step5RoofType sim={sim} setSim={setSim} region={region} />}
+                {step === 3 && <Step3Ownership sim={sim} setSim={setSim} onAdvance={goNext} />}
+                {step === 4 && <Step4Orientation sim={sim} setSim={setSim} region={region} onAdvance={goNext} />}
+                {step === 5 && <Step5RoofType sim={sim} setSim={setSim} region={region} onAdvance={goNext} />}
                 {step === 6 && <Step5Equipments sim={sim} setSim={setSim} />}
                 {step === 7 && <Step6Bill sim={sim} setSim={setSim} />}
                 {step === 8 && <Step7Project sim={sim} setSim={setSim} region={region} />}
