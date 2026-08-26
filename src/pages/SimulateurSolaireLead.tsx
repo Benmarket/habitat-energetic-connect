@@ -396,6 +396,23 @@ export default function SimulateurSolaireLead() {
     if (step === 10) window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step]);
 
+  // Touche Entrée = bouton Continuer (quand il est disponible)
+  useEffect(() => {
+    if (step <= 0 || step >= 10) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Enter") return;
+      const target = e.target as HTMLElement | null;
+      // Ne pas intercepter Entrée dans un textarea ou un champ multiligne
+      if (target && (target.tagName === "TEXTAREA" || target.isContentEditable)) return;
+      if (canContinue()) {
+        e.preventDefault();
+        goNext();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [step]);
+
   const canContinue = (): boolean => {
     switch (step) {
       case 1: return /^\d{5}$/.test(sim.postalCode) && region.id !== "unknown";
