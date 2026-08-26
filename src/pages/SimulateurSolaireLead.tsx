@@ -1286,13 +1286,27 @@ const ProgressBar = ({ step }: { step: number }) => (
   </div>
 );
 
-const StepTitle = ({ icon: Icon, title, subtitle }: { icon: any; title: React.ReactNode; subtitle?: string }) => (
-  <div className="mb-5 md:mb-8">
-    <div className="inline-flex items-center justify-center w-11 h-11 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 mb-3 md:mb-4 shadow-[0_12px_25px_-8px_hsl(35_95%_45%/0.6)]">
-      <Icon className="w-6 h-6 md:w-7 md:h-7" />
-    </div>
-    <h2 className="text-xl md:text-3xl font-bold text-slate-900 tracking-tight leading-tight">{title}</h2>
-    {subtitle && <p className="text-sm md:text-base text-slate-600 mt-1.5 md:mt-2 leading-relaxed">{subtitle}</p>}
+const StepTitle = ({ icon: Icon, title, subtitle, inline }: { icon: any; title: React.ReactNode; subtitle?: string; inline?: boolean }) => (
+  <div className={inline ? "mb-3 md:mb-4" : "mb-5 md:mb-8"}>
+    {inline ? (
+      <div className="flex items-center gap-3">
+        <div className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 shrink-0 shadow-[0_12px_25px_-8px_hsl(35_95%_45%/0.6)]">
+          <Icon className="w-5 h-5 md:w-6 md:h-6" />
+        </div>
+        <div className="min-w-0">
+          <h2 className="text-lg md:text-2xl font-bold text-slate-900 tracking-tight leading-tight">{title}</h2>
+          {subtitle && <p className="text-xs md:text-sm text-slate-600 mt-0.5 leading-snug">{subtitle}</p>}
+        </div>
+      </div>
+    ) : (
+      <>
+        <div className="inline-flex items-center justify-center w-11 h-11 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 mb-3 md:mb-4 shadow-[0_12px_25px_-8px_hsl(35_95%_45%/0.6)]">
+          <Icon className="w-6 h-6 md:w-7 md:h-7" />
+        </div>
+        <h2 className="text-xl md:text-3xl font-bold text-slate-900 tracking-tight leading-tight">{title}</h2>
+        {subtitle && <p className="text-sm md:text-base text-slate-600 mt-1.5 md:mt-2 leading-relaxed">{subtitle}</p>}
+      </>
+    )}
   </div>
 );
 
@@ -1611,29 +1625,25 @@ const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
 
   return (
     <div>
-      <StepTitle icon={Home} title="Quel est le type de votre toiture ?" subtitle="Étape facultative — vous pouvez la modifier ou passer directement à la suite." />
+      <StepTitle icon={Home} title="Quel est le type de votre toiture ?" subtitle="Étape facultative — modifiable ou à passer directement." inline />
 
-      {/* Rappel contexte régional : silhouette + région + ville */}
+      {/* Rappel contexte régional : silhouette + région + ville (compact, une ligne) */}
       {region && region.id !== "unknown" && (
-        <InfoBanner>
-          <div className="flex items-center gap-3">
-            {REGION_SHAPES[region.id] && (
-              <img src={REGION_SHAPES[region.id]} alt={`Silhouette ${regionName}`} className="w-10 h-10 md:w-14 md:h-14 object-contain shrink-0 opacity-90" loading="lazy" />
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-slate-900 text-sm md:text-base">
-                {regionName}{sim.city ? ` · ${sim.city}` : ""}
-              </p>
-              <p className="text-slate-600 leading-snug text-xs md:text-sm">Simulation adaptée à l'ensoleillement de votre zone.</p>
-            </div>
-          </div>
-        </InfoBanner>
+        <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-amber-50/70 border border-amber-200">
+          {REGION_SHAPES[region.id] && (
+            <img src={REGION_SHAPES[region.id]} alt={`Silhouette ${regionName}`} className="w-8 h-8 md:w-9 md:h-9 object-contain shrink-0 opacity-90" loading="lazy" />
+          )}
+          <p className="font-semibold text-slate-900 text-xs md:text-sm truncate">
+            {regionName}{sim.city ? ` · ${sim.city}` : ""}
+            <span className="font-normal text-slate-500"> — simulation adaptée à votre ensoleillement</span>
+          </p>
+        </div>
       )}
 
       {/* Toiture mise en avant (emplacement principal, au-dessus de la grille) */}
       {selectedRoof && (
-        <div className="mt-4">
-          <div className={`relative rounded-2xl border-2 p-4 transition-all ${
+        <div className="mt-3">
+          <div className={`relative rounded-2xl border-2 p-3 transition-all ${
             isRecoChoice
               ? "border-amber-500 bg-gradient-to-br from-amber-50 to-orange-50 shadow-lg"
               : selectedRoof.id === "?"
@@ -1642,18 +1652,18 @@ const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
           }`}>
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 min-w-0">
-                {isRecoChoice && <Star className="w-5 h-5 shrink-0 fill-amber-500 text-amber-500" />}
+                {isRecoChoice && <Star className="w-4 h-4 shrink-0 fill-amber-500 text-amber-500" />}
                 <div className="min-w-0">
-                  <p className="text-base font-bold text-slate-900 truncate">{selectedRoof.label}</p>
-                  <p className="text-xs text-slate-500">{selectedRoof.desc}</p>
+                  <p className="text-sm md:text-base font-bold text-slate-900 truncate">{selectedRoof.label}</p>
+                  <p className="text-[11px] md:text-xs text-slate-500 truncate">{selectedRoof.desc}</p>
                 </div>
               </div>
               {isRecoChoice ? (
-                <span className="text-[11px] font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
+                <span className="text-[10px] md:text-[11px] font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
                   Le plus courant {prep} {regionName}
                 </span>
               ) : (
-                <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
+                <span className="text-[10px] md:text-[11px] font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
                   Votre choix
                 </span>
               )}
@@ -1663,13 +1673,13 @@ const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
       )}
 
       {/* Grille des autres toitures : cliquer place le choix en haut */}
-      <div className="mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+      <div className="mt-2.5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
         {gridRoofs.map((r) => {
           const unknown = r.id === "?";
           const recommended = reco === r.id;
           return (
             <button key={r.id} type="button" onClick={() => setSim({ ...sim, roofType: r.id })}
-              className={`relative p-3 rounded-xl border-2 text-left transition-all ${
+              className={`relative p-2.5 rounded-xl border-2 text-left transition-all ${
                 unknown
                   ? "border-sky-200 bg-sky-50/60 hover:border-sky-400"
                   : "border-slate-200 bg-white hover:border-amber-400"
@@ -1679,8 +1689,8 @@ const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
                   <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
                 </span>
               )}
-              <p className={`text-sm font-bold ${unknown ? "text-sky-700" : "text-slate-900"}`}>{r.label}</p>
-              <p className={`text-[11px] mt-0.5 ${unknown ? "text-sky-600/80" : "text-slate-500"}`}>{r.desc}</p>
+              <p className={`text-xs md:text-sm font-bold ${unknown ? "text-sky-700" : "text-slate-900"}`}>{r.label}</p>
+              <p className={`text-[10px] md:text-[11px] mt-0.5 leading-tight ${unknown ? "text-sky-600/80" : "text-slate-500"}`}>{r.desc}</p>
             </button>
           );
         })}
@@ -1688,12 +1698,12 @@ const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
 
       {/* Aperçu 3D */}
       {modelUrl && (
-        <div className="mt-5 relative rounded-2xl overflow-hidden border-2 border-sky-700 bg-[#5B8FC4] shadow-[0_20px_50px_-20px_hsl(210_60%_45%/0.5)] animate-fade-in">
-          <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/95 backdrop-blur text-[10px] font-bold uppercase tracking-wider text-slate-900 shadow-md">
+        <div className="mt-3 relative rounded-2xl overflow-hidden border-2 border-sky-700 bg-[#5B8FC4] shadow-[0_20px_50px_-20px_hsl(210_60%_45%/0.5)] animate-fade-in">
+          <div className="absolute top-2.5 left-2.5 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/95 backdrop-blur text-[10px] font-bold uppercase tracking-wider text-slate-900 shadow-md">
             Aperçu 3D · {ROOF_TYPES.find(r => r.id === sim.roofType)?.label}
           </div>
-          <div className="absolute top-3 right-3 z-10 text-[10px] text-white font-medium bg-sky-900/60 backdrop-blur px-2 py-1 rounded-full border border-sky-600">Rotation automatique</div>
-          <div className="h-[280px] md:h-[340px]">
+          <div className="absolute top-2.5 right-2.5 z-10 text-[10px] text-white font-medium bg-sky-900/60 backdrop-blur px-2 py-1 rounded-full border border-sky-600">Rotation automatique</div>
+          <div className="h-[200px] md:h-[240px]">
             <RoofPreview3D url={modelUrl} />
           </div>
         </div>
