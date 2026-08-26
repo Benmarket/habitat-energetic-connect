@@ -665,9 +665,9 @@ export default function SimulateurSolaireLead() {
               <div className="relative bg-white rounded-3xl shadow-[0_30px_80px_-15px_hsl(24_60%_8%/0.6)] border border-amber-200/60 p-4 md:p-10">
                 {step === 1 && <Step1Location sim={sim} setSim={setSim} region={region} />}
                 {step === 2 && <Step2Housing sim={sim} setSim={setSim} />}
-                {step === 3 && <Step3Ownership sim={sim} setSim={setSim} />}
-                {step === 4 && <Step4Orientation sim={sim} setSim={setSim} region={region} />}
-                {step === 5 && <Step5RoofType sim={sim} setSim={setSim} region={region} />}
+                {step === 3 && <Step3Ownership sim={sim} setSim={setSim} onAdvance={goNext} />}
+                {step === 4 && <Step4Orientation sim={sim} setSim={setSim} region={region} onAdvance={goNext} />}
+                {step === 5 && <Step5RoofType sim={sim} setSim={setSim} region={region} onAdvance={goNext} />}
                 {step === 6 && <Step5Equipments sim={sim} setSim={setSim} />}
                 {step === 7 && <Step6Bill sim={sim} setSim={setSim} />}
                 {step === 8 && <Step7Project sim={sim} setSim={setSim} region={region} />}
@@ -1449,14 +1449,18 @@ const Step2Housing = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
   );
 };
 
-const Step3Ownership = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
+const Step3Ownership = ({ sim, setSim, onAdvance }: { sim: Sim; setSim: any; onAdvance: () => void }) => {
   const [showOwnerDisclaimer, setShowOwnerDisclaimer] = useState(false);
   const [ownerContext, setOwnerContext] = useState<Ownership | "">("");
   const handleOwnershipSelect = (id: Ownership) => {
     setSim({ ...sim, ownership: id });
     if ((id === "non" || id === "achat") && ownerContext !== id) {
+      // Cas avec disclaimer : on ouvre la modale, l'avance se fait à la confirmation.
       setOwnerContext(id);
       setShowOwnerDisclaimer(true);
+    } else if (id === "oui") {
+      // Propriétaire : aucun disclaimer, passage direct à l'étape suivante.
+      onAdvance();
     }
   };
   const disclaimerConfig: Record<"non" | "achat", { title: string; icon: any; body: React.ReactNode }> = {
@@ -1506,7 +1510,7 @@ const Step3Ownership = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
             <DialogTitle className="text-center text-lg">{ownerContext ? disclaimerConfig[ownerContext].title : ""}</DialogTitle>
             <DialogDescription className="text-center pt-2 space-y-2 text-slate-600">{ownerContext ? disclaimerConfig[ownerContext].body : null}</DialogDescription>
           </DialogHeader>
-          <Button onClick={() => setShowOwnerDisclaimer(false)} className="w-full h-11 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold">
+          <Button onClick={() => { setShowOwnerDisclaimer(false); onAdvance(); }} className="w-full h-11 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold">
             Continuer la simulation
           </Button>
         </DialogContent>
@@ -1515,11 +1519,11 @@ const Step3Ownership = ({ sim, setSim }: { sim: Sim; setSim: any }) => {
   );
 };
 
-const Step4Orientation = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => (
+const Step4Orientation = ({ sim, setSim, region, onAdvance }: { sim: Sim; setSim: any; region: any; onAdvance: () => void }) => (
   <div>
     <StepTitle icon={Compass} title="Quelle est l'orientation principale de votre toiture ?" subtitle={`Dans votre zone (${region?.label || "France"}), l'exposition ${ORIENTATIONS.find((o) => o.id === bestOrientation(region?.id))?.label || "Sud"} capte généralement le maximum de soleil, mais d'autres orientations restent intéressantes.`} />
     <div className="grid md:grid-cols-[1fr_1fr] gap-8 items-center">
-      <Compass8 value={sim.orientation} onChange={(o) => setSim({ ...sim, orientation: o })} regionId={region?.id} />
+      <Compass8 value={sim.orientation} onChange={(o) => { setSim({ ...sim, orientation: o }); onAdvance(); }} regionId={region?.id} />
       <div className="space-y-3">
         {sim.orientation ? <InfoBanner>{orientationFeedback(sim.orientation as Orientation, region?.id)}</InfoBanner> : (
           <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-slate-600">
@@ -1533,7 +1537,7 @@ const Step4Orientation = ({ sim, setSim, region }: { sim: Sim; setSim: any; regi
 );
 
 /** Étape facultative : type de toiture, pré-sélectionnée sur la toiture de référence régionale. */
-const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => {
+const Step5RoofType = ({ sim, setSim, region, onAdvance }: { sim: Sim; setSim: any; region: any; onAdvance: () => void }) => {
   const reco = recommendedRoof(region?.id);
 
   // Pré-sélection de la toiture de référence régionale (aperçu 3D visible d'emblée)
@@ -1610,7 +1614,7 @@ const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
           const unknown = r.id === "?";
           const recommended = reco === r.id;
           return (
-            <button key={r.id} type="button" onClick={() => setSim({ ...sim, roofType: r.id })}
+            <button key={r.id} type="button" onClick={() => { setSim({ ...sim, roofType: r.id }); onAdvance(); }}
               className={`relative p-3 rounded-xl border-2 text-left transition-all ${
                 unknown
                   ? "border-sky-200 bg-sky-50/60 hover:border-sky-400"
