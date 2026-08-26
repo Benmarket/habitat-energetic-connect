@@ -1286,13 +1286,27 @@ const ProgressBar = ({ step }: { step: number }) => (
   </div>
 );
 
-const StepTitle = ({ icon: Icon, title, subtitle }: { icon: any; title: React.ReactNode; subtitle?: string }) => (
-  <div className="mb-5 md:mb-8">
-    <div className="inline-flex items-center justify-center w-11 h-11 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 mb-3 md:mb-4 shadow-[0_12px_25px_-8px_hsl(35_95%_45%/0.6)]">
-      <Icon className="w-6 h-6 md:w-7 md:h-7" />
-    </div>
-    <h2 className="text-xl md:text-3xl font-bold text-slate-900 tracking-tight leading-tight">{title}</h2>
-    {subtitle && <p className="text-sm md:text-base text-slate-600 mt-1.5 md:mt-2 leading-relaxed">{subtitle}</p>}
+const StepTitle = ({ icon: Icon, title, subtitle, inline }: { icon: any; title: React.ReactNode; subtitle?: string; inline?: boolean }) => (
+  <div className={inline ? "mb-3 md:mb-4" : "mb-5 md:mb-8"}>
+    {inline ? (
+      <div className="flex items-center gap-3">
+        <div className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 shrink-0 shadow-[0_12px_25px_-8px_hsl(35_95%_45%/0.6)]">
+          <Icon className="w-5 h-5 md:w-6 md:h-6" />
+        </div>
+        <div className="min-w-0">
+          <h2 className="text-lg md:text-2xl font-bold text-slate-900 tracking-tight leading-tight">{title}</h2>
+          {subtitle && <p className="text-xs md:text-sm text-slate-600 mt-0.5 leading-snug">{subtitle}</p>}
+        </div>
+      </div>
+    ) : (
+      <>
+        <div className="inline-flex items-center justify-center w-11 h-11 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 mb-3 md:mb-4 shadow-[0_12px_25px_-8px_hsl(35_95%_45%/0.6)]">
+          <Icon className="w-6 h-6 md:w-7 md:h-7" />
+        </div>
+        <h2 className="text-xl md:text-3xl font-bold text-slate-900 tracking-tight leading-tight">{title}</h2>
+        {subtitle && <p className="text-sm md:text-base text-slate-600 mt-1.5 md:mt-2 leading-relaxed">{subtitle}</p>}
+      </>
+    )}
   </div>
 );
 
