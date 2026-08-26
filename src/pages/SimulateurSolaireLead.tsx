@@ -278,8 +278,39 @@ const nameSchema = z.object({
 });
 
 // ---------- Main page ----------
-const STEP_LABELS = ["Localisation", "Logement", "Propriété", "Toiture", "Équipements", "Facture", "Projet", "Batterie", "Résultat"];
-const TOTAL_STEPS = 8; // 8 étapes de questions, la 9e étant le résultat
+const STEP_LABELS = ["Localisation", "Logement", "Propriété", "Orientation", "Type de toiture", "Équipements", "Facture", "Projet", "Batterie", "Résultat"];
+const TOTAL_STEPS = 9; // 9 étapes de questions, la 10e étant le résultat
+
+/** URLs des modèles 3D, dans l'ordre de priorité de préchargement. */
+const ROOF_MODEL_URLS = [roofToleAsset.url, roofTuilesAsset.url, roofBacAcierAsset.url, roofArdoisesAsset.url, roofPlateAsset.url];
+
+/**
+ * Micro-préchargement séquentiel des GLB dès l'étape 0 : un modèle à la fois,
+ * pour ne pas saturer la bande passante ni bloquer le rendu du wizard.
+ */
+function useProgressiveRoofPreload(priorityUrl?: string) {
+  useEffect(() => {
+    let cancelled = false;
+    const urls = priorityUrl
+      ? [priorityUrl, ...ROOF_MODEL_URLS.filter((u) => u !== priorityUrl)]
+      : ROOF_MODEL_URLS;
+
+    (async () => {
+      for (const url of urls) {
+        if (cancelled) return;
+        try {
+          await fetch(url, { cache: "force-cache" });
+        } catch { /* réseau indisponible : on tentera au rendu */ }
+        if (cancelled) return;
+        useGLTF.preload(url);
+        await new Promise((r) => setTimeout(r, 400));
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [priorityUrl]);
+}
+
 
 export default function SimulateurSolaireLead() {
   const [step, setStep] = useState<number>(0);
