@@ -294,7 +294,7 @@ const Compass8 = ({ value, onChange, regionId, bumpActive }: { value: Orientatio
         </g>
 
       </svg>
-      <button type="button" onClick={() => onChange("?")} className={`text-sm px-5 py-2.5 rounded-full border-2 transition-all ${value === "?" ? "bg-amber-500 border-amber-500 text-slate-900 font-semibold shadow-md" : "bg-white border-slate-200 text-slate-600 hover:border-amber-400"}`}>
+      <button type="button" onClick={() => onChange("?")} className={`text-sm px-5 py-2.5 rounded-full border-2 transition-all ${value === "?" ? "bg-amber-500 border-amber-500 text-slate-900 font-semibold shadow-md" : "bg-white border-slate-200 text-slate-600 hover:border-amber-400"} ${value === "?" && bumpActive ? "animate-double-bump" : ""}`}>
         Je ne sais pas
       </button>
     </div>
