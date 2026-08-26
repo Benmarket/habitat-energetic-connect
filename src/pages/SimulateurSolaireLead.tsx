@@ -1143,7 +1143,7 @@ export default function SimulateurSolaireLead() {
                 <div className="mt-5 pt-5 border-t border-slate-100">
                   <ProductionConditions
                     score={dScoreOrientation} prodKwh={dProdKwh} autoKwh={dAutoKwh} surplusKwh={dSurplusKwh}
-                    variant="light" orientation={sim.orientation}
+                    variant="card" orientation={sim.orientation}
                     prodOptimalKwh={dProdOptimalKwh}
                     isOptimalView={viewOptimal}
                     compact
