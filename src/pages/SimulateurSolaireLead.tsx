@@ -865,11 +865,6 @@ export default function SimulateurSolaireLead() {
                               </div>
                             ))}
                           </div>
-                          {isRecoDisplayed && (
-                            <p className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-slate-900/80 leading-snug">
-                              <Star className="w-3 h-3 shrink-0" /> Configuration recommandée. Voir le comparatif complet dans l'étude détaillée.
-                            </p>
-                          )}
                           {viewOptimal && (
                             <div className="mt-2"><OptimalBanner orientation={sim.orientation} onBack={() => setViewOptimal(false)} /></div>
                           )}
@@ -880,6 +875,7 @@ export default function SimulateurSolaireLead() {
                                 variant="amber" size="sm" orientation={sim.orientation}
                                 prodOptimalKwh={dProdOptimalKwh}
                                 isOptimalView={viewOptimal}
+                                compact
                               />
                             </div>
                           )}
@@ -1061,11 +1057,6 @@ export default function SimulateurSolaireLead() {
                     dont ~{dFactureEvitee.toLocaleString("fr-FR")} € de facture évitée et ~{dReventeNette.toLocaleString("fr-FR")} € de revente à EDF, nets d'impôt
                   </p>
                 )}
-                {isRecoDisplayed && (
-                  <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-900/85 leading-snug">
-                    <Star className="w-3.5 h-3.5 shrink-0" /> Configuration recommandée. Voir le comparatif complet dans l'étude détaillée.
-                  </p>
-                )}
                 {viewOptimal && (
                   <div className="mt-3"><OptimalBanner orientation={sim.orientation} onBack={() => setViewOptimal(false)} /></div>
                 )}
@@ -1076,17 +1067,11 @@ export default function SimulateurSolaireLead() {
                       variant="amber" orientation={sim.orientation}
                       prodOptimalKwh={dProdOptimalKwh}
                       isOptimalView={viewOptimal}
+                      compact
                     />
-                    {dCouverture !== null && (
-                      <p className="mt-1.5 text-xs font-black text-slate-900">{dCouverture} % de vos besoins couverts</p>
-                    )}
                   </div>
                 )}
-                
-                {mentionTVA && <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">{mentionTVA}</p>}
                 {showBattery && <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Estimation hors remplacement de la batterie. Une batterie a une durée de vie de 12 à 15 ans ; un remplacement est à prévoir sur un horizon de 25 ans.</p>}
-                <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Calcul incluant une hausse du prix de l'électricité de 3 % par an. Hypothèse prudente : le tarif réglementé a augmenté de 3,4 % par an en moyenne entre 2012 et 2026 (source CRE).</p>
-                <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Estimation pour une toiture correctement orientée et inclinée. Le rendement réel dépend de votre toiture, évalué lors de l'étude technique.</p>
                 <p className="mt-2 text-[10px] text-slate-900/60 leading-tight">
                   Base : {engine?.territoire}{sim.city ? ` · ${sim.city}` : ""} · facture {annualBill.toLocaleString("fr-FR")} €/an · {engine?.puissanceKwc ?? suggest.kwc} kWc ({engine?.nbPanneaux ?? suggest.panels} panneaux) · {dCost.toLocaleString("fr-FR")} €
                 </p>
@@ -2028,10 +2013,11 @@ function libelleConditions(score: number): string {
 const DISCLAIMER_INCLINAISON =
   "Le calcul retient une inclinaison de toiture optimale. Nos installateurs partenaires s'engagent à rechercher l'inclinaison la plus favorable lors de la pose ; l'écart résiduel constaté reste généralement inférieur à 10-15 %. Ce point est validé lors de l'étude technique.";
 
-/** Jauge « conditions de production » + répartition, déclinée sur fond orange ou fond clair. */
+/** Jauge « conditions de production » + répartition, déclinée sur fond orange ou fond clair.
+ *  `compact` masque le disclaimer d'inclinaison et les notes d'orientation (réservés au rapport final). */
 const ProductionConditions = ({
   score, prodKwh, autoKwh, surplusKwh, variant = "amber", size = "md",
-  orientation, prodOptimalKwh, onViewOptimal, onBackToReal, isOptimalView,
+  orientation, prodOptimalKwh, onViewOptimal, onBackToReal, isOptimalView, compact,
 }: {
   score: number; prodKwh: number; autoKwh: number; surplusKwh: number;
   variant?: "amber" | "card"; size?: "sm" | "md";
@@ -2040,62 +2026,90 @@ const ProductionConditions = ({
   onViewOptimal?: () => void;
   onBackToReal?: () => void;
   isOptimalView?: boolean;
+  compact?: boolean;
 }) => {
   const onAmber = variant === "amber";
-  const box = onAmber ? "bg-white/30 rounded-lg" : "rounded-xl border border-amber-200 bg-amber-50/60";
-  const pad = size === "sm" ? "px-2 py-1.5" : "px-3 py-2.5";
+  const box = onAmber ? "bg-white/25 rounded-xl" : "rounded-xl border border-amber-200 bg-amber-50/60";
+  const pad = size === "sm" ? "px-2.5 py-2" : "px-3.5 py-3";
   const muted = onAmber ? "text-slate-900/70" : "text-slate-600";
   const strong = onAmber ? "text-slate-900" : "text-slate-900";
-  const track = onAmber ? "bg-slate-900/10" : "bg-amber-100";
-  const fill = onAmber ? "bg-slate-900/80" : "bg-amber-500";
   const tiny = size === "sm" ? "text-[9px]" : "text-[10px]";
   const oLabel = orientation && orientation !== "?" ? ORIENTATION_LABELS[orientation as Exclude<Orientation, "?">] : null;
+
+  // Couleur dynamique selon le score
+  const scoreColor = score >= 100 ? "from-amber-400 to-orange-500" : score >= 90 ? "from-amber-400 to-orange-400" : score >= 75 ? "from-amber-300 to-amber-500" : "from-slate-400 to-slate-500";
+  const scoreGlow = score >= 75 ? "shadow-[0_0_10px_hsl(35_95%_55%/0.5)]" : "";
+  const scoreBadge = score >= 100 ? "bg-gradient-to-r from-amber-400 to-orange-500 text-slate-900" : score >= 75 ? "bg-amber-100 text-amber-800" : "bg-slate-200 text-slate-600";
+
   return (
     <div className={`${box} ${pad}`}>
-      <div className="flex items-baseline justify-between gap-2">
+      {/* En-tête + badge score */}
+      <div className="flex items-center justify-between gap-2">
         <span className={`${tiny} font-bold uppercase tracking-wide ${muted}`}>Conditions de production</span>
-        <span className={`text-xs font-black ${strong}`}>{score} %</span>
+        <span className={`inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 rounded-full text-[10px] font-black ${scoreBadge}`}>{score} %</span>
       </div>
-      <div className={`mt-1.5 h-2.5 rounded-full overflow-hidden ${track}`}>
-        <div className={`h-full ${fill}`} style={{ width: `${score}%` }} />
+
+      {/* Jauge redésignée */}
+      <div className="relative mt-2 h-3 rounded-full overflow-hidden bg-slate-900/10">
+        <div
+          className={`h-full rounded-full bg-gradient-to-r ${scoreColor} ${scoreGlow} transition-all duration-700`}
+          style={{ width: `${score}%` }}
+        />
+        {/* Marqueur optimal à 100 % */}
+        {score < 100 && (
+          <div className="absolute top-0 right-0 h-full w-0.5 bg-slate-900/25" aria-hidden />
+        )}
       </div>
-      <p className={`mt-1 ${tiny} font-bold ${strong}`}>{libelleConditions(score)}</p>
-      <p className={`${tiny} ${muted}`}>Référence : la meilleure orientation possible dans votre région.</p>
+
+      {/* Libellé qualitatif + production */}
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <p className={`${tiny} font-bold ${strong}`}>{libelleConditions(score)}</p>
+        {prodKwh > 0 && (
+          <p className={`${tiny} font-bold ${strong}`}>{prodKwh.toLocaleString("fr-FR")} kWh/an</p>
+        )}
+      </div>
+
+      {/* Répartition consommé / revendu */}
       {prodKwh > 0 && (
-        <div className={`mt-2 ${tiny} font-semibold ${strong}`}>
-          <p>{prodKwh.toLocaleString("fr-FR")} kWh produits par an</p>
-          <p className={`font-medium ${muted}`}>
-            {autoKwh.toLocaleString("fr-FR")} kWh consommés chez vous, {surplusKwh.toLocaleString("fr-FR")} kWh revendus à EDF
-          </p>
+        <div className={`mt-1 ${tiny} ${muted} flex items-center gap-1.5`}>
+          <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" />{autoKwh.toLocaleString("fr-FR")} autoconso</span>
+          <span className="text-slate-400">·</span>
+          <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-slate-400" />{surplusKwh.toLocaleString("fr-FR")} revendu</span>
         </div>
       )}
-      {score < 100 ? (
-        <div className={`mt-2 ${tiny} ${muted}`}>
-          <p>
-            {oLabel ? `Votre toiture est orientée au ${oLabel.toLowerCase()}.` : "Orientation à confirmer."}
-            {prodOptimalKwh ? ` Avec la meilleure orientation, cette installation produirait ${prodOptimalKwh.toLocaleString("fr-FR")} kWh/an au lieu de ${prodKwh.toLocaleString("fr-FR")} kWh/an.` : ""}
-          </p>
-          {onViewOptimal && (
-            <button type="button" onClick={onViewOptimal}
-              className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1.5 text-[10px] font-bold text-amber-300 hover:bg-slate-800 transition-colors">
-              <Sun className="w-3 h-3" /> Voir mon rapport en orientation optimale
+
+      {/* Orientation — masqué en mode compact (modal) */}
+      {!compact && (
+        <>
+          {score < 100 ? (
+            <div className={`mt-2 ${tiny} ${muted}`}>
+              <p>
+                {oLabel ? `Votre toiture est orientée au ${oLabel.toLowerCase()}.` : "Orientation à confirmer."}
+                {prodOptimalKwh ? ` Avec la meilleure orientation, cette installation produirait ${prodOptimalKwh.toLocaleString("fr-FR")} kWh/an au lieu de ${prodKwh.toLocaleString("fr-FR")} kWh/an.` : ""}
+              </p>
+              {onViewOptimal && (
+                <button type="button" onClick={onViewOptimal}
+                  className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1.5 text-[10px] font-bold text-amber-300 hover:bg-slate-800 transition-colors">
+                  <Sun className="w-3 h-3" /> Voir mon rapport en orientation optimale
+                </button>
+              )}
+            </div>
+          ) : (
+            <p className={`mt-2 ${tiny} ${muted}`}>
+              {isOptimalView
+                ? "Simulation en orientation optimale."
+                : "Votre toiture est orientée de façon optimale pour votre région."}
+            </p>
+          )}
+          {isOptimalView && onBackToReal && (
+            <button type="button" onClick={onBackToReal}
+              className="mt-1.5 inline-flex items-center gap-1.5 rounded-full border border-slate-900/30 px-3 py-1.5 text-[10px] font-bold text-slate-900 hover:bg-slate-900/10 transition-colors">
+              <ArrowLeft className="w-3 h-3" /> Revenir à ma simulation
             </button>
           )}
-        </div>
-      ) : (
-        <p className={`mt-2 ${tiny} ${muted}`}>
-          {isOptimalView
-            ? "Simulation en orientation optimale."
-            : "Votre toiture est orientée de façon optimale pour votre région."}
-        </p>
+          <p className={`mt-2 ${tiny} ${muted} leading-snug`}>{DISCLAIMER_INCLINAISON}</p>
+        </>
       )}
-      {isOptimalView && onBackToReal && (
-        <button type="button" onClick={onBackToReal}
-          className="mt-1.5 inline-flex items-center gap-1.5 rounded-full border border-slate-900/30 px-3 py-1.5 text-[10px] font-bold text-slate-900 hover:bg-slate-900/10 transition-colors">
-          <ArrowLeft className="w-3 h-3" /> Revenir à ma simulation
-        </button>
-      )}
-      <p className={`mt-2 ${tiny} ${muted} leading-snug`}>{DISCLAIMER_INCLINAISON}</p>
     </div>
   );
 };
