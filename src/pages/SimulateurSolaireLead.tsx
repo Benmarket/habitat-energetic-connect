@@ -1326,13 +1326,8 @@ const InfoBanner = ({ children }: { children: React.ReactNode }) => (
  */
 const FacultativeFrame = ({ children, skipLabel = "Vous pouvez passer cette étape" }: { children: React.ReactNode; skipLabel?: string }) => (
   <div className="relative rounded-3xl border-2 border-dashed border-amber-300/70 bg-gradient-to-br from-amber-50/60 via-orange-50/30 to-amber-50/40 p-3.5 md:p-5 shadow-[0_10px_40px_-22px_hsl(35_95%_50%/0.45)]">
-    {/* Lien d'évitement discret en haut à droite */}
-    <span className="absolute top-2.5 right-3 z-10 hidden md:inline-flex items-center gap-1 text-[10px] font-medium text-amber-700/70">
-      {skipLabel}
-      <ChevronRight className="w-3 h-3" />
-    </span>
     {/* Bandeau badge + flèches pointillées */}
-    <div className="mb-3.5 md:mb-4 flex items-center gap-2.5">
+    <div className="mb-3 md:mb-3.5 flex items-center gap-2.5">
       <span className="h-px flex-1 bg-[repeating-linear-gradient(90deg,hsl(35_95%_55%/0.5)_0_7px,transparent_7px_14px)]" aria-hidden />
       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 border border-amber-300 text-[10px] md:text-[11px] font-bold uppercase tracking-wider text-amber-700 shadow-sm">
         <Info className="w-3 h-3" />
@@ -1341,6 +1336,11 @@ const FacultativeFrame = ({ children, skipLabel = "Vous pouvez passer cette éta
       <span className="h-px flex-1 bg-[repeating-linear-gradient(90deg,hsl(35_95%_55%/0.5)_0_7px,transparent_7px_14px)]" aria-hidden />
     </div>
     {children}
+    {/* Mention d'évitement en bas, centrée */}
+    <p className="mt-3 text-center text-[10px] md:text-[11px] font-medium text-amber-700/70 inline-flex items-center gap-1 w-full justify-center">
+      {skipLabel}
+      <ChevronRight className="w-3 h-3" />
+    </p>
   </div>
 );
 
@@ -1872,43 +1872,36 @@ const Step8Battery = ({ region }: { sim: Sim; setSim: any; region: any }) => {
       <StepTitle
         icon={BatteryCharging}
         title="La batterie, pour aller plus loin"
-        subtitle="Elle stocke votre production de la journée pour vous la restituer le soir. Votre étude vous présentera les deux configurations, avec et sans batterie, pour que vous puissiez comparer."
+        subtitle="Elle stocke votre production diurne pour la restituer le soir. Votre étude compare les deux configurations, avec et sans batterie."
       />
 
       {/* Visuel animé + bénéfices côte à côte en desktop */}
       <div className="grid md:grid-cols-[1.15fr_1fr] gap-3 md:gap-4 items-stretch">
         <div className="relative rounded-3xl overflow-hidden border-2 border-amber-200 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-[0_25px_60px_-20px_hsl(35_95%_45%/0.55)]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(35_95%_60%/0.25),transparent_60%)]" aria-hidden />
-          <div className="relative flex items-center justify-center p-4 md:p-6 min-h-[180px] md:min-h-[210px]">
+          <div className="relative flex items-center justify-center p-3 md:p-5 min-h-[150px] md:min-h-[175px]">
             <img
               src={pvBatterieGif.url}
               alt="Installation solaire avec batterie de stockage"
-              className="max-h-[180px] md:max-h-[200px] w-auto object-contain animate-fade-in drop-shadow-[0_10px_30px_hsl(35_95%_45%/0.35)]"
+              className="max-h-[150px] md:max-h-[175px] w-auto object-contain animate-fade-in drop-shadow-[0_10px_30px_hsl(35_95%_45%/0.35)]"
             />
           </div>
         </div>
 
-        {/* Bénéfices — 3 colonnes en mobile, empilés à droite en desktop */}
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-2 md:gap-2.5">
+        {/* Bénéfices — 2 cartes */}
+        <div className="grid grid-cols-1 gap-2 md:gap-2.5">
           <div className="p-2.5 md:px-4 md:py-3 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200 md:flex md:items-start md:gap-3">
             <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-0 md:mt-0.5 shrink-0" />
             <div>
               <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Vous gardez le courant en cas de coupure</p>
-              <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Vos appareils continuent de fonctionner quand le réseau tombe.{region.island ? <> En zone cyclonique, c'est souvent la première raison d'installer une batterie.</> : null}</p>
+              <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Vos appareils fonctionnent quand le réseau tombe.{region.island ? <> En zone cyclonique, c'est souvent la première motivation.</> : null}</p>
             </div>
           </div>
           <div className="p-2.5 md:px-4 md:py-3 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200 md:flex md:items-start md:gap-3">
             <Zap className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-0 md:mt-0.5 shrink-0" />
             <div>
-              <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Vous couvrez jusqu'à 75 % de vos besoins</p>
-              <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Sans batterie, les panneaux couvrent environ la moitié de votre consommation : ce qui est produit à midi ne sert pas le soir. Avec batterie, vous montez à 75 %.</p>
-            </div>
-          </div>
-          <div className="p-2.5 md:px-4 md:py-3 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200 md:flex md:items-start md:gap-3">
-            <Coins className="w-4 h-4 md:w-5 md:h-5 text-orange-600 mb-1 md:mb-0 md:mt-0.5 shrink-0" />
-            <div>
-              <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Vous consommez au lieu de revendre</p>
-              <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Un kWh consommé chez vous vaut plus qu'un kWh revendu à EDF. La batterie transforme votre surplus en électricité gratuite le soir.</p>
+              <p className="text-[11px] md:text-sm font-bold text-slate-900 leading-tight">Votre autoconsommation monte à 75 %</p>
+              <p className="hidden md:block text-[11px] text-slate-600 mt-0.5 leading-relaxed">Sans batterie, environ la moitié de vos besoins est couverte. Avec batterie, l'autoconsommation atteint 75 %.</p>
             </div>
           </div>
         </div>
