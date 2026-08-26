@@ -335,27 +335,30 @@ export default function SimulateurSolaireLead() {
 
   const region = useMemo(() => detectRegion(sim.postalCode || ""), [sim.postalCode]);
 
+  // Micro-préchargement des modèles 3D dès l'écran d'accueil du simulateur
+  useProgressiveRoofPreload(ROOF_MODELS[recommendedRoof(region?.id) || ""]);
+
   // Track chaque changement d'étape
   useEffect(() => {
-    if (step >= 1 && step <= 9) {
+    if (step >= 1 && step <= 10) {
       trackStep(step);
-      if (step === 9) trackComplete();
+      if (step === 10) trackComplete();
     }
   }, [step, trackStep, trackComplete]);
 
   useEffect(() => {
-    if (step === 9 && !unlocked) {
+    if (step === 10 && !unlocked) {
       const t = setTimeout(() => setShowLeadModal(true), isMobile ? 600 : 900);
       return () => clearTimeout(t);
     }
   }, [step, unlocked, isMobile]);
 
   useEffect(() => {
-    if (step > 0 && step < 9) {
+    if (step > 0 && step < 10) {
       const el = document.getElementById("sim-wizard");
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-    if (step === 9) window.scrollTo({ top: 0, behavior: "smooth" });
+    if (step === 10) window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step]);
 
   const canContinue = (): boolean => {
@@ -363,26 +366,28 @@ export default function SimulateurSolaireLead() {
       case 1: return /^\d{5}$/.test(sim.postalCode) && region.id !== "unknown";
       case 2: return !!sim.housing && typeof sim.surface === "number" && sim.surface >= 20;
       case 3: return !!sim.ownership;
-      case 4: return !!sim.orientation; // roofType facultatif
-      case 5: return sim.equipments.length > 0;
-      case 6: return typeof sim.monthlyBill === "number" && sim.monthlyBill > 0;
-      case 7: return !!sim.projectHorizon; // hasQuote facultatif
-      case 8: return true; // batterie facultative
+      case 4: return !!sim.orientation;
+      case 5: return true; // type de toiture facultatif
+      case 6: return sim.equipments.length > 0;
+      case 7: return typeof sim.monthlyBill === "number" && sim.monthlyBill > 0;
+      case 8: return !!sim.projectHorizon; // hasQuote facultatif
+      case 9: return true; // batterie facultative
       default: return true;
     }
   };
 
   const goNext = () => {
-    if (step === 8) {
+    if (step === 9) {
       setComputing(true);
       setTimeout(() => {
         setComputing(false);
-        setStep(9);
+        setStep(10);
       }, 2800);
       return;
     }
-    setStep((s) => Math.min(s + 1, 9));
+    setStep((s) => Math.min(s + 1, 10));
   };
+
   const goBack = () => setStep((s) => Math.max(s - 1, 1));
 
   const [lead, setLead] = useState({ email: "", phone: "", consent: false });
