@@ -641,7 +641,7 @@ export default function SimulateurSolaireLead() {
         {step === 0 && <EntryHero onStart={() => setStep(1)} />}
 
 
-        {step > 0 && step < 9 && (
+        {step > 0 && step < 10 && (
           <div id="sim-wizard" className="container mx-auto px-4 max-w-3xl pt-4 md:pt-16">
             <ProgressBar step={step} />
 
@@ -652,10 +652,11 @@ export default function SimulateurSolaireLead() {
                 {step === 2 && <Step2Housing sim={sim} setSim={setSim} />}
                 {step === 3 && <Step3Ownership sim={sim} setSim={setSim} />}
                 {step === 4 && <Step4Orientation sim={sim} setSim={setSim} region={region} />}
-                {step === 5 && <Step5Equipments sim={sim} setSim={setSim} />}
-                {step === 6 && <Step6Bill sim={sim} setSim={setSim} />}
-                {step === 7 && <Step7Project sim={sim} setSim={setSim} region={region} />}
-                {step === 8 && <Step8Battery sim={sim} setSim={setSim} region={region} />}
+                {step === 5 && <Step5RoofType sim={sim} setSim={setSim} region={region} />}
+                {step === 6 && <Step5Equipments sim={sim} setSim={setSim} />}
+                {step === 7 && <Step6Bill sim={sim} setSim={setSim} />}
+                {step === 8 && <Step7Project sim={sim} setSim={setSim} region={region} />}
+                {step === 9 && <Step8Battery sim={sim} setSim={setSim} region={region} />}
 
                 <div className="flex items-center justify-between gap-2 mt-6 md:mt-10 pt-4 md:pt-6 border-t border-slate-100">
                   <Button variant="ghost" onClick={goBack} disabled={step === 1} className="text-slate-500 hover:text-slate-900 px-2 md:px-4">
@@ -667,7 +668,8 @@ export default function SimulateurSolaireLead() {
                     size="lg"
                     className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold shadow-[0_15px_30px_-10px_hsl(35_95%_45%/0.7)] hover:scale-105 transition-all rounded-full px-4 md:px-7 text-sm md:text-base whitespace-nowrap animate-subtle-bounce"
                   >
-                    {step === 8 ? "Bien reçu, continuer" : "Continuer"} <ArrowRight className="w-4 h-4 ml-1.5" />
+                    {step === 9 ? "Bien reçu, continuer" : "Continuer"} <ArrowRight className="w-4 h-4 ml-1.5" />
+
                   </Button>
                 </div>
 
