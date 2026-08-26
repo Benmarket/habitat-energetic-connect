@@ -1542,26 +1542,77 @@ const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
   }, [reco]);
 
   const modelUrl = ROOF_MODELS[sim.roofType];
+  const regionName = region ? regionDisplayName(region.id, region.label) : "";
+  const selectedRoof = ROOF_TYPES.find((r) => r.id === sim.roofType);
+  const isRecoChoice = !!reco && sim.roofType === reco;
+  // « à La Réunion », « en Corse / Martinique / Guadeloupe / Guyane / France métropolitaine »
+  const prep = regionName === "La Réunion" ? "à" : "en";
+  // Grille : toutes les toitures sauf celle actuellement mise en avant.
+  const gridRoofs = ROOF_TYPES.filter((r) => r.id !== sim.roofType);
 
   return (
     <div>
       <StepTitle icon={Home} title="Quel est le type de votre toiture ?" subtitle="Étape facultative — vous pouvez la modifier ou passer directement à la suite." />
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
-        {ROOF_TYPES.map((r) => {
-          const selected = sim.roofType === r.id;
+
+      {/* Rappel contexte régional : silhouette + région + ville */}
+      {region && region.id !== "unknown" && (
+        <InfoBanner>
+          <div className="flex items-center gap-3">
+            {REGION_SHAPES[region.id] && (
+              <img src={REGION_SHAPES[region.id]} alt={`Silhouette ${regionName}`} className="w-10 h-10 md:w-14 md:h-14 object-contain shrink-0 opacity-90" loading="lazy" />
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-slate-900 text-sm md:text-base">
+                {regionName}{sim.city ? ` · ${sim.city}` : ""}
+              </p>
+              <p className="text-slate-600 leading-snug text-xs md:text-sm">Simulation adaptée à l'ensoleillement de votre zone.</p>
+            </div>
+          </div>
+        </InfoBanner>
+      )}
+
+      {/* Toiture mise en avant (emplacement principal, au-dessus de la grille) */}
+      {selectedRoof && (
+        <div className="mt-4">
+          <div className={`relative rounded-2xl border-2 p-4 transition-all ${
+            isRecoChoice
+              ? "border-amber-500 bg-gradient-to-br from-amber-50 to-orange-50 shadow-lg"
+              : selectedRoof.id === "?"
+                ? "border-sky-500 bg-gradient-to-br from-sky-50 to-blue-50 shadow-md"
+                : "border-slate-400 bg-white shadow-md"
+          }`}>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                {isRecoChoice && <Star className="w-5 h-5 shrink-0 fill-amber-500 text-amber-500" />}
+                <div className="min-w-0">
+                  <p className="text-base font-bold text-slate-900 truncate">{selectedRoof.label}</p>
+                  <p className="text-xs text-slate-500">{selectedRoof.desc}</p>
+                </div>
+              </div>
+              {isRecoChoice ? (
+                <span className="text-[11px] font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
+                  Le plus courant {prep} {regionName}
+                </span>
+              ) : (
+                <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
+                  Votre choix
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Grille des autres toitures : cliquer place le choix en haut */}
+      <div className="mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+        {gridRoofs.map((r) => {
           const unknown = r.id === "?";
           const recommended = reco === r.id;
           return (
-            <button key={r.id} type="button" onClick={() => setSim({ ...sim, roofType: selected ? "" : r.id })}
+            <button key={r.id} type="button" onClick={() => setSim({ ...sim, roofType: r.id })}
               className={`relative p-3 rounded-xl border-2 text-left transition-all ${
-                selected
-                  ? unknown
-                    ? "border-sky-500 bg-gradient-to-br from-sky-50 to-blue-50 shadow-md"
-                    : "border-orange-500 bg-gradient-to-br from-amber-50 to-orange-50 shadow-md"
-                  : unknown
+                unknown
                   ? "border-sky-200 bg-sky-50/60 hover:border-sky-400"
-                  : recommended
-                  ? "border-amber-300 bg-amber-50/40 hover:border-amber-500"
                   : "border-slate-200 bg-white hover:border-amber-400"
               }`}>
               {recommended && (
