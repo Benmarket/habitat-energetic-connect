@@ -1476,18 +1476,29 @@ const Step4Orientation = ({ sim, setSim, region }: { sim: Sim; setSim: any; regi
         )}
       </div>
     </div>
+  </div>
+);
 
-    {/* Type de toiture — facultatif */}
-    <div className="mt-8 pt-6 border-t border-slate-100">
-      <div className="flex items-center gap-2 mb-3">
-        <h3 className="font-semibold text-slate-900">Type de toiture</h3>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">Facultatif</span>
-      </div>
+/** Étape facultative : type de toiture, pré-sélectionnée sur la toiture de référence régionale. */
+const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region: any }) => {
+  const reco = recommendedRoof(region?.id);
+
+  // Pré-sélection de la toiture de référence régionale (aperçu 3D visible d'emblée)
+  useEffect(() => {
+    if (!sim.roofType && reco) setSim((s: Sim) => ({ ...s, roofType: reco }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reco]);
+
+  const modelUrl = ROOF_MODELS[sim.roofType];
+
+  return (
+    <div>
+      <StepTitle icon={Home} title="Quel est le type de votre toiture ?" subtitle="Étape facultative — vous pouvez la modifier ou passer directement à la suite." />
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
         {ROOF_TYPES.map((r) => {
           const selected = sim.roofType === r.id;
           const unknown = r.id === "?";
-          const recommended = recommendedRoof(region?.id) === r.id;
+          const recommended = reco === r.id;
           return (
             <button key={r.id} type="button" onClick={() => setSim({ ...sim, roofType: selected ? "" : r.id })}
               className={`relative p-3 rounded-xl border-2 text-left transition-all ${
@@ -1514,20 +1525,21 @@ const Step4Orientation = ({ sim, setSim, region }: { sim: Sim; setSim: any; regi
       </div>
 
       {/* Aperçu 3D */}
-      {ROOF_MODELS[sim.roofType] && (
+      {modelUrl && (
         <div className="mt-5 relative rounded-2xl overflow-hidden border-2 border-sky-700 bg-[#5B8FC4] shadow-[0_20px_50px_-20px_hsl(210_60%_45%/0.5)] animate-fade-in">
           <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/95 backdrop-blur text-[10px] font-bold uppercase tracking-wider text-slate-900 shadow-md">
             Aperçu 3D · {ROOF_TYPES.find(r => r.id === sim.roofType)?.label}
           </div>
           <div className="absolute top-3 right-3 z-10 text-[10px] text-white font-medium bg-sky-900/60 backdrop-blur px-2 py-1 rounded-full border border-sky-600">Rotation automatique</div>
           <div className="h-[280px] md:h-[340px]">
-            <RoofPreview3D url={ROOF_MODELS[sim.roofType]!} />
+            <RoofPreview3D url={modelUrl} />
           </div>
         </div>
       )}
     </div>
-  </div>
-);
+  );
+};
+
 
 const ROOF_MODELS: Record<string, string | undefined> = {
   "tuiles": roofTuilesAsset.url,
