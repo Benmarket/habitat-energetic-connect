@@ -421,8 +421,8 @@ export default function SimulateurSolaireLead() {
       case 3: return !!sim.ownership;
       case 4: return !!sim.orientation;
       case 5: return true; // type de toiture facultatif
-      case 6: return true; // équipements facultatifs
-      case 7: return typeof sim.monthlyBill === "number" && sim.monthlyBill > 0;
+      case 6: return typeof sim.monthlyBill === "number" && sim.monthlyBill > 0;
+      case 7: return true; // équipements facultatifs
       case 8: return !!sim.projectHorizon; // hasQuote facultatif
       case 9: return true; // batterie facultative
       default: return true;
