@@ -1030,12 +1030,12 @@ export default function SimulateurSolaireLead() {
                 </div>
 
                 {/* Puissance préconisée + gains par mois (dynamique selon le scénario) */}
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  <div className="col-span-1 flex items-center gap-2 text-sm text-slate-900/90 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2">
+                <div className="mt-3 space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-slate-900/90 bg-white/25 backdrop-blur-sm rounded-lg px-3 py-2">
                     <Zap className="w-4 h-4 shrink-0 text-amber-600" />
                     <span className="font-semibold leading-tight">{suggest.kwc > 0 ? `${suggest.kwc} kWc` : "—"}<span className="block text-[10px] font-medium text-slate-900/70">puissance préconisée</span></span>
                   </div>
-                  <div className="col-span-2 flex flex-col justify-center text-sm text-slate-900/90 bg-white/30 backdrop-blur-sm rounded-lg px-3 py-2">
+                  <div className="flex flex-col justify-center text-sm text-slate-900/90 bg-white/30 backdrop-blur-sm rounded-lg px-3 py-2">
                     <div className="flex items-center gap-2">
                       <Receipt className="w-4 h-4 shrink-0 text-emerald-700" />
                       <span className="font-bold leading-tight text-[15px]">≈ {dGainsMensuels.toLocaleString("fr-FR")} €/mois<span className="block text-[10px] font-medium text-slate-900/70 font-normal">de gains estimés</span></span>
