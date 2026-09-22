@@ -1,5 +1,5 @@
 import {
-  TERRITOIRES, HYP, AUTOCONSO, orientationPerfMap, bestOrientation,
+  TERRITOIRES, HYP, AUTOCONSO, BATTERIE, orientationPerfMap, bestOrientation,
   type Seg, type Kwc, type Territoire, type Orientation,
 } from "./solar-data";
 
@@ -171,7 +171,7 @@ function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: num
   const plafond = kwc * HYP.plafondHeures; // au-delà, surplus racheté 5 c€/kWh
 
   const repartir = (prod: number) => {
-    const taux = tauxAutoconsommation(prod, conso, bat);
+    const taux = tauxAutoconsommation(prod, conso, bat, kwc);
     const autoconsommee = Math.min(prod * taux, conso);
     const surplus = prod - autoconsommee;
     return {
