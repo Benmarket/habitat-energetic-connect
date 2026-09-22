@@ -158,9 +158,22 @@ export const HYP = {
  */
 export const AUTOCONSO = {
   partDiurneSansBatterie: 0.6, // part de la conso annuelle consommée pendant la production
-  partDiurneAvecBatterie: 0.85, // la batterie reporte le surplus du jour vers le soir
+  partDiurneAvecBatterie: 0.85, // (conservé pour compatibilité, non utilisé par le modèle batterie)
   rendementIntraJournalier: 0.88, // décalage résiduel pointe production / pointe conso
 } as const;
+
+/**
+ * Stockage — capacité réellement proposée au client par puissance.
+ * 3 et 6 kWc : une batterie de 8 kWh ; 9 kWc : deux batteries de 8 kWh.
+ * On ne retient que la capacité utile (profondeur de décharge) et on applique
+ * le rendement aller-retour charge/décharge.
+ */
+export const BATTERIE = {
+  capaciteKwh: { 3: 8, 6: 8, 9: 16 } as Record<number, number>,
+  profondeurDecharge: 0.85, // part réellement exploitable de la capacité nominale
+  rendementCycle: 0.9, // pertes charge + décharge
+} as const;
+
 
 /** Département (2 ou 3 chiffres) → territoire. */
 const DEPT_TO_TERRITOIRE: Record<string, string> = {};
