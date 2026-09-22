@@ -2676,7 +2676,7 @@ const ResultsPanel = ({
               </ResponsiveContainer>
             </div>
             <p className="text-[11px] text-slate-500 mt-3 leading-relaxed">
-              Hypothèses : inflation prix de l'électricité <strong>+4 %/an</strong>, dégradation panneaux <strong>-0,5 %/an</strong>, subvention perçue en année 2. Valeurs indicatives, affinées par nos experts.
+              Hypothèses : inflation prix de l'électricité <strong>+3 %/an</strong>, dégradation panneaux <strong>-0,5 %/an</strong>, subvention perçue en année 2. Valeurs indicatives, affinées par nos experts.
             </p>
           </section>
 

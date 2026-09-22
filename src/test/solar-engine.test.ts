@@ -42,8 +42,8 @@ describe("sans batterie — valeurs de contrôle", () => {
 const AVEC: [string, number, number, number, number, number, number, number][] = [
   ["martinique", 180, 6, 81, 75, 1751, 17, 59],
   ["guadeloupe", 200, 6, 90, 72, 1733, 9, 69],
-  ["martinique", 100, 3, 96, 84, 893, 4, 28],
-  ["guyane", 100, 3, 97, 77, 802, 3, 35],
+  ["martinique", 100, 3, 95, 83, 893, 5, 29],
+  ["guyane", 100, 3, 95, 75, 802, 5, 36],
 ];
 
 
@@ -151,7 +151,7 @@ describe("décomposition — Martinique 180 €/mois, sans batterie", () => {
 const TABLE_MQ180: [number, boolean, number, number, number, number, number, number, number, number, number][] = [
   // kWc, batterie, production, % conso, couverture, gains/an, part revente, prix, reste, rentabilité, facture
   [3, false, 4719, 46, 41, 891, 12, 11900, 6770, 7.1, 114],
-  [3, true, 4719, 46, 46, 894, 1, 12900, 7770, 8.0, 106],
+  [3, true, 4719, 46, 44, 893, 5, 12900, 7770, 8.0, 109],
   [6, false, 9438, 92, 53, 1704, 40, 16900, 10660, 6.0, 95],
   [6, true, 9438, 92, 75, 1751, 17, 17900, 11660, 6.3, 59],
   [9, false, 14157, 138, 53, 2498, 59, 19900, 10540, 4.2, 95],

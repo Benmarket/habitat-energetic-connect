@@ -172,7 +172,16 @@ export const BATTERIE = {
   capaciteKwh: { 3: 8, 6: 8, 9: 16 } as Record<number, number>,
   profondeurDecharge: 0.85, // part réellement exploitable de la capacité nominale
   rendementCycle: 0.9, // pertes charge + décharge
+  /**
+   * Plafond du taux d'autoconsommation affichable, par zone.
+   * ZNI (outre-mer, Corse) : consommation diurne forte (climatisation), 95 %.
+   * Métropole : profil plus tardif (soir/hiver), 90 %.
+   * Aucune installation réelle n'atteint 100 % : ce plafond évite d'annoncer
+   * un chiffre indéfendable quand la production est très inférieure à la conso.
+   */
+  plafondTaux: { ZNI: 0.95, METROPOLE: 0.9 } as Record<"ZNI" | "METROPOLE", number>,
 } as const;
+
 
 
 /** Département (2 ou 3 chiffres) → territoire. */

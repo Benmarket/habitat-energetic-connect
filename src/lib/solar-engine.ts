@@ -22,7 +22,13 @@ export type SimulationResult = ReturnType<typeof simuler>;
  *    conso) et la capacité utile réellement installée (8 / 8 / 16 kWh).
  * 3. Sans batterie, l'excédent part intégralement en revente.
  */
-function tauxAutoconsommation(production: number, conso: number, batterie: boolean, kwc: number): number {
+function tauxAutoconsommation(
+  production: number,
+  conso: number,
+  batterie: boolean,
+  kwc: number,
+  zone: "ZNI" | "METROPOLE",
+): number {
   if (production <= 0) return 0;
   const consoJour = conso * AUTOCONSO.partDiurneSansBatterie;
   const consoSoir = conso - consoJour;
@@ -33,8 +39,11 @@ function tauxAutoconsommation(production: number, conso: number, batterie: boole
   const capaciteAn =
     (BATTERIE.capaciteKwh[kwc] ?? 0) * BATTERIE.profondeurDecharge * 365;
   const stocke = Math.min(excedent, consoSoir, capaciteAn);
-  return (direct + stocke * BATTERIE.rendementCycle) / production;
+  const taux = (direct + stocke * BATTERIE.rendementCycle) / production;
+  // Plafond de prudence propre à la zone : aucune installation n'atteint 100 %.
+  return Math.min(taux, BATTERIE.plafondTaux[zone]);
 }
+
 
 
 
@@ -171,7 +180,7 @@ function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: num
   const plafond = kwc * HYP.plafondHeures; // au-delà, surplus racheté 5 c€/kWh
 
   const repartir = (prod: number) => {
-    const taux = tauxAutoconsommation(prod, conso, bat, kwc);
+    const taux = tauxAutoconsommation(prod, conso, bat, kwc, t.zone);
     const autoconsommee = Math.min(prod * taux, conso);
     const surplus = prod - autoconsommee;
     return {
