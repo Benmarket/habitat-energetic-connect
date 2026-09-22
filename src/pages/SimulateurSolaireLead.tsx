@@ -565,7 +565,12 @@ export default function SimulateurSolaireLead() {
 
     const { getAttribution } = await import("@/lib/attribution");
       const { getConsentPayload } = await import("@/lib/consent");
-    const { data: inserted, error } = await supabase.from("leads").insert({
+    // L'id est généré côté client : les visiteurs n'ont pas le droit de relire
+    // la table leads, donc un insert avec retour de représentation échouerait.
+    const newLeadId =
+      typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : undefined;
+    const { error } = await supabase.from("leads").insert({
+      ...(newLeadId ? { id: newLeadId } : {}),
       first_name: "Prospect",
       last_name: "Solaire",
       email: parsed.data.email, phone: parsed.data.phone,
@@ -577,16 +582,17 @@ export default function SimulateurSolaireLead() {
       notes: JSON.stringify(payload),
       attribution: getAttribution(),
           consent: getConsentPayload(),
-    }).select("id").single();
+    });
 
 
     setSubmitting(false);
 
     if (error) {
+      console.error("[simulateur-solaire] insert lead échoué", error);
       toast.error("Une erreur est survenue. Merci de réessayer dans quelques minutes.");
       return;
     }
-    setLeadId(inserted?.id ?? null);
+    setLeadId(newLeadId ?? null);
     trackLead(lead.email);
     // Meta Pixel — événement Lead (conversion)
     import("@/lib/metaPixel").then(({ trackMetaLead }) =>
