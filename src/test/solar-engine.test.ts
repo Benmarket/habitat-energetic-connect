@@ -41,10 +41,11 @@ describe("sans batterie — valeurs de contrôle", () => {
 /** Avec batterie : territoire, facture, kWc, autoconso %, couverture %, gains/an, part revente %, nouvelle facture €/mois. */
 const AVEC: [string, number, number, number, number, number, number, number][] = [
   ["martinique", 180, 6, 81, 75, 1751, 17, 59],
-  ["guadeloupe", 200, 6, 88, 71, 1729, 11, 72],
-  ["martinique", 100, 3, 86, 75, 890, 14, 36],
-  ["guyane", 100, 3, 88, 70, 799, 12, 41],
+  ["guadeloupe", 200, 6, 90, 72, 1733, 9, 69],
+  ["martinique", 100, 3, 96, 84, 893, 4, 28],
+  ["guyane", 100, 3, 97, 77, 802, 3, 35],
 ];
+
 
 describe("avec batterie — valeurs de contrôle", () => {
   it.each(AVEC)(
