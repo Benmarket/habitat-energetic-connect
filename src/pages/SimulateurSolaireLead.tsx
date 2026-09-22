@@ -2472,6 +2472,12 @@ const ResultsPanel = ({
               {(() => {
                 const roiValues = compRows.map((r: ConfigurationComparee) => r.rentabiliteAns).filter((v: number | null): v is number => v !== null);
                 const bestRoi = roiValues.length ? Math.min(...roiValues) : null;
+                // Gains annuels de référence (même puissance, sans batterie) pour repérer
+                // les cas où la batterie n'apporte pas de gain financier notable.
+                const gainsSansBat = new Map<number, number>(
+                  compRows.filter((r: ConfigurationComparee) => !r.batterie).map((r: ConfigurationComparee) => [r.kwc, r.economiesAn]),
+                );
+
                 return (
                   <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm bg-white">
                     <table className="w-full min-w-[920px] text-[12px] text-slate-700">
