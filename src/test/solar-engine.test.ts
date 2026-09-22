@@ -86,13 +86,14 @@ describe("dimensionnement — contrôle clé", () => {
 
 /** Ordre d'affichage : configuration au meilleur gain net 25 ans en premier. */
 const ORDRE: [string, number, number, boolean][] = [
-  ["guadeloupe", 200, 6, true], // batterie gagne (+1 694 €)
-  ["martinique", 100, 3, true], // batterie gagne (+1 929 €)
-  ["martinique", 180, 6, true], // batterie gagne (45 524 € vs 39 261 €)
-  ["reunion", 150, 3, false], // sans batterie gagne (−2 910 €)
-  ["corse", 100, 3, false], // sans batterie gagne (−1 358 €)
-  ["guyane", 200, 6, false], // sans batterie gagne
+  ["guadeloupe", 200, 6, true],
+  ["martinique", 100, 3, true],
+  ["martinique", 180, 6, true],
+  ["reunion", 150, 3, false],
+  ["corse", 100, 3, false],
+  ["guyane", 200, 6, true], // avec la capacité réelle, la batterie repasse devant
 ];
+
 
 describe("ordre d'affichage — batterieAvantageuse", () => {
   it.each(ORDRE)("%s / %i € → %i kWc, batterie mise en avant : %s", (id, facture, kwc, batAvantageuse) => {
