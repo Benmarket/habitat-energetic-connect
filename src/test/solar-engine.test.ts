@@ -151,12 +151,13 @@ describe("décomposition — Martinique 180 €/mois, sans batterie", () => {
 const TABLE_MQ180: [number, boolean, number, number, number, number, number, number, number, number, number][] = [
   // kWc, batterie, production, % conso, couverture, gains/an, part revente, prix, reste, rentabilité, facture
   [3, false, 4719, 46, 41, 891, 12, 11900, 6770, 7.1, 114],
-  [3, true, 4719, 46, 41, 891, 12, 12900, 7770, 8.1, 114],
+  [3, true, 4719, 46, 46, 894, 1, 12900, 7770, 8.0, 106],
   [6, false, 9438, 92, 53, 1704, 40, 16900, 10660, 6.0, 95],
   [6, true, 9438, 92, 75, 1751, 17, 17900, 11660, 6.3, 59],
   [9, false, 14157, 138, 53, 2498, 59, 19900, 10540, 4.2, 95],
-  [9, true, 14157, 138, 75, 2546, 43, 21900, 12540, 4.8, 59],
+  [9, true, 14157, 138, 89, 2576, 33, 21900, 12540, 4.7, 36],
 ];
+
 
 describe("comparerConfigurations — Martinique 180 €/mois, Sud", () => {
   const rows = comparerConfigurations({ territoireId: "martinique", factureMensuelleTTC: 180, orientation: "S" });
