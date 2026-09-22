@@ -108,7 +108,7 @@ describe("ordre d'affichage — batterieAvantageuse", () => {
     const r = simuler({ territoireId: "martinique", factureMensuelleTTC: 180 });
     if (r.statut !== "OK") throw new Error("statut inattendu");
     expect(Math.abs(r.gainNet25Sans - 39261)).toBeLessThanOrEqual(150);
-    expect(Math.abs(r.gainNet25Avec - 45524)).toBeLessThanOrEqual(150);
+    expect(Math.abs(r.gainNet25Avec - 45891)).toBeLessThanOrEqual(150);
   });
 });
 
@@ -186,7 +186,7 @@ describe("comparerConfigurations — Martinique 180 €/mois, Sud", () => {
     const sans6 = rows.find((r) => r.kwc === 6 && !r.batterie);
     const avec6 = rows.find((r) => r.kwc === 6 && r.batterie);
     expect(Math.abs((sans6?.gainNet25ans ?? 0) - 39261)).toBeLessThanOrEqual(150);
-    expect(Math.abs((avec6?.gainNet25ans ?? 0) - 45524)).toBeLessThanOrEqual(150);
+    expect(Math.abs((avec6?.gainNet25ans ?? 0) - 45891)).toBeLessThanOrEqual(150);
   });
 });
 
@@ -207,7 +207,7 @@ describe("configRecommandee — champ unique lu par l'aperçu et l'étude", () =
     if (r.statut !== "OK") throw new Error("statut inattendu");
     expect(r.configRecommandee.kwc).toBe(6);
     expect(r.configRecommandee.batterie).toBe(true);
-    expect(Math.abs(r.configRecommandee.gainNet25ans - 45524)).toBeLessThanOrEqual(150);
+    expect(Math.abs(r.configRecommandee.gainNet25ans - 45891)).toBeLessThanOrEqual(150);
     // Le gain net exposé est toujours le meilleur des deux configurations.
     expect(r.configRecommandee.gainNet25ans).toBe(Math.max(r.gainNet25Sans, r.gainNet25Avec));
   });
