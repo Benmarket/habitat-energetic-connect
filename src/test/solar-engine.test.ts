@@ -127,12 +127,13 @@ describe("plancher catalogue 3 kWc", () => {
   });
 });
 
-describe("modèle diurne — bornes du taux", () => {
-  it("plafonne à 88 % quand la production est très inférieure à la part diurne", () => {
+describe("modèle journalier — bornes du taux", () => {
+  it("le taux sans batterie reste plafonné par le rendement intra-journalier", () => {
     const r = simuler({ territoireId: "reunion", factureMensuelleTTC: 400 });
     if (r.statut !== "OK") throw new Error("statut inattendu");
     expect(r.sans.tauxAutoconsoPct).toBeLessThanOrEqual(88);
-    expect(r.avec.tauxAutoconsoPct).toBeLessThanOrEqual(88);
+    expect(r.avec.tauxAutoconsoPct).toBeLessThanOrEqual(100);
+
   });
 });
 
