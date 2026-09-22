@@ -1,5 +1,5 @@
 import {
-  TERRITOIRES, HYP, AUTOCONSO, orientationPerfMap, bestOrientation,
+  TERRITOIRES, HYP, AUTOCONSO, BATTERIE, orientationPerfMap, bestOrientation,
   type Seg, type Kwc, type Territoire, type Orientation,
 } from "./solar-data";
 
@@ -14,16 +14,28 @@ export type SimulationResult = ReturnType<typeof simuler>;
 
 
 /**
- * Taux d'autoconsommation selon le modèle diurne (cf. AUTOCONSO).
- * Les panneaux ne couvrent que la part diurne de la consommation ; au-delà,
- * toute la production est valorisée (taux plafonné par le rendement 0,88).
- *   ratio prod/conso 0,4 → 88 % · 0,8 → 66 % · 1,0 → 53 % · 1,5 → 35 % (sans batterie)
+ * Taux d'autoconsommation — modèle journalier explicite.
+ * 1. Une part de la consommation a lieu pendant la production (60 %) : c'est le
+ *    maximum consommable en direct, minoré du décalage intra-journalier (0,88).
+ * 2. Le reste de la production est un excédent de mi-journée. Avec batterie, on
+ *    en stocke le minimum entre cet excédent, le besoin du soir (40 % de la
+ *    conso) et la capacité utile réellement installée (8 / 8 / 16 kWh).
+ * 3. Sans batterie, l'excédent part intégralement en revente.
  */
-function tauxAutoconsommation(production: number, conso: number, batterie: boolean): number {
-  const d = batterie ? AUTOCONSO.partDiurneAvecBatterie : AUTOCONSO.partDiurneSansBatterie;
-  const ratio = production / conso;
-  return Math.min(1, d / ratio) * AUTOCONSO.rendementIntraJournalier;
+function tauxAutoconsommation(production: number, conso: number, batterie: boolean, kwc: number): number {
+  if (production <= 0) return 0;
+  const consoJour = conso * AUTOCONSO.partDiurneSansBatterie;
+  const consoSoir = conso - consoJour;
+  const direct = Math.min(production, consoJour) * AUTOCONSO.rendementIntraJournalier;
+  const excedent = production - direct;
+  if (!batterie) return direct / production;
+
+  const capaciteAn =
+    (BATTERIE.capaciteKwh[kwc] ?? 0) * BATTERIE.profondeurDecharge * 365;
+  const stocke = Math.min(excedent, consoSoir, capaciteAn);
+  return (direct + stocke * BATTERIE.rendementCycle) / production;
 }
+
 
 
 /**
@@ -159,7 +171,7 @@ function scenario(t: Territoire, conso: number, kwc: Kwc, bat: boolean, abo: num
   const plafond = kwc * HYP.plafondHeures; // au-delà, surplus racheté 5 c€/kWh
 
   const repartir = (prod: number) => {
-    const taux = tauxAutoconsommation(prod, conso, bat);
+    const taux = tauxAutoconsommation(prod, conso, bat, kwc);
     const autoconsommee = Math.min(prod * taux, conso);
     const surplus = prod - autoconsommee;
     return {

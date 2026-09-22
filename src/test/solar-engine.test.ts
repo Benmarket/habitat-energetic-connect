@@ -41,10 +41,11 @@ describe("sans batterie — valeurs de contrôle", () => {
 /** Avec batterie : territoire, facture, kWc, autoconso %, couverture %, gains/an, part revente %, nouvelle facture €/mois. */
 const AVEC: [string, number, number, number, number, number, number, number][] = [
   ["martinique", 180, 6, 81, 75, 1751, 17, 59],
-  ["guadeloupe", 200, 6, 88, 71, 1729, 11, 72],
-  ["martinique", 100, 3, 86, 75, 890, 14, 36],
-  ["guyane", 100, 3, 88, 70, 799, 12, 41],
+  ["guadeloupe", 200, 6, 90, 72, 1733, 9, 69],
+  ["martinique", 100, 3, 96, 84, 893, 4, 28],
+  ["guyane", 100, 3, 97, 77, 802, 3, 35],
 ];
+
 
 describe("avec batterie — valeurs de contrôle", () => {
   it.each(AVEC)(
@@ -85,13 +86,14 @@ describe("dimensionnement — contrôle clé", () => {
 
 /** Ordre d'affichage : configuration au meilleur gain net 25 ans en premier. */
 const ORDRE: [string, number, number, boolean][] = [
-  ["guadeloupe", 200, 6, true], // batterie gagne (+1 694 €)
-  ["martinique", 100, 3, true], // batterie gagne (+1 929 €)
-  ["martinique", 180, 6, true], // batterie gagne (45 524 € vs 39 261 €)
-  ["reunion", 150, 3, false], // sans batterie gagne (−2 910 €)
-  ["corse", 100, 3, false], // sans batterie gagne (−1 358 €)
-  ["guyane", 200, 6, false], // sans batterie gagne
+  ["guadeloupe", 200, 6, true],
+  ["martinique", 100, 3, true],
+  ["martinique", 180, 6, true],
+  ["reunion", 150, 3, false],
+  ["corse", 100, 3, false],
+  ["guyane", 200, 6, true], // avec la capacité réelle, la batterie repasse devant
 ];
+
 
 describe("ordre d'affichage — batterieAvantageuse", () => {
   it.each(ORDRE)("%s / %i € → %i kWc, batterie mise en avant : %s", (id, facture, kwc, batAvantageuse) => {
@@ -106,7 +108,7 @@ describe("ordre d'affichage — batterieAvantageuse", () => {
     const r = simuler({ territoireId: "martinique", factureMensuelleTTC: 180 });
     if (r.statut !== "OK") throw new Error("statut inattendu");
     expect(Math.abs(r.gainNet25Sans - 39261)).toBeLessThanOrEqual(150);
-    expect(Math.abs(r.gainNet25Avec - 45524)).toBeLessThanOrEqual(150);
+    expect(Math.abs(r.gainNet25Avec - 45891)).toBeLessThanOrEqual(150);
   });
 });
 
@@ -125,12 +127,13 @@ describe("plancher catalogue 3 kWc", () => {
   });
 });
 
-describe("modèle diurne — bornes du taux", () => {
-  it("plafonne à 88 % quand la production est très inférieure à la part diurne", () => {
+describe("modèle journalier — bornes du taux", () => {
+  it("le taux sans batterie reste plafonné par le rendement intra-journalier", () => {
     const r = simuler({ territoireId: "reunion", factureMensuelleTTC: 400 });
     if (r.statut !== "OK") throw new Error("statut inattendu");
     expect(r.sans.tauxAutoconsoPct).toBeLessThanOrEqual(88);
-    expect(r.avec.tauxAutoconsoPct).toBeLessThanOrEqual(88);
+    expect(r.avec.tauxAutoconsoPct).toBeLessThanOrEqual(100);
+
   });
 });
 
@@ -148,12 +151,13 @@ describe("décomposition — Martinique 180 €/mois, sans batterie", () => {
 const TABLE_MQ180: [number, boolean, number, number, number, number, number, number, number, number, number][] = [
   // kWc, batterie, production, % conso, couverture, gains/an, part revente, prix, reste, rentabilité, facture
   [3, false, 4719, 46, 41, 891, 12, 11900, 6770, 7.1, 114],
-  [3, true, 4719, 46, 41, 891, 12, 12900, 7770, 8.1, 114],
+  [3, true, 4719, 46, 46, 894, 1, 12900, 7770, 8.0, 106],
   [6, false, 9438, 92, 53, 1704, 40, 16900, 10660, 6.0, 95],
   [6, true, 9438, 92, 75, 1751, 17, 17900, 11660, 6.3, 59],
   [9, false, 14157, 138, 53, 2498, 59, 19900, 10540, 4.2, 95],
-  [9, true, 14157, 138, 75, 2546, 43, 21900, 12540, 4.8, 59],
+  [9, true, 14157, 138, 89, 2576, 33, 21900, 12540, 4.7, 36],
 ];
+
 
 describe("comparerConfigurations — Martinique 180 €/mois, Sud", () => {
   const rows = comparerConfigurations({ territoireId: "martinique", factureMensuelleTTC: 180, orientation: "S" });
@@ -184,7 +188,7 @@ describe("comparerConfigurations — Martinique 180 €/mois, Sud", () => {
     const sans6 = rows.find((r) => r.kwc === 6 && !r.batterie);
     const avec6 = rows.find((r) => r.kwc === 6 && r.batterie);
     expect(Math.abs((sans6?.gainNet25ans ?? 0) - 39261)).toBeLessThanOrEqual(150);
-    expect(Math.abs((avec6?.gainNet25ans ?? 0) - 45524)).toBeLessThanOrEqual(150);
+    expect(Math.abs((avec6?.gainNet25ans ?? 0) - 45891)).toBeLessThanOrEqual(150);
   });
 });
 
@@ -205,7 +209,7 @@ describe("configRecommandee — champ unique lu par l'aperçu et l'étude", () =
     if (r.statut !== "OK") throw new Error("statut inattendu");
     expect(r.configRecommandee.kwc).toBe(6);
     expect(r.configRecommandee.batterie).toBe(true);
-    expect(Math.abs(r.configRecommandee.gainNet25ans - 45524)).toBeLessThanOrEqual(150);
+    expect(Math.abs(r.configRecommandee.gainNet25ans - 45891)).toBeLessThanOrEqual(150);
     // Le gain net exposé est toujours le meilleur des deux configurations.
     expect(r.configRecommandee.gainNet25ans).toBe(Math.max(r.gainNet25Sans, r.gainNet25Avec));
   });
