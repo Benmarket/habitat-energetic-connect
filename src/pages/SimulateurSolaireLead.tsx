@@ -2472,6 +2472,12 @@ const ResultsPanel = ({
               {(() => {
                 const roiValues = compRows.map((r: ConfigurationComparee) => r.rentabiliteAns).filter((v: number | null): v is number => v !== null);
                 const bestRoi = roiValues.length ? Math.min(...roiValues) : null;
+                // Gains annuels de référence (même puissance, sans batterie) pour repérer
+                // les cas où la batterie n'apporte pas de gain financier notable.
+                const gainsSansBat = new Map<number, number>(
+                  compRows.filter((r: ConfigurationComparee) => !r.batterie).map((r: ConfigurationComparee) => [r.kwc, r.economiesAn]),
+                );
+
                 return (
                   <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm bg-white">
                     <table className="w-full min-w-[920px] text-[12px] text-slate-700">
@@ -2492,6 +2498,9 @@ const ResultsPanel = ({
                         {compRows.map((row: ConfigurationComparee) => {
                           const isReco = row.kwc === engine.configRecommandee.kwc && row.batterie === engine.configRecommandee.batterie;
                           const isBestRoi = bestRoi !== null && row.rentabiliteAns === bestRoi;
+                          const refSans = gainsSansBat.get(row.kwc);
+                          // Batterie sans gain financier significatif (< 2 %) : option de confort.
+                          const isConfort = row.batterie && refSans !== undefined && row.economiesAn <= refSans * 1.02;
                           return (
                             <tr key={`${row.kwc}-${row.batterie ? "bat" : "sans"}`} className={`border-t border-slate-100 ${isReco ? "bg-amber-50" : ""}`}>
                               <td className="px-3 py-2.5">
@@ -2499,13 +2508,15 @@ const ResultsPanel = ({
                                 <p className="text-[11px] text-slate-500 whitespace-nowrap inline-flex items-center gap-1">
                                   {row.batterie ? <><BatteryCharging className="w-3 h-3 text-amber-600" /> avec batterie</> : "sans batterie"}
                                 </p>
-                                {(isReco || isBestRoi) && (
+                                {(isReco || isBestRoi || isConfort) && (
                                   <span className="mt-1 flex flex-wrap gap-1">
                                     {isReco && <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-slate-900 text-[9px] font-black uppercase tracking-wide"><Star className="w-2.5 h-2.5" /> Recommandé</span>}
                                     {isBestRoi && <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-black uppercase tracking-wide">Meilleure rentabilité</span>}
+                                    {isConfort && <span title="Votre production est déjà consommée en direct : la batterie apporte ici de l'autonomie en cas de coupure, pas de gain financier." className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[9px] font-black uppercase tracking-wide"><ShieldCheck className="w-2.5 h-2.5" /> Confort · anti-coupure</span>}
                                   </span>
                                 )}
                               </td>
+
                               <td className="px-3 py-2.5 whitespace-nowrap">
                                 <p className="font-semibold text-slate-900">{row.productionAnnuelleKwh.toLocaleString("fr-FR")} kWh</p>
                                 <p className="text-[11px] text-slate-500">{row.productionPctConso} % de la conso</p>
