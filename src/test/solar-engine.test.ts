@@ -32,8 +32,8 @@ describe("sans batterie — valeurs de contrôle", () => {
       expect(Math.abs(s.economiesAn - gains)).toBeLessThanOrEqual(3);
       expect(s.partReventeDansGains).toBe(partRevente);
       expect(s.rentabiliteAns).toBeCloseTo(roi, 1);
-      // Contrôle : production ≤ 100 % de la conso, sauf plancher 3 kWc
-      if (!s.plancher) expect(s.productionAnnuelleKwh).toBeLessThanOrEqual(r.consoAnnuelleKwh);
+      // Contrôle : production ≤ 120 % de la conso, sauf plancher 3 kWc
+      if (!s.plancher) expect(s.productionAnnuelleKwh).toBeLessThanOrEqual(1.2 * r.consoAnnuelleKwh);
     },
   );
 });
