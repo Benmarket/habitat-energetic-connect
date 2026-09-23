@@ -12,7 +12,7 @@ import { simuler, comparerConfigurations } from "@/lib/solar-engine";
 const SANS: [string, number, number, number, number, number, number, number, number][] = [
   ["martinique", 180, 6, 9438, 57, 53, 1704, 40, 6.0],
   ["guadeloupe", 200, 6, 9276, 66, 53, 1689, 32, 5.9],
-  ["reunion", 150, 3, 4464, 88, 47, 860, 11, 3.8],
+  ["reunion", 150, 6, 8928, 49, 53, 1599, 46, 4.6],
   ["corse", 100, 3, 4299, 69, 53, 767, 30, 7.9],
   ["guyane", 100, 3, 4218, 67, 53, 792, 32, 5.8],
   ["martinique", 100, 3, 4719, 60, 53, 881, 39, 7.3],
@@ -32,8 +32,8 @@ describe("sans batterie — valeurs de contrôle", () => {
       expect(Math.abs(s.economiesAn - gains)).toBeLessThanOrEqual(3);
       expect(s.partReventeDansGains).toBe(partRevente);
       expect(s.rentabiliteAns).toBeCloseTo(roi, 1);
-      // Contrôle : production ≤ 100 % de la conso, sauf plancher 3 kWc
-      if (!s.plancher) expect(s.productionAnnuelleKwh).toBeLessThanOrEqual(r.consoAnnuelleKwh);
+      // Contrôle : production ≤ 120 % de la conso, sauf plancher 3 kWc
+      if (!s.plancher) expect(s.productionAnnuelleKwh).toBeLessThanOrEqual(1.2 * r.consoAnnuelleKwh);
     },
   );
 });
@@ -60,8 +60,8 @@ describe("avec batterie — valeurs de contrôle", () => {
       expect(Math.abs(s.economiesAn - gains)).toBeLessThanOrEqual(3);
       expect(s.partReventeDansGains).toBe(partRevente);
       expect(s.nouvelleFactureMensuelle).toBe(factureMois);
-      // Contrôle : production ≤ 100 % de la conso, sauf plancher 3 kWc
-      if (!s.plancher) expect(s.productionAnnuelleKwh).toBeLessThanOrEqual(r.consoAnnuelleKwh);
+      // Contrôle : production ≤ 120 % de la conso, sauf plancher 3 kWc
+      if (!s.plancher) expect(s.productionAnnuelleKwh).toBeLessThanOrEqual(1.2 * r.consoAnnuelleKwh);
     },
   );
 });
@@ -71,9 +71,9 @@ describe("dimensionnement — contrôle clé", () => {
     ["martinique", 180, 6],
     ["guadeloupe", 200, 6],
     ["martinique", 100, 3],
-    ["reunion", 150, 3],
+    ["reunion", 150, 6],
     ["corse", 100, 3],
-    ["guyane", 200, 6],
+    ["guyane", 200, 9],
   ] as const)("%s / %i € → %i kWc, identique avec et sans batterie", (id, facture, kwc) => {
     const r = simuler({ territoireId: id, factureMensuelleTTC: facture });
     if (r.statut !== "OK") throw new Error("statut inattendu");
@@ -89,9 +89,9 @@ const ORDRE: [string, number, number, boolean][] = [
   ["guadeloupe", 200, 6, true],
   ["martinique", 100, 3, true],
   ["martinique", 180, 6, true],
-  ["reunion", 150, 3, false],
+  ["reunion", 150, 6, true], // 6 kWc : la batterie absorbe enfin un vrai surplus
   ["corse", 100, 3, false],
-  ["guyane", 200, 6, true], // avec la capacité réelle, la batterie repasse devant
+  ["guyane", 200, 9, true], // avec la capacité réelle, la batterie repasse devant
 ];
 
 
@@ -213,12 +213,12 @@ describe("configRecommandee — champ unique lu par l'aperçu et l'étude", () =
     // Le gain net exposé est toujours le meilleur des deux configurations.
     expect(r.configRecommandee.gainNet25ans).toBe(Math.max(r.gainNet25Sans, r.gainNet25Avec));
   });
-  it("Reunion 150 €/mois : 3 kWc SANS batterie", () => {
+  it("Reunion 150 €/mois : 6 kWc AVEC batterie", () => {
     const r = simuler({ territoireId: "reunion", factureMensuelleTTC: 150 });
     if (r.statut !== "OK") throw new Error("statut inattendu");
-    expect(r.configRecommandee.kwc).toBe(3);
-    expect(r.configRecommandee.batterie).toBe(false);
-    expect(r.configRecommandee.gainNet25ans).toBe(r.gainNet25Sans);
+    expect(r.configRecommandee.kwc).toBe(6);
+    expect(r.configRecommandee.batterie).toBe(true);
+    expect(r.configRecommandee.gainNet25ans).toBe(r.gainNet25Avec);
   });
   it("cohérence avec le booléen historique batterieAvantageuse", () => {
     for (const [id, facture] of [["martinique", 180], ["guadeloupe", 200], ["corse", 100], ["guyane", 200], ["reunion", 150]] as const) {

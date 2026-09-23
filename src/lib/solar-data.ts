@@ -130,8 +130,14 @@ export const TERRITOIRES: Territoire[] = [
 ];
 
 export const HYP = {
-  // Dimensionnement : cible 100 % de la consommation annuelle, identique avec
-  // ou sans batterie (la batterie ne change que le taux d'autoconsommation).
+  // Dimensionnement : on vise le besoin réel (conso / productible) et on retient
+  // la puissance CATALOGUE la plus proche, identique avec ou sans batterie
+  // (la batterie ne change que le taux d'autoconsommation).
+  // Le catalogue étant discret (3 / 6 / 9), le besoin tombe rarement juste :
+  // un besoin de 8 kWc doit sortir un 9 kWc, pas un 6 kWc. On autorise donc un
+  // dépassement de la consommation, borné pour éviter les scénarios de pure
+  // revente de surplus.
+  toleranceSurdimensionnement: 1.2, // production max = 120 % de la consommation
   indexationRachat: 0.004, // indexation annuelle du tarif de rachat (coefficient L)
   plafondHeures: 1600, // h × kWc rachetés au tarif plein, au-delà 5 c€/kWh
   tarifSurplusReduit: 0.05,

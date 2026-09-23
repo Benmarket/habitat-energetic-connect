@@ -60,6 +60,35 @@ function impotRevente(revenu: number, kwc: number, refactionIR: number): number 
 }
 
 /**
+ * Choix de la puissance catalogue (3 / 6 / 9 kWc).
+ *
+ * Le besoin théorique (conso / productible) tombe rarement sur une valeur du
+ * catalogue. On retient donc la puissance la PLUS PROCHE du besoin, quitte à
+ * dépasser légèrement la consommation : un besoin de 8 kWc doit sortir un
+ * 9 kWc, pas un 6 kWc. En cas d'écart identique, on privilégie la puissance
+ * inférieure (moins d'investissement, moins de revente).
+ *
+ * Deux garde-fous :
+ *  - la production retenue ne dépasse jamais 120 % de la consommation, sinon on
+ *    redescend à la plus grande puissance qui respecte cette borne ;
+ *  - plancher catalogue à 3 kWc, signalé par le drapeau `plancher`.
+ */
+export function choisirPuissance(conso: number, productible: number): { kwc: Kwc; plancher: boolean } {
+  const CATALOGUE = [3, 6, 9] as const;
+  const besoin = productible > 0 ? conso / productible : 0;
+  const plafond = (HYP.toleranceSurdimensionnement * conso) / (productible || 1);
+
+  const admissibles = CATALOGUE.filter((p) => p <= plafond);
+  if (admissibles.length === 0) return { kwc: 3, plancher: true };
+
+  let choix: number = admissibles[0];
+  for (const p of admissibles) {
+    if (Math.abs(p - besoin) < Math.abs(choix - besoin)) choix = p;
+  }
+  return { kwc: choix as Kwc, plancher: false };
+}
+
+/**
  * Entrées communes à simuler() et comparerConfigurations() :
  * orientation → productible effectif, puis facture mensuelle → consommation.
  */
@@ -99,15 +128,15 @@ export function simuler(input: Input) {
   const { conso, abo, productibleEffectif, orientationRetenue, scoreOrientation } = baseCalcul(input);
 
   // ── Dimensionnement ────────────────────────────────────────────────────────
-  // Cible = 100 % de la consommation annuelle, avec ou sans batterie : la
-  // batterie ne change que le taux d'autoconsommation, PAS la puissance.
-  // On retient la plus grande puissance catalogue dont la production reste
-  // SOUS la consommation. Garde-fou : la cible se calcule toujours sur le
-  // productible OPTIMAL du territoire — une mauvaise orientation ne doit
-  // jamais débloquer une puissance supérieure.
-  const eligibles = ([3, 6, 9] as const).filter((p) => p * t.productible <= conso);
-  const kwcReco = (eligibles.length ? Math.max(...eligibles) : 3) as Kwc;
-  const plancher = eligibles.length === 0; // 3 kWc = plancher catalogue
+  // Besoin théorique = consommation / productible. On retient la puissance
+  // CATALOGUE la plus proche de ce besoin, avec ou sans batterie : la batterie
+  // ne change que le taux d'autoconsommation, PAS la puissance.
+  // Garde-fou n°1 : le besoin se calcule toujours sur le productible OPTIMAL du
+  // territoire — une mauvaise orientation ne doit jamais débloquer une
+  // puissance supérieure.
+  // Garde-fou n°2 : la production ne peut pas dépasser 120 % de la
+  // consommation, pour ne jamais vendre une installation de pure revente.
+  const { kwc: kwcReco, plancher } = choisirPuissance(conso, t.productible);
 
   const sans = scenario(t, conso, kwcReco, false, abo, productibleEffectif);
   const avec = scenario(t, conso, kwcReco, true, abo, productibleEffectif);
