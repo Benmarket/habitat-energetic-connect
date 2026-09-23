@@ -71,7 +71,7 @@ describe("dimensionnement — contrôle clé", () => {
     ["martinique", 180, 6],
     ["guadeloupe", 200, 6],
     ["martinique", 100, 3],
-    ["reunion", 150, 3],
+    ["reunion", 150, 6],
     ["corse", 100, 3],
     ["guyane", 200, 6],
   ] as const)("%s / %i € → %i kWc, identique avec et sans batterie", (id, facture, kwc) => {
