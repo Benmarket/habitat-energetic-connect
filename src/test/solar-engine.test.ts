@@ -213,12 +213,12 @@ describe("configRecommandee — champ unique lu par l'aperçu et l'étude", () =
     // Le gain net exposé est toujours le meilleur des deux configurations.
     expect(r.configRecommandee.gainNet25ans).toBe(Math.max(r.gainNet25Sans, r.gainNet25Avec));
   });
-  it("Reunion 150 €/mois : 3 kWc SANS batterie", () => {
+  it("Reunion 150 €/mois : 6 kWc AVEC batterie", () => {
     const r = simuler({ territoireId: "reunion", factureMensuelleTTC: 150 });
     if (r.statut !== "OK") throw new Error("statut inattendu");
-    expect(r.configRecommandee.kwc).toBe(3);
-    expect(r.configRecommandee.batterie).toBe(false);
-    expect(r.configRecommandee.gainNet25ans).toBe(r.gainNet25Sans);
+    expect(r.configRecommandee.kwc).toBe(6);
+    expect(r.configRecommandee.batterie).toBe(true);
+    expect(r.configRecommandee.gainNet25ans).toBe(r.gainNet25Avec);
   });
   it("cohérence avec le booléen historique batterieAvantageuse", () => {
     for (const [id, facture] of [["martinique", 180], ["guadeloupe", 200], ["corse", 100], ["guyane", 200], ["reunion", 150]] as const) {
