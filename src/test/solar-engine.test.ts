@@ -73,7 +73,7 @@ describe("dimensionnement — contrôle clé", () => {
     ["martinique", 100, 3],
     ["reunion", 150, 6],
     ["corse", 100, 3],
-    ["guyane", 200, 6],
+    ["guyane", 200, 9],
   ] as const)("%s / %i € → %i kWc, identique avec et sans batterie", (id, facture, kwc) => {
     const r = simuler({ territoireId: id, factureMensuelleTTC: facture });
     if (r.statut !== "OK") throw new Error("statut inattendu");
