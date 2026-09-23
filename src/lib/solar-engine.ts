@@ -99,15 +99,15 @@ export function simuler(input: Input) {
   const { conso, abo, productibleEffectif, orientationRetenue, scoreOrientation } = baseCalcul(input);
 
   // ── Dimensionnement ────────────────────────────────────────────────────────
-  // Cible = 100 % de la consommation annuelle, avec ou sans batterie : la
-  // batterie ne change que le taux d'autoconsommation, PAS la puissance.
-  // On retient la plus grande puissance catalogue dont la production reste
-  // SOUS la consommation. Garde-fou : la cible se calcule toujours sur le
-  // productible OPTIMAL du territoire — une mauvaise orientation ne doit
-  // jamais débloquer une puissance supérieure.
-  const eligibles = ([3, 6, 9] as const).filter((p) => p * t.productible <= conso);
-  const kwcReco = (eligibles.length ? Math.max(...eligibles) : 3) as Kwc;
-  const plancher = eligibles.length === 0; // 3 kWc = plancher catalogue
+  // Besoin théorique = consommation / productible. On retient la puissance
+  // CATALOGUE la plus proche de ce besoin, avec ou sans batterie : la batterie
+  // ne change que le taux d'autoconsommation, PAS la puissance.
+  // Garde-fou n°1 : le besoin se calcule toujours sur le productible OPTIMAL du
+  // territoire — une mauvaise orientation ne doit jamais débloquer une
+  // puissance supérieure.
+  // Garde-fou n°2 : la production ne peut pas dépasser 120 % de la
+  // consommation, pour ne jamais vendre une installation de pure revente.
+  const { kwc: kwcReco, plancher } = choisirPuissance(conso, t.productible);
 
   const sans = scenario(t, conso, kwcReco, false, abo, productibleEffectif);
   const avec = scenario(t, conso, kwcReco, true, abo, productibleEffectif);
