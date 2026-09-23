@@ -89,9 +89,9 @@ const ORDRE: [string, number, number, boolean][] = [
   ["guadeloupe", 200, 6, true],
   ["martinique", 100, 3, true],
   ["martinique", 180, 6, true],
-  ["reunion", 150, 3, false],
+  ["reunion", 150, 6, true], // 6 kWc : la batterie absorbe enfin un vrai surplus
   ["corse", 100, 3, false],
-  ["guyane", 200, 6, true], // avec la capacité réelle, la batterie repasse devant
+  ["guyane", 200, 9, true], // avec la capacité réelle, la batterie repasse devant
 ];
 
 
