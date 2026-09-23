@@ -60,6 +60,35 @@ function impotRevente(revenu: number, kwc: number, refactionIR: number): number 
 }
 
 /**
+ * Choix de la puissance catalogue (3 / 6 / 9 kWc).
+ *
+ * Le besoin théorique (conso / productible) tombe rarement sur une valeur du
+ * catalogue. On retient donc la puissance la PLUS PROCHE du besoin, quitte à
+ * dépasser légèrement la consommation : un besoin de 8 kWc doit sortir un
+ * 9 kWc, pas un 6 kWc. En cas d'écart identique, on privilégie la puissance
+ * inférieure (moins d'investissement, moins de revente).
+ *
+ * Deux garde-fous :
+ *  - la production retenue ne dépasse jamais 120 % de la consommation, sinon on
+ *    redescend à la plus grande puissance qui respecte cette borne ;
+ *  - plancher catalogue à 3 kWc, signalé par le drapeau `plancher`.
+ */
+export function choisirPuissance(conso: number, productible: number): { kwc: Kwc; plancher: boolean } {
+  const CATALOGUE = [3, 6, 9] as const;
+  const besoin = productible > 0 ? conso / productible : 0;
+  const plafond = (HYP.toleranceSurdimensionnement * conso) / (productible || 1);
+
+  const admissibles = CATALOGUE.filter((p) => p <= plafond);
+  if (admissibles.length === 0) return { kwc: 3, plancher: true };
+
+  let choix: number = admissibles[0];
+  for (const p of admissibles) {
+    if (Math.abs(p - besoin) < Math.abs(choix - besoin)) choix = p;
+  }
+  return { kwc: choix as Kwc, plancher: false };
+}
+
+/**
  * Entrées communes à simuler() et comparerConfigurations() :
  * orientation → productible effectif, puis facture mensuelle → consommation.
  */
