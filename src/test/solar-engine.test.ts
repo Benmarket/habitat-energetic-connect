@@ -12,7 +12,7 @@ import { simuler, comparerConfigurations } from "@/lib/solar-engine";
 const SANS: [string, number, number, number, number, number, number, number, number][] = [
   ["martinique", 180, 6, 9438, 57, 53, 1704, 40, 6.0],
   ["guadeloupe", 200, 6, 9276, 66, 53, 1689, 32, 5.9],
-  ["reunion", 150, 3, 4464, 88, 47, 860, 11, 3.8],
+  ["reunion", 150, 6, 8928, 49, 53, 1599, 46, 4.6],
   ["corse", 100, 3, 4299, 69, 53, 767, 30, 7.9],
   ["guyane", 100, 3, 4218, 67, 53, 792, 32, 5.8],
   ["martinique", 100, 3, 4719, 60, 53, 881, 39, 7.3],
