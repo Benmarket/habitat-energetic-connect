@@ -1,5 +1,6 @@
-const BANDEAU_SRC = "/bandeau-france-renov.webp";
 import { cn } from "@/lib/utils";
+
+const BANDEAU_SRC = "/bandeau-france-renov.webp";
 
 /**
  * Bandeau d'information France Rénov' obligatoire (arrêté du 7 juillet 2026,
