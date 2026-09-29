@@ -10,6 +10,7 @@ import roofToleAsset from "@/assets/roof-tole.glb.asset.json";
 import roofPlateAsset from "@/assets/roof-plate.glb.asset.json";
 import { z } from "zod";
 import Header from "@/components/Header";
+import FranceRenovBanner from "@/components/FranceRenovBanner";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -693,6 +694,7 @@ export default function SimulateurSolaireLead() {
       </Helmet>
 
       <Header />
+      <FranceRenovBanner />
 
       <main className={`relative isolate overflow-hidden ${step === 0 ? "" : "min-h-[70vh] pb-20"}`}>
         {step !== 0 && <SolarBackdrop />}

@@ -5,6 +5,7 @@ import { OrganizationSchema } from "@/components/SEO/OrganizationSchema";
 import { WebSiteSchema } from "@/components/SEO/WebSiteSchema";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import FranceRenovBanner from "@/components/FranceRenovBanner";
 import HeroSection from "@/components/HeroSection";
 import InstitutionalContextSection from "@/components/InstitutionalContextSection";
 import SolarBanner from "@/components/SolarBanner";
@@ -202,16 +203,21 @@ const Index = () => {
 
       <div className="min-h-screen bg-background">
         <Header />
-        {visibleSections.map(section => {
+        {visibleSections.map((section, i) => {
           const Component = SECTION_COMPONENTS[section.id];
           // Extraire l'ID d'ancre (sans le #) de la configuration
           const anchorId = section.anchor.replace('#', '');
           return Component ? (
-            <div key={section.id} id={anchorId} className="scroll-mt-24">
-              <Component />
+            <div key={section.id}>
+              <div id={anchorId} className="scroll-mt-24">
+                <Component />
+              </div>
+              {/* Bandeau France Rénov' obligatoire, juste sous le premier bloc (banner) */}
+              {i === 0 && <FranceRenovBanner />}
             </div>
           ) : null;
         })}
+        {visibleSections.length === 0 && <FranceRenovBanner />}
         <Footer />
       </div>
     </>

@@ -1,5 +1,6 @@
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
+import FranceRenovBanner from "@/components/FranceRenovBanner";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Home, ArrowRight } from "lucide-react";
@@ -20,6 +21,7 @@ const LandingIsolationContent = () => {
 
       <div className="min-h-screen bg-background">
         <Header />
+        <FranceRenovBanner />
         
         <main>
           {/* Hero Section */}

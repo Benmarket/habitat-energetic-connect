@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CollectionPageSchema } from "@/components/SEO/CollectionPageSchema";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import Header from "@/components/Header";
+import FranceRenovBanner from "@/components/FranceRenovBanner";
 import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -104,6 +105,7 @@ const Guides = () => {
 
       <div className="min-h-screen bg-background">
         <Header />
+        <FranceRenovBanner />
         <Breadcrumb 
           items={[
             { name: "Accueil", url: "/" },
