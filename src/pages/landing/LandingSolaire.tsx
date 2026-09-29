@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet";
 import { useState, useRef, useEffect, Suspense } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
+import FranceRenovBanner from "@/components/FranceRenovBanner";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,11 +64,9 @@ import eligibiliteBg from "@/assets/landing/panneaux-solaires.png";
 // ─── Band 7: Badges data ───
 const badges = [
   { name: "RGE QualiPV", logo: `${STORAGE_BASE}/rge-qualipv.png` },
-  { name: "MaPrimeRénov'", logo: `${STORAGE_BASE}/maprimerenov.png` },
   { name: "CEE", logo: `${STORAGE_BASE}/cee.png` },
   { name: "Domofinance", logo: `${STORAGE_BASE}/domofinance.png` },
   { name: "QualiPac", logo: `${STORAGE_BASE}/qualipac.png` },
-  { name: "France Rénov'", logo: `${STORAGE_BASE}/france-renov.png` },
   { name: "ADEME", logo: `${STORAGE_BASE}/ademe.png` },
   { name: "Eco PTZ", logo: `${STORAGE_BASE}/eco-ptz.png` },
 ];
@@ -749,6 +748,7 @@ const LandingSolaireContent = () => {
 
       <div className="min-h-screen bg-background overflow-x-hidden">
         <Header />
+        <FranceRenovBanner />
 
         <main>
           {/* ═══ BAND 1: Hero Banner ═══ */}

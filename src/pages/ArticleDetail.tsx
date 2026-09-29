@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
+import FranceRenovBanner from "@/components/FranceRenovBanner";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Calendar, ArrowLeft, Tag, Clock, User, ChevronDown } from "lucide-react";
@@ -401,6 +402,7 @@ const ArticleDetail = () => {
 
       <div className="min-h-screen bg-background overflow-x-hidden">
         <Header />
+        <FranceRenovBanner />
         <Breadcrumb items={breadcrumbItems} />
         
         <main>

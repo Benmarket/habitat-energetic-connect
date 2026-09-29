@@ -3,6 +3,7 @@ import { useState, useRef, useEffect, Suspense, lazy } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useGLTF } from "@react-three/drei";
 import Header from "@/components/Header";
+import FranceRenovBanner from "@/components/FranceRenovBanner";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,11 +83,9 @@ const STORAGE_BASE = "https://ggucavhanqmdxjqdbcnw.supabase.co/storage/v1/object
 // ─── Badges data ───
 const badges = [
   { name: "RGE QualiPV", logo: `${STORAGE_BASE}/rge-qualipv.png` },
-  { name: "MaPrimeRénov'", logo: `${STORAGE_BASE}/maprimerenov.png` },
   { name: "CEE", logo: `${STORAGE_BASE}/cee.png` },
   { name: "Domofinance", logo: `${STORAGE_BASE}/domofinance.png` },
   { name: "QualiPac", logo: `${STORAGE_BASE}/qualipac.png` },
-  { name: "France Rénov'", logo: `${STORAGE_BASE}/france-renov.png` },
   { name: "ADEME", logo: `${STORAGE_BASE}/ademe.png` },
   { name: "Eco PTZ", logo: `${STORAGE_BASE}/eco-ptz.png` },
 ];
@@ -418,6 +417,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
 
       <div className="min-h-screen bg-background">
         <Header />
+        <FranceRenovBanner />
         <main>
 
           {/* ═══ SECTION 1: Hero Banner ═══ */}

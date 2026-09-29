@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
+import FranceRenovBanner from "@/components/FranceRenovBanner";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -185,6 +186,7 @@ const OffrePartenaire = () => {
         <meta name="description" content={offer.description.substring(0, 160)} />
       </Helmet>
       <Header />
+      <FranceRenovBanner />
       <main className="min-h-screen bg-gradient-to-b from-background to-muted/20 pt-24 pb-16">
         <div className="container mx-auto px-4">
           {/* Back button */}

@@ -1,5 +1,6 @@
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
+import FranceRenovBanner from "@/components/FranceRenovBanner";
 import Footer from "@/components/Footer";
 import { FAQSchema } from "@/components/SEO/FAQSchema";
 import {
@@ -50,6 +51,7 @@ const FAQ = () => {
       <FAQSchema faqs={faqs} />
       
       <Header />
+      <FranceRenovBanner />
       
       <main className="min-h-screen bg-background">
         {/* Hero Section */}

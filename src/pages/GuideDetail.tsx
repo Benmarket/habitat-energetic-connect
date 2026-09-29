@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
+import FranceRenovBanner from "@/components/FranceRenovBanner";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -380,6 +381,7 @@ const GuideDetail = () => {
       )}
       <div className="min-h-screen bg-background">
         <Header />
+        <FranceRenovBanner />
         <Breadcrumb items={breadcrumbItems} />
         
         {/* Navigation sticky avec téléchargement + sommaire */}

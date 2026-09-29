@@ -1,5 +1,6 @@
 import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
+import FranceRenovBanner from "@/components/FranceRenovBanner";
 import Footer from "@/components/Footer";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Link } from "react-router-dom";
@@ -85,6 +86,7 @@ const ServiceInstallationSolaire = () => {
         <script type="application/ld+json">{JSON.stringify(howToJsonLd)}</script>
       </Helmet>
       <Header />
+      <FranceRenovBanner />
       <main className="pt-20">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <Breadcrumb items={breadcrumbItems} />
