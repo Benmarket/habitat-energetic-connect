@@ -14,9 +14,9 @@ const FranceRenovBanner = ({ className }: { className?: string }) => (
   <aside
     aria-label="Information du service public France Rénov'"
     data-france-renov-banner
-    className={cn("w-full bg-background py-4 md:py-6", className)}
+    className={cn("w-full bg-background py-2 md:py-3", className)}
   >
-    <div className="mx-auto w-full md:max-w-[760px] md:px-4">
+    <div className="mx-auto w-full md:max-w-[600px] md:px-4">
       <a
         href="https://france-renov.gouv.fr/servicepublic"
         target="_blank"
@@ -28,7 +28,7 @@ const FranceRenovBanner = ({ className }: { className?: string }) => (
           alt={FRANCE_RENOV_MESSAGE}
           width={1600}
           height={342}
-          className="block h-auto w-full md:min-h-[150px] md:object-contain"
+          className="block h-auto w-full opacity-90 transition-opacity hover:opacity-100 md:max-h-[96px] md:object-contain"
         />
       </a>
     </div>
