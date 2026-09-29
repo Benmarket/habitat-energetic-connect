@@ -1,4 +1,4 @@
-import bandeau from "@/assets/bandeau-france-renov.webp.asset.json";
+const BANDEAU_SRC = "/bandeau-france-renov.webp";
 import { cn } from "@/lib/utils";
 
 /**
@@ -23,7 +23,7 @@ const FranceRenovBanner = ({ className }: { className?: string }) => (
         className="block"
       >
         <img
-          src={bandeau.url}
+          src={BANDEAU_SRC}
           alt={FRANCE_RENOV_MESSAGE}
           width={1600}
           height={342}
