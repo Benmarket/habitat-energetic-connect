@@ -86,7 +86,6 @@ const ServiceInstallationSolaire = () => {
         <script type="application/ld+json">{JSON.stringify(howToJsonLd)}</script>
       </Helmet>
       <Header />
-      <FranceRenovBanner />
       <main className="pt-20">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <Breadcrumb items={breadcrumbItems} />
@@ -125,6 +124,7 @@ const ServiceInstallationSolaire = () => {
               ))}
             </div>
           </section>
+          <FranceRenovBanner />
 
           {/* Pourquoi le solaire */}
           <section className="mb-12">

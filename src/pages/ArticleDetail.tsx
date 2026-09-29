@@ -402,7 +402,6 @@ const ArticleDetail = () => {
 
       <div className="min-h-screen bg-background overflow-x-hidden">
         <Header />
-        <FranceRenovBanner />
         <Breadcrumb items={breadcrumbItems} />
         
         <main>
@@ -458,6 +457,7 @@ const ArticleDetail = () => {
                 </div>
               </div>
             </section>
+            <FranceRenovBanner />
           ) : (
             <section className="bg-muted py-8 sm:py-16">
               <div className="container mx-auto px-4">

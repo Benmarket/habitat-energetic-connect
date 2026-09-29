@@ -57,7 +57,6 @@ const ServiceAmeliorationHabitat = () => {
         <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
       </Helmet>
       <Header />
-      <FranceRenovBanner />
       <main className="pt-20">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <Breadcrumb items={breadcrumbItems} />
@@ -88,6 +87,7 @@ const ServiceAmeliorationHabitat = () => {
               ))}
             </div>
           </section>
+          <FranceRenovBanner />
 
           {/* Comprendre DPE & CEE — objectif gain de classe */}
           <section className="mb-12">

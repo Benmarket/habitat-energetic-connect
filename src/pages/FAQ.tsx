@@ -51,7 +51,6 @@ const FAQ = () => {
       <FAQSchema faqs={faqs} />
       
       <Header />
-      <FranceRenovBanner />
       
       <main className="min-h-screen bg-background">
         {/* Hero Section */}
@@ -71,6 +70,7 @@ const FAQ = () => {
             </div>
           </div>
         </section>
+        <FranceRenovBanner />
 
         {/* FAQ Content */}
         <section className="py-12 md:py-16">

@@ -105,7 +105,6 @@ const Guides = () => {
 
       <div className="min-h-screen bg-background">
         <Header />
-        <FranceRenovBanner />
         <Breadcrumb 
           items={[
             { name: "Accueil", url: "/" },
@@ -151,6 +150,7 @@ const Guides = () => {
               </div>
             </div>
           </section>
+          <FranceRenovBanner />
 
           {/* Wave background section */}
           <div className="relative">

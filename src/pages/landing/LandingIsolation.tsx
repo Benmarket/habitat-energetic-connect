@@ -21,7 +21,6 @@ const LandingIsolationContent = () => {
 
       <div className="min-h-screen bg-background">
         <Header />
-        <FranceRenovBanner />
         
         <main>
           {/* Hero Section */}
@@ -54,6 +53,7 @@ const LandingIsolationContent = () => {
               </div>
             </div>
           </section>
+          <FranceRenovBanner />
 
           {/* Benefits Section */}
           <section className="py-20 px-4">

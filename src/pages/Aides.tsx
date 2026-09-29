@@ -161,7 +161,6 @@ const Aides = () => {
 
       <div className="min-h-screen bg-background">
         <Header />
-        <FranceRenovBanner />
         <Breadcrumb 
           items={[
             { name: "Accueil", url: "/" },
@@ -190,6 +189,7 @@ const Aides = () => {
               </p>
             </div>
           </section>
+          <FranceRenovBanner />
 
           {/* Audience Filter */}
           <section className="py-6 border-b border-border bg-muted/30">

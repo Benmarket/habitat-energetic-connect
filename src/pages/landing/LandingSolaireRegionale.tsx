@@ -417,7 +417,6 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
 
       <div className="min-h-screen bg-background">
         <Header />
-        <FranceRenovBanner />
         <main>
 
           {/* ═══ SECTION 1: Hero Banner ═══ */}
@@ -447,6 +446,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
               </div>
             </div>
           </section>
+          <FranceRenovBanner />
 
           {/* ═══ SECTION 1.5: 3D Solar Showcase ═══ */}
           <Suspense fallback={<div className="h-screen bg-[#0a1628]" />}>

@@ -694,7 +694,6 @@ export default function SimulateurSolaireLead() {
       </Helmet>
 
       <Header />
-      <FranceRenovBanner />
 
       <main className={`relative isolate overflow-hidden ${step === 0 ? "" : "min-h-[70vh] pb-20"}`}>
         {step !== 0 && <SolarBackdrop />}
@@ -1262,6 +1261,7 @@ const EntryHero = ({ onStart }: { onStart: () => void }) => (
       </div>
     </div>
   </section>
+  <FranceRenovBanner />
 );
 
 // ---------- UI primitives ----------
