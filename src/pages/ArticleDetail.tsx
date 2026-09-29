@@ -457,7 +457,6 @@ const ArticleDetail = () => {
                 </div>
               </div>
             </section>
-            <FranceRenovBanner />
           ) : (
             <section className="bg-muted py-8 sm:py-16">
               <div className="container mx-auto px-4">

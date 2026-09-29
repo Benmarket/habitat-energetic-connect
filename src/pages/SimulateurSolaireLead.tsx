@@ -1261,7 +1261,6 @@ const EntryHero = ({ onStart }: { onStart: () => void }) => (
       </div>
     </div>
   </section>
-  <FranceRenovBanner />
 );
 
 // ---------- UI primitives ----------
