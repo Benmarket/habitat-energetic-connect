@@ -14,14 +14,15 @@ const FranceRenovBanner = ({ className }: { className?: string }) => (
   <aside
     aria-label="Information du service public France Rénov'"
     data-france-renov-banner
-    className={cn("w-full bg-background py-1.5", className)}
+    className={cn("w-full border-y border-border/60 bg-muted/30 py-1.5", className)}
   >
-    <div className="mx-auto flex w-full justify-center px-4">
+    <div className="mx-auto flex w-full max-w-6xl items-center gap-4 px-4">
+      <span aria-hidden="true" className="min-w-0 flex-1 border-t border-border" />
       <a
         href="https://france-renov.gouv.fr/servicepublic"
         target="_blank"
         rel="noopener noreferrer"
-        className="block w-full max-w-[300px]"
+        className="block w-full max-w-[300px] shrink-0"
       >
         <img
           src={BANDEAU_SRC}
@@ -32,6 +33,7 @@ const FranceRenovBanner = ({ className }: { className?: string }) => (
           className="block h-auto w-full opacity-80 transition-opacity hover:opacity-100"
         />
       </a>
+      <span aria-hidden="true" className="min-w-0 flex-1 border-t border-border" />
     </div>
   </aside>
 );
