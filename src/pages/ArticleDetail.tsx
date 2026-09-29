@@ -500,6 +500,7 @@ const ArticleDetail = () => {
               </div>
             </section>
           )}
+          <FranceRenovBanner />
 
           {/* Article Content */}
           <article className="py-8 sm:py-12 lg:py-16">
