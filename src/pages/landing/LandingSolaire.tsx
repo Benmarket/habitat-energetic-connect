@@ -748,7 +748,6 @@ const LandingSolaireContent = () => {
 
       <div className="min-h-screen bg-background overflow-x-hidden">
         <Header />
-        <FranceRenovBanner />
 
         <main>
           {/* ═══ BAND 1: Hero Banner ═══ */}
@@ -784,6 +783,7 @@ const LandingSolaireContent = () => {
               </div>
             </div>
           </section>
+          <FranceRenovBanner />
 
           {/* ═══ BAND 1.5: 3D Solar Showcase ═══ */}
           <Suspense fallback={<div className="h-screen bg-[#0a1628]" />}>

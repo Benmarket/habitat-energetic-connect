@@ -402,7 +402,6 @@ const ArticleDetail = () => {
 
       <div className="min-h-screen bg-background overflow-x-hidden">
         <Header />
-        <FranceRenovBanner />
         <Breadcrumb items={breadcrumbItems} />
         
         <main>
@@ -501,6 +500,7 @@ const ArticleDetail = () => {
               </div>
             </section>
           )}
+          <FranceRenovBanner />
 
           {/* Article Content */}
           <article className="py-8 sm:py-12 lg:py-16">

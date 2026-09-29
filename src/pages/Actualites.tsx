@@ -157,7 +157,6 @@ const Actualites = () => {
 
       <div className="min-h-screen bg-background">
         <Header />
-        <FranceRenovBanner />
         <Breadcrumb 
           items={[
             { name: "Accueil", url: "/" },
@@ -186,6 +185,7 @@ const Actualites = () => {
               </p>
             </div>
           </section>
+          <FranceRenovBanner />
 
           {/* Filters */}
           <section className="py-8 border-b border-border">
