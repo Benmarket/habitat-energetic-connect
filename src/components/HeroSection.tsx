@@ -447,7 +447,7 @@ const HeroSection = () => {
                       required
                     />
                     <Label htmlFor="acceptTerms" className="text-white text-[10px] md:text-sm leading-snug md:leading-relaxed cursor-pointer drop-shadow">
-                      J'accepte les termes et conditions des CGU de Prime énergies et accepte de recevoir des offres concernant les travaux de rénovation et subventions{" "}
+                      J'accepte les termes et conditions des CGU de Prime énergies et accepte de recevoir des offres par email et/ou par appel téléphonique concernant les travaux de rénovation et subventions{" "}
                       <a 
                         href="/conditions-utilisation" 
                         target="_blank"

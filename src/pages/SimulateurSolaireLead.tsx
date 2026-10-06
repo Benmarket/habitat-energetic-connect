@@ -933,7 +933,7 @@ export default function SimulateurSolaireLead() {
                           <div className="flex items-start gap-2 rounded-lg bg-slate-50 border border-slate-200 p-2">
                             <Checkbox id="lead-consent-m" checked={lead.consent} onCheckedChange={(c) => setLead({ ...lead, consent: c === true })} className="mt-0.5" />
                             <label htmlFor="lead-consent-m" className="text-[10px] text-slate-600 leading-snug cursor-pointer">
-                              J'accepte d'être recontacté dans le cadre de ma simulation solaire.
+                              J'accepte d'être recontacté par email et/ou par appel téléphonique dans le cadre de ma simulation solaire.
                             </label>
                           </div>
                           {leadErrors.consent && <p className="text-xs text-destructive">{leadErrors.consent}</p>}
@@ -1121,7 +1121,7 @@ export default function SimulateurSolaireLead() {
                 <div className="flex items-start gap-2 pt-1 rounded-lg bg-slate-50 border border-slate-200 p-2.5">
                   <Checkbox id="lead-consent" checked={lead.consent} onCheckedChange={(c) => setLead({ ...lead, consent: c === true })} className="mt-0.5" />
                   <label htmlFor="lead-consent" className="text-[11px] text-slate-600 leading-snug cursor-pointer">
-                    J'accepte d'être recontacté par email et/ou téléphone dans le cadre de ma simulation solaire.
+                    J'accepte d'être recontacté par email et/ou par appel téléphonique dans le cadre de ma simulation solaire.
                   </label>
                 </div>
                 {leadErrors.consent && <p className="text-xs text-destructive">{leadErrors.consent}</p>}

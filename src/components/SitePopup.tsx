@@ -862,7 +862,7 @@ export default function SitePopup() {
         const footerText = isAideDossier 
           ? "Vos données sont utilisées uniquement pour traiter votre demande."
           : isLeadAnnonce
-          ? "En soumettant ce formulaire, vous acceptez d'être contacté par notre partenaire."
+          ? "En soumettant ce formulaire, vous acceptez d'être contacté par appel téléphonique et/ou email par notre partenaire."
           : "En vous inscrivant, vous acceptez de recevoir nos communications.";
         
         // Check if this is aide-dossier form for 2-column layout
@@ -923,7 +923,7 @@ export default function SitePopup() {
                     className="mt-0.5"
                   />
                   <span className="text-[11px] leading-snug text-gray-700">
-                    J'accepte d'être contacté par téléphone et/ou email dans le cadre de ma demande. Mes données sont traitées conformément au RGPD.{" "}
+                    J'accepte d'être contacté par appel téléphonique et/ou email dans le cadre de ma demande. Mes données sont traitées conformément au RGPD.{" "}
                     <a href="/politique-confidentialite" target="_blank" rel="noreferrer" className="underline">En savoir plus</a>. <span className="text-red-500">*</span>
                   </span>
                 </label>
@@ -1021,7 +1021,7 @@ export default function SitePopup() {
                     className="mt-0.5"
                   />
                   <span className="text-[11px] leading-snug text-gray-700">
-                    J'accepte d'être contacté par téléphone et/ou email dans le cadre de ma demande. Mes données sont traitées conformément au RGPD.{" "}
+                    J'accepte d'être contacté par appel téléphonique et/ou email dans le cadre de ma demande. Mes données sont traitées conformément au RGPD.{" "}
                     <a href="/politique-confidentialite" target="_blank" rel="noreferrer" className="underline">En savoir plus</a>. <span className="text-red-500">*</span>
                   </span>
                 </label>

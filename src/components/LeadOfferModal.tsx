@@ -265,7 +265,7 @@ export default function LeadOfferModal({
                 className="mt-0.5"
               />
               <Label htmlFor="rgpdConsent" className="text-xs font-normal leading-snug cursor-pointer">
-                J'accepte d'être contacté par téléphone et/ou email par <span className="font-semibold">{offerData.advertiserName}</span> dans le cadre de ma demande. Mon consentement est recueilli librement et mes données sont traitées conformément au RGPD.{" "}
+                J'accepte d'être contacté par appel téléphonique et/ou email par <span className="font-semibold">{offerData.advertiserName}</span> dans le cadre de ma demande. Mon consentement est recueilli librement et mes données sont traitées conformément au RGPD.{" "}
                 <a href="/politique-confidentialite" target="_blank" rel="noreferrer" className="underline">En savoir plus</a>. <span className="text-destructive">*</span>
               </Label>
             </div>
