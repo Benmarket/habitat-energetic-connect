@@ -2241,7 +2241,7 @@ const SimulateurSolaire = () => {
                         className="mt-0.5"
                       />
                       <label htmlFor="acceptCgu" className="text-sm leading-relaxed cursor-pointer">
-                        J'accepte les <a href="/conditions-utilisation" target="_blank" className="text-blue-600 underline hover:text-blue-800">conditions générales d'utilisation</a> et consens à recevoir mes résultats de simulation ainsi que des recommandations commerciales par email et/ou téléphone.
+                        J'accepte les <a href="/conditions-utilisation" target="_blank" className="text-blue-600 underline hover:text-blue-800">conditions générales d'utilisation</a> et consens à recevoir mes résultats de simulation ainsi que des recommandations commerciales par email et/ou par appel téléphonique.
                       </label>
                     </div>
                     <div className="flex justify-between pt-4 gap-3">
