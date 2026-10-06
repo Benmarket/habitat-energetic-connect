@@ -223,6 +223,10 @@ const FooterContactForm = () => {
             </div>
           </div>
 
+          <p className="text-xs text-center text-primary-foreground">
+            En envoyant ce formulaire, vous acceptez d'être recontacté par appel téléphonique et/ou email dans le cadre de votre demande.
+          </p>
+
           <div className="flex justify-center pt-2 pb-10">
             <Button
               type="submit"

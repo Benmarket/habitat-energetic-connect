@@ -309,13 +309,18 @@ const LandingSolaireContent = () => {
   };
 
   const dataFooter = (
-    <p className="text-center text-xs text-muted-foreground mt-4 flex items-center justify-center gap-1.5">
+    <div className="mt-4 space-y-2">
+      <p className="text-center text-xs text-muted-foreground">
+        En envoyant ce formulaire, vous acceptez d'être recontacté par appel téléphonique et/ou email dans le cadre de votre demande.
+      </p>
+    <p className="text-center text-xs text-muted-foreground flex items-center justify-center gap-1.5">
       <Lock className="w-3 h-3" />
       Données chiffrées · Aucun spam ·{" "}
       <Link to="/politique-confidentialite" className="text-primary hover:underline">
         confidentialité
       </Link>
     </p>
+    </div>
   );
 
   const StepTip = ({ icon: Icon, children }: { icon: any; children: React.ReactNode }) => (

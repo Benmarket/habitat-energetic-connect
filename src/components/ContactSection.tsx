@@ -336,6 +336,10 @@ const ContactSection = () => {
                 </p>
               </div>
 
+              <p className="text-xs text-muted-foreground text-center">
+                En envoyant ce formulaire, vous acceptez d'être recontacté par appel téléphonique et/ou email dans le cadre de votre demande.
+              </p>
+
               {/* Submit Button */}
               <Button 
                 type="submit" 
