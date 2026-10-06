@@ -525,7 +525,7 @@ const DevenirPartenaire = () => {
               </Button>
 
               <p className="text-xs text-muted-foreground text-center">
-                En soumettant ce formulaire, vous acceptez d'être recontacté par notre
+                En soumettant ce formulaire, vous acceptez d'être recontacté par appel téléphonique et/ou email par notre
                 équipe partenariats. Vos données restent strictement confidentielles.
               </p>
             </form>

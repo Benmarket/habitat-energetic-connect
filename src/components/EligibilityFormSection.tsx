@@ -763,7 +763,7 @@ const EligibilityFormSection = () => {
                           htmlFor="rgpdConsent"
                           className="text-sm leading-snug cursor-pointer"
                         >
-                          J'accepte d'être contacté par téléphone dans le cadre de ma demande d'éligibilité. Mon
+                          J'accepte d'être contacté par appel téléphonique dans le cadre de ma demande d'éligibilité. Mon
                           consentement est recueilli librement et mes données sont traitées conformément au RGPD.
                           <span className="text-orange-500"> *</span>
                         </Label>
