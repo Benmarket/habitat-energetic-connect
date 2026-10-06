@@ -14,15 +14,35 @@ const FranceRenovBanner = ({ className }: { className?: string }) => (
   <aside
     aria-label="Information du service public France Rénov'"
     data-france-renov-banner
-    className={cn("w-full border-y border-border/60 bg-muted/30 py-1.5", className)}
+    className={cn(
+      "relative w-full overflow-hidden border-y border-border/50 bg-muted/40 py-3.5",
+      className
+    )}
   >
-    <div className="mx-auto flex w-full max-w-6xl items-center gap-4 px-4">
-      <span aria-hidden="true" className="min-w-0 flex-1 border-t border-border" />
+    {/* Texture discrète qui meuble la largeur sans texte ni image ajoutés */}
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 opacity-30"
+      style={{
+        backgroundImage:
+          "radial-gradient(hsl(var(--border)) 0.5px, transparent 0.5px)",
+        backgroundSize: "22px 22px",
+        maskImage:
+          "linear-gradient(to right, black, transparent 32%, transparent 68%, black)",
+        WebkitMaskImage:
+          "linear-gradient(to right, black, transparent 32%, transparent 68%, black)",
+      }}
+    />
+    <div className="relative mx-auto flex w-full max-w-6xl items-center gap-6 px-4">
+      <span
+        aria-hidden="true"
+        className="min-w-0 flex-1 bg-gradient-to-r from-transparent to-border/50 border-t"
+      />
       <a
         href="https://france-renov.gouv.fr/servicepublic"
         target="_blank"
         rel="noopener noreferrer"
-        className="block w-full max-w-[300px] shrink-0"
+        className="block w-full max-w-[340px] shrink-0 rounded-md border border-border/60 bg-background p-1.5 shadow-soft transition-shadow hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <img
           src={BANDEAU_SRC}
@@ -30,10 +50,13 @@ const FranceRenovBanner = ({ className }: { className?: string }) => (
           width={1600}
           height={342}
           loading="lazy"
-          className="block h-auto w-full opacity-80 transition-opacity hover:opacity-100"
+          className="block h-auto w-full rounded-[3px]"
         />
       </a>
-      <span aria-hidden="true" className="min-w-0 flex-1 border-t border-border" />
+      <span
+        aria-hidden="true"
+        className="min-w-0 flex-1 bg-gradient-to-l from-transparent to-border/50 border-t"
+      />
     </div>
   </aside>
 );
