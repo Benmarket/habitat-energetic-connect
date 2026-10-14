@@ -62,6 +62,7 @@ const MentionsLegales = () => {
                 </p>
                 <p><strong>RCS :</strong> Bobigny 890 493 737</p>
                 <p><strong>SIRET :</strong> 890 493 737 00013</p>
+                <p><strong>TVA intracommunautaire :</strong> FR52 890493737</p>
                 <p>
                   <strong>Directeur de la publication :</strong> le représentant légal de la société éditrice, identifiable auprès du registre du commerce et des sociétés mentionné ci-dessus.
                 </p>
