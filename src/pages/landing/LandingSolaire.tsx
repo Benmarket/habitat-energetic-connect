@@ -55,21 +55,8 @@ useGLTF.preload("/models/solar_panel_flat.glb");
 const solar3DPromise = import("@/components/landing/Solar3DShowcase");
 const Solar3DShowcase = lazy(() => solar3DPromise);
 
-// ─── Logos partenaires (hébergés sur le stockage cloud) ───
-const STORAGE_BASE = "https://ggucavhanqmdxjqdbcnw.supabase.co/storage/v1/object/public/media/logos";
-
 // ─── Band 4: Critères d'éligibilité image ───
 import eligibiliteBg from "@/assets/landing/panneaux-solaires.png";
-
-// ─── Band 7: Badges data ───
-const badges = [
-  { name: "RGE QualiPV", logo: `${STORAGE_BASE}/rge-qualipv.png` },
-  { name: "CEE", logo: `${STORAGE_BASE}/cee.png` },
-  { name: "Domofinance", logo: `${STORAGE_BASE}/domofinance.png` },
-  { name: "QualiPac", logo: `${STORAGE_BASE}/qualipac.png` },
-  { name: "ADEME", logo: `${STORAGE_BASE}/ademe.png` },
-  { name: "Eco PTZ", logo: `${STORAGE_BASE}/eco-ptz.png` },
-];
 
 // ─── Schemas de validation wizard (une étape = une question / un couple de champs) ───
 const stepChauffageSchema = z.object({

@@ -77,18 +77,6 @@ const step3Schema = z.object({
   phone: z.string().trim().min(10, "Téléphone invalide"),
 });
 
-// ─── Logos partenaires (hébergés sur le stockage cloud) ───
-const STORAGE_BASE = "https://ggucavhanqmdxjqdbcnw.supabase.co/storage/v1/object/public/media/logos";
-
-// ─── Badges data ───
-const badges = [
-  { name: "RGE QualiPV", logo: `${STORAGE_BASE}/rge-qualipv.png` },
-  { name: "CEE", logo: `${STORAGE_BASE}/cee.png` },
-  { name: "Domofinance", logo: `${STORAGE_BASE}/domofinance.png` },
-  { name: "QualiPac", logo: `${STORAGE_BASE}/qualipac.png` },
-  { name: "ADEME", logo: `${STORAGE_BASE}/ademe.png` },
-  { name: "Eco PTZ", logo: `${STORAGE_BASE}/eco-ptz.png` },
-];
 
 
 const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) => {
