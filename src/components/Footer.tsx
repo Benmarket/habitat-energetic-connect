@@ -223,6 +223,17 @@ const Footer = () => {
             </Link>
           </nav>
           <p className="text-sm text-white/60 text-center">© 2018-2026 Prime Énergies. Tous droits réservés.</p>
+          <p className="text-xs text-white/50 text-center">
+            prime-energies.fr est édité par FRANCE RENOV HABITAT ENVIRONNEMENT —{" "}
+            <a
+              href="https://france-renovhabitat.fr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-white transition-colors"
+            >
+              france-renovhabitat.fr
+            </a>
+          </p>
         </div>
       </div>
     </footer>

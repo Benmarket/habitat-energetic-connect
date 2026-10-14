@@ -64,7 +64,13 @@ const MentionsLegales = () => {
                 <p><strong>SIRET :</strong> 890 493 737 00013</p>
                 <p><strong>TVA intracommunautaire :</strong> FR52 890493737</p>
                 <p>
-                  <strong>Directeur de la publication :</strong> le représentant légal de la société éditrice, identifiable auprès du registre du commerce et des sociétés mentionné ci-dessus.
+                  <strong>Site de la société éditrice :</strong>{" "}
+                  <a href="https://france-renovhabitat.fr" target="_blank" rel="noopener noreferrer" className="text-primary underline">
+                    france-renovhabitat.fr
+                  </a>
+                </p>
+                <p>
+                  <strong>Directeur de la publication :</strong> la personne physique exerçant la direction générale de FRANCE RENOV HABITAT ENVIRONNEMENT, en qualité de représentant légal de la société éditrice. Ses nom, qualité et domicile sont communiqués sur simple demande écrite adressée aux coordonnées figurant à la section « Contact ».
                 </p>
               </div>
             </section>
