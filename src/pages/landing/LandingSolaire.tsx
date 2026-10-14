@@ -994,22 +994,6 @@ const LandingSolaireContent = () => {
           {/* ═══ BAND 10: FAQ ═══ */}
           <SolarFAQ region="france" />
 
-          {/* ═══ BAND 11: Badges défilants 4/4 ═══ */}
-          <section className="py-8 lg:py-10 bg-background">
-            <div className="container mx-auto px-4 max-w-5xl">
-              <Carousel opts={{ align: "start", loop: true }} plugins={[Autoplay({ delay: 2500, stopOnInteraction: false })]} className="w-full">
-                <CarouselContent className="-ml-4">
-                  {badges.map((badge, i) => (
-                    <CarouselItem key={i} className="pl-4 basis-1/2 md:basis-1/4">
-                      <div className="bg-card border border-border rounded-xl p-4 flex items-center justify-center h-24">
-                        <img src={badge.logo} alt={badge.name} loading="lazy" className="h-14 w-auto object-contain" />
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-              </Carousel>
-            </div>
-          </section>
 
           {/* ═══ BAND 12: CTA final ═══ */}
           <section className="py-12 lg:py-16 bg-primary/5">
