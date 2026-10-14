@@ -80,6 +80,7 @@ const Forum = lazy(() => import("./pages/forum/Forum"));
 const ForumCategory = lazy(() => import("./pages/forum/ForumCategory"));
 const ForumTopic = lazy(() => import("./pages/forum/ForumTopic"));
 const NewTopic = lazy(() => import("./pages/forum/NewTopic"));
+import ForumGate from "./components/forum/ForumGate";
 const InstallApp = lazy(() => import("./pages/InstallApp"));
 const OffrePartenaire = lazy(() => import("./pages/OffrePartenaire"));
 const OffresThematique = lazy(() => import("./pages/OffresThematique"));
@@ -213,10 +214,10 @@ const App = () => (
 
                   {/* Forum pages - lazy loaded */}
                   <Route path="/forum" element={<Forum />} />
-                  <Route path="/forum/categorie/:slug" element={<ForumCategory />} />
-                  <Route path="/forum/categorie/:slug/nouveau" element={<NewTopic />} />
-                  <Route path="/forum/sujet/:slug" element={<ForumTopic />} />
-                  <Route path="/forum/nouveau-sujet" element={<NewTopic />} />
+                  <Route path="/forum/categorie/:slug" element={<ForumGate><ForumCategory /></ForumGate>} />
+                  <Route path="/forum/categorie/:slug/nouveau" element={<ForumGate><NewTopic /></ForumGate>} />
+                  <Route path="/forum/sujet/:slug" element={<ForumGate><ForumTopic /></ForumGate>} />
+                  <Route path="/forum/nouveau-sujet" element={<ForumGate><NewTopic /></ForumGate>} />
 
                   {/* Legal - lazy loaded. /sitemap.xml is served as static file from public/ */}
                   <Route path="/plan-du-site" element={<PlanDuSite />} />
