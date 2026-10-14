@@ -87,6 +87,15 @@ const MentionsLegales = () => {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
+                  <Phone className="w-5 h-5 text-primary" />
+                  <p>
+                    <strong>Téléphone :</strong>{" "}
+                    <a href="tel:+33974377522" className="text-primary underline">
+                      09 74 37 75 22
+                    </a>
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
                   <Globe className="w-5 h-5 text-primary" />
                   <p>
                     <strong>Site web :</strong>{" "}
