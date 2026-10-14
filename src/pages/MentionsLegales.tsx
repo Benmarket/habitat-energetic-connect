@@ -52,7 +52,7 @@ const MentionsLegales = () => {
               </div>
               <div className="space-y-3 text-foreground">
                 <p>
-                  Le site <strong>prime-energies.fr</strong> est édité par <strong>FRANCE RENOV HABITAT ENVIRONNEMENT</strong> (« <strong>FRH</strong> »), SASU au capital de <strong>30&nbsp;000&nbsp;€</strong>.
+                  Le site <strong>prime-energies.fr</strong> est édité par <strong>FRANCE RENOV HABITAT ENVIRONNEMENT</strong> (« <strong>FRH</strong> »), SASU au capital de <strong>30&nbsp;000&nbsp;€</strong>. « Prime Énergies » est une marque de FRH.
                 </p>
                 <p>
                   <strong>Siège social :</strong><br />
