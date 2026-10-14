@@ -67,7 +67,7 @@ const PolitiqueConfidentialite = () => {
                 <p>
                   SASU au capital de 30&nbsp;000&nbsp;€<br />
                   Siège social : 196 avenue Jean Lolive, 93500 Pantin<br />
-                  RCS Bobigny 890 493 737 — SIRET 890 493 737 00013
+                  RCS Bobigny 890 493 737 — SIRET 890 493 737 00013 — TVA intracommunautaire FR52 890493737
                 </p>
                 <p>
                   <strong>Email de contact :</strong>{" "}
