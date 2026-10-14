@@ -474,7 +474,7 @@ const MentionsLegales = () => {
               </div>
               <div className="text-foreground space-y-3">
                 <p><strong>Conception et développement :</strong> FRANCE RENOV HABITAT ENVIRONNEMENT</p>
-                <p><strong>Crédits photos :</strong> [Sources des images utilisées]</p>
+                <p><strong>Crédits photos :</strong> Les visuels illustrant le site proviennent de banques d'images libres de droits, de contenus acquis sous licence auprès de nos fournisseurs, de visuels générés par intelligence artificielle, ainsi que de photographies et documents propriété de FRANCE RENOV HABITAT ENVIRONNEMENT. L'ensemble de ces éléments est protégé par le droit de la propriété intellectuelle et ne peut être reproduit, diffusé ou réutilisé sans autorisation écrite préalable.</p>
                 <p><strong>Technologies utilisées :</strong></p>
                 <ul className="list-disc pl-6 space-y-1">
                   <li>React & TypeScript</li>
