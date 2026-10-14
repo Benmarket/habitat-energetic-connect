@@ -438,6 +438,7 @@ const MentionsLegales = () => {
                 <p>
                   <strong>Médiateur :</strong> Bâtir Médiation Conso<br />
                   <strong>Adresse :</strong> 834 Chemin de Fontanieu, 83200 Le Revest-les-Eaux<br />
+                  <strong>Contact :</strong> contact@batirmediation-conso.fr — 07 68 46 59 09<br />
                   <strong>Site web :</strong>{" "}
                   <a href="https://batirmediation-conso.fr" target="_blank" rel="noopener noreferrer" className="text-primary underline">
                     https://batirmediation-conso.fr
