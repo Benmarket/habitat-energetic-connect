@@ -55,21 +55,8 @@ useGLTF.preload("/models/solar_panel_flat.glb");
 const solar3DPromise = import("@/components/landing/Solar3DShowcase");
 const Solar3DShowcase = lazy(() => solar3DPromise);
 
-// ─── Logos partenaires (hébergés sur le stockage cloud) ───
-const STORAGE_BASE = "https://ggucavhanqmdxjqdbcnw.supabase.co/storage/v1/object/public/media/logos";
-
 // ─── Band 4: Critères d'éligibilité image ───
 import eligibiliteBg from "@/assets/landing/panneaux-solaires.png";
-
-// ─── Band 7: Badges data ───
-const badges = [
-  { name: "RGE QualiPV", logo: `${STORAGE_BASE}/rge-qualipv.png` },
-  { name: "CEE", logo: `${STORAGE_BASE}/cee.png` },
-  { name: "Domofinance", logo: `${STORAGE_BASE}/domofinance.png` },
-  { name: "QualiPac", logo: `${STORAGE_BASE}/qualipac.png` },
-  { name: "ADEME", logo: `${STORAGE_BASE}/ademe.png` },
-  { name: "Eco PTZ", logo: `${STORAGE_BASE}/eco-ptz.png` },
-];
 
 // ─── Schemas de validation wizard (une étape = une question / un couple de champs) ───
 const stepChauffageSchema = z.object({
@@ -994,22 +981,6 @@ const LandingSolaireContent = () => {
           {/* ═══ BAND 10: FAQ ═══ */}
           <SolarFAQ region="france" />
 
-          {/* ═══ BAND 11: Badges défilants 4/4 ═══ */}
-          <section className="py-8 lg:py-10 bg-background">
-            <div className="container mx-auto px-4 max-w-5xl">
-              <Carousel opts={{ align: "start", loop: true }} plugins={[Autoplay({ delay: 2500, stopOnInteraction: false })]} className="w-full">
-                <CarouselContent className="-ml-4">
-                  {badges.map((badge, i) => (
-                    <CarouselItem key={i} className="pl-4 basis-1/2 md:basis-1/4">
-                      <div className="bg-card border border-border rounded-xl p-4 flex items-center justify-center h-24">
-                        <img src={badge.logo} alt={badge.name} loading="lazy" className="h-14 w-auto object-contain" />
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-              </Carousel>
-            </div>
-          </section>
 
           {/* ═══ BAND 12: CTA final ═══ */}
           <section className="py-12 lg:py-16 bg-primary/5">
