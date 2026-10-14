@@ -317,6 +317,11 @@ const PolitiqueConfidentialite = () => {
                 <p>
                   FRANCE RENOV HABITAT ENVIRONNEMENT<br />
                   196 avenue Jean Lolive, 93500 Pantin<br />
+                  Téléphone :{" "}
+                  <a href="tel:+33974377522" className="text-primary underline">
+                    09 74 37 75 22
+                  </a>
+                  <br />
                   Email :{" "}
                   <a href="mailto:contact@prime-energies.fr" className="text-primary underline">
                     contact@prime-energies.fr
