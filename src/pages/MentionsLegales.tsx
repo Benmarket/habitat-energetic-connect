@@ -436,11 +436,11 @@ const MentionsLegales = () => {
                   Conformément aux articles L.616-1 et R.616-1 du Code de la consommation, nous proposons un dispositif de médiation de la consommation.
                 </p>
                 <p>
-                  <strong>Médiateur :</strong> [Nom du médiateur]<br />
-                  <strong>Adresse :</strong> [Adresse complète]<br />
+                  <strong>Médiateur :</strong> Bâtir Médiation Conso<br />
+                  <strong>Adresse :</strong> 834 Chemin de Fontanieu, 83200 Le Revest-les-Eaux<br />
                   <strong>Site web :</strong>{" "}
-                  <a href="#" className="text-primary underline">
-                    [URL du médiateur]
+                  <a href="https://batirmediation-conso.fr" target="_blank" rel="noopener noreferrer" className="text-primary underline">
+                    https://batirmediation-conso.fr
                   </a>
                 </p>
                 <p>
