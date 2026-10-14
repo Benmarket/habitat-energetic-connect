@@ -132,9 +132,10 @@ const ConditionsUtilisation = () => {
 
                 <p className="mt-4"><strong>3.2 Demande de projet et devis</strong></p>
                 <ul className="list-disc pl-6 space-y-2">
-                  <li>En remplissant un formulaire, vous acceptez d'être recontacté par les équipes de FRH ou ses partenaires techniques pour l'étude de votre projet</li>
+                  <li>En remplissant un formulaire, vous acceptez d'être recontacté par les équipes de FRH pour l'étude de votre projet</li>
+                  <li>Vos coordonnées ne sont ni vendues ni transmises à d'autres entreprises : c'est FRH qui étudie votre demande et assure le suivi de votre projet</li>
                   <li>L'envoi d'une demande ne constitue pas une obligation contractuelle de votre part</li>
-                  <li>Les relations commerciales et contractuelles ultérieures se déroulent directement entre vous et FRH ou le professionnel désigné</li>
+                  <li>Les relations commerciales et contractuelles ultérieures se déroulent directement entre vous et FRH</li>
                 </ul>
 
                 <p className="mt-4"><strong>3.3 Simulateurs et outils</strong></p>

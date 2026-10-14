@@ -172,7 +172,7 @@ const PolitiqueConfidentialite = () => {
                   <li><strong>Prestataires techniques</strong> : hébergement, maintenance, outils de mesure d'audience et services d'emailing, agissant pour le compte de FRH et sous sa responsabilité</li>
                 </ul>
                 <p className="mt-4">
-                  <strong>Important :</strong> Vos données ne sont jamais vendues à des tiers. Elles ne sont pas transmises à d'autres installateurs ou à des tiers à des fins commerciales sans votre consentement explicite.
+                  <strong>Important :</strong> Vos données ne sont jamais vendues, louées ou cédées à des tiers. Elles ne sont pas transmises à d'autres installateurs ni à des tiers à des fins commerciales : chaque demande reste traitée en interne par les équipes de FRH.
                 </p>
               </div>
             </section>
