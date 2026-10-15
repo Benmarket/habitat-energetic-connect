@@ -216,7 +216,11 @@ const ManageActualites = () => {
         query = query.eq("status", statusFilter);
       }
       
-      query = query.order("published_at", { ascending: sortOrder === "asc", nullsFirst: false });
+      // Les brouillons n'ont pas de published_at : en tri "Plus récent" ils doivent
+      // apparaître en premier (nullsFirst), sinon ils sombrent en bas de liste.
+      query = query
+        .order("published_at", { ascending: sortOrder === "asc", nullsFirst: sortOrder === "desc" })
+        .order("created_at", { ascending: sortOrder === "asc" });
 
       // Apply period filter
       if (periodFilter === "month") {
