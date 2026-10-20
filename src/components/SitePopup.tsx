@@ -1,3 +1,4 @@
+import { setActivePopupMarker } from "@/lib/attribution";
 import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -202,6 +203,7 @@ export default function SitePopup() {
     }
 
     setActivePopup(popup);
+    setActivePopupMarker({ id: popup.id, name: popup.name });
     setIsAnimating(true);
     setIsVisible(true);
     
@@ -316,6 +318,7 @@ export default function SitePopup() {
       setIsSuccess(false);
       setFormData({});
       setActivePopup(null);
+      setActivePopupMarker(null);
       setParcoursStep("main");
       setAttribution({});
       setGuideContext(null);
