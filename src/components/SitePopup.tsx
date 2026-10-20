@@ -1,4 +1,4 @@
-import { setActivePopupMarker } from "@/lib/attribution";
+import { setActivePopupMarker, getAttribution } from "@/lib/attribution";
 import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -443,6 +443,7 @@ export default function SitePopup() {
           .insert([{
             form_id: form.id,
             data: submissionData,
+            attribution: getAttribution() as any,
           }])
           .select("id")
           .single();
@@ -513,6 +514,7 @@ export default function SitePopup() {
           .insert([{
             form_id: form.id,
             data: submissionData,
+            attribution: getAttribution() as any,
           }]);
 
         if (error) throw error;
