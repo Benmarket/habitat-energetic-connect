@@ -330,6 +330,7 @@ const SimulateurSolaire = () => {
             },
           },
           status: 'new',
+          attribution: (await import("@/lib/attribution")).getAttribution() as any,
         });
 
       if (submitError) throw submitError;
