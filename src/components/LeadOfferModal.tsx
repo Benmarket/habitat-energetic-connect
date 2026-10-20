@@ -120,6 +120,7 @@ export default function LeadOfferModal({
               ref_referrer: document.referrer || null,
             },
           },
+          attribution: (await import("@/lib/attribution")).getAttribution() as any,
         });
 
       if (submitError) throw submitError;

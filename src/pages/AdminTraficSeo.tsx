@@ -80,7 +80,10 @@ const referrerLabel = (ref: string | null): string => {
   }
 };
 
+type VisitorLead = { form: string; popup: string | null; page: string | null; at: string };
+
 const AdminTraficSeo = () => {
+  const [leadsByVisitor, setLeadsByVisitor] = useState<Map<string, VisitorLead[]>>(new Map());
   const [range, setRange] = useState<Range>("30");
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<PageViewRow[]>([]);
@@ -118,6 +121,44 @@ const AdminTraficSeo = () => {
       const cleaned = ((pv as PageViewRow[]) || []).filter((r) => !isAdminUrl(r.page_url));
       setRows(cleaned);
       setLeadsCount(lc || 0);
+
+      // Leads reliés aux visiteurs (via attribution.visitor_id)
+      const [{ data: subs }, { data: lds }] = await Promise.all([
+        supabase
+          .from("form_submissions")
+          .select("attribution,submitted_at,data,form_configurations(name)")
+          .gte("submitted_at", since.toISOString())
+          .limit(5000),
+        supabase
+          .from("leads")
+          .select("attribution,created_at")
+          .gte("created_at", since.toISOString())
+          .limit(5000),
+      ]);
+      const lm = new Map<string, VisitorLead[]>();
+      const push = (vid: string | undefined, l: VisitorLead) => {
+        if (!vid) return;
+        const arr = lm.get(vid) || [];
+        arr.push(l);
+        lm.set(vid, arr);
+      };
+      (subs || []).forEach((r: any) => {
+        const a = r.attribution || {};
+        push(a.visitor_id, {
+          form: r.form_configurations?.name || "Formulaire",
+          popup: a.popup_name || null,
+          page: a.page_path || r.data?._attribution?.ref_page || null,
+          at: r.submitted_at,
+        });
+      });
+      (lds || []).forEach((r: any) => {
+        const a = r.attribution || {};
+        // évite le doublon quand le même envoi crée aussi une soumission
+        const vid = a.visitor_id;
+        if (!vid || (lm.get(vid) || []).some((x) => Math.abs(new Date(x.at).getTime() - new Date(r.created_at).getTime()) < 10000)) return;
+        push(vid, { form: "Demande de contact", popup: a.popup_name || null, page: a.page_path || null, at: r.created_at });
+      });
+      setLeadsByVisitor(lm);
       setLoading(false);
     };
     load();
@@ -448,7 +489,7 @@ const AdminTraficSeo = () => {
               </div>
 
               {/* Sessions visiteurs — données brutes du tracking */}
-              <VisitorSessionsTable rows={filteredRows} />
+              <VisitorSessionsTable rows={filteredRows} leadsByVisitor={leadsByVisitor} />
 
               <Card className="border-2 border-dashed">
                 <CardContent className="p-5 text-sm text-muted-foreground">
@@ -506,7 +547,7 @@ type VisitorSessionRow = {
   user_id: string | null;
 };
 
-const VisitorSessionsTable = ({ rows }: { rows: PageViewRow[] }) => {
+const VisitorSessionsTable = ({ rows, leadsByVisitor }: { rows: PageViewRow[]; leadsByVisitor: Map<string, VisitorLead[]> }) => {
   const [query, setQuery] = useState("");
   const [limit, setLimit] = useState(50);
 
@@ -601,12 +642,13 @@ const VisitorSessionsTable = ({ rows }: { rows: PageViewRow[] }) => {
                 <th className="text-left px-3 py-2 font-medium">Landing</th>
                 <th className="text-right px-3 py-2 font-medium">Pages</th>
                 <th className="text-right px-3 py-2 font-medium">Durée</th>
+                <th className="text-left px-3 py-2 font-medium">Lead</th>
               </tr>
             </thead>
             <tbody>
               {shown.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="text-center text-muted-foreground py-6">
+                  <td colSpan={11} className="text-center text-muted-foreground py-6">
                     Aucune session sur la période.
                   </td>
                 </tr>
@@ -632,6 +674,22 @@ const VisitorSessionsTable = ({ rows }: { rows: PageViewRow[] }) => {
                   </td>
                   <td className="px-3 py-2 text-right font-medium">{s.pages}</td>
                   <td className="px-3 py-2 text-right text-xs text-muted-foreground">{fmtDuration(s.duration)}</td>
+                  <td className="px-3 py-2 text-xs min-w-[180px]">
+                    {(leadsByVisitor.get(s.visitor_id) || []).length === 0 ? (
+                      <span className="text-muted-foreground">—</span>
+                    ) : (
+                      <div className="space-y-1">
+                        {(leadsByVisitor.get(s.visitor_id) || []).map((l, i) => (
+                          <div key={i}>
+                            <Badge className="mr-1">Lead</Badge>
+                            <span className="font-medium">{l.form}</span>
+                            {l.popup && <span className="text-muted-foreground"> · popup « {l.popup} »</span>}
+                            {l.page && <div className="text-muted-foreground truncate max-w-[220px]" title={l.page}>depuis {l.page}</div>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

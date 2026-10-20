@@ -23,7 +23,28 @@ export type Attribution = {
   fbclid: string | null;
   /** Région du contexte de page au moment de la soumission (fr, corse, reunion…) */
   region_context: string | null;
+  /** Identifiant visiteur du tracking (relie le lead aux pages vues) */
+  visitor_id?: string | null;
+  /** Page exacte de soumission */
+  page_path?: string | null;
+  /** Popup ouverte au moment de la soumission */
+  popup_id?: string | null;
+  popup_name?: string | null;
 };
+
+let activePopupMarker: { id: string; name: string } | null = null;
+/** Appelé par SitePopup à l'ouverture (et null à la fermeture). */
+export function setActivePopupMarker(p: { id: string; name: string } | null) {
+  activePopupMarker = p;
+}
+
+function readVisitorId(): string | null {
+  try {
+    return localStorage.getItem("visitor_id") || sessionStorage.getItem("visitor_id");
+  } catch {
+    return null;
+  }
+}
 
 const REGION_CODES = ["fr", "corse", "reunion", "martinique", "guadeloupe", "guyane", "mayotte"];
 
@@ -180,5 +201,12 @@ export function captureAttribution(): Attribution {
 
 /** Return attribution suitable for spreading into an insert payload. */
 export function getAttribution(): Attribution {
-  return captureAttribution();
+  const base = captureAttribution();
+  return {
+    ...base,
+    visitor_id: readVisitorId(),
+    page_path: typeof window !== "undefined" ? window.location.pathname : null,
+    popup_id: activePopupMarker?.id ?? null,
+    popup_name: activePopupMarker?.name ?? null,
+  };
 }
