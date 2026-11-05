@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, Suspense } from "react";
+import { useState, useMemo, useEffect, useRef, Suspense } from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import { Canvas } from "@react-three/fiber";
@@ -24,6 +24,7 @@ import { useSimulatorTracking } from "@/hooks/useSimulatorTracking";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { printSolarReport } from "@/lib/solar-report-print";
 import { SolarRoofErrorBoundary } from "@/components/SolarRoofErrorBoundary";
+import { buildSolarSnapshot, isSimulationReference } from "@/lib/solar-simulation-record";
 import {
   Sun, Check, ArrowLeft, ArrowRight, MapPin, Home, Building2, Store, Building,
   Compass, Snowflake, Flame, Thermometer, Waves, Car, Plug, HelpCircle, Ruler,
@@ -149,7 +150,7 @@ const EQUIPMENTS: { id: string; label: string; desc: string; icon: any }[] = [
 const BILL_PRESETS = [100, 150, 200, 250, 300];
 
 const PROJECT_HORIZONS: { id: Exclude<ProjectHorizon, "">; label: string; desc: string }[] = [
-  { id: "3m", label: "Dans les 3 mois", desc: "Projet prioritaire" },
+  { id: "3m", label: "Le plus vite possible", desc: "Projet prioritaire" },
   { id: "6m", label: "Dans 6 mois", desc: "Projet en préparation" },
   { id: "1a", label: "Dans l'année", desc: "Réflexion avancée" },
   { id: "info", label: "Je me renseigne", desc: "Pas de date fixée" },
@@ -362,6 +363,10 @@ export default function SimulateurSolaireLead() {
   const [computing, setComputing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showBattery, setShowBattery] = useState(false); // toggle affichage avec batterie
+  const [simulationCode, setSimulationCode] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState(false);
+  const simulationToken = useRef(crypto.randomUUID());
+  const savingRecord = useRef<Promise<string> | null>(null);
   const isMobile = useIsMobile();
 
   // Tracking d'abandon (source, étapes, retour visiteur)
@@ -434,6 +439,10 @@ export default function SimulateurSolaireLead() {
 
   const goNext = () => {
     if (step === 9) {
+      setSimulationCode(null);
+      simulationToken.current = crypto.randomUUID();
+      savingRecord.current = null;
+      setUnlocked(false);
       setComputing(true);
       setTimeout(() => {
         setComputing(false);
@@ -538,6 +547,28 @@ export default function SimulateurSolaireLead() {
   const savingsWithBattery = engine?.avec.economiesAn ?? 0;
   const roiWithBattery = engine?.avec.rentabiliteAns ?? null;
 
+  const saveSimulation = async (): Promise<string> => {
+    if (simulationCode) return simulationCode;
+    if (savingRecord.current) return savingRecord.current;
+    const pending = (async () => {
+      const { data, error } = await supabase.functions.invoke("solar-simulation", {
+        body: { action: "create", token: simulationToken.current, snapshot: buildSolarSnapshot(sim, engineReel, engineOptimal, compRows) },
+      });
+      if (error || !isSimulationReference(data?.reference)) throw new Error("Simulation non enregistrée");
+      setSimulationCode(data.reference);
+      setSaveError(false);
+      return data.reference;
+    })();
+    savingRecord.current = pending;
+    try { return await pending; } catch (error) { savingRecord.current = null; setSaveError(true); throw error; }
+  };
+
+  useEffect(() => {
+    if (step === 10 && engineReel) void saveSimulation().catch(() => {});
+    // Snapshot once at completion, never overwrite it when switching report views.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
   const submitLead = async () => {
     const parsed = leadSchema.safeParse(lead);
     if (!parsed.success) {
@@ -549,53 +580,24 @@ export default function SimulateurSolaireLead() {
     setLeadErrors({});
     setSubmitting(true);
 
-    const payload = {
-      source: "simulateur-solaire",
-      region: region.label, regionId: region.id,
-      postalCode: sim.postalCode, city: sim.city,
-      housingType: sim.housing, houseSurfaceM2: sim.surface,
-      ownership: sim.ownership, roofOrientation: sim.orientation, roofType: sim.roofType || null,
-      equipments: sim.equipments, monthlyBill: sim.monthlyBill,
-      householdSize: sim.householdSize || null, projectHorizon: sim.projectHorizon || null,
-      hasQuote: sim.hasQuote || null, batteryInterest: sim.batteryInterest || null,
-      annualBill,
-      estimatedSavingsMin: savingsMin, estimatedSavingsMax: savingsMax, estimatedSavingsMid: savingsMid,
-      estimatedSavings25y: savings25, estimatedAidesMin: aidesMin, estimatedAidesMax: aidesMax,
-      estimatedROI: roi, estimatedCO2: co2,
-      suggestedKwc: suggest.kwc, suggestedPanels: suggest.panels,
-      consentAccepted: true, createdAt: new Date().toISOString(),
-    };
-
-    const { getAttribution } = await import("@/lib/attribution");
+    try {
+      const reference = await saveSimulation();
+      const { getAttribution } = await import("@/lib/attribution");
       const { getConsentPayload } = await import("@/lib/consent");
-    // L'id est généré côté client : les visiteurs n'ont pas le droit de relire
-    // la table leads, donc un insert avec retour de représentation échouerait.
-    const newLeadId =
-      typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : undefined;
-    const { error } = await supabase.from("leads").insert({
-      ...(newLeadId ? { id: newLeadId } : {}),
-      first_name: "Prospect",
-      last_name: "Solaire",
-      email: parsed.data.email, phone: parsed.data.phone,
-      address: sim.city || "Non renseignée",
-      postal_code: sim.postalCode, city: sim.city || "Non renseignée",
-      property_type: sim.housing || null,
-      is_owner: sim.ownership === "oui",
-      needs: ["solaire", ...sim.equipments, ...(sim.batteryInterest === "oui" ? ["batterie"] : [])],
-      notes: JSON.stringify(payload),
-      attribution: getAttribution(),
-          consent: getConsentPayload(),
-    });
-
-
-    setSubmitting(false);
-
-    if (error) {
-      console.error("[simulateur-solaire] insert lead échoué", error);
+      const { data, error } = await supabase.functions.invoke("solar-simulation", {
+        body: { action: "attach", reference, token: simulationToken.current, contact: {
+          email: parsed.data.email, phone: parsed.data.phone, attribution: getAttribution(),
+          consent: { ...getConsentPayload(true), terms_accepted: true, terms_url: "/conditions-utilisation", purpose: "simulation-solaire-contact", version: "solar-contact-2" },
+        } },
+      });
+      if (error || !data?.leadId) throw new Error("Contact non enregistré");
+      setLeadId(data.leadId);
+    } catch {
+      setSubmitting(false);
       toast.error("Une erreur est survenue. Merci de réessayer dans quelques minutes.");
       return;
     }
-    setLeadId(newLeadId ?? null);
+    setSubmitting(false);
     trackLead(lead.email);
     // Meta Pixel — événement Lead (conversion)
     import("@/lib/metaPixel").then(({ trackMetaLead }) =>
@@ -623,8 +625,8 @@ export default function SimulateurSolaireLead() {
 
     setSubmitting(true);
     if (leadId) {
-      const { error } = await supabase.functions.invoke("update-lead-name", {
-        body: { leadId, firstName, lastName },
+      const { error } = await supabase.functions.invoke("solar-simulation", {
+        body: { action: "name", reference: simulationCode, token: simulationToken.current, fullName: parsed.data.fullName },
       });
       setSubmitting(false);
       if (error) {
@@ -643,7 +645,7 @@ export default function SimulateurSolaireLead() {
     sim, region, annualBill, savingsMin, savingsMax, savingsMid, savings25,
     aidesMin, aidesMax, roi, co2, trees, suggest, installCost,
     showBattery, setShowBattery, savingsWithBattery, batteryCost, roiWithBattery,
-    unlocked, engine, engineOptimal, viewOptimal, setViewOptimal, compRows,
+    unlocked, engine, engineOptimal, viewOptimal, setViewOptimal, compRows, simulationCode,
   };
 
   /** Scénario affiché (avec ou sans batterie) — pilote tous les chiffres de l'aperçu final.
@@ -699,7 +701,7 @@ export default function SimulateurSolaireLead() {
       <Header />
       <FranceRenovBanner />
 
-      <main className={`relative isolate overflow-hidden ${step === 0 ? "" : "min-h-[70vh] pb-20"}`}>
+      <main className={`solar-simulator relative isolate overflow-hidden ${step === 0 ? "" : "min-h-[70vh] pb-20"}`}>
         {step !== 0 && <SolarBackdrop />}
 
         {step === 0 && <EntryHero onStart={() => setStep(1)} />}
@@ -964,8 +966,8 @@ export default function SimulateurSolaireLead() {
       </main>
 
       {/* Lead modal redesigné */}
-      <Dialog open={showLeadModal && !isMobile} onOpenChange={(o) => !submitting && setShowLeadModal(o)}>
-        <DialogContent className="max-w-2xl p-0 overflow-hidden [&>button]:hidden border-0">
+      <Dialog open={showLeadModal} onOpenChange={(o) => !submitting && setShowLeadModal(o)}>
+        <DialogContent className="solar-simulator w-[calc(100%-2rem)] max-w-2xl max-h-[90dvh] p-0 overflow-y-auto [&>button]:hidden border-0" onOpenAutoFocus={event => { if (isMobile) event.preventDefault(); }} onCloseAutoFocus={event => event.preventDefault()}>
           <button
             type="button"
             onClick={() => !submitting && setShowLeadModal(false)}
@@ -1083,6 +1085,11 @@ export default function SimulateurSolaireLead() {
 
             {/* Right : formulaire */}
             <div className="bg-white p-6 md:p-7">
+              <div className="md:hidden mb-4 pr-8">
+                <p className="text-sm font-semibold text-foreground">Vos gains estimés · {regionDisplayName(region.id, region.label)}</p>
+                <p className="text-2xl font-black text-foreground">{dispYearly.toLocaleString("fr-FR")} € / an</p>
+                <p className="text-xs text-muted-foreground">{suggest.kwc} kWc · {showBattery ? "Avec batterie" : "Sans batterie"}</p>
+              </div>
               <DialogHeader className="text-left space-y-1.5 mb-5">
                 <DialogTitle className="text-2xl font-bold text-slate-900 leading-tight">
                   Débloquez votre étude complète
@@ -1124,7 +1131,7 @@ export default function SimulateurSolaireLead() {
                 <div className="flex items-start gap-2 pt-1 rounded-lg bg-slate-50 border border-slate-200 p-2.5">
                   <Checkbox id="lead-consent" checked={lead.consent} onCheckedChange={(c) => setLead({ ...lead, consent: c === true })} className="mt-0.5" />
                   <label htmlFor="lead-consent" className="text-[11px] text-slate-600 leading-snug cursor-pointer">
-                    J'accepte d'être recontacté par email et/ou par appel téléphonique dans le cadre de ma simulation solaire.
+                    J'accepte les <Link to="/conditions-utilisation" target="_blank" rel="noopener noreferrer" className="underline">CGU</Link> et d'être recontacté par email et/ou par appel téléphonique dans le cadre de ma simulation solaire par un partenaire agréé. <Link to="/politique-confidentialite" target="_blank" rel="noopener noreferrer" className="underline">Politique de confidentialité</Link>.
                   </label>
                 </div>
                 {leadErrors.consent && <p className="text-xs text-destructive">{leadErrors.consent}</p>}
@@ -1169,7 +1176,7 @@ export default function SimulateurSolaireLead() {
 
       {/* Étape "On y est presque !" — Nom complet */}
       <Dialog open={showNameModal} onOpenChange={(o) => { if (!submitting) { setShowNameModal(o); if (!o) window.scrollTo({ top: 0, behavior: "instant" }); } }}>
-        <DialogContent className="max-w-md p-0 max-h-[90dvh] overflow-y-auto border-0" onCloseAutoFocus={(event) => { event.preventDefault(); window.scrollTo({ top: 0, behavior: "instant" }); }}>
+        <DialogContent className="solar-simulator w-[calc(100%-2rem)] max-w-md p-0 max-h-[90dvh] overflow-y-auto border-0" onCloseAutoFocus={(event) => { event.preventDefault(); window.scrollTo({ top: 0, behavior: "instant" }); }}>
           <div className="relative bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 p-6 text-slate-900">
             <div className="absolute -top-16 -right-16 w-52 h-52 rounded-full bg-yellow-200/40 blur-3xl" aria-hidden />
             <div className="absolute -bottom-16 -left-10 w-40 h-40 rounded-full bg-orange-300/30 blur-3xl" aria-hidden />
@@ -1655,7 +1662,7 @@ const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
           {REGION_SHAPES[region.id] && (
             <img src={REGION_SHAPES[region.id]} alt={`Silhouette ${regionName}`} className="w-8 h-8 md:w-9 md:h-9 object-contain shrink-0 opacity-90" loading="lazy" />
           )}
-          <p className="font-semibold text-slate-900 text-xs md:text-sm truncate">
+          <p className="min-w-0 font-semibold text-slate-900 text-xs md:text-sm break-words">
             {regionName}{sim.city ? ` · ${sim.city}` : ""}
             <span className="font-normal text-slate-500"> — simulation adaptée à votre ensoleillement</span>
           </p>
@@ -1672,16 +1679,16 @@ const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
                 ? "border-sky-500 bg-gradient-to-br from-sky-50 to-blue-50 shadow-md"
                 : "border-slate-400 bg-white shadow-md"
           }`}>
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
                 {isRecoChoice && <Star className="w-4 h-4 shrink-0 fill-amber-500 text-amber-500" />}
                 <div className="min-w-0">
-                  <p className="text-sm md:text-base font-bold text-slate-900 truncate">{selectedRoof.label}</p>
-                  <p className="text-[11px] md:text-xs text-slate-500 truncate">{selectedRoof.desc}</p>
+                  <p className="text-sm md:text-base font-bold text-slate-900 break-words">{selectedRoof.label}</p>
+                  <p className="text-[11px] md:text-xs text-slate-500 break-words">{selectedRoof.desc}</p>
                 </div>
               </div>
               {isRecoChoice ? (
-                <span className="text-[10px] md:text-[11px] font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
+                <span className="self-start max-w-full text-[10px] md:text-[11px] font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full whitespace-normal">
                   Le plus courant {prep} {regionName}
                 </span>
               ) : (
@@ -1830,26 +1837,26 @@ const Step6Bill = ({ sim, setSim }: { sim: Sim; setSim: any }) => (
 // ---------- Step 7 : Projet (horizon + devis) ----------
 const Step7Project = ({ sim, setSim, region: _region }: { sim: Sim; setSim: any; region: any }) => (
   <div>
-    <StepTitle icon={CalendarClock} title="Votre projet solaire" subtitle="Dernières précisions pour finaliser votre estimation personnalisée." />
+      <StepTitle icon={CalendarClock} title="Votre projet solaire" subtitle="Dernières précisions pour finaliser votre estimation personnalisée." inline />
 
     {/* Horizon */}
     <div>
       <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
         <CalendarClock className="w-4 h-4 text-orange-600" /> À quel horizon envisagez-vous ce projet ?
       </h3>
-      <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         {PROJECT_HORIZONS.map((h) => (
-          <button key={h.id} type="button" onClick={() => setSim({ ...sim, projectHorizon: h.id })}
-            className={`p-3.5 rounded-xl border-2 text-left transition-all ${sim.projectHorizon === h.id ? "border-orange-500 bg-gradient-to-br from-amber-50 to-orange-50 shadow-md -translate-y-0.5" : "border-slate-200 bg-white hover:border-amber-400"}`}>
+          <Button variant="outline" key={h.id} type="button" aria-pressed={sim.projectHorizon === h.id} onClick={() => setSim({ ...sim, projectHorizon: h.id })}
+            className={`block min-w-0 h-auto min-h-16 p-2.5 md:p-3.5 whitespace-normal rounded-lg border-2 text-left transition-all ${sim.projectHorizon === h.id ? "border-primary bg-accent shadow-md" : "border-border bg-background"}`}>
             <p className="text-sm font-bold text-slate-900">{h.label}</p>
             <p className="text-[11px] text-slate-500 mt-0.5">{h.desc}</p>
-          </button>
+          </Button>
         ))}
       </div>
     </div>
 
     {/* Devis */}
-    <div className="mt-7">
+    <div className="mt-4 md:mt-7">
       <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
         <FileText className="w-4 h-4 text-orange-600" /> Avez-vous déjà reçu un devis solaire ?
         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">Facultatif</span>
@@ -2131,7 +2138,7 @@ const ResultsPanel = ({
   sim, region, annualBill, savingsMin, savingsMax, savingsMid, savings25,
   aidesMin, aidesMax, roi, co2, trees, suggest, installCost,
   showBattery, setShowBattery, savingsWithBattery, batteryCost, roiWithBattery,
-  unlocked, engine, engineOptimal, viewOptimal, setViewOptimal, compRows, onUnlockClick, onEdit, hideMobileSticky,
+  unlocked, engine, engineOptimal, viewOptimal, setViewOptimal, compRows, onUnlockClick, onEdit, hideMobileSticky, simulationCode,
 }: any) => {
   const housingLabel = HOUSING.find((h) => h.id === sim.housing)?.label || "—";
   const surfaceLabel = typeof sim.surface === "number" ? `${sim.surface} m²` : "—";
@@ -2219,6 +2226,7 @@ const ResultsPanel = ({
   return (
     <div className="solar-report-print bg-white rounded-3xl shadow-[0_30px_80px_-20px_hsl(24_60%_8%/0.55)] border border-amber-300/40 overflow-hidden">
       <p className="px-4 py-2 text-xs text-muted-foreground bg-background">Prime Énergies · Compte rendu de simulation solaire · {new Date().toLocaleDateString('fr-FR')}</p>
+      {simulationCode && <p className="px-4 pb-3 text-xs font-mono break-all bg-background text-foreground">Code simulation : {simulationCode}</p>}
       {unlocked && <div data-pdf-exclude className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-4 bg-background">
         <Button variant="outline" className="gap-2 whitespace-normal h-auto py-2" onClick={async (event) => {
           const report = event.currentTarget.closest<HTMLElement>('.solar-report-print');
@@ -2399,8 +2407,8 @@ const ResultsPanel = ({
                   <>
                     {/* Configuration la plus avantageuse — encadrée et badgée */}
                     <div className="relative p-5 rounded-2xl border-2 border-amber-400 bg-amber-50/60">
-                      <span className="absolute -top-3 left-4 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-slate-900 text-[11px] font-black uppercase tracking-wider shadow-md">
-                        <Star className="w-3 h-3" /> Le meilleur choix pour vous
+                      <span className="relative mb-3 max-w-full inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-slate-900 text-[11px] font-black uppercase tracking-wider shadow-md">
+                        <Star className="w-3 h-3 shrink-0" /> Le meilleur choix pour vous
                       </span>
                       <p className="mt-1 text-sm font-bold text-slate-900">
                         {best.sc.puissanceKwc} kWc, {best.sc.nbPanneaux} panneaux{best.bat ? " + batterie" : ""}
@@ -2437,7 +2445,7 @@ const ResultsPanel = ({
                       )}
                       {best.sc.plancher && (
                         <p className="mt-3 rounded-xl bg-white border border-amber-200 px-3 py-2 text-[12px] text-slate-700 leading-relaxed">
-                          Votre consommation est modeste : la plus petite installation de notre gamme (3 kWc) produira un peu plus que vos besoins. Le surplus est revendu à EDF. Une puissance inférieure peut être étudiée lors de l'appel conseil.
+                          Votre consommation est modeste : la plus petite installation proposée par nos partenaires agréés (3 kWc) produira un peu plus que vos besoins. Le surplus est revendu à EDF. Une puissance inférieure peut être étudiée lors de l'appel conseil.
                         </p>
                       )}
                     </div>
@@ -2841,8 +2849,8 @@ const ResultsPanel = ({
 
           {/* CTA final */}
           <div className="text-center">
-            <Button size="lg" className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold px-10 py-7 rounded-full shadow-[0_15px_40px_-10px_hsl(35_95%_45%/0.7)] hover:scale-105 transition-all" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-              <Sun className="w-4 h-4 mr-2" /> Confirmer mon estimation avec un conseiller
+            <Button size="lg" className="w-full max-w-full h-auto whitespace-normal bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold px-4 md:px-10 py-4 md:py-7 rounded-full shadow-[0_15px_40px_-10px_hsl(35_95%_45%/0.7)] md:hover:scale-105 transition-all" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+              <Sun className="w-4 h-4 mr-2 shrink-0" /> <span className="min-w-0">Confirmer mon estimation avec un conseiller</span>
             </Button>
             <p className="text-xs text-slate-500 mt-3 max-w-md mx-auto">
               Un conseiller vérifie gratuitement votre toiture, votre consommation réelle, les aides disponibles et la rentabilité estimée.
