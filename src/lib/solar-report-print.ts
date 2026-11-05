@@ -18,6 +18,11 @@ export async function printSolarReport(report: HTMLElement) {
     doc.head.appendChild(clone);
   });
   const snapshot = report.cloneNode(true) as HTMLElement;
+  const sourceImages = report.querySelectorAll<HTMLImageElement>('img');
+  snapshot.querySelectorAll<HTMLImageElement>('img').forEach((image, index) => {
+    const source = sourceImages[index];
+    if (source) { image.src = source.currentSrc || source.src; image.loading = 'eager'; }
+  });
   snapshot.querySelectorAll('button, [data-pdf-exclude], [aria-hidden="true"]').forEach(node => node.remove());
   // Preserve the actual chart sizes instead of recalculating data at paper width.
   const sourceCharts = report.querySelectorAll<HTMLElement>('.recharts-responsive-container');
@@ -31,7 +36,7 @@ export async function printSolarReport(report: HTMLElement) {
     html, body { margin: 0; padding: 0; font-size: 80%; }
     * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
     .solar-report-print { width: 100%; max-width: none; box-shadow: none; }
-    .solar-report-print section, .solar-report-print tr, .recharts-responsive-container { break-inside: avoid; }
+    .solar-report-print section, .solar-report-print tr, .solar-report-print .grid > div, .recharts-responsive-container { break-inside: avoid; }
     .solar-report-print { overflow: visible; }
     .recharts-wrapper, .recharts-surface { max-width: 100%; }
     .recharts-tooltip-wrapper { display: none; }`;

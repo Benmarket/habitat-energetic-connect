@@ -6,6 +6,7 @@ import RegionSubHeader from "@/components/RegionSubHeader";
 import ProfileSelector from "@/components/ProfileSelector";
 import { useAuth } from "@/hooks/useAuth";
 import { useGuidesModule } from "@/hooks/useGuidesModule";
+import { useNavigationLinks } from "@/hooks/useNavigationLinks";
 import { MegaMenu } from "@/components/MegaMenu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +25,7 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const guidesModule = useGuidesModule();
+  const navigationLinks = useNavigationLinks();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUserMenuExpanded, setIsUserMenuExpanded] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -548,7 +550,7 @@ const Header = () => {
                 </div>
               )}
               <Link
-                to="/#offres"
+                to={navigationLinks.offres}
                 className="text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -556,7 +558,7 @@ const Header = () => {
               </Link>
               {guidesModule.enabled && !guidesModule.hideFromNav && (
                 <Link
-                  to="/guides"
+                  to={navigationLinks.guides}
                   className="text-foreground hover:text-primary transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -571,14 +573,14 @@ const Header = () => {
                 Aides
               </Link>
               <Link
-                to="/actualites"
+                to={navigationLinks.actualite}
                 className="text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Actualité
               </Link>
               <Link
-                to="/#simulateurs"
+                to={navigationLinks.simulateurs}
                 className="text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >

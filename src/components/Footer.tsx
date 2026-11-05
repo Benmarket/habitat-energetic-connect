@@ -5,9 +5,11 @@ import { NewsletterForm } from "@/components/NewsletterForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useSiteMode } from "@/hooks/useSiteMode";
 import { useGuidesModule } from "@/hooks/useGuidesModule";
+import { useNavigationLinks } from "@/hooks/useNavigationLinks";
 
 const Footer = () => {
   const guidesModule = useGuidesModule();
+  const navigationLinks = useNavigationLinks();
   const { mode: siteMode } = useSiteMode();
   const [headerFooterSettings, setHeaderFooterSettings] = useState({
     showPhone: false,
@@ -112,10 +114,10 @@ const Footer = () => {
                     Guides
                   </Link>
                 )}
-                <Link to="/#offres" className="text-white/70 hover:text-white transition-colors text-sm">
+                <Link to={navigationLinks.offres} className="text-white/70 hover:text-white transition-colors text-sm">
                   Offres
                 </Link>
-                <Link to="/#simulateurs" className="text-white/70 hover:text-white transition-colors text-sm">
+                <Link to={navigationLinks.simulateurs} className="text-white/70 hover:text-white transition-colors text-sm">
                   Simulateurs
                 </Link>
               </nav>

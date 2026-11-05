@@ -1,4 +1,5 @@
 # Architecture rules
+- Header, mobile menu and footer section links use the shared navigation resolver and configured homepage anchors to prevent viewport-specific broken destinations.
 - Solar PDF export prints a snapshot of the rendered report and SVG charts in an isolated document, without recalculating values, to keep screen and paper consistent.
 - Optional solar roof previews have an error boundary so a failed media download cannot interrupt lead capture or calculations.
 - Manual Actualité publication uses a shared explicit newsletter-choice dialog; keep publication success independent from email outcomes.

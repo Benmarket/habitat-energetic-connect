@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FileText, Calculator, Newspaper, User, Briefcase } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigationLinks } from "@/hooks/useNavigationLinks";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -111,6 +112,7 @@ const megaMenuData = {
 
 export const MegaMenu = () => {
   const navigate = useNavigate();
+  const navigationLinks = useNavigationLinks();
   const [sectionVisibility, setSectionVisibility] = useState<Record<string, boolean>>({
     offres: true,
     guides: true,
@@ -121,7 +123,7 @@ export const MegaMenu = () => {
 
   // Handle click navigation for menu items
   const handleMenuClick = (menuKey: string) => {
-    const link = MENU_CLICK_LINKS[menuKey];
+    const link = navigationLinks[menuKey as keyof typeof navigationLinks];
     if (!link) return;
     
     if (link.includes('#')) {
@@ -210,7 +212,7 @@ export const MegaMenu = () => {
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
               <Link
-                to="/#offres"
+                to={navigationLinks.offres}
                 onClick={() => handleMenuClick('offres')}
                 className="inline-flex items-center px-2 py-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
               >
