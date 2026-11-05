@@ -13,8 +13,8 @@
 - [x] Vérifier les fenêtres sur les deux pages, sans envoyer ni rattraper d’anciens emails.
 
 # Navigation mobile et rapport solaire
-- [ ] Vérifier et corriger tous les liens du header et du footer sur mobile et ordinateur.
-- [ ] Recentrer la boussole et supprimer son débordement mobile.
-- [ ] Afficher le résultat débloqué en haut de page sur mobile et ordinateur.
-- [ ] Ajouter un compte rendu PDF fidèle au résultat et des avertissements partagés.
-- [ ] Vérifier le parcours, les liens et le PDF.
+- [x] Vérifier et corriger tous les liens du header et du footer sur mobile et ordinateur.
+- [x] Recentrer la boussole et supprimer son débordement mobile.
+- [x] Afficher le résultat débloqué en haut de page sur mobile et ordinateur.
+- [x] Ajouter un compte rendu PDF fidèle au résultat et des avertissements partagés.
+- [x] Vérifier le parcours, les liens et le PDF.
