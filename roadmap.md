@@ -1,9 +1,9 @@
 # Consentements des formulaires
 
 # Métadonnées de l’accueil
-- [ ] Raccorder les paramètres généraux au HTML initial et à l’accueil avec une version unique par publication.
-- [ ] Appliquer la méta-description choisie et expliquer quand les réglages deviennent publics.
-- [ ] Tester les valeurs enregistrées, les changements de paramètres, les doublons et la stabilité avant/après chargement.
+- [x] Raccorder les paramètres généraux au HTML initial et à l’accueil avec une version unique par publication.
+- [x] Appliquer la méta-description choisie et expliquer quand les réglages deviennent publics.
+- [x] Tester les valeurs enregistrées, les changements de paramètres, les doublons et la stabilité avant/après chargement.
 
 - [x] Inventorier les consentements de contact, y compris les fenêtres et formulaires dynamiques.
 - [x] Ajouter naturellement la mention d’appel sans réécriture des phrases.

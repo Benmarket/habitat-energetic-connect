@@ -5,6 +5,26 @@ import { injectHomepageSeo, homepageSeoPlugin } from "../../scripts/homepage-seo
 import { readFileSync } from "node:fs";
 
 describe("general settings publication snapshot", () => {
+  it("fetches settings once per publication and keeps that version throughout the build", async () => {
+    const fetcher = vi.fn().mockResolvedValue({ ok: true, json: async () => [
+      { key: "site_title", value: "Publication title" },
+      { key: "meta_description", value: "Publication description" },
+    ] });
+    vi.stubGlobal("fetch", fetcher);
+    const plugin = homepageSeoPlugin({ VITE_SUPABASE_URL: "https://example.invalid", VITE_SUPABASE_PUBLISHABLE_KEY: "public-test-key" });
+    const configHook = plugin.configResolved;
+    const transform = plugin.transformIndexHtml;
+    if (typeof configHook !== "function" || !transform || typeof transform === "function" || !("handler" in transform)) throw new Error("Expected plugin hooks");
+    try {
+      (configHook as (config: { command: string }) => void)({ command: "build" });
+      const run = transform.handler as (html: string) => Promise<string>;
+      const initial = await run("<head></head>");
+      expect(await run("<head></head>")).toBe(initial);
+      expect(fetcher).toHaveBeenCalledTimes(1);
+      expect(new JSDOM(initial).window.document.title).toBe("Publication title");
+    } finally { vi.unstubAllGlobals(); }
+  });
+
   it("uses saved title and SEO description, not the commercial slogan", () => {
     expect(resolveHomepageSeo([
       { key: "site_title", value: "Updated title" },
