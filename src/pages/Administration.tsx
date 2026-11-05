@@ -174,6 +174,9 @@ const Administration = () => {
             </div>
 
             {/* Traffic Dashboard (aperçu) */}
+            <div className="mb-6">
+              <Button asChild variant="outline" className="gap-2"><Link to="/admin/simulations-utilisateurs"><Calculator className="w-4 h-4" />Simulations utilisateurs</Link></Button>
+            </div>
             <TrafficDashboard />
 
             {/* 1. Gestion des Utilisateurs - ROUGE */}
