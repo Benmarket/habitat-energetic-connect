@@ -809,7 +809,7 @@ export default function SimulateurSolaireLead() {
 
       {/* Lead modal redesigné */}
       <Dialog open={showLeadModal} onOpenChange={(o) => !submitting && setShowLeadModal(o)}>
-        <DialogContent className="solar-simulator w-[calc(100%-2rem)] max-w-2xl max-h-[90dvh] p-0 overflow-y-auto [&>button]:hidden border-0" onOpenAutoFocus={event => { if (isMobile) event.preventDefault(); }} onCloseAutoFocus={event => event.preventDefault()}>
+        <DialogContent className="solar-simulator w-[calc(100%-2rem)] max-w-2xl max-h-[90dvh] p-0 overflow-y-auto [&>button:last-child]:hidden border-0" onOpenAutoFocus={event => { if (isMobile) event.preventDefault(); }} onCloseAutoFocus={event => event.preventDefault()}>
           <button
             type="button"
             onClick={() => !submitting && setShowLeadModal(false)}
