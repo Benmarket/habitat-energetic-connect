@@ -20,9 +20,9 @@
 - [x] Vérifier le parcours, les liens et le PDF.
 
 # Simulateur solaire mobile et simulations utilisateurs
-- [ ] Corriger les boutons, les libellés toiture, la densité Projet et le badge recommandé sur mobile.
-- [ ] Recentrer la fenêtre résultat après l’animation et ajouter les liens CGU au consentement.
-- [ ] Présenter les installations comme celles des partenaires agréés, FRH Environnement étant le partenaire officiel.
-- [ ] Enregistrer une référence unique et le résultat exact de chaque simulation terminée, reliés au lead.
-- [ ] Ajouter la liste, la recherche par code et le détail dans le panel, réservés au super_admin.
-- [ ] Tester le parcours mobile, la sauvegarde, la recherche et les contrôles d’accès sans changer les calculs.
+- [x] Corriger les boutons, les libellés toiture, la densité Projet et le badge recommandé sur mobile.
+- [x] Recentrer la fenêtre résultat après l’animation et ajouter les liens CGU au consentement.
+- [x] Présenter les installations comme celles des partenaires agréés, FRH Environnement étant le partenaire officiel.
+- [x] Enregistrer une référence unique et le résultat exact de chaque simulation terminée, reliés au lead.
+- [x] Ajouter la liste, la recherche par code et le détail dans le panel, réservés au super_admin.
+- [x] Tester le parcours mobile, la sauvegarde, la recherche et les contrôles d’accès sans changer les calculs.
