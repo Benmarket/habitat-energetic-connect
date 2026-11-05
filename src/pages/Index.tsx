@@ -25,6 +25,7 @@ import ContactSection from "@/components/ContactSection";
 import AppDownloadSection from "@/components/AppDownloadSection";
 import { supabase } from "@/integrations/supabase/client";
 import { useRegionContext, RegionCode } from "@/hooks/useRegionContext";
+import { readHomepageSeoSnapshot } from "@/lib/homepage-seo";
 
 interface HomepageSection {
   id: string;
@@ -76,6 +77,7 @@ const SECTION_COMPONENTS: Record<string, React.FC> = {
 };
 
 const Index = () => {
+  const [seo] = useState(readHomepageSeoSnapshot);
   const [sections, setSections] = useState<HomepageSection[]>(DEFAULT_SECTIONS);
   const { activeRegion } = useRegionContext();
   const location = useLocation();
@@ -182,21 +184,25 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>Prime Énergies | Réduisez vos factures énergétiques jusqu'à 80%</title>
+        <title>{seo.title}</title>
         <meta 
           name="description" 
-          content="Bénéficiez d'une étude énergétique gratuite et découvrez les travaux subventionnés adaptés à votre logement. Panneaux solaires, pompe à chaleur, isolation." 
+          content={seo.description}
         />
         <link rel="canonical" href="https://prime-energies.fr/" />
         <meta property="og:url" content="https://prime-energies.fr/" />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Prime Énergies | Réduisez vos factures énergétiques jusqu'à 80%" />
-        <meta property="og:description" content="Bénéficiez d'une étude énergétique gratuite et découvrez les travaux subventionnés adaptés à votre logement. Panneaux solaires, pompe à chaleur, isolation." />
+        <meta property="og:title" content={seo.title} />
+        <meta property="og:description" content={seo.description} />
         <meta property="og:locale" content="fr_FR" />
-        <meta property="og:site_name" content="Prime Énergies" />
+        <meta property="og:site_name" content={seo.siteName} />
+        <meta property="og:image" content="https://prime-energies.fr/og-default.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Prime Énergies | Réduisez vos factures énergétiques jusqu'à 80%" />
-        <meta name="twitter:description" content="Bénéficiez d'une étude énergétique gratuite et découvrez les travaux subventionnés adaptés à votre logement. Panneaux solaires, pompe à chaleur, isolation." />
+        <meta name="twitter:title" content={seo.title} />
+        <meta name="twitter:description" content={seo.description} />
+        <meta name="twitter:image" content="https://prime-energies.fr/og-default.jpg" />
       </Helmet>
       <OrganizationSchema />
       <WebSiteSchema />

@@ -25,6 +25,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { SiteModeCard } from "@/components/admin/SiteModeCard";
+import { DEFAULT_HOME_DESCRIPTION } from "@/lib/homepage-seo";
 
 // Types pour les régions
 type RegionCode = "fr" | "corse" | "reunion" | "martinique" | "guadeloupe" | "guyane";
@@ -316,7 +317,7 @@ const AdminSettings = () => {
     contactEmail: "contact@prime-energies.fr",
     contactPhone: "01 23 45 67 89",
     address: "123 Rue de l'Énergie, 75001 Paris",
-    metaDescription: "Bénéficiez d'une étude énergétique gratuite et découvrez les travaux subventionnés adaptés à votre logement.",
+    metaDescription: DEFAULT_HOME_DESCRIPTION,
     maintenanceMode: false,
     maintenanceMessage: "Site en maintenance. Nous reviendrons bientôt!",
     aiApiUrl: "https://api.openai.com/v1/chat/completions",
@@ -893,7 +894,7 @@ const AdminSettings = () => {
         const loadedGeneral = {
           siteName: siteTitle?.value as string || "Prime Énergies",
           siteDescription: siteDescription?.value as string || "Réduisez vos factures énergétiques jusqu'à 80%",
-          metaDescription: metaDescription?.value as string || "Bénéficiez d'une étude énergétique gratuite et découvrez les travaux subventionnés adaptés à votre logement.",
+          metaDescription: metaDescription?.value as string || DEFAULT_HOME_DESCRIPTION,
           contactEmail: contactEmail?.value as string || "contact@prime-energies.fr",
           contactPhone: contactPhone?.value as string || "01 23 45 67 89",
           address: address?.value as string || "123 Rue de l'Énergie, 75001 Paris",
@@ -1258,7 +1259,7 @@ const AdminSettings = () => {
 
       toast({
         title: "Paramètres sauvegardés",
-        description: "Toutes les modifications ont été enregistrées avec succès",
+        description: "Modifications enregistrées. Le titre et la méta-description de l’accueil seront appliqués au site public à la prochaine publication.",
       });
     } catch (error: any) {
       console.error("Error saving settings:", error);
@@ -2200,7 +2201,7 @@ const AdminSettings = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="siteName">Nom du site</Label>
+                    <Label htmlFor="siteName">Nom du site / Titre SEO de l’accueil</Label>
                     <Input
                       id="siteName"
                       value={settings.siteName}
@@ -2229,7 +2230,7 @@ const AdminSettings = () => {
                       rows={3}
                     />
                     <p className="text-sm text-muted-foreground mt-1">
-                      Maximum 160 caractères recommandés
+                      Maximum 160 caractères recommandés. Le titre et cette description sont repris dans les aperçus de partage à la prochaine publication. Le slogan reste séparé du titre SEO.
                     </p>
                   </div>
                 </CardContent>
