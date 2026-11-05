@@ -2536,6 +2536,41 @@ export type Database = {
         }
         Relationships: []
       }
+      solar_simulations: {
+        Row: {
+          access_hash: string
+          created_at: string
+          id: string
+          lead_id: string | null
+          reference: string
+          snapshot: Json
+        }
+        Insert: {
+          access_hash: string
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          reference?: string
+          snapshot: Json
+        }
+        Update: {
+          access_hash?: string
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          reference?: string
+          snapshot?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solar_simulations_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       solar_simulator_global_params: {
         Row: {
           angle_inclinaison: number
@@ -2929,6 +2964,10 @@ export type Database = {
       }
     }
     Functions: {
+      attach_solar_simulation: {
+        Args: { p_access_hash: string; p_contact: Json; p_reference: string }
+        Returns: Json
+      }
       check_ad_analytics_rate: {
         Args: { p_visitor_id: string }
         Returns: boolean
@@ -2975,6 +3014,10 @@ export type Database = {
       }
       get_simulator_tracking_stats: {
         Args: { p_end: string; p_simulator_id: string; p_start: string }
+        Returns: Json
+      }
+      get_solar_simulations: {
+        Args: { p_offset?: number; p_reference?: string; p_search?: string }
         Returns: Json
       }
       get_user_id_by_email: { Args: { _email: string }; Returns: string }
