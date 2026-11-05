@@ -23,6 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSimulatorTracking } from "@/hooks/useSimulatorTracking";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { printSolarReport } from "@/lib/solar-report-print";
+import { SolarRoofErrorBoundary } from "@/components/SolarRoofErrorBoundary";
 import {
   Sun, Check, ArrowLeft, ArrowRight, MapPin, Home, Building2, Store, Building,
   Compass, Snowflake, Flame, Thermometer, Waves, Car, Plug, HelpCircle, Ruler,
@@ -1725,7 +1726,7 @@ const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
           </div>
           <div className="absolute top-2.5 right-2.5 z-10 text-[10px] text-white font-medium bg-sky-900/60 backdrop-blur px-2 py-1 rounded-full border border-sky-600">Rotation automatique</div>
           <div className="h-[200px] md:h-[240px]">
-            <RoofPreview3D url={modelUrl} />
+            <SolarRoofErrorBoundary key={modelUrl}><RoofPreview3D url={modelUrl} /></SolarRoofErrorBoundary>
           </div>
         </div>
       )}
@@ -2217,6 +2218,7 @@ const ResultsPanel = ({
 
   return (
     <div className="solar-report-print bg-white rounded-3xl shadow-[0_30px_80px_-20px_hsl(24_60%_8%/0.55)] border border-amber-300/40 overflow-hidden">
+      <p className="px-4 py-2 text-xs text-muted-foreground bg-background">Prime Énergies · Compte rendu de simulation solaire · {new Date().toLocaleDateString('fr-FR')}</p>
       {unlocked && <div data-pdf-exclude className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-4 bg-background">
         <Button variant="outline" className="gap-2 whitespace-normal h-auto py-2" onClick={async (event) => {
           const report = event.currentTarget.closest<HTMLElement>('.solar-report-print');
