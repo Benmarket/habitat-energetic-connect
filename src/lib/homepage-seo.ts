@@ -22,8 +22,11 @@ export function resolveHomepageSeo(rows: { key: string; value: unknown }[]): Hom
 /** Read the publication snapshot, never newer settings after the first paint. */
 export function readHomepageSeoSnapshot(): HomepageSeo {
   const fallback = resolveHomepageSeo([]);
-  if (typeof document === "undefined") return fallback;
-  const raw = document.getElementById("homepage-seo-snapshot")?.textContent;
+  // Structural type also allows the build-side resolver to compile without DOM libs.
+  const doc = (globalThis as typeof globalThis & {
+    document?: { getElementById(id: string): { textContent: string | null } | null };
+  }).document;
+  const raw = doc?.getElementById("homepage-seo-snapshot")?.textContent;
   if (!raw) return fallback;
   try {
     const value = JSON.parse(raw) as HomepageSeo;
