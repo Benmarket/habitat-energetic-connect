@@ -16,9 +16,12 @@ export function PublishNewsletterDialog({ open, onOpenChange, onConfirm }: {
     <DialogContent className="max-w-lg w-[calc(100%-2rem)]">
       <DialogHeader>
         <DialogTitle>Publier cet article</DialogTitle>
-        <DialogDescription>Voulez-vous envoyer également cet article à vos membres de la newsletter ?</DialogDescription>
+        <DialogDescription>Voulez-vous envoyer un mail aux membres de la newsletter ?</DialogDescription>
       </DialogHeader>
-      <p className="text-sm text-muted-foreground">L’envoi newsletter est actuellement indisponible : un service newsletter dédié doit être connecté. « Oui » enregistre votre demande, sans envoyer de mail pour le moment.</p>
+      <div className="border border-border rounded-md p-3 space-y-2">
+        <p className="text-sm font-semibold">Système non encore appliqué — non fonctionnel</p>
+        <p className="text-sm text-muted-foreground">« Oui » conserve uniquement une trace de votre demande. Aucun email ne sera envoyé ni programmé pour plus tard. « Non » publie sans demander d’envoi. Les anciens emails manquants ne seront pas relancés.</p>
+      </div>
       <DialogFooter className="gap-2">
         <Button variant="outline" disabled={busy} onClick={() => confirm(false)}>Non, publier sans email</Button>
         <Button disabled={busy} onClick={() => confirm(true)}>{busy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}Oui, demander l’envoi</Button>

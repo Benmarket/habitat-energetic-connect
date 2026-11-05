@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, AlertTriangle } from "lucide-react";
+import { Loader2, ArrowLeft, AlertTriangle, Mail } from "lucide-react";
 import { ArticlePreviewModal } from "@/components/ArticlePreviewModal";
 import { ArticleReviewModal } from "@/components/ArticleReviewModal";
 import { GuideRegenerateCompareModal } from "@/components/GuideRegenerateCompareModal";
@@ -15,6 +15,7 @@ import { AuthorSelectModal } from "@/components/AuthorSelectModal";
 import { ArticleGenerationWizard } from "@/components/ArticleGenerationWizard";
 import { useCreatePost, sectionsToContent } from "@/hooks/useCreatePost";
 import { PublishNewsletterDialog } from "@/components/PublishNewsletterDialog";
+import { ArticleEmailStatsDialog } from "@/components/ArticleEmailStatsDialog";
 import { useArticleGeneration } from "@/hooks/useArticleGeneration";
 import { detectUnconnectedCTAs } from "@/utils/contentRenderer";
 import {
@@ -61,6 +62,7 @@ const CreatePost = () => {
   const [aiInstructionsModalOpen, setAiInstructionsModalOpen] = useState(false);
   const [authorModalOpen, setAuthorModalOpen] = useState(false);
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [emailStatsOpen, setEmailStatsOpen] = useState(false);
 
   const currentContent = contentType === "guide" 
     ? sectionsToContent(formData.guide_sections) 
@@ -102,7 +104,10 @@ const CreatePost = () => {
                   {editId ? "Éditer" : "Créer"} un{" "}
                   {contentTypeLabels[contentType as keyof typeof contentTypeLabels]}
                 </CardTitle>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {contentType === "actualite" && <Button type="button" variant="outline" size="sm" onClick={() => setEmailStatsOpen(true)} className="gap-2" title="État des emails de cet article">
+                    <Mail className="h-4 w-4" /> État des emails
+                  </Button>}
                   <Button type="button" variant="outline" size="sm"
                     onClick={openReviewModal}
                     disabled={!formData.title || !formData.content} className="gap-2 text-yellow-600 border-yellow-300 hover:bg-yellow-50">
@@ -189,6 +194,7 @@ const CreatePost = () => {
         <Footer />
 
         <PublishNewsletterDialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen} onConfirm={async (send) => { await handleSubmit({ preventDefault: () => {} }, "published", send); }} />
+        <ArticleEmailStatsDialog article={emailStatsOpen ? { id: editId ?? undefined, title: formData.title || "Nouvel article" } : null} onClose={() => setEmailStatsOpen(false)} />
         <ArticleGenerationWizard
           open={wizardOpen}
           onOpenChange={setWizardOpen}
