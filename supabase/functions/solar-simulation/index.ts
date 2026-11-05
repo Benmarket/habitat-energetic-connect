@@ -14,7 +14,7 @@ Deno.serve(async req => {
     const access_hash = await hash(body.token);
     if (body.action === 'create') {
       const snapshot = body.snapshot;
-      if (!snapshot || JSON.stringify(snapshot).length > 180000 || !/^\d{5}$/.test(snapshot.inputs?.postalCode ?? '') || snapshot.engine?.statut !== 'OK') return json({ error: 'Invalid snapshot' }, 400);
+      if (!snapshot || JSON.stringify(snapshot).length > 180000 || !/^\d{5}$/.test(snapshot.inputs?.postalCode ?? '') || !(Number(snapshot.inputs?.monthlyBill) > 0)) return json({ error: 'Invalid snapshot' }, 400);
       const ip = req.headers.get('cf-connecting-ip') || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
       const { data: allowed, error: rateError } = await admin.rpc('check_edge_rate', { p_identifier: ip, p_endpoint: 'solar-simulation', p_max_per_hour: 30 });
       if (rateError || !allowed) return json({ error: 'Rate limited' }, 429);

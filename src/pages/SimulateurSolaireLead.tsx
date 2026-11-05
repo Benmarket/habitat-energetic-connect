@@ -564,7 +564,7 @@ export default function SimulateurSolaireLead() {
   };
 
   useEffect(() => {
-    if (step === 10 && engineReel) void saveSimulation().catch(() => {});
+    if (step === 10) void saveSimulation().catch(() => {});
     // Snapshot once at completion, never overwrite it when switching report views.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
