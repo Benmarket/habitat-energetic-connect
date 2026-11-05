@@ -9,5 +9,5 @@
 - [x] Demander Oui/Non avant publication depuis la liste et l’éditeur.
 - [x] Ajouter les statistiques email par article, réservées au super_admin.
 - [x] Tester les choix sans envoi réel et consulter les statistiques en session super_admin.
-- [ ] Ajouter le suivi email dans l’éditeur et préciser l’état non fonctionnel dans les fenêtres.
-- [ ] Vérifier les fenêtres sur les deux pages, sans envoyer ni rattraper d’anciens emails.
+- [x] Ajouter le suivi email dans l’éditeur et préciser l’état non fonctionnel dans les fenêtres.
+- [x] Vérifier les fenêtres sur les deux pages, sans envoyer ni rattraper d’anciens emails.
