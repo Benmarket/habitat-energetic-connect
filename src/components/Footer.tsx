@@ -175,22 +175,22 @@ const Footer = () => {
           )}
 
           <div className="flex gap-3">
-            {headerFooterSettings.showFacebook && (
+            {headerFooterSettings.showFacebook && headerFooterSettings.facebookLink && (
               <a href={headerFooterSettings.facebookLink || "#"} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="Facebook">
                 <Facebook className="w-4 h-4" />
               </a>
             )}
-            {headerFooterSettings.showTwitter && (
+            {headerFooterSettings.showTwitter && headerFooterSettings.twitterLink && (
               <a href={headerFooterSettings.twitterLink || "#"} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="Twitter">
                 <Twitter className="w-4 h-4" />
               </a>
             )}
-            {headerFooterSettings.showLinkedin && (
+            {headerFooterSettings.showLinkedin && headerFooterSettings.linkedinLink && (
               <a href={headerFooterSettings.linkedinLink || "#"} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="LinkedIn">
                 <Linkedin className="w-4 h-4" />
               </a>
             )}
-            {headerFooterSettings.showYoutube && (
+            {headerFooterSettings.showYoutube && headerFooterSettings.youtubeLink && (
               <a href={headerFooterSettings.youtubeLink || "#"} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="YouTube">
                 <Youtube className="w-4 h-4" />
               </a>

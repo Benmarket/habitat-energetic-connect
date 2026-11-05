@@ -238,6 +238,7 @@ const App = () => (
 
                   {/* Nouveau simulateur solaire grand public (lead-gen) */}
                   <Route path="/simulateurs/solaire" element={<SimulateurSolaireLead />} />
+                  <Route path="/simulateurs" element={<Navigate to="/#simulateurs" replace />} />
                   <Route path="/simulateur-solaire" element={<Navigate to="/simulateurs/solaire" replace />} />
 
                   {/* Email lifecycle pages */}

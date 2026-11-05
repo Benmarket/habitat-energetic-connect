@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useSimulatorTracking } from "@/hooks/useSimulatorTracking";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { printSolarReport } from "@/lib/solar-report-print";
 import {
   Sun, Check, ArrowLeft, ArrowRight, MapPin, Home, Building2, Store, Building,
   Compass, Snowflake, Flame, Thermometer, Waves, Car, Plug, HelpCircle, Ruler,
@@ -224,8 +225,8 @@ const Compass8 = ({ value, onChange, regionId, bumpActive }: { value: Orientatio
     return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
   };
   return (
-    <div className="flex flex-col items-center gap-4">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="drop-shadow-2xl">
+    <div className="flex flex-col items-center gap-4 w-full min-w-0">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="drop-shadow-2xl w-full max-w-[320px] h-auto aspect-square" aria-label="Boussole d’orientation">
         <defs>
           <radialGradient id="compassCenter" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="hsl(48 95% 70%)" />
@@ -395,7 +396,7 @@ export default function SimulateurSolaireLead() {
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
     if (step === 10) window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [step]);
+  }, [step, unlocked]);
 
   // Touche Entrée = bouton Continuer (quand il est disponible)
   useEffect(() => {
@@ -634,6 +635,7 @@ export default function SimulateurSolaireLead() {
     }
     toast.success(`Merci ${firstName} ! Un expert vous recontacte sous 24h.`);
     setShowNameModal(false);
+    window.scrollTo({ top: 0, behavior: "instant" });
   };
 
   const resultsProps = {
@@ -1165,8 +1167,8 @@ export default function SimulateurSolaireLead() {
       </Dialog>
 
       {/* Étape "On y est presque !" — Nom complet */}
-      <Dialog open={showNameModal} onOpenChange={(o) => !submitting && setShowNameModal(o)}>
-        <DialogContent className="max-w-md p-0 overflow-hidden border-0">
+      <Dialog open={showNameModal} onOpenChange={(o) => { if (!submitting) { setShowNameModal(o); if (!o) window.scrollTo({ top: 0, behavior: "instant" }); } }}>
+        <DialogContent className="max-w-md p-0 max-h-[90dvh] overflow-y-auto border-0" onCloseAutoFocus={(event) => { event.preventDefault(); window.scrollTo({ top: 0, behavior: "instant" }); }}>
           <div className="relative bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 p-6 text-slate-900">
             <div className="absolute -top-16 -right-16 w-52 h-52 rounded-full bg-yellow-200/40 blur-3xl" aria-hidden />
             <div className="absolute -bottom-16 -left-10 w-40 h-40 rounded-full bg-orange-300/30 blur-3xl" aria-hidden />
@@ -1608,7 +1610,7 @@ const Step4Orientation = ({ sim, setSim, region, onAdvance }: { sim: Sim; setSim
   return (
     <div>
       <StepTitle icon={Compass} title="Orientation de votre toiture ?" subtitle={`Dans votre zone (${region?.label || "France"}), l'exposition ${ORIENTATIONS.find((o) => o.id === bestOrientation(region?.id))?.label || "Sud"} capte généralement le maximum de soleil, mais d'autres orientations restent intéressantes.`} />
-      <div className="grid md:grid-cols-[1fr_1fr] gap-8 items-center">
+      <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-8 items-center">
         <Compass8 value={sim.orientation} onChange={handleOrientation} regionId={region?.id} bumpActive={bumping} />
         <div className="space-y-3">
           {sim.orientation ? <InfoBanner>{orientationFeedback(sim.orientation as Orientation, region?.id)}</InfoBanner> : (
@@ -2214,7 +2216,15 @@ const ResultsPanel = ({
   }));
 
   return (
-    <div className="bg-white rounded-3xl shadow-[0_30px_80px_-20px_hsl(24_60%_8%/0.55)] border border-amber-300/40 overflow-hidden">
+    <div className="solar-report-print bg-white rounded-3xl shadow-[0_30px_80px_-20px_hsl(24_60%_8%/0.55)] border border-amber-300/40 overflow-hidden">
+      {unlocked && <div data-pdf-exclude className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-4 bg-background">
+        <Button variant="outline" className="gap-2 whitespace-normal h-auto py-2" onClick={async (event) => {
+          const report = event.currentTarget.closest<HTMLElement>('.solar-report-print');
+          if (!report) return;
+          try { await printSolarReport(report); } catch { toast.error('Impossible de préparer le PDF. Réessayez.'); }
+        }}><FileText className="h-4 w-4 shrink-0" /> Télécharger le compte rendu en PDF</Button>
+        <span className="text-xs text-muted-foreground">Choisissez « Enregistrer au format PDF » dans la fenêtre d’impression.</span>
+      </div>}
       {/* HERO — TOUJOURS visible avec le gros chiffre alléchant */}
       <div className="relative bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 px-6 md:px-10 py-10 md:py-12 text-slate-900 overflow-hidden">
         <div className="absolute -top-10 -right-10 w-56 h-56 rounded-full bg-yellow-200/40 blur-3xl" aria-hidden />
@@ -2891,8 +2901,9 @@ const ResultsPanel = ({
           </>
         )}
 
-        <p className="mt-8 text-center text-[11px] leading-relaxed text-slate-400 max-w-2xl mx-auto px-4">
-          Ce simulateur est un outil en ligne gratuit et peut faire des erreurs. Les montants d'économies et de subventions peuvent varier selon votre situation, votre toiture et les dispositifs en vigueur. Une étude personnalisée gratuite peut vous être proposée en fin de parcours.
+        <p className="mt-8 text-center text-sm leading-relaxed text-muted-foreground max-w-2xl mx-auto px-4">
+          Cette simulation gratuite repose sur un calcul automatique à partir des informations renseignées et d’hypothèses régionales. Elle est indicative et peut comporter des erreurs : production, gains, facture, rentabilité et aides éventuelles doivent être vérifiés par un professionnel. Elle ne constitue ni un devis ni une garantie de résultat.
+          {unlocked && <span className="block mt-2">Conformément à votre accord pour être recontacté dans le cadre de cette simulation, un professionnel vous rappellera pour échanger sur votre projet et vérifier ces estimations.</span>}
           <span className="block mt-1 font-medium">Tarifs applicables du 1er août au 31 octobre 2026 — arrêté du 5 janvier 2024, révision T10. Source : CRE open data.</span>
         </p>
 
