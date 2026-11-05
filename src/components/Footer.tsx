@@ -83,7 +83,7 @@ const Footer = () => {
             </Link>
             <p className="text-white/70 mb-6 text-sm leading-relaxed">
               {siteMode === "frh"
-                ? "Votre portail de confiance pour les énergies renouvelables. Nous accompagnons les particuliers avec notre équipe d'installateurs certifiés RGE."
+                ? "Votre portail de confiance pour les énergies renouvelables. Nous vous mettons en relation avec nos partenaires agréés. Partenaire officiel : FRH Environnement."
                 : "Votre portail de confiance pour les énergies renouvelables. Nous connectons les particuliers avec les meilleurs installateurs certifiés de France."}
             </p>
           </div>
