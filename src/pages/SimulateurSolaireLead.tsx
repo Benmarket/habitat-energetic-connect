@@ -790,6 +790,7 @@ export default function SimulateurSolaireLead() {
               </div>
 
               <div className="relative">
+                {saveError && <p role="alert" className="mb-3 text-sm text-destructive">Votre compte rendu n’a pas encore été enregistré. <Button variant="link" onClick={() => void saveSimulation().catch(() => {})}>Réessayer</Button></p>}
                 <ResultsPanel
                   {...resultsProps}
                   hideMobileSticky={isMobile && showLeadModal}
@@ -797,166 +798,7 @@ export default function SimulateurSolaireLead() {
                   onEdit={() => setStep(9)}
                 />
 
-                {/* Popover mobile — apparaît juste sous le chiffre 873€/an, clic hors -> ferme */}
-                {isMobile && showLeadModal && !unlocked && (
-                  <>
-                    <div
-                      className="md:hidden fixed inset-0 z-40 bg-slate-900/30 backdrop-blur-[2px] animate-fade-in"
-                      onClick={() => !submitting && setShowLeadModal(false)}
-                      aria-hidden
-                    />
-                    <div className="md:hidden absolute left-2 right-2 top-[185px] z-50 animate-scale-in">
-                      <div className="bg-white rounded-3xl shadow-[0_25px_70px_-15px_hsl(24_60%_8%/0.55)] border border-amber-200/70 overflow-hidden relative">
-                        <button
-                          onClick={() => !submitting && setShowLeadModal(false)}
-                          className="absolute right-3 top-3 w-8 h-8 inline-flex items-center justify-center rounded-full bg-white/90 hover:bg-white text-slate-700 shadow z-10"
-                          aria-label="Fermer"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
 
-                        {/* Bandeau orange — 5 infos alléchantes */}
-                        <div className="bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 px-4 pt-4 pb-3 text-slate-900">
-                          <div className="flex items-start justify-between gap-2 pr-8">
-                            <div>
-                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-900/75">
-                                Vous avez débloqué {canToggleBattery && <span className="ml-1 normal-case tracking-normal">· {showBattery ? "avec batterie" : "sans batterie"}</span>}
-                              </p>
-                              <div className="flex items-baseline gap-1.5 mt-0.5">
-                                <span className="text-3xl font-black leading-none tabular-nums">
-                                  {(dispYearly > 0 ? dispYearly : 1200).toLocaleString("fr-FR")}
-                                </span>
-                                <span className="text-xl font-black">€</span>
-                                <span className="text-xs font-bold text-slate-900/80">/ an</span>
-                              </div>
-                            </div>
-                            {REGION_SHAPES[region.id] && (
-                              <div className="flex flex-col items-center gap-0.5 shrink-0">
-                                <img
-                                  src={REGION_SHAPES[region.id]}
-                                  alt={`Silhouette ${regionDisplayName(region.id, region.label)}`}
-                                  className="w-9 h-9 object-contain opacity-90"
-                                  loading="lazy"
-                                />
-                                <span className="text-[9px] font-bold uppercase tracking-wide text-slate-900/80 text-center leading-tight max-w-[72px]">
-                                  {regionDisplayName(region.id, region.label)}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                          {canToggleBattery && (
-                            <div className="mt-2.5 inline-flex items-center gap-1 p-0.5 rounded-full bg-slate-900/15 backdrop-blur w-full">
-                              <button
-                                type="button"
-                                onClick={() => setShowBattery(false)}
-                                className={`flex-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide transition-all ${!showBattery ? "bg-white text-slate-900 shadow" : "text-slate-900/70"}`}
-                              >
-                                Sans batterie
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setShowBattery(true)}
-                                className={`flex-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide transition-all inline-flex items-center justify-center gap-1 ${showBattery ? "bg-white text-slate-900 shadow" : "text-slate-900/70"}`}
-                              >
-                                <BatteryCharging className="w-3 h-3" /> Avec batterie
-                              </button>
-                            </div>
-                          )}
-                          <div className="mt-2.5 grid grid-cols-2 gap-1.5">
-                            {[
-                              { icon: PiggyBank, label: `~${dispSavings25.toLocaleString("fr-FR")} € de gains / 25 ans` },
-                              { icon: Coins, label: aidesTileLabel },
-                              { icon: Zap, label: `${suggest.kwc} kWc préconisés` },
-                              { icon: Receipt, label: `Facture ≈ ${dNouvelleFacture.toLocaleString("fr-FR")} €/mois*` },
-                              { icon: LineChart, label: dispRoi ? `Rentabilité ~${dispRoi} ans` : "Rentabilité à l'étude" },
-                              { icon: Leaf, label: `${dispCo2.toLocaleString("fr-FR")} kg CO₂ / an` },
-                              ...(dCouverture !== null ? [{ icon: Sun, label: `${dCouverture} % de vos besoins couverts` }] : []),
-                            ].map((item, i) => (
-                              <div key={i} className="flex items-center gap-1.5 text-[11px] text-slate-900/90 bg-white/30 rounded-md px-2 py-1">
-                                <item.icon className="w-3 h-3 shrink-0" />
-                                <span className="font-semibold leading-tight">{item.label}</span>
-                              </div>
-                            ))}
-                          </div>
-                          {viewOptimal && (
-                            <div className="mt-2"><OptimalBanner orientation={sim.orientation} onBack={() => setViewOptimal(false)} /></div>
-                          )}
-                          {dProdKwh > 0 && (
-                            <div className="mt-2">
-                              <ProductionConditions
-                                score={dScoreOrientation} prodKwh={dProdKwh} autoKwh={dAutoKwh} surplusKwh={dSurplusKwh}
-                                variant="amber" size="sm" orientation={sim.orientation}
-                                prodOptimalKwh={dProdOptimalKwh}
-                                isOptimalView={viewOptimal}
-                                compact
-                              />
-                            </div>
-                          )}
-                          <p className="mt-1.5 text-[9px] text-slate-900/60 italic">* Facture estimée après autoconsommation — varie selon votre consommation réelle. Prix TTC, TVA comprise.</p>
-                          {showBattery && <p className="mt-1 text-[9px] text-slate-900/60 leading-snug">Estimation hors remplacement de la batterie. Une batterie a une durée de vie de 12 à 15 ans ; un remplacement est à prévoir sur un horizon de 25 ans.</p>}
-                          <p className="mt-1 text-[9px] text-slate-900/55 leading-tight">
-                            Base : {engine?.territoire}{sim.city ? ` · ${sim.city}` : ""} · facture {annualBill.toLocaleString("fr-FR")} €/an · {engine?.puissanceKwc ?? suggest.kwc} kWc ({engine?.nbPanneaux ?? suggest.panels} pan.) · {dCost.toLocaleString("fr-FR")} €
-                          </p>
-                        </div>
-
-                        <div className="p-4">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 text-amber-300 text-[10px] font-bold uppercase tracking-wider mb-2">
-                          <Lock className="w-3 h-3" /> Débloquez votre étude
-                        </div>
-                        <h3 className="text-base font-bold text-slate-900 leading-tight pr-6">Débloquez votre étude complète</h3>
-                        <p className="text-slate-600 text-[11px] mt-0.5">Détail par email + un expert vous rappelle sous 24h.</p>
-
-                        <div className="space-y-2.5 mt-3">
-                          <div>
-                            <Label htmlFor="lead-phone-m" className="text-slate-700 font-medium text-xs">Téléphone *</Label>
-                            <div className="relative mt-1">
-                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">📞</span>
-                              <Input
-                                id="lead-phone-m" type="tel" value={lead.phone}
-                                onChange={(e) => setLead({ ...lead, phone: e.target.value })}
-                                placeholder="06 12 34 56 78"
-                                className="h-11 pl-10 border-slate-200 focus-visible:ring-orange-500 text-base"
-                              />
-                            </div>
-                            {leadErrors.phone && <p className="text-xs text-destructive mt-1">{leadErrors.phone}</p>}
-                          </div>
-
-                          <div>
-                            <Label htmlFor="lead-email-m" className="text-slate-700 font-medium text-xs">Email *</Label>
-                            <div className="relative mt-1">
-                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">✉️</span>
-                              <Input
-                                id="lead-email-m" type="email" value={lead.email}
-                                onChange={(e) => setLead({ ...lead, email: e.target.value })}
-                                placeholder="vous@email.com"
-                                className="h-11 pl-10 border-slate-200 focus-visible:ring-orange-500 text-base"
-                              />
-                            </div>
-                            {leadErrors.email && <p className="text-xs text-destructive mt-1">{leadErrors.email}</p>}
-                          </div>
-
-                          <div className="flex items-start gap-2 rounded-lg bg-slate-50 border border-slate-200 p-2">
-                            <Checkbox id="lead-consent-m" checked={lead.consent} onCheckedChange={(c) => setLead({ ...lead, consent: c === true })} className="mt-0.5" />
-                            <label htmlFor="lead-consent-m" className="text-[10px] text-slate-600 leading-snug cursor-pointer">
-                              J'accepte d'être recontacté par email et/ou par appel téléphonique dans le cadre de ma simulation solaire.
-                            </label>
-                          </div>
-                          {leadErrors.consent && <p className="text-xs text-destructive">{leadErrors.consent}</p>}
-
-                          <Button
-                            onClick={submitLead}
-                            disabled={submitting}
-                            size="lg"
-                            className="w-full py-5 bg-gradient-to-r from-amber-400 via-orange-500 to-orange-600 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold rounded-full shadow-[0_15px_35px_-8px_hsl(35_95%_45%/0.75)] transition-all text-sm animate-subtle-bounce"
-                          >
-                            {submitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Envoi…</> : <><Sun className="w-4 h-4 mr-2" /> Voir mon étude <ArrowRight className="w-4 h-4 ml-2" /></>}
-                          </Button>
-                        </div>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
               </div>
             </div>
           </div>
@@ -1708,13 +1550,13 @@ const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
           const recommended = reco === r.id;
           return (
             <button key={r.id} type="button" onClick={() => setSim({ ...sim, roofType: r.id })}
-              className={`relative p-2.5 rounded-xl border-2 text-left transition-all ${
+              className={`relative p-2.5 pr-5 rounded-xl border-2 text-left transition-all ${
                 unknown
                   ? "border-sky-200 bg-sky-50/60 hover:border-sky-400"
                   : "border-slate-200 bg-white hover:border-amber-400"
               }`}>
               {recommended && (
-                <span className="absolute -top-2 -right-2 z-10 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-400 text-[9px] font-bold text-slate-900 shadow-md leading-none">
+                <span className="absolute top-1 right-1 z-10 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-400 text-[9px] font-bold text-slate-900 shadow-md leading-none">
                   <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
                 </span>
               )}
@@ -1728,10 +1570,10 @@ const Step5RoofType = ({ sim, setSim, region }: { sim: Sim; setSim: any; region:
       {/* Aperçu 3D */}
       {modelUrl && (
         <div className="mt-3 relative rounded-2xl overflow-hidden border-2 border-sky-700 bg-[#5B8FC4] shadow-[0_20px_50px_-20px_hsl(210_60%_45%/0.5)] animate-fade-in">
-          <div className="absolute top-2.5 left-2.5 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/95 backdrop-blur text-[10px] font-bold uppercase tracking-wider text-slate-900 shadow-md">
+          <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 p-2"><div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/95 backdrop-blur text-[10px] font-bold uppercase tracking-wider text-slate-900 shadow-md">
             Aperçu 3D · {ROOF_TYPES.find(r => r.id === sim.roofType)?.label}
           </div>
-          <div className="absolute top-2.5 right-2.5 z-10 text-[10px] text-white font-medium bg-sky-900/60 backdrop-blur px-2 py-1 rounded-full border border-sky-600">Rotation automatique</div>
+          <div className="text-[10px] text-white font-medium bg-sky-900/60 backdrop-blur px-2 py-1 rounded-full border border-sky-600">Rotation automatique</div></div>
           <div className="h-[200px] md:h-[240px]">
             <SolarRoofErrorBoundary key={modelUrl}><RoofPreview3D url={modelUrl} /></SolarRoofErrorBoundary>
           </div>
@@ -2030,7 +1872,7 @@ function libelleConditions(score: number): string {
 }
 
 const DISCLAIMER_INCLINAISON =
-  "Le calcul retient une inclinaison de toiture optimale. Nos installateurs partenaires s'engagent à rechercher l'inclinaison la plus favorable lors de la pose ; l'écart résiduel constaté reste généralement inférieur à 10-15 %. Ce point est validé lors de l'étude technique.";
+  "Le calcul retient une inclinaison de toiture optimale. Nos partenaires agréés s'engagent à rechercher l'inclinaison la plus favorable lors de la pose ; l'écart résiduel constaté reste généralement inférieur à 10-15 %. Ce point est validé lors de l'étude technique.";
 
 /** Jauge « conditions de production » + répartition, déclinée sur fond orange ou fond clair.
  *  `compact` masque le disclaimer d'inclinaison et les notes d'orientation (réservés au rapport final). */
@@ -2808,7 +2650,7 @@ const ResultsPanel = ({
 
           {/* Mention légale */}
           <p className="mb-8 text-[11px] text-slate-500 leading-relaxed">
-            Estimation non contractuelle. Primes et tarifs de rachat : arrêté du 5 janvier 2024 (outre-mer), période T10, demande de raccordement déposée entre le 1<sup>er</sup> août et le 31 octobre 2026, source CRE. Prix de l'électricité : tarif réglementé au 1<sup>er</sup> août 2026. Ensoleillement : PVGIS v5.3 (Commission européenne), ±5 %. Prix d'installation : tarif le plus fréquemment facturé sur nos ventes 2026. Hypothèses : inflation de l'électricité 3 %/an, indexation du tarif de rachat 0,4 %/an, dégradation des panneaux 0,5 %/an, contrat de rachat du surplus sur 20 ans, revenus de revente imposés au micro-BIC au-delà de 3 kWc.
+            Estimation non contractuelle. Primes et tarifs de rachat : arrêté du 5 janvier 2024 (outre-mer), période T10, demande de raccordement déposée entre le 1<sup>er</sup> août et le 31 octobre 2026, source CRE. Prix de l'électricité : tarif réglementé au 1<sup>er</sup> août 2026. Ensoleillement : PVGIS v5.3 (Commission européenne), ±5 %. Prix d'installation : tarifs de référence 2026 des installations de nos partenaires agréés. Hypothèses : inflation de l'électricité 3 %/an, indexation du tarif de rachat 0,4 %/an, dégradation des panneaux 0,5 %/an, contrat de rachat du surplus sur 20 ans, revenus de revente imposés au micro-BIC au-delà de 3 kWc.
           </p>
 
 
@@ -2831,6 +2673,8 @@ const ResultsPanel = ({
               ))}
             </div>
           </section>
+
+          <p className="mb-6 text-sm text-muted-foreground">Prime Énergies vous met en relation avec des partenaires agréés, sélectionnés selon notre charte, leur expérience et leur réputation. Notre partenaire officiel actuel est FRH Environnement. Les devis et installations sont réalisés par ces professionnels, pas par Prime Énergies.</p>
 
           {/* Réassurance */}
           <section className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
