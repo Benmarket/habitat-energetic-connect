@@ -8,6 +8,13 @@
       "when": 1792510688171,
       "tag": "0000_page_views_server_ip",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793900882631,
+      "tag": "0001_article_newsletter_choice_and_stats",
+      "breakpoints": true
     }
   ]
 }

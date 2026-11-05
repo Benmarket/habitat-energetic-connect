@@ -330,6 +330,35 @@ export type Database = {
         }
         Relationships: []
       }
+      article_newsletter_requests: {
+        Row: {
+          post_id: string
+          requested_at: string
+          requested_by: string
+          status: string
+        }
+        Insert: {
+          post_id: string
+          requested_at?: string
+          requested_by: string
+          status?: string
+        }
+        Update: {
+          post_id?: string
+          requested_at?: string
+          requested_by?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_newsletter_requests_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       article_quality_reviews: {
         Row: {
           compliance_score: number | null
@@ -2940,6 +2969,10 @@ export type Database = {
         Returns: number
       }
       expire_stale_agent_requests: { Args: never; Returns: undefined }
+      get_article_email_stats: {
+        Args: { p_offset?: number; p_post_id: string }
+        Returns: Json
+      }
       get_simulator_tracking_stats: {
         Args: { p_end: string; p_simulator_id: string; p_start: string }
         Returns: Json
@@ -3000,6 +3033,7 @@ export type Database = {
         Args: { p_endpoint: string; p_identifier: string }
         Returns: undefined
       }
+      request_article_newsletter: { Args: { p_post_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "super_admin" | "admin" | "moderator" | "user"
