@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
 import { GuideSection } from "@/components/GuideSectionsEditor";
+import { applyNewsletterChoice } from "@/lib/articleNewsletter";
 
 // Types
 export interface Author {
@@ -388,8 +389,9 @@ export function useCreatePost() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent, status: "draft" | "published") => {
+  const handleSubmit = async (e: { preventDefault: () => void }, status: "draft" | "published", sendNewsletter = false) => {
     e.preventDefault();
+    if (!user || loading) return;
     setLoading(true);
 
     try {
@@ -528,7 +530,7 @@ export function useCreatePost() {
         await supabase.from("post_categories").delete().eq("post_id", editId);
         await supabase.from("post_tags").delete().eq("post_id", editId);
       } else {
-        postData.author_id = user!.id;
+        postData.author_id = user.id;
         
         const { data: post, error: postError } = await supabase
           .from("posts")
@@ -570,30 +572,21 @@ export function useCreatePost() {
           : "Brouillon enregistré avec succès"
       );
 
-      // Auto-broadcast newsletter for FIRST publication of an ACTUALITE only
+      // Image optimization stays independent of the newsletter decision.
       const isFirstPublish =
         status === "published" &&
         contentType === "actualite" &&
         previousStatus !== "published";
+      if (status === "published" && contentType === "actualite" && postId) {
+        try {
+          await applyNewsletterChoice(postId, sendNewsletter);
+          if (sendNewsletter) toast.warning("Article publié. Demande newsletter enregistrée, mais aucun email envoyé : service newsletter non connecté.", { duration: 10000 });
+          else toast.info("Publication sans envoi newsletter");
+        } catch {
+          toast.error("Article publié, mais la demande newsletter n’a pas pu être enregistrée.");
+        }
+      }
       if (isFirstPublish && postId) {
-        supabase.functions
-          .invoke("admin-send-newsletter", {
-            body: { action: "broadcast_new_article", articleId: postId },
-          })
-          .then(({ data, error }) => {
-            if (error) {
-              console.error("[newsletter broadcast] error:", error);
-              toast.error("Newsletter : échec du déclenchement");
-            } else {
-              const queued = (data as any)?.queued ?? 0;
-              if (queued > 0) {
-                toast.success(`Newsletter envoyée à ${queued} abonné(s) 📧`);
-              } else {
-                toast.info("Aucun abonné actif à la newsletter");
-              }
-            }
-          })
-          .catch((e) => console.error("[newsletter broadcast] exception:", e));
 
         // Job de fond (n'impacte pas la publication) — ACTUALITÉS uniquement
         // Optimisation des images (conversion WebP à la volée)

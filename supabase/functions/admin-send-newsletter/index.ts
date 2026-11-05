@@ -46,9 +46,10 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders })
   }
 
-  const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!
-  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')
+  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')
+  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  if (!supabaseUrl || !anonKey || !serviceKey) return new Response('Configuration missing', { status: 500, headers: corsHeaders })
 
   const authHeader = req.headers.get('Authorization')
   if (!authHeader) {
@@ -75,7 +76,7 @@ Deno.serve(async (req) => {
     .select('role')
     .eq('user_id', userRes.user.id)
   const isAdmin = (roles || []).some(
-    (r: { role: string }) => r.role === 'super_admin' || r.role === 'admin',
+    (r: { role: string }) => r.role === 'super_admin',
   )
   if (!isAdmin) {
     return new Response(JSON.stringify({ error: 'Forbidden' }), {
@@ -99,6 +100,12 @@ Deno.serve(async (req) => {
     })
   }
 
+  // Newsletter campaigns must not use the individual app-email service.
+  return new Response(JSON.stringify({ error: 'newsletter_provider_required', message: 'Un service newsletter dédié doit être connecté. Aucun email envoyé.' }), {
+    status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  })
+
+  // Deprecated implementation retained for historical reference; unreachable.
   // Resolve target article (latest or explicit)
   async function loadArticle(articleId?: string) {
     let q = admin
