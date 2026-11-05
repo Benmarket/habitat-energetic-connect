@@ -12,7 +12,7 @@ interface Stats {
   recipients: { message_id: string; recipient_email: string; status: string; opens: number; clicks: number; first_open: string | null; error_message: string | null }[];
 }
 const statuses: Record<string, string> = { sent: 'Envoyé', pending: 'En attente', dlq: 'Échec', failed: 'Échec', suppressed: 'Bloqué', bounced: 'Rejeté', complained: 'Signalé' };
-export function ArticleEmailStatsDialog({ article, onClose }: { article: { id: string; title: string } | null; onClose: () => void }) {
+export function ArticleEmailStatsDialog({ article, onClose }: { article: { id?: string; title: string } | null; onClose: () => void }) {
   const [data, setData] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -20,7 +20,7 @@ export function ArticleEmailStatsDialog({ article, onClose }: { article: { id: s
   const [refresh, setRefresh] = useState(0);
   useEffect(() => { setPage(0); setData(null); }, [article?.id]);
   useEffect(() => {
-    if (!article) return;
+    if (!article?.id) { setLoading(false); return; }
     let active = true;
     setLoading(true); setError('');
     supabase.rpc('get_article_email_stats', { p_post_id: article.id, p_offset: page * 50 }).then(({ data: result, error: failure }) => {
@@ -34,7 +34,10 @@ export function ArticleEmailStatsDialog({ article, onClose }: { article: { id: s
   return <Dialog open={!!article} onOpenChange={(open) => { if (!open) onClose(); }}>
     <DialogContent className="max-w-3xl w-[calc(100%-2rem)] max-h-[85vh] overflow-y-auto">
       <DialogHeader><DialogTitle>Newsletter · statistiques</DialogTitle><DialogDescription>{article?.title}</DialogDescription></DialogHeader>
-      <div className="flex justify-end"><Button variant="outline" size="icon" aria-label="Actualiser les statistiques" title="Actualiser" disabled={loading} onClick={() => setRefresh(v => v + 1)}><RefreshCw className="h-4 w-4" /></Button></div>
+      <p className="text-sm font-semibold">Système non encore appliqué — non fonctionnel</p>
+      <p className="text-sm text-muted-foreground">Les demandes d’envoi restent des traces uniquement. Aucun email n’est programmé et les anciens emails manquants ne seront pas relancés.</p>
+      {!article?.id && <p className="text-sm">Article non enregistré : aucun envoi ni statistique associé pour le moment.</p>}
+      <div className="flex justify-end"><Button variant="outline" size="icon" aria-label="Actualiser les statistiques" title="Actualiser" disabled={loading || !article?.id} onClick={() => setRefresh(v => v + 1)}><RefreshCw className="h-4 w-4" /></Button></div>
       {loading ? <Loader2 className="h-6 w-6 animate-spin text-primary mx-auto" /> : error ? <p role="alert" className="text-destructive">{error}</p> : data && <>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[['Emails enregistrés', data.total], ['Envoyés', data.sent], ['Ouvertures détectées', data.opened], ['Destinataires ayant cliqué', data.clicked]].map(([label, value]) => <div key={label} className="border rounded-md p-3"><p className="text-xs text-muted-foreground">{label}</p><p className="text-2xl font-semibold">{value}</p></div>)}
