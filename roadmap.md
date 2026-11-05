@@ -11,3 +11,10 @@
 - [x] Tester les choix sans envoi réel et consulter les statistiques en session super_admin.
 - [x] Ajouter le suivi email dans l’éditeur et préciser l’état non fonctionnel dans les fenêtres.
 - [x] Vérifier les fenêtres sur les deux pages, sans envoyer ni rattraper d’anciens emails.
+
+# Navigation mobile et rapport solaire
+- [x] Vérifier et corriger tous les liens du header et du footer sur mobile et ordinateur.
+- [x] Recentrer la boussole et supprimer son débordement mobile.
+- [x] Afficher le résultat débloqué en haut de page sur mobile et ordinateur.
+- [x] Ajouter un compte rendu PDF fidèle au résultat et des avertissements partagés.
+- [x] Vérifier le parcours, les liens et le PDF.

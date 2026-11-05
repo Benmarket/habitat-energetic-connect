@@ -6,6 +6,7 @@ import RegionSubHeader from "@/components/RegionSubHeader";
 import ProfileSelector from "@/components/ProfileSelector";
 import { useAuth } from "@/hooks/useAuth";
 import { useGuidesModule } from "@/hooks/useGuidesModule";
+import { useNavigationLinks } from "@/hooks/useNavigationLinks";
 import { MegaMenu } from "@/components/MegaMenu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +25,7 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const guidesModule = useGuidesModule();
+  const navigationLinks = useNavigationLinks();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUserMenuExpanded, setIsUserMenuExpanded] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -410,12 +412,12 @@ const Header = () => {
             </div>
 
             {/* Mobile Menu Button - visible below lg */}
-            <button
+            <Button variant="ghost" size="icon" aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="lg:hidden p-2 text-foreground hover:text-primary transition-colors"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -424,7 +426,7 @@ const Header = () => {
           <nav className="lg:hidden py-4 border-t border-border">
             <div className="flex flex-col space-y-4">
               {/* User menu button - at the top */}
-              {user && (
+              {user && headerFooterSettings.showMemberSpace && (
                 <div className="pb-4 border-b border-border">
                   <button
                     onClick={() => setIsUserMenuExpanded(!isUserMenuExpanded)}
@@ -548,7 +550,7 @@ const Header = () => {
                 </div>
               )}
               <Link
-                to="/#offres"
+                to={navigationLinks.offres}
                 className="text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -556,7 +558,7 @@ const Header = () => {
               </Link>
               {guidesModule.enabled && !guidesModule.hideFromNav && (
                 <Link
-                  to="/guides"
+                  to={navigationLinks.guides}
                   className="text-foreground hover:text-primary transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -571,14 +573,14 @@ const Header = () => {
                 Aides
               </Link>
               <Link
-                to="/actualites"
+                to={navigationLinks.actualite}
                 className="text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Actualité
               </Link>
               <Link
-                to="/simulateurs"
+                to={navigationLinks.simulateurs}
                 className="text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -605,11 +607,11 @@ const Header = () => {
                 </a>
               )}
               <div className="pt-2 space-y-2">
-                <Button asChild className="w-full">
-                  <Link to="/#etude" onClick={() => setIsMenuOpen(false)}>
-                    Trouver un installateur
+                {headerFooterSettings.showInstallerButton && <Button asChild className="w-full">
+                  <Link to={headerFooterSettings.installerButtonLink} onClick={() => setIsMenuOpen(false)}>
+                    {headerFooterSettings.installerButtonText}
                   </Link>
-                </Button>
+                </Button>}
                 {!user && headerFooterSettings.showMemberSpace && (
                   <Button 
                     variant="outline" 

@@ -5,9 +5,11 @@ import { NewsletterForm } from "@/components/NewsletterForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useSiteMode } from "@/hooks/useSiteMode";
 import { useGuidesModule } from "@/hooks/useGuidesModule";
+import { useNavigationLinks } from "@/hooks/useNavigationLinks";
 
 const Footer = () => {
   const guidesModule = useGuidesModule();
+  const navigationLinks = useNavigationLinks();
   const { mode: siteMode } = useSiteMode();
   const [headerFooterSettings, setHeaderFooterSettings] = useState({
     showPhone: false,
@@ -112,10 +114,10 @@ const Footer = () => {
                     Guides
                   </Link>
                 )}
-                <Link to="/#offres" className="text-white/70 hover:text-white transition-colors text-sm">
+                <Link to={navigationLinks.offres} className="text-white/70 hover:text-white transition-colors text-sm">
                   Offres
                 </Link>
-                <Link to="/#simulateurs" className="text-white/70 hover:text-white transition-colors text-sm">
+                <Link to={navigationLinks.simulateurs} className="text-white/70 hover:text-white transition-colors text-sm">
                   Simulateurs
                 </Link>
               </nav>
@@ -175,22 +177,22 @@ const Footer = () => {
           )}
 
           <div className="flex gap-3">
-            {headerFooterSettings.showFacebook && (
+            {headerFooterSettings.showFacebook && headerFooterSettings.facebookLink && (
               <a href={headerFooterSettings.facebookLink || "#"} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="Facebook">
                 <Facebook className="w-4 h-4" />
               </a>
             )}
-            {headerFooterSettings.showTwitter && (
+            {headerFooterSettings.showTwitter && headerFooterSettings.twitterLink && (
               <a href={headerFooterSettings.twitterLink || "#"} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="Twitter">
                 <Twitter className="w-4 h-4" />
               </a>
             )}
-            {headerFooterSettings.showLinkedin && (
+            {headerFooterSettings.showLinkedin && headerFooterSettings.linkedinLink && (
               <a href={headerFooterSettings.linkedinLink || "#"} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="LinkedIn">
                 <Linkedin className="w-4 h-4" />
               </a>
             )}
-            {headerFooterSettings.showYoutube && (
+            {headerFooterSettings.showYoutube && headerFooterSettings.youtubeLink && (
               <a href={headerFooterSettings.youtubeLink || "#"} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors" aria-label="YouTube">
                 <Youtube className="w-4 h-4" />
               </a>
