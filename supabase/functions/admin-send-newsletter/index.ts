@@ -46,9 +46,10 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders })
   }
 
-  const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!
-  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')
+  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')
+  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  if (!supabaseUrl || !anonKey || !serviceKey) return new Response('Configuration missing', { status: 500, headers: corsHeaders })
 
   const authHeader = req.headers.get('Authorization')
   if (!authHeader) {
@@ -75,7 +76,7 @@ Deno.serve(async (req) => {
     .select('role')
     .eq('user_id', userRes.user.id)
   const isAdmin = (roles || []).some(
-    (r: { role: string }) => r.role === 'super_admin' || r.role === 'admin',
+    (r: { role: string }) => r.role === 'super_admin',
   )
   if (!isAdmin) {
     return new Response(JSON.stringify({ error: 'Forbidden' }), {
@@ -99,204 +100,9 @@ Deno.serve(async (req) => {
     })
   }
 
-  // Resolve target article (latest or explicit)
-  async function loadArticle(articleId?: string) {
-    let q = admin
-      .from('posts')
-      .select(
-        `id, title, slug, excerpt, content, featured_image, published_at,
-         post_categories(categories(name, slug))`,
-      )
-      .eq('content_type', 'actualite')
-      .eq('status', 'published')
-      .order('published_at', { ascending: false })
-      .limit(1)
-    if (articleId) q = q.eq('id', articleId).limit(1)
-    const { data } = await q
-    return data?.[0]
-  }
-
-  async function loadLatest3() {
-    const { data } = await admin
-      .from('posts')
-      .select(
-        `id, title, slug, excerpt, content, featured_image, published_at,
-         post_categories(categories(name, slug))`,
-      )
-      .eq('content_type', 'actualite')
-      .eq('status', 'published')
-      .order('published_at', { ascending: false })
-      .limit(3)
-    return (data || []).map((p: any) => {
-      const cat = p.post_categories?.[0]?.categories
-      const catSlug = cat?.slug || 'actualites'
-      return {
-        title: p.title,
-        excerpt: p.excerpt || undefined,
-        url: `${SITE_URL}/actualites/${catSlug}/${p.slug}`,
-        imageUrl: p.featured_image || undefined,
-        categoryLabel: cat?.name || 'Actualités',
-        publishedAtLabel: formatDateLabel(p.published_at),
-        readingTime: estimateReadingTime(p.content),
-      }
-    })
-  }
-
-
-  if (body.action === 'test_welcome') {
-    if (!body.recipientEmail) {
-      return new Response(JSON.stringify({ error: 'recipientEmail required' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-    const articles = await loadLatest3()
-    const { data: sendResult, error } = await admin.functions.invoke(
-      'send-transactional-email',
-      {
-        body: {
-          templateName: 'newsletter-subscription-confirmation',
-          recipientEmail: body.recipientEmail,
-          idempotencyKey: `newsletter-welcome-test-${Date.now()}-${body.recipientEmail}`,
-          templateData: {
-            firstName: body.firstName,
-            recipientEmail: body.recipientEmail,
-            articles,
-          },
-        },
-      },
-    )
-    if (error) {
-      return new Response(JSON.stringify({ error: String(error) }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-    return new Response(JSON.stringify({ success: true, sent: sendResult }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
-  }
-
-  if (body.action === 'test_new_article' || body.action === 'broadcast_new_article') {
-    const post = await loadArticle(body.articleId)
-    if (!post) {
-      return new Response(JSON.stringify({ error: 'no_article_found' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-    const p: any = post
-    const cat = p.post_categories?.[0]?.categories
-    const catSlug = cat?.slug || 'actualites'
-    const templateData = {
-      articleTitle: p.title,
-      articleExcerpt: p.excerpt || undefined,
-      articleImageUrl: p.featured_image || undefined,
-      articleUrl: `${SITE_URL}/actualites/${catSlug}/${p.slug}`,
-      categoryLabel: cat?.name || 'Actualités',
-      readingTime: estimateReadingTime(p.content),
-      publishedAtLabel: formatDateLabel(p.published_at),
-    }
-
-    if (body.action === 'test_new_article') {
-      if (!body.recipientEmail) {
-        return new Response(JSON.stringify({ error: 'recipientEmail required' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        })
-      }
-      const { data: sendResult, error } = await admin.functions.invoke(
-        'send-transactional-email',
-        {
-          body: {
-            templateName: 'newsletter-new-article',
-            recipientEmail: body.recipientEmail,
-            idempotencyKey: `newsletter-article-test-${p.id}-${Date.now()}-${body.recipientEmail}`,
-            templateData: {
-              ...templateData,
-              firstName: body.firstName,
-              recipientEmail: body.recipientEmail,
-            },
-          },
-        },
-      )
-      if (error) {
-        return new Response(JSON.stringify({ error: String(error) }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        })
-      }
-      return new Response(JSON.stringify({ success: true, sent: sendResult, article: p.title }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-
-    // broadcast — active subscribers only
-    const { data: subs } = await admin
-      .from('newsletter_subscribers')
-      .select('email')
-      .eq('status', 'active')
-
-    const recipients = (subs || []).map((s: { email: string }) => s.email)
-
-    // Fire-and-forget: enqueue with limited concurrency in the background so
-    // the HTTP call returns immediately even for hundreds of subscribers.
-    const CONCURRENCY = 5
-    const DELAY_MS = 250
-    const runBroadcast = async () => {
-      let sent = 0
-      let failed = 0
-      let idx = 0
-      const workers = Array.from({ length: CONCURRENCY }, async () => {
-        while (idx < recipients.length) {
-          const i = idx++
-          const email = recipients[i]
-          try {
-            const { error } = await admin.functions.invoke('send-transactional-email', {
-              body: {
-                templateName: 'newsletter-new-article',
-                recipientEmail: email,
-                idempotencyKey: `newsletter-article-${p.id}-${email}`,
-                templateData: { ...templateData, recipientEmail: email },
-              },
-            })
-            if (error) failed++
-            else sent++
-          } catch (_e) {
-            failed++
-          }
-          if (DELAY_MS > 0) await new Promise((r) => setTimeout(r, DELAY_MS))
-        }
-      })
-      await Promise.all(workers)
-      console.log(
-        `[admin-send-newsletter] broadcast complete article=${p.id} sent=${sent} failed=${failed} total=${recipients.length}`,
-      )
-    }
-
-    // @ts-ignore EdgeRuntime is provided by Supabase Edge Runtime
-    if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime?.waitUntil) {
-      // @ts-ignore
-      EdgeRuntime.waitUntil(runBroadcast())
-    } else {
-      runBroadcast().catch((e) => console.error('[admin-send-newsletter] broadcast error', e))
-    }
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        queued: recipients.length,
-        article: p.title,
-        message: 'Broadcast lancé en arrière-plan',
-      }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-    )
-  }
-
-  return new Response(JSON.stringify({ error: 'unknown_action' }), {
-    status: 400,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  // Newsletter campaigns must not use the individual app-email service.
+  return new Response(JSON.stringify({ error: 'newsletter_provider_required', message: 'Un service newsletter dédié doit être connecté. Aucun email envoyé.' }), {
+    status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   })
+
 })

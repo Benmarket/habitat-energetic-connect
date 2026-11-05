@@ -14,6 +14,7 @@ import { AIInstructionsModal } from "@/components/AIInstructionsModal";
 import { AuthorSelectModal } from "@/components/AuthorSelectModal";
 import { ArticleGenerationWizard } from "@/components/ArticleGenerationWizard";
 import { useCreatePost, sectionsToContent } from "@/hooks/useCreatePost";
+import { PublishNewsletterDialog } from "@/components/PublishNewsletterDialog";
 import { useArticleGeneration } from "@/hooks/useArticleGeneration";
 import { detectUnconnectedCTAs } from "@/utils/contentRenderer";
 import {
@@ -59,6 +60,7 @@ const CreatePost = () => {
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [aiInstructionsModalOpen, setAiInstructionsModalOpen] = useState(false);
   const [authorModalOpen, setAuthorModalOpen] = useState(false);
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
 
   const currentContent = contentType === "guide" 
     ? sectionsToContent(formData.guide_sections) 
@@ -172,7 +174,7 @@ const CreatePost = () => {
                     </Button>
                     <Button 
                       type="button" 
-                      onClick={(e) => handleSubmit(e, "published")} 
+                      onClick={(e) => contentType === "actualite" ? setPublishDialogOpen(true) : handleSubmit(e, "published")} 
                       disabled={loading || unconnectedCTAs.length > 0}
                       title={unconnectedCTAs.length > 0 ? "Connectez tous les CTA avant de publier" : undefined}
                     >
@@ -186,6 +188,7 @@ const CreatePost = () => {
         </main>
         <Footer />
 
+        <PublishNewsletterDialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen} onConfirm={async (send) => { await handleSubmit({ preventDefault: () => {} }, "published", send); }} />
         <ArticleGenerationWizard
           open={wizardOpen}
           onOpenChange={setWizardOpen}

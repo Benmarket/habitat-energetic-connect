@@ -41,6 +41,10 @@ import { ButtonPresetsLibrary } from "@/components/ButtonPresetsLibrary";
 import { SchedulePublishModal } from "@/components/SchedulePublishModal";
 import { AIAutomationModal } from "@/components/AIAutomationModal";
 import { ArticlePreviewModal } from "@/components/ArticlePreviewModal";
+import { PublishNewsletterDialog } from "@/components/PublishNewsletterDialog";
+import { ArticleEmailStatsDialog } from "@/components/ArticleEmailStatsDialog";
+import { applyNewsletterChoice } from "@/lib/articleNewsletter";
+import { Mail } from "lucide-react";
 
 const ManageActualites = () => {
   const { user, loading: authLoading } = useAuth();
@@ -69,6 +73,8 @@ const ManageActualites = () => {
   const [bulkRunning, setBulkRunning] = useState<null | "full" | "audit_only">(null);
   const [bulkProgress, setBulkProgress] = useState({ done: 0, total: 0, ok: 0, changed: 0, errors: 0 });
   const [bulkSummary, setBulkSummary] = useState<any[] | null>(null);
+  const [publishPostId, setPublishPostId] = useState<string | null>(null);
+  const [emailArticle, setEmailArticle] = useState<{ id: string; title: string } | null>(null);
 
   const [focusFixing, setFocusFixing] = useState<null | "informative" | "seo">(null);
 
@@ -322,7 +328,11 @@ const ManageActualites = () => {
     setSortOrder(prev => prev === "desc" ? "asc" : "desc");
   };
 
-  const handleStatusChange = async (postId: string, newStatus: "published" | "archived") => {
+  const handleStatusChange = async (postId: string, newStatus: "published" | "archived", sendNewsletter?: boolean) => {
+    if (newStatus === "published" && sendNewsletter === undefined) {
+      setPublishPostId(postId);
+      return;
+    }
     try {
       const updateData: any = { status: newStatus };
       
@@ -343,6 +353,15 @@ const ManageActualites = () => {
           ? "Article publié avec succès" 
           : "Article désactivé avec succès"
       );
+      if (newStatus === "published") {
+        try {
+          await applyNewsletterChoice(postId, sendNewsletter === true);
+          if (sendNewsletter) toast.warning("Article publié. Demande newsletter enregistrée, mais aucun email envoyé : service newsletter non connecté.", { duration: 10000 });
+          else toast.info("Publication sans envoi newsletter");
+        } catch {
+          toast.error("Article publié, mais la demande newsletter n’a pas pu être enregistrée.");
+        }
+      }
       fetchPosts();
     } catch (error) {
       console.error("Error updating post status:", error);
@@ -555,6 +574,7 @@ const ManageActualites = () => {
                         <TableHead className="w-32">Statut</TableHead>
                         <TableHead className="w-40">Date</TableHead>
                         <TableHead className="w-40">Édité le</TableHead>
+                        <TableHead className="w-16 text-center">Emails</TableHead>
                         <TableHead className="w-24 text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -665,6 +685,9 @@ const ManageActualites = () => {
                               {post.updated_at && post.updated_at !== post.created_at
                                 ? format(new Date(post.updated_at), "d MMM yyyy 'à' HH:mm", { locale: fr })
                                 : "—"}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="outline" size="icon" className="h-8 w-8" title="Statistiques newsletter" aria-label={`Statistiques newsletter : ${post.title}`} onClick={() => setEmailArticle({ id: post.id, title: post.title })}><Mail className="h-4 w-4" /></Button>
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex gap-2 justify-end">
@@ -1059,6 +1082,8 @@ const ManageActualites = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <PublishNewsletterDialog open={!!publishPostId} onOpenChange={(open) => { if (!open) setPublishPostId(null); }} onConfirm={async (send) => { if (publishPostId) await handleStatusChange(publishPostId, "published", send); }} />
+      <ArticleEmailStatsDialog article={emailArticle} onClose={() => setEmailArticle(null)} />
     </>
 
   );
