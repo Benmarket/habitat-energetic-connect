@@ -744,7 +744,7 @@ export default function SimulateurSolaireLead() {
 
                 <p className="mt-4 md:mt-5 pt-3 md:pt-4 border-t border-slate-200/70 text-center text-[10px] md:text-[11px] leading-relaxed text-slate-500 max-w-2xl mx-auto italic">
                   Ce simulateur est un outil en ligne gratuit et peut faire des erreurs. Les économies et subventions affichées peuvent varier selon votre situation, votre toiture et les dispositifs en vigueur. Une étude personnalisée gratuite peut vous être proposée en fin de parcours.
-                  <span className="block mt-1 not-italic font-medium text-slate-500">Tarifs applicables du 1er août au 31 octobre 2026 — arrêté du 5 janvier 2024, révision T10. Source : CRE open data.</span>
+                  <span className="block mt-1 not-italic font-medium text-slate-500">Tarifs applicables du 1er août au 31 octobre 2026 — arrêté du 5 janvier 2024, révision T10. Source : CRE open data. Ensoleillement : API PVGIS (Commission européenne).</span>
                 </p>
 
               </div>
@@ -2758,7 +2758,7 @@ const ResultsPanel = ({
         <p className="mt-8 text-center text-sm leading-relaxed text-muted-foreground max-w-2xl mx-auto px-4">
           Cette simulation gratuite repose sur un calcul automatique à partir des informations renseignées et d’hypothèses régionales. Elle est indicative et peut comporter des erreurs : production, gains, facture, rentabilité et aides éventuelles doivent être vérifiés par un professionnel. Elle ne constitue ni un devis ni une garantie de résultat.
           {unlocked && <span className="block mt-2">Conformément à votre accord pour être recontacté dans le cadre de cette simulation, un professionnel vous rappellera pour échanger sur votre projet et vérifier ces estimations.</span>}
-          <span className="block mt-1 font-medium">Tarifs applicables du 1er août au 31 octobre 2026 — arrêté du 5 janvier 2024, révision T10. Source : CRE open data.</span>
+          <span className="block mt-1 font-medium">Tarifs applicables du 1er août au 31 octobre 2026 — arrêté du 5 janvier 2024, révision T10. Source : CRE open data. Données d'ensoleillement : API PVGIS (Commission européenne).</span>
         </p>
 
       </div>
