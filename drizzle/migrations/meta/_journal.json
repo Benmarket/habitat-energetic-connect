@@ -36,6 +36,13 @@
       "when": 1795355358400,
       "tag": "0004_preserve_owned_media_upload_paths",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795355556855,
+      "tag": "0005_secure_selected_forum_files_and_article_links",
+      "breakpoints": true
     }
   ]
 }
