@@ -31,3 +31,10 @@
 - [x] Enregistrer une référence unique et le résultat exact de chaque simulation terminée, reliés au lead.
 - [x] Ajouter la liste, la recherche par code et le détail dans le panel, réservés au super_admin.
 - [x] Tester le parcours mobile, la sauvegarde, la recherche et les contrôles d’accès sans changer les calculs.
+
+# Package de reproduction du simulateur solaire
+- [x] Réunir les sources du calcul, du parcours, du rapport et de la conservation des simulations.
+- [x] Récupérer les vrais modèles 3D, images et animations, avec leur inventaire d’utilisation.
+- [x] Fournir les documents officiels retrouvés et distinguer les hypothèses dont le document d’origine manque.
+- [x] Rédiger le prompt autonome, les consignes par fichier et les contrôles de reproduction.
+- [x] Vérifier et livrer une archive sans secrets, données personnelles, dépendances ou métadonnées de dépôt.
