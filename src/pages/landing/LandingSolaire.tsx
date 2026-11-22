@@ -399,7 +399,7 @@ const LandingSolaireContent = () => {
             &gt; Continuer
           </Button>
           <StepTip icon={ShieldCheck}>
-            Étude <strong>100% gratuite et sans engagement</strong>. Nos experts vous rappellent sous 24h.
+            Étude <strong>100% gratuite et sans engagement</strong>. Un conseiller vous rappelle pour en parler.
           </StepTip>
           {dataFooter}
         </div>

@@ -15,8 +15,8 @@ const steps = [
     icon: HardHat,
     number: "02",
     title: "Installation par un pro RGE",
-    description: "Nos installateurs certifiés RGE posent vos panneaux en 1 à 2 jours. Nous gérons 100% des démarches administratives.",
-    frhDescription: "Notre équipe d'installateurs certifiés RGE pose vos panneaux en 1 à 2 jours. Nous gérons 100% des démarches administratives.",
+    description: "Les installateurs certifiés RGE de nos partenaires agréés posent vos panneaux en 1 à 2 jours et prennent en charge les démarches administratives.",
+    frhDescription: "Les installateurs certifiés RGE de nos partenaires agréés posent vos panneaux en 1 à 2 jours et prennent en charge les démarches administratives.",
     color: "bg-blue-500",
   },
   {
@@ -61,7 +61,7 @@ const SolarHowItWorks = ({ onCtaClick }: SolarHowItWorksProps) => {
               Comment ça marche <span className="text-primary">?</span>
             </h2>
             <p className="text-muted-foreground mt-3 max-w-xl">
-              De l'étude à la mise en service, nous gérons tout pour vous.
+              De l'étude à la mise en service, nos partenaires agréés vous accompagnent à chaque étape.
             </p>
           </div>
           <div className={`hidden lg:block w-56 h-40 rounded-2xl overflow-hidden shadow-lg flex-shrink-0 ${revealClass(isVisible, 200, "right").className}`} style={revealClass(isVisible, 200, "right").style}>

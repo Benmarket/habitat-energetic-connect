@@ -652,7 +652,7 @@ const Solar3DShowcase = ({ showDebug = false }: { showDebug?: boolean } = {}) =>
                 <div className="w-14 h-14 rounded-full bg-white/50 backdrop-blur-md flex items-center justify-center text-3xl shadow">☀️</div>
                 <div className="text-sky-900 text-base font-semibold">Visualisation 3D indisponible</div>
                 <div className="text-sky-900/70 text-sm">
-                  La scène 3D n'a pas pu se charger sur votre connexion. Cela n'empêche pas votre projet : nos techniciens RGE installent vos panneaux avec précision sur tous types de toiture.
+                  La scène 3D n'a pas pu se charger sur votre connexion. Cela n'empêche pas votre projet : les techniciens RGE de nos partenaires agréés installent vos panneaux avec précision sur tous types de toiture.
                 </div>
               </div>
             </div>
@@ -728,7 +728,7 @@ const Solar3DShowcase = ({ showDebug = false }: { showDebug?: boolean } = {}) =>
                 <span className="bg-gradient-to-r from-emerald-500 to-teal-400 bg-clip-text text-transparent"> précision</span>
               </h2>
               <p className="text-slate-600 text-sm sm:text-base lg:text-lg max-w-xl leading-relaxed">
-                Chaque panneau est installé par nos techniciens certifiés RGE
+                Chaque panneau est installé par les techniciens certifiés RGE de nos partenaires agréés
                 pour un rendement optimal et une intégration parfaite à votre toiture.
               </p>
             </div>
