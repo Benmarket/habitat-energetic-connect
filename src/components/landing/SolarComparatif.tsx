@@ -15,7 +15,6 @@ const puissances = [
     economie: "50-60€/mois",
     ideal: "Couple / petit foyer",
     prix: "7 000 – 9 000 €",
-    prixAide: "~5 500 €",
     popular: false,
   },
   {
@@ -26,7 +25,6 @@ const puissances = [
     economie: "90-120€/mois",
     ideal: "Famille 3-4 pers.",
     prix: "11 000 – 14 000 €",
-    prixAide: "~9 000 €",
     popular: true,
   },
   {
@@ -37,7 +35,6 @@ const puissances = [
     economie: "130-170€/mois",
     ideal: "Grande maison / piscine",
     prix: "15 000 – 20 000 €",
-    prixAide: "~12 500 €",
     popular: false,
   },
 ];
@@ -95,8 +92,8 @@ const SolarComparatif = ({ onCtaClick }: SolarComparatifProps) => {
                 <Row label="Économie mensuelle" value={p.economie} highlight />
                 <Row label="Idéal pour" value={p.ideal} />
                 <div className="border-t border-border pt-3 mt-3">
-                  <Row label="Prix avant aides" value={p.prix} />
-                  <Row label="Prix après aides*" value={p.prixAide} highlight />
+                  <Row label="Prix indicatif TTC*" value={p.prix} />
+                  <Row label="Aide éventuelle" value="Selon votre territoire*" highlight />
                 </div>
               </div>
 
@@ -116,7 +113,7 @@ const SolarComparatif = ({ onCtaClick }: SolarComparatifProps) => {
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-6">
-          * Prix estimés après déduction de la prime autoconsommation. Montants indicatifs, devis personnalisé sur demande.
+          * Prix indicatifs avant toute aide. En France métropolitaine, aucune prime à l'autoconsommation n'est actuellement prévue pour ces installations ; en Corse et en Outre-mer, une aide pourrait s'appliquer et son montant varie selon le territoire et la puissance. Le simulateur solaire calcule l'estimation selon votre code postal ; seul un devis fait foi.
         </p>
       </div>
     </section>
