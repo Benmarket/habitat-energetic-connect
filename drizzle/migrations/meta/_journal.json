@@ -22,6 +22,20 @@
       "when": 1793903341993,
       "tag": "0002_solar_simulation_references",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795355338149,
+      "tag": "0003_secure_selected_access_rules",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795355358400,
+      "tag": "0004_preserve_owned_media_upload_paths",
+      "breakpoints": true
     }
   ]
 }

@@ -3008,6 +3008,7 @@ export type Database = {
         Returns: number
       }
       expire_stale_agent_requests: { Args: never; Returns: undefined }
+      forum_public_read_enabled: { Args: never; Returns: boolean }
       get_article_email_stats: {
         Args: { p_offset?: number; p_post_id: string }
         Returns: Json

@@ -1,0 +1,13 @@
+ALTER POLICY "Authenticated users can view permissions" ON public.permissions TO authenticated USING (public.has_role(auth.uid(), 'super_admin'::public.app_role) OR EXISTS (SELECT 1 FROM public.user_permissions up WHERE up.permission_id = permissions.id AND up.user_id = auth.uid()));
+DROP POLICY "Anyone can insert events" ON public.simulator_tracking_events;
+ALTER POLICY "Anyone can submit an internal review" ON public.internal_reviews WITH CHECK ((user_id IS NULL OR user_id = auth.uid()) AND char_length(btrim(full_name)) BETWEEN 2 AND 120 AND char_length(email) BETWEEN 3 AND 255 AND email ~ '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$' AND rating BETWEEN 1 AND 5 AND (message IS NULL OR char_length(message) <= 2000) AND coalesce(cardinality(photos),0) <= 5);
+ALTER POLICY "Authenticated users can upload media files" ON storage.objects TO authenticated WITH CHECK (bucket_id = 'media' AND owner_id = auth.uid()::text AND ((storage.foldername(name))[1] = auth.uid()::text OR public.has_role(auth.uid(),'super_admin'::public.app_role)));
+ALTER POLICY "Authenticated users can upload media" ON storage.objects TO authenticated WITH CHECK (bucket_id = 'media' AND owner_id = auth.uid()::text AND ((storage.foldername(name))[1] = auth.uid()::text OR public.has_role(auth.uid(),'super_admin'::public.app_role)));
+ALTER POLICY "Authenticated can list media" ON storage.objects USING (bucket_id = 'media' AND (owner_id = auth.uid()::text OR public.has_role(auth.uid(),'super_admin'::public.app_role)));
+ALTER POLICY "Authenticated can list email assets" ON storage.objects USING (bucket_id = 'email-assets' AND (owner_id = auth.uid()::text OR public.has_role(auth.uid(),'super_admin'::public.app_role)));
+CREATE FUNCTION public.forum_public_read_enabled() RETURNS boolean LANGUAGE sql STABLE SECURITY INVOKER SET search_path = public AS $$ SELECT coalesce((SELECT value->>'memberMenuShowForum' IS DISTINCT FROM 'false' FROM public.site_settings WHERE key='header_footer' AND is_public = true), false); $$;
+REVOKE ALL ON FUNCTION public.forum_public_read_enabled() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.forum_public_read_enabled() TO anon, authenticated, service_role;
+ALTER POLICY "Anyone can view categories" ON public.forum_categories USING (public.forum_public_read_enabled() OR public.has_role(auth.uid(),'super_admin'::public.app_role));
+ALTER POLICY "Anyone can view topics" ON public.forum_topics USING (public.forum_public_read_enabled() OR public.has_role(auth.uid(),'super_admin'::public.app_role));
+ALTER POLICY "Anyone can view posts" ON public.forum_posts USING (public.forum_public_read_enabled() OR public.has_role(auth.uid(),'super_admin'::public.app_role));

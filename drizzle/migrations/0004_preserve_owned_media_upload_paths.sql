@@ -1,0 +1,2 @@
+ALTER POLICY "Authenticated users can upload media files" ON storage.objects TO authenticated WITH CHECK (bucket_id = 'media' AND owner_id = auth.uid()::text);
+ALTER POLICY "Authenticated users can upload media" ON storage.objects TO authenticated WITH CHECK (bucket_id = 'media' AND owner_id = auth.uid()::text);
