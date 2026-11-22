@@ -15,7 +15,7 @@ import solarOnduleurImg from "@/assets/services/solar-onduleur.jpg";
 import { useSiteMode } from "@/hooks/useSiteMode";
 
 const faqs = [
-  { q: "Combien coûte une installation solaire en 2026 ?", a: "Le prix d'une installation solaire photovoltaïque varie entre 7 500 € et 18 000 € pour une puissance de 3 à 9 kWc, pose incluse. Les aides comme la prime à l'autoconsommation et l'obligation d'achat peuvent réduire significativement le coût net." },
+  { q: "Combien coûte une installation solaire en 2026 ?", a: "Le prix d'une installation solaire photovoltaïque varie entre 7 500 € et 18 000 € pour une puissance de 3 à 9 kWc, pose incluse. Les aides éventuelles et le tarif de rachat dépendent du territoire, de la puissance et de la date de demande." },
   { q: "Quelle est la durée de vie des panneaux solaires ?", a: "Les panneaux solaires modernes ont une durée de vie de 30 à 40 ans. La plupart des fabricants garantissent au moins 80 % de rendement après 25 ans d'utilisation." },
   { q: "Puis-je revendre mon surplus d'électricité ?", a: "Oui. Grâce au mécanisme d'obligation d'achat (OA Solaire), vous pouvez revendre le surplus de votre production à EDF OA à un tarif fixé par l'État pendant 20 ans." },
   { q: "Faut-il un permis de construire pour installer des panneaux solaires ?", a: "En général, une simple déclaration préalable de travaux suffit. Un permis de construire n'est nécessaire que dans certains cas (bâtiment classé, zone protégée, installation au sol de plus de 1,80 m de hauteur)." },
@@ -38,7 +38,7 @@ const ServiceInstallationSolaire = () => {
     "@type": "Service",
     name: "Installation de panneaux solaires photovoltaïques",
     description: siteMode === "frh"
-      ? "Service d'installation de panneaux solaires pour les particuliers et professionnels. Devis gratuit, notre installateur RGE, accompagnement complet."
+      ? "Service d'installation de panneaux solaires pour les particuliers et professionnels. Devis gratuit, notre partenaire installateur RGE, accompagnement complet."
       : "Service d'installation de panneaux solaires pour les particuliers et professionnels. Devis gratuit, installateurs certifiés RGE, accompagnement complet.",
     provider: { "@type": "Organization", name: "Prime Énergies", url: "https://prime-energies.fr" },
     areaServed: { "@type": "Country", name: "France" },
@@ -74,7 +74,7 @@ const ServiceInstallationSolaire = () => {
       <Helmet>
         <title>Installation Solaire Photovoltaïque : Guide Complet 2026 | Prime Énergies</title>
         <meta name="description" content={siteMode === "frh"
-          ? "Tout savoir sur l'installation de panneaux solaires : prix 2026, aides financières, rentabilité, étapes d'installation, notre installateur RGE. Guide complet avec simulateur gratuit."
+          ? "Tout savoir sur l'installation de panneaux solaires : prix 2026, aides financières, rentabilité, étapes d'installation, notre partenaire installateur RGE. Guide complet avec simulateur gratuit."
           : "Tout savoir sur l'installation de panneaux solaires : prix 2026, aides financières, rentabilité, étapes d'installation, choix de l'installateur RGE. Guide complet avec simulateur gratuit."} />
         <link rel="canonical" href="https://prime-energies.fr/services/installation-solaire" />
         <meta property="og:title" content="Installation Solaire Photovoltaïque | Prime Énergies" />
@@ -114,8 +114,8 @@ const ServiceInstallationSolaire = () => {
               {[
                 { value: "30 ans", label: "Durée de vie moyenne" },
                 { value: "6-10 ans", label: "Retour sur investissement" },
-                { value: "70 %", label: "Économies sur la facture" },
-                { value: "20 ans", label: "Contrat de rachat garanti" },
+                { value: "Jusqu’à 70 %", label: "Selon installation et usages" },
+                { value: "20 ans", label: "Rachat, selon contrat" },
               ].map((stat, i) => (
                 <div key={i} className="text-center p-4 rounded-xl bg-amber-50 border border-amber-100">
                   <div className="text-2xl font-bold text-amber-600">{stat.value}</div>
@@ -132,7 +132,7 @@ const ServiceInstallationSolaire = () => {
             <div className="grid md:grid-cols-2 gap-4">
               {[
                 { icon: TrendingUp, title: "Rentabilité prouvée", desc: "Amortissement en 6 à 10 ans selon la région, avec des économies pouvant atteindre 70 % sur votre facture d'électricité. Le prix de l'électricité ayant augmenté de plus de 50 % depuis 2021, le solaire est devenu encore plus compétitif." },
-                { icon: Shield, title: "Aides financières généreuses", desc: "Prime à l'autoconsommation (jusqu'à 370 €/kWc), TVA réduite à 10 %, obligation d'achat à tarif garanti pendant 20 ans : l'État soutient activement le solaire résidentiel." },
+                { icon: Shield, title: "Aides financières généreuses", desc: "En métropole, la prime à l'autoconsommation est supprimée pour les nouvelles demandes concernées depuis le 5 juin 2026. En Corse et en Outre-mer, le barème dépend du territoire, de la puissance et de la date de demande. La TVA à 5,5 % pourrait s'appliquer jusqu'à 9 kWc avec du matériel et un pilotage éligibles." },
                 { icon: Zap, title: "Autonomie énergétique", desc: "Produisez et consommez votre propre électricité. Avec une batterie de stockage, votre taux d'autoconsommation peut passer de 30 % à plus de 70 %." },
                 { icon: CheckCircle, title: "Impact écologique positif", desc: "Un panneau solaire rembourse son empreinte carbone en 2 à 3 ans et produit de l'énergie propre pendant 30+ ans. C'est l'une des énergies les plus vertes disponibles." },
                 { icon: Euro, title: "Valorisation immobilière", desc: "Un logement équipé de panneaux solaires gagne en moyenne 3 à 5 % de valeur sur le marché immobilier. Le DPE (Diagnostic de Performance Énergétique) s'améliore significativement." },
@@ -228,7 +228,7 @@ const ServiceInstallationSolaire = () => {
           <section className="mb-12">
             <h2 className="text-2xl font-bold text-foreground mb-4">Les aides financières pour le solaire en 2026</h2>
             <p className="text-muted-foreground mb-6">
-              Le photovoltaïque bénéficie de plusieurs mécanismes de soutien qui réduisent significativement le coût de votre installation. Attention : contrairement à d'autres travaux de rénovation, les panneaux solaires photovoltaïques ne sont pas éligibles à MaPrimeRénov'.
+              Les mécanismes de soutien éventuels dépendent du territoire, de l'installation et de la date de demande. Attention : contrairement à d'autres travaux de rénovation, les panneaux solaires photovoltaïques ne sont pas éligibles à MaPrimeRénov'.
             </p>
             <div className="overflow-x-auto mb-6">
               <table className="w-full text-sm border border-border rounded-lg overflow-hidden">
@@ -241,9 +241,9 @@ const ServiceInstallationSolaire = () => {
                 </thead>
                 <tbody>
                   {[
-                    ["Prime à l'autoconsommation", "Jusqu'à 370 €/kWc (≤3 kWc)", "Installation ≤ 100 kWc, autoconsommation avec revente surplus"],
-                    ["Obligation d'achat (OA)", "Tarif fixé 20 ans (~0,13 €/kWh)", "Contrat avec EDF OA, installation raccordée"],
-                    ["TVA réduite à 10 %", "Réduction automatique", "Installation ≤ 3 kWc, raccordée au réseau"],
+                    ["Prime à l'autoconsommation", "Métropole : supprimée pour les nouvelles demandes concernées", "Corse / DOM : selon territoire, puissance et date de demande"],
+                    ["Obligation d'achat (OA)", "Selon contrat territorial", "Contrat avec EDF OA, installation raccordée"],
+                    ["TVA sous conditions", "5,5 % possible", "Jusqu'à 9 kWc, matériel et pilotage éligibles ; règles spécifiques en Outre-mer"],
                     ["Exonération d'impôts", "Revenus < 3 kWc non imposables", "Installation ≤ 3 kWc, résidence principale"],
                     ["Aides régionales", "Variable selon la région", "Se renseigner auprès de sa collectivité"],
                   ].map((row, i) => (
@@ -366,11 +366,11 @@ const ServiceInstallationSolaire = () => {
                   <p className="text-sm text-muted-foreground mb-4">Vous consommez directement l'électricité produite et revendez le surplus à EDF OA.</p>
                   <ul className="space-y-2">
                     {[
-                      "Prime à l'autoconsommation (jusqu'à 370 €/kWc)",
+                      "Aides éventuelles selon territoire et date de demande",
                       "Économies immédiates sur la facture",
-                      "Revente du surplus à ~0,13 €/kWh garanti 20 ans",
+                      "Vente du surplus selon contrat territorial",
                       "Possibilité d'ajouter une batterie de stockage",
-                      "Le modèle le plus rentable pour les particuliers",
+                      "Souvent adapté aux particuliers, selon leur consommation",
                     ].map((item, i) => (
                       <li key={i} className="flex gap-2 text-sm">
                         <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
@@ -389,7 +389,7 @@ const ServiceInstallationSolaire = () => {
                   <p className="text-sm text-muted-foreground mb-4">Toute l'électricité produite est injectée sur le réseau et vendue à EDF OA.</p>
                   <ul className="space-y-2">
                     {[
-                      "Tarif de rachat garanti pendant 20 ans",
+                      "Tarif de rachat selon contrat et conditions",
                       "Revenus réguliers et prévisibles",
                       "Adapté si faible consommation diurne",
                       "Pas de prime à l'autoconsommation",

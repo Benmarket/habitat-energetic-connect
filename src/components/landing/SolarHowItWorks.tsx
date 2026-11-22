@@ -15,8 +15,8 @@ const steps = [
     icon: HardHat,
     number: "02",
     title: "Installation par un pro RGE",
-    description: "Les installateurs certifiés RGE de nos partenaires agréés posent vos panneaux en 1 à 2 jours et prennent en charge les démarches administratives.",
-    frhDescription: "Les installateurs certifiés RGE de nos partenaires agréés posent vos panneaux en 1 à 2 jours et prennent en charge les démarches administratives.",
+    description: "Les installateurs certifiés RGE de nos partenaires agréés posent généralement vos panneaux en 1 à 2 jours, selon le chantier, et vous accompagnent dans les démarches liées à leur prestation.",
+    frhDescription: "Les installateurs certifiés RGE de nos partenaires agréés posent généralement vos panneaux en 1 à 2 jours, selon le chantier, et vous accompagnent dans les démarches liées à leur prestation.",
     color: "bg-blue-500",
   },
   {
@@ -30,7 +30,7 @@ const steps = [
     icon: PiggyBank,
     number: "04",
     title: "Économies immédiates",
-    description: "Dès le premier jour, vous produisez votre propre électricité et réduisez votre facture jusqu'à 70%.",
+    description: "Après la mise en service, vous produisez votre propre électricité et pourriez réduire votre facture jusqu'à 70 %, selon votre installation et vos usages.",
     color: "bg-primary",
   },
 ];

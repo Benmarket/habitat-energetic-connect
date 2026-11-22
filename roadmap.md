@@ -43,3 +43,9 @@
 - [x] Vérifier les vrais GLB, leurs ressources internes et l’autonomie des chemins du package et du prompt.
 - [x] Parcourir les pages publiques et inventorier les appellations, certifications, engagements, prix et aides problématiques.
 - [x] Livrer un rapport avec citations, adresses, priorités et limites, sans modifier le site.
+
+# Retouches textuelles approuvées
+- [x] Harmoniser les appellations partenaires et les engagements des pages partagées.
+- [x] Corriger les textes des aides solaires, FAQ, articles et résumés sans changer les prix ou calculs.
+- [x] Vérifier les pages et les contenus relus ; conserver images, témoignages et statuts de publication.
+- [ ] Recontrôler la version publique après la prochaine publication (attend cette publication).

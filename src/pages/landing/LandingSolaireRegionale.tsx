@@ -285,7 +285,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
             &gt; Continuer
           </Button>
           <StepTip icon={ShieldCheck}>
-            Étude <strong>100% gratuite et sans engagement</strong>{isRegional ? ` en ${regionName}` : ""}. Rappel sous 24h.
+            Étude <strong>100% gratuite et sans engagement</strong>{isRegional ? ` en ${regionName}` : ""}. Un conseiller vous rappelle pour en parler.
           </StepTip>
           {dataFooter}
         </div>
@@ -351,7 +351,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
             <Button size="lg" className="flex-[2] text-white font-bold text-lg hover:opacity-90" style={{ backgroundColor: '#5b7a5b' }} onClick={handleStep2Continue}>&gt; Continuer</Button>
           </div>
           <StepTip icon={Sparkles}>
-            <strong>Jusqu'à 11 000 € d'aides cumulables</strong> en 2026 (prime autoconsommation, TVA réduite, Éco-PTZ).
+            <strong>Aides éventuelles selon votre territoire</strong> à vérifier selon votre éligibilité et les conditions applicables.
           </StepTip>
           {dataFooter}
         </div>
@@ -362,7 +362,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
         <div key="step3" className="animate-fade-in">
           <h3 className="text-xl font-bold text-center mb-1" style={{ color: '#5b7a5b' }}>Dernière étape : votre étude offerte</h3>
           <p className="text-center text-xs text-muted-foreground mb-4">
-            Un conseiller vous rappelle sous 24h avec un plan de financement personnalisé.
+            Un conseiller vous rappelle pour étudier votre projet et les possibilités de financement.
           </p>
           <Progress value={progressValue} className="mb-5 h-3" />
           <div className="grid grid-cols-2 gap-3 mb-3">
@@ -380,7 +380,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
             </Button>
           </div>
           <StepTip icon={Clock}>
-            <strong>Réponse sous 24h</strong> avec votre simulation chiffrée et le détail des aides 2026.
+            <strong>Étude personnalisée</strong> avec votre simulation chiffrée et le détail des aides 2026.
           </StepTip>
           {dataFooter}
         </div>
@@ -425,7 +425,7 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
                   content.hero_subtitle
                 ) : (
                   <>
-                    Faites jusqu'à <strong className="text-emerald-600">70% d'économie</strong> tous les mois pendant <span className="bg-gradient-to-r from-amber-400 to-orange-500 px-2 py-0.5 rounded-md text-white font-bold shadow-sm">30 ans</span> avec une centrale solaire en autoconsommation{isRegional ? ` en ${regionName}` : ""}.
+                    Faites jusqu'à <strong className="text-emerald-600">70% d'économie</strong> selon votre installation et vos usages. Des panneaux conçus pour durer jusqu’à <span className="bg-gradient-to-r from-amber-400 to-orange-500 px-2 py-0.5 rounded-md text-white font-bold shadow-sm">30 ans</span>, selon le matériel et son entretien{isRegional ? ` en ${regionName}` : ""}.
                   </>
                 )}
               </p>
@@ -501,8 +501,8 @@ const LandingSolaireRegionaleContent = ({ regionCode }: { regionCode: string }) 
                     <p className="text-base text-foreground leading-relaxed">
                       Le photovoltaïque permet de produire votre propre électricité grâce à l'énergie solaire, 
                       une ressource gratuite et inépuisable. En plus de réduire vos factures, c'est un 
-                      investissement rentable grâce aux aides de l'État.
-                      {simulatorData && ` Le tarif de rachat en ${regionName} est de ${simulatorData.tarif_rachat_0_3}€/kWh.`}
+                      investissement dont la rentabilité dépend de votre projet et des aides éventuelles.
+                      {isRegional && ` Le tarif de rachat dépend du territoire, de la puissance et de la date de demande.`}
                     </p>
                     <div className="flex flex-col items-center">
                       <img src={solarSystemDiagram} alt="Schéma photovoltaïque" className="w-full max-w-[252px] mb-4" />

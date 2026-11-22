@@ -327,8 +327,8 @@ const AidesSection = () => {
               </h3>
               <p className="text-muted-foreground text-sm md:text-base mb-5 max-w-4xl mx-auto leading-snug">
                 {siteMode === "frh"
-                  ? "Notre équipe d'installateurs certifiés RGE vous accompagne dans toutes vos démarches administratives"
-                  : "Nos installateurs partenaires vous accompagnent dans toutes vos démarches administratives"}
+                  ? "Les installateurs de nos partenaires agréés vous accompagnent dans les démarches liées à leur prestation"
+                  : "Les installateurs de nos partenaires agréés vous accompagnent dans les démarches liées à leur prestation"}
               </p>
               <Button
                 size="lg"

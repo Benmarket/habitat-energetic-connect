@@ -36,7 +36,7 @@ const LandingPompeAChaleurContent = () => {
                     Chauffez votre maison de manière économique et écologique
                   </h1>
                   <p className="text-xl text-muted-foreground mb-8">
-                    La pompe à chaleur divise vos factures de chauffage par 3 ou 4 tout en réduisant votre empreinte carbone.
+                    Une pompe à chaleur adaptée pourrait réduire vos factures de chauffage, selon votre logement, votre ancien système et vos usages.
                   </p>
                   <Button size="lg" className="gap-2">
                     Calculer mes économies
@@ -68,7 +68,7 @@ const LandingPompeAChaleurContent = () => {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Haute performance</h3>
                   <p className="text-muted-foreground">
-                    Jusqu'à 75% d'économies sur vos factures de chauffage
+                    Jusqu'à 75% d'économies possibles, selon votre installation et vos usages
                   </p>
                 </div>
                 <div className="text-center">
@@ -86,7 +86,7 @@ const LandingPompeAChaleurContent = () => {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Aides importantes</h3>
                   <p className="text-muted-foreground">
-                    MaPrimeRénov' et CEE pour financer votre installation
+                    MaPrimeRénov' et CEE pourraient contribuer au financement, selon votre éligibilité
                   </p>
                 </div>
               </div>

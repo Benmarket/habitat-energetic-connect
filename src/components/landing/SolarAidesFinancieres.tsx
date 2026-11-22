@@ -10,104 +10,104 @@ interface SolarAidesFinancieresProps {
 const aidesData = {
   france: {
     title: "Les aides financières pour votre installation solaire",
-    subtitle: "Cumulez les aides et réduisez jusqu'à 50% le coût de votre installation.",
-    primeAutoconsoTitle: "Prime à l'autoconsommation (2025)",
+    subtitle: "Les dispositifs éventuels dépendent de votre territoire, de votre installation et de votre éligibilité.",
+    primeAutoconsoTitle: "Prime et rachat : conditions territoriales",
     rows: [
-      { puissance: "≤ 3 kWc", prime: "350 €/kWc", total: "~1 050 €", rachat: "0,1313 €/kWh" },
-      { puissance: "3 – 9 kWc", prime: "260 €/kWc", total: "~2 340 €", rachat: "0,1313 €/kWh" },
-      { puissance: "9 – 36 kWc", prime: "200 €/kWc", total: "~7 200 €", rachat: "0,0788 €/kWh" },
-      { puissance: "36 – 100 kWc", prime: "100 €/kWc", total: "~10 000 €", rachat: "0,0788 €/kWh" },
+      { puissance: "≤ 3 kWc", prime: "Métropole : supprimée*", total: "Corse / DOM : variable*", rachat: "Selon contrat territorial" },
+      { puissance: "3 – 9 kWc", prime: "Métropole : supprimée*", total: "Corse / DOM : variable*", rachat: "Selon contrat territorial" },
+      { puissance: "9 – 36 kWc", prime: "Métropole : supprimée*", total: "Corse / DOM : variable*", rachat: "Selon contrat territorial" },
+      { puissance: "36 – 100 kWc", prime: "Métropole : supprimée*", total: "Corse / DOM : variable*", rachat: "Selon contrat territorial" },
     ],
     otherAides: [
-      { icon: BadgePercent, title: "TVA réduite à 10%", desc: "Pour les installations ≤ 3 kWc raccordées au réseau." },
-      { icon: Landmark, title: "Éco-PTZ", desc: "Prêt à taux zéro jusqu'à 15 000 € pour financer vos travaux." },
-      { icon: TrendingDown, title: "MaPrimeRénov'", desc: "Aide complémentaire selon vos revenus et votre situation." },
-      { icon: Euro, title: "CEE (Certificats d'Économies d'Énergie)", desc: "Bonus versé par les fournisseurs d'énergie." },
+      { icon: BadgePercent, title: "TVA sous conditions", desc: "Un taux de 5,5 % pourrait s’appliquer jusqu’à 9 kWc avec du matériel et un pilotage éligibles." },
+      { icon: Landmark, title: "Financement à vérifier", desc: "L’éco-PTZ ne finance pas automatiquement le photovoltaïque seul ; vérifiez les travaux éligibles." },
+      { icon: TrendingDown, title: "Photovoltaïque seul", desc: "MaPrimeRénov’ ne finance pas le photovoltaïque seul ; le solaire thermique relève d’autres règles." },
+      { icon: Euro, title: "CEE : travaux éligibles", desc: "Les CEE ne sont pas une aide automatique au photovoltaïque seul ; distinguez les travaux de rénovation." },
     ],
   },
   martinique: {
     title: "Aides financières solaires en Martinique",
-    subtitle: "Profitez d'aides renforcées pour les DOM-TOM et réduisez considérablement votre investissement.",
-    primeAutoconsoTitle: "Prime à l'autoconsommation DOM-TOM (2025)",
+    subtitle: "Les dispositifs éventuels dépendent de votre territoire, de votre installation et de votre éligibilité.",
+    primeAutoconsoTitle: "Prime et rachat : conditions territoriales",
     rows: [
-      { puissance: "≤ 3 kWc", prime: "500 €/kWc", total: "~1 500 €", rachat: "0,1313 €/kWh" },
-      { puissance: "3 – 9 kWc", prime: "370 €/kWc", total: "~3 330 €", rachat: "0,1313 €/kWh" },
-      { puissance: "9 – 36 kWc", prime: "210 €/kWc", total: "~7 560 €", rachat: "0,0788 €/kWh" },
-      { puissance: "36 – 100 kWc", prime: "110 €/kWc", total: "~11 000 €", rachat: "0,0788 €/kWh" },
+      { puissance: "≤ 3 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
+      { puissance: "3 – 9 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
+      { puissance: "9 – 36 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
+      { puissance: "36 – 100 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
     ],
     otherAides: [
-      { icon: BadgePercent, title: "TVA réduite à 8,5%", desc: "Taux préférentiel applicable en Martinique pour le solaire." },
-      { icon: Landmark, title: "Éco-PTZ Outre-mer", desc: "Prêt à taux zéro jusqu'à 15 000 € pour vos travaux." },
+      { icon: BadgePercent, title: "TVA selon conditions", desc: "Le taux applicable dépend du territoire, du matériel et de la prestation ; vérifiez le devis." },
+      { icon: Landmark, title: "Financement à vérifier", desc: "L’éco-PTZ ne finance pas automatiquement le photovoltaïque seul ; vérifiez les travaux éligibles." },
       { icon: TrendingDown, title: "Aide CTM", desc: "Aide du Conseil Territorial de la Martinique pour la transition énergétique." },
-      { icon: Euro, title: "CEE majorés DOM", desc: "Bonus CEE renforcés pour les départements d'outre-mer." },
+      { icon: Euro, title: "CEE : travaux éligibles", desc: "Les CEE ne sont pas une aide automatique au photovoltaïque seul ; distinguez les travaux de rénovation." },
     ],
   },
   guadeloupe: {
     title: "Aides financières solaires en Guadeloupe",
-    subtitle: "Des dispositifs renforcés pour l'outre-mer, cumulables pour un investissement minimal.",
-    primeAutoconsoTitle: "Prime à l'autoconsommation DOM-TOM (2025)",
+    subtitle: "Les dispositifs éventuels dépendent de votre territoire, de votre installation et de votre éligibilité.",
+    primeAutoconsoTitle: "Prime et rachat : conditions territoriales",
     rows: [
-      { puissance: "≤ 3 kWc", prime: "500 €/kWc", total: "~1 500 €", rachat: "0,1313 €/kWh" },
-      { puissance: "3 – 9 kWc", prime: "370 €/kWc", total: "~3 330 €", rachat: "0,1313 €/kWh" },
-      { puissance: "9 – 36 kWc", prime: "210 €/kWc", total: "~7 560 €", rachat: "0,0788 €/kWh" },
-      { puissance: "36 – 100 kWc", prime: "110 €/kWc", total: "~11 000 €", rachat: "0,0788 €/kWh" },
+      { puissance: "≤ 3 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
+      { puissance: "3 – 9 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
+      { puissance: "9 – 36 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
+      { puissance: "36 – 100 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
     ],
     otherAides: [
-      { icon: BadgePercent, title: "TVA réduite à 8,5%", desc: "Taux spécial Guadeloupe pour les installations solaires." },
-      { icon: Landmark, title: "Éco-PTZ Outre-mer", desc: "Prêt à taux zéro jusqu'à 15 000 €." },
+      { icon: BadgePercent, title: "TVA selon conditions", desc: "Le taux applicable dépend du territoire, du matériel et de la prestation ; vérifiez le devis." },
+      { icon: Landmark, title: "Financement à vérifier", desc: "L’éco-PTZ ne finance pas automatiquement le photovoltaïque seul ; vérifiez les travaux éligibles." },
       { icon: TrendingDown, title: "Aide Région Guadeloupe", desc: "Subventions du Conseil Régional pour la transition solaire." },
-      { icon: Euro, title: "CEE majorés DOM", desc: "Primes CEE bonifiées pour les DOM-TOM." },
+      { icon: Euro, title: "CEE : travaux éligibles", desc: "Les CEE ne sont pas une aide automatique au photovoltaïque seul ; distinguez les travaux de rénovation." },
     ],
   },
   guyane: {
     title: "Aides financières solaires en Guyane",
-    subtitle: "La Guyane bénéficie d'aides renforcées pour accélérer la transition énergétique.",
-    primeAutoconsoTitle: "Prime à l'autoconsommation DOM-TOM (2025)",
+    subtitle: "Les dispositifs éventuels dépendent de votre territoire, de votre installation et de votre éligibilité.",
+    primeAutoconsoTitle: "Prime et rachat : conditions territoriales",
     rows: [
-      { puissance: "≤ 3 kWc", prime: "500 €/kWc", total: "~1 500 €", rachat: "0,1313 €/kWh" },
-      { puissance: "3 – 9 kWc", prime: "370 €/kWc", total: "~3 330 €", rachat: "0,1313 €/kWh" },
-      { puissance: "9 – 36 kWc", prime: "210 €/kWc", total: "~7 560 €", rachat: "0,0788 €/kWh" },
-      { puissance: "36 – 100 kWc", prime: "110 €/kWc", total: "~11 000 €", rachat: "0,0788 €/kWh" },
+      { puissance: "≤ 3 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
+      { puissance: "3 – 9 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
+      { puissance: "9 – 36 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
+      { puissance: "36 – 100 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
     ],
     otherAides: [
-      { icon: BadgePercent, title: "TVA réduite à 8,5%", desc: "Taux DOM applicable aux installations photovoltaïques." },
-      { icon: Landmark, title: "Éco-PTZ Outre-mer", desc: "Prêt à taux zéro jusqu'à 15 000 €." },
+      { icon: BadgePercent, title: "Pas de TVA en Guyane", desc: "La TVA ne s’applique pas en Guyane (article 294 du CGI)." },
+      { icon: Landmark, title: "Financement à vérifier", desc: "L’éco-PTZ ne finance pas automatiquement le photovoltaïque seul ; vérifiez les travaux éligibles." },
       { icon: TrendingDown, title: "Aide CTG", desc: "Soutien de la Collectivité Territoriale de Guyane." },
-      { icon: Euro, title: "CEE majorés DOM", desc: "Certificats d'économie d'énergie bonifiés outre-mer." },
+      { icon: Euro, title: "CEE : travaux éligibles", desc: "Les CEE ne sont pas une aide automatique au photovoltaïque seul ; distinguez les travaux de rénovation." },
     ],
   },
   corse: {
     title: "Aides financières solaires en Corse",
-    subtitle: "La Corse bénéficie d'aides spécifiques grâce au Plan Énergétique de la Collectivité.",
-    primeAutoconsoTitle: "Prime à l'autoconsommation (2025)",
+    subtitle: "Les dispositifs éventuels dépendent de votre territoire, de votre installation et de votre éligibilité.",
+    primeAutoconsoTitle: "Prime et rachat : conditions territoriales",
     rows: [
-      { puissance: "≤ 3 kWc", prime: "350 €/kWc", total: "~1 050 €", rachat: "0,1313 €/kWh" },
-      { puissance: "3 – 9 kWc", prime: "260 €/kWc", total: "~2 340 €", rachat: "0,1313 €/kWh" },
-      { puissance: "9 – 36 kWc", prime: "200 €/kWc", total: "~7 200 €", rachat: "0,0788 €/kWh" },
-      { puissance: "36 – 100 kWc", prime: "100 €/kWc", total: "~10 000 €", rachat: "0,0788 €/kWh" },
+      { puissance: "≤ 3 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
+      { puissance: "3 – 9 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
+      { puissance: "9 – 36 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
+      { puissance: "36 – 100 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
     ],
     otherAides: [
-      { icon: BadgePercent, title: "TVA à 10%", desc: "Pour les installations ≤ 3 kWc raccordées au réseau." },
-      { icon: Landmark, title: "Éco-PTZ", desc: "Prêt à taux zéro jusqu'à 15 000 €." },
+      { icon: BadgePercent, title: "TVA selon conditions", desc: "Le taux applicable dépend du territoire, du matériel et de la prestation ; vérifiez le devis." },
+      { icon: Landmark, title: "Financement à vérifier", desc: "L’éco-PTZ ne finance pas automatiquement le photovoltaïque seul ; vérifiez les travaux éligibles." },
       { icon: TrendingDown, title: "Aide Collectivité de Corse", desc: "Aides complémentaires de la CdC pour la transition énergétique insulaire." },
-      { icon: Euro, title: "CEE + ADEME Corse", desc: "Dispositifs CEE et accompagnement ADEME Corse." },
+      { icon: Euro, title: "CEE : travaux éligibles", desc: "Les CEE ne sont pas une aide automatique au photovoltaïque seul ; distinguez les travaux de rénovation." },
     ],
   },
   reunion: {
     title: "Aides financières solaires à La Réunion",
-    subtitle: "L'île de La Réunion bénéficie d'aides majorées pour maximiser votre investissement solaire.",
-    primeAutoconsoTitle: "Prime à l'autoconsommation DOM-TOM (2025)",
+    subtitle: "Les dispositifs éventuels dépendent de votre territoire, de votre installation et de votre éligibilité.",
+    primeAutoconsoTitle: "Prime et rachat : conditions territoriales",
     rows: [
-      { puissance: "≤ 3 kWc", prime: "500 €/kWc", total: "~1 500 €", rachat: "0,1313 €/kWh" },
-      { puissance: "3 – 9 kWc", prime: "370 €/kWc", total: "~3 330 €", rachat: "0,1313 €/kWh" },
-      { puissance: "9 – 36 kWc", prime: "210 €/kWc", total: "~7 560 €", rachat: "0,0788 €/kWh" },
-      { puissance: "36 – 100 kWc", prime: "110 €/kWc", total: "~11 000 €", rachat: "0,0788 €/kWh" },
+      { puissance: "≤ 3 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
+      { puissance: "3 – 9 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
+      { puissance: "9 – 36 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
+      { puissance: "36 – 100 kWc", prime: "Selon dispositif", total: "Selon éligibilité", rachat: "Selon contrat territorial" },
     ],
     otherAides: [
-      { icon: BadgePercent, title: "TVA réduite à 8,5%", desc: "Taux préférentiel DOM pour les installations solaires." },
-      { icon: Landmark, title: "Éco-PTZ Outre-mer", desc: "Prêt à taux zéro jusqu'à 15 000 €." },
+      { icon: BadgePercent, title: "TVA selon conditions", desc: "Le taux applicable dépend du territoire, du matériel et de la prestation ; vérifiez le devis." },
+      { icon: Landmark, title: "Financement à vérifier", desc: "L’éco-PTZ ne finance pas automatiquement le photovoltaïque seul ; vérifiez les travaux éligibles." },
       { icon: TrendingDown, title: "Aide Région Réunion", desc: "Subventions du Conseil Régional pour le photovoltaïque." },
-      { icon: Euro, title: "CEE majorés DOM", desc: "Primes CEE renforcées en zone non-interconnectée." },
+      { icon: Euro, title: "CEE : travaux éligibles", desc: "Les CEE ne sont pas une aide automatique au photovoltaïque seul ; distinguez les travaux de rénovation." },
     ],
   },
 };
@@ -134,8 +134,8 @@ const SolarAidesFinancieres = ({ region = "france", onCtaClick }: SolarAidesFina
         <div className={`rounded-2xl overflow-hidden shadow-lg mb-10 grid lg:grid-cols-[1fr_1fr] gap-0 ${revealClass(isVisible, 150).className}`} style={revealClass(isVisible, 150).style}>
           <img src={solarSavingsImg} alt="Couple constatant ses économies d'énergie" className="w-full h-52 lg:h-64 object-cover" loading="lazy" width={800} height={256} />
           <div className="bg-primary/10 flex flex-col items-center justify-center p-8 text-center">
-            <span className="text-4xl lg:text-5xl font-black text-primary">Jusqu'à -50%</span>
-            <span className="text-muted-foreground mt-2 text-sm">sur le coût de votre installation grâce aux aides cumulées</span>
+            <span className="text-4xl lg:text-5xl font-black text-primary">Selon votre projet</span>
+            <span className="text-muted-foreground mt-2 text-sm">aides éventuelles à vérifier avant tout engagement</span>
           </div>
         </div>
 
@@ -152,8 +152,8 @@ const SolarAidesFinancieres = ({ region = "france", onCtaClick }: SolarAidesFina
               <thead>
                 <tr className="border-b border-border bg-muted/50">
                   <th className="px-6 py-3 text-left font-bold text-foreground">Puissance</th>
-                  <th className="px-6 py-3 text-left font-bold text-foreground">Prime / kWc</th>
-                  <th className="px-6 py-3 text-left font-bold text-foreground">Total estimé</th>
+                  <th className="px-6 py-3 text-left font-bold text-foreground">Prime éventuelle</th>
+                  <th className="px-6 py-3 text-left font-bold text-foreground">Conditions territoriales</th>
                   <th className="px-6 py-3 text-left font-bold text-foreground">Tarif rachat surplus</th>
                 </tr>
               </thead>
@@ -170,7 +170,7 @@ const SolarAidesFinancieres = ({ region = "france", onCtaClick }: SolarAidesFina
             </table>
           </div>
           <div className="px-6 py-3 bg-muted/30 text-xs text-muted-foreground">
-            * Montants indicatifs susceptibles d'évoluer. Source : arrêté tarifaire en vigueur.
+            * En métropole, la prime à l'autoconsommation est supprimée pour les nouvelles demandes concernées depuis le 5 juin 2026. En Corse et en Outre-mer, vérifiez le barème applicable au territoire, à la puissance et à la date de demande. MaPrimeRénov' ne finance pas le photovoltaïque seul.
           </div>
         </div>
 

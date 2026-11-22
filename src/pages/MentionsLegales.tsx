@@ -148,7 +148,7 @@ const MentionsLegales = () => {
               </div>
               <div className="space-y-3 text-foreground">
                 <p>
-                  Chez FRH, nous accompagnons les particuliers dans leurs projets de rénovation énergétique, de l'étude jusqu'à la réalisation des travaux. Notre rôle : vous conseiller, vous orienter et réaliser un chantier de qualité.
+                  Prime Énergies est une marque de FRH dédiée à l'information et à la mise en relation avec un réseau de professionnels sélectionnés selon une charte, leur expérience et leur réputation. Prime Énergies ne vend ni n'installe directement. FRH Environnement, partenaire officiel actuel, peut assurer l'étude et la réalisation des travaux dans le cadre de son propre contrat.
                 </p>
                 <p>
                   Pour que tout soit clair entre nous : FRH est une entreprise privée, indépendante des administrations. Ce sont les organismes publics qui décident et versent les aides — nous, nous sommes là pour vous aider à monter votre projet et à y voir clair dans les dispositifs existants.
@@ -211,18 +211,18 @@ const MentionsLegales = () => {
               <div className="flex items-start gap-3 mb-4">
                 <Shield className="w-6 h-6 text-primary mt-1" />
                 <div>
-                  <h2 className="text-2xl font-bold mb-2">6. Nos certifications</h2>
+                  <h2 className="text-2xl font-bold mb-2">6. Qualifications des professionnels</h2>
                 </div>
               </div>
               <div className="space-y-3 text-foreground">
                 <p>
-                  Nos travaux sont réalisés par FRH, certifiée <strong>RGE QualiPV</strong> — un gage de sérieux que vous pouvez vérifier à tout moment sur l'annuaire officiel des professionnels qualifiés :{" "}
+                  Les travaux sont réalisés par les partenaires agréés, notamment FRH Environnement. La qualification <strong>RGE QualiPV</strong>, son domaine et sa validité doivent être vérifiés pour l'entreprise intervenante dans l'annuaire officiel des professionnels qualifiés :{" "}
                   <a href="https://france-renov.gouv.fr" target="_blank" rel="noopener noreferrer" className="text-primary underline">
                     france-renov.gouv.fr
                   </a>.
                 </p>
                 <p>
-                  Les logos QualiPV/RGE présents sur le site correspondent à cette certification. Lorsque nous citons « MaPrimeRénov' », « ANAH », « France Rénov' » ou « ADEME », c'est uniquement pour vous informer des dispositifs disponibles : ces noms appartiennent à leurs organismes respectifs, et nous les mentionnons sans lien de partenariat particulier avec eux.
+                  Les mentions QualiPV/RGE concernent les qualifications des professionnels intervenants, et non un agrément de Prime Énergies par l'État. Lorsque nous citons « MaPrimeRénov' », « ANAH », « France Rénov' » ou « ADEME », c'est uniquement pour vous informer des dispositifs disponibles : ces noms appartiennent à leurs organismes respectifs, et nous les mentionnons sans lien de partenariat particulier avec eux.
                 </p>
               </div>
             </section>

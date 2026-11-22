@@ -14,7 +14,7 @@ const LandingRenovationGlobaleContent = () => {
     <>
       <Helmet>
         <title>Rénovation Globale d'Ampleur | Prime Énergies</title>
-        <meta name="description" content="Rénovez votre logement en profondeur avec un projet de rénovation globale. Aides renforcées pour un gain énergétique minimum de 55%." />
+        <meta name="description" content="Préparez votre rénovation globale : isolation, chauffage et ventilation. Découvrez les aides selon votre éligibilité et les gains estimés par l'audit énergétique." />
         {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
         {seoStatus === "hidden" && <meta name="robots" content="noindex, nofollow" />}
       </Helmet>
@@ -68,16 +68,16 @@ const LandingRenovationGlobaleContent = () => {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Aides majorées</h3>
                   <p className="text-muted-foreground">
-                    Jusqu'à 90% de financement pour les ménages modestes
+                    Financement possible selon vos revenus, les travaux et les plafonds applicables
                   </p>
                 </div>
                 <div className="text-center">
                   <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Building2 className="w-8 h-8 text-green-600" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Performance garantie</h3>
+                  <h3 className="text-xl font-semibold mb-2">Performance étudiée</h3>
                   <p className="text-muted-foreground">
-                    Gain énergétique minimum de 55% après travaux
+                    Gains estimés par l'audit énergétique, à confirmer selon le projet
                   </p>
                 </div>
                 <div className="text-center">

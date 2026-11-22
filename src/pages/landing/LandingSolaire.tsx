@@ -457,7 +457,7 @@ const LandingSolaireContent = () => {
           </div>
 
           <StepTip icon={Sparkles}>
-            <strong>Jusqu'à 11 000 € d'aides cumulables</strong> en 2026 (prime à l'autoconsommation, TVA réduite, Éco-PTZ).
+            <strong>Aides éventuelles selon votre territoire</strong> en 2026 (prime à l'autoconsommation, TVA réduite, Éco-PTZ).
           </StepTip>
           {dataFooter}
         </div>
@@ -586,7 +586,7 @@ const LandingSolaireContent = () => {
           </div>
 
           <StepTip icon={Sparkles}>
-            Chaque région a ses <strong>propres aides cumulables</strong> avec les dispositifs nationaux.
+            Les <strong>aides éventuelles</strong> dépendent de votre territoire et de votre éligibilité.
           </StepTip>
           {dataFooter}
         </div>
@@ -660,7 +660,7 @@ const LandingSolaireContent = () => {
             Dernière étape : votre étude offerte
           </h3>
           <p className="text-center text-xs text-muted-foreground mb-4">
-            Un conseiller vous rappelle sous 24h avec un plan de financement personnalisé.
+            Un conseiller vous rappelle pour étudier votre projet et les possibilités de financement.
           </p>
           <Progress value={progressValue} className="mb-5 h-3" />
 
@@ -707,7 +707,7 @@ const LandingSolaireContent = () => {
           </div>
 
           <StepTip icon={Clock}>
-            <strong>Réponse sous 24h</strong> avec votre simulation chiffrée et le détail des aides 2026.
+            <strong>Étude personnalisée</strong> avec votre simulation chiffrée et le détail des aides 2026.
           </StepTip>
           {dataFooter}
         </div>
@@ -755,7 +755,7 @@ const LandingSolaireContent = () => {
                 Faites installer vos panneaux solaires
               </h1>
               <p className="text-center text-sm lg:text-lg text-foreground mb-3 lg:mb-6">
-                Faites jusqu'à <strong className="text-emerald-600">70% d'économie</strong> tous les mois pendant <span className="bg-gradient-to-r from-amber-400 to-orange-500 px-2 py-0.5 rounded-md text-white font-bold shadow-sm">30 ans</span> avec une centrale solaire en autoconsommation.
+                Faites jusqu'à <strong className="text-emerald-600">70% d'économie</strong> selon votre installation et vos usages. Des panneaux conçus pour durer jusqu’à <span className="bg-gradient-to-r from-amber-400 to-orange-500 px-2 py-0.5 rounded-md text-white font-bold shadow-sm">30 ans</span>, selon le matériel et son entretien.
               </p>
 
               <div className="grid lg:grid-cols-[3fr_2fr] gap-4 lg:gap-10 items-stretch">
@@ -803,7 +803,7 @@ const LandingSolaireContent = () => {
                     <p className="text-base text-foreground leading-relaxed">
                       Le photovoltaïque permet de produire votre propre électricité grâce à l'énergie solaire, une
                       ressource gratuite et inépuisable. En plus de réduire vos factures, c'est un investissement
-                      rentable grâce aux aides de l'État. Avec le contrat EDF OA, vous pouvez revendre le surplus
+                      dont la rentabilité dépend de votre projet et des aides éventuelles. Avec le contrat EDF OA, vous pouvez revendre le surplus
                       d'électricité produit.
                     </p>
                     <div className="flex flex-col items-center">

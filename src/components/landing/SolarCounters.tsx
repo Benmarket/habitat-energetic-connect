@@ -11,9 +11,9 @@ interface CounterItem {
 
 const counters: CounterItem[] = [
   { icon: Users, target: 2000, suffix: "+", label: "Clients satisfaits" },
-  { icon: Zap, target: 70, suffix: "%", label: "D'économie en moyenne" },
-  { icon: ShieldCheck, target: 25, suffix: " ans", label: "De garantie panneaux" },
-  { icon: TrendingUp, target: 7, suffix: " ans", label: "Retour sur investissement" },
+  { icon: Zap, target: 70, suffix: "%", label: "Jusqu’à, selon installation et usages" },
+  { icon: ShieldCheck, target: 25, suffix: " ans", label: "Garanties selon matériel" },
+  { icon: TrendingUp, target: 7, suffix: " ans", label: "Retour indicatif, selon projet" },
 ];
 
 const useCountUp = (target: number, duration: number = 2000, startCounting: boolean = false) => {

@@ -19,7 +19,7 @@ const faqs = [
   { q: "Quel est le prix d'une pompe à chaleur en 2026 ?", a: "Comptez entre 8 000 € et 15 000 € pour une PAC air-eau (pose comprise). Une PAC géothermique coûte entre 15 000 € et 25 000 €. Les aides (MaPrimeRénov', CEE) peuvent couvrir jusqu'à 50 % du montant." },
   { q: "La pompe à chaleur fonctionne-t-elle par grand froid ?", a: "Les PAC modernes fonctionnent jusqu'à -15°C voire -25°C pour les modèles haute performance. Leur COP diminue avec le froid, mais elles restent efficaces dans la grande majorité des régions françaises." },
   { q: "Quelles aides pour installer une pompe à chaleur ?", a: "MaPrimeRénov' (jusqu'à 5 000 €), les Certificats d'Économie d'Énergie (CEE), la TVA à 5,5 % et l'éco-prêt à taux zéro sont les principales aides disponibles. Leur montant dépend de vos revenus et de la nature du projet." },
-  { q: "Quelle est la durée de vie d'une pompe à chaleur ?", a: "Une pompe à chaleur bien entretenue a une durée de vie de 15 à 20 ans. Un entretien annuel obligatoire par un professionnel certifié est nécessaire pour les PAC contenant plus de 2 kg de fluide frigorigène." },
+  { q: "Quelle est la durée de vie d'une pompe à chaleur ?", a: "Une pompe à chaleur bien entretenue a une durée de vie de 15 à 20 ans. Pour les systèmes thermodynamiques de 4 à 70 kW, un entretien est requis au moins tous les deux ans, hors exceptions réglementaires. Les contrôles d'étanchéité relèvent de règles distinctes selon le fluide." },
   { q: "La PAC air-air est-elle éligible aux aides ?", a: "Non, la PAC air-air (climatisation réversible) n'est pas éligible à MaPrimeRénov'. Seules les PAC air-eau et géothermiques bénéficient de cette aide. Les CEE peuvent toutefois s'appliquer dans certains cas." },
   { q: "Une PAC est-elle bruyante ?", a: "Le niveau sonore de l'unité extérieure varie de 45 à 65 dB(A) selon les modèles. Les PAC récentes intègrent des technologies de réduction du bruit (mode silencieux nocturne à 40 dB). La réglementation impose des distances minimales avec le voisinage." },
   { q: "Peut-on coupler une PAC avec des panneaux solaires ?", a: "Oui, c'est une combinaison très avantageuse. Les panneaux solaires produisent l'électricité qui alimente la PAC, réduisant encore davantage votre facture énergétique. Le COP de 3 à 5 de la PAC multiplie chaque kWh solaire produit." },
@@ -239,7 +239,7 @@ const ServicePompesAChaleur = () => {
                   { step: "Démarches administratives", desc: "Demande d'aides MaPrimeRénov' (avant signature du devis idéalement), déclaration en mairie si nécessaire, demande de CEE auprès d'un obligé." },
                   { step: "Installation", desc: "La pose dure 2 à 4 jours : installation de l'unité extérieure, raccordement au circuit hydraulique, mise en place du ballon ECS, câblage électrique et mise en service." },
                   { step: "Mise en service et réglages", desc: "Le technicien vérifie le bon fonctionnement, règle les paramètres de température et de programmation, et vous explique le fonctionnement de la régulation." },
-                  { step: "Entretien annuel", desc: "Un contrat d'entretien annuel (150-250 €/an) est obligatoire pour les PAC de plus de 2 kg de fluide frigorigène. Il inclut le contrôle d'étanchéité et l'optimisation des réglages." },
+                  { step: "Entretien périodique", desc: "Un entretien est requis au moins tous les deux ans pour les systèmes thermodynamiques de 4 à 70 kW, hors exceptions. Un contrat annuel peut être proposé ; les contrôles d'étanchéité dépendent du fluide et des seuils applicables." },
                 ].map((item, i) => (
                   <li key={i} className="flex gap-4 items-start">
                     <span className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm">{i + 1}</span>
@@ -339,7 +339,7 @@ const ServicePompesAChaleur = () => {
           {/* CTA */}
           <section className="mb-12 bg-gradient-to-br from-blue-50 to-primary/5 border border-blue-200 rounded-2xl p-8 text-center">
             <h2 className="text-2xl font-bold text-foreground mb-3">Trouvez votre pompe à chaleur idéale</h2>
-            <p className="text-muted-foreground mb-6 max-w-xl mx-auto">{siteMode === "frh" ? "Obtenez le devis de notre installateur certifié RGE et bénéficiez des meilleures aides disponibles." : "Comparez les offres d'installateurs certifiés RGE près de chez vous et bénéficiez des meilleures aides disponibles."}</p>
+            <p className="text-muted-foreground mb-6 max-w-xl mx-auto">{siteMode === "frh" ? "Obtenez le devis de notre partenaire installateur certifié RGE et bénéficiez des meilleures aides disponibles." : "Comparez les offres d'installateurs certifiés RGE près de chez vous et bénéficiez des meilleures aides disponibles."}</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button asChild size="lg" className="gap-2">
                 <Link to="/landing/pompe-a-chaleur">Voir notre offre PAC <ArrowRight className="w-4 h-4" /></Link>
