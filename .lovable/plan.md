@@ -1,85 +1,68 @@
+# Retouches textuelles mineures — cohérence du site public
 
-# Page /economies — Espace membre "Mes économies réalisées"
+## Où nous en sommes après votre publication
 
-## Objectif
-Créer une fiche technique du logement de l'utilisateur connecté, visualisée en maison 3D générique avec mise en évidence des équipements possédés, et estimation globale des économies réalisées + potentielles.
+Publication du 22 novembre à 15:41 UTC confirmée. Les **neuf pages solaires** affichent maintenant :
+- les installations réalisées par **les partenaires agréés**, y compris le texte de secours de la scène 3D ;
+- **« Prix indicatif TTC »**, avant aide, avec une aide éventuelle selon le territoire.
 
-## Règles d'accès & SEO
-- Réservée aux utilisateurs connectés (redirect `/auth` sinon)
-- `noindex, nofollow` + ajout `Disallow: /economies` dans `robots.txt`
-- Si **locataire** OU **appartement** → écran de blocage avec explication + CTA forum/contact
-- Un toggle admin (`/admin/settings` ou nouvelle page `/admin/economies-access`) permettra de débloquer l'accès aux locataires/appartements globalement
+En revanche, les anciens tableaux « 2025 », certaines réponses de FAQ, l’accueil et plusieurs contenus d’articles restent contradictoires. Vérification ciblée de 16 pages après publication ; pas un nouvel audit intégral de tous les états du site.
 
-## Parcours utilisateur (wizard 6 étapes, état persisté en BDD)
+## 1. Clarifier qui intervient
 
-```
-1. Profil logement     → Locataire/Proprio + Maison/Appart (cases style EligibilityForm)
-   ↓ (si bloqué : écran "Réservé aux propriétaires de maison")
-2. Adresse             → Champ + carte (réutilise composant simulateur solaire)
-3. Surface m²          → Pré-rempli depuis dernier lead/simulation, éditable
-4. Équipements         → Checklist simple par catégorie (chauffage, solaire,
-                          isolation, ECS, ventilation) + champ facultatif
-                          "Installé par qui ?" par équipement
-                         → Si données existent dans leads/simulations : pré-coche
-                            et affiche "Confirmez ou modifiez"
-5. DPE                 → Estimation auto (surface + équipements + zone) avec
-                          mention "estimation, pas valeur certifiée" + CTA
-                          /services/audit-energetique
-6. Dashboard final     → Maison 3D + cards économies + recommandations
-```
+Retoucher uniquement les phrases attribuant des travaux à Prime Énergies, sur l’accueil, les services, les FAQ, les articles concernés et les mentions légales.
 
-## Dashboard final (étape 6)
-- **Maison 3D générique** (extension de `Solar3DShowcase`) : highlight des zones selon équipements cochés (toit = panneaux/solaire thermique, murs = ITE, combles = isolation, intérieur = PAC/poêle…)
-- **Card "Vos économies estimées"** : total €/an global + texte explicatif
-- **Liste des équipements** : chaque ligne cliquable → modal/panel avec détail "ce que cet équipement vous fait économiser" (ou "vous ferait économiser" si non possédé)
-- **Recommandations** : équipements manquants pertinents avec CTA vers simulateur/aides
-- **DPE estimé** badge couleur A→G + lien audit énergétique
+Exemples :
+- **« Notre équipe d’installateurs… » → « Les installateurs de nos partenaires agréés… »**
+- **« Notre installateur… » → « Notre partenaire installateur… »**
+- **« Nous gérons les démarches… » → « Nos partenaires vous accompagnent dans les démarches liées à leur prestation. »**
 
-## Architecture technique
+Conserver « nos conseillers », « notre équipe partenariats » et « nous vous mettons en relation ». Dans les mentions légales, distinguer le rôle de la marque de l’activité réelle de FRH, sans nier que FRH réalise des travaux.
 
-### Tables BDD (migration)
-- `member_home_profiles` (1 par user)
-  - `user_id` (FK profiles), `housing_status` (proprio/locataire), `housing_type` (maison/appartement)
-  - `address`, `postal_code`, `city`, `latitude`, `longitude`
-  - `surface_m2`, `dpe_estimated` (A-G), `dpe_user_provided` (bool)
-  - `wizard_step_completed` (int), `completed_at`
-- `member_home_equipments` (N par profile)
-  - `profile_id`, `category` (heating/solar/insulation/water/ventilation), `equipment_key`, `details` (jsonb : nb panneaux, batterie, surface isolée…), `installed_by` (text, nullable), `status` (owned/wanted)
-- `equipment_savings_reference` (table admin éditable)
-  - `equipment_key`, `category`, `label`, `avg_savings_per_year_eur`, `avg_savings_per_m2_eur`, `description`, `eligible_aids` (text[])
-- `economies_settings` (singleton)
-  - `allow_tenants` (bool, default false), `allow_apartments` (bool, default false)
+## 2. Supprimer les contradictions sur les aides solaires
 
-### Fichiers à créer
-- `src/pages/Economies.tsx` (orchestrateur wizard)
-- `src/components/economies/StepHousingProfile.tsx`
-- `src/components/economies/StepAddress.tsx`
-- `src/components/economies/StepSurface.tsx`
-- `src/components/economies/StepEquipments.tsx`
-- `src/components/economies/StepDPE.tsx`
-- `src/components/economies/Dashboard.tsx`
-- `src/components/economies/House3DGeneric.tsx` (Three Fiber)
-- `src/components/economies/BlockedAccess.tsx`
-- `src/hooks/useMemberHomeProfile.ts`
-- `src/lib/dpeCalculator.ts` (estimation simple)
-- `src/lib/economiesCalculator.ts`
-- `src/pages/AdminEconomiesAccess.tsx` (toggle locataires/appart)
+Retoucher les textes et cellules existants des landings, du service solaire, de la page prime et des FAQ, sans ajouter de nouvelles sections.
 
-### Fichiers à modifier
-- `src/App.tsx` : route `/economies` (auth-guarded) + route admin
-- `public/robots.txt` : `Disallow: /economies`
-- `index.html` head : meta noindex injectée côté composant via Helmet
-- `src/pages/AdminApp.tsx` (ou navigation admin) : entrée vers AdminEconomiesAccess
+- Remplacer les montants généraux obsolètes et les taux de rachat contradictoires par **« Selon le territoire, la puissance et la date de demande »** lorsqu’un barème actuel n’a pas été vérifié.
+- Dire explicitement que **MaPrimeRénov’ ne finance pas le photovoltaïque seul** ; ne pas présenter les CEE ou l’éco-PTZ comme des aides automatiques à ce projet.
+- Conserver la distinction **métropole / Corse / Outre-mer** : absence de prime métropolitaine pour les nouvelles demandes concernées ne signifie pas absence de tout avantage fiscal.
+- Rectifier la TVA : pas de TVA en Guyane ; ailleurs, préciser les conditions applicables plutôt qu’un taux universel.
+- Corriger le badge « MaPrimeRénov’ » associé à la prime photovoltaïque.
 
-### RLS
-- `member_home_profiles` / `member_home_equipments` : user lit/écrit le sien, admins lisent tout
-- `equipment_savings_reference` : public read, admin write
-- `economies_settings` : public read, super_admin write
+**Pas de nouveaux prix ni de nouveaux barèmes inventés.** Vérifier les sources officielles avant toute affirmation réglementaire précise.
 
-## Ce que je NE fais pas dans ce premier jet
-- Pas de calculs DPE ultra-précis (méthode 3CL réglementaire) → estimation simple basée sur ratio kWh/m² par équipement
-- Pas d'éditeur admin pour `equipment_savings_reference` (seed initial via migration, édition future)
-- Pas de comparatif national / gamification
+## 3. Nuancer les promesses, sans alourdir les pages
 
-## Confirmation avant lancement
-Si OK je commence par : migration BDD + seed équipements + route + wizard. Le dashboard 3D sera la 2e passe.
+Petits remplacements locaux :
+- **« Pose en 1 à 2 jours » → « Pose généralement réalisée en 1 à 2 jours, selon le chantier. »**
+- **« 70 % d’économie en moyenne » → « Jusqu’à 70 % d’économies, selon votre installation et vos usages. »** Ne pas étendre cette formule à tous les chiffres du site sans contexte.
+- **« Garantie 25 ans » → « Garanties selon les équipements et les conditions du fabricant. »** lorsque le périmètre n’est pas établi.
+- Résistance cyclonique : conditionner à l’étude de toiture et aux fixations adaptées ; retirer les garanties universelles de vitesse de vent non justifiées.
+- Secours batterie : préciser **« avec un système de secours compatible, dans la limite des circuits alimentés et de l’énergie disponible »**.
+- Rappel : retirer les délais garantis non documentés, sans inventer de nouvelle promesse.
+
+Ne pas réécrire les témoignages clients comme s’ils étaient de nouvelles déclarations authentiques ; signaler séparément ceux qui nécessitent une preuve.
+
+## 4. Harmoniser les articles concernés
+
+Correction ciblée des passages erronés, des résumés, FAQ et métadonnées qui les reprennent :
+- MaPrimeRénov’ présentée comme une aide au photovoltaïque ;
+- maintien de toutes les aides partout en France ;
+- économies ou installation garanties sans conditions ;
+- anciens taux de TVA et modalités de prime.
+
+**Pas de régénération complète, pas de changement de slug, pas d’envoi newsletter.** Les brouillons restent brouillons ; les articles publics restent accessibles à leur adresse actuelle.
+
+## Ce qui ne change pas
+
+Calculs et prix du simulateur, batteries, formulaires, suivi des visiteurs, présentation des pages, bandeau officiel France Rénov’, images et logos.
+
+La mention « 35 €/mois — primes déduites » intégrée à une image restera à traiter séparément : ce n’est pas une retouche de texte de page. Les liens cassés, statistiques d’avis, configuration cookies et autres sujets de l’audit restent hors de cette passe.
+
+## Vérification après retouches
+
+Comparer les phrases avant/après sur les neuf pages solaires, l’accueil, les services, les aides et les articles retouchés ; ouvrir les FAQ et vérifier les résumés. Vérifier ensuite le site public après la prochaine publication, sans déclencher de contact ni de newsletter.
+
+### Détails techniques
+
+Corriger les textes partagés à leur source et les contenus enregistrés concernés, sans changer la logique métier ni les autorisations. Maintenir la cohérence des FAQ visibles et de leurs données structurées. Aucun nouveau module ou changement d’architecture.
