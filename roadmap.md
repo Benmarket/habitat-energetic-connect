@@ -38,3 +38,8 @@
 - [x] Fournir les documents officiels retrouvés et distinguer les hypothèses dont le document d’origine manque.
 - [x] Rédiger le prompt autonome, les consignes par fichier et les contrôles de reproduction.
 - [x] Vérifier et livrer une archive sans secrets, données personnelles, dépendances ou métadonnées de dépôt.
+
+# Audit public des engagements et du package solaire
+- [x] Vérifier les vrais GLB, leurs ressources internes et l’autonomie des chemins du package et du prompt.
+- [x] Parcourir les pages publiques et inventorier les appellations, certifications, engagements, prix et aides problématiques.
+- [x] Livrer un rapport avec citations, adresses, priorités et limites, sans modifier le site.
