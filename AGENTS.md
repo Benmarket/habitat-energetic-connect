@@ -6,6 +6,7 @@
 - Article email analytics use a super_admin-only RPC and latest-message deduplication; never query recipient PII directly in the client.
 - Newsletter broadcasts must use a dedicated marketing provider, not Lovable app-email infrastructure; requests remain visibly blocked until connected.
 - Solar simulation references identify immutable engine snapshots; a separate hashed capability links contacts, while only super_admin RPCs read private reports, without recalculation.
+- Admin simulation exports read full immutable snapshots through the existing super-admin RPC; CSV is formula-safe and bulk PDF exports use one file per reference in a ZIP, with a final synchronous download action for mobile compatibility.
 - Homepage metadata is resolved from public general settings by the Vite HTML transform and embedded as an immutable snapshot consumed by Helmet; fail publication on unreadable settings to prevent first-load drift and mark owned head tags for deduplication.
 - Permission catalog reads must expose only assigned permissions or super-admin access; simulator events remain service-written to prevent direct client injection.
 - Media upload ownership uses Storage's server-assigned owner_id, not folder naming, to preserve existing review and shared editorial paths.

@@ -49,3 +49,8 @@
 - [x] Corriger les textes des aides solaires, FAQ, articles et résumés sans changer les prix ou calculs.
 - [x] Vérifier les pages et les contenus relus ; conserver images, témoignages et statuts de publication.
 - [ ] Recontrôler la version publique après la prochaine publication (attend cette publication).
+
+# Exports des simulations utilisateurs
+- [x] Ajouter les exports CSV et PDF individuels à partir du résultat conservé.
+- [x] Ajouter la sélection multiple et un export groupé avec un PDF par simulation.
+- [x] Tester les téléchargements dans une session administrateur et vérifier les fichiers.
