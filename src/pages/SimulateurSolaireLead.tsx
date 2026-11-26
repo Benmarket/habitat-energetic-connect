@@ -159,7 +159,7 @@ const PROJECT_HORIZONS: { id: Exclude<ProjectHorizon, "">; label: string; desc: 
 // ---------- Helpers ----------
 // Ensoleillement basé sur l'irradiation solaire annuelle moyenne (kWh/m²/an)
 // Sources : PVGIS (Commission Européenne), Ademe. Formulation factuelle, sans exagération.
-function detectRegion(postal: string): { id: string; label: string; sun: string; island: boolean } {
+export function detectRegion(postal: string): { id: string; label: string; sun: string; island: boolean } {
   const p = postal.trim();
   if (p.startsWith("20")) return { id: "corse", label: "Corse", sun: "très élevé (~1 700 kWh/m²/an)", island: true };
   if (p.startsWith("974")) return { id: "reunion", label: "La Réunion", sun: "très élevé (~1 800 kWh/m²/an)", island: true };
@@ -1830,6 +1830,7 @@ const ComputingOverlay = () => {
 const useCountUp = (target: number, duration = 1400) => {
   const [n, setN] = useState(0);
   useEffect(() => {
+    if (duration === 0) { setN(target); return; }
     if (target <= 0) { setN(0); return; }
     const start = Date.now();
     const id = setInterval(() => {
@@ -1976,11 +1977,12 @@ const ProductionConditions = ({
 };
 
 // ---------- Results Panel (hero visible + teaser flouté) ----------
-const ResultsPanel = ({
+export const ResultsPanel = ({
   sim, region, annualBill, savingsMin, savingsMax, savingsMid, savings25,
   aidesMin, aidesMax, roi, co2, trees, suggest, installCost,
   showBattery, setShowBattery, savingsWithBattery, batteryCost, roiWithBattery,
   unlocked, engine, engineOptimal, viewOptimal, setViewOptimal, compRows, onUnlockClick, onEdit, hideMobileSticky, simulationCode,
+  archived = false, reportDate,
 }: any) => {
   const housingLabel = HOUSING.find((h) => h.id === sim.housing)?.label || "—";
   const surfaceLabel = typeof sim.surface === "number" ? `${sim.surface} m²` : "—";
@@ -1997,7 +1999,7 @@ const ResultsPanel = ({
   const dNouvelleFacture = scenario?.nouvelleFactureMensuelle ?? engine?.nouvelleFactureMensuelle ?? 0;
 
   const displayedYearly = showBattery ? savingsWithBattery : savingsMid;
-  const displayedYearlyCounted = useCountUp(displayedYearly);
+  const displayedYearlyCounted = useCountUp(displayedYearly, archived ? 0 : 1400);
   const has25 = dSavings25 > 0;
 
   // ------ Projection 25 ans (par tranches de 5 ans) ------
@@ -2067,9 +2069,9 @@ const ResultsPanel = ({
 
   return (
     <div className="solar-report-print bg-white rounded-3xl shadow-[0_30px_80px_-20px_hsl(24_60%_8%/0.55)] border border-amber-300/40 overflow-hidden">
-      <p className="px-4 py-2 text-xs text-muted-foreground bg-background">Prime Énergies · Compte rendu de simulation solaire · {new Date().toLocaleDateString('fr-FR')}</p>
+      <p className="px-4 py-2 text-xs text-muted-foreground bg-background">Prime Énergies · Compte rendu de simulation solaire · {new Date(reportDate ?? Date.now()).toLocaleDateString('fr-FR')}</p>
       {simulationCode && <p className="px-4 pb-3 text-xs font-mono break-all bg-background text-foreground">Code simulation : {simulationCode}</p>}
-      {unlocked && <div data-pdf-exclude className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-4 bg-background">
+      {unlocked && !archived && <div data-pdf-exclude className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-4 bg-background">
         <Button variant="outline" className="gap-2 whitespace-normal h-auto py-2" onClick={async (event) => {
           const report = event.currentTarget.closest<HTMLElement>('.solar-report-print');
           if (!report) return;
@@ -2477,8 +2479,7 @@ const ResultsPanel = ({
               </h3>
               <p className="text-sm text-slate-700 leading-relaxed">
                 Votre estimation repose sur une hypothèse : <strong>60 %</strong> de votre électricité est consommée pendant les
-                heures de production solaire, entre <strong>9h et 17h</strong>. C'est la moyenne constatée en outre-mer, où la
-                climatisation fonctionne aux heures les plus chaudes.
+                heures de production solaire, entre <strong>9h et 17h</strong>. {engine.zone === 'ZNI' && engine.territoireId !== 'corse' ? "C'est la moyenne constatée en outre-mer, où la climatisation fonctionne aux heures les plus chaudes." : "Il s’agit de l’hypothèse retenue par le simulateur, à vérifier selon vos habitudes réelles."}
               </p>
               <p className="text-sm text-slate-700 leading-relaxed mt-3">
                 Ce chiffre dépend de vos habitudes, et il évolue presque toujours à la hausse après une installation.
@@ -2638,7 +2639,7 @@ const ResultsPanel = ({
             <div className="mb-4 p-4 rounded-xl bg-blue-50 border border-blue-200 flex items-start gap-2.5">
               <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
               <p className="text-xs text-blue-900 leading-relaxed">
-                <strong>TVA : 0 % sur le matériel.</strong> Les panneaux photovoltaïques sont exonérés de TVA outre-mer (article 295 du CGI), et la TVA ne s'applique pas du tout en Guyane (article 294). Seule la prestation de pose est taxée. Sous conditions, voir votre devis.
+                <strong>TVA : 0 % sur le matériel.</strong> {engine.territoireId === 'guyane' ? "La TVA ne s'applique pas en Guyane (article 294 du CGI)." : "Les panneaux photovoltaïques peuvent être exonérés de TVA (article 295 du CGI). La prestation de pose reste taxée selon le régime applicable."} Sous conditions, voir votre devis.
               </p>
             </div>
           )}
@@ -2655,7 +2656,7 @@ const ResultsPanel = ({
 
 
           {/* Prochaines étapes */}
-          <section className="mb-8">
+          <section data-pdf-exclude={archived ? true : undefined} className="mb-8">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Prochaines étapes avec Prime Énergies</h3>
             <div className="grid md:grid-cols-4 gap-3">
               {[
@@ -2677,7 +2678,7 @@ const ResultsPanel = ({
           <p className="mb-6 text-sm text-muted-foreground">Prime Énergies vous met en relation avec des partenaires agréés, sélectionnés selon notre charte, leur expérience et leur réputation. Notre partenaire officiel actuel est FRH Environnement. Les devis et installations sont réalisés par ces professionnels, pas par Prime Énergies.</p>
 
           {/* Réassurance */}
-          <section className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+          <section data-pdf-exclude={archived ? true : undefined} className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
             {[
               { icon: Award, label: "Artisans RGE certifiés" },
               { icon: ShieldCheck, label: "Garantie 25 ans" },
@@ -2692,7 +2693,7 @@ const ResultsPanel = ({
           </section>
 
           {/* CTA final */}
-          <div className="text-center">
+          <div data-pdf-exclude={archived ? true : undefined} className="text-center">
             <Button size="lg" className="w-full max-w-full h-auto whitespace-normal bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-900 font-bold px-4 md:px-10 py-4 md:py-7 rounded-full shadow-[0_15px_40px_-10px_hsl(35_95%_45%/0.7)] md:hover:scale-105 transition-all" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
               <Sun className="w-4 h-4 mr-2 shrink-0" /> <span className="min-w-0">Confirmer mon estimation avec un conseiller</span>
             </Button>

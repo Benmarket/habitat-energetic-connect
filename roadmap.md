@@ -54,3 +54,8 @@
 - [x] Ajouter les exports CSV et PDF individuels à partir du résultat conservé.
 - [x] Ajouter la sélection multiple et un export groupé avec un PDF par simulation.
 - [x] Tester les téléchargements dans une session administrateur et vérifier les fichiers.
+
+# Lisibilité et fidélité des comptes rendus
+- [x] Vérifier les territoires des simulations enregistrées sans modifier les résultats historiques.
+- [x] Réutiliser le rapport du prospect dans l’administration et les PDF, avec graphiques et résultats lisibles.
+- [x] Remplacer les colonnes techniques du CSV par une synthèse claire et tester les exports.

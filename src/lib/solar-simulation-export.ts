@@ -1,3 +1,4 @@
+import { solarSummary } from './solar-archived-report';
 /** Export immutable reports only; never call the calculation engine here. */
 export type SolarSimulationRow = {
   reference: string; created_at: string; lead_id: string | null;
@@ -52,11 +53,7 @@ export function solarCsvCell(value: unknown): string {
   return `"${text.replace(/"/g, '""')}"`;
 }
 export function buildSolarCsv(rows: SolarSimulationRow[]): string {
-  const records = rows.map(row => ({
-    reference: row.reference, created_at: row.created_at, lead_id: row.lead_id,
-    first_name: row.first_name, last_name: row.last_name, email: row.email, phone: row.phone,
-    ...flattenSolarData(row.snapshot, 'snapshot'), snapshot_json: JSON.stringify(row.snapshot),
-  }));
+  const records = rows.map(solarSummary);
   const columns = [...new Set(records.flatMap(record => Object.keys(record)))];
   return '\uFEFF' + [columns.map(solarCsvCell).join(';'), ...records.map(record =>
     columns.map(column => solarCsvCell((record as Record<string, unknown>)[column])).join(';'))].join('\r\n');
@@ -65,84 +62,70 @@ export function buildSolarCsv(rows: SolarSimulationRow[]): string {
 const safeFilename = (reference: string) => reference.replace(/[^a-zA-Z0-9_-]/g, '_');
 
 export async function buildSolarPdf(row: SolarSimulationRow): Promise<Uint8Array> {
-  const { PDFDocument, StandardFonts } = await import('pdf-lib');
-  const pdf = await PDFDocument.create();
-  pdf.setTitle(`Simulation solaire ${row.reference}`); pdf.setAuthor('Prime Énergies');
-  const font = await pdf.embedFont(StandardFonts.Helvetica);
-  const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
-  // Keep French/Latin characters and handle any unsupported user-entered glyph safely.
-  const printable = (text: string) => [...text.replace(/[\u202f\u00a0]/g, ' ')].map(character => {
-    try { font.encodeText(character); return character; } catch { return '?'; }
-  }).join('');
-  let page = pdf.addPage([595.28, 841.89]); let y = 790;
-  const wrap = (text: string, size: number, width: number) => {
-    const lines: string[] = []; let current = '';
-    for (const word of printable(text).split(/\s+/)) {
-      const candidate = current ? `${current} ${word}` : word;
-      if (font.widthOfTextAtSize(candidate, size) <= width) { current = candidate; continue; }
-      if (current) { lines.push(current); current = ''; }
-      for (const char of word) {
-        if (font.widthOfTextAtSize(current + char, size) > width) { lines.push(current); current = ''; }
-        current += char;
-      }
+  const [{ PDFDocument }, { default: html2canvas }, { createRoot }, React, { default: SolarArchivedReport }] = await Promise.all([
+    import('pdf-lib'), import('html2canvas-pro'), import('react-dom/client'), import('react'), import('@/components/SolarArchivedReport'),
+  ]);
+  const host = document.createElement('div');
+  host.className = 'solar-archive-export-host';
+  document.body.appendChild(host);
+  const root = createRoot(host);
+  try {
+    const { flushSync } = await import('react-dom');
+    flushSync(() => root.render(React.createElement(SolarArchivedReport, { row, exportMode: true })));
+    await document.fonts.ready;
+    await Promise.all(Array.from(host.querySelectorAll('img')).map(async image => {
+      // The export is off-screen: lazy images would otherwise never begin loading.
+      image.loading = 'eager';
+      await Promise.race([image.decode().catch(() => {}), new Promise(resolve => setTimeout(resolve, 8000))]);
+    }));
+    // Wait for responsive SVG charts to settle at the fixed export width, without changing the calculations.
+    await new Promise(resolve => setTimeout(resolve, 250));
+    const report = host.querySelector<HTMLElement>('.solar-report-print');
+    if (!report) throw new Error('Rapport indisponible.');
+    report.querySelectorAll('[data-pdf-exclude], button').forEach(node => node.remove());
+    const pdf = await PDFDocument.create();
+    pdf.setTitle(`Simulation solaire ${row.reference}`); pdf.setAuthor('Prime Énergies');
+    const { StandardFonts } = await import('pdf-lib');
+    const font = await pdf.embedFont(StandardFonts.Helvetica);
+    let page = pdf.addPage([595.28, 841.89]); let y = 800;
+    const blocks: HTMLElement[] = [];
+    Array.from(report.children).forEach(child => {
+      // Unwrap the white report body to keep each section/chart intact on paper.
+      if (child === report.lastElementChild) {
+        Array.from(child.children).forEach(inner => {
+          if (inner.getAttribute('aria-hidden') === 'false') blocks.push(...Array.from(inner.children) as HTMLElement[]);
+          else blocks.push(inner as HTMLElement);
+        });
+      } else blocks.push(child as HTMLElement);
+    });
+    for (const block of blocks) {
+      if (!block.isConnected || block.hasAttribute('data-pdf-exclude') || block.getBoundingClientRect().height === 0) continue;
+      const canvas = await html2canvas(block, { scale: 1.6, useCORS: true, logging: false, backgroundColor: null });
+      if (!canvas.width || !canvas.height) continue;
+      const image = await pdf.embedPng(canvas.toDataURL('image/png'));
+      const scale = Math.min(499 / image.width, 720 / image.height);
+      const width = image.width * scale; const height = image.height * scale;
+      if (y - height < 60) { page = pdf.addPage([595.28, 841.89]); y = 800; }
+      page.drawImage(image, { x: 48, y: y - height, width, height });
+      y -= height + 10;
     }
-    if (current) lines.push(current);
-    return lines.length ? lines : ['—'];
-  };
-  const ensure = (height: number) => {
-    if (y - height < 58) { page = pdf.addPage([595.28, 841.89]); y = 790; }
-  };
-  const text = (value: string, size = 10, strong = false) => {
-    const lines = wrap(value, size, 499);
-    for (const line of lines) {
-      ensure(size + 5); page.drawText(line, { x: 48, y, size, font: strong ? bold : font }); y -= size + 5;
-    }
-  };
-  const heading = (title: string) => { ensure(50); y -= 13; text(title, 13, true); y -= 4; };
-  const fields = (data: unknown, labels: Record<string, string>) => {
-    for (const [key, value] of Object.entries(flattenSolarData(data))) {
-      const label = key.split('.').map(part => labels[part] ?? SOLAR_INPUT_LABELS[part] ?? RESULT_LABELS[part] ?? part).join(' / ');
-      text(`${label} : ${solarValueText(value)}`);
-    }
-  };
-  text('PRIME ÉNERGIES', 12, true); y -= 6;
-  text('Compte rendu de simulation solaire', 20, true);
-  text(row.reference, 10, true);
-  text(`Simulation du ${new Date(row.created_at).toLocaleString('fr-FR')}`);
-  text(`Client : ${[row.first_name, row.last_name].filter(Boolean).join(' ') || 'Sans contact'}`);
-  if (row.email) text(`Email : ${row.email}`);
-  if (row.phone) text(`Téléphone : ${row.phone}`);
-  heading('Informations renseignées'); fields(row.snapshot.inputs ?? {}, SOLAR_INPUT_LABELS);
-  const engine = row.snapshot.engine ?? {};
-  heading('Résultat et recommandation enregistrés');
-  const { sans, avec, ...context } = engine;
-  fields(context, RESULT_LABELS);
-  for (const [title, scenario] of [['Sans batterie', sans], ['Avec batterie', avec]] as const) {
-    if (!scenario) continue;
-    heading(title); fields(scenario, RESULT_LABELS);
-  }
-  // Other immutable data (optimal orientation and comparison table) remain available in the PDF.
-  const { inputs: _inputs, engine: _engine, ...other } = row.snapshot;
-  if (Object.keys(other).length) { heading('Données complémentaires conservées'); fields(other, RESULT_LABELS); }
-  heading('Avertissement');
-  text('Calcul automatique et estimatif : des erreurs sont possibles. Les prix, aides et gains sont indicatifs et dépendent du territoire et du projet. Un professionnel recontactera la personne conformément au consentement donné pour vérifier le projet.');
-  text('Prime Énergies met en relation avec des partenaires agréés et ne réalise pas directement les installations. Le remplacement éventuel de la batterie n’est pas inclus.');
-  const pages = pdf.getPages();
-  pages.forEach((item, index) => item.drawText(`Prime Énergies — ${row.reference} — ${index + 1}/${pages.length}`, { x: 48, y: 30, size: 8, font }));
-  return pdf.save();
+    const pages = pdf.getPages();
+    pages.forEach((item, index) => item.drawText(`${row.reference} | ${index + 1}/${pages.length}`, { x: 48, y: 30, size: 8, font }));
+    return await pdf.save();
+  } finally { root.unmount(); host.remove(); }
 }
 
-export async function prepareSolarExport(rows: SolarSimulationRow[], format: SolarExportFormat): Promise<PreparedSolarExport> {
+export async function prepareSolarExport(rows: SolarSimulationRow[], format: SolarExportFormat, renderPdf = buildSolarPdf): Promise<PreparedSolarExport> {
   if (!rows.length) throw new Error('Aucune simulation sélectionnée.');
   const stem = rows.length === 1 ? safeFilename(rows[0].reference) : `simulations-solaires-${rows.length}`;
   if (format === 'csv') return { filename: `${stem}.csv`, blob: new Blob([buildSolarCsv(rows)], { type: 'text/csv;charset=utf-8' }) };
   if (format === 'pdf' && rows.length === 1) {
-    const bytes = await buildSolarPdf(rows[0]);
+    const bytes = await renderPdf(rows[0]);
     return { filename: `${stem}.pdf`, blob: new Blob([bytes as BlobPart], { type: 'application/pdf' }) };
   }
   const { default: JSZip } = await import('jszip'); const zip = new JSZip();
   if (format === 'both') zip.file(`${stem}.csv`, buildSolarCsv(rows));
-  for (const row of rows) zip.file(`${safeFilename(row.reference)}.pdf`, await buildSolarPdf(row));
+  for (const row of rows) zip.file(`${safeFilename(row.reference)}.pdf`, await renderPdf(row));
   return { filename: `${stem}.zip`, blob: await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }) };
 }
 
