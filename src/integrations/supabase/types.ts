@@ -1114,6 +1114,7 @@ export type Database = {
           id: string
           ip_address: string | null
           is_read: boolean
+          solar_simulation_id: string | null
           status: string
           submitted_at: string
           user_agent: string | null
@@ -1127,6 +1128,7 @@ export type Database = {
           id?: string
           ip_address?: string | null
           is_read?: boolean
+          solar_simulation_id?: string | null
           status?: string
           submitted_at?: string
           user_agent?: string | null
@@ -1140,6 +1142,7 @@ export type Database = {
           id?: string
           ip_address?: string | null
           is_read?: boolean
+          solar_simulation_id?: string | null
           status?: string
           submitted_at?: string
           user_agent?: string | null
@@ -1158,6 +1161,13 @@ export type Database = {
             columns: ["form_id"]
             isOneToOne: false
             referencedRelation: "form_configurations_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "form_submissions_solar_simulation_id_fkey"
+            columns: ["solar_simulation_id"]
+            isOneToOne: false
+            referencedRelation: "solar_simulations"
             referencedColumns: ["id"]
           },
         ]
@@ -2539,27 +2549,39 @@ export type Database = {
       solar_simulations: {
         Row: {
           access_hash: string
+          browser: string | null
           created_at: string
+          device_type: string | null
           id: string
+          ip_address: string | null
           lead_id: string | null
           reference: string
           snapshot: Json
+          user_agent: string | null
         }
         Insert: {
           access_hash: string
+          browser?: string | null
           created_at?: string
+          device_type?: string | null
           id?: string
+          ip_address?: string | null
           lead_id?: string | null
           reference?: string
           snapshot: Json
+          user_agent?: string | null
         }
         Update: {
           access_hash?: string
+          browser?: string | null
           created_at?: string
+          device_type?: string | null
           id?: string
+          ip_address?: string | null
           lead_id?: string | null
           reference?: string
           snapshot?: Json
+          user_agent?: string | null
         }
         Relationships: [
           {
@@ -3009,6 +3031,30 @@ export type Database = {
       }
       expire_stale_agent_requests: { Args: never; Returns: undefined }
       forum_public_read_enabled: { Args: never; Returns: boolean }
+      get_admin_form_submission_stats: { Args: never; Returns: Json }
+      get_admin_form_submissions: {
+        Args: { p_form_id?: string }
+        Returns: {
+          attribution: Json | null
+          consent: Json | null
+          data: Json
+          form_id: string
+          id: string
+          ip_address: string | null
+          is_read: boolean
+          solar_simulation_id: string | null
+          status: string
+          submitted_at: string
+          user_agent: string | null
+          user_id: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "form_submissions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_article_email_stats: {
         Args: { p_offset?: number; p_post_id: string }
         Returns: Json

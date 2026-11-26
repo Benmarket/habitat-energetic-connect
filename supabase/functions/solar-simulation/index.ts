@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+import { simulationVisit } from '../_shared/simulation-visit.ts';
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 const hash = async (value: string) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value)))).map(b => b.toString(16).padStart(2, '0')).join('');
 Deno.serve(async req => {
@@ -15,12 +16,13 @@ Deno.serve(async req => {
     if (body.action === 'create') {
       const snapshot = body.snapshot;
       if (!snapshot || JSON.stringify(snapshot).length > 180000 || !/^\d{5}$/.test(snapshot.inputs?.postalCode ?? '') || !(Number(snapshot.inputs?.monthlyBill) > 0)) return json({ error: 'Invalid snapshot' }, 400);
-      const ip = req.headers.get('cf-connecting-ip') || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+      const visit = simulationVisit(req.headers);
+      const ip = visit.ip_address || 'unknown';
       const { data: allowed, error: rateError } = await admin.rpc('check_edge_rate', { p_identifier: ip, p_endpoint: 'solar-simulation', p_max_per_hour: 30 });
       if (rateError || !allowed) return json({ error: 'Rate limited' }, 429);
       // The unique constraint is authoritative; a collision generates a new reference.
       for (let attempt = 0; attempt < 3; attempt++) {
-        const { data, error } = await admin.from('solar_simulations').insert({ snapshot, access_hash }).select('reference').single();
+        const { data, error } = await admin.from('solar_simulations').insert({ snapshot, access_hash, ...visit }).select('reference').single();
         if (!error && data) {
           await admin.from('edge_rate_limits').insert({ identifier: ip, endpoint: 'solar-simulation' });
           return json({ reference: data.reference });

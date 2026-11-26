@@ -3,6 +3,7 @@ import { solarSummary } from './solar-archived-report';
 export type SolarSimulationRow = {
   reference: string; created_at: string; lead_id: string | null;
   first_name: string | null; last_name: string | null; email: string | null; phone: string | null;
+  ip_address?: string | null; user_agent?: string | null; device_type?: string | null; browser?: string | null;
   snapshot: Record<string, any>;
 };
 export type SolarExportFormat = 'csv' | 'pdf' | 'both';

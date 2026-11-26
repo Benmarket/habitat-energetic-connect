@@ -219,7 +219,7 @@ export default function AllLeadsPanel() {
     queryFn: async () => {
       const [forms, subs, news] = await Promise.all([
         supabase.from("form_configurations").select("id, name, form_identifier"),
-        supabase.from("form_submissions").select("id, form_id, data, submitted_at, attribution, consent").order("submitted_at", { ascending: false }).limit(2000),
+        supabase.rpc("get_admin_form_submissions").order("submitted_at", { ascending: false }).limit(2000),
         supabase.from("newsletter_subscribers").select("id, email, source, subscribed_at, created_at, attribution, consent").order("subscribed_at", { ascending: false }).limit(2000),
       ]);
       if (forms.error) throw forms.error;

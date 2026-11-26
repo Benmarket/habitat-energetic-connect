@@ -59,3 +59,7 @@
 - [x] Vérifier les territoires des simulations enregistrées sans modifier les résultats historiques.
 - [x] Réutiliser le rapport du prospect dans l’administration et les PDF, avec graphiques et résultats lisibles.
 - [x] Remplacer les colonnes techniques du CSV par une synthèse claire et tester les exports.
+# Suivi des simulations dans les formulaires
+- [x] Capturer côté serveur l’IP, l’appareil et le navigateur sans changer les calculs.
+- [x] Comptabiliser chaque simulation enregistrée dans le formulaire solaire, sans doublon, puis compléter ses coordonnées.
+- [x] Afficher les données de visite dans les simulations et formulaires ; vérifier le parcours et les accès.

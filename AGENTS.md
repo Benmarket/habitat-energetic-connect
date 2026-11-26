@@ -5,7 +5,7 @@
 - Manual Actualité publication uses a shared explicit newsletter-choice dialog; keep publication success independent from email outcomes.
 - Article email analytics use a super_admin-only RPC and latest-message deduplication; never query recipient PII directly in the client.
 - Newsletter broadcasts must use a dedicated marketing provider, not Lovable app-email infrastructure; requests remain visibly blocked until connected.
-- Solar simulation references identify immutable engine snapshots; a separate hashed capability links contacts, while only super_admin RPCs read private reports, without recalculation.
+- Solar simulation references identify immutable engine snapshots; a separate hashed capability links contacts, while only super_admin RPCs read private reports, without recalculation. Server request headers supply visit metadata, and database triggers maintain one linked form submission per simulation and synchronize contact updates, so counts cannot duplicate or drift.
 - Admin simulation reports replay the public ResultsPanel using immutable snapshots only; PDFs capture its rendered sections and SVG charts, CSV uses fixed human-readable summary columns, and bulk exports retain one PDF per reference in a ZIP through the existing super-admin RPC.
 - Homepage metadata is resolved from public general settings by the Vite HTML transform and embedded as an immutable snapshot consumed by Helmet; fail publication on unreadable settings to prevent first-load drift and mark owned head tags for deduplication.
 - Permission catalog reads must expose only assigned permissions or super-admin access; simulator events remain service-written to prevent direct client injection.

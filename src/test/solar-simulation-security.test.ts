@@ -15,6 +15,10 @@ describe('private solar report access', () => {
     const response = await fetch(`${url}/rest/v1/rpc/get_solar_simulations`, { method: 'POST', headers, body: '{}' });
     expect(response.status).toBe(401);
   });
+  it('anonymous visitors cannot read simulation-linked form submissions', async () => {
+    const response = await fetch(`${url}/rest/v1/rpc/get_admin_form_submissions`, { method: 'POST', headers, body: '{}' });
+    expect(response.status).toBe(401);
+  });
   it('a public reference alone cannot link a contact', async () => {
     const response = await fetch(`${url}/functions/v1/solar-simulation`, { method: 'POST', headers, body: JSON.stringify({ action: 'attach', reference: 'SIM-33563FBC7FC04564AB356F3F0327816A', token: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', contact: { email: 'security-test@example.com', phone: '0600000000', consent: { form_rgpd: true, terms_accepted: true } } }) });
     expect(response.status).toBe(400);

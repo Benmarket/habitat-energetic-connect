@@ -97,27 +97,11 @@ export default function AdminForms() {
     queryKey: ["form-submissions-stats"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("form_submissions")
-        .select("form_id, is_read, status");
+        .rpc("get_admin_form_submission_stats");
       
       if (error) throw error;
       
-      // Calculate stats per form
-      const stats: Record<string, { total: number; unread: number; processed: number }> = {};
-      data.forEach((submission: any) => {
-        if (!stats[submission.form_id]) {
-          stats[submission.form_id] = { total: 0, unread: 0, processed: 0 };
-        }
-        stats[submission.form_id].total++;
-        if (!submission.is_read) {
-          stats[submission.form_id].unread++;
-        }
-        if (submission.status === 'processed' || submission.status === 'converted') {
-          stats[submission.form_id].processed++;
-        }
-      });
-      
-      return stats;
+      return data as Record<string, { total: number; unread: number; processed: number }>;
     },
     refetchInterval: 5000, // Refresh every 5 seconds
   });
@@ -186,10 +170,7 @@ export default function AdminForms() {
       
       // Regular form submissions
       const { data, error } = await supabase
-        .from("form_submissions")
-        .select("*")
-        .eq("form_id", selectedForm.id)
-        .order("submitted_at", { ascending: false });
+        .rpc("get_admin_form_submissions", { p_form_id: selectedForm.id });
       if (error) throw error;
       return data as FormSubmission[];
     },
@@ -587,6 +568,12 @@ export default function AdminForms() {
       surfaceToiture: "Surface toiture",
       puissanceChoisie: "Puissance (kWc)",
       surplusChoice: "Gestion surplus",
+      simulationCode: "Code simulation",
+      factureMensuelle: "Facture actuelle (€/mois)",
+      gainsAnnuels: "Gains (€/an)",
+      contactStatus: "Coordonnées",
+      deviceType: "Appareil",
+      browser: "Navigateur",
       acceptCgu: "CGU acceptées",
       source: "Source",
       status: "Statut",
@@ -634,7 +621,7 @@ export default function AdminForms() {
     const fields = new Set<string>();
     submissions.forEach((sub) => {
       Object.keys(sub.data).forEach((key) => {
-        if (key !== '_attribution') fields.add(key);
+        if (key !== '_attribution' && key !== 'deviceType' && key !== 'browser') fields.add(key);
       });
     });
     return Array.from(fields);
@@ -1318,6 +1305,7 @@ export default function AdminForms() {
                           </div>
                         </TableHead>
                       ))}
+                      <TableHead className="min-w-48">Informations de visite</TableHead>
                       <TableHead className="w-[150px]">Source trafic</TableHead>
                       <TableHead className="w-[150px]">Statut</TableHead>
                       <TableHead className="w-[50px]"></TableHead>
@@ -1339,9 +1327,16 @@ export default function AdminForms() {
                         </TableCell>
                         {getFieldNames().map((field) => (
                           <TableCell key={field} className="max-w-[200px] truncate">
-                            {formatFieldValue(field, submission.data[field])}
+                            {field === 'simulationCode' && submission.data[field] ? <Button variant="link" className="h-auto p-0 text-xs" title={String(submission.data[field])} onClick={() => { setIsSubmissionsOpen(false); navigate(`/admin/simulations-utilisateurs?reference=${encodeURIComponent(submission.data[field])}`); }}>{formatFieldValue(field, submission.data[field])}</Button> : formatFieldValue(field, submission.data[field])}
                           </TableCell>
                         ))}
+                        <TableCell className="text-xs max-w-64">
+                          <div className="space-y-1 break-words">
+                            <p><span className="text-muted-foreground">IP : </span>{submission.ip_address || 'Non enregistrée'}</p>
+                            <p><span className="text-muted-foreground">Appareil : </span>{submission.data?.deviceType || 'Non enregistré'}</p>
+                            <p><span className="text-muted-foreground">Navigateur : </span>{submission.data?.browser || 'Non enregistré'}</p>
+                          </div>
+                        </TableCell>
                         <TableCell className="max-w-[200px]">
                           {submission.data?._attribution ? (
                             <Tooltip>
